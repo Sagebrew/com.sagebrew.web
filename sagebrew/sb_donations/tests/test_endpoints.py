@@ -141,7 +141,8 @@ class DonationEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.donation.object_uuid})
         response = self.client.get(url)
 
-        self.assertEqual(response.data['id'], self.donation.owner_username)
+        self.assertEqual(response.data['owner_username'],
+                         self.donation.owner_username)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_donated_for(self):
@@ -180,3 +181,39 @@ class DonationEndpointTests(APITestCase):
 
         self.assertIsNone(response.data['campaign'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_put(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.put(url, data={}, format='json')
+
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_patch(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.patch(url, data={}, format='json')
+
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_post(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.post(url, data={}, format='json')
+
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.delete(url, data={}, format='json')
+
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)

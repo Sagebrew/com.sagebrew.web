@@ -6,6 +6,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
+from sb_goals.neo_models import Goal, Round
 from sb_registration.utils import create_user_util_test
 
 from sb_campaigns.neo_models import PoliticalCampaign, Position
@@ -13,7 +14,6 @@ from sb_campaigns.neo_models import PoliticalCampaign, Position
 
 class CampaignEndpointTests(APITestCase):
     def setUp(self):
-        cache.clear()
         self.unit_under_test_name = 'campaign'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -29,6 +29,7 @@ class CampaignEndpointTests(APITestCase):
         self.campaign.editors.connect(self.pleb)
         self.pleb.campaign_accountant.connect(self.campaign)
         self.pleb.campaign_editor.connect(self.campaign)
+        cache.clear()
 
     def test_unauthorized(self):
         url = reverse('campaign-list')
@@ -647,6 +648,143 @@ class CampaignEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_donation_create(self):
+        self.client.force_authenticate(user=self.user)
+        active_round = Round(active=True, upcoming=False).save()
+        target_goal = Goal(monetary_requirement=1000, target=True).save()
+        self.campaign.goals.connect(target_goal)
+        self.campaign.active_round.connect(active_round)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 1000
+        }
+        response = self.client.post(url, data=data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], 'Successfully created '
+                                                  'donation.')
+
+    def test_donation_create_invalid_form(self):
+        self.client.force_authenticate(user=self.user)
+        active_round = Round(active=True, upcoming=False).save()
+        target_goal = Goal(monetary_requirement=1000, target=True).save()
+        self.campaign.goals.connect(target_goal)
+        self.campaign.active_round.connect(active_round)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 10.01
+        }
+        response = self.client.post(url, data=data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['amount'],
+                         ['A valid integer is required.'])
+
+    def test_donation_create_two_goals(self):
+        self.client.force_authenticate(user=self.user)
+        active_round = Round(active=True, upcoming=False).save()
+        next_goal = Goal(monetary_requirement=3000, target=False,
+                         total_required=4000).save()
+        target_goal = Goal(monetary_requirement=1000, target=True,
+                           total_required=1000).save()
+        target_goal.next_goal.connect(next_goal)
+        next_goal.previous_goal.connect(target_goal)
+        active_round.goals.connect(target_goal)
+        active_round.goals.connect(next_goal)
+        self.campaign.goals.connect(next_goal)
+        self.campaign.goals.connect(target_goal)
+        self.campaign.active_round.connect(active_round)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 4000
+        }
+        response = self.client.post(url, data=data, format='json')
+        donation = self.campaign.donations.all()[0]
+        self.assertTrue(target_goal.donations.is_connected(donation))
+        self.assertTrue(next_goal.donations.is_connected(donation))
+        self.assertTrue(donation.applied_to.is_connected(target_goal))
+        self.assertTrue(donation.applied_to.is_connected(next_goal))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], 'Successfully created '
+                                                  'donation.')
+
+    def test_donation_create_three_goals(self):
+        self.client.force_authenticate(user=self.user)
+        active_round = Round(active=True, upcoming=False).save()
+        next_goal = Goal(monetary_requirement=3000, target=False,
+                         total_required=4000).save()
+        next_goal2 = Goal(monetary_requirement=60000, target=False,
+                          total_required=67000).save()
+        target_goal = Goal(monetary_requirement=1000, target=True,
+                           total_required=1000).save()
+        target_goal.next_goal.connect(next_goal)
+        next_goal.previous_goal.connect(target_goal)
+        next_goal.next_goal.connect(next_goal2)
+        next_goal2.previous_goal.connect(next_goal)
+        active_round.goals.connect(target_goal)
+        active_round.goals.connect(next_goal)
+        self.campaign.goals.connect(next_goal)
+        self.campaign.goals.connect(target_goal)
+        self.campaign.goals.connect(next_goal2)
+        self.campaign.active_round.connect(active_round)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 4000
+        }
+        response = self.client.post(url, data=data, format='json')
+        donation = self.campaign.donations.all()[0]
+        self.assertTrue(target_goal.donations.is_connected(donation))
+        self.assertTrue(next_goal.donations.is_connected(donation))
+        self.assertTrue(donation.applied_to.is_connected(target_goal))
+        self.assertTrue(donation.applied_to.is_connected(next_goal))
+        self.assertFalse(donation.applied_to.is_connected(next_goal2))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], 'Successfully created '
+                                                  'donation.')
+
+    def test_update_create(self):
+        self.client.force_authenticate(user=self.user)
+        active_round = Round(active=True, upcoming=False).save()
+        target_goal = Goal(monetary_requirement=1000, target=True,
+                           total_required=1000).save()
+        active_round.goals.connect(target_goal)
+        self.campaign.goals.connect(target_goal)
+        self.campaign.active_round.connect(active_round)
+        url = reverse('update-list',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'content': 'Test Content for Update',
+            'title': 'This is a test update'
+        }
+        response = self.client.post(url, data=data, format='json')
+        update = self.campaign.updates.all()[0]
+        self.assertTrue(self.campaign.updates.is_connected(update))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], 'Successfully created '
+                                                  'update.')
+
+    def test_update_create_invalid(self):
+        self.client.force_authenticate(user=self.user)
+        active_round = Round(active=True, upcoming=False).save()
+        target_goal = Goal(monetary_requirement=1000, target=True,
+                           total_required=1000).save()
+        active_round.goals.connect(target_goal)
+        self.campaign.goals.connect(target_goal)
+        self.campaign.active_round.connect(active_round)
+        url = reverse('update-list',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'content': 'Test Content for Update',
+            'title': 'too short'
+        }
+        response = self.client.post(url, data=data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class PositionEndpointTests(APITestCase):

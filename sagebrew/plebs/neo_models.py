@@ -8,7 +8,7 @@ from django.core.cache import cache
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty,
+                      BooleanProperty, FloatProperty, ZeroOrMore,
                       CypherException, DoesNotExist)
 from neomodel import db
 
@@ -235,7 +235,7 @@ class Pleb(Searchable):
     pledged_votes = RelationshipTo('sb_campaigns.neo_models.PoliticalCampaign',
                                    'PLEDGED', model=VoteRelationship)
     donations = RelationshipTo('sb_donations.neo_models.Donation',
-                                     'DONATIONS_GIVEN')
+                               'DONATIONS_GIVEN')
 
     @classmethod
     def get(cls, username):

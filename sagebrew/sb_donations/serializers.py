@@ -1,3 +1,5 @@
+from django.core.cache import cache
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -31,7 +33,7 @@ class DonationValue:
 
 class DonationSerializer(SBSerializer):
     completed = serializers.BooleanField(read_only=True)
-    amount = serializers.IntegerField(validators=[DonationValue(),])
+    amount = serializers.IntegerField(required=True)
     owner_username = serializers.CharField(read_only=True)
 
     donated_for = serializers.SerializerMethodField()
@@ -64,8 +66,9 @@ class DonationSerializer(SBSerializer):
         donation = Donation(**validated_data).save()
         donated_toward = Goal.inflate(
             Campaign.get_current_target_goal(campaign.object_uuid))
+        cache.set("%s_target_goal" % (campaign.object_uuid), donated_toward)
         current_round = Round.nodes.get(object_uuid=
-                                        Campaign.get_accountants(
+                                        Campaign.get_active_round(
                                             campaign.object_uuid))
         current_round.donations.connect(donation)
         donation.associated_round.connect(current_round)
@@ -102,8 +105,8 @@ class DonationSerializer(SBSerializer):
         db.cypher_query(query)
         campaign.donations.connect(donation)
         donation.campaign.connect(campaign)
-        donation.owned_by.connect(donor)
         donor.donations.connect(donation)
+        donation.owned_by.connect(donor)
         return donation
 
     def get_donated_for(self, obj):

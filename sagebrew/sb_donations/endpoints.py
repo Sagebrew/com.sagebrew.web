@@ -71,9 +71,7 @@ class DonationListCreate(generics.ListCreateAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             campaign = Campaign.get(object_uuid=self.kwargs[self.lookup_field])
-            donated_towards = [Goal.nodes.get(object_uuid=goal) for goal in
-                               request.data.get('donated_towards', [])]
-            serializer.save(campaign=campaign, donated_towards=donated_towards)
+            serializer.save(campaign=campaign)
             return Response({"detail": "Successfully created donation.",
                              "status_code": status.HTTP_200_OK},
                             status=status.HTTP_200_OK)

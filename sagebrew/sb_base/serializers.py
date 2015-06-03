@@ -14,24 +14,6 @@ from sb_campaigns.serializers import CampaignSerializer
 from sb_campaigns.neo_models import Campaign
 
 
-class TitleUpdate:
-    def __init__(self):
-        pass
-
-    def __call__(self, value):
-        if (self.object_uuid is not None):
-            message = 'Cannot edit Title when there have ' \
-                      'already been solutions provided'
-            raise serializers.ValidationError(message)
-        return value
-
-    def set_context(self, serializer_field):
-        try:
-            self.object_uuid = serializer_field.parent.instance.object_uuid
-        except AttributeError:
-            self.object_uuid = None
-
-
 class VotableContentSerializer(SBSerializer):
     # TODO Deprecate in favor of id based on
     # http://jsonapi.org/format/#document-structure-resource-objects
@@ -113,8 +95,14 @@ class MarkdownContentSerializer(ContentSerializer):
 
 class TitledContentSerializer(MarkdownContentSerializer):
     title = serializers.CharField(required=False,
-                                  validators=[TitleUpdate(), ],
                                   min_length=15, max_length=140)
+
+    def validate_title(self, value):
+        if (self.object_uuid is not None):
+            message = 'Cannot edit Title when there have ' \
+                      'already been solutions provided'
+            raise serializers.ValidationError(message)
+        return value
 
 
 class CampaignAttributeSerializer(SBSerializer):

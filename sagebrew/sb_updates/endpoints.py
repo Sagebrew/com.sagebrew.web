@@ -12,6 +12,7 @@ from rest_framework import status
 from neomodel import db
 
 from sb_base.views import ObjectRetrieveUpdateDestroy
+from sb_campaigns.neo_models import Campaign
 
 from .serializers import UpdateSerializer
 from .neo_models import Update
@@ -31,6 +32,16 @@ class UpdateListCreate(generics.ListCreateAPIView):
 
     def get_object(self):
         return Update.nodes.get(object_uuid=self.kwargs[self.lookup_field])
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            campaign = Campaign.get(object_uuid=self.kwargs[self.lookup_field])
+            serializer.save(campaign=campaign)
+            return Response({"detail": "Successfully created update.",
+                             "status_code": status.HTTP_200_OK},
+                            status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UpdateRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     serializer_class = UpdateSerializer

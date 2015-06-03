@@ -172,7 +172,6 @@ class Campaign(Searchable):
             res, col = db.cypher_query(query)
             try:
                 target_goal = res[0][0]
-                cache.set("%s_target_goal" % (object_uuid), target_goal)
             except IndexError:
                 target_goal = None
         return target_goal

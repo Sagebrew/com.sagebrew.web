@@ -297,9 +297,10 @@ class Pleb(Searchable):
                     '(c:`Campaign` {object_uuid:"%s"}) RETURN sum(d.amount)' \
                     % (username, campaign_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                return 0
-            donation_amount = res[0][0]
+            try:
+                donation_amount = res[0][0]
+            except IndexError:
+                donation_amount = 0
             cache.set('%s_%s_donation_amount' %
                       (username, campaign_uuid), donation_amount)
         return donation_amount
@@ -342,10 +343,7 @@ class Pleb(Searchable):
                     '[:CAN {active: true}]->(n:`SBAction`) ' \
                     'RETURN n.resource' % self.username
             res, col = db.cypher_query(query)
-            if len(res) == 0:
-                actions = []
-            else:
-                actions = [row[0] for row in res]
+            actions = [row[0] for row in res]
             cache.set("%s_actions" % self.username, actions)
         return actions
 
@@ -356,10 +354,7 @@ class Pleb(Searchable):
                     '[:HAS {active: true}]->(n:`Privilege`) ' \
                     'RETURN n.name' % self.username
             res, col = db.cypher_query(query)
-            if len(res) == 0:
-                privileges = []
-            else:
-                privileges = [row[0] for row in res]
+            privileges = [row[0] for row in res]
             cache.set("%s_privileges" % self.username, privileges)
         return privileges
 
@@ -519,9 +514,10 @@ class Pleb(Searchable):
                 "(f:FriendRequest)-[:REQUEST_TO]->(b:Pleb {username: '%s'}) " \
                 "RETURN f.object_uuid" % (self.username, username)
         res, col = db.cypher_query(query)
-        if len(res) == 0:
+        try:
+            return res[0][0]
+        except IndexError:
             return False
-        return res[0][0]
 
     def determine_reps(self):
         from sb_public_official.utils import determine_reps
@@ -531,8 +527,6 @@ class Pleb(Searchable):
         query = 'MATCH (p:`Pleb` {username: "%s"})-[:DONATIONS_GIVEN]->' \
                 '(d:`Donation`) RETURN d.object_uuid' % (self.username)
         res, col = db.cypher_query(query)
-        if not res:
-            return res
         return [row[0] for row in res]
 
 

@@ -24,11 +24,6 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
     You must give this view the uuid of the campaign you wish to see the goals
     of.
     """
-    # TODO add custom functionality to only allow the owner or editor of a
-    # campaign to add a goal to the campaign. We can use the logic that we
-    # used in sb_donations.endpoints just reversed to allow anyone to see
-    # goals and only editors to create goals
-    # TODO look in to only allowing users other than owner/editors/accountants
     # to view the current and past goals
     serializer_class = GoalSerializer
     permission_classes = (IsAuthenticated,)
@@ -43,7 +38,7 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         if not (request.user.username in
-                    Campaign.get_editors(self.kwargs[self.lookup_field])):
+                Campaign.get_editors(self.kwargs[self.lookup_field])):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "Authentication credentials were "
                                        "not provided."},
@@ -94,12 +89,6 @@ class RoundListCreate(generics.ListCreateAPIView):
     You must give this view the uuid of the campaign you wish to see the
     rounds of.
     """
-    # TODO add custom functionality to only allow the owner or editor of a
-    # campaign to add a round to the campaign. We can use the logic that we
-    # used in sb_donations.endpoints just reversed to allow anyone to see
-    # rounds and only editors to create rounds
-    # TODO look in to only allowing users other than owner/editors/accountants
-    # to view the current and past rounds
     serializer_class = RoundSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = "object_uuid"
@@ -112,7 +101,7 @@ class RoundListCreate(generics.ListCreateAPIView):
         return [Round.inflate(row[0]) for row in res]
 
 
-class RoundRetrieveUpdateDestroy(generics.RetrieveAPIView):
+class RoundRetrieve(generics.RetrieveAPIView):
     serializer_class = RoundSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = "object_uuid"

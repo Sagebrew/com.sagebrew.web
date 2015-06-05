@@ -1,5 +1,3 @@
-from django.core.cache import cache
-
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -9,7 +7,7 @@ from api.utils import gather_request_data
 from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
 from sb_campaigns.neo_models import Campaign
-from sb_goals.neo_models import Goal, Round
+from sb_goals.neo_models import Round
 
 from .neo_models import Donation
 
@@ -64,16 +62,20 @@ class DonationSerializer(SBSerializer):
         validated_data['owner_username'] = donor.username
         campaign = validated_data.pop('campaign', None)
         donation = Donation(**validated_data).save()
+
+        current_round = Round.nodes.get(
+            object_uuid=Campaign.get_active_round(campaign.object_uuid))
+        current_round.donations.connect(donation)
+        donation.associated_round.connect(current_round)
+        # this is commented out because we cannot currently foresee any
+        # use cases for it but we may need it in the future.
+        """
         donated_toward = Goal.inflate(
             Campaign.get_current_target_goal(campaign.object_uuid))
         cache.set("%s_target_goal" % (campaign.object_uuid), donated_toward)
-        current_round = Round.nodes.get(object_uuid=
-                                        Campaign.get_active_round(
-                                            campaign.object_uuid))
-        current_round.donations.connect(donation)
-        donation.associated_round.connect(current_round)
         donated_toward.donations.connect(donation)
         donation.donated_for.connect(donated_toward)
+        """
         # This query manages the relationships between the new donation and
         # the goals in which it will be applied to
         # It gets the current active round of a campaign and gets the sum of
@@ -91,15 +93,10 @@ class DonationSerializer(SBSerializer):
                 '(d:Donation),(cd:Donation { object_uuid:"%s" }) ' \
                 'WITH r, SUM(d.amount) AS total_amount, cd MATCH (r)-' \
                 '[:STRIVING_FOR]->(goals:Goal) WHERE goals.completed=false ' \
-                'AND goals.total_required<=total_amount WITH goals, r, cd, ' \
-                'total_amount, max(goals.total_required) AS max_total MATCH ' \
-                '(r)-[:STRIVING_FOR]->(g:Goal) WHERE ' \
-                'g.total_required=max_total WITH g, goals, r, cd, ' \
-                'total_amount, max_total MATCH (g)-[:NEXT]->(ng:Goal) ' \
-                'WITH goals, r, cd, total_amount, max_total, g, CASE ' \
-                'WHEN g.total_required=total_amount THEN g ELSE ng END ' \
-                'AS ng FOREACH (goal IN [goals, ng]|MERGE(cd)-[:APPLIED_TO]' \
-                '->(goal) MERGE (goal)-[:RECEIVED]->(cd))' \
+                'AND goals.total_required - total_amount <= 0 ' \
+                'WITH goals, r, cd, total_amount FOREACH (goal IN [goals]|' \
+                'MERGE(cd)-[:APPLIED_TO]->(goal) MERGE (goal)-' \
+                '[:RECEIVED]->(cd))' \
                 % (Campaign.get_active_round(campaign.object_uuid),
                    donation.object_uuid)
         db.cypher_query(query)
@@ -128,16 +125,16 @@ class DonationSerializer(SBSerializer):
     def get_owned_by(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
         if relation == "hyperlink":
-            return [reverse('profile_page',
-                            kwargs={"pleb_username": obj.owner_username},
-                            request=request)]
+            return reverse('profile_page',
+                           kwargs={"pleb_username": obj.owner_username},
+                           request=request)
         return obj.owner_username
 
     def get_campaign(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
         campaign = Donation.get_campaign(obj.object_uuid)
-        if relation == "hyperlink":
+        if relation == "hyperlink" and campaign is not None:
             return reverse('campaign-detail',
-                            kwargs={"object_uuid": campaign},
-                            request=request)
+                           kwargs={"object_uuid": campaign},
+                           request=request)
         return campaign

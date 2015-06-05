@@ -1,5 +1,4 @@
-import pytz
-from datetime import datetime
+from dateutil.parser import parse
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -10,8 +9,6 @@ from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-from sb_campaigns.neo_models import PoliticalCampaign, Position
-from sb_goals.neo_models import Goal, Round
 
 from sb_updates.neo_models import Update
 
@@ -33,8 +30,7 @@ class UpdateEndpointsTest(APITestCase):
     def test_unauthorized(self):
         url = reverse('update-detail',
                       kwargs={'object_uuid': self.update.object_uuid})
-        data = {}
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, {}, format='json')
         self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
                                              status.HTTP_403_FORBIDDEN])
 
@@ -74,8 +70,7 @@ class UpdateEndpointsTest(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('update-detail',
                       kwargs={'object_uuid': self.update.object_uuid})
-        data = {}
-        response = self.client.post(url, data=data, format='json')
+        response = self.client.post(url, {}, format='json')
         response_data = {
             'status_code': status.HTTP_405_METHOD_NOT_ALLOWED,
             'detail': 'Method "POST" not allowed.'
@@ -99,7 +94,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['id'], self.update.object_uuid)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_type(self):
         self.client.force_authenticate(user=self.user)
@@ -108,7 +102,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['type'], 'update')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_content(self):
         self.client.force_authenticate(user=self.user)
@@ -117,7 +110,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['content'], self.update.content)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_created(self):
         self.client.force_authenticate(user=self.user)
@@ -125,8 +117,7 @@ class UpdateEndpointsTest(APITestCase):
                       kwargs={'object_uuid': self.update.object_uuid})
         response = self.client.get(url)
 
-        self.assertEqual(response.data['created'], response.data['created'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(parse(response.data['created']), self.update.created)
 
     def test_get_upvotes(self):
         self.client.force_authenticate(user=self.user)
@@ -135,7 +126,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['upvotes'], 0)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_downvotes(self):
         self.client.force_authenticate(user=self.user)
@@ -144,7 +134,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['downvotes'], 0)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_vote_count(self):
         self.client.force_authenticate(user=self.user)
@@ -153,7 +142,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['vote_count'], 0)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_vote_type(self):
         self.client.force_authenticate(user=self.user)
@@ -162,7 +150,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['vote_type'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_view_count(self):
         self.client.force_authenticate(user=self.user)
@@ -171,7 +158,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['view_count'], 0)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_profile(self):
         self.client.force_authenticate(user=self.user)
@@ -179,9 +165,7 @@ class UpdateEndpointsTest(APITestCase):
                       kwargs={'object_uuid': self.update.object_uuid})
         response = self.client.get(url)
 
-        self.assertEqual(response.data['profile'],
-                         "http://testserver/v1/profiles/test_test/")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['profile'], "test_test")
 
     def test_get_url(self):
         self.client.force_authenticate(user=self.user)
@@ -189,8 +173,7 @@ class UpdateEndpointsTest(APITestCase):
                       kwargs={'object_uuid': self.update.object_uuid})
         response = self.client.get(url)
 
-        self.assertEqual(response.data['url'], self.url+url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['url'], self.url + url)
 
     def test_get_last_edited_on(self):
         self.client.force_authenticate(user=self.user)
@@ -198,9 +181,8 @@ class UpdateEndpointsTest(APITestCase):
                       kwargs={'object_uuid': self.update.object_uuid})
         response = self.client.get(url)
 
-        self.assertEqual(response.data['last_edited_on'],
-                         response.data['last_edited_on'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(parse(response.data['last_edited_on']),
+                         self.update.last_edited_on)
 
     def test_get_flagged_by(self):
         self.client.force_authenticate(user=self.user)
@@ -209,7 +191,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['flagged_by'], [])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_html_content(self):
         self.client.force_authenticate(user=self.user)
@@ -218,7 +199,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['html_content'], "<p>Test Content</p>")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_title(self):
         self.client.force_authenticate(user=self.user)
@@ -227,7 +207,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['title'], self.update.title)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_goals(self):
         self.client.force_authenticate(user=self.user)
@@ -236,8 +215,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['goals'], [])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
 
     def test_get_campaign(self):
         self.client.force_authenticate(user=self.user)
@@ -246,7 +223,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['campaign'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_put(self):
         self.client.force_authenticate(user=self.user)
@@ -259,8 +235,7 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.put(url, data=data, format='json')
 
         self.assertEqual(response.data['title'], data['title'])
-        self.assertEqual(response.status_code,
-                         status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_put_content(self):
         self.client.force_authenticate(user=self.user)
@@ -272,8 +247,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.put(url, data=data, format='json')
 
         self.assertEqual(response.data['content'], data['content'])
-        self.assertEqual(response.status_code,
-                         status.HTTP_200_OK)
 
     def test_put_no_content(self):
         self.client.force_authenticate(user=self.user)
@@ -310,8 +283,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.patch(url, data=data, format='json')
 
         self.assertEqual(response.data['content'], data['content'])
-        self.assertEqual(response.status_code,
-                         status.HTTP_200_OK)
 
     def test_post(self):
         self.client.force_authenticate(user=self.user)
@@ -328,4 +299,7 @@ class UpdateEndpointsTest(APITestCase):
                       kwargs={'object_uuid': self.update.object_uuid})
         response = self.client.delete(url)
 
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.data['detail'], "Sorry we do not allow "
+                                                  "deletion of updates.")
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)

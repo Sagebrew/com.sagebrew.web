@@ -264,6 +264,7 @@ function loadQuestion() {
                 loadSolutions("/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?page_size=2&expand=true");
             },
             error: function (XMLHttpRequest) {
+                timeOutId = setTimeout(ajaxFn, 1000);
                 errorDisplay(XMLHttpRequest);
             }
         });

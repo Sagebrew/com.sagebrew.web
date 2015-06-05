@@ -1,5 +1,3 @@
-import pytz
-from datetime import datetime
 from logging import getLogger
 
 from django.core.cache import cache
@@ -18,7 +16,7 @@ logger = getLogger('loggly_logs')
 
 
 class CampaignSerializer(SBSerializer):
-    active = serializers.BooleanField(required=False)
+    active = serializers.BooleanField(required=False, read_only=True)
     biography = serializers.CharField(required=False)
     facebook = serializers.CharField(required=False, allow_null=True)
     linkedin = serializers.CharField(required=False, allow_null=True)
@@ -47,7 +45,7 @@ class CampaignSerializer(SBSerializer):
         owner.campaign.connect(campaign)
         owner.campaign_editor.connect(campaign)
         owner.campaign_accountant.connect(campaign)
-        initial_round = Round(start_date=datetime.now(pytz.utc)).save()
+        initial_round = Round().save()
         initial_round.campaign.connect(campaign)
         campaign.upcoming_round.connect(initial_round)
         campaign.editors.connect(owner)
@@ -69,6 +67,7 @@ class CampaignSerializer(SBSerializer):
         instance.biography = validated_data.get('biography',
                                                 instance.biography)
         instance.save()
+        cache.set(instance.object_uuid, instance)
         return instance
 
     def get_url(self, obj):
@@ -86,7 +85,7 @@ class CampaignSerializer(SBSerializer):
         active_goals = Campaign.get_active_goals(obj.object_uuid)
         if relation == 'hyperlink':
             return [reverse('goal-detail',
-                            kwargs={'object_uuid':row}, request=request)
+                            kwargs={'object_uuid': row}, request=request)
                     for row in active_goals]
         return active_goals
 
@@ -151,7 +150,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         owner.campaign.connect(campaign)
         owner.campaign_editor.connect(campaign)
         owner.campaign_accountant.connect(campaign)
-        initial_round = Round(start_date=datetime.now(pytz.utc)).save()
+        initial_round = Round().save()
         initial_round.campaign.connect(campaign)
         campaign.upcoming_round.connect(initial_round)
         campaign.editors.connect(owner)
@@ -163,8 +162,10 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         return PoliticalCampaign.get_vote_count(obj.object_uuid)
 
     def get_constituents(self, obj):
-        request, _, _, relation, _ = gather_request_data(self.context)
+        request, _, _, relation, expedite = gather_request_data(self.context)
         constituents = PoliticalCampaign.get_constituents(obj.object_uuid)
+        if expedite == 'true':
+            return []
         if relation == 'hyperlink':
             return [reverse('profile_page', kwargs={'pleb_username': row[0]},
                             request=request) for row in constituents]
@@ -187,6 +188,8 @@ class PoliticalVoteSerializer(serializers.Serializer):
 
 
 class EditorSerializer(serializers.Serializer):
+    # profiles is expected to be a list of pleb usernames, not the entire pleb
+    # object
     profiles = serializers.ListField(
         child=serializers.CharField(max_length=30)
     )
@@ -199,24 +202,48 @@ class EditorSerializer(serializers.Serializer):
         :param validated_data:
         :return:
         """
-        for profile in validated_data['profiles']:
+        current_editors = cache.get("%s_editors" % (instance.object_uuid), [])
+        for profile in \
+                list(set(validated_data['profiles']) - set(current_editors)):
             profile_pleb = Pleb.get(username=profile)
             instance.editors.connect(profile_pleb)
             profile_pleb.campaign_editor.connect(instance)
         cache.delete("%s_editors" % (instance.object_uuid))
         return instance
 
+    def remove_profiles(self, instance):
+        for profile in self.data['profiles']:
+            profile_pleb = Pleb.get(username=profile)
+            instance.accountants.disconnect(profile_pleb)
+            profile_pleb.campaign_accountant.disconnect(instance)
+        cache.delete("%s_accountants" % (instance.object_uuid))
+        return instance
+
 
 class AccountantSerializer(serializers.Serializer):
+    # profiles is expected to be a list of pleb usernames, not the entire pleb
+    # object
     profiles = serializers.ListField(
         child=serializers.CharField(max_length=30)
     )
 
     def update(self, instance, validated_data):
-        for profile in validated_data['profiles']:
+        current_accountants = cache.get("%s_accountants" %
+                                        (instance.object_uuid), [])
+        for profile in \
+                list(set(validated_data['profiles']) - set(
+                     current_accountants)):
             profile_pleb = Pleb.get(username=profile)
             instance.accountants.connect(profile_pleb)
             profile_pleb.campaign_accountant.connect(instance)
+        cache.delete("%s_accountants" % (instance.object_uuid))
+        return instance
+
+    def remove_profiles(self, instance,):
+        for profile in self.data['profiles']:
+            profile_pleb = Pleb.get(username=profile)
+            instance.accountants.disconnect(profile_pleb)
+            profile_pleb.campaign_accountant.disconnect(instance)
         cache.delete("%s_accountants" % (instance.object_uuid))
         return instance
 
@@ -235,7 +262,7 @@ class PositionSerializer(SBSerializer):
                        request=request)
 
     def get_campaigns(self, obj):
-        request, expand, _, relation, _ = gather_request_data(self.context)
+        request, _, _, relation, _ = gather_request_data(self.context)
         campaigns = Position.get_campaigns(obj.object_uuid)
         if relation == 'hyperlink':
             return [reverse('campaign-detail',

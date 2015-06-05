@@ -63,8 +63,6 @@ class Goal(SBObject):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:UPDATE_FOR]->' \
                 '(u:`Update`) return u.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
-            return []
         return [row[0] for row in res]
 
     @classmethod
@@ -72,8 +70,6 @@ class Goal(SBObject):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:RECEIVED]->' \
                 '(u:`Donation`) return u.object_uuid' % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
-            return []
         return [row[0] for row in res]
 
     @classmethod
@@ -146,7 +142,7 @@ class Round(SBObject):
     # relationships
     goals = RelationshipTo('sb_goals.neo_models.Goal', "STRIVING_FOR")
     donations = RelationshipTo('sb_donations.neo_models.Donation',
-                              "HAS_DONATIONS")
+                               "HAS_DONATIONS")
     previous_round = RelationshipTo('sb_goals.neo_models.Round', "PREVIOUS")
     next_round = RelationshipTo('sb_goals.neo_models.Round', "NEXT")
     campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
@@ -178,3 +174,6 @@ class Round(SBObject):
             return res[0][0]
         except IndexError:
             return None
+
+    def activate_round(self):
+        pass

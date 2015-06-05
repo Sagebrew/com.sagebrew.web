@@ -31,7 +31,7 @@ class Donation(SBObject):
     # http://stackoverflow.com/questions/3730019/why-not-use-double-or-
     # float-to-represent-currency
     amount = IntegerProperty()
-    #optimization
+    # optimization
     owner_username = StringProperty()
 
     # relationships
@@ -48,7 +48,6 @@ class Donation(SBObject):
     campaign = RelationshipTo('sb_campaigns.neo_models.Campaign', 'DONATED_TO')
     associated_round = RelationshipTo('sb_goals.neo_models.Round',
                                       'ASSOCIATED_ROUND')
-
 
     @classmethod
     def get_donated_for(cls, object_uuid):
@@ -67,14 +66,13 @@ class Donation(SBObject):
                 '[:APPLIED_TO]->(g:`Goal`) RETURN g.object_uuid' % \
                 (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
-            return []
         return [row[0] for row in res]
 
     @classmethod
     def get_campaign(cls, object_uuid):
         query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
-                '[:DONATED_TO]->(c:`Campaign`) RETURN c.object_uuid' % (object_uuid)
+                '[:DONATED_TO]->(c:`Campaign`) RETURN c.object_uuid' % \
+                (object_uuid)
         res, col = db.cypher_query(query)
         try:
             return res[0][0]

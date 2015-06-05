@@ -3,15 +3,13 @@ import markdown
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel import CypherException, db
+from neomodel import db
 
 from api.serializers import SBSerializer
 from api.utils import gather_request_data
 
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
-from sb_campaigns.serializers import CampaignSerializer
-from sb_campaigns.neo_models import Campaign
 
 
 class VotableContentSerializer(SBSerializer):
@@ -36,16 +34,18 @@ class VotableContentSerializer(SBSerializer):
     url = serializers.SerializerMethodField()
 
     def get_profile(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
+        request, expand, _, relation, _ = gather_request_data(self.context)
         owner_username = obj.owner_username
         if expand == "true":
             owner = Pleb.get(username=owner_username)
             profile_dict = PlebSerializerNeo(
                 owner, context={'request': request}).data
-        else:
+        elif relation == 'hyperlink':
             profile_dict = reverse('profile-detail',
                                    kwargs={"username": owner_username},
                                    request=request)
+        else:
+            profile_dict = obj.owner_username
         return profile_dict
 
     def get_url(self, obj):
@@ -123,10 +123,12 @@ class CampaignAttributeSerializer(SBSerializer):
                 '(c:Campaign) RETURN c.object_uuid' % (obj.get_child_label(),
                                                        obj.object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
+        try:
+            if relation == 'hyperlink':
+                return reverse('campaign-detail',
+                               kwargs={'object_uuid': res[0][0]},
+                               request=request)
+
+            return res[0][0]
+        except IndexError:
             return None
-        if relation == 'hyperlink':
-            return reverse('campaign-detail',
-                           kwargs={'object_uuid': res[0][0]},
-                           request=request)
-        return res[0][0]

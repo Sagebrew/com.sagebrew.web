@@ -8,7 +8,6 @@ from rest_framework import status
 from rest_framework.generics import (ListCreateAPIView)
 
 from sb_base.views import ObjectRetrieveUpdateDestroy
-from sb_docstore.utils import add_object_to_table, update_vote, get_vote
 
 from .serializers import VoteSerializer
 from .neo_models import Vote
@@ -48,8 +47,8 @@ class ObjectVotesListCreate(ListCreateAPIView):
             vote_status = int(serializer.data['vote_type'])
             res = handle_vote(parent_object_uuid, vote_status, request, now)
             if res:
-                return Response({"detail":
-                                     "Successfully created or modified vote.",
+                return Response({"detail": "Successfully created or modified "
+                                           "vote.",
                                  "status": status.HTTP_200_OK,
                                  "developer_message": None})
             return Response({"detail": ""})

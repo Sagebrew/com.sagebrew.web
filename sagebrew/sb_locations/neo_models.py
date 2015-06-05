@@ -6,7 +6,7 @@ from api.neo_models import SBObject
 
 
 class Location(SBObject):
-    name = StringProperty()
+    name = StringProperty(read_only=True)
     geo_data = StringProperty(default=None)
 
     encompasses = RelationshipTo('sb_locations.neo_models.Location',
@@ -23,10 +23,11 @@ class Location(SBObject):
             query = 'MATCH (n:`Location` {object_uuid: "%s"}) RETURN n' % \
                     (object_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                return None
-            location = Location.inflate(res[0][0])
-            cache.set(object_uuid, location)
+            try:
+                location = Location.inflate(res[0][0])
+                cache.set(object_uuid, location)
+            except IndexError:
+                location = None
         return location
 
     @classmethod
@@ -35,8 +36,6 @@ class Location(SBObject):
                 '[:ENCOMPASSES]->(e:`Location`) RETURN e.object_uuid' % \
                 (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
-            return res
         return [row[0] for row in res]
 
     @classmethod
@@ -45,8 +44,6 @@ class Location(SBObject):
                 '[:ENCOMPASSED_BY]->(e:`Location`) RETURN e.object_uuid' \
                 % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
-            return res
         return [row[0] for row in res]
 
     @classmethod
@@ -55,6 +52,4 @@ class Location(SBObject):
                 '[:POSITIONS_AVAILABLE]->(p:`Position`) RETURN p.object_uuid' \
                 % (object_uuid)
         res, col = db.cypher_query(query)
-        if not res:
-            return res
         return [row[0] for row in res]

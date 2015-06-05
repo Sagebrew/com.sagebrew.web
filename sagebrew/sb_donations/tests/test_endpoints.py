@@ -1,6 +1,3 @@
-import pytz
-from datetime import datetime
-
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -10,8 +7,6 @@ from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-from sb_campaigns.neo_models import PoliticalCampaign, Position
-from sb_goals.neo_models import Goal, Round
 
 from sb_donations.neo_models import Donation
 
@@ -26,13 +21,12 @@ class DonationEndpointTests(APITestCase):
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         self.donation = Donation(completed=False, amount=1000,
-                             owner_username=self.user.username).save()
+                                 owner_username=self.user.username).save()
 
     def test_unauthorized(self):
         url = reverse('donation-detail',
                       kwargs={'object_uuid': self.donation.object_uuid})
-        data = {}
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, {}, format='json')
         self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
                                              status.HTTP_403_FORBIDDEN])
 
@@ -72,8 +66,7 @@ class DonationEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('donation-detail',
                       kwargs={'object_uuid': self.donation.object_uuid})
-        data = {}
-        response = self.client.post(url, data=data, format='json')
+        response = self.client.post(url, {}, format='json')
         response_data = {
             'status_code': status.HTTP_405_METHOD_NOT_ALLOWED,
             'detail': 'Method "POST" not allowed.'
@@ -90,7 +83,8 @@ class DonationEndpointTests(APITestCase):
         self.assertEqual(response.data['detail'],
                          "Sorry, we currently do not allow for users to "
                          "query all donations for every campaign.")
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_get(self):
         self.client.force_authenticate(user=self.user)
@@ -106,7 +100,6 @@ class DonationEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['id'], self.donation.object_uuid)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_type(self):
         self.client.force_authenticate(user=self.user)
@@ -115,7 +108,6 @@ class DonationEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['type'], 'donation')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_completed(self):
         self.client.force_authenticate(user=self.user)
@@ -124,7 +116,6 @@ class DonationEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['completed'], self.donation.completed)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_amount(self):
         self.client.force_authenticate(user=self.user)
@@ -133,7 +124,6 @@ class DonationEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['amount'], self.donation.amount)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_owner_username(self):
         self.client.force_authenticate(user=self.user)
@@ -143,7 +133,6 @@ class DonationEndpointTests(APITestCase):
 
         self.assertEqual(response.data['owner_username'],
                          self.donation.owner_username)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_donated_for(self):
         self.client.force_authenticate(user=self.user)
@@ -152,7 +141,6 @@ class DonationEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['donated_for'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_applied_to(self):
         self.client.force_authenticate(user=self.user)
@@ -161,7 +149,6 @@ class DonationEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['applied_to'], [])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_owned_by(self):
         self.client.force_authenticate(user=self.user)
@@ -171,7 +158,6 @@ class DonationEndpointTests(APITestCase):
 
         self.assertEqual(response.data['owned_by'],
                          self.donation.owner_username)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_campaign(self):
         self.client.force_authenticate(user=self.user)
@@ -180,7 +166,6 @@ class DonationEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['campaign'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_put(self):
         self.client.force_authenticate(user=self.user)

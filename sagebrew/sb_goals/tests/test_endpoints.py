@@ -1,5 +1,6 @@
 import pytz
 from datetime import datetime
+from dateutil.parser import parse
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -10,7 +11,6 @@ from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-from sb_campaigns.neo_models import PoliticalCampaign, Position
 
 from sb_goals.neo_models import Goal, Round
 
@@ -34,8 +34,7 @@ class GoalEndpointTests(APITestCase):
     def test_unauthorized(self):
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
-        data = {}
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, {}, format='json')
         self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
                                              status.HTTP_403_FORBIDDEN])
 
@@ -75,8 +74,7 @@ class GoalEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
-        data = {}
-        response = self.client.post(url, data=data, format='json')
+        response = self.client.post(url, {}, format='json')
         response_data = {
             'status_code': status.HTTP_405_METHOD_NOT_ALLOWED,
             'detail': 'Method "POST" not allowed.'
@@ -399,8 +397,7 @@ class RoundEndpointTests(APITestCase):
     def test_unauthorized(self):
         url = reverse('round-detail',
                       kwargs={'object_uuid': self.round.object_uuid})
-        data = {}
-        response = self.client.post(url, data, format='json')
+        response = self.client.post(url, {}, format='json')
         self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
                                              status.HTTP_403_FORBIDDEN])
 
@@ -440,8 +437,7 @@ class RoundEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('round-detail',
                       kwargs={'object_uuid': self.round.object_uuid})
-        data = {}
-        response = self.client.post(url, data=data, format='json')
+        response = self.client.post(url, {}, format='json')
         response_data = {
             'status_code': status.HTTP_405_METHOD_NOT_ALLOWED,
             'detail': 'Method "POST" not allowed.'
@@ -465,7 +461,6 @@ class RoundEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['active'], self.round.active)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_id(self):
         self.client.force_authenticate(user=self.user)
@@ -474,7 +469,6 @@ class RoundEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['id'], self.round.object_uuid)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_type(self):
         self.client.force_authenticate(user=self.user)
@@ -483,7 +477,6 @@ class RoundEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['type'], 'round')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_campaign(self):
         self.client.force_authenticate(user=self.user)
@@ -492,7 +485,6 @@ class RoundEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['campaign'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_start_date(self):
         self.client.force_authenticate(user=self.user)
@@ -500,9 +492,8 @@ class RoundEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.round.object_uuid})
         response = self.client.get(url)
 
-        self.assertEqual(response.data['start_date'],
-                         response.data['start_date'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(parse(response.data['start_date']),
+                         self.round.start_date)
 
     def test_get_completed(self):
         self.client.force_authenticate(user=self.user)
@@ -511,7 +502,6 @@ class RoundEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['completed'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_goals(self):
         self.client.force_authenticate(user=self.user)
@@ -520,7 +510,6 @@ class RoundEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['goals'], [])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_previous_round(self):
         self.client.force_authenticate(user=self.user)
@@ -529,7 +518,6 @@ class RoundEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['previous_round'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_next_round(self):
         self.client.force_authenticate(user=self.user)
@@ -538,7 +526,6 @@ class RoundEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['next_round'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_patch(self):
         self.client.force_authenticate(user=self.user)

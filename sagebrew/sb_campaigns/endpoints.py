@@ -13,12 +13,11 @@ from neomodel import db
 
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrAccountant,
                              IsOwnerOrEditor)
-from plebs.neo_models import Pleb
 from sb_votes.utils import handle_vote
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, AccountantSerializer,
-                          PositionSerializer,PoliticalVoteSerializer)
+                          PositionSerializer, PoliticalVoteSerializer)
 from .neo_models import Campaign, PoliticalCampaign, Position
 
 
@@ -69,7 +68,6 @@ class CampaignViewSet(viewsets.ModelViewSet):
         """
         serializer = self.get_serializer(self.get_object(),
                                          data=request.data)
-        self.check_object_permissions(request, self.get_object())
         if serializer.is_valid():
             serializer.save()
             return Response({"detail": "Successfully added specified users "
@@ -95,15 +93,10 @@ class CampaignViewSet(viewsets.ModelViewSet):
         """
         serializer = self.get_serializer(data=request.data)
         queryset = self.get_object()
-        self.check_object_permissions(request, queryset)
         if serializer.is_valid():
             # The profiles key here refers to a list of usernames
             # not the actual user objects
-            for profile in serializer.data['profiles']:
-                profile_pleb = Pleb.get(username=profile)
-                queryset.editors.disconnect(profile_pleb)
-                profile_pleb.campaign_editor.disconnect(queryset)
-            cache.delete("%s_editors" % (queryset.object_uuid))
+            serializer.remove_profiles(queryset)
             return Response({"detail": "Successfully removed specified "
                                        "editors from your campaign.",
                              "status": status.HTTP_200_OK,
@@ -127,7 +120,6 @@ class CampaignViewSet(viewsets.ModelViewSet):
         """
         serializer = self.get_serializer(self.get_object(),
                                          data=request.data)
-        self.check_object_permissions(request, self.get_object())
         if serializer.is_valid():
             serializer.save()
             return Response({"detail": "Successfully added specified users to"
@@ -154,13 +146,8 @@ class CampaignViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(data=request.data)
         queryset = self.get_object()
-        self.check_object_permissions(request, queryset)
         if serializer.is_valid():
-            for profile in serializer.data['profiles']:
-                profile_pleb = Pleb.get(username=profile)
-                queryset.accountants.disconnect(profile_pleb)
-                profile_pleb.campaign_accountant.disconnect(queryset)
-            cache.delete("%s_accountants" % (queryset.object_uuid))
+            serializer.remove_profiles(queryset)
             return Response({"detail": "Successfully removed specified "
                                        "accountants from your campaign.",
                              "status": status.HTTP_200_OK,
@@ -169,7 +156,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
-                                      IsOwnerOrAccountant,))
+                                                       IsOwnerOrAccountant,))
     def accountants(self, request, object_uuid=None):
         """
         This is a method on the endpoint because there should be no reason

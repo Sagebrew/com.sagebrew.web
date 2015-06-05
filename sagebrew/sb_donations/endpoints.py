@@ -2,17 +2,12 @@ from logging import getLogger
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets, generics
-from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import status
 
-from neomodel import db, DoesNotExist
+from neomodel import db
 
-from api.permissions import IsOwnerOrEditorOrAccountant, IsOwnerOrAccountant, IsOwnerOrAdmin
-from plebs.neo_models import Pleb
-from plebs.serializers import PlebSerializerNeo
 from sb_campaigns.neo_models import Campaign
-from sb_goals.neo_models import Goal
 
 from .neo_models import Donation
 from .serializers import DonationSerializer
@@ -47,6 +42,7 @@ class DonationViewSet(viewsets.ReadOnlyModelViewSet):
                                    "allowed to see its detail page.",
                          "status_code": status.HTTP_403_FORBIDDEN},
                         status=status.HTTP_403_FORBIDDEN)
+
 
 class DonationListCreate(generics.ListCreateAPIView):
     """

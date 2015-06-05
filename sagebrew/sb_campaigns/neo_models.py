@@ -85,7 +85,7 @@ class Campaign(Searchable):
     position = RelationshipTo('sb_campaigns.neo_models.Position',
                               'RUNNING_FOR')
     active_round = RelationshipTo('sb_goals.neo_models.Round',
-                                   "CURRENT_ROUND")
+                                  "CURRENT_ROUND")
     upcoming_round = RelationshipTo('sb_goals.neo_models.Round',
                                     "UPCOMING_ROUND")
 
@@ -93,8 +93,15 @@ class Campaign(Searchable):
     def get(cls, object_uuid):
         campaign = cache.get(object_uuid)
         if campaign is None:
-            campaign = cls.nodes.get(object_uuid=object_uuid)
-            cache.set(object_uuid, campaign)
+            query = 'MATCH (c:`Campaign` {object_uuid: "%s"}) RETURN c' % \
+                (object_uuid)
+            res, col = db.cypher_query(query)
+            try:
+                campaign = Campaign.inflate(res[0][0])
+                cache.set(object_uuid, campaign)
+                return campaign
+            except IndexError:
+                campaign = None
         return campaign
 
     @classmethod
@@ -102,7 +109,7 @@ class Campaign(Searchable):
         editors = cache.get("%s_editors" % (object_uuid))
         if editors is None:
             query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
-                    '[:CAN_BE_EDITED_BY]-(p:`Pleb`) RETURN p.username' \
+                    '[:CAN_BE_EDITED_BY]->(p:`Pleb`) RETURN p.username' \
                     % (object_uuid)
             res, col = db.cypher_query(query)
             editors = [row[0] for row in res]
@@ -114,7 +121,7 @@ class Campaign(Searchable):
         accountants = cache.get("%s_accountants" % (object_uuid))
         if accountants is None:
             query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
-                    '[:CAN_VIEW_MONETARY_DATA]-(p:`Pleb`) RETURN p.username' \
+                    '[:CAN_VIEW_MONETARY_DATA]->(p:`Pleb`) RETURN p.username' \
                     % (object_uuid)
             res, col = db.cypher_query(query)
             accountants = [row[0] for row in res]
@@ -123,13 +130,13 @@ class Campaign(Searchable):
 
     @classmethod
     def get_campaign_helpers(cls, object_uuid):
-        return Campaign.get_accountants(object_uuid) + \
-               Campaign.get_editors(object_uuid)
+        return Campaign.get_accountants(object_uuid) + Campaign.get_editors(
+            object_uuid)
 
     @classmethod
     def get_url(cls, object_uuid, request):
         query = 'MATCH (c:`Campaign` {object_uuid:"%s"})-' \
-                '[:WAGED_BY]-(p:`Pleb`) return p.username' % (object_uuid)
+                '[:WAGED_BY]->(p:`Pleb`) return p.username' % (object_uuid)
         res, col = db.cypher_query(query)
         try:
             return reverse('action_saga',
@@ -176,7 +183,6 @@ class Campaign(Searchable):
                 target_goal = None
         return target_goal
 
-
     @classmethod
     def get_active_round(cls, object_uuid):
         active_round = cache.get("%s_active_round" % (object_uuid))
@@ -211,7 +217,7 @@ class Campaign(Searchable):
     def get_updates(cls, object_uuid):
         updates = cache.get("%s_updates" % (object_uuid))
         if updates is None:
-            query = 'MATCH (c:`Campaign` {object_uuid:"%s"})-[:HAS_UPDATE]-' \
+            query = 'MATCH (c:`Campaign` {object_uuid:"%s"})-[:HAS_UPDATE]->' \
                     '(u:`Update`) WHERE u.to_be_deleted=false ' \
                     'RETURN u.object_uuid' % (object_uuid)
             res, col = db.cypher_query(query)
@@ -232,11 +238,6 @@ class Campaign(Searchable):
             except IndexError:
                 position = None
         return position
-
-    def fetch_url(self, request):
-        return reverse('action_saga',
-                       kwargs={"username": self.owner_username},
-                       request=request)
 
 
 class PoliticalCampaign(Campaign):
@@ -276,8 +277,9 @@ class PoliticalCampaign(Campaign):
                 'r.active=true RETURN count(r)' % (object_uuid)
         res, col = db.cypher_query(query)
         try:
-            cache.set("%s_vote_count" % (object_uuid), res[0][0])
-            return res[0][0]
+            vote_count = res[0][0]
+            cache.set("%s_vote_count" % (object_uuid), vote_count)
+            return vote_count
         except IndexError:
             return None
 
@@ -309,9 +311,6 @@ class Position(SBObject):
             query = 'MATCH (p:`Position` {object_uuid:"%s"}) RETURN p' % \
                     (object_uuid)
             res, col = db.cypher_query(query)
-            if not res:
-                cache.delete(object_uuid)
-                return None
             try:
                 position = Position.inflate(res[0][0])
                 cache.set(object_uuid, position)
@@ -323,8 +322,9 @@ class Position(SBObject):
     def get_campaigns(cls, object_uuid):
         campaigns = cache.get("%s_campaigns" % (object_uuid))
         if campaigns is None:
-            query = 'MATCH (p:`Position` {object_uuid: "%s"})-[:CAMPAIGNS]-' \
-                    '(c:`PoliticalCampaign`) RETURN c.object_uuid' % (object_uuid)
+            query = 'MATCH (p:`Position` {object_uuid: "%s"})-[:CAMPAIGNS]->' \
+                    '(c:`PoliticalCampaign`) RETURN c.object_uuid' % \
+                    (object_uuid)
             res, col = db.cypher_query(query)
             campaigns = [row[0] for row in res]
             cache.set("%s_campaigns" % (object_uuid), campaigns)
@@ -335,7 +335,7 @@ class Position(SBObject):
         location = cache.get("%s_location" % (object_uuid))
         if location is None:
             query = 'MATCH (p:`Position` {object_uuid: "%s"})-' \
-                    '[:AVAILABLE_WITHIN]-(c:`Location`) ' \
+                    '[:AVAILABLE_WITHIN]->(c:`Location`) ' \
                     'RETURN c.object_uuid' % (object_uuid)
             res, col = db.cypher_query(query)
             try:

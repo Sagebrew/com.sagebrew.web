@@ -8,8 +8,8 @@ from django.core.cache import cache
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, ZeroOrMore,
-                      CypherException, DoesNotExist)
+                      BooleanProperty, FloatProperty, CypherException,
+                      DoesNotExist)
 from neomodel import db
 
 from api.neo_models import SBObject
@@ -544,6 +544,8 @@ class Address(SBObject):
 
     # Relationships
     owned_by = RelationshipTo("Pleb", 'LIVES_IN')
+    encompassed_by = RelationshipTo('sb_locations.neo_models.Location',
+                                    'ENCOMPASSED_BY')
 
 
 class FriendRequest(SBObject):

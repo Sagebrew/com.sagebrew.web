@@ -1,6 +1,6 @@
 from neomodel import (BooleanProperty, DateTimeProperty, StringProperty,
                       StructuredNode, IntegerProperty, Relationship,
-                      StructuredRel, FloatProperty, RelationshipTo, db)
+                      StructuredRel, FloatProperty, RelationshipTo)
 
 from api.neo_models import SBObject, get_current_time
 

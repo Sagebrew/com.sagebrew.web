@@ -25,7 +25,7 @@ class UpdateListCreate(generics.ListCreateAPIView):
 
     def get_queryset(self):
         query = 'MATCH (c:`Campaign` {object_uuid:"%s"})-' \
-                '[:HAS_UPDATE]-(u:`Update`) return u' % \
+                '[:HAS_UPDATE]->(u:`Update`) return u' % \
                 (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return [Update.inflate(row[0]) for row in res]
@@ -33,15 +33,10 @@ class UpdateListCreate(generics.ListCreateAPIView):
     def get_object(self):
         return Update.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            campaign = Campaign.get(object_uuid=self.kwargs[self.lookup_field])
-            serializer.save(campaign=campaign)
-            return Response({"detail": "Successfully created update.",
-                             "status_code": status.HTTP_200_OK},
-                            status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        serializer.save(
+            campaign=Campaign.get(object_uuid=self.kwargs[self.lookup_field]))
+
 
 class UpdateRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     serializer_class = UpdateSerializer
@@ -50,6 +45,12 @@ class UpdateRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
 
     def get_object(self):
         return Update.nodes.get(object_uuid=self.kwargs[self.lookup_field])
+
+    def destroy(self, request, *args, **kwargs):
+        return Response(
+            {"detail": "Sorry we do not allow deletion of updates.",
+             "status_code": status.HTTP_405_METHOD_NOT_ALLOWED},
+            status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 @api_view(['GET'])

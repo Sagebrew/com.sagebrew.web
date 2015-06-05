@@ -748,7 +748,7 @@ class ProfileContentMethodTests(APITestCase):
             'username': self.pleb.username})
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['profile'],
-                         "http://testserver/v1/profiles/test_test/")
+                         "test_test")
 
     def test_get_pleb_question_url(self):
         for item in Question.nodes.all():

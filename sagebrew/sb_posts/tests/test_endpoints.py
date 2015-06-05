@@ -113,7 +113,7 @@ class PostsEndpointTests(APITestCase):
                       kwargs={"object_uuid": self.post.object_uuid})
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['profile'],
-                         "http://testserver/v1/profiles/test_test/")
+                         "test_test")
 
     def test_view_count(self):
         self.client.force_authenticate(user=self.user)

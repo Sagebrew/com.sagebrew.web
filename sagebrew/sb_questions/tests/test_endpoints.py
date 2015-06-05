@@ -118,7 +118,7 @@ class QuestionEndpointTests(APITestCase):
         url = reverse('question-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
         response = self.client.get(url, format='json')
-        self.assertEqual('http://testserver/v1/profiles/test_test/',
+        self.assertEqual('test_test',
                          response.data['profile'])
 
     def test_get_view_count(self):

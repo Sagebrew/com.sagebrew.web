@@ -251,9 +251,9 @@ This endpoint will provide you with a list of campaigns.
                     "website": "",
                     "wallpaper_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/5.jpeg"
                     "profile_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/5a.jpeg",
-                    "owner_username": null,
-                    "url": "https://sagebrew.local.dev/action/None/",
-                    "href": "https://sagebrew.local.dev/v1/campaigns/elizabeth_apple/",
+                    "owner_username": "elizabeth_apple",
+                    "url": "https://sagebrew.local.dev/action/elizabeth_apple/",
+                    "href": "https://sagebrew.local.dev/v1/campaigns/c2bf72f0-ff25-11e4-8cea-080027242395/",
                     "rounds": [
                         "a0106420-032c-11e5-8cea-080027242395"
                     ],
@@ -298,8 +298,8 @@ to access, must be 36 characters long.
             "website": "",
             "wallpaper_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/5.jpeg",
             "profile_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/5a.jpeg",   
-            "owner_username": "tyler_wiersing",
-            "url": "https://sagebrew.local.dev/action/tyler_wiersing/",
+            "owner_username": "elizabeth_apple",
+            "url": "https://sagebrew.local.dev/action/elizabeth_apple/",
             "href": "https://sagebrew.local.dev/v1/campaigns/c2bf72f0-ff25-11e4-8cea-080027242395/",
             "rounds": [
                 "a0106420-032c-11e5-8cea-080027242395"
@@ -321,6 +321,8 @@ to access, must be 36 characters long.
         
 ## Campaign Editors [/v1/campaigns/{id}/editors/] ##
 This endpoint method will return a list of all verified editors for a campaign.
+Please note that both the owner of the campaign and all the individuals they have
+assigned to be editors will be included in this list.
 For security reasons only the campaign owner or editors may utilize this endpoint.
 
 + Parameters
@@ -339,6 +341,7 @@ to access, must be 36 characters long.
 
 ## Campaign Accountants [/v1/campaigns/{id}/accountants/] ##
 This endpoind method will return a list of all verified accountants for a campaign.
+As with editors the owner is included in this list.
 For security reasons only the campaign owner or accountants may utilize this endpoint.
 
 + Parameters
@@ -357,8 +360,8 @@ to access, must be 36 characters long.
         
 ## Campaign Add Accountants [/v1/campaigns/{id}/add_accountants/] ##
 This endpoint allows the owner of the campaign to add accountants.
-This will not fail even if any of the specified names are already
-accountants.
+You can safely include usernames that are already accountants in the list
+or only provide the new usernames. Both methods shall work.
 
 + Parameters
     + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
@@ -404,8 +407,8 @@ to access, must be 36 characters long.
         
 ## Campaign Add Editors [/v1/campaigns/{id}/add_editors/] ##
 This endpoint allows the owner of the campaign to add editors.
-This will not fail even if any of the specified names are already
-editors.
+You can safely include usernames that are already editors in the list
+or only provide the new usernames. Both methods shall work.
 
 + Parameters
     + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
@@ -454,7 +457,7 @@ This does not fail even if the user is not already an editor.
         }
         
 ## Pledge Vote to Campaign [/v1/campaigns/{id}/vote/] ##
-This endpoint allows useres to add or remove their pledged vote to a Political Campaign
+This endpoint allows users to add or remove their pledged vote to a Political Campaign.
 
 + Parameters
     + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 
@@ -1040,45 +1043,3 @@ Only the owner of a donation is allowed to access any donations detail page.
             "status_code": 403
         }
 
-## Notes Collection [/notes] ##
-### List all Notes [GET] ###
-+ Response 200 (application/json)
-
-        [{
-          "id": 1, "title": "Jogging in park"
-        }, {
-          "id": 2, "title": "Pick-up posters from post-office"
-        }]
-
-### Create a Note [POST] ###
-+ Request (application/json)
-
-        { "title": "Buy cheese and bread for breakfast." }
-
-+ Response 201 (application/json)
-
-        { "id": 3, "title": "Buy cheese and bread for breakfast." }
-        
-        
-
-
-## Note [/notes/{id}] ##
-A single Note object with all its details
-
-+ Parameters
-    + id (required, number, `1`) ... Numeric `id` of the Note to perform action with.
-    Has example value.
-
-### Retrieve a Note [GET] ###
-+ Response 200 (application/json)
-
-    + Header
-
-            X-My-Header: The Value
-
-    + Body
-
-            { "id": 2, "title": "Pick-up posters from post-office" }
-
-### Remove a Note [DELETE] ###
-+ Response 204

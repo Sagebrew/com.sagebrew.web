@@ -6,7 +6,7 @@ from api.neo_models import SBObject
 
 
 class Location(SBObject):
-    name = StringProperty(read_only=True)
+    name = StringProperty()
     geo_data = StringProperty(default=None)
 
     encompasses = RelationshipTo('sb_locations.neo_models.Location',

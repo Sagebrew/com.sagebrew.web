@@ -1874,6 +1874,11 @@ class BetaUserMethodEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'is_beta_user'
         self.email = "success@simulator.amazonses.com"
+        try:
+            self.pleb = Pleb.nodes.get(email=self.email)
+            self.pleb.delete()
+        except:
+            pass
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)

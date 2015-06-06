@@ -12,25 +12,54 @@ and you can expect to get it back across each ouf our endpoints.
 ## Rendering ##
 For some endpoints Sagebrew provides server side rendering of resources so that you
 can insert the html directly into your app. This may not be the wanted behavior by
-most people so we have made this functionality available through a endpoint method.
+most people so we have made this functionality available through an endpoint method.
 For endpoints that indicate they can be rendered on the server side you can access
-the method via something like `/:resource/:id/render/` or `/:resource/render/`.
+the method via `/:resource/:id/render/` for detail routes or `/:resource/render/` 
+for list routes.
 
 
 ## Generic Query Parameters ##
-For all endpoints there are some query paramaters available for your use to make 
-your use easier:
+You can utilize the following query parameters across each of our endpoints:
 
-`?relations=hyperlink` - This will give you all of the relational fields in the 
-form of a link to that resources detail page instead of the id of the object.
+`relations=hyperlink` - This will give you all of the relational fields in the 
+form of a hyperlink to that resource's detail page instead of the id of the object.
 
-`?expand=true` - TODO
+`expand` - By setting `expand` to `true` each relation will be expanded out and nested
+within the parent resource.
 
-`?expedite=true` - TODO
+`expedite` - By setting `expedite` to `true` all relational fields will be set to either
+empty lists or `null`. This can be used if you don't care about the included relational data
+and improve response time.
 
-`?html=true` - TODO
+`page_size` - This can be used to modify the default page size to your needs. It expects an
+integer to be pased and the limitation is that it cannot be set above 100.
 
-`?expand_attrs=[]` - TODO
+`page` - This can be used to access a specific page in a paginated list.
+
+
+## Pagination ##
+All of our base list endpoints, those accessed at `/:resource/`, are paginated to improve
+performance and browsability. Our pagination strategy is based on pages and our default
+page size contains 15 objects. This can easily be modified to fit your needs by using the
+`page_size` query parameter as indicated above in *Generic Query Parameters*. There is one
+limitation on this which is that page sizes cannot be over 100 objects.
+
+Since we paginate our base lists you should not expect the results of the request to 
+be in the top level object. Instead they are listed within the `results` key. An example
+of what is returned can be found below:
+
+    {
+        "count": 16,
+        "next": "https://www.sagebrew.com/v1/questions/?page=2",
+        "previous": null,
+        "results": [...]
+    }
+
+The `count` key provides a tally of how many objects are available, `next` provides a 
+link to the next page, `previous` provides a link to the previous page, and `results`
+as mentioned above contains a list of the objects for the page. One other note as can
+be seen in the example is that `next` and `previous` are set to `null` if there are
+no next or previous pages.
 
 
 ## Error Handling ##
@@ -200,7 +229,8 @@ The me endpoint can be used to access the profile that is currently authenticate
 Campaign related resources of the **Campaign API**
 
 ## Campaign Collection [/v1/campaigns/] ##
-This endpoint will provide you with a paginated list of campaigns. 
+This endpoint will provide you with a list of campaigns. 
+
 ### List all Campaigns [GET] ###
 + Response 200 (application/json)
 
@@ -223,7 +253,7 @@ This endpoint will provide you with a paginated list of campaigns.
                     "profile_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/5a.jpeg",
                     "owner_username": null,
                     "url": "https://sagebrew.local.dev/action/None/",
-                    "href": "https://sagebrew.local.dev/v1/campaigns/c2bf72f0-ff25-11e4-8cea-080027242395/",
+                    "href": "https://sagebrew.local.dev/v1/campaigns/elizabeth_apple/",
                     "rounds": [
                         "a0106420-032c-11e5-8cea-080027242395"
                     ],
@@ -245,7 +275,7 @@ This endpoint will provide you with a paginated list of campaigns.
         }
         
 ## Campaigns [/v1/campaigns/{id}/] ##
-Campaign detail endpoint, used to get data for a single specific campaign
+Campaign detail endpoint, used to get data for a single specific campaign.
 
 + Parameters
     + id (required, object_uuid, `c2bf72f0-ff25-11e4-8cea-080027242395`) ... 

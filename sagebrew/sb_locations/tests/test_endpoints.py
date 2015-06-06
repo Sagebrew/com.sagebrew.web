@@ -132,3 +132,10 @@ class LocationEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['type'], self.unit_under_test_name)
+
+    def test_list(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-list')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

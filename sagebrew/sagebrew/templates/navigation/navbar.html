@@ -1,6 +1,6 @@
 {% load staticfiles %}
 <div class="navbar-fixed-top sb_nav sb_primary_nav">
-    <h1><a href="{% url 'root_profile_page' %}"><img id="nav-logo" src="{% static 'images/icon_sage.png' %}">Sagebrew</a></h1>
+    <h1><a href="{% url 'root_profile_page' %}"><img id="nav-logo" src="{% static 'images/icon_sage.png' %}"/>Sagebrew</a></h1>
     {% if user.is_authenticated %}
         {% include "navigation/post_login_nav_content.html" %}
     {% elif user.is_anonymous %}

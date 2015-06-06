@@ -97,7 +97,7 @@ class Campaign(Searchable):
                 (object_uuid)
             res, col = db.cypher_query(query)
             try:
-                campaign = Campaign.inflate(res[0][0])
+                campaign = cls.inflate(res[0][0])
                 cache.set(object_uuid, campaign)
                 return campaign
             except IndexError:
@@ -170,6 +170,7 @@ class Campaign(Searchable):
             cache.set("%s_active_goals" % (object_uuid), active_goals)
         return active_goals
 
+    '''
     @classmethod
     def get_current_target_goal(cls, object_uuid):
         target_goal = cache.get("%s_target_goal" % (object_uuid))
@@ -182,6 +183,7 @@ class Campaign(Searchable):
             except IndexError:
                 target_goal = None
         return target_goal
+    '''
 
     @classmethod
     def get_active_round(cls, object_uuid):

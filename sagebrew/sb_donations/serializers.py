@@ -12,23 +12,6 @@ from sb_goals.neo_models import Round
 from .neo_models import Donation
 
 
-class DonationValue:
-    def __init__(self):
-        """
-        This limit is placed upon political campaign donations due to the FEC
-        limiting individual donations to $2700. The extra 0's are due to
-        stripe requiring integers not floats for accuracy.
-        :return:
-        """
-        self.limit = 270000
-
-    def __call__(self, value):
-        if value > self.limit:
-            message = "You cannot donate over $%s to this campaign." % \
-                      (str(self.limit)[:-2])
-            raise serializers.ValidationError(message)
-
-
 class DonationSerializer(SBSerializer):
     completed = serializers.BooleanField(read_only=True)
     amount = serializers.IntegerField(required=True)

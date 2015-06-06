@@ -23,6 +23,9 @@ class CampaignEndpointTests(APITestCase):
         self.url = "http://testserver"
         self.campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username).save()
+        self.round = Round().save()
+        self.campaign.upcoming_round.connect(self.round)
+        self.round.campaign.connect(self.campaign)
         self.campaign.owned_by.connect(self.pleb)
         self.pleb.campaign.connect(self.campaign)
         self.campaign.accountants.connect(self.pleb)
@@ -633,6 +636,67 @@ class CampaignEndpointTests(APITestCase):
         self.assertEqual(response.data['results'], [])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_goals_create(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('goal-list',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'title': 'This is a test goal',
+            'summary': 'This is a test summary',
+            'description': 'This is a test description',
+            'pledged_vote_requirement': 100,
+            'monetary_requirement': 1000
+        }
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.data['detail'], "Successfully created goal.")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_goals_create_unauthorized(self):
+        self.campaign.editors.disconnect(self.pleb)
+        self.campaign.owned_by.disconnect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('goal-list',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'title': 'This is a test goal',
+            'summary': 'This is a test summary',
+            'description': 'This is a test description',
+            'pledged_vote_requirement': 100,
+            'monetary_requirement': 1000
+        }
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.data['detail'], "Authentication "
+                                                  "credentials were not "
+                                                  "provided.")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_goals_create_invalid(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('goal-list',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'summary': 'This is a test summary',
+            'description': 'This is a test description',
+            'pledged_vote_requirement': 100,
+            'monetary_requirement': 1000
+        }
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.data['title'], ['This field is required.'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_donations(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        response = self.client.get(url)
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
     def test_donation_create(self):
         self.client.force_authenticate(user=self.user)
         active_round = Round(active=True, upcoming=False).save()
@@ -925,3 +989,10 @@ class PositionEndpointTests(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_list(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('position-list')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

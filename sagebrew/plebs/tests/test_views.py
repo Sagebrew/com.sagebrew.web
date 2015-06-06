@@ -1,7 +1,10 @@
 from uuid import uuid1
 from base64 import b64encode
 from json import loads
+
+from rest_framework import status
 from rest_framework.test import APIRequestFactory
+
 from django.contrib.auth.models import User, AnonymousUser
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
@@ -114,7 +117,8 @@ class ProfilePageTest(TestCase):
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         response = profile_page(request, self.pleb.username)
-        self.assertEqual(response.status_code, 200)
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
         test_user.delete()
         test_post.delete()
         my_comment.delete()

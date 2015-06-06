@@ -23,10 +23,10 @@ from .tasks import add_auto_tags_to_question_task, update_search_index
 
 
 def solution_count(question_uuid):
-    query = 'MATCH (a:Question)-->(solutions:Solution) ' \
-            'WHERE (a.object_uuid = "%s" and ' \
-            'solutions.to_be_deleted = false)' \
-            'RETURN count(DISTINCT solutions)' % (question_uuid)
+    query = 'MATCH (a:Question {object_uuid: "%s"})-' \
+            '[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
+            'WHERE solutions.to_be_deleted = false ' \
+            'RETURN count(DISTINCT solutions)' % question_uuid
     res, col = db.cypher_query(query)
     try:
         count = res[0][0]

@@ -45,7 +45,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             # questions = cache.get("question_list_vote_sort")
             # if questions is not None:
             #    return questions
-            query = "MATCH (n:`Question`)%s " \
+            query = "MATCH (n:`Question`)%s WHERE n.to_be_deleted=false " \
                     "OPTIONAL MATCH (n:`Question`)<-[vs:PLEB_VOTES]-(p:Pleb) " \
                     "WHERE n.to_be_deleted=false RETURN " \
                     "n, reduce(vote_count = 0, v in collect(vs)| " \
@@ -53,8 +53,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                     "WHEN v.vote_type=True THEN vote_count+1 " \
                     "WHEN v.vote_type=False THEN vote_count-1  " \
                     "ELSE vote_count END) as reduction " \
-                    "ORDER BY reduction DESC" % \
-                    (tagged_as)
+                    "ORDER BY reduction DESC" % tagged_as
         res, col = db.cypher_query(query)
         # Quick cache implementation to reduce load of refresh clickers
         # Under load neo takes about 15-30 seconds to store off the

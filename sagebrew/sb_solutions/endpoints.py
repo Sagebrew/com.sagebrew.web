@@ -78,7 +78,8 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
         if sort_by == "" or sort_by == "vote_count":
             query = "MATCH (a:Question {object_uuid: '%s'})-" \
                     "[:POSSIBLE_ANSWER]->" \
-                    "(b:Solution) OPTIONAL MATCH (b:Solution)<-" \
+                    "(b:Solution) WHERE b.to_be_deleted=false " \
+                    "OPTIONAL MATCH (b:Solution)<-" \
                     "[vs:PLEB_VOTES]-" \
                     "(p:Pleb) WHERE b.to_be_deleted=false RETURN " \
                     "b, reduce(vote_count = 0, v in collect(vs)|" \

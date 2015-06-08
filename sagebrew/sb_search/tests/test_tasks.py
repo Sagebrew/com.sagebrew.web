@@ -555,7 +555,7 @@ class TestCreateKeywordTask(TestCase):
     def test_create_keyword_task_success_keyword_does_not_exist(self):
         from sb_search.neo_models import SearchQuery
 
-        query = SearchQuery(search_query="test query")
+        query = SearchQuery(search_query=str(uuid1()))
         query.save()
 
         data = {
@@ -570,11 +570,12 @@ class TestCreateKeywordTask(TestCase):
         res = res.result
 
         self.assertTrue(res)
+        query.delete()
 
     def test_create_keyword_task_success_keyword_exists(self):
         from sb_search.neo_models import SearchQuery, KeyWord
 
-        query = SearchQuery(search_query="test_query")
+        query = SearchQuery(search_query=str(uuid1()))
         query.save()
         keyword = KeyWord(keyword="test")
         keyword.save()
@@ -591,6 +592,7 @@ class TestCreateKeywordTask(TestCase):
         res = res.result
 
         self.assertTrue(res)
+        query.delete()
 
     def test_create_keyword_task_failure_search_query_does_not_exist(self):
         from sb_search.neo_models import KeyWord

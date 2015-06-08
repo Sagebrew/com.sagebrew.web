@@ -88,6 +88,8 @@ class Campaign(Searchable):
                                   "CURRENT_ROUND")
     upcoming_round = RelationshipTo('sb_goals.neo_models.Round',
                                     "UPCOMING_ROUND")
+    public_official = RelationshipTo(
+        'sb_public_official.neo_models.PublicOfficial', 'HAS_PUBLIC_OFFICIAL')
 
     @classmethod
     def get(cls, object_uuid):

@@ -70,7 +70,6 @@ class PublicOfficial(Searchable):
     term = RelationshipTo('govtrack.neo_models.Term', 'SERVED_TERM')
     current_term = RelationshipTo('govtrack.neo_models.Term', 'CURRENT_TERM')
 
-
 '''
 class Bill(StructuredNode):
     bill_id = StringProperty(unique_index=True)

@@ -46,7 +46,7 @@ class ProfilePageTest(TestCase):
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         response = profile_page(request, self.pleb.username)
-        self.assertEqual(response.status_code, 200)
+        self.assertIn(response.status_code, [200, 302])
 
     def test_with_post(self):
         test_post = Post(content='test', object_uuid=str(uuid1()),
@@ -62,7 +62,7 @@ class ProfilePageTest(TestCase):
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         response = profile_page(request, self.pleb.username)
-        self.assertEqual(response.status_code, 200)
+        self.assertIn(response.status_code, [200, 302])
         test_post.delete()
 
     def test_post_with_comments(self):
@@ -135,7 +135,7 @@ class ProfilePageTest(TestCase):
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         response = profile_page(request, self.pleb.username)
-        self.assertEqual(response.status_code, 200)
+        self.assertIn(response.status_code, [200, 302])
 
     def test_multiple_posts(self):
         post_array = []

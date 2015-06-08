@@ -5,6 +5,7 @@ from json import loads, dumps
 from django.core.management.base import BaseCommand
 
 from sb_locations.neo_models import Location
+from sb_campaigns.neo_models import Position
 
 
 class Command(BaseCommand):
@@ -29,6 +30,9 @@ class Command(BaseCommand):
                                          file_data['coordinates'])).save()
                     usa.encompasses.connect(state)
                     state.encompassed_by.connect(usa)
+                    senator = Position(name='Senator').save()
+                    senator.location.connect(state)
+                    state.positions.connect(senator)
         for root, dirs, files in \
                 os.walk('sb_locations/management/commands/districts/'):
             if files[0] != '.DS_Store':
@@ -47,6 +51,9 @@ class Command(BaseCommand):
                     district.encompassed_by.connect(usa)
                     usa.encompasses.connect(district)
                     state_node.encompasses.connect(district)
+                    house_rep = Position(name="House Representative").save()
+                    house_rep.location.connect(district)
+                    district.positions.connect(house_rep)
         return True
 
 

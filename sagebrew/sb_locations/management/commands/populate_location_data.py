@@ -56,7 +56,5 @@ class Command(BaseCommand):
                     district.positions.connect(house_rep)
         return True
 
-
-
     def handle(self, *args, **options):
         return self.populate_location_data()

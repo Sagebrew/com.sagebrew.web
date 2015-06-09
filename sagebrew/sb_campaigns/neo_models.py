@@ -68,6 +68,10 @@ class Campaign(Searchable):
     wallpaper_pic = StringProperty()
     profile_pic = StringProperty()
     owner_username = StringProperty()
+    # First and Last name are added to reduce potential additional queries
+    # when rendering potential representative html to a users profile page
+    first_name = StringProperty()
+    last_name = StringProperty()
 
     # Relationships
     donations = RelationshipTo('sb_donations.neo_models.Donation',

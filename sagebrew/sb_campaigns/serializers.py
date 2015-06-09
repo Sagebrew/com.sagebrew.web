@@ -26,6 +26,8 @@ class CampaignSerializer(SBSerializer):
     wallpaper_pic = serializers.CharField(required=False)
     profile_pic = serializers.CharField(required=False)
     owner_username = serializers.CharField(read_only=True)
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()

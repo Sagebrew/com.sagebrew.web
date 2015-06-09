@@ -136,6 +136,8 @@ def determine_reps(username):
                 logger.exception("Determine Reps Cypher Exception")
                 return False
             senators.append(rep)
+    president = PublicOfficial.nodes.get(title='President')
+    pleb.president.connect(president)
     cache.set("%s_senators" % username, senators)
     # Need this as neomodel does not currently support spawning post_save
     # after connections

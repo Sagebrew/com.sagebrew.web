@@ -30,6 +30,8 @@ from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
 from sb_public_official.serializers import PublicOfficialSerializer
 from sb_public_official.neo_models import PublicOfficial
+from sb_campaigns.neo_models import PoliticalCampaign
+from sb_campaigns.serializers import PoliticalCampaignSerializer
 
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
                           FriendRequestSerializer)
@@ -300,10 +302,62 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(PublicOfficialSerializer(house_rep).data,
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
+                                                       IsSelf))
     def is_beta_user(self, request, username=None):
         return Response({'is_beta_user': self.get_object().is_beta_user()},
                         status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def possible_house_representatives(self, request, username=None):
+        possible_reps = cache.get('%s_possible_house_representatives' %
+                                  (username))
+        if possible_reps is None:
+            query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
+                    '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
+                    '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
+                    '->(c:Campaign) WHERE c.active=true RETURN c' % (username)
+            res, _ = db.cypher_query(query)
+            possible_reps = [PoliticalCampaign.inflate(row[0]) for row in res]
+            cache.set('%s_possible_house_representatives' % (username),
+                      possible_reps)
+        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        if html == 'true':
+            possible_rep_html = [
+                render_to_string('sb_home_section/sb_potential_rep.html',
+                                 possible_rep) for possible_rep in
+                PoliticalCampaignSerializer(possible_reps, many=True).data]
+            return Response(possible_rep_html, status=status.HTTP_200_OK)
+        return Response(PoliticalCampaignSerializer(possible_reps,
+                                                    many=True).data,
+                        status=status.HTTP_200_OK)
+
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def possible_senators(self, request, username=None):
+        possible_senators = cache.get('%s_possible_senators' %
+                                      (username))
+        if possible_senators is None:
+            query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
+                    '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
+                    '[:ENCOMPASSED_BY]->(l2:Location)-' \
+                    '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
+                    '->(c:Campaign) WHERE c.active=true RETURN c' % (username)
+            res, _ = db.cypher_query(query)
+            possible_senators = [PoliticalCampaign.inflate(row[0])
+                                 for row in res]
+            cache.set('%s_possible_house_representatives' % (username),
+                      possible_senators)
+        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        if html == 'true':
+            possible_senators_html = [
+                render_to_string('sb_home_section/sb_potential_rep.html',
+                                 possible_sen) for possible_sen in
+                PoliticalCampaignSerializer(possible_senators, many=True).data]
+            return Response(possible_senators_html, status=status.HTTP_200_OK)
+        return Response(PoliticalCampaignSerializer(possible_senators,
+                                                    many=True).data,
+                        status=status.HTTP_200_OK)
 
 
 class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):

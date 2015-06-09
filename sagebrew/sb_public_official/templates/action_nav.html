@@ -1,10 +1,10 @@
 <div class="row sb_nav sb_secondary_nav sb_action_nav">
     <ul>
         <li>
-           <a href="{% url 'action_saga' representative.object_uuid %}">Saga</a>
+           <a href="{% url 'action_saga' username=representative.id %}">Saga</a>
         </li>
         <li>
-           <a href="{% url 'action_updates' representative.object_uuid %}">Updates</a>
+           <a href="{% url 'action_updates' username=representative.id %}">Updates</a>
         </li>
     </ul>
 </div>

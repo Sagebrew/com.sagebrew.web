@@ -69,6 +69,8 @@ class PublicOfficial(Searchable):
     # access the term that the official is currently in
     term = RelationshipTo('govtrack.neo_models.Term', 'SERVED_TERM')
     current_term = RelationshipTo('govtrack.neo_models.Term', 'CURRENT_TERM')
+    campaign = RelationshipTo('sb_campaigns.neo_models.PoliticalCampaign',
+                              'HAS_CAMPAIGN')
 
 '''
 class Bill(StructuredNode):

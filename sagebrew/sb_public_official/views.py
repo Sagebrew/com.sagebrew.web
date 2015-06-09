@@ -13,18 +13,22 @@ from sb_registration.utils import (verify_completed_registration)
 from .neo_models import PublicOfficial
 from .serializers import PublicOfficialSerializer
 
+from sb_campaigns.neo_models import PoliticalCampaign
+from sb_campaigns.serializers import PoliticalCampaignSerializer
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def saga(request, username):
     try:
-        official = PublicOfficial.nodes.get(object_uuid=username)
+        campaign = PoliticalCampaign.nodes.get(object_uuid=username)
     except (CypherException, IOError, PublicOfficial.DoesNotExist,
             DoesNotExist):
         return redirect("404_Error")
     return render(request, 'action_page.html',
-                  {"representative": PublicOfficialSerializer(official).data,
+                  {"representative":
+                       PoliticalCampaignSerializer(campaign).data,
                    "registered": False})
 
 
@@ -33,12 +37,13 @@ def saga(request, username):
                   login_url='/registration/profile_information')
 def updates(request, username):
     try:
-        official = PublicOfficial.nodes.get(object_uuid=username)
+        campaign = PoliticalCampaign.nodes.get(object_uuid=username)
     except (CypherException, IOError, PublicOfficial.DoesNotExist,
             DoesNotExist):
         return redirect("404_Error")
     return render(request, 'action_page.html',
-                  {"representative": PublicOfficialSerializer(official).data,
+                  {"representative":
+                       PoliticalCampaignSerializer(campaign).data,
                    "registered": False})
 
 
@@ -46,10 +51,10 @@ def updates(request, username):
 @permission_classes((IsAuthenticated,))
 def get_search_html(request, object_uuid):
     try:
-        official = PublicOfficial.nodes.get(object_uuid=object_uuid)
+        campaign = PoliticalCampaign.nodes.get(object_uuid=object_uuid)
     except (CypherException, IOError):
         return Response('Server Error', status=500)
-    official_data = PublicOfficialSerializer(official).data
+    official_data = PoliticalCampaignSerializer(campaign).data
     rendered_html = render_to_string("saga_search_block.html", official_data)
 
     return Response({'html': rendered_html}, status=200)

@@ -15,6 +15,8 @@ class Location(SBObject):
                                     'ENCOMPASSED_BY')
     positions = RelationshipTo('sb_campaigns.neo_models.Position',
                                'POSITIONS_AVAILABLE')
+    addresses = RelationshipTo('plebs.neo_models.Address',
+                               'ENCOMPASSES_ADDRESS')
 
     @classmethod
     def get(cls, object_uuid):

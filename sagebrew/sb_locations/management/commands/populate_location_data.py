@@ -61,7 +61,6 @@ class Command(BaseCommand):
                                             geo_data=dumps(
                                             file_data['coordinates'])).save()
                         district.encompassed_by.connect(state_node)
-                        district.encompassed_by.connect(usa)
                         usa.encompasses.connect(district)
                         state_node.encompasses.connect(district)
                         if not district.positions.all():

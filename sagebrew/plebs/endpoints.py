@@ -353,9 +353,11 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
                     '->(c:Campaign) WHERE c.active=true RETURN c LIMIT 5' % \
                     (username)
+            logger.info(query)
             res, _ = db.cypher_query(query)
             possible_senators = [PoliticalCampaign.inflate(row[0])
                                  for row in res]
+            logger.info(possible_senators)
             cache.set('%s_possible_senators' % (username),
                       possible_senators)
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()

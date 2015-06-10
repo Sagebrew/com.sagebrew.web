@@ -221,6 +221,7 @@ class AddressSerializer(SBSerializer):
         return Address(**validated_data).save()
 
     def update(self, instance, validated_data):
+        request, _, _, _, _ = gather_request_data(self.context)
         instance.street = validated_data.get('street', instance.street)
         instance.street_additional = validated_data.get(
             'street_additional', instance.street_additional)
@@ -235,6 +236,9 @@ class AddressSerializer(SBSerializer):
         instance.longitude = validated_data.get("longitude",
                                                 instance.longitude)
         instance.save()
+        cache.delete('%s_possible_house_representatives' %
+                     (request.user.username))
+        cache.delete('%s_possible_senators' % (request.user.username))
         spawn_task(task_func=determine_pleb_reps, task_param={
             "username": self.context['request'].user.username,
         })

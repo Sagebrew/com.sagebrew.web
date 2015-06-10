@@ -88,6 +88,8 @@ def determine_pleb_reps(username):
 
 @shared_task()
 def update_address_location(object_uuid):
+    from logging import getLogger
+    logger = getLogger('loggly_logs')
     try:
         address = Address.nodes.get(object_uuid=object_uuid)
     except (DoesNotExist, Address.DoesNotExist) as e:
@@ -96,9 +98,10 @@ def update_address_location(object_uuid):
     try:
         state = us.states.lookup(address.state)
         district = address.congressional_district
-        query = 'MATCH (a:Address {object_uuid:"%s"})-[r:ENCOMPASSED_BY]-' \
+        query = 'MATCH (a:Address {object_uuid:"%s"})-[r:ENCOMPASSED_BY]->' \
                 '(l:Location) DELETE r' % (object_uuid)
-        db.cypher_query(query)
+        res, _ = db.cypher_query(query)
+        logger.info(res)
         query = 'MATCH (s:Location {name:"%s"})-[:ENCOMPASSES]->' \
                         '(d:Location {name:"%s"}) RETURN d' % \
                         (state, district)

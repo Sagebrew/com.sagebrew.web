@@ -373,7 +373,7 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         instance.request_from.disconnect(Pleb.get(self.request.user.username))
         query = 'MATCH (f:FriendRequest {object_uuid:"%s"})-[r:REQUEST_TO]->' \
-                '(p:Pleb {username:%s}) DELETE r' % \
+                '(p:Pleb {username:"%s"}) DELETE r' % \
                 (instance.object_uuid, self.request.user.username)
         db.cypher_query(query)
         instance.delete()

@@ -29,7 +29,7 @@ class GoalEndpointTests(APITestCase):
                          description="Test Description", active=True,
                          pledged_vote_requirement=100,
                          monetary_requirement=1000, completed=False,
-                         target=True, total_required=1000).save()
+                         total_required=1000).save()
 
     def test_unauthorized(self):
         url = reverse('goal-detail',
@@ -98,7 +98,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['id'], self.goal.object_uuid)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_type(self):
         self.client.force_authenticate(user=self.user)
@@ -107,7 +106,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['type'], 'goal')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_campaign(self):
         self.client.force_authenticate(user=self.user)
@@ -116,7 +114,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['campaign'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_initial(self):
         self.client.force_authenticate(user=self.user)
@@ -125,7 +122,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['initial'], self.goal.initial)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_title(self):
         self.client.force_authenticate(user=self.user)
@@ -134,7 +130,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['title'], self.goal.title)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_summary(self):
         self.client.force_authenticate(user=self.user)
@@ -143,7 +138,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['summary'], self.goal.summary)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_description(self):
         self.client.force_authenticate(user=self.user)
@@ -152,7 +146,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['description'], self.goal.description)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_pledged_vote_requirement(self):
         self.client.force_authenticate(user=self.user)
@@ -162,7 +155,6 @@ class GoalEndpointTests(APITestCase):
 
         self.assertEqual(response.data['pledged_vote_requirement'],
                          self.goal.pledged_vote_requirement)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_monetary_requirement(self):
         self.client.force_authenticate(user=self.user)
@@ -172,7 +164,6 @@ class GoalEndpointTests(APITestCase):
 
         self.assertEqual(response.data['monetary_requirement'],
                          self.goal.monetary_requirement)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_completed(self):
         self.client.force_authenticate(user=self.user)
@@ -181,7 +172,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertFalse(response.data['completed'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_completed_date(self):
         self.client.force_authenticate(user=self.user)
@@ -190,7 +180,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['completed_date'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_updates(self):
         self.client.force_authenticate(user=self.user)
@@ -199,7 +188,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['updates'], [])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_associated_round(self):
         self.client.force_authenticate(user=self.user)
@@ -208,7 +196,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['associated_round'], None)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_donations(self):
         self.client.force_authenticate(user=self.user)
@@ -217,7 +204,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['donations'], [])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_previous_goal(self):
         self.client.force_authenticate(user=self.user)
@@ -226,7 +212,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['previous_goal'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_next_goal(self):
         self.client.force_authenticate(user=self.user)
@@ -235,17 +220,18 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['next_goal'])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_active(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
         data = {
-            'title': 'test update'
+            'title': 'test update',
+            'monetary_requirement': 1000,
+            'summary': 'this is a test summary'
+
         }
         response = self.client.put(url, data=data, format='json')
-
         self.assertEqual(response.data['detail'],
                          "You cannot update a completed or active goal.")
         self.assertEqual(response.status_code,
@@ -259,7 +245,9 @@ class GoalEndpointTests(APITestCase):
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
         data = {
-            'title': 'test update'
+            'title': 'test update',
+            'monetary_requirement': 1000,
+            'summary': 'this is a test summary'
         }
         response = self.client.put(url, data=data, format='json')
 
@@ -280,8 +268,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.patch(url, data=data, format='json')
 
         self.assertEqual(response.data['title'], data['title'])
-        self.assertEqual(response.status_code,
-                         status.HTTP_200_OK)
 
     def test_update_summary(self):
         self.client.force_authenticate(user=self.user)
@@ -295,8 +281,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.patch(url, data=data, format='json')
 
         self.assertEqual(response.data['summary'], data['summary'])
-        self.assertEqual(response.status_code,
-                         status.HTTP_200_OK)
 
     def test_update_description(self):
         self.client.force_authenticate(user=self.user)
@@ -310,8 +294,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.patch(url, data=data, format='json')
 
         self.assertEqual(response.data['description'], data['description'])
-        self.assertEqual(response.status_code,
-                         status.HTTP_200_OK)
 
     def test_update_pledged_vote_requirement(self):
         self.client.force_authenticate(user=self.user)
@@ -326,8 +308,6 @@ class GoalEndpointTests(APITestCase):
 
         self.assertEqual(response.data['pledged_vote_requirement'],
                          data['pledged_vote_requirement'])
-        self.assertEqual(response.status_code,
-                         status.HTTP_200_OK)
 
     def test_update_monetary_requirement(self):
         self.client.force_authenticate(user=self.user)
@@ -342,8 +322,6 @@ class GoalEndpointTests(APITestCase):
 
         self.assertEqual(response.data['monetary_requirement'],
                          data['monetary_requirement'])
-        self.assertEqual(response.status_code,
-                         status.HTTP_200_OK)
 
     def test_delete_active(self):
         self.client.force_authenticate(user=self.user)

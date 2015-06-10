@@ -131,11 +131,14 @@ class CampaignSerializer(SBSerializer):
 
     def get_position(self, obj):
         request, _, _, relations, _ = gather_request_data(self.context)
+        position = Campaign.get_position(obj.object_uuid)
+        if position is None:
+            return position
         if relations == 'hyperlink':
             return reverse('position-detail',
                            kwargs={'object_uuid': obj.object_uuid},
                            request=request)
-        return Campaign.get_position(obj.object_uuid)
+        return position
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):

@@ -307,6 +307,8 @@ class Position(SBObject):
     # running for this position
     campaigns = RelationshipTo('sb_campaigns.neo_models.PoliticalCampaign',
                                "CAMPAIGNS")
+    restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
+                                  'RESTRICTED_BY')
 
     @classmethod
     def get(cls, object_uuid):

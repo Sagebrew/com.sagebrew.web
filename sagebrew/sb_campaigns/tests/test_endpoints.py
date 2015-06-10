@@ -710,9 +710,7 @@ class CampaignEndpointTests(APITestCase):
         }
         response = self.client.post(url, data=data, format='json')
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['detail'], 'Successfully created '
-                                                  'donation.')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_donation_create_invalid_form(self):
         self.client.force_authenticate(user=self.user)
@@ -756,9 +754,7 @@ class CampaignEndpointTests(APITestCase):
         self.assertTrue(next_goal.donations.is_connected(donation))
         self.assertTrue(donation.applied_to.is_connected(target_goal))
         self.assertTrue(donation.applied_to.is_connected(next_goal))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['detail'], 'Successfully created '
-                                                  'donation.')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_donation_create_three_goals(self):
         self.client.force_authenticate(user=self.user)
@@ -791,9 +787,7 @@ class CampaignEndpointTests(APITestCase):
         self.assertTrue(donation.applied_to.is_connected(target_goal))
         self.assertTrue(donation.applied_to.is_connected(next_goal))
         self.assertFalse(donation.applied_to.is_connected(next_goal2))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['detail'], 'Successfully created '
-                                                  'donation.')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_update_create(self):
         self.client.force_authenticate(user=self.user)

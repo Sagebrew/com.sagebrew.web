@@ -61,6 +61,13 @@ class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         return Goal.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
     def update(self, request, *args, **kwargs):
+        """
+        Overwriting update here to provide for a custom validation of updating
+        goals. Doing the validation here means that we do not have to modify
+        our custom exception handling methods. If we did this validation in
+        the update method of the serializer we would have to overwrite the
+        way that validation errors are handled.
+        """
         queryset = self.get_object()
         if (queryset.completed or queryset.active):
             return Response({"status_code": status.HTTP_405_METHOD_NOT_ALLOWED,

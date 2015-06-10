@@ -27,6 +27,11 @@ class DonationViewSet(viewsets.ReadOnlyModelViewSet):
         return Donation.inflate(res[0][0])
 
     def list(self, request, *args, **kwargs):
+        """
+        The reasoning behind having this list method here is so that in the
+        future we can allow users to view all billed donations to the campaign
+        since that should be public knowledge.
+        """
         return Response({'detail': "Sorry, we currently do not allow for "
                                    "users to query all donations for every "
                                    "campaign.",
@@ -63,17 +68,23 @@ class DonationListCreate(generics.ListCreateAPIView):
         res, col = db.cypher_query(query)
         return [Donation.inflate(row[0]) for row in res]
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            campaign = Campaign.get(object_uuid=self.kwargs[self.lookup_field])
-            serializer.save(campaign=campaign)
-            return Response({"detail": "Successfully created donation.",
-                             "status_code": status.HTTP_200_OK},
-                            status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        campaign = Campaign.get(object_uuid=self.kwargs[self.lookup_field])
+        serializer.save(campaign=campaign)
 
     def list(self, request, *args, **kwargs):
+        """
+        Currently we limit this endpoint to only be accessible to
+        owners/accountants of campaigns, this is because it displays all
+        donations not just the completed ones. We will eventually want to add
+        some functionality to this that will allow people who are not the
+        owner/accountant of the campaign to view all completed donations.
+
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
         if not (request.user.username in Campaign.get_accountants
                 (self.kwargs[self.lookup_field])):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,

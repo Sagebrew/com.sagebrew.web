@@ -162,7 +162,6 @@ class MeEndpointTests(APITestCase):
         url = reverse('me-detail')
         response = self.client.get(url, format='json')
         self.pleb.privileges.disconnect(privilege)
-        cache.clear()
         privilege.delete()
         self.assertEqual(['test_privilege'], response.data['privileges'])
 

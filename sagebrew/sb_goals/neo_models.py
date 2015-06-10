@@ -44,9 +44,6 @@ class Goal(SBObject):
     monetary_requirement = IntegerProperty(default=0)
     completed = BooleanProperty(default=False)
     completed_date = DateTimeProperty()
-    # current_target is used to determine which goal is the current goal being
-    # donated for this will always be an active goal
-    target = BooleanProperty(default=False)
     total_required = IntegerProperty()
 
     # relationships

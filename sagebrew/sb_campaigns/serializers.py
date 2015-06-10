@@ -156,6 +156,7 @@ class CampaignSerializer(SBSerializer):
 
 class PoliticalCampaignSerializer(CampaignSerializer):
     vote_count = serializers.SerializerMethodField()
+    constituents = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         request = self.context.get('request', None)

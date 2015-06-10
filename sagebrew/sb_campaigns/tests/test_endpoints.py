@@ -170,7 +170,8 @@ class CampaignEndpointTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
 
         self.assertEqual(response.data['url'],
-                         'http://testserver/action/test_test/')
+                         'http://testserver/action/' +
+                         response.data['id'] + '/')
 
     def test_create_twitter(self):
         self.client.force_authenticate(user=self.user)
@@ -404,6 +405,13 @@ class CampaignEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-detail',
                       kwargs={'object_uuid': self.campaign.object_uuid})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_list(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-list')
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -1,3 +1,5 @@
+from uuid import uuid1
+
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -522,8 +524,9 @@ class CampaignEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-remove-accountants',
                       kwargs={'object_uuid': self.campaign.object_uuid})
+        new_pleb = Pleb(username=str(uuid1())).save()
         data = {
-            "profiles": ['test_test']
+            "profiles": ['test_test', new_pleb.username]
         }
         response = self.client.post(url, data=data)
 
@@ -534,10 +537,11 @@ class CampaignEndpointTests(APITestCase):
 
     def test_add_accountants(self):
         self.client.force_authenticate(user=self.user)
+        new_pleb = Pleb(username=str(uuid1())).save()
         url = reverse('campaign-add-accountants',
                       kwargs={'object_uuid': self.campaign.object_uuid})
         data = {
-            "profiles": ['test_test']
+            "profiles": ['test_test', new_pleb.username]
         }
         response = self.client.post(url, data=data)
 
@@ -571,10 +575,11 @@ class CampaignEndpointTests(APITestCase):
 
     def test_remove_editors(self):
         self.client.force_authenticate(user=self.user)
+        new_pleb = Pleb(username=str(uuid1())).save()
         url = reverse('campaign-remove-editors',
                       kwargs={'object_uuid': self.campaign.object_uuid})
         data = {
-            "profiles": ['test_test']
+            "profiles": ['test_test', new_pleb.username]
         }
         response = self.client.post(url, data=data)
 
@@ -585,10 +590,11 @@ class CampaignEndpointTests(APITestCase):
 
     def test_add_editors(self):
         self.client.force_authenticate(user=self.user)
+        new_pleb = Pleb(username=str(uuid1())).save()
         url = reverse('campaign-add-editors',
                       kwargs={'object_uuid': self.campaign.object_uuid})
         data = {
-            "profiles": ['test_test']
+            "profiles": ['test_test', new_pleb.username]
         }
         response = self.client.post(url, data=data)
 
@@ -711,6 +717,21 @@ class CampaignEndpointTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_donation_create_value_too_high(self):
+        self.client.force_authenticate(user=self.user)
+        active_round = Round(active=True, upcoming=False).save()
+        target_goal = Goal(monetary_requirement=1000, target=True).save()
+        self.campaign.goals.connect(target_goal)
+        self.campaign.active_round.connect(active_round)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 2700000
+        }
+        response = self.client.post(url, data=data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_donation_create_invalid_form(self):
         self.client.force_authenticate(user=self.user)

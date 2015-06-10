@@ -112,18 +112,6 @@ class RoundSerializer(CampaignAttributeSerializer):
     previous_round = serializers.SerializerMethodField()
     next_round = serializers.SerializerMethodField()
 
-    def create(self, validated_data):
-        campaign = validated_data.pop('campaign', None)
-        previous_round = validated_data.pop('previous_round', None)
-        campaign_round = Round(**validated_data).save()
-        campaign.rounds.connect(campaign_round)
-        campaign_round.campaign.connect(campaign)
-        if previous_round is not None:
-            prev_round = Round.nodes.get(object_uuid=previous_round)
-            campaign_round.previous_round.connect(prev_round)
-            prev_round.next_round.connect(campaign_round)
-        return campaign_round
-
     def get_goals(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
         goals = Round.get_goals(obj.object_uuid)

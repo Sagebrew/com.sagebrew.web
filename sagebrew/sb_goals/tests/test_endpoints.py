@@ -540,3 +540,16 @@ class RoundEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_get_upcoming_unauthorized(self):
+        self.client.force_authenticate(user=self.user)
+        self.round.upcoming = True
+        self.round.save()
+        url = reverse('round-detail',
+                      kwargs={'object_uuid': self.round.object_uuid})
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data['detail'], "Only owners, editors, or "
+                                                  "accountants can view "
+                                                  "upcoming rounds.")

@@ -101,9 +101,7 @@ class CampaignSerializer(SBSerializer):
     def get_active_round(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
         active_round = Campaign.get_active_round(obj.object_uuid)
-        if relation == 'hyperlink':
-            if active_round is None:
-                return None
+        if relation == 'hyperlink' and active_round is not None:
             return reverse('round-detail',
                            kwargs={'object_uuid': active_round},
                            request=request)
@@ -112,9 +110,7 @@ class CampaignSerializer(SBSerializer):
     def get_upcoming_round(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
         upcoming_round = Campaign.get_upcoming_round(obj.object_uuid)
-        if relation == 'hyperlink':
-            if upcoming_round is None:
-                return None
+        if relation == 'hyperlink' and upcoming_round is not None:
             return reverse('round-detail',
                            kwargs={'object_uuid': upcoming_round},
                            request=request)
@@ -132,9 +128,7 @@ class CampaignSerializer(SBSerializer):
     def get_position(self, obj):
         request, _, _, relations, _ = gather_request_data(self.context)
         position = Campaign.get_position(obj.object_uuid)
-        if position is None:
-            return position
-        if relations == 'hyperlink':
+        if relations == 'hyperlink' and position is not None:
             return reverse('position-detail',
                            kwargs={'object_uuid': obj.object_uuid},
                            request=request)

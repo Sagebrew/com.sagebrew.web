@@ -6,7 +6,7 @@ from rest_framework import status, generics
 
 from neomodel import db
 
-from api.permissions import IsGoalOwnerOrEditor
+from api.permissions import IsGoalOwnerOrEditor, IsOwnerOrEditorOrAccountant
 from sb_campaigns.neo_models import Campaign
 
 from .serializers import (GoalSerializer, RoundSerializer)
@@ -115,3 +115,15 @@ class RoundRetrieve(generics.RetrieveAPIView):
 
     def get_object(self):
         return Round.nodes.get(object_uuid=self.kwargs[self.lookup_field])
+
+    def get(self, request, *args, **kwargs):
+        queryset = self.get_object()
+        if queryset.upcoming:
+            if not (request.user.username in Campaign.get_campaign_helpers(Round.get_campaign(queryset.object_uuid))):
+                return Response({"detail": "Only owners, editors, or "
+                                           "accountants can view upcoming "
+                                           "rounds.",
+                                 "status_code": status.HTTP_401_UNAUTHORIZED},
+                                status=status.HTTP_401_UNAUTHORIZED)
+        return super(RoundRetrieve, self).get(request, *args, **kwargs)
+

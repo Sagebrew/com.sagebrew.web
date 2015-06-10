@@ -172,5 +172,12 @@ class Round(SBObject):
         except IndexError:
             return None
 
-    def activate_round(self):
-        pass
+    @classmethod
+    def get_campaign(cls, object_uuid):
+        query = 'MATCH (r:Round {object_uuid:"%s"})-[:ASSOCIATED_WITH]->' \
+                '(c:Campaign) RETURN c.object_uuid' % (object_uuid)
+        res, _ = db.cypher_query(query)
+        try:
+            return res[0][0]
+        except IndexError:
+            return None

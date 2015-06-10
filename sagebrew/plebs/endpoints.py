@@ -28,7 +28,6 @@ from sb_base.neo_models import SBContent
 from sb_base.serializers import MarkdownContentSerializer
 from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
-from sb_votes.serializers import VoteSerializer
 from sb_public_official.serializers import PublicOfficialSerializer
 from sb_public_official.neo_models import PublicOfficial
 
@@ -52,6 +51,10 @@ class AddressViewSet(viewsets.ModelViewSet):
     even though this should not be expected as in the future the list will
     grow as we all things like hometown, previous residences, and additional
     homes to be listed.
+
+    Improvements:
+    We may want to transition this to /v1/me/addresses/ and
+    /v1/me/addresses/{id}/.
     """
     serializer_class = AddressSerializer
     lookup_field = 'object_uuid'
@@ -72,13 +75,14 @@ class AddressViewSet(viewsets.ModelViewSet):
         return Address.inflate(res[0][0])
 
     def perform_create(self, serializer):
-        pleb = Pleb.get(self.kwargs[self.lookup_field])
+        pleb = Pleb.get(self.request.user.username)
         instance = serializer.save()
         instance.owned_by.connect(pleb)
-        instance.save()
         pleb.address.connect(instance)
-        pleb.save()
+        pleb.refresh()
         cache.set(pleb.username, pleb)
+
+        return instance
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -155,11 +159,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def destroy(self, request, *args, **kwargs):
-        return Response({"detail": "TBD"},
-                        status=status.HTTP_501_NOT_IMPLEMENTED)
-
-    @detail_route(methods=['get'])
-    def solutions(self, request, username=None):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
@@ -306,27 +305,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response({'is_beta_user': self.get_object().is_beta_user()},
                         status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def votes(self, request, username=None):
-        filter_by = request.query_params.get('filter', "")
-        try:
-            additional_params = get_filter_params(filter_by, SBContent())
-        except(IndexError, KeyError, ValueError):
-            return Response(errors.QUERY_DETERMINATION_EXCEPTION,
-                            status=status.HTTP_400_BAD_REQUEST)
-        query = 'MATCH (b:`SBPublicContent`)-[:OWNED_BY]->(a:Pleb ' \
-                '{username: "%s"}) ' \
-                'WHERE b.to_be_deleted=false ' \
-                ' %s RETURN b' % (username, additional_params)
-
-        res, col = db.cypher_query(query)
-        queryset = [SBContent.inflate(row[0]) for row in res]
-
-        page = self.paginate_queryset(queryset)
-        serializer = VoteSerializer(page, many=True,
-                                    context={'request': request})
-        return self.get_paginated_response(serializer.data)
-
 
 class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     """
@@ -349,6 +327,9 @@ class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
         if serializer_data['wallpaper_pic'] is None:
             serializer_data['wallpaper_pic'] = static(
                 'images/wallpaper_western.jpg')
+        if serializer_data['profile_pic'] is None:
+            serializer_data['profile_pic'] = static(
+                'images/sage_coffee_grey-01.png')
         return Response(serializer_data)
 
 
@@ -358,6 +339,9 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
     manage their friend requests. Instead of making a method view on a specific
     profile we took this approach to gain easy pagination and so that the entire
     suite of managing an object could be utilized.
+
+    This endpoint is used to see who a user has sent a friend request to rather
+    than who they have received one from.
     """
     serializer_class = FriendRequestSerializer
     lookup_field = "object_uuid"
@@ -369,7 +353,8 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
         if friend_requests is None:
             filter_by = self.request.query_params.get("filter", "")
             filtered = get_filter_by(filter_by)
-            query = "MATCH (p:Pleb {username:'%s'})-%s-(r:FriendRequest) RETURN r" \
+            query = "MATCH (p:Pleb {username:'%s'})-%s-(" \
+                    "r:FriendRequest) RETURN distinct r" \
                     % (self.request.user.username, filtered)
             res, col = db.cypher_query(query)
             friend_requests = [FriendRequest.inflate(row[0]) for row in res]
@@ -384,6 +369,15 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def perform_destroy(self, instance):
+        instance.request_from.disconnect(Pleb.get(self.request.user.username))
+        query = 'MATCH (f:FriendRequest {object_uuid:"%s"})-[r:REQUEST_TO]->' \
+                '(p:Pleb {username:"%s"}) DELETE r' % \
+                (instance.object_uuid, self.request.user.username)
+        db.cypher_query(query)
+        instance.delete()
+        cache.delete("%s_friend_requests" % self.request.user.username)
 
 
 class FriendManager(RetrieveUpdateDestroyAPIView):

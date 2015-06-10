@@ -83,9 +83,10 @@ def save_search_id(search_data, object_uuid):
         res, col = db.cypher_query(query)
         try:
             sb_object = Searchable.inflate(res[0][0])
-        except IndexError:
+        except IndexError as e:
             logger.exception("Failed to find any searchable content")
-            return False
+            raise save_search_id.retry(exc=e, countdown=30,
+                                       max_retries=10)
 
     except(CypherException, IOError) as e:
         raise save_search_id.retry(exc=e, countdown=3, max_retries=None)

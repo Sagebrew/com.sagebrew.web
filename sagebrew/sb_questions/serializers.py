@@ -11,7 +11,7 @@ from rest_framework.reverse import reverse
 from neomodel import db, DoesNotExist
 
 from api.utils import spawn_task, get_node, gather_request_data
-from sb_base.serializers import MarkdownContentSerializer
+from sb_base.serializers import TitledContentSerializer
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
 from sb_tags.tasks import update_tags
@@ -35,7 +35,7 @@ def solution_count(question_uuid):
     return count
 
 
-class TitleUpdate:
+class QuestionTitleUpdate:
     def __init__(self):
         pass
 
@@ -86,18 +86,18 @@ def limit_5_tags(value):
 # create new tags, right now it's open season
 
 
-class QuestionSerializerNeo(MarkdownContentSerializer):
+class QuestionSerializerNeo(TitledContentSerializer):
     content = serializers.CharField(min_length=15)
     href = serializers.SerializerMethodField()
-    title = serializers.CharField(required=False,
-                                  validators=[TitleUpdate(), ],
-                                  min_length=15, max_length=140)
     # This might be better as a choice field
     tags = serializers.ListField(
         source='get_tags',
         validators=[limit_5_tags, PopulateTags()],
         child=serializers.CharField(max_length=36),
     )
+    title = serializers.CharField(required=False,
+                                  validators=[QuestionTitleUpdate(), ],
+                                  min_length=15, max_length=140)
     solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
 
@@ -109,6 +109,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         owner = Pleb.get(request.user.username)
         validated_data['content'] = bleach.clean(validated_data.get(
             'content', ""))
+        validated_data['owner_username'] = owner.username
         question = Question(**validated_data).save()
         question.owned_by.connect(owner)
         owner.questions.connect(question)
@@ -132,6 +133,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         spawn_task(task_func=update_tags, task_param={"tags": tags})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": question.object_uuid})
+        question.refresh()
         cache.set(question.object_uuid, question)
         return question
 
@@ -152,6 +154,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
                                                            instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
+        instance.refresh()
         cache.set(instance.object_uuid, instance)
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
@@ -166,7 +169,10 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         return solution_count(obj.object_uuid)
 
     def get_solutions(self, obj):
-        request, expand, _, relations, _ = gather_request_data(self.context)
+        request, expand, _, relations, expedite = gather_request_data(
+            self.context)
+        if expedite == "true":
+            return []
         solutions = obj.get_solution_ids()
         solution_urls = []
         if expand == "true":
@@ -187,7 +193,7 @@ class QuestionSerializerNeo(MarkdownContentSerializer):
         return solution_urls
 
     def get_href(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
+        request, _, _, _, _ = gather_request_data(self.context)
         return reverse(
             'question-detail', kwargs={'object_uuid': obj.object_uuid},
             request=request)

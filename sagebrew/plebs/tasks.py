@@ -41,6 +41,7 @@ def pleb_user_update(username, first_name, last_name, email):
         pleb.email = email
 
         pleb.save()
+        pleb.refresh()
         cache.set(pleb.username, pleb)
         document = PlebSerializerNeo(pleb).data
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
@@ -267,6 +268,7 @@ def update_reputation(username):
     if res['previous_rep'] != res['total_rep']:
         check_priv = spawn_task(task_func=check_privileges,
                                 task_param={"username": username})
+        pleb.refresh()
         cache.set(username, pleb)
         if isinstance(check_priv, Exception):
             raise update_reputation.retry(exc=check_priv, countdown=3,

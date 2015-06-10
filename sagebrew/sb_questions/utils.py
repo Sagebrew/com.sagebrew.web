@@ -2,10 +2,10 @@ from dateutil import parser
 from django.template.loader import render_to_string
 from django.core.cache import cache
 
-from neomodel import DoesNotExist, CypherException
+from neomodel import DoesNotExist, CypherException, db
 
 from sb_base.decorators import apply_defense
-
+from plebs.neo_models import Pleb
 from .serializers import QuestionSerializerNeo
 from .neo_models import Question
 
@@ -22,7 +22,13 @@ def prepare_question_search_html(question_uuid):
             return None
         cache.set(question_uuid, question)
 
-    owner = question.owned_by.all()[0]
+    query = "MATCH (p:Pleb {username: '%s'}) RETURN p" % (
+        question.owner_username)
+    try:
+        res, col = db.cypher_query(query=query)
+        owner = Pleb.inflate(res[0][0])
+    except (CypherException, IOError, IndexError):
+        return None
     question_dict = QuestionSerializerNeo(question).data
     question_dict['first_name'] = owner.first_name
     question_dict['last_name'] = owner.last_name

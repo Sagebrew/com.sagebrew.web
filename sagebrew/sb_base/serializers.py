@@ -3,7 +3,7 @@ import markdown
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel import CypherException
+from neomodel import db
 
 from api.serializers import SBSerializer
 from api.utils import gather_request_data
@@ -34,18 +34,18 @@ class VotableContentSerializer(SBSerializer):
     url = serializers.SerializerMethodField()
 
     def get_profile(self, obj):
-        request, expand, _, _, _ = gather_request_data(self.context)
-        try:
-            owner = obj.owned_by.all()[0]
-        except(CypherException, IOError, IndexError):
-            return None
+        request, expand, _, relation, _ = gather_request_data(self.context)
+        owner_username = obj.owner_username
         if expand == "true":
+            owner = Pleb.get(username=owner_username)
             profile_dict = PlebSerializerNeo(
                 owner, context={'request': request}).data
-        else:
+        elif relation == 'hyperlink':
             profile_dict = reverse('profile-detail',
-                                   kwargs={"username": owner.username},
+                                   kwargs={"username": owner_username},
                                    request=request)
+        else:
+            profile_dict = obj.owner_username
         return profile_dict
 
     def get_url(self, obj):
@@ -79,8 +79,7 @@ class ContentSerializer(VotableContentSerializer):
     flagged_by = serializers.SerializerMethodField()
 
     def get_flagged_by(self, obj):
-        res = obj.get_flagged_by()
-        return [Pleb.inflate(row[0]).username for row in res]
+        return obj.get_flagged_by()
 
 
 class MarkdownContentSerializer(ContentSerializer):
@@ -92,3 +91,44 @@ class MarkdownContentSerializer(ContentSerializer):
             return markdown.markdown(obj.content.replace('&gt;', '>'))
         else:
             return ""
+
+
+class TitledContentSerializer(MarkdownContentSerializer):
+    title = serializers.CharField(required=False,
+                                  min_length=15, max_length=140)
+
+    def validate_title(self, value):
+        if (self.object_uuid is not None):
+            message = 'Cannot edit Title when there have ' \
+                      'already been solutions provided'
+            raise serializers.ValidationError(message)
+        return value
+
+
+class CampaignAttributeSerializer(SBSerializer):
+    """
+    This serializer is inherited from by both the GoalSerializer and
+    RoundSerializer. We can have our logic for getting campaigns in
+    this serializer so we don't have to repeat code. We can also use this
+    for any object we need in the future that needs to get the campaign it is
+    related to.
+    """
+    campaign = serializers.SerializerMethodField()
+
+    def get_campaign(self, obj):
+        request, _, _, relation, expedite = gather_request_data(self.context)
+        if expedite == 'true':
+            return None
+        query = 'MATCH (o:`%s` {object_uuid:"%s"})-[:ASSOCIATED_WITH]-' \
+                '(c:Campaign) RETURN c.object_uuid' % (obj.get_child_label(),
+                                                       obj.object_uuid)
+        res, col = db.cypher_query(query)
+        try:
+            if relation == 'hyperlink':
+                return reverse('campaign-detail',
+                               kwargs={'object_uuid': res[0][0]},
+                               request=request)
+
+            return res[0][0]
+        except IndexError:
+            return None

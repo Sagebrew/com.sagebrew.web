@@ -20,8 +20,9 @@ class PostsEndpointTests(APITestCase):
         res = create_user_util_test(self.email)
         while not res['task_id'].ready():
             time.sleep(.1)
-        self.post = Post(content="Hey I'm a post").save()
         self.pleb = Pleb.nodes.get(email=self.email)
+        self.post = Post(content="Hey I'm a post",
+                         owner_username=self.pleb.username).save()
         self.post.owned_by.connect(self.pleb)
         self.post.posted_on_wall.connect(self.pleb.get_wall())
         self.pleb.get_wall().posts.connect(self.post)
@@ -112,7 +113,7 @@ class PostsEndpointTests(APITestCase):
                       kwargs={"object_uuid": self.post.object_uuid})
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['profile'],
-                         "http://testserver/v1/profiles/test_test/")
+                         "test_test")
 
     def test_view_count(self):
         self.client.force_authenticate(user=self.user)
@@ -378,7 +379,8 @@ class WallPostListCreateTest(APITestCase):
 
     def test_list_with_items(self):
         self.client.force_authenticate(user=self.user)
-        post = Post(content="My first post").save()
+        post = Post(content="My first post",
+                    owner_username=self.pleb.username).save()
         post.owned_by.connect(self.pleb)
         self.pleb.posts.connect(post)
         wall = self.pleb.get_wall()
@@ -395,7 +397,8 @@ class WallPostListCreateTest(APITestCase):
         while not res['task_id'].ready():
             time.sleep(.1)
         friend = Pleb.nodes.get(email=email2)
-        post = Post(content="My first post").save()
+        post = Post(content="My first post",
+                    owner_username=self.pleb.username).save()
         post.owned_by.connect(self.pleb)
         self.pleb.posts.connect(post)
         wall = friend.get_wall()
@@ -414,7 +417,8 @@ class WallPostListCreateTest(APITestCase):
         while not res['task_id'].ready():
             time.sleep(.1)
         friend = Pleb.nodes.get(email=email2)
-        post = Post(content="My first post").save()
+        post = Post(content="My first post",
+                    owner_username=self.pleb.username).save()
         post.owned_by.connect(self.pleb)
         self.pleb.posts.connect(post)
         wall = friend.get_wall()
@@ -428,7 +432,8 @@ class WallPostListCreateTest(APITestCase):
 
     def test_list_render(self):
         self.client.force_authenticate(user=self.user)
-        post = Post(content="My first post").save()
+        post = Post(content="My first post",
+                    owner_username=self.pleb.username).save()
         post.owned_by.connect(self.pleb)
         self.pleb.posts.connect(post)
         wall = self.pleb.get_wall()

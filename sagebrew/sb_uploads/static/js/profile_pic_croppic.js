@@ -60,7 +60,6 @@ $(document).ready(function () {
                 cache: false,
                 processData: false,
                 success: function (data) {
-                    console.log(data);
                     var profileImg = $("#profile_pic");
                     if (profileImg.length === 0) {
                         $(".croppedImg").remove();

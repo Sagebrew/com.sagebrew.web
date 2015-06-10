@@ -71,9 +71,11 @@
         {% if "intercom" in request_profile.actions and "/registration/" not in request.path %}
             <script>
               window.intercomSettings = {
-                name: "{{ request.user.name }}",
+                name: "{{ request.user.first_name }} {{ request.user.last_name }}",
                 email: "{{ request.user.email }}",
+                user_id: "{{ request.user.username }}",
                 created_at: {{ request.user.date_joined|date:"U" }},
+                reputation: {{ request_profile.reputation }},
                 {% if debug %}
                     app_id: "jmz4pnau"
                 {% else %}

@@ -55,22 +55,6 @@ def connect_to_dynamo():
         return e
 
 
-def get_rep_info(parent_object, table_name):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        table = Table(table_name=get_table_name(table_name), connection=conn)
-    except JSONResponseError as e:
-        return e
-
-    res = table.query_2(
-        parent_object__eq=parent_object,
-        object_uuid__gte="a"
-    )
-    return list(res)
-
-
 def add_object_to_table(table_name, object_data):
     """
     This function will attempt to add an object to a table, this will be
@@ -190,85 +174,6 @@ def get_user_updates(username, object_uuid, table_name):
     except ItemNotFound:
         return {}
     return dict(res)
-
-
-@apply_defense
-def build_rep_page(rep):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        rep_table = Table(table_name=get_table_name('general_reps'),
-                          connection=conn)
-        policy_table = Table(table_name=get_table_name('policies'),
-                             connection=conn)
-        experience_table = Table(table_name=get_table_name('experiences'),
-                                 connection=conn)
-    except JSONResponseError as e:
-        return e
-    policies = rep.policy.all()
-    experiences = rep.experience.all()
-    try:
-        pleb = rep.pleb.all()[0]
-    except IndexError as e:
-        return e
-    rep_data = {
-        'object_uuid': str(rep.object_uuid),
-        'name': "%s %s" % (pleb.first_name, pleb.last_name),
-        'full': '%s %s %s' % (rep.title, pleb.first_name, pleb.last_name),
-        'username': pleb.username, 'rep_id': str(rep.object_uuid),
-        "bio": str(rep.bio), 'title': rep.title
-    }
-    rep_table.put_item(rep_data)
-    for policy in policies:
-        data = {
-            'parent_object': rep.object_uuid,
-            'object_uuid': policy.object_uuid,
-            'category': policy.category,
-            'description': policy.description
-        }
-        policy_table.put_item(data)
-
-    for experience in experiences:
-        data = {
-            'parent_object': rep.object_uuid,
-            'object_uuid': experience.object_uuid,
-            'title': experience.title,
-            'start_date': unicode(experience.start_date),
-            'end_date': unicode(experience.end_date),
-            'description': experience.description,
-            'current': experience.current,
-            'company': experience.company_s,
-            'location': experience.location_s
-        }
-        experience_table.put_item(data)
-    return True
-
-
-@apply_defense
-def get_rep_docs(rep_id, rep_only=False):
-    conn = connect_to_dynamo()
-    if isinstance(conn, Exception):
-        return conn
-    try:
-        rep_table = Table(table_name=get_table_name('general_reps'),
-                          connection=conn)
-    except JSONResponseError as e:
-        return e
-    try:
-        rep = rep_table.get_item(
-            object_uuid=rep_id
-        )
-    except ItemNotFound:
-        return {}
-    if rep_only:
-        return rep
-    policies = get_rep_info(rep_id, 'policies')
-    experiences = get_rep_info(rep_id, 'experiences')
-    education = get_rep_info(rep_id, 'education')
-    goals = get_rep_info(rep_id, 'goals')
-    return {"rep": rep, "policies": policies, "experiences": experiences,
-            'education': education, 'goals': goals}
 
 
 def get_dynamo_table(table_name):

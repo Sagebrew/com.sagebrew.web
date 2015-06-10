@@ -25,6 +25,7 @@ class CommentSerializer(ContentSerializer):
         parent_object = validated_data.pop('parent_object', None)
         validated_data['content'] = bleach.clean(
             validated_data.get('content', ''))
+        validated_data['owner_username'] = owner.username
         comment = Comment(**validated_data).save()
         comment.owned_by.connect(owner)
         owner.comments.connect(comment)
@@ -64,7 +65,7 @@ class CommentSerializer(ContentSerializer):
             else:
                 parent_url = "%s%s" % (settings.WEB_ADDRESS, parent_url)
                 response = request_to_api(parent_url,
-                                          obj.owned_by.all()[0].username,
+                                          obj.owner_username,
                                           req_method="GET")
             return response.json()['url']
         return None

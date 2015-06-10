@@ -21,7 +21,6 @@ from api.utils import spawn_task
 from plebs.tasks import send_email_task, create_beta_user
 from plebs.neo_models import Pleb, BetaUser
 from sb_public_official.tasks import create_rep_task
-from sb_docstore.tasks import build_rep_page_task
 
 from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm, RepRegistrationForm,
@@ -192,6 +191,7 @@ def email_verification(request, confirmation):
         if token_gen.check_token(request.user, confirmation, profile):
             profile.email_verified = True
             profile.save()
+            profile.refresh()
             cache.set(profile.username, profile)
             return redirect('profile_info')
         else:
@@ -250,6 +250,7 @@ def profile_information(request):
             try:
                 citizen.completed_profile_info = True
                 citizen.save()
+                citizen.refresh()
                 cache.set(citizen.username, citizen)
             except (CypherException, IOError):
                 # TODO instead of going to 500 we should instead repopulate the
@@ -376,9 +377,6 @@ def rep_reg_page(request):
             res = spawn_task(create_rep_task, task_data)
             if isinstance(res, Exception):
                 return redirect("404_Error")
-            res = spawn_task(build_rep_page_task, {'rep_id': uuid,
-                                                   'rep_type': cleaned[
-                                                       'office']})
             if isinstance(res, Exception):
                 return
             return redirect("rep_page", rep_type=cleaned['office'], rep_id=uuid)

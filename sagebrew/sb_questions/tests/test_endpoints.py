@@ -21,9 +21,10 @@ class QuestionEndpointTests(APITestCase):
         res = create_user_util_test(self.email)
         while not res['task_id'].ready():
             time.sleep(.1)
-        self.question = Question(content="Hey I'm a question",
-                                 title="test question title").save()
         self.pleb = Pleb.nodes.get(email=self.email)
+        self.question = Question(content="Hey I'm a question",
+                                 title="test question title",
+                                 owner_username=self.pleb.username).save()
         self.question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(self.question)
         self.user = User.objects.get(email=self.email)
@@ -117,7 +118,7 @@ class QuestionEndpointTests(APITestCase):
         url = reverse('question-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
         response = self.client.get(url, format='json')
-        self.assertEqual('http://testserver/v1/profiles/test_test/',
+        self.assertEqual('test_test',
                          response.data['profile'])
 
     def test_get_view_count(self):
@@ -219,7 +220,8 @@ class QuestionEndpointTests(APITestCase):
     def test_get_list(self):
         for question in Question.nodes.all():
             question.delete()
-        question = Question(title='test_title', content='test_content').save()
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
         self.client.force_authenticate(user=self.user)
@@ -233,7 +235,8 @@ class QuestionEndpointTests(APITestCase):
         for question in Question.nodes.all():
             question.delete()
         tag = Tag(name='fiscal').save()
-        question = Question(title='test_title', content='test_content').save()
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
         question.tags.connect(tag)
@@ -248,7 +251,8 @@ class QuestionEndpointTests(APITestCase):
         for question in Question.nodes.all():
             question.delete()
         self.client.force_authenticate(user=self.user)
-        question = Question(title='test_title', content='test_content').save()
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
         url = reverse('question-list') + "?limit=5&offset=0&" \
@@ -261,7 +265,8 @@ class QuestionEndpointTests(APITestCase):
         for question in Question.nodes.all():
             question.delete()
         self.client.force_authenticate(user=self.user)
-        question = Question(title='test_title', content='test_content').save()
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
         url = reverse('question-list') + "?limit=5&offset=0&" \

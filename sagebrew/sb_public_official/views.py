@@ -27,9 +27,7 @@ def saga(request, username):
             DoesNotExist):
         return redirect("404_Error")
     return render(request, 'action_page.html',
-                  {"representative":
-                       PoliticalCampaignSerializer(campaign).data,
-                   "registered": False})
+                  PoliticalCampaignSerializer(campaign).data)
 
 
 @login_required()
@@ -42,9 +40,7 @@ def updates(request, username):
             DoesNotExist):
         return redirect("404_Error")
     return render(request, 'action_page.html',
-                  {"representative":
-                       PoliticalCampaignSerializer(campaign).data,
-                   "registered": False})
+                  PoliticalCampaignSerializer(campaign).data)
 
 
 @api_view(['GET'])
@@ -54,7 +50,8 @@ def get_search_html(request, object_uuid):
         campaign = PoliticalCampaign.nodes.get(object_uuid=object_uuid)
     except (CypherException, IOError):
         return Response('Server Error', status=500)
-    official_data = PoliticalCampaignSerializer(campaign).data
-    rendered_html = render_to_string("saga_search_block.html", official_data)
+    rendered_html = render_to_string("saga_search_block.html",
+                                     PoliticalCampaignSerializer(
+                                         campaign).data)
 
     return Response({'html': rendered_html}, status=200)

@@ -12,7 +12,8 @@ from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data
 
 from .neo_models import Address, Pleb, BetaUser
-from .tasks import create_pleb_task, pleb_user_update, determine_pleb_reps
+from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
+                    update_address_location)
 
 
 def generate_username(first_name, last_name):
@@ -237,6 +238,8 @@ class AddressSerializer(SBSerializer):
         spawn_task(task_func=determine_pleb_reps, task_param={
             "username": self.context['request'].user.username,
         })
+        spawn_task(task_func=update_address_location,
+                   task_param={"object_uuid": instance.object_uuid})
         return instance
 
     def get_href(self, obj):

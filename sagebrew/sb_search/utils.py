@@ -98,7 +98,7 @@ def process_search_result(item):
         }
     elif item['_type'] == 'public_official':
         return {
-            "object_uuid": item['_source']['id'],
+            "object_uuid": item['_source']['campaign'],
             'type': 'public_official', 'temp_score': item['_score'],
             'score': item['_score']
         }

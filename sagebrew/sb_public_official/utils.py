@@ -121,6 +121,8 @@ def determine_reps(username):
     for senator in pleb.senators.all():
         pleb.senators.disconnect(senator)
     reps = [PublicOfficial.inflate(row[0]) for row in reps]
+    cache.delete("%s_house_representative" % username)
+    cache.delete("%s_senators" % username)
     for rep in reps:
         if rep.district == pleb_district:
             try:

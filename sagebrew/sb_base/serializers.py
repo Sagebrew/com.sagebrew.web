@@ -98,10 +98,14 @@ class TitledContentSerializer(MarkdownContentSerializer):
                                   min_length=15, max_length=140)
 
     def validate_title(self, value):
-        if (self.object_uuid is not None):
-            message = 'Cannot edit Title when there have ' \
-                      'already been solutions provided'
-            raise serializers.ValidationError(message)
+        '''
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request.method not in ['POST', 'post']:
+            if self.initial_data['id'] is not None:
+                message = 'Cannot edit Title when there have ' \
+                          'already been solutions provided'
+                raise serializers.ValidationError(message)
+        '''
         return value
 
 

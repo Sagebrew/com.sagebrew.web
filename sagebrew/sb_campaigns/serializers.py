@@ -9,6 +9,8 @@ from api.serializers import SBSerializer
 from api.utils import gather_request_data
 from plebs.neo_models import Pleb
 from sb_goals.neo_models import Round
+from sb_public_official.neo_models import PublicOfficial
+from sb_public_official.serializers import PublicOfficialSerializer
 
 from .neo_models import (Campaign, PoliticalCampaign, Position)
 
@@ -37,6 +39,7 @@ class CampaignSerializer(SBSerializer):
     active_goals = serializers.SerializerMethodField()
     active_round = serializers.SerializerMethodField()
     upcoming_round = serializers.SerializerMethodField()
+    public_official = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         request = self.context.get('request', None)
@@ -74,7 +77,7 @@ class CampaignSerializer(SBSerializer):
 
     def get_url(self, obj):
         return reverse('action_saga',
-                       kwargs={"username": obj.owner_username},
+                       kwargs={"username": obj.object_uuid},
                        request=self.context.get('request', None))
 
     def get_href(self, obj):
@@ -139,6 +142,17 @@ class CampaignSerializer(SBSerializer):
                            request=request)
         return Campaign.get_position(obj.object_uuid)
 
+    def get_public_official(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        public_official = obj.get_public_official(obj.object_uuid)
+        if public_official is None:
+            return public_official
+        try:
+            public_official = PublicOfficial.inflate(public_official)
+        except AttributeError:
+            pass
+        cache.set("%s_public_official" % (obj.object_uuid), public_official)
+        return PublicOfficialSerializer(public_official).data
 
 class PoliticalCampaignSerializer(CampaignSerializer):
     vote_count = serializers.SerializerMethodField()

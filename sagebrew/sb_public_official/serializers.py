@@ -72,7 +72,6 @@ class PublicOfficialSerializer(SBSerializer):
                     '[:HAS_CAMPAIGN]->(c:PoliticalCampaign) ' \
                     'RETURN c.object_uuid' % (obj.object_uuid)
             res, _ = db.cypher_query(query)
-            logger.info(res)
             try:
                 campaign = res[0][0]
                 cache.set('%s_campaign' % (obj.object_uuid), campaign)

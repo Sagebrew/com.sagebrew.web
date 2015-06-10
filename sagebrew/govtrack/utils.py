@@ -27,6 +27,8 @@ def create_gt_role(rep):
         rep["startdate"] = datetime.strptime(rep["startdate"],
                                              '%Y-%m-%d')
         temp_cong_num = rep.pop("congress_numbers", None)
+        if rep['district'] == 0:
+            rep['district'] = 1
         my_role = GTRole(**rep)
         try:
             my_role.save()

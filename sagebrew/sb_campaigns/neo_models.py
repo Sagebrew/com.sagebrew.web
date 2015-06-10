@@ -247,6 +247,20 @@ class Campaign(Searchable):
                 position = None
         return position
 
+    @classmethod
+    def get_public_official(cls, object_uuid):
+        public_official = cache.get("%s_public_official" % (object_uuid))
+        if public_official is None:
+            query = "MATCH (r:`Campaign` {object_uuid:'%s'})-" \
+                    "[:HAS_PUBLIC_OFFICIAL]->(p:`PublicOfficial`) RETURN p" \
+                    % (object_uuid)
+            res, _ = db.cypher_query(query)
+            try:
+                public_official = res[0][0]
+            except IndexError:
+                public_official = None
+        return public_official
+
 
 class PoliticalCampaign(Campaign):
     """

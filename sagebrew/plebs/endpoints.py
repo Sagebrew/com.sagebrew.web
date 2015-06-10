@@ -38,6 +38,10 @@ from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
 from .neo_models import Pleb, Address, FriendRequest
 from .utils import get_filter_by
 
+from logging import getLogger
+logger = getLogger('loggly_logs')
+
+
 
 class AddressViewSet(viewsets.ModelViewSet):
     """
@@ -316,13 +320,18 @@ class ProfileViewSet(viewsets.ModelViewSet):
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
                     '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
-                    '->(c:Campaign) WHERE c.active=true RETURN c' % (username)
+                    '->(c:Campaign) WHERE c.active=true RETURN c LIMIT 5' % \
+                    (username)
             res, _ = db.cypher_query(query)
             possible_reps = [PoliticalCampaign.inflate(row[0]) for row in res]
             cache.set('%s_possible_house_representatives' % (username),
                       possible_reps)
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
+            if not possible_reps:
+                return Response("<small>Currently No Registered Campaigning "
+                                "Representatives In Your Area</small>",
+                                status=status.HTTP_200_OK)
             possible_rep_html = [
                 render_to_string('sb_home_section/sb_potential_rep.html',
                                  possible_rep) for possible_rep in
@@ -342,14 +351,19 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
                     '[:ENCOMPASSED_BY]->(l2:Location)-' \
                     '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
-                    '->(c:Campaign) WHERE c.active=true RETURN c' % (username)
+                    '->(c:Campaign) WHERE c.active=true RETURN c LIMIT 5' % \
+                    (username)
             res, _ = db.cypher_query(query)
             possible_senators = [PoliticalCampaign.inflate(row[0])
                                  for row in res]
-            cache.set('%s_possible_house_representatives' % (username),
+            cache.set('%s_possible_senators' % (username),
                       possible_senators)
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
+            if not possible_senators:
+                return Response("<small>Currently No Registered Campaigning "
+                                "Senators In Your Area</small>",
+                                status=status.HTTP_200_OK)
             possible_senators_html = [
                 render_to_string('sb_home_section/sb_potential_rep.html',
                                  possible_sen) for possible_sen in

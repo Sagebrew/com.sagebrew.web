@@ -1,3 +1,4 @@
+import us
 from uuid import uuid1
 
 from django.core import signing
@@ -11,7 +12,7 @@ from elasticsearch import Elasticsearch, NotFoundError
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 
-from neomodel import DoesNotExist, CypherException
+from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task, generate_oauth_user
 from api.tasks import add_object_to_search_index
@@ -20,8 +21,9 @@ from sb_wall.neo_models import Wall
 
 from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
+from sb_locations.neo_models import Location
 
-from .neo_models import Pleb, BetaUser, OauthUser
+from .neo_models import Pleb, BetaUser, OauthUser, Address
 from .utils import create_friend_request_util
 
 
@@ -82,6 +84,32 @@ def determine_pleb_reps(username):
             raise Exception("Failed to determine reps")
     except Exception as e:
         raise determine_pleb_reps.retry(exc=e, countdown=3, max_retries=None)
+
+
+@shared_task()
+def update_address_location(object_uuid):
+    try:
+        address = Address.nodes.get(object_uuid=object_uuid)
+    except (DoesNotExist, Address.DoesNotExist) as e:
+        raise update_address_location.retry(exc=e, countdown=3,
+                                            max_retries=None)
+    try:
+        state = us.states.lookup(address.state)
+        district = address.congressional_district
+        query = 'MATCH (a:Address {object_uuid:"%s"})-[r:ENCOMPASSED_BY]-' \
+                '(l:Location) DELETE r' % (object_uuid)
+        db.cypher_query(query)
+        query = 'MATCH (s:Location {name:"%s"})-[:ENCOMPASSES]->' \
+                        '(d:Location {name:"%s"}) RETURN d' % \
+                        (state, district)
+        res, _ = db.cypher_query(query)
+        district = Location.inflate(res[0][0])
+        district.addresses.connect(address)
+        address.encompassed_by.connect(district)
+    except (CypherException, IOError) as e:
+        raise update_address_location.retry(exc=e, countdown=3,
+                                            max_retries=None)
+    return True
 
 
 @shared_task()

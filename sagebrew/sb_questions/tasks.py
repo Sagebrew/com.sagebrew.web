@@ -4,7 +4,7 @@ from django.conf import settings
 
 from neomodel import CypherException, DoesNotExist
 
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, exceptions
 
 from api.utils import spawn_task, create_auto_tags
 from api.tasks import add_object_to_search_index
@@ -92,7 +92,7 @@ def add_auto_tags_to_question_task(object_uuid):
 def update_search_index(object_uuid):
     from .serializers import QuestionSerializerNeo
     try:
-        question = Question.nodes.get(object_uuid=object_uuid)
+        question = Question.get(object_uuid=object_uuid)
     except (CypherException, IOError) as e:
         raise add_auto_tags_to_question_task.retry(exc=e, countdown=3,
                                                    max_retries=None)

@@ -22,11 +22,8 @@ class Command(BaseCommand):
                                                          "images/congress/2"
                                                          "25x275/%s.jpg"
                                          % (official.bioguideid)).save()
-            print campaign.profile_pic
             campaign.public_official.connect(official)
             official.campaign.connect(campaign)
-            print campaign.public_official.all()[0].full_name
-            print official.campaign.all()[0].object_uuid
 
     def handle(self, *args, **options):
         self.transfer_public_official_to_campaign()

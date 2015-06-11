@@ -21,6 +21,16 @@ def get_current_time():
     return datetime.now(pytz.utc)
 
 
+def get_friend_requests_sent(current_username, friend_username):
+    query = "MATCH (a:Pleb {username: '%s'})-[:SENT_A_REQUEST]->" \
+            "(f:FriendRequest)-[:REQUEST_TO]->(b:Pleb {username: '%s'}) " \
+            "RETURN f.object_uuid" % (current_username, friend_username)
+    res, col = db.cypher_query(query)
+    if len(res) == 0:
+        return False
+    return res[0][0]
+
+
 class SearchCount(StructuredRel):
     times_searched = IntegerProperty(default=1)
     last_searched = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -516,14 +526,7 @@ class Pleb(Searchable):
         return wall
 
     def get_friend_requests_sent(self, username):
-        query = "MATCH (a:Pleb {username: '%s'})-[:SENT_A_REQUEST]->" \
-                "(f:FriendRequest)-[:REQUEST_TO]->(b:Pleb {username: '%s'}) " \
-                "RETURN f.object_uuid" % (self.username, username)
-        res, col = db.cypher_query(query)
-        try:
-            return res[0][0]
-        except IndexError:
-            return False
+        return get_friend_requests_sent(self.username, username)
 
     def determine_reps(self):
         from sb_public_official.utils import determine_reps

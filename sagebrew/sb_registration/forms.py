@@ -1,5 +1,4 @@
 from django import forms
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import PasswordResetForm
@@ -12,7 +11,6 @@ class InterestForm(forms.Form):
     select_all = forms.BooleanField(
         label="I like a bit of everything",
         required=False,
-        help_text=""
     )
 
     fiscal = forms.BooleanField(
@@ -158,9 +156,7 @@ class AddressInfoForm(forms.Form):
         required=True,
     )
 
-    state = USStateField(
-        required=True
-    )
+    state = USStateField()
 
     postal_code = USZipCodeField(
         label="Zip Code",
@@ -227,46 +223,8 @@ class LoginForm(forms.Form):
     password = forms.CharField(required=True, min_length=6)
 
 
-class RepRegistrationForm(forms.Form):
-    ssn = forms.CharField()
-    bank_account = forms.CharField()
-    account_name = forms.CharField()
-    office = forms.CharField()
-    office_text = forms.CharField(required=False)
-    district = forms.IntegerField()
-    seat_number = forms.IntegerField()
-    gov_email = forms.EmailField()
-    gov_phone = forms.CharField()
-    account_type = forms.ChoiceField(choices=settings.PAYMENT_PLANS)
-    stripeBankToken = forms.CharField()
-    credit_card = forms.IntegerField(required=False)
-    stripeCardToken = forms.CharField(required=False)
-    exp_month = forms.IntegerField(required=False)
-    exp_year = forms.IntegerField(required=False)
-    cvv = forms.IntegerField(required=False)
-
-
 class BetaSignupForm(forms.Form):
     email = forms.CharField()
-
-'''
-If you want to adjust field attributes programatically without overwritting
-everything use something like the following under super(...) in
-the __init__ method
-
-for field in self.fields:
-            help_text = self.fields[field].help_text
-            self.fields[field].help_text = None
-            if help_text != '':
-                self.fields[field].widget.attrs.update({'class':'has-popover',
-                'data-content':help_text, 'data-placement':'right',
-                'data-container':'body'})
-
-    date_of_birth = forms.DateTimeField(
-        label="Birthday*",
-        required=True,
-    )
-'''
 
 
 def validate_user(email):

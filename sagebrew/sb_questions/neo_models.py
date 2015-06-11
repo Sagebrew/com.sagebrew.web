@@ -54,24 +54,24 @@ class Question(TitledContent):
 
     def get_tags(self):
         query = "MATCH (a:Question {object_uuid:'%s'})-[:TAGGED_AS]->" \
-                "(b:Tag) RETURN b" % (self.object_uuid)
+                "(b:Tag) RETURN b" % self.object_uuid
         res, col = db.cypher_query(query)
         queryset = [Tag.inflate(row[0]).name for row in res]
         return queryset
 
     def get_solutions(self):
-        query = 'MATCH (a:Question)-->(solutions:Solution) ' \
-            'WHERE (a.object_uuid = "%s" and ' \
-            'solutions.to_be_deleted = false)' \
-            'RETURN solutions' % (self.object_uuid)
+        query = 'MATCH (a:Question {object_uuid: "%s"})-' \
+                '[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
+                'WHERE solutions.to_be_deleted = false ' \
+                'RETURN solutions' % self.object_uuid
         res, col = db.cypher_query(query)
         return [Solution.inflate(row[0]) for row in res]
 
     def get_solution_ids(self):
-        query = 'MATCH (a:Question)-->(solutions:Solution) ' \
-            'WHERE (a.object_uuid = "%s" and ' \
-            'solutions.to_be_deleted = false)' \
-            'RETURN solutions.object_uuid' % (self.object_uuid)
+        query = 'MATCH (a:Question {object_uuid: "%s"})' \
+                '-[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
+                'WHERE solutions.to_be_deleted = false ' \
+                'RETURN solutions.object_uuid' % self.object_uuid
 
         res, col = db.cypher_query(query)
         return [row[0] for row in res]

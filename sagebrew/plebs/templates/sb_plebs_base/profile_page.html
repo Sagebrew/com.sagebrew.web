@@ -8,7 +8,7 @@
 {% block content %}
 
     <div id="user_info" style="display: none"
-        data-current_user_username="{{ current_user.username }}"
+        data-current_user_username="{{ request.user.username }}"
         data-page_user_username="{{ page_user.username }}"></div>
     <div class="row">
         <div class="col-md-12 wallpaper-wrapper">

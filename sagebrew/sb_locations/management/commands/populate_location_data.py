@@ -59,10 +59,10 @@ class Command(BaseCommand):
                                 (state_node.name, district)
                         res, _ = db.cypher_query(query)
                         if not res:
-                            district = Location(name=int(district),
-                                                geo_data=dumps(
-                                                file_data['coordinates']))\
-                                .save()
+                            district = Location(
+                                name=int(district),
+                                geo_data=dumps(
+                                    file_data['coordinates'])).save()
                             district.encompassed_by.connect(state_node)
                             usa.encompasses.connect(district)
                             state_node.encompasses.connect(district)

@@ -320,6 +320,7 @@ class Pleb(Searchable):
                 '(c:Campaign) SET c.first_name="%s", c.last_name="%s"' % \
                 (self.username, self.first_name, self.last_name)
         res, _ = db.cypher_query(query)
+        return True
 
     def deactivate(self):
         pass

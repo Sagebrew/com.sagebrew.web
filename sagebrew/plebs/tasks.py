@@ -44,6 +44,7 @@ def pleb_user_update(username, first_name, last_name, email):
         pleb.email = email
 
         pleb.save()
+        pleb.update_campaign()
         pleb.refresh()
         cache.set(pleb.username, pleb)
         document = PlebSerializerNeo(pleb).data

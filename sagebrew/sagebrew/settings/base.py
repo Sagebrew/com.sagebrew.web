@@ -374,7 +374,7 @@ NON_SAFE = ["REMOVE", "DELETE", "CREATE", "SET",
 
 REMOVE_CLASSES = ["SBVersioned", "SBPublicContent", "SBPrivateContent",
                   "VotableContent", "NotificationCapable", "TaggableContent",
-                  "SBContent", "Searchable", "Term"]
+                  "SBContent", "Searchable", "Term", "TitledContent"]
 
 QUERY_OPERATIONS = {
     "eq": "=",

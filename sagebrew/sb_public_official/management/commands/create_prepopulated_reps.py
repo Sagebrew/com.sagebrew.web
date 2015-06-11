@@ -43,7 +43,7 @@ class Command(BaseCommand):
                                          last_name=person.lastname,
                                          gender=person.gender,
                                          date_of_birth=person.birthday,
-                                         namemod=person.namemod,
+                                         name_mod=person.namemod,
                                          current=role.current,
                                          bio=role.description,
                                          district=role.district,

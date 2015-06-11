@@ -13,7 +13,7 @@ from django.conf import settings
 from sb_comments.neo_models import Comment
 from sb_posts.neo_models import Post
 from plebs.neo_models import Pleb, FriendRequest
-from plebs.views import (profile_page, create_friend_request,
+from plebs.views import (ProfileView, create_friend_request,
                          respond_friend_request)
 from sb_registration.utils import create_user_util_test
 from api.utils import wait_util
@@ -39,13 +39,13 @@ class ProfilePageTest(TestCase):
     def test_unauthenticated(self):
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = AnonymousUser()
-        response = profile_page(request, self.pleb.username)
+        response = ProfileView.as_view(request)
         self.assertEqual(response.status_code, 302)
 
     def test_without_post(self):
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        response = profile_page(request, self.pleb.username)
+        response = ProfileView.as_view(request)
         self.assertIn(response.status_code, [200, 302])
 
     def test_with_post(self):
@@ -61,7 +61,7 @@ class ProfilePageTest(TestCase):
         rel_from_pleb.save()
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        response = profile_page(request, self.pleb.username)
+        response = ProfileView.as_view(request)
         self.assertIn(response.status_code, [200, 302])
         test_post.delete()
 
@@ -87,7 +87,7 @@ class ProfilePageTest(TestCase):
         rel_from_post.save()
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        response = profile_page(request, self.pleb.username)
+        response = ProfileView.as_view(request)
         self.assertIn(response.status_code, [200, 302])
         test_post.delete()
         my_comment.delete()
@@ -116,7 +116,7 @@ class ProfilePageTest(TestCase):
         rel_from_post.save()
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        response = profile_page(request, self.pleb.username)
+        response = ProfileView.as_view(request)
         self.assertIn(response.status_code, [status.HTTP_200_OK,
                                              status.HTTP_302_FOUND])
         test_user.delete()
@@ -134,7 +134,7 @@ class ProfilePageTest(TestCase):
         self.friend_request.request_from.connect(pleb2)
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        response = profile_page(request, self.pleb.username)
+        response = ProfileView.as_view(request)
         self.assertIn(response.status_code, [200, 302])
 
     def test_multiple_posts(self):
@@ -191,7 +191,7 @@ class ProfilePageTest(TestCase):
         rel_from_pleb.save()
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        response = profile_page(request, self.pleb.username)
+        response = ProfileView.as_view(request)
         self.assertIn(response.status_code, [302, 200])
         for item in pleb_array:
             item.delete()
@@ -253,7 +253,7 @@ class ProfilePageTest(TestCase):
         rel_from_pleb.save()
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        response = profile_page(request, self.pleb.username)
+        response = ProfileView.as_view(request)
         self.assertIn(response.status_code, [200, 302])
         for item in pleb_array:
             item.delete()
@@ -266,7 +266,7 @@ class ProfilePageTest(TestCase):
     def test_pleb_does_not_exist(self):
         request = self.factory.get('/fake_username')
         request.user = self.user
-        response = profile_page(request, 'fake_username')
+        response = ProfileView.as_view(request)
 
         self.assertEqual(response.status_code, 302)
 

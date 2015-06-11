@@ -1,5 +1,8 @@
+from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 from rest_framework import viewsets
+from rest_framework import status
 
 from neomodel import db
 
@@ -19,3 +22,17 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
 
     def get_object(self):
         return Location.get(object_uuid=self.kwargs[self.lookup_field])
+
+
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def render_positions(request, name=None):
+    from logging import getLogger
+    logger = getLogger('loggly_logs')
+    query = 'MATCH (l:Location {name:"%s"})-[:POSITIONS_AVAILABLE]->' \
+            '(p1:Position) WITH l, p1 OPTIONAL MATCH (l)-[:ENCOMPASSES]->' \
+            '(l2:Location)-[:POSITIONS_AVAILABLE]->(p2:Position)' \
+            'RETURN p1, p2' % name
+    res, _ = db.cypher_query(query)
+    logger.info(res)
+    return Response(res, status=status)

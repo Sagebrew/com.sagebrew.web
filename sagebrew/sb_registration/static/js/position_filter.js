@@ -60,8 +60,16 @@ $(document).ready(function () {
     });
     engine.initialize();
     $('#state')
-        .on('tokenfield:createdtoken', function (e) {
-            console.log();
+        .on('tokenfield:createtoken', function (e) {
+            for (var p in engine.local) {
+                if (engine.local[p].value === e.attrs.value) {
+                    return true;
+                }
+            }
+            $.notify(
+                {message: "Unrecognized state name! Please enter a valid state name or use our provided state names."},
+                {type: "danger"});
+            return false;
         })
         .tokenfield({
             limit: 50,

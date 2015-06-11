@@ -75,8 +75,6 @@ class Command(BaseCommand):
                                                  % (rep.bioguideid)).save()
                     campaign.public_official.connect(rep)
                     rep.campaign.connect(campaign)
-                    rep.populated_es_index = False
-                    rep.save()
                 rep.gt_person.connect(person)
                 rep.gt_role.connect(role)
                 reps.append(rep)

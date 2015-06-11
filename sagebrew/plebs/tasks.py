@@ -12,7 +12,7 @@ from elasticsearch import Elasticsearch, NotFoundError
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 
-from py2neo import ClientError
+from py2neo.cypher import ClientError
 from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task, generate_oauth_user

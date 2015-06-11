@@ -221,7 +221,7 @@ class AddressSerializer(SBSerializer):
         return Address(**validated_data).save()
 
     def update(self, instance, validated_data):
-        request, _, _, _, _ = gather_request_data(self.context)
+        request = self.context.get('request', None)
         instance.street = validated_data.get('street', instance.street)
         instance.street_additional = validated_data.get(
             'street_additional', instance.street_additional)

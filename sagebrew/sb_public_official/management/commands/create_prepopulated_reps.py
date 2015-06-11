@@ -68,8 +68,8 @@ class Command(BaseCommand):
                                                  website=rep.website,
                                                  first_name=rep.first_name,
                                                  last_name=rep.last_name,
-                                                 profile_pic=
-                                                 settings.STATIC_URL +
+                                                 profile_pic=settings.
+                                                 STATIC_URL +
                                                  "images/congress/2"
                                                  "25x275/%s.jpg"
                                                  % (rep.bioguideid)).save()

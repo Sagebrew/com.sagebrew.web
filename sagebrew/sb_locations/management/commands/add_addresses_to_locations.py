@@ -24,6 +24,5 @@ class Command(BaseCommand):
                 district.addresses.connect(address)
                 address.encompassed_by.connect(district)
 
-
     def handle(self, *args, **options):
         self.add_addresses_to_locations()

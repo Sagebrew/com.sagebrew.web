@@ -9,7 +9,6 @@ from api.serializers import SBSerializer
 from api.utils import gather_request_data
 from plebs.neo_models import Pleb
 from sb_goals.neo_models import Round
-from sb_public_official.neo_models import PublicOfficial
 from sb_public_official.serializers import PublicOfficialSerializer
 
 from .neo_models import (Campaign, PoliticalCampaign, Position)
@@ -146,6 +145,7 @@ class CampaignSerializer(SBSerializer):
         request, _, _, _, _ = gather_request_data(self.context)
         return PublicOfficialSerializer(obj.get_public_official(
             obj.object_uuid)).data
+
 
 class PoliticalCampaignSerializer(CampaignSerializer):
     vote_count = serializers.SerializerMethodField()

@@ -4,7 +4,7 @@ from django.conf import settings
 
 from neomodel import CypherException, DoesNotExist
 
-from elasticsearch import Elasticsearch, exceptions
+from elasticsearch import Elasticsearch
 
 from api.utils import spawn_task, create_auto_tags
 from api.tasks import add_object_to_search_index

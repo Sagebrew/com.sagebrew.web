@@ -42,7 +42,6 @@ from logging import getLogger
 logger = getLogger('loggly_logs')
 
 
-
 class AddressViewSet(viewsets.ModelViewSet):
     """
     This ViewSet provides all of the addresses associated with the currently
@@ -364,7 +363,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(PoliticalCampaignSerializer(possible_reps,
                                                     many=True).data,
                         status=status.HTTP_200_OK)
-
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def possible_senators(self, request, username=None):

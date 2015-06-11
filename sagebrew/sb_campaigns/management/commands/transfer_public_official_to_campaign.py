@@ -1,5 +1,3 @@
-from neomodel import db
-
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
@@ -19,8 +17,7 @@ class Command(BaseCommand):
                                          first_name=official.first_name,
                                          last_name=official.last_name,
                                          profile_pic=settings.STATIC_URL +
-                                                         "images/congress/2"
-                                                         "25x275/%s.jpg"
+                                         "images/congress/225x275/%s.jpg"
                                          % (official.bioguideid)).save()
             campaign.public_official.connect(official)
             official.campaign.connect(campaign)

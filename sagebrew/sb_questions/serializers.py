@@ -36,6 +36,13 @@ def solution_count(question_uuid):
 
 
 class QuestionTitleUpdate:
+    """
+    This class will attempt to get the parent instance of the serializer and
+    set self.object_uuid to it, this allows it to validate that there are no
+    solutions to a question when attempting to update the tile of a question,
+    but also allows creation of the question by setting self.object_uuid to
+    None if there is not an instance in the serializer.
+    """
     def __init__(self):
         pass
 

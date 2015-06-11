@@ -11,7 +11,6 @@ from neomodel import DoesNotExist, CypherException
 from sb_registration.utils import (verify_completed_registration)
 
 from .neo_models import PublicOfficial
-from .serializers import PublicOfficialSerializer
 
 from sb_campaigns.neo_models import PoliticalCampaign
 from sb_campaigns.serializers import PoliticalCampaignSerializer

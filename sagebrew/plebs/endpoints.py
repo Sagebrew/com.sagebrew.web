@@ -306,6 +306,30 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(PublicOfficialSerializer(house_rep).data,
                         status=status.HTTP_200_OK)
 
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def president(self, request, username=None):
+        president = cache.get("%s_president" % (username))
+        if president is None:
+            query = 'MATCH (p:Pleb {username:"%s"})-[:HAS_PRESIDENT]->' \
+                    '(o:PublicOfficial) RETURN o' % (username)
+            res, _ = db.cypher_query(query)
+            try:
+                president = PublicOfficial.inflate(res[0][0])
+                cache.set("%s_president" % (username), president)
+            except IndexError:
+                return Response("<small>Sorry we could not find your "
+                                "President. Please alert us to our error"
+                                "!</small>",
+                                status=status.HTTP_200_OK)
+        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        if html == 'true':
+            return Response(
+                render_to_string('sb_home_section/sb_house_rep_block.html',
+                                 PublicOfficialSerializer(president).data),
+                status=status.HTTP_200_OK)
+        return Response(PublicOfficialSerializer(president).data,
+                        status=status.HTTP_200_OK)
+
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
                                                        IsSelf))
     def is_beta_user(self, request, username=None):

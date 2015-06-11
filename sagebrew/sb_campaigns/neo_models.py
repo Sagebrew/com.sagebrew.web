@@ -249,6 +249,7 @@ class Campaign(Searchable):
 
     @classmethod
     def get_public_official(cls, object_uuid):
+        from sb_public_official.neo_models import PublicOfficial
         public_official = cache.get("%s_public_official" % (object_uuid))
         if public_official is None:
             query = "MATCH (r:`Campaign` {object_uuid:'%s'})-" \
@@ -256,7 +257,8 @@ class Campaign(Searchable):
                     % (object_uuid)
             res, _ = db.cypher_query(query)
             try:
-                public_official = res[0][0]
+                public_official = PublicOfficial.inflate(res[0][0])
+                cache.set("%s_public_official" % (object_uuid))
             except IndexError:
                 public_official = None
         return public_official

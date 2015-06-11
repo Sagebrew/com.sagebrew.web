@@ -144,15 +144,8 @@ class CampaignSerializer(SBSerializer):
 
     def get_public_official(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
-        public_official = obj.get_public_official(obj.object_uuid)
-        if public_official is None:
-            return public_official
-        try:
-            public_official = PublicOfficial.inflate(public_official)
-        except AttributeError:
-            pass
-        cache.set("%s_public_official" % (obj.object_uuid), public_official)
-        return PublicOfficialSerializer(public_official).data
+        return PublicOfficialSerializer(obj.get_public_official(
+            obj.object_uuid)).data
 
 class PoliticalCampaignSerializer(CampaignSerializer):
     vote_count = serializers.SerializerMethodField()

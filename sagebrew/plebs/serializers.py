@@ -107,6 +107,7 @@ class UserSerializer(SBSerializer):
                 'new_password', validated_data.get('password', "")))
             update_session_auth_hash(self.context['request'], instance)
         instance.save()
+        instance.update_campaign()
         # TODO Should move this out to the endpoint to remove circular
         # dependencies. Like we do in sb_questions/endpoints.py create
         spawn_task(task_func=pleb_user_update, task_param={

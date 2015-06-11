@@ -305,6 +305,12 @@ class Pleb(Searchable):
                       (username, campaign_uuid), donation_amount)
         return donation_amount
 
+    def update_campaign(self):
+        query = 'MATCH (p:Pleb {username:"%s"})-[:IS_WAGING]->' \
+                '(c:Campaign) SET c.first_name="%s", c.last_name="%s"' % \
+                (self.username, self.first_name, self.last_name)
+        res, _ = db.cypher_query(query)
+
     def deactivate(self):
         pass
 

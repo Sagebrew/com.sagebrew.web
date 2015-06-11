@@ -10,7 +10,7 @@
     </div>
     <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
         <div class="block sb_bio_block sb_markdown_disabled">
-            <h2>{{ public_official.full_name }}</h2>
+            <h2>{{ public_official.first_name }} {{ public_official.last_name }}</h2>
             {% if public_official.title != "President" and public_official.title != "Vice President" %}
               <p>This {{ public_official.title }} from {{ public_official.state }} has not yet joined Sagebrew.</p>
             {% else %}

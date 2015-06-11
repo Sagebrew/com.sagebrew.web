@@ -12,6 +12,7 @@ from elasticsearch import Elasticsearch, NotFoundError
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 
+from py2neo import ClientError
 from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task, generate_oauth_user
@@ -88,11 +89,10 @@ def determine_pleb_reps(username):
 
 @shared_task()
 def update_address_location(object_uuid):
-    from logging import getLogger
-    logger = getLogger('loggly_logs')
     try:
         address = Address.nodes.get(object_uuid=object_uuid)
-    except (DoesNotExist, Address.DoesNotExist) as e:
+    except (DoesNotExist, Address.DoesNotExist, CypherException, IOError,
+            ClientError) as e:
         raise update_address_location.retry(exc=e, countdown=3,
                                             max_retries=None)
     try:
@@ -101,7 +101,6 @@ def update_address_location(object_uuid):
         query = 'MATCH (a:Address {object_uuid:"%s"})-[r:ENCOMPASSED_BY]->' \
                 '(l:Location) DELETE r' % (object_uuid)
         res, _ = db.cypher_query(query)
-        logger.info(res)
         query = 'MATCH (s:Location {name:"%s"})-[:ENCOMPASSES]->' \
                         '(d:Location {name:"%s"}) RETURN d' % \
                         (state, district)
@@ -109,7 +108,7 @@ def update_address_location(object_uuid):
         district = Location.inflate(res[0][0])
         district.addresses.connect(address)
         address.encompassed_by.connect(district)
-    except (CypherException, IOError) as e:
+    except (CypherException, IOError, ClientError) as e:
         raise update_address_location.retry(exc=e, countdown=3,
                                             max_retries=None)
     return True

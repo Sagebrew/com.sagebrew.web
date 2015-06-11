@@ -6,7 +6,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
-from django.http import HttpResponse
 from django.conf import settings
 from django.views.generic import View
 from django.template import RequestContext

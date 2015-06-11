@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'css/vendor/select2.css' %}" rel="stylesheet"/>
+    <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/vendor/bootstrap-tokenfield.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/vendor/tokenfield-typeahead.min.css' %}"/>
+{% endblock css %}
 {% block title %} Profile Information {% endblock %}
 {% block content %}
     <div class="sb_registration_block">
@@ -65,6 +72,8 @@
 {% block scripts %}
     {{ block.super }}
     <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
+    <script src="{% static 'js/vendor/bootstrap-tokenfield.min.js' %}"></script>
+    <script src="{% static 'js/vendor/typeahead.js' %}"></script>
     <script src="{% static 'js/address_validation.js' %}"></script>
-
+    <script src="{% static 'js/position_filter.js' %}"></script>
 {% endblock scripts %}

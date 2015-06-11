@@ -55,7 +55,6 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.PageNumberPagination',
-    'PAGINATE_BY': 10,
     'PAGE_SIZE': 15,
     'MAX_PAGINATE_BY': 100,
     'PAGINATE_BY_PARAM': 'page_size',

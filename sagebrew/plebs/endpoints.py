@@ -63,7 +63,7 @@ class AddressViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query = 'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                '(b:Address) RETURN b' % (self.request.user.username)
+                '(b:Address) RETURN b' % self.request.user.username
         res, col = db.cypher_query(query)
         return [Address.inflate(row[0]) for row in res]
 

@@ -54,7 +54,9 @@ $(document).ready(function(){
             success: function (data) {
             }
         });
-
+        if (congressional_district === "AL") {
+            congressional_district = 1;
+        }
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "PUT",

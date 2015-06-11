@@ -1,5 +1,6 @@
 from logging import getLogger
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from neomodel import CypherException, DoesNotExist
@@ -8,6 +9,7 @@ from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
 from govtrack.neo_models import GTRole
 from govtrack.utils import populate_term_data
+from sb_campaigns.neo_models import PoliticalCampaign
 
 from sb_public_official.neo_models import PublicOfficial
 from sb_public_official.serializers import PublicOfficialSerializer
@@ -41,7 +43,7 @@ class Command(BaseCommand):
                                          last_name=person.lastname,
                                          gender=person.gender,
                                          date_of_birth=person.birthday,
-                                         namemod=person.namemod,
+                                         name_mod=person.namemod,
                                          current=role.current,
                                          bio=role.description,
                                          district=role.district,
@@ -56,14 +58,31 @@ class Command(BaseCommand):
                                          gt_id=person.gt_id,
                                          bioguideid=person.bioguideid)
                     rep.save()
-                    reps.append(rep)
                 except (CypherException, IOError) as e:
                     logger.exception(e)
                     continue
+                if not rep.campaign.all():
+                    campaign = PoliticalCampaign(biography=rep.bio,
+                                                 youtube=rep.youtube,
+                                                 twitter=rep.twitter,
+                                                 website=rep.website,
+                                                 first_name=rep.first_name,
+                                                 last_name=rep.last_name,
+                                                 profile_pic=settings.
+                                                 STATIC_URL +
+                                                 "images/congress/2"
+                                                 "25x275/%s.jpg"
+                                                 % (rep.bioguideid)).save()
+                    campaign.public_official.connect(rep)
+                    rep.campaign.connect(campaign)
+                    rep.populated_es_index = False
+                    rep.save()
                 rep.gt_person.connect(person)
                 rep.gt_role.connect(role)
+                reps.append(rep)
         populate_term_data()
         for rep in reps:
+            rep.refresh()
             rep_data = PublicOfficialSerializer(rep).data
             task_data = {
                 "object_uuid": rep_data['id'],

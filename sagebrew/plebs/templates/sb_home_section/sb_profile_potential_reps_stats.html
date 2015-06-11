@@ -5,41 +5,14 @@
         </div>
         <div class="sb_profile_rep_content">
             <h5>Senators</h5>
-            {% for senator in candidate_senators %}
-                <div class="row block_vertical">
-                    <div class="col-lg-2 col-md-2">
-                        <div class="thumbnail sb_thumbnail_xs sb_thumbnail_potential_rep">
-                            <img src="{{ senator.public_picture }}"> {% comment %} Link to their S3 public image{% endcomment %}
-                        </div>
-                    </div>
-                    <div class="col-lg-8 col-md-10 vertical_nav">
-                        <ul>
-                            <li>
-                                <a href="{% url 'action_saga' senator.username %}">{{ senator.first_name }} {{ senator.last_name }}</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            {% endfor %}
-            <small>Currently No Registered Campaigning Senators In Your Area</small>
+            <div id="potential_senator_wrapper">
+
+            </div>
             <h5>House Representatives</h5>
-            {% for house_rep in candidate_representatives %}
-                <div class="row block_vertical">
-                    <div class="col-lg-2 col-md-2">
-                        <div class="thumbnail sb_thumbnail_xs sb_thumbnail_potential_rep">
-                            <img src="{{ house_rep.public_picture }}"> {% comment %} Link to their S3 public image{% endcomment %}
-                        </div>
-                    </div>
-                    <div class="col-lg-8 col-md-10 vertical_nav">
-                        <ul>
-                            <li>
-                                <a href="{% url 'action_saga' house_rep.username %}">{{ house_rep.first_name }} {{ house_rep.last_name }}</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            {% endfor %}
-            <small>Currently No Registered Campaigning Representatives In Your Area</small>
+            <div id="potential_rep_wrapper">
+
+            </div>
+
         </div>
     </div>
 </div>

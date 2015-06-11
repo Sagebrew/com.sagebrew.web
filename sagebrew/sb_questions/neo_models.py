@@ -6,13 +6,13 @@ from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo, BooleanProperty, FloatProperty,
                       db, DoesNotExist)
 
-from sb_base.neo_models import SBPublicContent
+from sb_base.neo_models import TitledContent
 from sb_tags.neo_models import Tag
 
 from sb_solutions.neo_models import Solution
 
 
-class Question(SBPublicContent):
+class Question(TitledContent):
     table = StringProperty(default='public_questions')
     action_name = StringProperty(default="asked a question")
     visibility = StringProperty(default="public")
@@ -22,7 +22,6 @@ class Question(SBPublicContent):
     # provided in the serializer or in the endpoint
     #  /v1/questions/uuid/solution_count/
     solution_count = IntegerProperty(default=0)
-    title = StringProperty()
     is_closed = BooleanProperty(default=False)
     is_private = BooleanProperty()
     is_protected = BooleanProperty(default=False)

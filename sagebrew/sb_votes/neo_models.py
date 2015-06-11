@@ -16,7 +16,7 @@ from api.neo_models import SBObject
 class Vote(SBObject):
     # 1 is Upvote (True) 0 is Downvote (False)
     # We aren't including None as a valid state as that would be a new action
-    # taken by the user and an ew Vote being cast. If they change we'd want to
+    # taken by the user and a new Vote being cast. If they change we'd want to
     # update either a Relationship or spawn a new node with a new time. That
     # way we can track progression of votes based on changes to the content.
     vote_type = BooleanProperty()

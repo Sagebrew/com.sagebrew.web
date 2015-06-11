@@ -4,9 +4,10 @@ from django.template.loader import render_to_string
 from django.core.cache import cache
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
-from django.http import HttpResponse
 from django.conf import settings
+from django.views.generic import View
 from django.template import RequestContext
 
 from rest_framework.decorators import api_view, permission_classes
@@ -14,10 +15,14 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework import status
-from neomodel import DoesNotExist, CypherException
+
+from py2neo.cypher import ClientError
+
+from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task
-from plebs.neo_models import Pleb, BetaUser, FriendRequest
+from plebs.neo_models import (Pleb, BetaUser, FriendRequest, Address,
+                              get_friend_requests_sent)
 from sb_registration.utils import (verify_completed_registration)
 from .serializers import PlebSerializerNeo
 from .tasks import create_friend_request_task
@@ -33,92 +38,52 @@ def root_profile_page(request):
         return redirect("signup")
 
 
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def profile_page(request, pleb_username=""):
-    """
-    Displays the users profile_page. This is where we call the functions to
-    determine
-    who the senators are for the plebs state and which representative for
-    the plebs
-    district. Checks to see if the user currently accessing the page is the
-    same user
-    as the one who owns the page. if so it loads the page fully, if the user
-    is a firend
-    of the owner of the page then it allows them to see posts and comments
-    on posts on the
-    owners wall. If the user is neither the owner nor a friend then it only
-    shows the users
-    name, congressmen, reputation and profile pictures along with a button
-    that allows
-    them to send a friend request.
-
-    :param request:
-    :return:
-    """
-    try:
-        citizen = Pleb.get(username=request.user.username)
-        page_user_pleb = Pleb.get(username=pleb_username)
-    except (Pleb.DoesNotExist, DoesNotExist):
-        return redirect('404_Error')
-    except(CypherException):
-        return HttpResponse('Server Error', status=500)
-    current_user = request.user
-    page_user = User.objects.get(username=page_user_pleb.username)
-    is_owner = False
-    is_friend = False
-    if current_user.username == page_user.username:
-        is_owner = True
-    elif page_user_pleb in citizen.friends.all():
-        is_friend = True
-    friend_request_sent = citizen.get_friend_requests_sent(
-        page_user_pleb.username)
-
-    return render(request, 'sb_plebs_base/profile_page.html', {
-        'user_profile': citizen,
-        'page_profile': page_user_pleb,
-        'current_user': current_user,
-        'page_user': page_user,
-        'house_reps': [],  # reps['house_rep'],
-        'senators': [],  # reps['senators'],
-        'is_owner': is_owner,
-        'is_friend': is_friend,
-        'friend_request_sent': friend_request_sent
-    })
+class LoginRequiredMixin(View):
+    @classmethod
+    def as_view(cls, **initkwargs):
+        view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
+        return login_required(view)
 
 
-@login_required()
-def friend_page(request, pleb_username):
-    try:
-        citizen = Pleb.get(username=request.user.username)
-        page_user_pleb = Pleb.get(username=pleb_username)
-    except (Pleb.DoesNotExist, DoesNotExist):
-        return redirect('404_Error')
-    except(CypherException):
-        return HttpResponse('Server Error', status=500)
-    current_user = request.user
-    page_user = User.objects.get(username=page_user_pleb.username)
-    is_owner = False
-    is_friend = False
-    if current_user.username == page_user.username:
-        is_owner = True
-    elif page_user_pleb in citizen.friends.all():
-        is_friend = True
-    friend_request_sent = citizen.get_friend_requests_sent(
-        page_user_pleb.username)
-    return render(
-        request, 'sb_friends_section/sb_friends.html',
-        {
-            'user_profile': citizen,
+class ProfileView(LoginRequiredMixin):
+    template_name = 'sb_plebs_base/profile_page.html'
+
+    @method_decorator(user_passes_test(
+        verify_completed_registration,
+        login_url='/registration/profile_information'))
+    def dispatch(self, *args, **kwargs):
+        return super(ProfileView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, pleb_username):
+        try:
+            page_user_pleb = Pleb.get(username=pleb_username)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return redirect('404_Error')
+        except (CypherException, ClientError):
+            return redirect("500_Error")
+        page_user = User.objects.get(username=page_user_pleb.username)
+        is_owner = False
+        query = 'MATCH (person:Pleb {username: "%s"})' \
+                '-[r:FRIENDS_WITH]->(p:Pleb {username: "%s"}) ' \
+                'RETURN CASE WHEN r.currently_friends = True THEN True ' \
+                'WHEN r.currently_friends = False THEN False ' \
+                'ELSE False END AS result' % (request.user.username,
+                                              page_user.username)
+        try:
+            res, col = db.cypher_query(query)
+            are_friends = bool(res[0])
+        except(CypherException, ClientError):
+            return redirect("500_Error")
+        except IndexError:
+            is_owner = True
+            are_friends = False
+        return render(request, self.template_name, {
             'page_profile': page_user_pleb,
-            'current_user': current_user,
             'page_user': page_user,
-            'house_reps': [],  # reps['house_rep'],
-            'senators': [],  # reps['senators'],
             'is_owner': is_owner,
-            'is_friend': is_friend,
-            'friend_request_sent': friend_request_sent
+            'is_friend': are_friends,
+            'friend_request_sent': get_friend_requests_sent(
+                request.user.username, page_user.username)
         })
 
 
@@ -126,37 +91,58 @@ def friend_page(request, pleb_username):
 def general_settings(request):
     """
     Displays the users profile_page. This is where we call the functions to
-    determine
-    who the senators are for the plebs state and which representative for
-    the plebs
-    district. Checks to see if the user currently accessing the page is the
-    same user
-    as the one who owns the page. if so it loads the page fully, if the user
-    is a friend
-    of the owner of the page then it allows them to see posts and comments
-    on posts on the
+    determine who the senators are for the plebs state and which
+    representative for the plebs district. Checks to see if the user
+    currently accessing the page is the same user as the one who owns the page.
+    If so it loads the page fully, if the user is a friend of the owner of the
+    page then it allows them to see posts and comments on posts on the
     owners wall. If the user is neither the owner nor a friend then it only
-    shows the users
-    name, congressmen, reputation and profile pictures along with a button
-    that allows
-    them to send a friend request.
+    shows the users name, congressmen, reputation and profile pictures along
+    with a button that allows them to send a friend request.
 
     :param request:
     :return:
     """
-    try:
-        pleb = Pleb.get(username=request.user.username)
-    except (DoesNotExist, Pleb.DoesNotExist):
-        return redirect("404_Error")
-    except (CypherException, IOError):
-        return redirect("500_Error")
     address_key = settings.ADDRESS_AUTH_ID
+    query = 'MATCH (person:Pleb {username: "%s"})' \
+            '-[r:LIVES_AT]->(house:Address) RETURN house' % (
+                request.user.username)
     try:
-        address = pleb.address.all()[0]
-        address = AddressSerializer(address, context={'request': request}).data
+        res, col = db.cypher_query(query)
+        address = AddressSerializer(Address.inflate(res[0][0]),
+                                    context={'request': request}).data
+    except(CypherException, ClientError):
+        return redirect("500_Error")
     except IndexError:
         address = False
     return render(request, 'general_settings.html',
+                  {"address": address, "address_key": address_key})
+
+
+@login_required()
+def quest_settings(request):
+    """
+    This view provides the necessary information for rendering a user's
+    Quest settings. If they have an ongoing Quest it provides the information
+    for that and if not it returns nothing and the template is expected to
+    provide a button for the user to start their Quest.
+
+    :param request:
+    :return:
+    """
+    address_key = settings.ADDRESS_AUTH_ID
+    query = 'MATCH (person:Pleb {username: "%s"})' \
+            '-[r:LIVES_AT]->(house:Address) RETURN house' % (
+                request.user.username)
+    try:
+        res, col = db.cypher_query(query)
+        address = AddressSerializer(Address.inflate(res[0][0]),
+                                    context={'request': request}).data
+    except(CypherException, ClientError):
+        return redirect("500_Error")
+    except IndexError:
+        address = False
+    return render(request, 'campaign_settings.html',
                   {"address": address, "address_key": address_key})
 
 
@@ -225,7 +211,7 @@ def invite_beta_user(request, email):
     except (BetaUser.DoesNotExist, DoesNotExist):
         return Response({"detail": "Sorry we could not find that user."},
                         status=status.HTTP_404_NOT_FOUND)
-    except (IOError, CypherException):
+    except (IOError, CypherException, ClientError):
         return Response({"detail": "Sorry looks like we're having"
                                    " some server difficulties"},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)

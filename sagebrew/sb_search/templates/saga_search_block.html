@@ -1,10 +1,10 @@
 {% load static %}
 <div class="block sb_search_block">
     <div class="row">
-       {% url "action_saga" username=object_uuid as the_url %}
+       {% url "action_saga" username=id as the_url %}
         <div class="col-md-4 col-sm-4 col-xs-4">
             <div class="thumbnail sb_thumbnail_md sb_thumbnail_search" style="position: absolute; margin-top: -10px;">
-                <a href="{{ the_url }}"><img src="{% get_static_prefix %}images/congress/225x275/{{ bioguideid }}.jpg"></a>
+                <a href="{{ the_url }}"><img src="{{ profile_pic }}"></a>
             </div>
         </div>
         <div class="col-md-8 col-sm-12 col-xs-12">
@@ -13,7 +13,9 @@
       </div>
       <div class="row">
         <div class="col-lg-8 col-xs-offset-4">
-            <p>{{ state }} - {{ title }}</p>
+            {% if public_official %}
+                <p>{{ public_official.state }} - {{ public_official.title }}</p>
+            {% endif %}
             {% comment %}
             <p>Office Running for</p>
             <p>2.54K pledged votes</p>

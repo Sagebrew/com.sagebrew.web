@@ -92,7 +92,7 @@ def add_auto_tags_to_question_task(object_uuid):
 def update_search_index(object_uuid):
     from .serializers import QuestionSerializerNeo
     try:
-        question = Question.nodes.get(object_uuid=object_uuid)
+        question = Question.get(object_uuid=object_uuid)
     except (CypherException, IOError) as e:
         raise add_auto_tags_to_question_task.retry(exc=e, countdown=3,
                                                    max_retries=None)

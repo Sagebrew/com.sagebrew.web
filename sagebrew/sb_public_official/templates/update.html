@@ -1,0 +1,18 @@
+{% load humanize %}
+<div class="row block sb_action_content_block sb_update_block">
+    <div class="row">
+        <div class="col-lg-10 col-md-9 col-sm-6 col-xs-6">
+            <h1>{{ title|linebreaksbr }}</h1>
+        </div>
+        <div align="right" class="col-lg-2 col-md-3 col-sm-6 col-xs-6">
+            <p>{{ last_edited_on|naturaltime }}</p>
+            <p>Goal 3</p>
+        </div>
+    </div>
+    <div class="sb_deco_line"></div>
+    <div class="sb_markdown">
+        {% autoescape off %}
+            {{ html_content }}
+        {% endautoescape %}
+    </div>
+</div>

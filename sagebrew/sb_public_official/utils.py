@@ -121,6 +121,8 @@ def determine_reps(username):
     for senator in pleb.senators.all():
         pleb.senators.disconnect(senator)
     reps = [PublicOfficial.inflate(row[0]) for row in reps]
+    cache.delete("%s_house_representative" % username)
+    cache.delete("%s_senators" % username)
     for rep in reps:
         if rep.district == pleb_district:
             try:
@@ -136,6 +138,8 @@ def determine_reps(username):
                 logger.exception("Determine Reps Cypher Exception")
                 return False
             senators.append(rep)
+    president = PublicOfficial.nodes.get(title='President')
+    pleb.president.connect(president)
     cache.set("%s_senators" % username, senators)
     # Need this as neomodel does not currently support spawning post_save
     # after connections

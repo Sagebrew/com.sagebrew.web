@@ -5,6 +5,8 @@ from django.core.cache import cache
 from neomodel import (DoesNotExist, AttemptedCardinalityViolation,
                       CypherException)
 
+from api.utils import spawn_task
+from plebs.tasks import update_address_location
 from plebs.neo_models import Pleb, Address
 from sb_tags.neo_models import Tag
 
@@ -58,6 +60,8 @@ def store_address(username, address_clean):
         address.owned_by.connect(citizen)
         citizen.address.connect(address)
         citizen.determine_reps()
+        spawn_task(task_func=update_address_location,
+                   task_param={"object_uuid": address.object_uuid})
     except AttemptedCardinalityViolation:
         pass
     except (CypherException, IOError) as e:

@@ -6,13 +6,20 @@
     <div class="col-lg-10 col-lg-offset-1 col-md-12 col-sm-12 col-xs-12">
         <div class="sb_wall sb_settings_wall">
             <div class="row">
-                <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 col-lg-offset-1 col-md-offset-1 col-sm-offset-0 col-xs-offset-0">
-                    <div class="block sb_side_nav_block">
-                        <div class="sb_header_bar sb_header_settings">
-                            <h3>Settings</h3>
-                        </div>
-                        <h5>General</h5>
-                    </div>
+                <div class="col-md-3 col-sm-12 col-xs-12 col-lg-offset-1 col-md-offset-1 col-sm-offset-0 col-xs-offset-0">
+                    <ul class="nav nav-list nav-list-vivid sb-side-nav">
+                        <li class="nav-header sb-nav-header"><h3>Settings</h3></li>
+                        <li class="active" style="margin-bottom: 0;">
+                            <a id="sb-nav-link-active" href="#">
+                                <p>General</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'quest_settings' %}">
+                                <p>Quests</p>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
                 <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
                     <div class="block sb_settings_block">

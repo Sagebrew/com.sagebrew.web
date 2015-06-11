@@ -4,3 +4,4 @@ ipython
 coveralls
 flake8
 requests_mock
+django-silk

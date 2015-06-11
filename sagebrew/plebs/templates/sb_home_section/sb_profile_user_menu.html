@@ -35,7 +35,7 @@
            {% endcomment %}
                {% if friend_request_sent == False %}
                     <button class="btn btn-primary sb_btn send_friend_request-action" style="margin-top: 3px"
-                            data-from_username="{{ current_user.username }}"
+                            data-from_username="{{ request.user.username }}"
                             data-to_username="{{ page_user.username }}">Friend Request
                     </button>
                     <button class="btn btn-primary sb_btn delete_friend_request-action" hidden style="margin-top: 3px; display: none;"
@@ -43,7 +43,7 @@
                     </button>
                {% else %}
                    <button class="btn btn-primary sb_btn send_friend_request-action" style="margin-top: 3px; display: none"
-                            data-from_username="{{ current_user.username }}"
+                            data-from_username="{{ request.user.username }}"
                             data-to_username="{{ page_user.username }}">Friend Request
                    </button>
                    <button class="btn btn-primary sb_btn delete_friend_request-action"

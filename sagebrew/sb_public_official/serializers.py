@@ -1,26 +1,33 @@
+from django.core.cache import cache
 from localflavor.us.us_states import US_STATES
 
 from rest_framework import serializers
 
+from neomodel import db
+
 from api.serializers import SBSerializer
+from logging import getLogger
+logger = getLogger('loggly_logs')
 
 
 class PublicOfficialSerializer(SBSerializer):
     object_uuid = serializers.CharField(read_only=True)
-    full_name = serializers.SerializerMethodField()
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
-    title = serializers.SerializerMethodField()
     bioguideid = serializers.CharField(read_only=True)
     youtube = serializers.CharField(read_only=True)
     twitter = serializers.CharField(read_only=True)
-    channel_wallpaper = serializers.SerializerMethodField()
     start_date = serializers.DateTimeField(read_only=True)
     end_date = serializers.DateTimeField(read_only=True)
-    state = serializers.SerializerMethodField()
     district = serializers.IntegerField(read_only=True)
     current = serializers.BooleanField(read_only=True)
+
+    title = serializers.SerializerMethodField()
+    state = serializers.SerializerMethodField()
     terms = serializers.SerializerMethodField()
+    campaign = serializers.SerializerMethodField()
+    full_name = serializers.SerializerMethodField()
+    channel_wallpaper = serializers.SerializerMethodField()
 
     def get_type(self, obj):
         return "public_official"
@@ -57,3 +64,17 @@ class PublicOfficialSerializer(SBSerializer):
 
     def get_channel_wallpaper(self, obj):
         return None
+
+    def get_campaign(self, obj):
+        campaign = cache.get('%s_campaign' % (obj.object_uuid))
+        if campaign is None:
+            query = 'MATCH (o:PublicOfficial {object_uuid: "%s"})-' \
+                    '[:HAS_CAMPAIGN]->(c:PoliticalCampaign) ' \
+                    'RETURN c.object_uuid' % (obj.object_uuid)
+            res, _ = db.cypher_query(query)
+            try:
+                campaign = res[0][0]
+                cache.set('%s_campaign' % (obj.object_uuid), campaign)
+            except IndexError:
+                return None
+        return campaign

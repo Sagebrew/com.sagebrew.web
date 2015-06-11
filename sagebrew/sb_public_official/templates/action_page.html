@@ -4,7 +4,7 @@
 {% block title %}Action Area{% endblock title %}
 {% block content %}
 <div class="row-fluid sb_page">
-    {% if registered == True %}
+    {% if active == True %}
         {% include "action_channel.html" %}
     {% else %}
         {% include "action_channel_disabled.html" %}
@@ -13,7 +13,7 @@
 <div class="row sb_wall sb_action_wall">
     <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
         {% if "updates" in request.path %}
-            {% if registered == True %}
+            {% if active == True %}
                 {% include "updates.html" %}
             {% else %}
                 {% include "updates_disabled.html" %}
@@ -28,7 +28,7 @@
     </div>
     <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
         <h5>Goals</h5>
-        {% if registered == True %}
+        {% if active == True %}
             {% include "goals_block.html" %}
             {% include "goals_block.html" %}
             {% include "goals_block.html" %}
@@ -36,7 +36,7 @@
             {% include "goals_block_disabled.html" %}
         {% endif %}
 
-    {% if registered == True %}
+    {% if active == True %}
         {% include "about_blocks.html" %}
     {% else %}
         {% include "about_blocks_disabled.html" %}

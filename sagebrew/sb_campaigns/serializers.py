@@ -9,6 +9,7 @@ from api.serializers import SBSerializer
 from api.utils import gather_request_data
 from plebs.neo_models import Pleb
 from sb_goals.neo_models import Round
+from sb_public_official.serializers import PublicOfficialSerializer
 
 from .neo_models import (Campaign, PoliticalCampaign, Position)
 
@@ -26,6 +27,8 @@ class CampaignSerializer(SBSerializer):
     wallpaper_pic = serializers.CharField(required=False)
     profile_pic = serializers.CharField(required=False)
     owner_username = serializers.CharField(read_only=True)
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
@@ -35,6 +38,7 @@ class CampaignSerializer(SBSerializer):
     active_goals = serializers.SerializerMethodField()
     active_round = serializers.SerializerMethodField()
     upcoming_round = serializers.SerializerMethodField()
+    public_official = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         request = self.context.get('request', None)
@@ -72,7 +76,7 @@ class CampaignSerializer(SBSerializer):
 
     def get_url(self, obj):
         return reverse('action_saga',
-                       kwargs={"username": obj.owner_username},
+                       kwargs={"username": obj.object_uuid},
                        request=self.context.get('request', None))
 
     def get_href(self, obj):
@@ -134,9 +138,15 @@ class CampaignSerializer(SBSerializer):
                            request=request)
         return position
 
+    def get_public_official(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        return PublicOfficialSerializer(obj.get_public_official(
+            obj.object_uuid)).data
+
 
 class PoliticalCampaignSerializer(CampaignSerializer):
     vote_count = serializers.SerializerMethodField()
+    constituents = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         request = self.context.get('request', None)

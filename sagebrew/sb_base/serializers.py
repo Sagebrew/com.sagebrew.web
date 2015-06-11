@@ -97,13 +97,6 @@ class TitledContentSerializer(MarkdownContentSerializer):
     title = serializers.CharField(required=False,
                                   min_length=15, max_length=140)
 
-    def validate_title(self, value):
-        if (self.object_uuid is not None):
-            message = 'Cannot edit Title when there have ' \
-                      'already been solutions provided'
-            raise serializers.ValidationError(message)
-        return value
-
 
 class CampaignAttributeSerializer(SBSerializer):
     """

@@ -2,19 +2,19 @@
 {% load static %}
 <div class="row sb_wallpaper hidden-xs">
     {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
-    <img class="sb_wallpaper_action" src="{{ representative.channel_wallpaper|default_if_none:default_wallpaper }}">
+    <img class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
 </div>
 <div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
-       <div class="thumbnail sb_thumbnail_md"><img src="{% get_static_prefix %}images/congress/225x275/{{ representative.bioguideid }}.jpg"></div>
+       <div class="thumbnail sb_thumbnail_md"><img src="{{ profile_pic }}"></div>
     </div>
     <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
         <div class="block sb_bio_block sb_markdown_disabled">
-            <h2>{{ representative.full_name }}</h2>
-            {% if representative.title != "President" and representative.title != "Vice President" %}
-              <p>This {{ representative.title }} from {{ representative.state }} has not yet joined Sagebrew.</p>
+            <h2>{{ public_official.first_name }} {{ public_official.last_name }}</h2>
+            {% if public_official.title != "President" and public_official.title != "Vice President" %}
+              <p>This {{ public_official.title }} from {{ public_official.state }} has not yet joined Sagebrew.</p>
             {% else %}
-              <p>The {{ representative.title }} has not yet joined Sagebrew.</p>
+              <p>The {{ public_official.title }} has not yet joined Sagebrew.</p>
             {% endif %}
         </div>
     </div>
@@ -26,15 +26,15 @@
         <div align="right" class="block sb_channel_social row-fluid hidden-md hidden-sm hidden-xs">
             <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-facebook-square"></span></button>
             <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-linkedin-square"></span></button>
-            {% if not representative.youtube %}
+            {% if not youtube %}
                 <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-youtube-play"></span></button>
             {% else %}
-                <button onclick="location.href='http://youtube.com/{{ representative.youtube }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-youtube-play"></span></button>
+                <button onclick="location.href='http://youtube.com/{{ youtube }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-youtube-play"></span></button>
             {% endif %}
-            {% if not representative.twitter %}
+            {% if not twitter %}
                 <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-twitter"></span></button>
             {% else %}
-                <button onclick="location.href='http://twitter.com/{{ representative.twitter }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-twitter"></span></button>
+                <button onclick="location.href='http://twitter.com/{{ twitter }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-twitter"></span></button>
             {% endif %}
         </div>
     </div>

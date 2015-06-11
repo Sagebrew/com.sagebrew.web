@@ -12,7 +12,8 @@ from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data
 
 from .neo_models import Address, Pleb, BetaUser
-from .tasks import create_pleb_task, pleb_user_update, determine_pleb_reps
+from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
+                    update_address_location)
 
 
 def generate_username(first_name, last_name):
@@ -106,6 +107,7 @@ class UserSerializer(SBSerializer):
                 'new_password', validated_data.get('password', "")))
             update_session_auth_hash(self.context['request'], instance)
         instance.save()
+        instance.update_campaign()
         # TODO Should move this out to the endpoint to remove circular
         # dependencies. Like we do in sb_questions/endpoints.py create
         spawn_task(task_func=pleb_user_update, task_param={
@@ -220,6 +222,7 @@ class AddressSerializer(SBSerializer):
         return Address(**validated_data).save()
 
     def update(self, instance, validated_data):
+        request = self.context.get('request', None)
         instance.street = validated_data.get('street', instance.street)
         instance.street_additional = validated_data.get(
             'street_additional', instance.street_additional)
@@ -234,9 +237,14 @@ class AddressSerializer(SBSerializer):
         instance.longitude = validated_data.get("longitude",
                                                 instance.longitude)
         instance.save()
+        cache.delete('%s_possible_house_representatives' %
+                     (request.user.username))
+        cache.delete('%s_possible_senators' % (request.user.username))
         spawn_task(task_func=determine_pleb_reps, task_param={
             "username": self.context['request'].user.username,
         })
+        spawn_task(task_func=update_address_location,
+                   task_param={"object_uuid": instance.object_uuid})
         return instance
 
     def get_href(self, obj):

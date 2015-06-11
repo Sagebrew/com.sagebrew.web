@@ -68,6 +68,10 @@ class Campaign(Searchable):
     wallpaper_pic = StringProperty()
     profile_pic = StringProperty()
     owner_username = StringProperty()
+    # First and Last name are added to reduce potential additional queries
+    # when rendering potential representative html to a users profile page
+    first_name = StringProperty()
+    last_name = StringProperty()
 
     # Relationships
     donations = RelationshipTo('sb_donations.neo_models.Donation',
@@ -242,6 +246,22 @@ class Campaign(Searchable):
             except IndexError:
                 position = None
         return position
+
+    @classmethod
+    def get_public_official(cls, object_uuid):
+        from sb_public_official.neo_models import PublicOfficial
+        public_official = cache.get("%s_public_official" % (object_uuid))
+        if public_official is None:
+            query = "MATCH (r:`Campaign` {object_uuid:'%s'})-" \
+                    "[:HAS_PUBLIC_OFFICIAL]->(p:`PublicOfficial`) RETURN p" \
+                    % (object_uuid)
+            res, _ = db.cypher_query(query)
+            try:
+                public_official = PublicOfficial.inflate(res[0][0])
+                cache.set("%s_public_official" % (object_uuid))
+            except IndexError:
+                public_official = None
+        return public_official
 
 
 class PoliticalCampaign(Campaign):

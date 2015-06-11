@@ -100,7 +100,7 @@ class Campaign(Searchable):
         campaign = cache.get(object_uuid)
         if campaign is None:
             query = 'MATCH (c:`Campaign` {object_uuid: "%s"}) RETURN c' % \
-                (object_uuid)
+                    object_uuid
             res, col = db.cypher_query(query)
             try:
                 campaign = cls.inflate(res[0][0])
@@ -112,7 +112,7 @@ class Campaign(Searchable):
 
     @classmethod
     def get_editors(cls, object_uuid):
-        editors = cache.get("%s_editors" % (object_uuid))
+        editors = cache.get("%s_editors" % object_uuid)
         if editors is None:
             query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
                     '[:CAN_BE_EDITED_BY]->(p:`Pleb`) RETURN p.username' \
@@ -258,7 +258,7 @@ class Campaign(Searchable):
             res, _ = db.cypher_query(query)
             try:
                 public_official = PublicOfficial.inflate(res[0][0])
-                cache.set("%s_public_official" % (object_uuid))
+                cache.set("%s_public_official" % (object_uuid), public_official)
             except IndexError:
                 public_official = None
         return public_official

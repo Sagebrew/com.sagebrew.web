@@ -12,7 +12,7 @@ from elasticsearch import Elasticsearch, NotFoundError
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 
-from py2neo import ClientError
+#from py2neo import ClientError
 from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task, generate_oauth_user
@@ -91,8 +91,7 @@ def determine_pleb_reps(username):
 def update_address_location(object_uuid):
     try:
         address = Address.nodes.get(object_uuid=object_uuid)
-    except (DoesNotExist, Address.DoesNotExist, CypherException, IOError,
-            ClientError) as e:
+    except (DoesNotExist, Address.DoesNotExist, CypherException, IOError) as e:
         raise update_address_location.retry(exc=e, countdown=3,
                                             max_retries=None)
     try:
@@ -108,7 +107,7 @@ def update_address_location(object_uuid):
         district = Location.inflate(res[0][0])
         district.addresses.connect(address)
         address.encompassed_by.connect(district)
-    except (CypherException, IOError, ClientError) as e:
+    except (CypherException, IOError) as e:
         raise update_address_location.retry(exc=e, countdown=3,
                                             max_retries=None)
     return True

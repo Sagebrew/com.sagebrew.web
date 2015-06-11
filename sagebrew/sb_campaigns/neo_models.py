@@ -258,7 +258,8 @@ class Campaign(Searchable):
             res, _ = db.cypher_query(query)
             try:
                 public_official = PublicOfficial.inflate(res[0][0])
-                cache.set("%s_public_official" % (object_uuid))
+                cache.set("%s_public_official" % (object_uuid),
+                          public_official)
             except IndexError:
                 public_official = None
         return public_official

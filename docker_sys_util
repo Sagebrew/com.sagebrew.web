@@ -28,4 +28,5 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py populate_indices && \
     python manage.py create_prepopulated_tags && \
     python manage.py populate_rep_models && \
-    python manage.py create_prepopulated_reps
+    python manage.py create_prepopulated_reps && \
+    python manage.py update_official_search

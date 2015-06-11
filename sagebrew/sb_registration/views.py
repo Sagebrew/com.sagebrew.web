@@ -1,6 +1,3 @@
-import stripe
-from uuid import uuid1
-
 from django.core.cache import cache
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -20,11 +17,9 @@ from neomodel import (DoesNotExist, CypherException)
 from api.utils import spawn_task
 from plebs.tasks import send_email_task, create_beta_user
 from plebs.neo_models import Pleb, BetaUser
-from sb_public_official.tasks import create_rep_task
-from sb_docstore.tasks import build_rep_page_task
 
 from .forms import (AddressInfoForm, InterestForm,
-                    ProfilePictureForm, SignupForm, RepRegistrationForm,
+                    ProfilePictureForm, SignupForm,
                     LoginForm, BetaSignupForm)
 from .utils import (verify_completed_registration, verify_verified_email,
                     create_user_util)
@@ -212,10 +207,9 @@ def profile_information(request):
     """
     Creates both a AddressInfoForm which populates the
     fields with what the user enters. If this function gets a valid POST
-    request it
-    will update the pleb. It then validates the address, through
-    smartystreets api,
-    if the address is valid a Address neo_model is created and populated.
+    request it will update the pleb. It then validates the address, through
+    smarty streets api, if the address is valid a Address neo_model is
+    created and populated.
 
 
     COMPLETED THIS TASK BUT STILL NEED TO PUT SOME COMMENTS AROUND IT
@@ -279,7 +273,7 @@ def profile_information(request):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def interests(request):
-    '''
+    """
     The interests view creates an InterestForm populates the topics that
     a user can choose from and if a POST request is passed then the function
     checks the validity of the arguments POSTed. If the form is valid then
@@ -287,7 +281,7 @@ def interests(request):
 
     :param request:
     :return: HttpResponse
-    '''
+    """
     interest_form = InterestForm(request.POST or None)
     if interest_form.is_valid():
         if "select_all" in interest_form.cleaned_data:
@@ -306,7 +300,7 @@ def interests(request):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def profile_picture(request):
-    '''
+    """
     The profile picture view accepts an image from the user, which is stored in
     the TEMP_FILES directory until it is uploaded to s3 after which the locally
     stored tempfile is deleted. After the url of the image is returned from
@@ -316,13 +310,7 @@ def profile_picture(request):
 `
     :param request:
     :return:
-    '''
-    # TODO can we use the base user here rather than querying for the pleb?
-    # Then spawn a task to connect the profile pic? We'll want to save the image
-    # as quickly as possible so it's available but maybe we do that with the
-    # new document store, save it into the pleb's document quickly and then
-    # spawn off a task for storing the url in neo and working with blitline to
-    # get different versions of the image.
+    """
     profile = cache.get(request.user.username)
     if profile is None:
         try:
@@ -344,47 +332,8 @@ def profile_picture(request):
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
-def rep_reg_page(request):
-    uuid = str(uuid1())
-    customer_id = None
-    stripe.api_key = settings.STRIPE_SECRET_KEY
-    if request.method == 'POST':
-        reg_form = RepRegistrationForm(request.POST)
-        valid_form = reg_form.is_valid()
-        if valid_form:
-            cleaned = reg_form.cleaned_data
-            if cleaned['account_type'] == 'sub':
-                customer = stripe.Customer.create(
-                    description="Customer for %s" % cleaned['account_name'],
-                    card=cleaned['stripeCardToken']
-                )
-                customer_id = customer['id']
-            recipient = stripe.Recipient.create(
-                name=cleaned['account_name'],
-                tax_id=cleaned['ssn'],
-                type="individual",
-                bank_account=cleaned['stripeBankToken'],
-                email=cleaned['gov_email']
-            )
-            recipient_id = recipient['id']
-            task_data = {
-                'pleb_username': request.user.username,
-                'rep_type': cleaned['office'],
-                'rep_id': uuid,
-                'customer_id': customer_id,
-                'recipient_id': recipient_id,
-                'gov_phone': cleaned['gov_phone']
-            }
-            res = spawn_task(create_rep_task, task_data)
-            if isinstance(res, Exception):
-                return redirect("404_Error")
-            res = spawn_task(build_rep_page_task, {'rep_id': uuid,
-                                                   'rep_type': cleaned[
-                                                       'office']})
-            if isinstance(res, Exception):
-                return
-            return redirect("rep_page", rep_type=cleaned['office'], rep_id=uuid)
-    return render(request, 'registration_rep.html')
+def quest_registration(request):
+    return render(request, 'position_selection.html')
 
 
 @api_view(['POST'])

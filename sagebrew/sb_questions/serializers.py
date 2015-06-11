@@ -11,7 +11,7 @@ from rest_framework.reverse import reverse
 from neomodel import db, DoesNotExist
 
 from api.utils import spawn_task, get_node, gather_request_data
-from sb_base.serializers import MarkdownContentSerializer
+from sb_base.serializers import TitledContentSerializer
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
 from sb_tags.tasks import update_tags
@@ -23,10 +23,10 @@ from .tasks import add_auto_tags_to_question_task, update_search_index
 
 
 def solution_count(question_uuid):
-    query = 'MATCH (a:Question)-->(solutions:Solution) ' \
-            'WHERE (a.object_uuid = "%s" and ' \
-            'solutions.to_be_deleted = false)' \
-            'RETURN count(DISTINCT solutions)' % (question_uuid)
+    query = 'MATCH (a:Question {object_uuid: "%s"})-' \
+            '[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
+            'WHERE solutions.to_be_deleted = false ' \
+            'RETURN count(DISTINCT solutions)' % question_uuid
     res, col = db.cypher_query(query)
     try:
         count = res[0][0]
@@ -35,7 +35,14 @@ def solution_count(question_uuid):
     return count
 
 
-class TitleUpdate:
+class QuestionTitleUpdate:
+    """
+    This class will attempt to get the parent instance of the serializer and
+    set self.object_uuid to it, this allows it to validate that there are no
+    solutions to a question when attempting to update the tile of a question,
+    but also allows creation of the question by setting self.object_uuid to
+    None if there is not an instance in the serializer.
+    """
     def __init__(self):
         pass
 
@@ -86,18 +93,18 @@ def limit_5_tags(value):
 # create new tags, right now it's open season
 
 
-class QuestionSerializerNeo(MarkdownContentSerializer):
+class QuestionSerializerNeo(TitledContentSerializer):
     content = serializers.CharField(min_length=15)
     href = serializers.SerializerMethodField()
-    title = serializers.CharField(required=False,
-                                  validators=[TitleUpdate(), ],
-                                  min_length=15, max_length=140)
     # This might be better as a choice field
     tags = serializers.ListField(
         source='get_tags',
         validators=[limit_5_tags, PopulateTags()],
         child=serializers.CharField(max_length=36),
     )
+    title = serializers.CharField(required=False,
+                                  validators=[QuestionTitleUpdate(), ],
+                                  min_length=15, max_length=140)
     solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
 

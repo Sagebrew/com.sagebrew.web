@@ -14,13 +14,13 @@ class SBTestRunner(DiscoverRunner):
             return False
         sleep(10)
         from neomodel import db
-        query = "start n=node(*) optional match (n)-[r]-() delete n,r"
+        query = "match (n)-[r]-() delete n,r"
         db.cypher_query(query)
         super(SBTestRunner, self).__init__(*args, **kwargs)
 
     def teardown_databases(self, old_config, **kwargs):
         from neomodel import db
-        query = "start n=node(*) optional match (n)-[r]-() delete n,r"
+        query = "match (n)-[r]-() delete n,r"
         db.cypher_query(query)
         sleep(1)
         success = call("/webapps/neo-test/neo4j-community-2.1.7/bin/neo4j"

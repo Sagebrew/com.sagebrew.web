@@ -1,4 +1,4 @@
-from sb_docstore.utils import get_vote
+from sb_docstore.utils import get_vote, add_object_to_table, update_vote
 
 
 def determine_update_values(prev_status, update_status, upvote_value,
@@ -28,3 +28,26 @@ def determine_vote_type(object_uuid, username):
         else:
             vote_type = bool(vote_type['status'])
     return vote_type
+
+
+def handle_vote(parent_object_uuid, status, request, now):
+    vote_data = {
+        "parent_object": parent_object_uuid,
+        "user": request.user.username,
+        "status": status,
+        "time": now
+    }
+    res = get_vote(parent_object_uuid, user=request.user.username)
+    if isinstance(res, Exception) is True:
+        raise res
+    if not res:
+        add_res = add_object_to_table('votes', vote_data)
+        if isinstance(add_res, Exception) is True:
+            raise add_res
+    else:
+        update = update_vote(parent_object_uuid, request.user.username,
+                             status, now)
+        if isinstance(update, Exception) is True:
+            raise update
+
+    return True

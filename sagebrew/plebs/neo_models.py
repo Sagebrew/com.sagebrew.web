@@ -8,22 +8,27 @@ from django.core.cache import cache
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty,
-                      CypherException, DoesNotExist)
+                      BooleanProperty, FloatProperty, CypherException,
+                      DoesNotExist)
 from neomodel import db
 
 from api.neo_models import SBObject
 from sb_search.neo_models import Searchable, Impression
+from sb_base.neo_models import VoteRelationship, RelationshipWeight
 
 
 def get_current_time():
     return datetime.now(pytz.utc)
 
 
-class RelationshipWeight(StructuredRel):
-    weight = IntegerProperty(default=150)
-    status = StringProperty(default='seen')
-    seen = BooleanProperty(default=True)
+def get_friend_requests_sent(current_username, friend_username):
+    query = "MATCH (a:Pleb {username: '%s'})-[:SENT_A_REQUEST]->" \
+            "(f:FriendRequest)-[:REQUEST_TO]->(b:Pleb {username: '%s'}) " \
+            "RETURN f.object_uuid" % (current_username, friend_username)
+    res, col = db.cypher_query(query)
+    if len(res) == 0:
+        return False
+    return res[0][0]
 
 
 class SearchCount(StructuredRel):
@@ -216,11 +221,44 @@ class Pleb(Searchable):
     beta_user = RelationshipTo('plebs.neo_models.BetaUser', "BETA_USER")
     uploads = RelationshipTo('sb_uploads.neo_models.UploadedObject', 'UPLOADS')
 
+    # This is relating to which campaigns will affect you specifically.
+    # So anyone who is running in your district will show up here.
+    related_campaigns = RelationshipTo('sb_campaigns.neo_models.Campaign',
+                                       'HAS_STAKE_IN')
+    # Users can only have one campaign as the campaign is essentially their
+    # action page and account information. They won't be able to create
+    # multiple accounts or multiple action pages. We can then utilize the
+    # campaign as another type of wall where they associate Projects or other
+    # things to. If a user is waging a `PoliticalCampaign` their Action page
+    # changes a little and they start being able to receive pledged votes and
+    # there are more limitations on how donations occur.
+    campaign = RelationshipTo('sb_campaigns.neo_models.Campaign', 'IS_WAGING')
+    campaign_editor = RelationshipTo('sb_campaigns.neo_models.Campaign',
+                                     'CAN_EDIT')
+    campaign_accountant = RelationshipTo('sb_campaigns.neo_models.Campaign',
+                                         'CAN_MANAGE_FINANCES')
+    # Can this just be a vote? Have it set like we do with votable content
+    # with the assumption we can
+    # utilize a different serializer that only enables up/off votes rather than
+    # also allowing down votes to be cast. Then we can utilize the different
+    # relationship to track any special items.
+    pledged_votes = RelationshipTo('sb_campaigns.neo_models.PoliticalCampaign',
+                                   'PLEDGED', model=VoteRelationship)
+    donations = RelationshipTo('sb_donations.neo_models.Donation',
+                               'DONATIONS_GIVEN')
+
     @classmethod
     def get(cls, username):
         profile = cache.get(username)
         if profile is None:
-            profile = cls.nodes.get(username=username)
+            res, _ = db.cypher_query(
+                "MATCH (a:%s {username:'%s'}) RETURN a" % (
+                    cls.__name__, username))
+            try:
+                profile = cls.inflate(res[0][0])
+            except IndexError:
+                raise DoesNotExist('Profile with username: %s '
+                                   'does not exist' % username)
             cache.set(username, profile)
         return profile
 
@@ -258,6 +296,30 @@ class Pleb(Searchable):
                 ' SET n.seen = True, ' \
                 'n.time_seen = %s' % (username, time_seen)
         db.cypher_query(query)
+
+    @classmethod
+    def get_campaign_donations(cls, username, campaign_uuid):
+        donation_amount = cache.get('%s_%s_donation_amount' % (username,
+                                                               campaign_uuid))
+        if donation_amount == 0 or donation_amount is None:
+            query = 'MATCH (p:`Pleb` {username: "%s"})-[:DONATIONS_GIVEN]->' \
+                    '(d:`Donation`)-[:DONATED_TO]->' \
+                    '(c:`Campaign` {object_uuid:"%s"}) RETURN sum(d.amount)' \
+                    % (username, campaign_uuid)
+            res, col = db.cypher_query(query)
+            try:
+                donation_amount = res[0][0]
+            except IndexError:
+                donation_amount = 0
+            cache.set('%s_%s_donation_amount' %
+                      (username, campaign_uuid), donation_amount)
+        return donation_amount
+
+    def update_campaign(self):
+        query = 'MATCH (p:Pleb {username:"%s"})-[:IS_WAGING]->' \
+                '(c:Campaign) SET c.first_name="%s", c.last_name="%s"' % \
+                (self.username, self.first_name, self.last_name)
+        res, _ = db.cypher_query(query)
 
     def deactivate(self):
         pass
@@ -297,10 +359,7 @@ class Pleb(Searchable):
                     '[:CAN {active: true}]->(n:`SBAction`) ' \
                     'RETURN n.resource' % self.username
             res, col = db.cypher_query(query)
-            if len(res) == 0:
-                actions = []
-            else:
-                actions = [row[0] for row in res]
+            actions = [row[0] for row in res]
             cache.set("%s_actions" % self.username, actions)
         return actions
 
@@ -311,10 +370,7 @@ class Pleb(Searchable):
                     '[:HAS {active: true}]->(n:`Privilege`) ' \
                     'RETURN n.name' % self.username
             res, col = db.cypher_query(query)
-            if len(res) == 0:
-                privileges = []
-            else:
-                privileges = [row[0] for row in res]
+            privileges = [row[0] for row in res]
             cache.set("%s_privileges" % self.username, privileges)
         return privileges
 
@@ -470,17 +526,17 @@ class Pleb(Searchable):
         return wall
 
     def get_friend_requests_sent(self, username):
-        query = "MATCH (a:Pleb {username: '%s'})-[:SENT_A_REQUEST]->" \
-                "(f:FriendRequest)-[:REQUEST_TO]->(b:Pleb {username: '%s'}) " \
-                "RETURN f.object_uuid" % (self.username, username)
-        res, col = db.cypher_query(query)
-        if len(res) == 0:
-            return False
-        return res[0][0]
+        return get_friend_requests_sent(self.username, username)
 
     def determine_reps(self):
         from sb_public_official.utils import determine_reps
         return determine_reps(self.username)
+
+    def get_donations(self):
+        query = 'MATCH (p:`Pleb` {username: "%s"})-[:DONATIONS_GIVEN]->' \
+                '(d:`Donation`) RETURN d.object_uuid' % (self.username)
+        res, col = db.cypher_query(query)
+        return [row[0] for row in res]
 
 
 class Address(SBObject):
@@ -497,6 +553,8 @@ class Address(SBObject):
 
     # Relationships
     owned_by = RelationshipTo("Pleb", 'LIVES_IN')
+    encompassed_by = RelationshipTo('sb_locations.neo_models.Location',
+                                    'ENCOMPASSED_BY')
 
 
 class FriendRequest(SBObject):

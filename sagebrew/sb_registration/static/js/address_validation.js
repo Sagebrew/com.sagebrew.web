@@ -15,6 +15,9 @@ $( document ).ready(function() {
     liveaddress.on("AddressWasValid", function(event, data, previousHandler){
         $("#id_valid").val("valid");
         $("#id_congressional_district").val(data.response.raw[0].metadata.congressional_district);
+        if ($("#id_congressional_district").val() === "AL") {
+            $("#id_congressional_district").val(1);
+        }
         $("#id_latitude").val(data.response.raw[0].metadata.latitude);
         $("#id_longitude").val(data.response.raw[0].metadata.longitude);
         previousHandler(event, data);

@@ -14,7 +14,6 @@ from sb_notifications.neo_models import NotificationCapable
 from sb_docstore.utils import get_vote_count as doc_vote_count
 from sb_votes.utils import determine_vote_type
 from sb_tags.neo_models import TagRelevanceModel
-from plebs.neo_models import RelationshipWeight, Pleb
 
 from .decorators import apply_defense
 
@@ -27,6 +26,12 @@ def get_current_time():
 
 def get_allowed_flags():
     return dumps(["explicit", "spam", "duplicate", "unsupported", "other"])
+
+
+class RelationshipWeight(StructuredRel):
+    weight = IntegerProperty(default=150)
+    status = StringProperty(default='seen')
+    seen = BooleanProperty(default=True)
 
 
 class EditRelationshipModel(StructuredRel):
@@ -148,6 +153,7 @@ class VotableContent(NotificationCapable):
 
     @apply_defense
     def get_vote_type(self, username):
+        from plebs.neo_models import Pleb
         try:
             return determine_vote_type(self.object_uuid, username)
         except(TypeError, IOError):
@@ -235,8 +241,6 @@ class SBContent(VotableContent):
         query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
                 "b:Pleb) Return b.username" % (self.object_uuid)
         res, col = db.cypher_query(query)
-        if len(res) == 0:
-            return []
         return [row[0] for row in res]
 
     def get_url(self, request):
@@ -351,6 +355,10 @@ class SBVersioned(TaggableContent):
 class SBPublicContent(SBVersioned):
     # Used to distinguish between private conversations and public
     pass
+
+
+class TitledContent(SBPublicContent):
+    title = StringProperty()
 
 
 class SBPrivateContent(TaggableContent):

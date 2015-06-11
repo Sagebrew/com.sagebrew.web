@@ -21,6 +21,9 @@ if envips is not None:
 
 WEB_ADDRESS = "https://sagebrew.local.dev"
 
+# This is here because locally we do not have ssl certification.
+# Please ensure you are never hardcoding False into the requests
+# calls
 VERIFY_SECURE = False
 if not VERIFY_SECURE:
     from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -56,7 +59,6 @@ CELERY_IGNORE_RESULT = False
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.PageNumberPagination',
-    'PAGINATE_BY': 10,
     'PAGE_SIZE': 15,
     'MAX_PAGINATE_BY': 100,
     'PAGINATE_BY_PARAM': 'page_size',
@@ -112,6 +114,12 @@ LOGGING = {
             'level': 'CRITICAL',
         },
         'neomodel.properties': {
+            'handlers': ['logentries_handler'],
+            'propagate': True,
+            'format': 'loggly: %(message)s',
+            'level': 'CRITICAL',
+        },
+        'neomodel.util': {
             'handlers': ['logentries_handler'],
             'propagate': True,
             'format': 'loggly: %(message)s',

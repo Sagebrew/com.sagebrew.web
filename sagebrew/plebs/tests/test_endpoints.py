@@ -162,7 +162,6 @@ class MeEndpointTests(APITestCase):
         url = reverse('me-detail')
         response = self.client.get(url, format='json')
         self.pleb.privileges.disconnect(privilege)
-        cache.clear()
         privilege.delete()
         self.assertEqual(['test_privilege'], response.data['privileges'])
 
@@ -748,7 +747,7 @@ class ProfileContentMethodTests(APITestCase):
             'username': self.pleb.username})
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['profile'],
-                         "http://testserver/v1/profiles/test_test/")
+                         "test_test")
 
     def test_get_pleb_question_url(self):
         for item in Question.nodes.all():
@@ -1874,6 +1873,11 @@ class BetaUserMethodEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'is_beta_user'
         self.email = "success@simulator.amazonses.com"
+        try:
+            self.pleb = Pleb.nodes.get(email=self.email)
+            self.pleb.delete()
+        except:
+            pass
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)

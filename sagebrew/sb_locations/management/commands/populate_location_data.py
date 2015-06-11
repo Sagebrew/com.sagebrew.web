@@ -43,31 +43,35 @@ class Command(BaseCommand):
                         state.positions.connect(senator)
         for root, dirs, files in \
                 os.walk('sb_locations/management/commands/districts/'):
-            if files[0] != '.DS_Store':
-                _, district_data = root.split('districts/')
-                state, district = district_data.split('-')
-                if not int(district):
-                    district = 1
-                state_node = Location.nodes.get(
-                    name=us.states.lookup(state).name)
-                with open(root + "/shape.geojson") as geo_data:
-                    file_data = loads(geo_data.read())
-                    query = 'MATCH (l:Location {name:"%s"})-[:ENCOMPASSES]->' \
-                            '(d:Location {name:"%s"}) RETURN d' % \
-                            (state_node.name, district)
-                    res, _ = db.cypher_query(query)
-                    if not res:
-                        district = Location(name=int(district),
-                                            geo_data=dumps(
-                                            file_data['coordinates'])).save()
-                        district.encompassed_by.connect(state_node)
-                        usa.encompasses.connect(district)
-                        state_node.encompasses.connect(district)
-                        if not district.positions.all():
-                            house_rep = Position(
-                                name="House Representative").save()
-                            house_rep.location.connect(district)
-                            district.positions.connect(house_rep)
+            try:
+                if files[0] != '.DS_Store':
+                    _, district_data = root.split('districts/')
+                    state, district = district_data.split('-')
+                    if not int(district):
+                        district = 1
+                    state_node = Location.nodes.get(
+                        name=us.states.lookup(state).name)
+                    with open(root + "/shape.geojson") as geo_data:
+                        file_data = loads(geo_data.read())
+                        query = 'MATCH (l:Location {name:"%s"})-' \
+                                '[:ENCOMPASSES]->(d:Location {name:"%s"}) ' \
+                                'RETURN d' % \
+                                (state_node.name, district)
+                        res, _ = db.cypher_query(query)
+                        if not res:
+                            district = Location(name=int(district),
+                                                geo_data=dumps(
+                                                file_data['coordinates'])).save()
+                            district.encompassed_by.connect(state_node)
+                            usa.encompasses.connect(district)
+                            state_node.encompasses.connect(district)
+                            if not district.positions.all():
+                                house_rep = Position(
+                                    name="House Representative").save()
+                                house_rep.location.connect(district)
+                                district.positions.connect(house_rep)
+            except IndexError:
+                pass
         return True
 
     def handle(self, *args, **options):

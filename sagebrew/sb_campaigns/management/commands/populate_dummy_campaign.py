@@ -36,7 +36,7 @@ class Command(BaseCommand):
                                                    "very first goal.",
             description="A longer description of what I want to do if I "
                         "accomplish this goal!",
-            active=False, pledged_vote_requirement=100,
+            active=True, pledged_vote_requirement=100,
             monetary_requirement=10000, total_required=10000,
             completed=True, completed_date=datetime.now()).save()
         goal_two = Goal(

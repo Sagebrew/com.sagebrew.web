@@ -42,7 +42,8 @@ def render_positions(request, name=None):
     house_reps = [Position.get_full_name(row.object_uuid2) for row in res]
     house_reps.append(senator)
     position_html = [render_to_string('position_selector.html',
-                                      {'name': rep_name, "state_name": "".join(name.split())},
+                                      {'name': rep_name,
+                                       "state_name": "".join(name.split())},
                                       context_instance=RequestContext(request))
                      for rep_name in house_reps]
     return Response(position_html, status=status.HTTP_200_OK)

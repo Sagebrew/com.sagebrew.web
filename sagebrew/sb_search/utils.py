@@ -124,6 +124,7 @@ def process_search_result(item):
     else:
         return {'temp_score': 0}
 
+
 def update_campaign_search(campaign_data):
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)

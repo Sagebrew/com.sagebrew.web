@@ -379,13 +379,17 @@ class Position(SBObject):
             query = 'MATCH (p:Position {object_uuid: "%s"})-' \
                     '[:AVAILABLE_WITHIN]->(l:Location) WITH p, l ' \
                     'OPTIONAL MATCH (l:Location)-[:ENCOMPASSED_BY]->' \
-                    '(l2:Location) WHERE l2.name<>"United States of America" RETURN p.name as position_name, l.name as location_name1, l2.name as location_name2' \
+                    '(l2:Location) WHERE l2.name<>"United States of ' \
+                    'America" RETURN p.name as position_name, ' \
+                    'l.name as location_name1, l2.name as location_name2' \
                     % object_uuid
             res, _ = db.cypher_query(query)
             if res[0][0] == 'House Representative':
-                full_name = "%s for %s's %s district" % (res[0].position_name, res[0].location_name2,
-                                                         ordinal(res[0].location_name1))
+                full_name = "%s for %s's %s district" % \
+                            (res[0].position_name, res[0].location_name2,
+                             ordinal(res[0].location_name1))
 
             else:
-                full_name = "%s of %s" % (res[0][0], res[0][1])
+                full_name = "%s of %s" % (res[0].position_name,
+                                          res[0].location_name1)
             return {"full_name": full_name, "object_uuid": object_uuid}

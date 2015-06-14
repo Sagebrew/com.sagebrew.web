@@ -10,7 +10,6 @@ from api.serializers import SBSerializer
 from api.utils import gather_request_data
 from plebs.neo_models import Pleb
 from sb_goals.neo_models import Round
-from sb_search.utils import update_campaign_search
 from sb_public_official.serializers import PublicOfficialSerializer
 
 from .neo_models import (Campaign, PoliticalCampaign, Position)

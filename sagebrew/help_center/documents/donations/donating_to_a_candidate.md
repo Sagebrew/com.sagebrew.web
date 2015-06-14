@@ -1,5 +1,5 @@
 # I want to contribute to a candidate running for office....Where do I begin? #
-First, you should make sure to check out of each of the Quest for each of the
+First, you should make sure to check out each of the Quests for all of the
 candidates running in your area as to gain a full scope of the race. A 
 candidate's Quest will detail their goals and ideas, as well as their plan 
 if they win the election. Once you've made your well-informed decision on which

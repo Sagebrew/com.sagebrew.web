@@ -15,7 +15,7 @@ Through your Quest you'll be able to:
 
 What a heap of benefits!
 
-Now, there are quite a few things to consider during the preparation for your 
+Now, there are a few things to consider during the preparation for your 
 Quest, and quite a few amazing features that we think you'll find very handy.
 
 ### Donation Goals and Rounds ###

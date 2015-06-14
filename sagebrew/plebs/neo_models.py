@@ -539,6 +539,21 @@ class Pleb(Searchable):
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 
+    def get_public_official(self):
+        from sb_public_official.neo_models import PublicOfficial
+        official = cache.get("%s_official" % self.username)
+        if official is None:
+            query = 'MATCH (p:Pleb {username: "%s"})-[r:IS_AUTHORIZED_AS]->' \
+                    '(o:PublicOfficial) WHERE r.active=true RETURN o' \
+                    % self.username
+            res, _ = db.cypher_query(query)
+            try:
+                official = PublicOfficial.inflate(res[0].o)
+                cache.set("%s_official" % self.username, official)
+            except IndexError:
+                official = None
+        return official
+
 
 class Address(SBObject):
     street = StringProperty()

@@ -32,9 +32,10 @@ def add_object_to_search_index(object_uuid, object_data,
         res, col = db.cypher_query(query)
         try:
             object_added = Searchable.inflate(res[0][0])
-        except IndexError:
+        except IndexError as e:
             logger.exception("Failed to find any searchable content")
-            return False
+            raise add_object_to_search_index.retry(exc=e, countdown=30,
+                                                   max_retries=5)
     except(CypherException, IOError) as e:
         logger.exception("Failed to Connect to Neo in Search Index")
         raise add_object_to_search_index.retry(exc=e, countdown=5,

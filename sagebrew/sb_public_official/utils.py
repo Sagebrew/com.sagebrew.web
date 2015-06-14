@@ -15,48 +15,6 @@ from .neo_models import (PublicOfficial)
 logger = logging.getLogger('loggly_logs')
 
 
-@apply_defense
-def save_bio(rep_id, bio):
-    try:
-        rep = PublicOfficial.nodes.get(object_uuid=rep_id)
-    except (CypherException, PublicOfficial.DoesNotExist, DoesNotExist,
-            IOError) as e:
-        return e
-    try:
-        rep.bio = bio
-        rep.save()
-    except (CypherException, IOError) as e:
-        return e
-    return bio
-
-'''
-@apply_defense
-def save_goal(rep_id, vote_req, money_req, initial, description, goal_id):
-    try:
-        goal = Goal.nodes.get(object_uuid=goal_id)
-        return goal
-    except CypherException as e:
-        return e
-    except (Goal.DoesNotExist, DoesNotExist):
-        try:
-            rep = PublicOfficial.nodes.get(object_uuid=rep_id)
-        except (PublicOfficial.DoesNotExist, DoesNotExist,
-                CypherException) as e:
-            return e
-        try:
-            goal = Goal(object_uuid=goal_id, vote_req=vote_req,
-                        money_req=money_req,
-                        initial=initial, description=description).save()
-        except CypherException as e:
-            return e
-        try:
-            rep.goal.connect(goal)
-        except CypherException as e:
-            return e
-    return goal
-'''
-
-
 def get_rep_type(rep_type):
     cls = rep_type
     module_name, class_name = cls.rsplit(".", 1)

@@ -45,15 +45,21 @@ class QuestionViewSet(viewsets.ModelViewSet):
             # questions = cache.get("question_list_vote_sort")
             # if questions is not None:
             #    return questions
-            query = "MATCH (n:`Question`)%s WHERE n.to_be_deleted=false " \
-                    "OPTIONAL MATCH (n:`Question`)<-[vs:PLEB_VOTES]-(p:Pleb) " \
-                    "WHERE n.to_be_deleted=false RETURN " \
-                    "n, reduce(vote_count = 0, v in collect(vs)| " \
-                    "CASE WHEN v.active=false THEN vote_count " \
-                    "WHEN v.vote_type=True THEN vote_count+1 " \
-                    "WHEN v.vote_type=False THEN vote_count-1  " \
+
+            # Removed :Pleb label as based on the profiling it caused additional
+            # db hits and caused the query to take about 20% longer.
+            # Also removed CASE for setting the vote count to itself if active
+            # was false and reduced the graph to only those that are True.
+            query = "MATCH (n:`Question`)%s " \
+                    "WHERE n.to_be_deleted=false " \
+                    "OPTIONAL MATCH (n)<-[vs:PLEB_VOTES]-() " \
+                    "WHERE vs.active=True " \
+                    "RETURN n, reduce(vote_count = 0, v in collect(vs)| " \
+                    "CASE WHEN v.vote_type=True THEN vote_count+1 " \
+                    "WHEN v.vote_type=False THEN vote_count-1 " \
                     "ELSE vote_count END) as reduction " \
                     "ORDER BY reduction DESC" % tagged_as
+
         res, col = db.cypher_query(query)
         # Quick cache implementation to reduce load of refresh clickers
         # Under load neo takes about 15-30 seconds to store off the

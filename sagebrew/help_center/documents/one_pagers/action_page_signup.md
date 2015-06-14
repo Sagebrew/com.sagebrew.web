@@ -1,13 +1,13 @@
-# Action Area Creation #
-When setting up your Action Area there are a few things to know.
+# Quest Creation #
+When setting up your Quest there are a few things to know.
 
-### What is an Action Area? ###
-The Action Area is, quite literally, where all the action is!
-Your Action Area is a public space on which you'll be able
+### What's a Quest? ###
+A Quest is where all the action is!
+Your Quest is a public space on which you'll be able
 to display your Education and Experiences, as well as your Donation
 Goals and Rounds, policies and agenda, and a personal bio.
 
-In your Action Area you'll be able to:
+Through your Quest you'll be able to:
 
 - Raise funding for your campaign
 - Outline your personal and political agendas
@@ -15,12 +15,12 @@ In your Action Area you'll be able to:
 
 What a heap of benefits!
 
-Now, there are quite a few things to consider during the set up of your Action
-Area, and quite a few amazing features that we think you'll find very handy.
+Now, there are a few things to consider during the preparation for your 
+Quest, and quite a few amazing features that we think you'll find very handy.
 
 ### Donation Goals and Rounds ###
-The ability to set Donation Goals is arguably the most prolific
-feature of the Action Area. Donation Goals allow you
+The ability to set Donation Goals will be one of your greatest tools on your
+Quest. Donation Goals allow you
 to organize your fundraising and campaign expenditures
 while providing your constituents easy access to
 your campaign plans and a simple way to contribute.
@@ -72,17 +72,17 @@ to appeal to your constituents. What makes you a good person, and why will
 people like you?
 
 ### Efficient Campaigning ###
-With Sagebrew's Action Area campaigning has never been more
+With Sagebrew's Quest system campaigning has never been more
 efficient. Our system of Donation Goals and Rounds allows you
 to spend more time and resources on your campaign itself, rather
-than worrying about how to collect funding. With the Action Area you'll
+than worrying about how to collect funding. On your Quest you'll
 be able to display your views and agenda, as well as your credentials
 and political strategy. And with the Dashboard you'll receive
 unique and priceless information about your constituency and the efficacy of
 your campaign.
 
 ## Reminders ##
-### Things you must do outside of Sagebrew before your Action Area can go live ###
+### Things you must do outside of Sagebrew before you begin your Quest ###
 #### You must create a campaign bank account ####
 Many states have campaign finance laws that require candidates to open a 
 campaign bank account in order to legally deposit donations. 
@@ -92,7 +92,7 @@ Board of Elections, as banks may require committee paperwork at sign
 up. Definitely be sure to check your local, state, and/or federal 
 election laws to make sure your campaign doesn't fall into legal trouble.  
 
-### Other things to consider before your Action Area goes live ###
+### Other things to consider before your Quest goes live ###
 #### Do you have a good campaign team at your back? ####
 The core components of a campaign team include you, the candidate, a 
 campaign manager who oversees the entire campaign and a treasurer to keep 
@@ -122,5 +122,5 @@ Alright! With Sagebrew's many tools and features at your side you're ready to
 embark on this exciting adventure!
 
 {% if debug == True %}
-    Click here to begin setting up your Action Area!
+    Click here to begin setting up your Quest!
 {% endif %}

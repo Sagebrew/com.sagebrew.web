@@ -121,6 +121,8 @@ of the campaign process.
 Alright! With Sagebrew's many tools and features at your side you're ready to 
 embark on this exciting adventure!
 
-{% if debug == True %}
-    Click here to begin setting up your Quest!
-{% endif %}
+
+[Click here][1] to begin setting up your Quest!
+
+
+[1]: /quests/

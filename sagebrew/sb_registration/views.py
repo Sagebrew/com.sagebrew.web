@@ -44,6 +44,11 @@ def signup_view(request):
     return render(request, 'sign_up_page/index.html')
 
 
+def quest_signup(request):
+    user = request.GET.get('user', '')
+    return render(request, 'quest_signup.html')
+
+
 @api_view(['POST'])
 def signup_view_api(request):
     try:

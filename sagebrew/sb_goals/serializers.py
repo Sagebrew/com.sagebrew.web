@@ -9,7 +9,7 @@ from .neo_models import Goal, Round
 
 
 class GoalSerializer(CampaignAttributeSerializer):
-    target = serializers.BooleanField(read_only=True)
+    active = serializers.BooleanField(read_only=True)
     title = serializers.CharField(required=True)
     summary = serializers.CharField(required=True)
     description = serializers.CharField(required=False, allow_null=True)

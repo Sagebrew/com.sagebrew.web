@@ -125,7 +125,6 @@ $(document).ready(function () {
         });
     $(".sb_btn").on("click", function (event) {
         event.preventDefault();
-        console.log("here");
         $(this).prop("disabled", true);
         $.ajax({
             xhrFields: {withCredentials: true},

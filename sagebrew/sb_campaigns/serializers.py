@@ -155,7 +155,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         owner = Pleb.get(username=request.user.username)
         if owner.campaign.all():
             raise ValidationError(
-                detail={"detail": "You may only have one campaign!",
+                detail={"detail": "You may only have one quest!",
                         "developer_message": "",
                         "status_code": status.HTTP_400_BAD_REQUEST})
         official = owner.get_public_official()

@@ -1,3 +1,4 @@
+from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.cache import cache
 
 from rest_framework.reverse import reverse
@@ -370,3 +371,21 @@ class Position(SBObject):
             except IndexError:
                 location = None
         return location
+
+    @classmethod
+    def get_full_name(cls, object_uuid):
+        full_name = cache.get("%s_full_name" % (object_uuid))
+        if full_name is None:
+            query = 'MATCH (p:Position {object_uuid: "%s"})-' \
+                    '[:AVAILABLE_WITHIN]->(l:Location) WITH p, l ' \
+                    'OPTIONAL MATCH (l:Location)-[:ENCOMPASSED_BY]->' \
+                    '(l2:Location) WHERE l2.name<>"United States of America" RETURN p.name as position_name, l.name as location_name1, l2.name as location_name2' \
+                    % object_uuid
+            res, _ = db.cypher_query(query)
+            if res[0][0] == 'House Representative':
+                full_name = "%s for %s's %s district" % (res[0].position_name, res[0].location_name2,
+                                                         ordinal(res[0].location_name1))
+
+            else:
+                full_name = "%s of %s" % (res[0][0], res[0][1])
+            return {"full_name": full_name, "object_uuid": object_uuid}

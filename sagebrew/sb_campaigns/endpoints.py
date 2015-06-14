@@ -187,6 +187,11 @@ class PoliticalCampaignViewSet(CampaignViewSet):
     def get_object(self):
         return PoliticalCampaign.get(self.kwargs[self.lookup_field])
 
+    def perform_create(self, serializer):
+        instance = serializer.save(position=Position.nodes.get(
+            object_uuid=self.request.data['position']))
+        return instance
+
     @detail_route(methods=['post'], serializer_class=PoliticalVoteSerializer)
     def vote(self, request, object_uuid=None):
         serializer = self.get_serializer(data=request.data,

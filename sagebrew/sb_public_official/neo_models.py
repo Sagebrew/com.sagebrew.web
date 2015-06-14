@@ -1,6 +1,8 @@
+from django.core.cache import cache
+
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty)
+                      BooleanProperty, db)
 
 from sb_search.neo_models import Searchable
 
@@ -71,6 +73,20 @@ class PublicOfficial(Searchable):
     current_term = RelationshipTo('govtrack.neo_models.Term', 'CURRENT_TERM')
     campaign = RelationshipTo('sb_campaigns.neo_models.PoliticalCampaign',
                               'HAS_CAMPAIGN')
+
+    def get_campaign(self):
+        from sb_campaigns.neo_models import PoliticalCampaign
+        campaign = cache.get("%s_campaign" % self.object_uuid)
+        if campaign is None:
+            query = 'MATCH (o:PublicOfficial {object_uuid:"%s"})-' \
+                    '[:HAS_CAMPAIGN]->(c:Campaign) RETURN c'
+            res, _ = db.cypher_query(query)
+            try:
+                campaign = PoliticalCampaign.inflate(res[0].c)
+            except IndexError:
+                campaign = None
+        return campaign
+
 
 '''
 class Bill(StructuredNode):

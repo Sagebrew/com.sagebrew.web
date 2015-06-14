@@ -18,11 +18,6 @@ class Goal(SBObject):
     more agile and reduce the strain on users of having to define all their
     goals up front.
     """
-    # Programmaticly set based on the ordering of the goals in a round.
-    # If a goal has no goals set for `previous_goal` this should be true.
-    # May be able to replace this with a method or fully implement it in the
-    # interface.
-    initial = BooleanProperty(default=False)
     # This is what will be shown above each goal in the Action area. Titles
     # should describe what the goal is for in a couple words, around 40 chars.
     # Required
@@ -39,12 +34,17 @@ class Goal(SBObject):
     # great detail regarding a given goal.
     # Optional
     description = StringProperty()
-    active = BooleanProperty(default=False)
     pledged_vote_requirement = IntegerProperty(default=0)
     monetary_requirement = IntegerProperty(default=0)
     completed = BooleanProperty(default=False)
     completed_date = DateTimeProperty()
     total_required = IntegerProperty()
+
+    # optimizations
+    # Active is automatically set when the round the goal is in is taken active
+    # This allows us to validate whether or not a goal can be changed by
+    # looking directly at it rather than having to query up to the round.
+    active = BooleanProperty(default=False)
 
     # relationships
     updates = RelationshipTo('sb_updates.neo_models.Update', "UPDATE_FOR")
@@ -132,9 +132,11 @@ class Round(SBObject):
     # Completed is a programmaticly set value that should be set when
     # the campaigner closes out a round by completing all the associated
     # goals.
+    # Completed should be used to check if the round is historical. This is
+    # set to null when it has not yet been started and/or it is the currently
+    # active round.
     completed = DateTimeProperty()
     active = BooleanProperty(default=False)
-    upcoming = BooleanProperty(default=True)
 
     # relationships
     goals = RelationshipTo('sb_goals.neo_models.Goal', "STRIVING_FOR")

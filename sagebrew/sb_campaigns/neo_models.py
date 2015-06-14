@@ -153,14 +153,15 @@ class Campaign(Searchable):
 
     @classmethod
     def get_rounds(cls, object_uuid):
-        rounds = cache.get("%s_rounds" % (object_uuid))
+        rounds = cache.get("%s_rounds" % object_uuid)
         if rounds is None:
             query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
-                    '[:HAS_ROUND]->(r:`Round`) WHERE r.upcoming=false ' \
-                    'RETURN r.object_uuid' % (object_uuid)
+                    '[:HAS_ROUND]->(r:`Round`) ' \
+                    'WHERE r.active=false AND r.completed=null ' \
+                    'RETURN r.object_uuid' % object_uuid
             res, col = db.cypher_query(query)
             rounds = [row[0] for row in res]
-            cache.set("%s_rounds" % (object_uuid), rounds)
+            cache.set("%s_rounds" % object_uuid, rounds)
         return rounds
 
     @classmethod

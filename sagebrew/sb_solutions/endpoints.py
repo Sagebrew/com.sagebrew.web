@@ -76,15 +76,13 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
         sort_by = self.request.query_params.get('ordering', "")
         sort_by, ordering = get_ordering(sort_by)
         if sort_by == "" or sort_by == "vote_count":
-            query = "MATCH (a:Question {object_uuid: '%s'})-" \
-                    "[:POSSIBLE_ANSWER]->" \
-                    "(b:Solution) WHERE b.to_be_deleted=false " \
-                    "OPTIONAL MATCH (b:Solution)<-" \
-                    "[vs:PLEB_VOTES]-" \
-                    "(p:Pleb) WHERE b.to_be_deleted=false RETURN " \
-                    "b, reduce(vote_count = 0, v in collect(vs)|" \
-                    "CASE WHEN v.active=false THEN vote_count " \
-                    "WHEN v.vote_type=True THEN vote_count+1 " \
+            query = "MATCH (q:Question {object_uuid: '%s'})-" \
+                    "[:POSSIBLE_ANSWER]->(b:Solution) " \
+                    "WHERE b.to_be_deleted=false " \
+                    "OPTIONAL MATCH (b)<-[vs:PLEB_VOTES]-() " \
+                    "WHERE vs.active=True " \
+                    "RETURN b, reduce(vote_count = 0, v in collect(vs)|" \
+                    "CASE WHEN v.vote_type=True THEN vote_count+1 " \
                     "WHEN v.vote_type=False THEN vote_count-1 " \
                     "ELSE vote_count END) as reduction " \
                     "ORDER BY reduction DESC" % (self.kwargs[self.lookup_field])

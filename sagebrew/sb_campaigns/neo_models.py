@@ -23,7 +23,7 @@ class Campaign(Searchable):
 
     Use Case:
     How do we handle the future Projects feature with this? Users will
-    potentially have a single Action Area defined that is specific to them but
+    potentially have a single Quest defined that is specific to them but
     then either be leading or participating in a set of Projects. These
     projects may have different stripe accounts associated with them as they
     may be associated with different groups or bank accounts.
@@ -33,13 +33,13 @@ class Campaign(Searchable):
     could then bind 0-n projects to a user with a Relationship handler that
     indicated their role in the project. Then a user would still have a one
     to one with a Campaign and could also list the projects they wanted to
-    on their Action Area while accepting donations directly to their primary
+    on their Quest while accepting donations directly to their primary
     Campaign, w/e it may be. This should make queries to do the population
     of such a Use Case pretty simple as well. We can also extend this class
     to a Project which may have some additional attributes but at a minimum
     would give us a Project Label to grab.
 
-    The other case is if a user doesn't have an Action Area but owns or
+    The other case is if a user doesn't have a Quest but owns or
     participates in a Project. The above scenario should still work in this
     case as well.
     """

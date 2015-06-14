@@ -62,11 +62,11 @@ urlpatterns = patterns(
             "category": "citizens"
         },
         name="campaign_contribution_rules"),
-    url(r'^action_area/$', TemplateView.as_view(
+    url(r'^quest/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "What is an Action Area?",
-            "description": "An Action Area is a space for those who wish to "
+            "title": "What is a Quest?",
+            "description": "A Quest is a space for those who wish to "
                            "run for office to showcase themselves to the "
                            "constituency.",
             "content_path":
@@ -74,7 +74,7 @@ urlpatterns = patterns(
                     settings.HELP_DOCS_PATH),
             "category": "citizens"
         },
-        name="action_area_citizen"),
+        name="quest_citizen"),
 )
 
 if settings.DEBUG is True:

@@ -284,7 +284,6 @@ class GoalEndpointTests(APITestCase):
             'description': 'test update'
         }
         response = self.client.patch(url, data=data, format='json')
-
         self.assertEqual(response.data['description'], data['description'])
 
     def test_update_pledged_vote_requirement(self):

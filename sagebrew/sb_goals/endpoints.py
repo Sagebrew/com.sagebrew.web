@@ -69,7 +69,7 @@ class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         way that validation errors are handled.
         """
         queryset = self.get_object()
-        if queryset.completed is not None or queryset.active is True:
+        if queryset.completed is True or queryset.active is True:
             return Response({"status_code": status.HTTP_405_METHOD_NOT_ALLOWED,
                              "detail": "You cannot update a completed "
                                        "or active goal."},
@@ -79,7 +79,7 @@ class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
 
     def destroy(self, request, *args, **kwargs):
         queryset = self.get_object()
-        if (queryset.completed or queryset.active):
+        if queryset.completed is True or queryset.active is True:
             return Response({"status_code": status.HTTP_405_METHOD_NOT_ALLOWED,
                              "detail": "You cannot delete a completed "
                                        "or active goal."},

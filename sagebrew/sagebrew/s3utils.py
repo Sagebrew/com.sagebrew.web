@@ -16,4 +16,4 @@ class SBS3BotoStorage(S3BotoStorage):
 
 
 MediaRootS3BotoStorage = lambda: S3BotoStorage(location='media')
-StaticRootS3BotoStorage = lambda: S3BotoStorage(location='static')
+StaticRootS3BotoStorage = lambda: SBS3BotoStorage(location='static')

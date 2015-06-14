@@ -30,8 +30,7 @@ class Command(BaseCommand):
         position = Position.inflate(res[0][0])
         campaign.position.connect(position)
         position.campaigns.connect(campaign)
-        first_round = Round(start_date=datetime.now(), active=True,
-                            upcoming=False).save()
+        first_round = Round(start_date=datetime.now(), active=True).save()
         goal_one = Goal(
             title="This is my first goal", summary="This is a summary of my "
                                                    "very first goal.",

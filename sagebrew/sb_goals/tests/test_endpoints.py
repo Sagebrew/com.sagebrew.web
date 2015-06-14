@@ -24,7 +24,7 @@ class GoalEndpointTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
-        self.goal = Goal(initial=True, title='Test Goal',
+        self.goal = Goal(title='Test Goal',
                          summary="Test Summary",
                          description="Test Description", active=True,
                          pledged_vote_requirement=100,
@@ -114,14 +114,6 @@ class GoalEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['campaign'])
-
-    def test_get_initial(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('goal-detail',
-                      kwargs={'object_uuid': self.goal.object_uuid})
-        response = self.client.get(url)
-
-        self.assertEqual(response.data['initial'], self.goal.initial)
 
     def test_get_title(self):
         self.client.force_authenticate(user=self.user)
@@ -369,8 +361,8 @@ class RoundEndpointTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
-        self.round = Round(upcoming=False, active=True,
-                           start_date=datetime.now(pytz.utc)).save()
+        self.round = Round(
+            active=True, start_date=datetime.now(pytz.utc)).save()
 
     def test_unauthorized(self):
         url = reverse('round-detail',
@@ -543,7 +535,6 @@ class RoundEndpointTests(APITestCase):
 
     def test_get_upcoming_unauthorized(self):
         self.client.force_authenticate(user=self.user)
-        self.round.upcoming = True
         self.round.save()
         url = reverse('round-detail',
                       kwargs={'object_uuid': self.round.object_uuid})

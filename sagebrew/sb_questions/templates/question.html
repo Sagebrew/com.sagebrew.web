@@ -56,14 +56,29 @@
 
     </div>
     <div class="row">
-        <div class="col-lg-4 col-md-4 hidden-sm hidden-xs col-lg-offset-9 col-md-offset-9">
+        <div class="col-lg-4 col-md-4 hidden-sm hidden-xs col-md-offset-8 col-lg-offset-9">
             <small>
                 asked by
             </small>
         </div>
     </div>
     <div class="row">
-        <div class="col-lg-1 col-md-1 hidden-sm hidden-xs col-lg-offset-9 col-md-offset-9"
+
+        <div class="col-md-2 hidden-xs hidden-sm col-lg-offset-1">
+            {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
+            {% else %}
+                <div><small>
+                    <span class="sb_comment_disabled" data-toggle="tooltip"
+                          data-placement="top"
+                          data-title="Requirement: 20+ Rep"
+                          id="post_comment_on_{{ object_uuid }}">
+                        comment
+                    </span>
+                </small></div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-1 col-md-1 hidden-sm hidden-xs col-md-offset-6"
              style="padding-right:0; margin-right: -10px">
             <div class="sb_thumbnail_xs thumbnail">
                 {% static 'images/sage_coffee_grey-01.png' as default_profile %}
@@ -90,21 +105,23 @@
     </div>
 
     <div id="sb_comments_container_{{ object_uuid }}">
+        {% comment %}
+            Dynamically populated by JS to show existing comments.
+        {% endcomment %}
     </div>
-    {% comment %}
-        This area is for inputing a new comment. The include is needed for population of existing comments.
-    {% endcomment %}
     <div class="row">
-        <form id="commentSubmitForm">
-        <div class="input-group sb_comment">
-            <textarea class="input-group form-control sb_comment_input"
-                      id="post_comment_on_{{ object_uuid }}"
-                      rows="2"
-                      name="comment_content"
-                      placeholder="Write your comment..."></textarea>
-            <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
-               data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
-        </div>
-        </form>
+        {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
+            <form id="commentSubmitForm">
+            <div class="input-group sb_comment">
+                    <textarea class="input-group form-control sb_comment_input"
+                              id="post_comment_on_{{ object_uuid }}"
+                              rows="2"
+                              name="comment_content"
+                              placeholder="Write your comment..."></textarea>
+                    <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
+                       data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
+                </div>
+            </form>
+        {% endif %}
     </div>
 </div>

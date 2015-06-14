@@ -15,5 +15,5 @@ class SBS3BotoStorage(S3BotoStorage):
             query_auth=self.querystring_auth, force_http=not self.secure_urls)
 
 
-MediaRootS3BotoStorage = lambda: S3BotoStorage(location='media')
+MediaRootS3BotoStorage = lambda: SBS3BotoStorage(location='media')
 StaticRootS3BotoStorage = lambda: SBS3BotoStorage(location='static')

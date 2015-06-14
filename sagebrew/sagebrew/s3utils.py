@@ -9,7 +9,8 @@ class SBS3BotoStorage(S3BotoStorage):
             return "%s//%s/%s?v=%s" % (self.url_protocol,
                                        self.custom_domain, name,
                                        environ.get("SHA1", ""))
-        return self.connection.generate_url(self.querystring_expire,
+        return self.connection.generate_url(
+            self.querystring_expire,
             method='GET', bucket=self.bucket.name, key=self._encode_name(name),
             query_auth=self.querystring_auth, force_http=not self.secure_urls)
 

@@ -39,6 +39,7 @@ DEFAULT_FILE_STORAGE = 'sagebrew.s3utils.MediaRootS3BotoStorage'
 STATICFILES_STORAGE = 'sagebrew.s3utils.StaticRootS3BotoStorage'
 
 S3_URL = 'https://dr2ldscuzcleg.cloudfront.net/'
+AWS_S3_CUSTOM_DOMAIN = "dr2ldscuzcleg.cloudfront.net"
 CELERY_IGNORE_RESULT = True
 STATIC_URL = "%s%s" % (S3_URL, "static/")
 MEDIA_URL = "%s%s" % (S3_URL, "media/")

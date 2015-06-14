@@ -55,6 +55,8 @@ urlpatterns = patterns(
     (r'^privilege/', include('sb_privileges.urls')),
     (r'^action/', include('sb_public_official.urls')),
     url(r'^signup/$', signup_view, name="signup"),
+    url(r'^quests/$',
+        TemplateView.as_view(template_name="quest_signup.html")),
     (r'^v1/', include('sb_questions.apis.v1')),
     (r'^v1/', include('sb_solutions.apis.v1')),
     (r'^v1/', include('sb_oauth.apis.v1')),

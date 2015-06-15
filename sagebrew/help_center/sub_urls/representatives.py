@@ -103,6 +103,19 @@ urlpatterns = patterns(
             "category": "representatives"
         },
         name="principle_campaign_committee"),
+    url(r'^quest/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "Embarking on a Quest",
+            "description": "Quests are for anyone looking to run for public "
+                           "office. We know running a campaign is hard work"
+                           " and we're here to help you along your journey!",
+            "content_path":
+                "%squest_signup.html" % (settings.HELP_DOCS_PATH),
+            "category": "representatives",
+            "static_files": True
+        },
+        name="quest_signup"),
     url(r'^suspicious_public_servants/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={

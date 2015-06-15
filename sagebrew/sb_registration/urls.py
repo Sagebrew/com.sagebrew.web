@@ -28,9 +28,6 @@ urlpatterns = patterns(
     url(r'^email_confirmation/(?P<confirmation>[A-Za-z0-9.@_%+-]{24})/$',
         email_verification, name="email_verification"),
 
-    url(r'^rep_signup/$',
-        TemplateView.as_view(template_name="rep_signup.html")),
-
     # This is an api call
     url(r'^beta/signup/$', beta_signup, name="beta_signup"),
 )

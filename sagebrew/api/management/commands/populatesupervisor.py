@@ -49,6 +49,7 @@ class Command(BaseCommand):
 
 
 def populate_general_values(data, user, worker_count):
+    data = data.replace("%(ENV_SHA1)s", environ.get("SHA1", ""))
     data = data.replace("%(ENV_APP_USER)s", user)
     data = data.replace("%(ENV_APP_NAME)s", environ.get("APP_NAME", ""))
     data = data.replace("%(NUMBER_OF_WORKERS)s", worker_count)

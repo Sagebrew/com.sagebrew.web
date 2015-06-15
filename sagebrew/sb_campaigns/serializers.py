@@ -189,7 +189,6 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         campaign.editors.connect(owner)
         campaign.accountants.connect(owner)
         cache.set("%s_campaign" % campaign.object_uuid, campaign)
-        logger.info(self.instance)
         return campaign
 
     def get_vote_count(self, obj):

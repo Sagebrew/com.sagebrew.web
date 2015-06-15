@@ -45,7 +45,6 @@ def signup_view(request):
 
 
 def quest_signup(request):
-    user = request.GET.get('user', '')
     return render(request, 'quest_signup.html')
 
 

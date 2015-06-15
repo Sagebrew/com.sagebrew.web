@@ -28,18 +28,30 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
     def get_object(self):
         return Location.get(object_uuid=self.kwargs[self.lookup_field])
 
+from logging import getLogger
+logger = getLogger('loggly_logs')
 
-@api_view(["GET"])
+@api_view(['GET'])
 @permission_classes((IsAuthenticated,))
-def render_positions(request, name=None):
+def get_positions(request, name=None):
     query = 'MATCH (l:Location {name:"%s"})-[:POSITIONS_AVAILABLE]->' \
             '(p1:Position) WITH l, p1 OPTIONAL MATCH (l)-[:ENCOMPASSES]->' \
             '(l2:Location)-[:POSITIONS_AVAILABLE]->(p2:Position) ' \
             'RETURN p1.object_uuid as object_uuid1, ' \
             'p2.object_uuid as object_uuid2' % name
     res, _ = db.cypher_query(query)
-    senator = Position.get_full_name(res[0].object_uuid1)
-    house_reps = [Position.get_full_name(row.object_uuid2) for row in res]
+    return Response({"senator": res[0].object_uuid1,
+                     "house_reps": [row.object_uuid2 for row in res]},
+                    status=status.HTTP_200_OK)
+
+
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def render_positions(request, name=None):
+    positions = get_positions(request, name).data
+    senator = Position.get_full_name(positions['senator'])
+    house_reps = [Position.get_full_name(row)
+                  for row in positions['house_reps']]
     house_reps.append(senator)
     position_html = [render_to_string('position_selector.html',
                                       {'name': rep_name,

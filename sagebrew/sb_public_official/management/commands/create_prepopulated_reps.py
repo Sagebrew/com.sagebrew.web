@@ -13,7 +13,6 @@ from sb_campaigns.neo_models import PoliticalCampaign
 from sb_campaigns.serializers import PoliticalCampaignSerializer
 
 from sb_public_official.neo_models import PublicOfficial
-from sb_public_official.serializers import PublicOfficialSerializer
 
 logger = getLogger('loggly_logs')
 
@@ -66,16 +65,16 @@ class Command(BaseCommand):
                 print camp
                 if not camp:
                     camp = PoliticalCampaign(biography=rep.bio,
-                                                 youtube=rep.youtube,
-                                                 twitter=rep.twitter,
-                                                 website=rep.website,
-                                                 first_name=rep.first_name,
-                                                 last_name=rep.last_name,
-                                                 profile_pic=settings.
-                                                 STATIC_URL +
-                                                 "images/congress/2"
-                                                 "25x275/%s.jpg"
-                                                 % (rep.bioguideid)).save()
+                                             youtube=rep.youtube,
+                                             twitter=rep.twitter,
+                                             website=rep.website,
+                                             first_name=rep.first_name,
+                                             last_name=rep.last_name,
+                                             profile_pic=settings.
+                                             STATIC_URL +
+                                             "images/congress/2"
+                                             "25x275/%s.jpg"
+                                             % (rep.bioguideid)).save()
                     camp.public_official.connect(rep)
                     rep.campaign.connect(camp)
                 rep.gt_person.connect(person)

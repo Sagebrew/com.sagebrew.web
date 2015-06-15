@@ -28,8 +28,6 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
     def get_object(self):
         return Location.get(object_uuid=self.kwargs[self.lookup_field])
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
 
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))

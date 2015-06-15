@@ -319,11 +319,7 @@ class Pleb(Searchable):
         query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Campaign) ' \
                 'RETURN c' % self.username
         res, _ = db.cypher_query(query)
-        try:
-            campaign = res.one
-        except IndexError:
-            campaign = None
-        return campaign
+        return res.one
 
     def update_campaign(self):
         query = 'MATCH (p:Pleb {username:"%s"})-[:IS_WAGING]->' \

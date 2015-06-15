@@ -1,5 +1,3 @@
-from django.core.cache import cache
-
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, db)

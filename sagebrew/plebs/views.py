@@ -133,7 +133,6 @@ def quest_settings(request):
     :param request:
     :return:
     """
-    address_key = settings.ADDRESS_AUTH_ID
     query = 'MATCH (person:Pleb {username: "%s"})' \
             '-[r:IS_WAGING]->(campaign:Campaign) RETURN campaign' % (
                 request.user.username)

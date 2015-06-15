@@ -61,11 +61,7 @@ $(document).ready(function () {
     engine.initialize();
     $('#state')
         .on('tokenfield:createtoken', function (e) {
-            console.log(e.attrs.value);
-            console.log(typeof e.attrs.value);
             var tokenArray = $('#state').tokenfield('getTokensList').split(', ');
-            console.log(tokenArray);
-            console.log(typeof tokenArray);
             if ($.inArray(e.attrs.value, tokenArray) > -1) {
                 $(".tt-input").val("");
                 return false;

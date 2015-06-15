@@ -315,6 +315,16 @@ class Pleb(Searchable):
                       (username, campaign_uuid), donation_amount)
         return donation_amount
 
+    def get_campaign(self):
+        query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Campaign) ' \
+                'RETURN c' % self.username
+        res, _ = db.cypher_query(query)
+        try:
+            campaign = res.one
+        except IndexError:
+            campaign = None
+        return campaign
+
     def update_campaign(self):
         query = 'MATCH (p:Pleb {username:"%s"})-[:IS_WAGING]->' \
                 '(c:Campaign) SET c.first_name="%s", c.last_name="%s"' % \
@@ -539,7 +549,7 @@ class Pleb(Searchable):
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 
-    def get_public_official(self):
+    def is_authorized_as(self):
         from sb_public_official.neo_models import PublicOfficial
         official = cache.get("%s_official" % self.username)
         if official is None:
@@ -548,7 +558,7 @@ class Pleb(Searchable):
                     % self.username
             res, _ = db.cypher_query(query)
             try:
-                official = PublicOfficial.inflate(res[0].o)
+                official = PublicOfficial.inflate(res[0][0])
                 cache.set("%s_official" % self.username, official)
             except IndexError:
                 official = None

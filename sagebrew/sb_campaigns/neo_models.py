@@ -384,6 +384,9 @@ class Position(SBObject):
                     'l.name as location_name1, l2.name as location_name2' \
                     % object_uuid
             res, _ = db.cypher_query(query)
+            # position_name will be either 'House Representative' or 'Senator',
+            #  location_name1 will be either a district number or a state name
+            # and location_name2 will be a state name
             if res[0][0] == 'House Representative':
                 full_name = "%s for %s's %s district" % \
                             (res[0].position_name, res[0].location_name2,

@@ -153,24 +153,23 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         request = self.context.get('request', None)
         position = validated_data.pop('position', None)
         owner = Pleb.get(username=request.user.username)
-        if owner.campaign.all():
+        if owner.get_campaign():
             raise ValidationError(
                 detail={"detail": "You may only have one quest!",
                         "developer_message": "",
                         "status_code": status.HTTP_400_BAD_REQUEST})
-        official = owner.get_public_official()
+        official = owner.is_authorized_as()
         if official:
             validated_data['youtube'] = official.youtube
             validated_data['website'] = official.website
             validated_data['twitter'] = official.twitter
             validated_data['biography'] = official.bio
-        validated_data['profile_pic'] = owner.profile_pic
-        validated_data['first_name'] = owner.first_name
-        validated_data['last_name'] = owner.last_name
-        validated_data['owner_username'] = owner.username
-        validated_data['object_uuid'] = owner.username
-        logger.info(validated_data)
-        campaign = PoliticalCampaign(**validated_data).save()
+        campaign = PoliticalCampaign(first_name=owner.first_name,
+                                     last_name=owner.last_name,
+                                     owner_username=owner.username,
+                                     object_uuid=owner.username,
+                                     profile_pic=owner.profile_pic,
+                                     **validated_data).save()
         if official:
             temp_camp = official.get_campaign()
             if temp_camp:
@@ -190,7 +189,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         campaign.editors.connect(owner)
         campaign.accountants.connect(owner)
         cache.set("%s_campaign" % campaign.object_uuid, campaign)
-        logger.info(campaign)
+        logger.info(self.instance)
         return campaign
 
     def get_vote_count(self, obj):

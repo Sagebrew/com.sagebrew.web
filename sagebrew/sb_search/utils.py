@@ -96,31 +96,17 @@ def process_search_result(item):
             "temp_score": item['_score'] * item['_source']['sb_score'],
             "score": item['_score']
         }
-    elif item['_type'] == 'public_official':
-        try:
-            return {
-                "object_uuid": item['_source']['campaign'],
-                'type': 'public_official', 'temp_score': item['_score'],
-                'score': item['_score']
-            }
-        except KeyError:
-            # This key error check exists to protect us while officials are
-            # still signing up for the site, we initially store off their
-            # search data as a serialized public official with an id to
-            # their campaign, once they signup we transfer this to campaign
-            # with a serialized public official. May want to look in to
-            # storing off initial search data as a serialized campaign,
-            # the only issue this may cause is when attempting to update the
-            # campaign as we have to delete the dummy placeholder campaign
-            # when the rep signs up and replace it with a real campaign.
-            # Also we may want to look in to creating a different type
-            # attribute for campaigns, this will allow for searches of
-            # campaigns other than just political ones
-            return {
-                "object_uuid": item['_source']['id'],
-                'type': 'public_official', 'temp_score': item['_score'],
-                'score': item['_score']
-            }
+    elif item['_type'] == 'campaign' or item['_type'] == 'politicalcampaign':
+        # We decided that it would be cleaner and quicker to reindex all
+        # campaigns as a serialized campaign instead of a serialized public
+        # official. This will future-proof ourselves for when we decide to
+        # allow users to sign up for a campaign that is not for a official
+        # position such as senator, house rep, president.
+        return {
+            "object_uuid": item['_source']['id'],
+            'type': 'public_official', 'temp_score': item['_score'],
+            'score': item['_score']
+        }
     else:
         return {'temp_score': 0}
 

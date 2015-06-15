@@ -249,7 +249,7 @@ def populate_test_values(data):
 def populate_general_values(data):
     data = data.replace("<RDS_PORT>",
                         environ.get("RDS_PORT", ""))
-    data = data.replace("<SHA1>", environ.get("SHA1", ""))
+    data = data.replace("<SHA1>", environ.get("CIRCLE_SHA1", ""))
     data = data.replace("<APP_USER>", environ.get("APP_USER", ""))
     data = data.replace("<APP_NAME>", environ.get("APP_NAME", ""))
     data = data.replace("<PROJECT_REPONAME>",

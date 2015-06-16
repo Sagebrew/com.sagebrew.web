@@ -153,8 +153,7 @@ def search_result_api(request):
     except EmptyPage:
         page = paginator.page(paginator.num_pages)
     if current_page == 1:
-        for item in page.object_list:
-            results.append(process_search_result(item))
+        results = [process_search_result(item) for item in page.object_list]
         results = sorted(results, key=itemgetter('temp_score'),
                          reverse=True)
     elif current_page > 1:

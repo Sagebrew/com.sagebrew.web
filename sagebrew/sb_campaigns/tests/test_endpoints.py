@@ -29,11 +29,12 @@ class CampaignEndpointTests(APITestCase):
         self.campaign.upcoming_round.connect(self.round)
         self.round.campaign.connect(self.campaign)
         self.campaign.owned_by.connect(self.pleb)
-        self.pleb.campaign.connect(self.campaign)
         self.campaign.accountants.connect(self.pleb)
         self.campaign.editors.connect(self.pleb)
         self.pleb.campaign_accountant.connect(self.campaign)
         self.pleb.campaign_editor.connect(self.campaign)
+        for camp in self.pleb.campaign.all():
+            camp.delete()
         cache.clear()
 
     def test_unauthorized(self):
@@ -85,6 +86,7 @@ class CampaignEndpointTests(APITestCase):
 
     def test_create(self):
         self.client.force_authenticate(user=self.user)
+        position = Position(name="Senator").save()
         url = reverse('campaign-list')
         data = {
             "biography": "this is a test bio",
@@ -93,14 +95,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_active(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -108,14 +112,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['active'], False)
 
     def test_create_website(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -123,14 +129,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['website'], "fake campaign website")
 
     def test_create_profile_pic(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -138,14 +146,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['profile_pic'], None)
 
     def test_create_wallpaper_pic(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -153,14 +163,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['wallpaper_pic'], None)
 
     def test_create_url(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -168,9 +180,10 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['url'],
                          'http://testserver/action/' +
                          response.data['id'] + '/')
@@ -178,6 +191,7 @@ class CampaignEndpointTests(APITestCase):
     def test_create_twitter(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -185,14 +199,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['twitter'], "fake twitter link")
 
     def test_create_youtube(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -200,14 +216,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['youtube'], "fake youtube link")
 
     def test_create_linkedin(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -215,14 +233,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['linkedin'], "fake linkedin link")
 
     def test_create_rounds(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -230,14 +250,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['rounds'], [])
 
     def test_create_upcoming_round(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -245,9 +267,10 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['upcoming_round'],
                          PoliticalCampaign.get_upcoming_round(
                              response.data['id']))
@@ -255,6 +278,7 @@ class CampaignEndpointTests(APITestCase):
     def test_create_vote_count(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -262,14 +286,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['vote_count'], 0)
 
     def test_create_href(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -277,15 +303,17 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['href'], self.url + reverse(
             'campaign-detail', kwargs={'object_uuid': response.data['id']}))
 
     def test_create_facebook(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -293,14 +321,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['facebook'], "fake facebook link")
 
     def test_create_owner_username(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -308,14 +338,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['owner_username'], "test_test")
 
     def test_create_position(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -323,14 +355,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.data['position'], None)
+        position.delete()
+        self.assertEqual(response.data['position'], position.object_uuid)
 
     def test_create_active_goals(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -338,14 +372,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['active_goals'], [])
 
     def test_create_type(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -353,14 +389,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['type'], "politicalcampaign")
 
     def test_create_biography(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -368,14 +406,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['biography'], "this is a test bio")
 
     def test_create_id(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -383,14 +423,16 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['id'], response.data['id'])
 
     def test_create_updates(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
+        position = Position(name="Senator").save()
         data = {
             "biography": "this is a test bio",
             "facebook": "fake facebook link",
@@ -398,9 +440,10 @@ class CampaignEndpointTests(APITestCase):
             "youtube": "fake youtube link",
             "twitter": "fake twitter link",
             "website": "fake campaign website",
+            "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
-
+        position.delete()
         self.assertEqual(response.data['updates'], [])
 
     def test_detail(self):

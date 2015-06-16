@@ -78,7 +78,6 @@ class PublicOfficial(Searchable):
                 '[:HAS_CAMPAIGN]->(c:PoliticalCampaign) RETURN c' \
                 % self.object_uuid
         res, _ = db.cypher_query(query)
-        print res
         try:
             campaign = PoliticalCampaign.inflate(res[0][0])
         except IndexError:

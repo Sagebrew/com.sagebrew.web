@@ -386,7 +386,14 @@ class Position(SBObject):
             res, _ = db.cypher_query(query)
             # position_name will be either 'House Representative' or 'Senator',
             #  location_name1 will be either a district number or a state name
-            # and location_name2 will be a state name
+            # and location_name2 will be a state name. This is done to build
+            # up the full name of a position that a user can run for, we do
+            # this because the query is set up the same for each different
+            # query, for the senator we will get back a state name and a
+            # string: "United States of America" and we don't want that
+            # string included in the name but we also don't want to have to
+            # do an if to determine what position we are looking at, it allows
+            # for generalization of the query.
             if res[0][0] == 'House Representative':
                 full_name = "%s for %s's %s district" % \
                             (res[0].position_name, res[0].location_name2,

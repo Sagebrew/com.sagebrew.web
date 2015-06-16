@@ -312,3 +312,6 @@ class PositionSerializer(SBSerializer):
                            kwargs={'object_uuid': location},
                            request=request)
         return location
+
+    def get_full_name(self, obj):
+        return Position.get_full_name(obj.object_uuid)

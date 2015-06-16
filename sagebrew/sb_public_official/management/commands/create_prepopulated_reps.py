@@ -62,7 +62,6 @@ class Command(BaseCommand):
                     logger.exception(e)
                     continue
                 camp = rep.get_campaign()
-                print camp
                 if not camp:
                     camp = PoliticalCampaign(biography=rep.bio,
                                              youtube=rep.youtube,
@@ -82,7 +81,6 @@ class Command(BaseCommand):
                 camps.append(camp)
         populate_term_data()
         for campaign in camps:
-            print campaign
             campaign.refresh()
             rep_data = PoliticalCampaignSerializer(campaign).data
             task_data = {

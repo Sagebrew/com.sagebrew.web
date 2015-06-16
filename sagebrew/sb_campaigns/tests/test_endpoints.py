@@ -998,7 +998,7 @@ class PositionEndpointTests(APITestCase):
         url = reverse('position-detail',
                       kwargs={'object_uuid': self.position.object_uuid})
         response = self.client.get(url)
-        
+
         self.assertEqual(response.data['campaigns'],
                          [])
 

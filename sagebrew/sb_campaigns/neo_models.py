@@ -394,12 +394,15 @@ class Position(SBObject):
             # string included in the name but we also don't want to have to
             # do an if to determine what position we are looking at, it allows
             # for generalization of the query.
-            if res[0][0] == 'House Representative':
-                full_name = "%s for %s's %s district" % \
-                            (res[0].position_name, res[0].location_name2,
-                             ordinal(res[0].location_name1))
+            try:
+                if res[0][0] == 'House Representative':
+                    full_name = "%s for %s's %s district" % \
+                                (res[0].position_name, res[0].location_name2,
+                                 ordinal(res[0].location_name1))
 
-            else:
-                full_name = "%s of %s" % (res[0].position_name,
-                                          res[0].location_name1)
-            return {"full_name": full_name, "object_uuid": object_uuid}
+                else:
+                    full_name = "%s of %s" % (res[0].position_name,
+                                              res[0].location_name1)
+                return {"full_name": full_name, "object_uuid": object_uuid}
+            except IndexError:
+                return None

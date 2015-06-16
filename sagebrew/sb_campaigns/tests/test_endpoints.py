@@ -931,6 +931,8 @@ class PositionEndpointTests(APITestCase):
         self.pleb.campaign_editor.connect(self.campaign)
         self.position = Position(name="Senator").save()
         self.position.campaigns.connect(self.campaign)
+        for camp in self.pleb.campaign.all():
+            camp.delete()
 
     def test_unauthorized(self):
         url = reverse('position-list')
@@ -996,9 +998,9 @@ class PositionEndpointTests(APITestCase):
         url = reverse('position-detail',
                       kwargs={'object_uuid': self.position.object_uuid})
         response = self.client.get(url)
-
+        
         self.assertEqual(response.data['campaigns'],
-                         [self.campaign.object_uuid])
+                         [])
 
     def test_detail_href(self):
         self.client.force_authenticate(user=self.user)

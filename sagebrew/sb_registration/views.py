@@ -17,6 +17,7 @@ from neomodel import (DoesNotExist, CypherException)
 from api.utils import spawn_task
 from plebs.tasks import send_email_task, create_beta_user
 from plebs.neo_models import Pleb, BetaUser
+from sb_campaigns.neo_models import Position
 
 from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,
@@ -337,7 +338,9 @@ def profile_picture(request):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def quest_registration(request):
-    return render(request, 'position_selection.html')
+    president = Position.nodes.get(name="President")
+    return render(request, 'position_selection.html',
+                  {'president': president.object_uuid})
 
 
 @api_view(['POST'])

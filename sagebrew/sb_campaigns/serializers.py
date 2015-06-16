@@ -141,8 +141,11 @@ class CampaignSerializer(SBSerializer):
 
     def get_public_official(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
-        return PublicOfficialSerializer(obj.get_public_official(
+        public_official = PublicOfficialSerializer(obj.get_public_official(
             obj.object_uuid)).data
+        if not public_official:
+            return None
+        return public_official
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):

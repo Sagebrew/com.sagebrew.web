@@ -1,9 +1,9 @@
-# What is an Action Area #
-An Action Area is a space for those who wish to run for office to showcase 
+# What is a Quest #
+A Quest is a space for those who wish to run for office to showcase 
 themselves to the constituency.
 
 ## Purpose ##
-The Action Area serves as a candidate's public campaign profile. It provides 
+A Quest serves as a candidate's public campaign profile. It provides 
 constituents with important information regarding a candidate's policies and 
 reasons for running for office.
 
@@ -28,7 +28,7 @@ as many updates as they'd like.
 
 #### Bio ####
 The bio is the short description of a candidate that appears beneath their name 
-on their Action Area.
+in their Quest.
 
 #### Contributing and Pledging Votes ####
 There will be two buttons next to a candidates name. One is labeled "Donate" 
@@ -40,7 +40,7 @@ to the candidate of your choosing.
 
 
 ## Check in ##
-It's a good idea to check the Action Areas of the candidates running for office 
+It's a good idea to check up on the Quests of the candidates running for office 
 in your state before voting so you have an accurate idea of each candidate's 
 goals. Make sure to follow the candidates you support and don't be afraid to 
 reach out to them!     

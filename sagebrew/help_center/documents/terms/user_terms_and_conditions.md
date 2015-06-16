@@ -321,7 +321,7 @@ Cancellation will require a phone call validation and short inquiry to assure
 the proper closing of a rep account
 
 You are responsible for upholding any written Donation Goals that are fulfilled
-in your Action Area.
+in your Quest.
 
 by signing up for a rep account you are planning on actually running (don't 
 just sign up and not run)
@@ -330,8 +330,8 @@ If you are a sitting member of public office you may not sign up for a
 standard account 
 {% comment %}
 we might want to change our stance on this since we now
-distinguish the Action Area almost completely from the user's private profile. 
-But we'd still greatly encourage this as the Action Area of a sitting 
+distinguish the Quest almost completely from the user's private profile. 
+But we'd still greatly encourage this as the Quest of a sitting 
 representative will lack in fullness and not enable users to easy interact with them.
 {% endcomment %}
 

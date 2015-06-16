@@ -97,6 +97,7 @@ test:
         -e CRED_USER=test_username
         -e OAUTH_CLIENT_SECRET_CRED=test_env_this_is_it
         -e OAUTH_CLIENT_ID_CRED=test_env_client_id
+        -e SHA1=$CIRCLE_SHA1
         -d -t sagebrew/sys_util:$CIRCLE_SHA1
     - docker run -h box-worker --name sb_worker -P --link db:db
         -e DB_USER=docker -e DB_DOCKER_NAME=docker
@@ -134,6 +135,7 @@ test:
         -e CRED_USER=test_username
         -e OAUTH_CLIENT_SECRET_CRED=test_env_this_is_it
         -e OAUTH_CLIENT_ID_CRED=test_env_client_id
+        -e SHA1=$CIRCLE_SHA1
         -d -t sagebrew/sb_worker:$CIRCLE_SHA1
     # It appears if two migrations run at the same time they cause a
     - docker run -h box-webapp --name sb_web -P --link db:db
@@ -172,6 +174,7 @@ test:
         -e CRED_USER=test_username
         -e OAUTH_CLIENT_SECRET_CRED=test_env_this_is_it
         -e OAUTH_CLIENT_ID_CRED=test_env_client_id
+        -e SHA1=$CIRCLE_SHA1
         -d -t sagebrew/sb_web:$CIRCLE_SHA1
     # Sleep time based on aws timeout counts. This insures it is possible
     # for the deployed code to be ready within the set amount of time

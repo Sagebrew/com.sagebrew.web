@@ -17,7 +17,7 @@ $(document).ready(function () {
             }
         });
     }
-    loadQuestionSummaries("/v1/questions/render/?page_size=2&expand=true&expedite=true");
+    loadQuestionSummaries("/v1/questions/render/?page_size=5&expand=true&expedite=true");
     $("a.query_questions-action").click(function (event) {
         event.preventDefault();
         var sortBy = $(this).data('sort_by'),
@@ -32,7 +32,7 @@ $(document).ready(function () {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
-            url: "/v1/questions/render/?limit=5&offset=0&expedite=true&expand=true&ordering=" + sortBy + "&tagged_as=" + taggedAs,
+            url: "/v1/questions/render/?page_size=5&expedite=true&expand=true&ordering=" + sortBy + "&tagged_as=" + taggedAs,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {

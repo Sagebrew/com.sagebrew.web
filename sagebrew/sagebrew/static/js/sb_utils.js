@@ -185,19 +185,24 @@ function populateComments(objectUuids, resource) {
 }
 
 
-function readyFlag(flagObject) {
-    $(flagObject).tooltip();
-}
-
-function readyVote(voteObject) {
-    $(voteObject).tooltip();
+function toolTipObject(toolObject) {
+    $(toolObject).tooltip();
 }
 
 function readyVotes(objectUuids) {
     if (typeof objectUuids !== 'undefined' && objectUuids.length > 0) {
         for (var i = 0; i < objectUuids.length; i += 1) {
-            readyVote("#upvote_" + objectUuids[i]);
-            readyVote("#downvote_" + objectUuids[i]);
+            toolTipObject("#upvote_" + objectUuids[i]);
+            toolTipObject("#downvote_" + objectUuids[i]);
+        }
+    }
+}
+
+function readyComments(objectUuids) {
+    "use strict";
+    if (typeof objectUuids !== 'undefined' && objectUuids.length > 0) {
+        for (var i = 0; i < objectUuids.length; i += 1) {
+            toolTipObject("#post_comment_on_" + objectUuids[i]);
         }
     }
 }
@@ -205,7 +210,7 @@ function readyVotes(objectUuids) {
 function readyFlags(objectUuids) {
     if (typeof objectUuids !== 'undefined' && objectUuids.length > 0) {
         for (var i = 0; i < objectUuids.length; i += 1) {
-            readyFlag("#flag_" + objectUuids[i]);
+            toolTipObject("#flag_" + objectUuids[i]);
         }
     }
 }
@@ -261,7 +266,7 @@ function loadQuestion() {
                 loadSolutionCount();
                 enableQuestionFunctionality(data.ids);
                 populateComments(data.ids, "questions");
-                loadSolutions("/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?page_size=2&expand=true");
+                loadSolutions("/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?page_size=10&expand=true");
             },
             error: function (XMLHttpRequest) {
                 timeOutId = setTimeout(ajaxFn, 1000);
@@ -672,6 +677,7 @@ function respondFriendRequest() {
 function enableObjectFunctionality(populatedIds) {
     readyFlags(populatedIds);
     readyVotes(populatedIds);
+    readyComments(populatedIds);
 }
 
 

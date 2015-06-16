@@ -756,7 +756,7 @@ class CampaignEndpointTests(APITestCase):
 
     def test_donation_create(self):
         self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True, upcoming=False).save()
+        active_round = Round(active=True).save()
         target_goal = Goal(monetary_requirement=1000, target=True).save()
         self.campaign.goals.connect(target_goal)
         self.campaign.active_round.connect(active_round)
@@ -771,7 +771,7 @@ class CampaignEndpointTests(APITestCase):
 
     def test_donation_create_value_too_high(self):
         self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True, upcoming=False).save()
+        active_round = Round(active=True).save()
         target_goal = Goal(monetary_requirement=1000, target=True).save()
         self.campaign.goals.connect(target_goal)
         self.campaign.active_round.connect(active_round)
@@ -786,7 +786,7 @@ class CampaignEndpointTests(APITestCase):
 
     def test_donation_create_invalid_form(self):
         self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True, upcoming=False).save()
+        active_round = Round(active=True).save()
         target_goal = Goal(monetary_requirement=1000, target=True).save()
         self.campaign.goals.connect(target_goal)
         self.campaign.active_round.connect(active_round)
@@ -803,7 +803,7 @@ class CampaignEndpointTests(APITestCase):
 
     def test_donation_create_two_goals(self):
         self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True, upcoming=False).save()
+        active_round = Round(active=True).save()
         next_goal = Goal(monetary_requirement=3000, target=False,
                          total_required=4000).save()
         target_goal = Goal(monetary_requirement=1000, target=True,
@@ -830,7 +830,7 @@ class CampaignEndpointTests(APITestCase):
 
     def test_donation_create_three_goals(self):
         self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True, upcoming=False).save()
+        active_round = Round(active=True).save()
         next_goal = Goal(monetary_requirement=3000, target=False,
                          total_required=4000).save()
         next_goal2 = Goal(monetary_requirement=60000, target=False,
@@ -863,7 +863,7 @@ class CampaignEndpointTests(APITestCase):
 
     def test_update_create(self):
         self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True, upcoming=False).save()
+        active_round = Round(active=True).save()
         target_goal = Goal(monetary_requirement=1000, target=True,
                            total_required=1000).save()
         active_round.goals.connect(target_goal)
@@ -885,7 +885,7 @@ class CampaignEndpointTests(APITestCase):
 
     def test_update_create_invalid(self):
         self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True, upcoming=False).save()
+        active_round = Round(active=True).save()
         target_goal = Goal(monetary_requirement=1000, target=True,
                            total_required=1000).save()
         active_round.goals.connect(target_goal)

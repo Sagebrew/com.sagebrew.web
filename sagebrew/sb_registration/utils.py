@@ -127,8 +127,10 @@ def sb_send_email(source, to_email, subject, html_content):
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
+        if type(to_email) == str:
+            to_email = [to_email]
         conn.send_email(source=source, subject=subject,
-                        body=html_content, to_addresses=[to_email],
+                        body=html_content, to_addresses=to_email,
                         format='html')
         return True
     except SESMaxSendingRateExceededError as e:

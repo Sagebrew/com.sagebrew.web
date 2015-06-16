@@ -98,14 +98,14 @@ class Campaign(Searchable):
 
     @classmethod
     def get(cls, object_uuid):
-        campaign = cache.get(object_uuid)
+        campaign = cache.get("%s_campaign" % object_uuid)
         if campaign is None:
             query = 'MATCH (c:`Campaign` {object_uuid: "%s"}) RETURN c' % \
                     object_uuid
             res, col = db.cypher_query(query)
             try:
                 campaign = cls.inflate(res[0][0])
-                cache.set(object_uuid, campaign)
+                cache.set("%s_campaign" % object_uuid, campaign)
                 return campaign
             except IndexError:
                 campaign = None

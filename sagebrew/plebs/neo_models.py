@@ -317,7 +317,7 @@ class Pleb(Searchable):
 
     def get_campaign(self):
         query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Campaign) ' \
-                'RETURN c' % self.username
+                'RETURN c.object_uuid' % self.username
         res, _ = db.cypher_query(query)
         return res.one
 
@@ -327,6 +327,12 @@ class Pleb(Searchable):
                 (self.username, self.first_name, self.last_name)
         res, _ = db.cypher_query(query)
         return True
+
+    def get_official_phone(self):
+        query = 'MATCH (p:Pleb {username:"%s"})-[:IS_AUTHORIZED_AS]->' \
+                '(o:PublicOfficial) RETURN o.gov_phone' % self.username
+        res, _ = db.cypher_query(query)
+        return res.one
 
     def deactivate(self):
         pass

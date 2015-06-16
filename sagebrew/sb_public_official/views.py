@@ -15,16 +15,20 @@ from .neo_models import PublicOfficial
 from sb_campaigns.neo_models import PoliticalCampaign
 from sb_campaigns.serializers import PoliticalCampaignSerializer
 
+from logging import getLogger
+logger = getLogger('loggly_logs')
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def saga(request, username):
     try:
-        campaign = PoliticalCampaign.nodes.get(object_uuid=username)
+        campaign = PoliticalCampaign.get(object_uuid=username)
     except (CypherException, IOError, PublicOfficial.DoesNotExist,
             DoesNotExist):
         return redirect("404_Error")
+    logger.info(PoliticalCampaignSerializer(campaign).data)
     return render(request, 'action_page.html',
                   PoliticalCampaignSerializer(campaign).data)
 
@@ -34,7 +38,7 @@ def saga(request, username):
                   login_url='/registration/profile_information')
 def updates(request, username):
     try:
-        campaign = PoliticalCampaign.nodes.get(object_uuid=username)
+        campaign = PoliticalCampaign.get(object_uuid=username)
     except (CypherException, IOError, PublicOfficial.DoesNotExist,
             DoesNotExist):
         return redirect("404_Error")
@@ -46,7 +50,7 @@ def updates(request, username):
 @permission_classes((IsAuthenticated,))
 def get_search_html(request, object_uuid):
     try:
-        campaign = PoliticalCampaign.nodes.get(object_uuid=object_uuid)
+        campaign = PoliticalCampaign.get(object_uuid=object_uuid)
     except (CypherException, IOError):
         return Response('Server Error', status=500)
     rendered_html = render_to_string("saga_search_block.html",

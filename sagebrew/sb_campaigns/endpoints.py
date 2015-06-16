@@ -37,8 +37,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
         return Campaign.get(object_uuid=self.kwargs[self.lookup_field])
 
     @detail_route(methods=['get'],
-                  permission_classes=(IsAuthenticated,
-                                      IsOwnerOrEditor))
+                  permission_classes=(IsAuthenticated, IsOwnerOrEditor))
     def editors(self, request, object_uuid=None):
         """
         This is a method on the endpoint because there should be no reason

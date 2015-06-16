@@ -28,8 +28,16 @@
             <button class="btn btn-primary disabled sb_btn">Pledge Vote</button>
         </div>
         <div align="right" class="block sb_channel_social row-fluid hidden-md hidden-sm hidden-xs">
-            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-facebook-square"></span></button>
-            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-linkedin-square"></span></button>
+            {% if not facebook %}
+                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-facebook-square"></span></button>
+            {% else %}
+                <button onclick="location.href='http://facebook.com/{{ facebook }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-facebook"></span></button>
+            {% endif %}
+            {% if not linkedin %}
+                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-linkedin-square"></span></button>
+            {% else %}
+                <button onclick="location.href='http://linkedin.com/{{ linkedin }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-linkedin"></span></button>
+            {% endif %}
             {% if not youtube %}
                 <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-youtube-play"></span></button>
             {% else %}

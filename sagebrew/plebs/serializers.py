@@ -150,6 +150,7 @@ class PlebSerializerNeo(SBSerializer):
     donations = serializers.SerializerMethodField()
     actions = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
+    campaign = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         pass
@@ -200,6 +201,9 @@ class PlebSerializerNeo(SBSerializer):
 
     def get_donations(self, obj):
         return obj.get_donations()
+
+    def get_campaign(self, obj):
+        return obj.get_campaign()
 
 
 class AddressSerializer(SBSerializer):

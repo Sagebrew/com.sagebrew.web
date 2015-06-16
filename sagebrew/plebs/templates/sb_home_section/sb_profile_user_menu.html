@@ -20,6 +20,11 @@
                         <a href='#'>
                             Reputation</a>
                     </li>
+                    {% if page_profile.campaign %}
+                        <li>
+                            <a href="/action/{{ page_user.username }}">Quest</a>
+                        </li>
+                    {% endif %}
                 {% endif %}
                     <li>
                            <a {% if 'friends' in request.path %}class="active"{% endif %} href="{% url 'friend_page' page_user.username %}">Friends</a>

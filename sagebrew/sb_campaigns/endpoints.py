@@ -1,6 +1,7 @@
 import pytz
 from datetime import datetime
 
+from django.conf import settings
 from django.core.cache import cache
 
 from rest_framework.permissions import IsAuthenticated
@@ -10,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from neomodel import db
+from elasticsearch import Elasticsearch
 
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrAccountant,
                              IsOwnerOrEditor)
@@ -186,6 +188,14 @@ class PoliticalCampaignViewSet(CampaignViewSet):
 
     def get_object(self):
         return PoliticalCampaign.get(self.kwargs[self.lookup_field])
+
+    def perform_create(self, serializer):
+        instance = serializer.save(position=Position.nodes.get(
+            object_uuid=self.request.data['position']))
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        es.index(index='full-search-base', doc_type=serializer.data['type'],
+                 id=serializer.data['id'], body=serializer.data)
+        return instance
 
     @detail_route(methods=['post'], serializer_class=PoliticalVoteSerializer)
     def vote(self, request, object_uuid=None):

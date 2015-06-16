@@ -2,8 +2,9 @@ from logging import getLogger
 
 from django.core.cache import cache
 
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.reverse import reverse
+from rest_framework.exceptions import ValidationError
 
 from api.serializers import SBSerializer
 from api.utils import gather_request_data
@@ -153,19 +154,44 @@ class PoliticalCampaignSerializer(CampaignSerializer):
 
     def create(self, validated_data):
         request = self.context.get('request', None)
-        owner = Pleb.get(request.user.username)
-        validated_data['owner_username'] = owner.username
-        campaign = PoliticalCampaign(**validated_data).save()
+        position = validated_data.pop('position', None)
+        owner = Pleb.get(username=request.user.username)
+        if owner.get_campaign():
+            raise ValidationError(
+                detail={"detail": "You may only have one quest!",
+                        "developer_message": "",
+                        "status_code": status.HTTP_400_BAD_REQUEST})
+        official = owner.is_authorized_as()
+        if official:
+            validated_data['youtube'] = official.youtube
+            validated_data['website'] = official.website
+            validated_data['twitter'] = official.twitter
+            validated_data['biography'] = official.bio
+        campaign = PoliticalCampaign(first_name=owner.first_name,
+                                     last_name=owner.last_name,
+                                     owner_username=owner.username,
+                                     object_uuid=owner.username,
+                                     profile_pic=owner.profile_pic,
+                                     **validated_data).save()
+        if official:
+            temp_camp = official.get_campaign()
+            if temp_camp:
+                official.campaign.disconnect(temp_camp)
+                temp_camp.delete()
+            official.campaign.connect(campaign)
+            campaign.public_official.connect(official)
         campaign.owned_by.connect(owner)
         owner.campaign.connect(campaign)
         owner.campaign_editor.connect(campaign)
         owner.campaign_accountant.connect(campaign)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
         initial_round = Round().save()
         initial_round.campaign.connect(campaign)
         campaign.upcoming_round.connect(initial_round)
         campaign.editors.connect(owner)
         campaign.accountants.connect(owner)
-        cache.set(campaign.object_uuid, campaign)
+        cache.set("%s_campaign" % campaign.object_uuid, campaign)
         return campaign
 
     def get_vote_count(self, obj):
@@ -262,8 +288,9 @@ class PositionSerializer(SBSerializer):
     name = serializers.CharField()
 
     href = serializers.SerializerMethodField()
-    campaigns = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
+    full_name = serializers.SerializerMethodField()
+    campaigns = serializers.SerializerMethodField()
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
@@ -288,3 +315,6 @@ class PositionSerializer(SBSerializer):
                            kwargs={'object_uuid': location},
                            request=request)
         return location
+
+    def get_full_name(self, obj):
+        return Position.get_full_name(obj.object_uuid)

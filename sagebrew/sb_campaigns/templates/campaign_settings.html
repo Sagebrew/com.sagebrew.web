@@ -68,6 +68,7 @@
                                     <input type="text"
                                            id="personal-social-address"
                                            placeholder="Website URL"
+                                           value="{{ campaign.website|default_if_none:'' }}"
                                            class="form-control input-lg">
                                 </div>
                             </div>
@@ -76,6 +77,7 @@
                                     <input type="text"
                                            id="facebook-social-address"
                                            placeholder="Facebook Username"
+                                           value="{{ campaign.facebook|default_if_none:'' }}"
                                            class="form-control input-lg">
                                 </div>
                             </div>
@@ -84,6 +86,7 @@
                                     <input type="text"
                                            id="twitter-social-address"
                                            placeholder="Twitter ID"
+                                           value="{{ campaign.twitter|default_if_none:'' }}"
                                            class="form-control input-lg">
                                 </div>
                             </div>
@@ -92,14 +95,17 @@
                                     <input type="text"
                                            id="linkedin-social-address"
                                            placeholder="LinkedIn Username"
+                                           value="{{ campaign.linkedin|default_if_none:'' }}"
                                            class="form-control input-lg">
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col-lg-12">
+
                                     <input type="text"
                                            id="youtube-social-address"
                                            placeholder="Youtube Username"
+                                           value="{{ campaign.youtube|default_if_none:'' }}"
                                            class="form-control input-lg">
                                 </div>
                             </div>

@@ -24,6 +24,9 @@ from api.utils import spawn_task
 from plebs.neo_models import (Pleb, BetaUser, FriendRequest, Address,
                               get_friend_requests_sent)
 from sb_registration.utils import (verify_completed_registration)
+from sb_campaigns.neo_models import Campaign
+from sb_campaigns.serializers import CampaignSerializer
+
 from .serializers import PlebSerializerNeo
 from .tasks import create_friend_request_task
 from .forms import (GetUserSearchForm, SubmitFriendRequestForm,
@@ -130,20 +133,19 @@ def quest_settings(request):
     :param request:
     :return:
     """
-    address_key = settings.ADDRESS_AUTH_ID
     query = 'MATCH (person:Pleb {username: "%s"})' \
-            '-[r:LIVES_AT]->(house:Address) RETURN house' % (
+            '-[r:IS_WAGING]->(campaign:Campaign) RETURN campaign' % (
                 request.user.username)
     try:
         res, col = db.cypher_query(query)
-        address = AddressSerializer(Address.inflate(res[0][0]),
-                                    context={'request': request}).data
+        campaign = CampaignSerializer(Campaign.inflate(res[0][0]),
+                                      context={'request': request}).data
     except(CypherException, ClientError):
         return redirect("500_Error")
     except IndexError:
-        address = False
+        campaign = False
     return render(request, 'campaign_settings.html',
-                  {"address": address, "address_key": address_key})
+                  {"campaign": campaign})
 
 
 @api_view(['GET'])

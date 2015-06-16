@@ -1,4 +1,8 @@
 <h5>Epic</h5>
 <div class="block sb_action_content_block sb_markdown_disabled">
-    <h4>This representative has not yet embarked upon their Sagebrew Quest.</h4>
+    {% if public_official %}
+        <h4>This representative has not yet embarked upon their Sagebrew Quest.</h4>
+    {% else %}
+        <h4>This user has not begun their Quest yet.</h4>
+    {% endif %}
 </div>

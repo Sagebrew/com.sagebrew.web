@@ -10,9 +10,9 @@ from api.tasks import add_object_to_search_index
 from govtrack.neo_models import GTRole
 from govtrack.utils import populate_term_data
 from sb_campaigns.neo_models import PoliticalCampaign
+from sb_campaigns.serializers import PoliticalCampaignSerializer
 
 from sb_public_official.neo_models import PublicOfficial
-from sb_public_official.serializers import PublicOfficialSerializer
 
 logger = getLogger('loggly_logs')
 
@@ -22,7 +22,7 @@ class Command(BaseCommand):
     help = 'Creates placeholder representatives.'
 
     def create_placeholders(self):
-        reps = []
+        camps = []
         try:
             roles = GTRole.nodes.all()
         except (IOError, CypherException):
@@ -61,27 +61,28 @@ class Command(BaseCommand):
                 except (CypherException, IOError) as e:
                     logger.exception(e)
                     continue
-                if not rep.campaign.all():
-                    campaign = PoliticalCampaign(biography=rep.bio,
-                                                 youtube=rep.youtube,
-                                                 twitter=rep.twitter,
-                                                 website=rep.website,
-                                                 first_name=rep.first_name,
-                                                 last_name=rep.last_name,
-                                                 profile_pic=settings.
-                                                 STATIC_URL +
-                                                 "images/congress/2"
-                                                 "25x275/%s.jpg"
-                                                 % (rep.bioguideid)).save()
-                    campaign.public_official.connect(rep)
-                    rep.campaign.connect(campaign)
+                camp = rep.get_campaign()
+                if not camp:
+                    camp = PoliticalCampaign(biography=rep.bio,
+                                             youtube=rep.youtube,
+                                             twitter=rep.twitter,
+                                             website=rep.website,
+                                             first_name=rep.first_name,
+                                             last_name=rep.last_name,
+                                             profile_pic=settings.
+                                             STATIC_URL +
+                                             "images/congress/2"
+                                             "25x275/%s.jpg"
+                                             % (rep.bioguideid)).save()
+                    camp.public_official.connect(rep)
+                    rep.campaign.connect(camp)
                 rep.gt_person.connect(person)
                 rep.gt_role.connect(role)
-                reps.append(rep)
+                camps.append(camp)
         populate_term_data()
-        for rep in reps:
-            rep.refresh()
-            rep_data = PublicOfficialSerializer(rep).data
+        for campaign in camps:
+            campaign.refresh()
+            rep_data = PoliticalCampaignSerializer(campaign).data
             task_data = {
                 "object_uuid": rep_data['id'],
                 "object_data": rep_data,

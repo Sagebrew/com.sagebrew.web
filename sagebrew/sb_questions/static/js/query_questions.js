@@ -36,15 +36,19 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                var questionWrapper = $("#question_wrapper");
                 $(".sb_border_question").spin(false);
-                $("#question_wrapper").empty();
-                $("#question_wrapper").append(data.results.html);
+                questionWrapper.empty();
+                questionWrapper.append(data.results.html);
+                if (data.next !== null) {
+                    loadQuestionSummaries(data.next);
+                }
                 if (data.count === 0) {
                     $("#js-no_result").show();
                 } else {
                     $("#js-no_result").hide();
                 }
-                enableQuestionFunctionality([data.results.ids]);
+                enableQuestionSummaryFunctionality(data.results.ids);
             },
             error: function (XMLHttpRequest) {
                 errorDisplay(XMLHttpRequest);

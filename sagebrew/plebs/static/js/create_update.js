@@ -13,7 +13,7 @@ $(document).ready(function () {
         ],
      */
     "use strict";
-    $("textarea#epic_content_id").pagedownBootstrap({
+    $("textarea#update_content_id").pagedownBootstrap({
         "sanatize": false,
         'editor_hooks': [
             {
@@ -61,20 +61,21 @@ $(document).ready(function () {
             }
         ]
     });
-    $("#submit_epic").click(function (event) {
+    $("#submit_update").click(function (event) {
         event.preventDefault();
         var campaignId = $(this).data('object_uuid');
         $.ajax({
             xhrFields: {withCredentials: true},
-            type: "PUT",
-            url: "/v1/campaigns/" + campaignId + "/",
+            type: "POST",
+            url: "/v1/campaigns/" + campaignId + "/updates/",
             contentType: "application/json; charset=utf-8",
             dataTye: "json",
             data: JSON.stringify({
-                "epic": $("#wmd-input-0").val()
+                "content": $("#wmd-input-0").val(),
+                "title": $("#title_id").val()
             }),
             success: function (data) {
-                window.location.href = data.url;
+                window.location.href = "/action/" + campaignId;
             },
             error: function (XMLHttpRequest) {
                 errorDisplay(XMLHttpRequest);

@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from .views import (saga, updates, get_search_html, edit_epic)
+from .views import (saga, updates, get_search_html, edit_epic, create_update)
 
 urlpatterns = patterns(
     'sb_public_official.views',
@@ -12,4 +12,6 @@ urlpatterns = patterns(
         name="rep_search_html"),
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{1,36})/edit_epic/', edit_epic,
         name="quest_epic"),
+    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{1,36})/create_update/',
+        create_update, name="quest_epic"),
 )

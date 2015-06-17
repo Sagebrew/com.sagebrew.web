@@ -37,6 +37,15 @@ class UpdateListCreate(generics.ListCreateAPIView):
         serializer.save(
             campaign=Campaign.get(object_uuid=self.kwargs[self.lookup_field]))
 
+    def create(self, request, *args, **kwargs):
+        if not (request.user.username in Campaign.get_editors
+                (self.kwargs[self.lookup_field])):
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "You are not authorized to access "
+                                       "this page."},
+                            status=status.HTTP_403_FORBIDDEN)
+        return super(UpdateListCreate, self).create(request, *args, **kwargs)
+
 
 class UpdateRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     serializer_class = UpdateSerializer

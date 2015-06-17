@@ -1,11 +1,10 @@
 /*global $, jQuery, ajaxSecurity, errorDisplay*/
 $(document).ready(function () {
     var campaignId = $("#campaign_id").data('object_uuid');
-    console.log(campaignId);
     $("#show_edit_bio").click(function (event) {
         event.preventDefault();
-        $("#bio_edit").show();
-        $("#bio_wrapper").hide();
+        $("#bio_edit").toggle();
+        $("#bio_wrapper").toggle();
     });
     $("#submit_biography").click(function (event) {
         event.preventDefault();
@@ -62,5 +61,5 @@ $(document).ready(function () {
     });
     $("#edit_epic").click(function (event) {
         window.location.href = "/action/" + campaignId + "/edit_epic";
-    })
+    });
 });

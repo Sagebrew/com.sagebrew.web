@@ -48,6 +48,19 @@ def edit_epic(request, username):
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
+def create_update(request, username):
+    try:
+        campaign = PoliticalCampaign.get(object_uuid=username)
+    except (CypherException, IOError, PublicOfficial.DoesNotExist,
+            DoesNotExist):
+        return redirect("404_Error")
+    return render(request, 'create_update.html',
+                  PoliticalCampaignSerializer(campaign).data)
+
+
+@login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def updates(request, username):
     try:
         campaign = PoliticalCampaign.get(object_uuid=username)

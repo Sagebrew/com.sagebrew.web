@@ -1,5 +1,6 @@
 from datetime import datetime
 from logging import getLogger
+from dateutil import parser
 
 from django.template.loader import render_to_string
 from django.template import RequestContext
@@ -161,9 +162,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
         for question in questions.data['results']:
             # This is a work around for django templates and our current
             # implementation of spacing for vote count in the template.
-            question["vote_count"] = str(question["vote_count"])
-            question['last_edited_on'] = datetime.strptime(
-                question['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
+            question['last_edited_on'] = parser.parse(
+                question['last_edited_on'])
             context = RequestContext(request, question)
             html_array.append(render_to_string('question_summary.html',
                                                context))

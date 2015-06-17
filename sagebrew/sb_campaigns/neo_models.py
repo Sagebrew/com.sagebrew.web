@@ -58,6 +58,7 @@ class Campaign(Searchable):
     # an account cannot be taken offline until the end of a campaign
     active = BooleanProperty(default=False)
     biography = StringProperty()
+    epic = StringProperty()
     facebook = StringProperty()
     linkedin = StringProperty()
     youtube = StringProperty()

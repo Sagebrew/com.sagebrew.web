@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<div class="sb_page">
+    <div class="row-fluid">
+        <div class="col-lg-9">
+            <div class="sb_wall sb_conversation_wall">
+                <div class="row" style="padding-left: 15px; padding-right: 15px;">
+                    <div class="block sb_epic sb_provide_epic">
+                        <div class="row-fluid">
+                            <h5>Edit Epic</h5>
+                        </div>
+                        <div class="row sb_markdown">
+                            <div class="col-lg-12">
+                                <textarea class="form-control"
+                                          id="epic_content_id"
+                                          name="epic_content"
+                                          rows="10">{{ epic }}</textarea>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4 col-md-4">
+                                <button class="btn btn-primary sb_btn sb_btn_fill edit_epic-action"
+                                        id="submit_epic"
+                                        data-object_uuid="{{ id }}">
+                                    Submit
+                                </button>
+                            </div>
+                            <div class="col-lg-4 col-md-4">
+                                <button class="btn btn-primary sb_btn sb_btn_fill cancel_edit_epic-action"
+                                        >Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
+    <script src="{% static 'js/epic_validator.js' %}"></script>
+    <script src="{% static 'js/edit_epic.js' %}"></script>
+{% endblock %}

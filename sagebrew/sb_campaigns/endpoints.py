@@ -196,6 +196,19 @@ class PoliticalCampaignViewSet(CampaignViewSet):
                  id=serializer.data['id'], body=serializer.data)
         return instance
 
+    def update(self, request, *args, **kwargs):
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
+        if not (request.user.username in Campaign.get_editors
+                (self.kwargs[self.lookup_field])):
+            logger.info('here')
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "You are not authorized to access "
+                                       "this page."},
+                            status=status.HTTP_403_FORBIDDEN)
+        logger.info('there')
+        return super(PoliticalCampaignViewSet, self).list(request, *args, **kwargs)
+
     @detail_route(methods=['post'], serializer_class=PoliticalVoteSerializer)
     def vote(self, request, object_uuid=None):
         serializer = self.get_serializer(data=request.data,

@@ -1,3 +1,4 @@
+import markdown
 from logging import getLogger
 
 from django.core.cache import cache
@@ -20,6 +21,7 @@ logger = getLogger('loggly_logs')
 class CampaignSerializer(SBSerializer):
     active = serializers.BooleanField(required=False, read_only=True)
     biography = serializers.CharField(required=False)
+    epic = serializers.CharField(required=False, allow_blank=True)
     facebook = serializers.CharField(required=False, allow_blank=True)
     linkedin = serializers.CharField(required=False, allow_blank=True)
     youtube = serializers.CharField(required=False, allow_blank=True)
@@ -38,6 +40,7 @@ class CampaignSerializer(SBSerializer):
     position = serializers.SerializerMethodField()
     active_goals = serializers.SerializerMethodField()
     active_round = serializers.SerializerMethodField()
+    rendered_epic = serializers.SerializerMethodField()
     upcoming_round = serializers.SerializerMethodField()
     public_official = serializers.SerializerMethodField()
 
@@ -71,6 +74,7 @@ class CampaignSerializer(SBSerializer):
                                                   instance.profile_pic)
         instance.biography = validated_data.get('biography',
                                                 instance.biography)
+        instance.epic = validated_data.get('epic', instance.epic)
         instance.save()
         cache.set("%s_campaign" % instance.object_uuid, instance)
         return instance
@@ -146,6 +150,12 @@ class CampaignSerializer(SBSerializer):
         if not public_official:
             return None
         return public_official
+
+    def get_rendered_epic(self, obj):
+        if obj.epic is not None:
+            return markdown.markdown(obj.epic.replace('&gt;', '>'))
+        else:
+            return ""
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):

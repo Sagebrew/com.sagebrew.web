@@ -23,8 +23,8 @@
         </div>
         {% if id == request.user.username %}
             <div id="bio_edit" style="display: none">
-                <textarea class="form-control edit_bio_input" id="bio_input" name="bio_edit" rows="3">{{ bio }}</textarea>
-                <button class="btn btn-block btn-primary sb_btn_fill" id="submit_bio">Submit Bio</button>
+                <textarea class="form-control edit_bio_input" id="biography_input" rows="3" placeholder="Biography, limit 255 characters">{{ bio }}</textarea>
+                <button class="btn btn-block btn-primary sb_btn_fill" id="submit_biography">Submit Bio</button>
             </div>
             <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
         {% endif %}

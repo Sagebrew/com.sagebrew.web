@@ -3,6 +3,7 @@
 
 {% block title %}{{ first_name }} {{ last_name }}'s Quest{% endblock title %}
 {% block content %}
+<div id="campaign_id" style="display: none" data-object_uuid="{{ id }}"></div>
 <div class="row-fluid sb_page">
     {% if active == True %}
         {% include "action_channel.html" %}

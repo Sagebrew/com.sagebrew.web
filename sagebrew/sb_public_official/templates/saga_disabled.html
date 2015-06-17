@@ -5,4 +5,7 @@
     {% else %}
         <h4>This user has not begun their Quest yet.</h4>
     {% endif %}
+    {% if id == request.user.username %}
+        <button onclick="" class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="edit_epic"><span class="fa fa-edit"></span></button>
+    {% endif %}
 </div>

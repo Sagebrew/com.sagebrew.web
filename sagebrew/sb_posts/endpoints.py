@@ -1,6 +1,5 @@
 from uuid import uuid1
-from datetime import datetime
-from logging import getLogger
+from dateutil import parser
 
 from django.template.loader import render_to_string
 from django.template import RequestContext
@@ -22,9 +21,6 @@ from plebs.neo_models import Pleb
 
 from .serializers import PostSerializerNeo
 from .neo_models import Post
-
-
-logger = getLogger('loggly_logs')
 
 
 class PostsViewSet(viewsets.ModelViewSet):
@@ -129,10 +125,8 @@ class WallPostsListCreate(ListCreateAPIView):
             spawn_task(task_func=spawn_notifications, task_param=data)
             html = request.query_params.get('html', 'false').lower()
             if html == "true":
-                serializer["vote_count"] = str(serializer["vote_count"])
-                serializer['last_edited_on'] = datetime.strptime(
-                    serializer['last_edited_on'][:-6],
-                    '%Y-%m-%dT%H:%M:%S.%f')
+                serializer['last_edited_on'] = parser.parse(
+                    serializer['last_edited_on'])
                 context = RequestContext(request, serializer)
                 return Response(
                     {
@@ -147,23 +141,17 @@ class WallPostsListCreate(ListCreateAPIView):
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def post_renderer(request, username=None):
-    '''
+    """
     This is a intermediate step on the way to utilizing a JS Framework to
     handle template rendering.
-    '''
+    """
     html_array = []
     id_array = []
-    args = []
-    kwargs = {"username": username}
-    posts = WallPostsListCreate.as_view()(request, *args, **kwargs)
+    posts = WallPostsListCreate.as_view()(request, username=username)
     for post in posts.data['results']:
-        # This is a work around for django templates and our current
-        # implementation of spacing for vote count in the template.
-        post["vote_count"] = str(post["vote_count"])
-        post['last_edited_on'] = datetime.strptime(
-            post['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
-        context = RequestContext(request, post)
-        html_array.append(render_to_string('post.html', context))
+        post['last_edited_on'] = parser.parse(post['last_edited_on'])
+        html_array.append(render_to_string(
+            'post.html', RequestContext(request, post)))
         id_array.append(post["object_uuid"])
     posts.data['results'] = {"html": html_array, "ids": id_array}
     return Response(posts.data, status=status.HTTP_200_OK)

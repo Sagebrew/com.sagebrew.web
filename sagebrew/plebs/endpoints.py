@@ -241,8 +241,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
         if html == 'true':
             html_array = []
             for item in serializer.data:
-                context = RequestContext(request, item)
                 item['page_user_username'] = username
+                context = RequestContext(request, item)
                 html_array.append(render_to_string('friend_block.html',
                                                    context))
             return self.get_paginated_response(html_array)

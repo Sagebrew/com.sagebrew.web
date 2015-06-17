@@ -146,7 +146,7 @@ class Campaign(Searchable):
                 '[:WAGED_BY]->(p:`Pleb`) return p.username' % (object_uuid)
         res, col = db.cypher_query(query)
         try:
-            return reverse('action_saga',
+            return reverse('quest_saga',
                            kwargs={"username": res[0][0]},
                            request=request)
         except IndexError:

@@ -28,7 +28,6 @@ def saga(request, username):
     except (CypherException, IOError, PublicOfficial.DoesNotExist,
             DoesNotExist):
         return redirect("404_Error")
-    logger.info(PoliticalCampaignSerializer(campaign).data)
     return render(request, 'action_page.html',
                   PoliticalCampaignSerializer(campaign).data)
 

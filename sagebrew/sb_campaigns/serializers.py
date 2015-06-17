@@ -72,11 +72,11 @@ class CampaignSerializer(SBSerializer):
         instance.biography = validated_data.get('biography',
                                                 instance.biography)
         instance.save()
-        cache.set(instance.object_uuid, instance)
+        cache.set("%s_campaign" % instance.object_uuid, instance)
         return instance
 
     def get_url(self, obj):
-        return reverse('action_saga',
+        return reverse('quest_saga',
                        kwargs={"username": obj.object_uuid},
                        request=self.context.get('request', None))
 

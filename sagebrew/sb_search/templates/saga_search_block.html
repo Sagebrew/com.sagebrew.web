@@ -1,7 +1,7 @@
 {% load static %}
 <div class="block sb_search_block">
     <div class="row">
-       {% url "action_saga" username=id as the_url %}
+       {% url "quest_saga" username=id as the_url %}
         <div class="col-xs-4">
             <div class="thumbnail sb_thumbnail_md sb_thumbnail_search">
                 <a href="{{ the_url }}"><img src="{{ profile_pic }}"></a>

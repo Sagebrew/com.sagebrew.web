@@ -13,14 +13,21 @@
             <h2>{{ first_name }} {{ last_name }}</h2>
             {% if public_official %}
                 {% if public_official.title != "President" and public_official.title != "Vice President" %}
-                  <p>This {{ public_official.title }} from {{ public_official.state }} has not yet joined Sagebrew.</p>
+                  <p id="bio_wrapper">This {{ public_official.title }} from {{ public_official.state }} has not yet joined Sagebrew.</p>
                 {% else %}
-                  <p>The {{ public_official.title }} has not yet joined Sagebrew.</p>
+                  <p id="bio_wrapper">The {{ public_official.title }} has not yet joined Sagebrew.</p>
                 {% endif %}
             {% else %}
-                <p>This user has not yet yet embarked on their Sagebrew Quest</p>
+                <p id="bio_wrapper">This user has not yet yet embarked on their Sagebrew Quest</p>
             {% endif %}
         </div>
+        {% if id == request.user.username %}
+            <div id="bio_edit" style="display: none">
+                <textarea class="form-control edit_bio_input" id="bio_input" name="bio_edit" rows="3">{{ bio }}</textarea>
+                <button class="btn btn-block btn-primary sb_btn_fill" id="submit_bio">Submit Bio</button>
+            </div>
+            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
+        {% endif %}
     </div>
     <div class="col-lg-5 col-md-4 col-sm-12">
         <div align="right">

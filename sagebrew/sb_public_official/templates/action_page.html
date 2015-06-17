@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 
-{% block title %}Action Area{% endblock title %}
+{% block title %}{{ first_name }} {{ last_name }}'s Quest{% endblock title %}
 {% block content %}
 <div class="row-fluid sb_page">
     {% if active == True %}
@@ -49,4 +49,5 @@
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'js/edit_quest.js' %}"></script>
 {% endblock scripts %}

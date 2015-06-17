@@ -42,7 +42,7 @@ class ObjectCommentsListCreate(ListCreateAPIView):
         query = "MATCH (a:SBContent {object_uuid:'%s'})-[:HAS_A]->" \
                 "(b:Comment) WHERE b.to_be_deleted=false" \
                 " RETURN b ORDER BY b.created DESC" % (
-            self.kwargs[self.lookup_field])
+                    self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return [Comment.inflate(row[0]) for row in res]
 

@@ -87,7 +87,7 @@ class WallPostsListCreate(ListCreateAPIView):
             query = "MATCH (current:Pleb {username: '%s'})-[:OWNS_WALL]" \
                     "->(wall:Wall)-[:HAS_POST]->(c) WHERE " \
                     "c.to_be_deleted=false RETURN c " \
-                    "ORDER BY c.created DESC" % (self.request.user.username)
+                    "ORDER BY c.created DESC" % self.request.user.username
         else:
             # Returns the posts only if the current user is friends with the
             # owner of the current wall
@@ -114,23 +114,21 @@ class WallPostsListCreate(ListCreateAPIView):
         if serializer.is_valid():
             instance = serializer.save(wall_owner_profile=wall_pleb)
             serializer = serializer.data
-            data = {
+            spawn_task(task_func=spawn_notifications, task_param={
                 "from_pleb": request.user.username,
                 "sb_object": serializer['object_uuid'],
                 "url": serializer['url'],
                 "to_plebs": [self.kwargs[self.lookup_field], ],
                 "notification_id": str(uuid1()),
                 "action_name": instance.action_name
-            }
-            spawn_task(task_func=spawn_notifications, task_param=data)
-            html = request.query_params.get('html', 'false').lower()
-            if html == "true":
+            })
+            if request.query_params.get('html', 'false').lower() == "true":
                 serializer['last_edited_on'] = parser.parse(
                     serializer['last_edited_on'])
-                context = RequestContext(request, serializer)
                 return Response(
                     {
-                        "html": [render_to_string('post.html', context)],
+                        "html": [render_to_string(
+                            'post.html', RequestContext(request, serializer))],
                         "ids": [serializer["object_uuid"]]
                     },
                     status=status.HTTP_200_OK)

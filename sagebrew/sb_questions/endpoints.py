@@ -97,13 +97,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, *args, **kwargs):
-        html = self.request.query_params.get('html', 'false').lower()
-
         queryset = self.get_object()
         single_object = QuestionSerializerNeo(
             queryset, context={'request': request}).data
-
-        if html == "true":
+        if self.request.query_params.get('html', 'false').lower() == "true":
             spawn_task(update_view_count_task,
                        {'object_uuid': queryset.object_uuid,
                         'username': request.user.username})
@@ -111,11 +108,14 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 single_object['last_edited_on'])
             # This will be moved to JS Framework but don't need intermediate
             # step at the time being as this doesn't require pagination
-            context = RequestContext(request, single_object)
-            return Response({"html": render_to_string('question.html', context),
-                             "ids": [single_object["object_uuid"]],
-                             "solution_count": single_object['solution_count']},
-                            status=status.HTTP_200_OK)
+            return Response(
+                {
+                    "html": render_to_string(
+                        'question.html',
+                        RequestContext(request, single_object)),
+                    "ids": [single_object["object_uuid"]],
+                    "solution_count": single_object['solution_count']
+                }, status=status.HTTP_200_OK)
 
         return Response(single_object, status=status.HTTP_200_OK)
 

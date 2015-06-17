@@ -66,14 +66,14 @@ class ObjectCommentsListCreate(ListCreateAPIView):
                 'object_uuid': instance.object_uuid,
                 'notification_id': notification_id,
             })
-            html = request.query_params.get('html', 'false').lower()
-            if html == "true":
+            if request.query_params.get('html', 'false').lower() == "true":
                 serializer_data['last_edited_on'] = parser.parse(
                     serializer_data['last_edited_on'])
-                context = RequestContext(request, serializer_data)
                 return Response(
                     {
-                        "html": [render_to_string('comment.html', context)],
+                        "html": [render_to_string(
+                            'comment.html',
+                            RequestContext(request, serializer_data))],
                         "ids": [serializer_data["object_uuid"]]
                     },
                     status=status.HTTP_200_OK)

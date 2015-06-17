@@ -103,7 +103,7 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
             res, col = db.cypher_query(query)
             question_owner = Pleb.inflate(res[0][0])
             serializer = serializer.data
-            data = {
+            spawn_task(task_func=spawn_notifications, task_param={
                 "from_pleb": request.user.username,
                 "sb_object": serializer['object_uuid'],
                 "url": serializer['url'],
@@ -112,19 +112,18 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                 "to_plebs": [question_owner.username, ],
                 "notification_id": str(uuid1()),
                 'action_name': instance.action_name
-            }
-            spawn_task(task_func=spawn_notifications, task_param=data)
+            })
             # Not going to add until necessary for search
             # spawn_task(task_func=add_solution_to_search_index,
             #            task_param={"solution": serializer})
-            html = request.query_params.get('html', 'false').lower()
-            if html == "true":
+            if request.query_params.get('html', 'false').lower() == "true":
                 serializer['last_edited_on'] = parser.parse(
                     serializer['last_edited_on'])
-                context = RequestContext(request, serializer)
                 return Response(
                     {
-                        "html": [render_to_string('solution.html', context)],
+                        "html": [render_to_string(
+                            'solution.html',
+                            RequestContext(request, serializer))],
                         "ids": [serializer["object_uuid"]]
                     },
                     status=status.HTTP_200_OK)

@@ -8,7 +8,7 @@
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
        <div class="thumbnail sb_thumbnail_md"><img src="{{ profile_pic }}"></div>
     </div>
-    <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
+    <div class="col-md-4 cl-xs-12">
         <div class="block sb_bio_block sb_markdown_disabled">
             <h2>{{ first_name }} {{ last_name }}</h2>
             {% if public_official %}
@@ -20,15 +20,21 @@
             {% else %}
                 <p id="bio_wrapper">This user has not yet embarked on their Sagebrew Quest</p>
             {% endif %}
+            {% if id == request.user.username %}
+                <div id="bio_edit" style="display: none">
+                    <textarea class="form-control edit_bio_input" id="biography_input" rows="3" placeholder="Biography, limit 255 characters">{{ bio }}</textarea>
+                    <button class="btn btn-block btn-primary sb_btn_fill" id="submit_biography">Submit Bio</button>
+                </div>
+            {% endif %}
         </div>
-        {% if id == request.user.username %}
-            <div id="bio_edit" style="display: none">
-                <textarea class="form-control edit_bio_input" id="biography_input" rows="3" placeholder="Biography, limit 255 characters">{{ bio }}</textarea>
-                <button class="btn btn-block btn-primary sb_btn_fill" id="submit_biography">Submit Bio</button>
-            </div>
-            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
-        {% endif %}
+
     </div>
+    {% if id == request.user.username %}
+            <div class="hidden-xs hidden-sm col-md-1">
+                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
+
+            </div>
+        {% endif %}
     <div class="col-lg-5 col-md-4 col-sm-12">
         <div align="right">
             <button class="btn btn-primary disabled sb_btn">Donate</button>

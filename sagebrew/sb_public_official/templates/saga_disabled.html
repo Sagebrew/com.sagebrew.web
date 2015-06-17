@@ -1,11 +1,10 @@
-<h5>Epic</h5>
+<h5>Epic{% if id == request.user.username %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="edit_epic" style="margin-top: -5px;"><span class="fa fa-edit"></span></button>{% endif %}</h5>
+
 <div class="block sb_action_content_block sb_markdown_disabled">
     {% if public_official %}
         <h4>This representative has not yet embarked upon their Sagebrew Quest.</h4>
     {% else %}
         <h4>This user has not begun their Quest yet.</h4>
     {% endif %}
-    {% if id == request.user.username %}
-        <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="edit_epic"><span class="fa fa-edit"></span></button>
-    {% endif %}
+
 </div>

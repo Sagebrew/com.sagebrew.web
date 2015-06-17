@@ -62,4 +62,7 @@ $(document).ready(function () {
     $("#edit_epic").click(function (event) {
         window.location.href = "/action/" + campaignId + "/edit_epic";
     });
+    $("#add_update").click(function (event) {
+        window.location.href = "/action/" + campaignId + "/create_update";
+    });
 });

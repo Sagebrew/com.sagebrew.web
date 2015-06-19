@@ -28,7 +28,7 @@
         {% endif %}
     </div>
     <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-        <h5>Goals</h5>
+        <h5>Goals{% if id == request.user.username %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="manage_goals" style="margin-top: -5px;"><span class="fa fa-edit"></span></button>{% endif %}</h5>
         {% if active == True %}
             {% include "goals_block.html" %}
             {% include "goals_block.html" %}

@@ -60,9 +60,12 @@ $(document).ready(function () {
         });
     });
     $("#edit_epic").click(function (event) {
-        window.location.href = "/action/" + campaignId + "/edit_epic";
+        window.location.href = "/quests/" + campaignId + "/edit_epic/";
     });
     $("#add_update").click(function (event) {
-        window.location.href = "/action/" + campaignId + "/create_update";
+        window.location.href = "/quests/" + campaignId + "/create_update/";
+    });
+    $("#manage_goals").click(function (event) {
+        window.location.href = "/quests/" + campaignId + "/manage_goals/";
     });
 });

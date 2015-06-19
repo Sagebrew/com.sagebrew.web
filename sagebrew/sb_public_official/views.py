@@ -57,6 +57,18 @@ def create_update(request, username):
     return render(request, 'create_update.html',
                   PoliticalCampaignSerializer(campaign).data)
 
+@login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
+def manage_goals(request, username):
+    try:
+        campaign = PoliticalCampaign.get(object_uuid=username)
+    except (CypherException, IOError, PublicOfficial.DoesNotExist,
+            DoesNotExist):
+        return redirect("404_Error")
+    return render(request, 'manage_goals.html',
+                  PoliticalCampaignSerializer(campaign).data)
+
 
 @login_required()
 @user_passes_test(verify_completed_registration,

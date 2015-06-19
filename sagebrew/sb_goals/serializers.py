@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from neomodel import db
+
 from sb_base.serializers import CampaignAttributeSerializer
 from api.utils import gather_request_data
 from sb_campaigns.neo_models import PoliticalCampaign
@@ -23,6 +25,7 @@ class GoalSerializer(CampaignAttributeSerializer):
                                                     allow_null=False)
     completed = serializers.BooleanField(read_only=True)
     completed_date = serializers.DateTimeField(allow_null=True, read_only=True)
+    total_required = serializers.IntegerField(required=False, allow_null=True)
 
     updates = serializers.SerializerMethodField()
     associated_round = serializers.SerializerMethodField()
@@ -32,20 +35,12 @@ class GoalSerializer(CampaignAttributeSerializer):
 
     def create(self, validated_data):
         campaign = validated_data.pop('campaign', None)
+        goal = Goal(**validated_data).save()
+        campaign.goals.connect(goal)
+        goal.campaign.connect(campaign)
         campaign_round = Round.nodes.get(
             object_uuid=PoliticalCampaign.get_upcoming_round(
                 campaign.object_uuid))
-        next_goal = validated_data.pop('next_goal', None)
-        previous_goal = validated_data.pop('previous_goal', None)
-        goal = Goal(**validated_data).save()
-        if next_goal is not None:
-            next_goal.previous_goal.connect(goal)
-            goal.next_goal.connect(next_goal)
-        if previous_goal is not None:
-            previous_goal.next_goal.connect(goal)
-            goal.previous_goal.connect(previous_goal)
-        campaign.goals.connect(goal)
-        goal.campaign.connect(campaign)
         campaign_round.goals.connect(goal)
         goal.associated_round.connect(campaign_round)
         return goal
@@ -59,6 +54,21 @@ class GoalSerializer(CampaignAttributeSerializer):
             'pledged_vote_requirement', instance.pledged_vote_requirement)
         instance.monetary_requirement = validated_data.pop(
             'monetary_requirement', instance.monetary_requirement)
+        instance.total_required = validated_data.pop('total_required',
+                                                     instance.total_required)
+        prev_goal = validated_data.pop('prev_goal', None)
+        if prev_goal is not None:
+            query = 'MATCH (g:Goal {object_uuid:"%s"})-[:PREVIOUS]->' \
+                    '(pg:Goal) RETURN pg' % (instance.object_uuid)
+            res, _ = db.cypher_query(query)
+            if res.one:
+                temp_goal = Goal.inflate(res.one)
+                instance.previous_goal.disconnect(temp_goal)
+                temp_goal.next_goal.disconnect(instance)
+
+            prev_goal = Goal.nodes.get(object_uuid=prev_goal)
+            prev_goal.next_goal.connect(instance)
+            instance.previous_goal.connect(prev_goal)
         instance.save()
         return instance
 

@@ -22,7 +22,7 @@
                     </li>
                     {% if page_profile.campaign %}
                         <li>
-                            <a href="/action/{{ page_user.username }}">Quest</a>
+                            <a href="{% url 'quest_saga' page_user.username %}">Quest</a>
                         </li>
                     {% endif %}
                 {% endif %}

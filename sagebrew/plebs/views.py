@@ -303,6 +303,15 @@ def respond_friend_request(request):
         return Response({"detail": "invalid form"}, status=400)
 
 
+@login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
+def newsfeed(request):
+    """
+    """
+    return render(request, 'newsfeed.html')
+
+
 class ListBetaUsers(ListAPIView):
     queryset = BetaUser.nodes.all()
     serializer_class = BetaUserSerializer

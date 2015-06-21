@@ -1,0 +1,101 @@
+{% load staticfiles %}
+{% load humanize %}
+{% comment %}
+    This template is rendered into html through a view and then returned as a
+    result to an endpoint that is called requesting existing posts and their
+    comments. This template is not meant for normal inclusion in a initial
+    render template.
+{% endcomment %}
+<div class="js-page-object" data-object_uuid="{{ object_uuid }}" style="display: None"></div>
+
+<div class="block sb_solution block_{{ object_uuid }}">
+    <div class="row">
+        <div class="col-sm-1 hidden-xs">
+            <div class="sb_thumbnail_sm thumbnail">
+                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
+                <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>
+            </div>
+        </div>
+        <div class="col-xs-10" style="margin-bottom: -10px">
+            <div>
+                <small>
+                    <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> started a Conversation
+                </small>
+
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="vote_small vote_count_medium">
+            <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
+                {% include "vote.html" %}
+            </div>
+        </div>
+        <div class="col-xs-10 ">
+            <h5>
+                <a href="{{ url }}">{{ title|linebreaksbr }}</a>
+            </h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-10 col-xs-offset-1 sb_content_body">
+            <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
+                    {% autoescape off %}
+                        {{ html_content }}
+                    {% endautoescape %}
+                </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-offset-10 hidden-xs">
+            <small>
+                {{ last_edited_on|naturaltime }}
+            </small>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 hidden-xs hidden-sm col-lg-offset-1">
+            {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
+            {% else %}
+                <div><small>
+                    <span class="sb_comment_disabled" data-toggle="tooltip"
+                          data-placement="top"
+                          data-title="Requirement: 20+ Rep"
+                          id="post_comment_on_{{ object_uuid }}">
+                        comment
+                    </span>
+                </small></div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div id="sb_comments_container_{{ object_uuid }}">
+        {% comment %}
+            Dynamically populated by JS to show existing comments.
+        {% endcomment %}
+    </div>
+    <div class="row">
+        {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
+            <form id="commentSubmitForm">
+            <div class="input-group sb_comment">
+                    <textarea class="input-group form-control sb_comment_input"
+                              id="post_comment_on_{{ object_uuid }}"
+                              rows="2"
+                              name="comment_content"
+                              placeholder="Write your comment..."></textarea>
+                    <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
+                       data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
+                </div>
+            </form>
+        {% else %}
+            <div><small>
+                <span class="sb_comment_disabled" data-toggle="tooltip"
+                      data-placement="top"
+                      data-title="Requirement: 20+ Rep"
+                      id="post_comment_on_{{ object_uuid }}">
+                    comment
+                </span>
+            </small></div>
+        {% endif %}
+    </div>
+</div>

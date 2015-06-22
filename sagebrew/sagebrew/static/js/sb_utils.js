@@ -730,7 +730,7 @@ function enableContentFunctionality(populateId, type) {
     enableObjectFunctionality([populateId]);
     saveComments([populateId], '/v1/'+ type + 's/');
     voteObjects([populateId], type + "s");
-    showEditSolution([populateId]);
+    editObjects("/v1/"+ type + "s/", [populateId]);
     deleteObjects("/v1/" + type +"s/", [populateId], type);
 }
 

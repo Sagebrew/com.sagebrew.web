@@ -2,10 +2,11 @@ from logging import getLogger
 from django.template.loader import render_to_string
 
 from rest_framework.decorators import (api_view, permission_classes)
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status, generics
 
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
+from rest_framework import status, generics, viewsets
 from neomodel import db
 
 from api.permissions import IsGoalOwnerOrEditor
@@ -52,7 +53,6 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
         if html == 'true':
             instance = super(GoalListCreateMixin, self).create(request, *args,
                                                                **kwargs)
-            logger.info(instance)
             return Response(render_to_string('goal_draggable.html',
                                              instance.data),
                             status=status.HTTP_200_OK)
@@ -60,7 +60,8 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
                                                        **kwargs)
 
 
-class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView,
+                                viewsets.GenericViewSet):
     serializer_class = GoalSerializer
     permission_classes = (IsAuthenticated, IsGoalOwnerOrEditor)
     lookup_field = "object_uuid"
@@ -69,7 +70,8 @@ class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         return Goal.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
     def perform_update(self, serializer):
-        serializer.save(prev_goal=self.request.data.get('prev_goal', None))
+        serializer.save(prev_goal=self.request.data.get('prev_goal', None),
+                        campaign=self.request.data.get('campaign', None))
 
     def update(self, request, *args, **kwargs):
         """
@@ -97,6 +99,23 @@ class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
                             status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super(GoalRetrieveUpdateDestroy, self).destroy(request, *args,
                                                               **kwargs)
+
+    @detail_route(methods=['PUT', 'PATCH'], serializer_class=GoalSerializer,
+                  permission_classes=(IsAuthenticated, IsGoalOwnerOrEditor))
+    def disconnect_round(self, request, object_uuid=None):
+        queryset = self.get_object()
+        if queryset.completed is True or queryset.active is True:
+            return Response({"status_code": status.HTTP_405_METHOD_NOT_ALLOWED,
+                             "detail": "You cannot modify a completed "
+                                       "or active goal."},
+                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        queryset.disconnect_from_upcoming()
+        return Response({"status_code": status.HTTP_200_OK,
+                         "detail": "Successfully removed goal from upcoming "
+                                   "round."},
+                        status=status.HTTP_200_OK)
+
+
 
 
 class RoundListCreate(generics.ListCreateAPIView):

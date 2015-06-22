@@ -109,6 +109,20 @@ class Goal(SBObject):
         except IndexError:
             return None
 
+    def disconnect_from_upcoming(self):
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
+        query = 'OPTIONAL MATCH (g:Goal {object_uuid: "%s"})-' \
+                '[:PART_OF]->(r:Round) RETURN r' % self.object_uuid
+        res, _ = db.cypher_query(query)
+        associated_round = res.one
+        logger.info(associated_round)
+        if associated_round:
+            associated_round = Round.inflate(associated_round)
+            self.associated_round.disconnect(associated_round)
+            associated_round.goals.disconnect(self)
+        return True
+
 
 class Round(SBObject):
     """

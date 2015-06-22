@@ -98,18 +98,19 @@ $(document).ready(function () {
             totalRequired = 0,
             unSelectedGoals = $("#existing_goals > div.sb_goal_draggable");
         unSelectedGoals.each(function (index, value) {
-            var currentId = $(this).data('object_uuid');
+            var currentId = $(this).data('object_uuid'),
                 goalData = {
-                "totalRequired": $("#" + currentId + "_monetary_requirement").attr("data-monetary_requirement")
-            };
+                    "totalRequired": $("#" + currentId + "_monetary_requirement").attr("data-monetary_requirement")
+                };
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "PATCH",
-                url: "/v1/goals/" + currentId + "/",
+                url: "/v1/goals/" + currentId + "/disconnect_round/",
                 data: JSON.stringify(goalData),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
+                    console.log(data);
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     submitGoal(goalData);
@@ -129,7 +130,8 @@ $(document).ready(function () {
             $("#" + currentId + "_required").text("$" + (totalRequired / 100).format());
             var goalData = {
                 "prev_goal": prevGoal,
-                "total_required": totalRequired
+                "total_required": totalRequired,
+                "campaign": campaignId
             };
             $.ajax({
                 xhrFields: {withCredentials: true},

@@ -523,6 +523,7 @@ class MeViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
             'solutions.created AS created, s_question AS s_question' % (
                 request.user.username, then, then, then, then, then, then)
         news = []
+        article_html = None
         html = request.query_params.get('html', 'false').lower()
         res, _ = db.cypher_query(query)
         # Profiled with ~50 objects and it was still performing under 1 ms.
@@ -539,7 +540,7 @@ class MeViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                 if html == "true":
                     news_article['last_edited_on'] = parser.parse(
                         news_article['last_edited_on'])
-                    news_article = render_to_string(
+                    article_html = render_to_string(
                         'question_news.html', RequestContext(
                             request, news_article))
             elif row.solutions is not None:
@@ -554,7 +555,7 @@ class MeViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                 if html == "true":
                     news_article['last_edited_on'] = parser.parse(
                         news_article['last_edited_on'])
-                    news_article = render_to_string(
+                    article_html = render_to_string(
                         'solution_news.html', RequestContext(
                             request, news_article))
             elif row.posts is not None:
@@ -564,8 +565,14 @@ class MeViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
                     news_article['last_edited_on'] = parser.parse(
                         news_article['last_edited_on'])
                     logger.critical(news_article)
-                    news_article = render_to_string(
+                    article_html = render_to_string(
                         'post_news.html', RequestContext(request, news_article))
+            if html == "true":
+                news_article = {
+                    "html": article_html,
+                    "id": news_article['id'],
+                    'type': news_article['type']
+                }
             news.append(news_article)
         return self.get_paginated_response(news)
 

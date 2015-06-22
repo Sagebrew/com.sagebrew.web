@@ -1,7 +1,6 @@
-/*global $, jQuery, loadPosts, errorDisplay*/
+/*global $, jQuery, loadPosts, errorDisplay, enableContentFunctionality, populateComments*/
 $(document).ready(function () {
     "use strict";
-
     function newsfeed(url) {
         $("#news").spin({lines: 8, length: 4, width: 3, radius: 5});
         $.ajax({
@@ -15,7 +14,12 @@ $(document).ready(function () {
                 if (data.count === 0) {
                     wallContainer.append('<div id="js-wall_temp_message"><h3>Get out there and make some news :)</h3></div>');
                 } else {
-                    wallContainer.append(data.results);
+
+                    for (var i = 0; i < data.results.length; i++) {
+                        wallContainer.append(data.results[i].html);
+                        enableContentFunctionality(data.results[i].id, data.results[i].type);
+                        populateComments([data.results[i].id], data.results[i].type + "s");
+                    }
                     // TODO Went with this approach as the scrolling approach resulted
                     // in the posts getting out of order. It also had some interesting
                     // functionality that wasn't intuitive. Hopefully transitioning to

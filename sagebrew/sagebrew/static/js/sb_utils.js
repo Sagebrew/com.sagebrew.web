@@ -725,6 +725,15 @@ function enableSolutionFunctionality(populatedIds) {
     deleteObjects("/v1/solutions/", populatedIds, 'solution');
 }
 
+function enableContentFunctionality(populateId, type) {
+    "use strict";
+    enableObjectFunctionality([populateId]);
+    saveComments([populateId], '/v1/'+ type + 's/');
+    voteObjects([populateId], type + "s");
+    showEditSolution([populateId]);
+    deleteObjects("/v1/" + type +"s/", [populateId], type);
+}
+
 function getUrlParameter(sParam) {
     var sPageURL = window.location.search.substring(1);
     var sURLVariables = sPageURL.split('&');

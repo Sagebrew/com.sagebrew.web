@@ -9,13 +9,15 @@
                 <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>
             </div>
         </div>
-        <div class="col-xs-10" style="margin-top:-6px;  margin-bottom: -10px">
-            <div>
-                <small>
-                    <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> proposed a Solution to
-                </small>
-
-            </div>
+        <div class="col-xs-9" style="margin-top:-6px;  margin-bottom: -10px">
+            <small>
+                <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> proposed a Solution to
+            </small>
+        </div>
+        <div class="col-xs-2" style="margin-top:-6px;  margin-bottom: -10px; padding-left:0;">
+            <small>
+                Public
+            </small>
         </div>
         <div class="col-xs-11">
             <small>
@@ -46,6 +48,8 @@
             </small>
         </div>
     </div>
+    <div id="sb_comments_container_{{ object_uuid }}">
+    </div>
     <div class="row">
         {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
             <form id="commentSubmitForm">
@@ -69,7 +73,5 @@
                 </span>
             </small></div>
         {% endif %}
-    </div>
-    <div id="sb_comments_container_{{ object_uuid }}">
     </div>
 </div>

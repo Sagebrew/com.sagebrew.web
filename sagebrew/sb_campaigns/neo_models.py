@@ -266,6 +266,15 @@ class Campaign(Searchable):
                 public_official = None
         return public_official
 
+    @classmethod
+    def get_unassigned_goals(cls, object_uuid):
+        from sb_goals.neo_models import Goal
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:HAS_GOAL]->' \
+                '(g:Goal) WHERE NOT (g)-[:PART_OF]->(:Round) RETURN g ' \
+                'ORDER BY g.monetary_requirement' % object_uuid
+        res, _ = db.cypher_query(query)
+        return [Goal.inflate(row[0]) for row in res]
+
 
 class PoliticalCampaign(Campaign):
     """

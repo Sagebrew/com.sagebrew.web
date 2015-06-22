@@ -48,6 +48,14 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
                              "detail": "Authentication credentials were "
                                        "not provided."},
                             status=status.HTTP_403_FORBIDDEN)
+        html = request.query_params.get('html', 'false')
+        if html == 'true':
+            instance = super(GoalListCreateMixin, self).create(request, *args,
+                                                               **kwargs)
+            logger.info(instance)
+            return Response(render_to_string('goal_draggable.html',
+                                             instance.data),
+                            status=status.HTTP_200_OK)
         return super(GoalListCreateMixin, self).create(request, *args,
                                                        **kwargs)
 

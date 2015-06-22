@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.core.cache import cache
+from django.template.loader import render_to_string
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
@@ -16,6 +17,7 @@ from elasticsearch import Elasticsearch
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrAccountant,
                              IsOwnerOrEditor)
 from sb_votes.utils import handle_vote
+from sb_goals.serializers import GoalSerializer
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, AccountantSerializer,
@@ -222,6 +224,17 @@ class PoliticalCampaignViewSet(CampaignViewSet):
                                  "developer_message": None},
                                 status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['get'], serializer_class=GoalSerializer)
+    def unassigned_goals(self, request, object_uuid=None):
+        html = request.query_params.get('html', 'false')
+        queryset = PoliticalCampaign.get_unassigned_goals(object_uuid)
+        if html == 'true':
+            return Response([render_to_string(
+                "goal_draggable.html", GoalSerializer(goal).data)
+                             for goal in queryset], status=status.HTTP_200_OK)
+        return Response(self.serializer_class(queryset, many=True).data,
+                        status=status.HTTP_200_OK)
 
 
 class PositionViewSet(viewsets.ReadOnlyModelViewSet):

@@ -38,14 +38,10 @@ class GoalSerializer(CampaignAttributeSerializer):
         goal = Goal(**validated_data).save()
         campaign.goals.connect(goal)
         goal.campaign.connect(campaign)
-        campaign_round = Round.nodes.get(
-            object_uuid=PoliticalCampaign.get_upcoming_round(
-                campaign.object_uuid))
-        campaign_round.goals.connect(goal)
-        goal.associated_round.connect(campaign_round)
         return goal
 
     def update(self, instance, validated_data):
+        campaign = validated_data.pop('campaign', None)
         instance.title = validated_data.pop('title', instance.title)
         instance.summary = validated_data.pop('summary', instance.summary)
         instance.description = validated_data.pop('description',
@@ -56,6 +52,11 @@ class GoalSerializer(CampaignAttributeSerializer):
             'monetary_requirement', instance.monetary_requirement)
         instance.total_required = validated_data.pop('total_required',
                                                      instance.total_required)
+        campaign_round = Round.nodes.get(
+            object_uuid=PoliticalCampaign.get_upcoming_round(
+                campaign.object_uuid))
+        campaign_round.goals.connect(instance)
+        instance.associated_round.connect(campaign_round)
         prev_goal = validated_data.pop('prev_goal', None)
         if prev_goal is not None:
             query = 'MATCH (g:Goal {object_uuid:"%s"})-[:PREVIOUS]->' \

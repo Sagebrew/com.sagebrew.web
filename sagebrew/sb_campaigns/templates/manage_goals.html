@@ -20,32 +20,38 @@
                                 </div>
                             </div>
                             <div id="create_container" style="display: none;">
-                                <div class="row sb_markdown">
+                                <div class="row sb_input_wrapper">
                                     <div class="col-lg-12">
-                                        <textarea class="form-control"
+                                        <input class="form-control"
                                                   id="goal_title"
                                                   name="goal-title"
                                                   placeholder="Goal Title"
-                                                  rows="1"></textarea>
+                                                  type="text"/>
                                     </div>
                                 </div>
-                                <div class="row sb_markdown">
+                                <div class="row sb_input_wrapper">
                                     <div class="col-xs-6">
-                                        <textarea class="form-control"
-                                                  id="goal_vote_req"
-                                                  name="goal_vote_req"
-                                                  placeholder="Pledge Vote Requirement"
-                                                  rows="1"></textarea>
+                                        <div class="input-group">
+                                            <span class="input-group-addon fa fa-check"></span>
+                                            <input class="form-control"
+                                                      id="goal_vote_req"
+                                                      name="goal_vote_req"
+                                                      placeholder="Pledge Vote Requirement"
+                                                      type="text"/>
+                                        </div>
                                     </div>
                                     <div class="col-xs-6">
-                                        <textarea class="form-control"
-                                                  id="goal_monetary_req"
-                                                  name="goal_monetary_req"
-                                                  placeholder="Monetary Requirement (in cents)"
-                                                  rows="1"></textarea>
+                                        <div class="input-group">
+                                            <span class="input-group-addon">$</span>
+                                            <input class="form-control"
+                                                   id="goal_monetary_req"
+                                                   name="goal_monetary_req"
+                                                   placeholder="Monetary Requirement (dollar amount only, no '.')"
+                                                   type="text"/>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="row sb_markdown">
+                                <div class="row sb_input_wrapper">
                                     <div class="col-lg-12">
                                         <textarea class="form-control"
                                                   id="goal_summary"
@@ -54,7 +60,7 @@
                                                   rows="2"></textarea>
                                     </div>
                                 </div>
-                                <div class="row sb_markdown">
+                                <div class="row sb_input_wrapper">
                                     <div class="col-lg-12">
                                         <textarea class="form-control"
                                                   id="goal_description"

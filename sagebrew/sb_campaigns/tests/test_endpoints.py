@@ -185,7 +185,7 @@ class CampaignEndpointTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
         position.delete()
         self.assertEqual(response.data['url'],
-                         'http://testserver/action/' +
+                         'http://testserver/quests/' +
                          response.data['id'] + '/')
 
     def test_create_twitter(self):
@@ -707,7 +707,6 @@ class CampaignEndpointTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
 
-        self.assertEqual(response.data['detail'], "Successfully created goal.")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_goals_create_unauthorized(self):

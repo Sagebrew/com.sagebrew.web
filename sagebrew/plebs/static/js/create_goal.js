@@ -13,7 +13,8 @@ $(document).ready(function () {
                 "description": $("#goal_description").val(),
                 "pledged_vote_requirement": $("#goal_vote_req").val(),
                 "monetary_requirement": $("#goal_monetary_req").val() * 100,
-                "total_required": $("#goal_monetary_req").val() * 100
+                "total_required": $("#goal_monetary_req").val() * 100,
+                "pledges_required": $("#goal_vote_req").val()
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",

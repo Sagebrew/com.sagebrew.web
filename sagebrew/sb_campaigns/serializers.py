@@ -64,7 +64,7 @@ class CampaignSerializer(SBSerializer):
         return campaign
 
     def update(self, instance, validated_data):
-        stripe.api_key = "sk_test_jIytkvmYMCwIzTranx2om7bq"
+        stripe.api_key = "sk_test_4VQN8LrYMe8xbLH5v9kLMoKt"
         stripe_token = validated_data.pop('stripe_token', None)
         instance.active = validated_data.get('active', instance.active)
         instance.facebook = validated_data.get('facebook', instance.facebook)

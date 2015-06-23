@@ -74,7 +74,6 @@ def update_renderer(request, object_uuid=None):
         update['last_edited_on'] = parser.parse(update['last_edited_on'])
         update['vote_count'] = str(update['vote_count'])
         context = RequestContext(request, update)
-        # TODO make a template for updates
         html_array.append(render_to_string('update.html', context))
         id_array.append(update['object_uuid'])
     updates.data['results'] = {'html': html_array, 'ids': id_array}

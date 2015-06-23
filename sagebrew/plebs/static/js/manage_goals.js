@@ -7,18 +7,23 @@ Number.prototype.format = function (n, x) {
 function calculateTotalRequired() {
     var selectedGoals = $("#current_goals > div.sb_goal_draggable"),
         prevGoal = null,
-        totalRequired = 0;
+        totalRequired = 0,
+        totalPledgesRequired = 0;
     selectedGoals.each(function (index, value) {
         var currentId = $(this).data('object_uuid');
         if (index === 0) {
             prevGoal = null;
             totalRequired = parseInt($("#" + currentId + "_monetary_requirement").data("monetary_requirement"), 10);
+            totalPledgesRequired = parseInt($("#" + currentId + "_pledge_vote_requirement").attr("data-pledge_requirement"), 10);
         } else {
             prevGoal = $(selectedGoals[index - 1]).data('object_uuid');
             totalRequired = parseInt($("#" + prevGoal + "_required").attr("data-total_required"), 10) + parseInt($("#" + currentId + "_monetary_requirement").attr("data-monetary_requirement"), 10);
+            totalPledgesRequired = parseInt($("#" + prevGoal + "_required_pledges").attr("data-pledges_required"), 10) + parseInt($("#" + currentId + "_pledge_vote_requirement").attr("data-pledge_requirement"), 10);
         }
         $("#" + currentId + "_required").attr("data-total_required", totalRequired);
-        $("#" + currentId + "_required").text("$" + (totalRequired / 100).format());
+        $("#" + currentId + "_required").text("Total Required: $" + (totalRequired / 100).format());
+        $("#" + currentId + "_required_pledges").attr("data-pledges_required", totalPledgesRequired);
+        $("#" + currentId + "_required_pledges").text("Pledges Required: " + totalPledgesRequired);
     });
 }
 
@@ -166,6 +171,7 @@ $(document).ready(function () {
         var selectedGoals = $("#current_goals > div.sb_goal_draggable"),
             prevGoal = null,
             totalRequired = 0,
+            totalPledgesRequired = 0,
             unSelectedGoals = $("#existing_goals > div.sb_goal_draggable");
         unSelectedGoals.each(function (index, value) {
             var currentId = $(this).data('object_uuid'),
@@ -192,16 +198,21 @@ $(document).ready(function () {
             if (index === 0) {
                 prevGoal = null;
                 totalRequired = parseInt($("#" + currentId + "_monetary_requirement").attr("data-monetary_requirement"), 10);
+                totalPledgesRequired = parseInt($("#" + currentId + "_pledge_vote_requirement").attr("data-pledge_requirement"), 10);
             } else {
                 prevGoal = $(selectedGoals[index - 1]).data('object_uuid');
                 totalRequired = parseInt($("#" + prevGoal + "_required").attr("data-total_required"), 10) + parseInt($("#" + currentId + "_monetary_requirement").attr("data-monetary_requirement"), 10);
+                totalPledgesRequired = parseInt($("#" + prevGoal + "_required_pledges").attr("data-pledges_required"), 10) + parseInt($("#" + currentId + "_pledge_vote_requirement").attr("data-pledge_requirement"), 10);;
             }
-            $("#" + currentId + "_required").attr('data-total_required', totalRequired);
-            $("#" + currentId + "_required").text("$" + (totalRequired / 100).format());
+            $("#" + currentId + "_required").attr("data-total_required", totalRequired);
+            $("#" + currentId + "_required").text("Total Required: $" + (totalRequired / 100).format());
+            $("#" + currentId + "_required_pledges").attr("data-pledges_required", totalPledgesRequired);
+            $("#" + currentId + "_required_pledges").text("Pledges Required: " + totalPledgesRequired);
             var goalData = {
                 "prev_goal": prevGoal,
                 "total_required": totalRequired,
-                "campaign": campaignId
+                "campaign": campaignId,
+                "pledges_required": totalPledgesRequired
             };
             $.ajax({
                 xhrFields: {withCredentials: true},

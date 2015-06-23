@@ -38,7 +38,15 @@ class Goal(SBObject):
     monetary_requirement = IntegerProperty(default=0)
     completed = BooleanProperty(default=False)
     completed_date = DateTimeProperty()
+    # total_required represents the total amount of donations required to
+    # complete the goal
     total_required = IntegerProperty()
+    # pledges_required represents the total amount of pledges required to
+    # complete the goal
+    pledges_required = IntegerProperty()
+    # target is an optimization property we use when rendering templates
+    # for a quest page
+    target = BooleanProperty(default=False)
 
     # optimizations
     # Active is automatically set when the round the goal is in is taken active

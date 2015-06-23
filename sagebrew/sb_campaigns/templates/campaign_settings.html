@@ -27,6 +27,7 @@
                     {% if debug %}
                         <div id="campaign_id" data-object_uuid="{{ campaign.id }}" style="display: none"></div>
                         <form id="settings_form">
+                        <div id="completed-stripe" data-completed_stripe="{{ campaign.completed_stripe }}"></div>
                             {% if not campaign.completed_stripe %}
                                 <div class="row">
                                     <div class="col-lg-12">

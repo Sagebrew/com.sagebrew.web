@@ -21,6 +21,7 @@ class GoalSerializer(CampaignAttributeSerializer):
     summary = serializers.CharField(required=True)
     description = serializers.CharField(required=False, allow_null=True,
                                         allow_blank=True)
+    target = serializers.BooleanField(required=False)
     # We are requiring both a vote requirement and monetary requirement for
     # the first goal, the monetary requirement can be very small but it is
     # just easier for us with validation to allow them to make a monetary
@@ -32,6 +33,8 @@ class GoalSerializer(CampaignAttributeSerializer):
     completed = serializers.BooleanField(read_only=True)
     completed_date = serializers.DateTimeField(allow_null=True, read_only=True)
     total_required = serializers.IntegerField(required=False, allow_null=True)
+    pledges_required = serializers.IntegerField(required=False,
+                                                allow_null=True)
 
     updates = serializers.SerializerMethodField()
     associated_round = serializers.SerializerMethodField()
@@ -58,6 +61,8 @@ class GoalSerializer(CampaignAttributeSerializer):
             'monetary_requirement', instance.monetary_requirement)
         instance.total_required = validated_data.pop('total_required',
                                                      instance.total_required)
+        instance.pledges_required = validated_data.pop(
+            'pledges_required', instance.pledges_required)
         campaign_round = Round.nodes.get(
             object_uuid=PoliticalCampaign.get_upcoming_round(campaign))
         campaign_round.goals.connect(instance)
@@ -75,6 +80,8 @@ class GoalSerializer(CampaignAttributeSerializer):
             prev_goal = Goal.nodes.get(object_uuid=prev_goal)
             prev_goal.next_goal.connect(instance)
             instance.previous_goal.connect(prev_goal)
+        else:
+            instance.target = True
         instance.save()
         return instance
 

@@ -1,18 +1,120 @@
 {% load humanize %}
-<div class="row block sb_action_content_block sb_update_block">
+{% load static %}
+<div class="sb_question_header">
     <div class="row">
-        <div class="col-lg-10 col-md-9 col-sm-6 col-xs-6">
-            <h1>{{ title|linebreaksbr }}</h1>
+        <div class="vote_count_large">
+            <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper_solution">
+                {% include "vote.html" %}
+            </div>
         </div>
-        <div align="right" class="col-lg-2 col-md-3 col-sm-6 col-xs-6">
-            <p>{{ last_edited_on|naturaltime }}</p>
-            <p>Goal 3</p>
+        <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 ">
+            <h1 style="font-size:32px;">
+                {{ title|linebreaksbr }}
+            </h1>
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs col-lg-offset-0 col-md-offset-0 col-sm-offset-0">
+
+                {% if request.user.username == profile.username %}
+                    <button class="btn dropdown-toggle sb_btn_icon" type="button"
+                            data-toggle="dropdown">
+                        <span class="fa fa-cog sb_btn_icon_green_hover"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
+                        role="menu" aria-labelledby="dropdown-menu">
+                        <li role="presentation"><a class="sb_post_dropdown_menu show_edit_question-action"
+                                                   data-object_uuid="{{ object_uuid }}"
+                                                   type="submit">Edit</a>
+                        </li>
+                    </ul>
+                {% else %}
+                    {% if "flag" in request_profile.privileges %}
+                        {% include "flag.html" %}
+                    {% else %}
+                        {% include "flag_restriction.html" %}
+                    {% endif %}
+                {% endif %}
+
         </div>
     </div>
-    <div class="sb_deco_line"></div>
-    <div class="sb_markdown">
-        {% autoescape off %}
-            {{ html_content }}
-        {% endautoescape %}
+    <div class="row">
+        <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 col-lg-offset-1 sb_post_wrapper">
+            <div class="sb_question_body" id="sb_question_{{ object_uuid }}">
+                <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
+                    {% autoescape off %}
+                        {{ html_content }}
+                    {% endautoescape %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-lg-4 col-md-4 hidden-sm hidden-xs col-md-offset-8 col-lg-offset-9">
+            <small>
+                posted by
+            </small>
+        </div>
+    </div>
+    <div class="row">
+
+        <div class="col-md-2 hidden-xs hidden-sm col-lg-offset-1">
+            {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
+            {% else %}
+                <div><small>
+                    <span class="sb_comment_disabled" data-toggle="tooltip"
+                          data-placement="top"
+                          data-title="Requirement: 20+ Rep"
+                          id="post_comment_on_{{ object_uuid }}">
+                        comment
+                    </span>
+                </small></div>
+            {% endif %}
+        </div>
+
+        <div class="col-lg-1 col-md-1 hidden-sm hidden-xs col-md-offset-6"
+             style="padding-right:0; margin-right: -10px">
+            <div class="sb_thumbnail_xs thumbnail">
+                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
+                <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 hidden-sm hidden-xs" style="padding-left:0; margin-top:-10px; margin-left: 2px">
+            <div>
+                <small>
+                    <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>
+                </small>
+            </div>
+            <div style="margin-top:-10px;">
+                <small>
+                    {{ last_edited_on|naturaltime }}
+                </small>
+            </div>
+        </div>
+        <div class="hidden-lg hidden-md col-sm-11 col-xs-11">
+            <small>
+                asked by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
+            </small>
+        </div>
+    </div>
+
+    <div id="sb_comments_container_{{ object_uuid }}">
+        {% comment %}
+            Dynamically populated by JS to show existing comments.
+        {% endcomment %}
+    </div>
+    <div class="row">
+        {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
+            <form id="commentSubmitForm">
+            <div class="input-group sb_comment">
+                    <textarea class="input-group form-control sb_comment_input"
+                              id="post_comment_on_{{ object_uuid }}"
+                              rows="2"
+                              name="comment_content"
+                              placeholder="Write your comment..."></textarea>
+                    <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
+                       data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
+                </div>
+            </form>
+        {% endif %}
     </div>
 </div>

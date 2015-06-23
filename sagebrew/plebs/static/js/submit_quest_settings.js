@@ -1,28 +1,7 @@
 /*global $, jQuery, ajaxSecurity, errorDisplay, Stripe*/
-function stripeResponseHandler(status, response) {
-    if (response.error) {
-        $.notify(response.error.message, {type: 'danger'});
-    } else {
-        var token = response.id;
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "PATCH",
-            url: "/v1/campaigns/" + campaignId + "/",
-            data: JSON.stringify({
-                "stripe_token": token
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                errorDisplay(XMLHttpRequest);
-            }
-        });
-    }
-}
+
 $(document).ready(function () {
-    Stripe.setPublishableKey("pk_test_BvgnQJjwcednzpsx4Q4Uqv8p");
+    Stripe.setPublishableKey("pk_test_4VQN9H9N2kXFGMIziWSa09ak");
     $("#submit_settings").click(function (event) {
         event.preventDefault();
         var settingsData = {
@@ -89,5 +68,50 @@ $(document).ready(function () {
     });
     $("#take_live").click(function (event) {
         event.preventDefault();
+        var completedStripe = $("#completed-stripe").data("completed_stripe");
+        if (completedStripe === "False") {
+            $("html, body").animate({scrollTop: 0}, "slow");
+            $.notify("Please fill in your routing and account numbers. Then hit save at the bottom of the page. Don't worry we do not store them.", {type: "success"});
+        } else {
+            var campaignId = campaignId = $("#campaign_id").data('object_uuid');
+            $.ajax({
+                xhrFields: {withCredentials: true},
+                type: "PATCH",
+                url: "/v1/campaigns/" + campaignId + "/",
+                data: JSON.stringify({
+                    "active": true
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    errorDisplay(XMLHttpRequest);
+                }
+            });
+        }
     });
 });
+function stripeResponseHandler(status, response) {
+    if (response.error) {
+        $.notify(response.error.message, {type: 'danger'});
+    } else {
+        var token = response.id,
+            campaignId = $("#campaign_id").data('object_uuid');
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "PATCH",
+            url: "/v1/campaigns/" + campaignId + "/",
+            data: JSON.stringify({
+                "stripe_token": token
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                errorDisplay(XMLHttpRequest);
+            }
+        });
+    }
+}

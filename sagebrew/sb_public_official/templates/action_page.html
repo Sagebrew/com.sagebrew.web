@@ -20,7 +20,7 @@
                 {% include "updates_disabled.html" %}
             {% endif %}
         {% else %}
-            {% if registered == True %}
+            {% if active == True %}
                 {% include "saga.html" %}
             {% else %}
                 {% include "saga_disabled.html" %}
@@ -30,9 +30,8 @@
     <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
         <h5>Goals{% if id == request.user.username %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="manage_goals" style="margin-top: -5px;"><span class="fa fa-edit"></span></button>{% endif %}</h5>
         {% if active == True %}
-            {% include "goals_block.html" %}
-            {% include "goals_block.html" %}
-            {% include "goals_block.html" %}
+            <div id="active_round" data-object_uuid="{{ active_round }}"></div>
+            <div id="goal_wrapper"></div>
         {% else %}
             {% include "goals_block_disabled.html" %}
         {% endif %}
@@ -50,5 +49,12 @@
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
     <script src="{% static 'js/edit_quest.js' %}"></script>
+    <script src="{% static 'js/get_goals.js' %}"></script>
+    <script src="{% static 'js/get_updates.js' %}"></script>
+    <script src="{% static 'js/create_donations.js' %}"></script>
+    <script src="{% static 'js/donation_validator.js' %}"></script>
+    <script src="{% static 'js/pledge_vote.js' %}"></script>
 {% endblock scripts %}

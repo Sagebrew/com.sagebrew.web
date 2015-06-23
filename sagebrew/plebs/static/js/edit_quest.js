@@ -19,6 +19,10 @@ $(document).ready(function () {
             dataType: "json",
             success: function (data) {
                 $.notify("Biography successfully updated.", {type: 'success'});
+                $("#bio_edit").toggle();
+                $("#bio_wrapper").text(data.biography);
+                $("#biography_input").text(data.biography);
+                $("#bio_wrapper").toggle();
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 errorDisplay(XMLHttpRequest);

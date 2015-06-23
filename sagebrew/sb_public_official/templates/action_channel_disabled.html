@@ -22,7 +22,7 @@
             {% endif %}
             {% if id == request.user.username %}
                 <div id="bio_edit" style="display: none">
-                    <textarea class="form-control edit_bio_input" id="biography_input" rows="3" placeholder="Biography, limit 255 characters">{{ bio }}</textarea>
+                    <textarea class="form-control edit_bio_input" id="biography_input" rows="3" placeholder="Biography, limit 255 characters">{{ biography }}</textarea>
                     <button class="btn btn-block btn-primary sb_btn_fill" id="submit_biography">Submit Bio</button>
                 </div>
             {% endif %}
@@ -30,16 +30,13 @@
 
     </div>
     {% if id == request.user.username %}
-            <div class="hidden-xs hidden-sm col-md-1">
-                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
+        <div class="hidden-xs hidden-sm col-md-1">
+            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
 
-            </div>
-        {% endif %}
-    <div class="col-lg-5 col-md-4 col-sm-12">
-        <div align="right">
-            <button class="btn btn-primary disabled sb_btn">Donate</button>
-            <button class="btn btn-primary disabled sb_btn">Pledge Vote</button>
         </div>
+    {% endif %}
+    <div class="col-lg-5 col-md-4 col-sm-12">
+
         <div align="right" class="block sb_channel_social row-fluid hidden-md hidden-sm hidden-xs">
             {% if not facebook %}
                 <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-facebook-square"></span></button>

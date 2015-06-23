@@ -58,8 +58,10 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/get_reps.js' %}"></script>
-    <script src="{% static 'js/get_posts.js' %}"></script>
     <script src="{% static 'js/save_post.js' %}"></script>
+    {% block post_scripts %}
+        <script src="{% static 'js/get_posts.js' %}"></script>
+    {% endblock post_scripts %}
     <script src="{% static 'js/send_friend_request.js' %}"></script>
     <script src="{% static 'js/send_notification.js' %}"></script>
     <script src="{% static 'js/respond_friend_request.js' %}"></script>
@@ -76,5 +78,4 @@
     {% comment %}
     <script src="{% static 'js/get_dropzone.js' %}"></script>
     {% endcomment %}
-
 {% endblock scripts %}

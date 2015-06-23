@@ -162,8 +162,7 @@ def login_view_api(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                rev = reverse('profile_page',
-                              kwargs={'pleb_username': user.username})
+                rev = reverse('newsfeed')
                 return Response({'detail': 'success',
                                  'user': user.email,
                                  'url': rev}, status=200)
@@ -361,7 +360,7 @@ def beta_signup(request):
 def beta_page(request):
     if request.user.is_authenticated() is True:
         if verify_completed_registration(request.user) is True:
-            return redirect('profile_page', pleb_username=request.user.username)
+            return redirect('newsfeed')
         else:
             return redirect('profile_info')
 

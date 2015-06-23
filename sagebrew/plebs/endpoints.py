@@ -432,6 +432,12 @@ class MeViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
     def get_queryset(self):
         return Pleb.get(self.request.user.username)
 
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
     def list(self, request, *args, **kwargs):
         return Response(self.get_serializer(self.get_object()).data,
                         status=status.HTTP_200_OK)

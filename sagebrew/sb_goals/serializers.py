@@ -1,3 +1,8 @@
+import pytz
+from datetime import datetime
+
+from django.core.cache import cache
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -14,7 +19,8 @@ class GoalSerializer(CampaignAttributeSerializer):
     active = serializers.BooleanField(read_only=True)
     title = serializers.CharField(required=True)
     summary = serializers.CharField(required=True)
-    description = serializers.CharField(required=False, allow_null=True)
+    description = serializers.CharField(required=False, allow_null=True,
+                                        allow_blank=True)
     # We are requiring both a vote requirement and monetary requirement for
     # the first goal, the monetary requirement can be very small but it is
     # just easier for us with validation to allow them to make a monetary
@@ -123,6 +129,21 @@ class RoundSerializer(CampaignAttributeSerializer):
 
     def update(self, instance, validated_data):
         instance.queued = validated_data.pop('queued', instance.queued)
+        camp = PoliticalCampaign.nodes.get(
+            object_uuid=Round.get_campaign(instance.object_uuid))
+        if camp.active and not PoliticalCampaign.get_active_round(
+                camp.object_uuid):
+            instance.active = True
+            instance.start_date = datetime.now(pytz.utc)
+            camp.upcoming_round.disconnect(instance)
+            camp.active_round.connect(instance)
+            camp.round.connect(instance)
+            cache.set("%s_active_round" % camp.object_uuid,
+                      instance.object_uuid)
+            new_upcoming = Round().save()
+            camp.upcoming_round.connect(new_upcoming)
+            new_upcoming.campaign.connect(camp)
+            cache.set("%s_upcoming_round" % camp.object_uuid)
         instance.save()
         return instance
 

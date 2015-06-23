@@ -38,6 +38,10 @@ class CampaignViewSet(viewsets.ModelViewSet):
     def get_object(self):
         return Campaign.get(object_uuid=self.kwargs[self.lookup_field])
 
+    def perform_update(self, serializer):
+        serializer.save(stripe_token=self.request.data.get('stripe_token',
+                                                           None))
+
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated, IsOwnerOrEditor))
     def editors(self, request, object_uuid=None):

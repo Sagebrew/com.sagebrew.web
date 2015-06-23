@@ -99,7 +99,11 @@
                     <h4>Next Goal Set</h4>
                 </div>
                 <div class="col-xs-4" style="margin-top: 10px">
-                    <input type="checkbox" data-toggle="bootstrap-switch" id="toggle-queued" name="my-checkbox"/>
+                    {% if active and not active_round %}
+                        <button id="activate_round" class="btn btn-primary sb_btn sb_btn_fill" style="margin-top: 5px;">Activate</button>
+                    {% else %}
+                        <input type="checkbox" data-toggle="bootstrap-switch" id="toggle-queued" name="my-checkbox"/>
+                    {% endif %}
                 </div>
                 <div class="col-xs-4">
                     <button id="submit_round" class="btn btn-primary sb_btn sb_btn_fill" style="margin-top: 5px;">Save</button>

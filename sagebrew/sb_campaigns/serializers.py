@@ -1,3 +1,4 @@
+import stripe
 import markdown
 from logging import getLogger
 
@@ -43,6 +44,7 @@ class CampaignSerializer(SBSerializer):
     rendered_epic = serializers.SerializerMethodField()
     upcoming_round = serializers.SerializerMethodField()
     public_official = serializers.SerializerMethodField()
+    completed_stripe = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         request = self.context.get('request', None)
@@ -62,6 +64,8 @@ class CampaignSerializer(SBSerializer):
         return campaign
 
     def update(self, instance, validated_data):
+        stripe.api_key = "sk_test_jIytkvmYMCwIzTranx2om7bq"
+        stripe_token = validated_data.pop('stripe_token', None)
         instance.active = validated_data.get('active', instance.active)
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
@@ -75,6 +79,17 @@ class CampaignSerializer(SBSerializer):
         instance.biography = validated_data.get('biography',
                                                 instance.biography)
         instance.epic = validated_data.get('epic', instance.epic)
+        if stripe_token is not None:
+            owner = Pleb.nodes.get(username=instance.owner_username)
+            if owner.stripe_account is None:
+                stripe_res = stripe.Account.create(managed=True, country="US",
+                                                   email=owner.email)
+                owner.stripe_account = stripe_res['id']
+                owner.save()
+            account = stripe.Account.retrieve(owner.stripe_account)
+            bank_res = account.external_accounts.create(
+                external_account=stripe_token)
+            instance.stripe_id = bank_res['id']
         instance.save()
         cache.set("%s_campaign" % instance.object_uuid, instance)
         return instance
@@ -156,6 +171,11 @@ class CampaignSerializer(SBSerializer):
             return markdown.markdown(obj.epic.replace('&gt;', '>'))
         else:
             return ""
+
+    def get_completed_stripe(self, obj):
+        if obj.stripe_id == "Not Set":
+            return False
+        return True
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):

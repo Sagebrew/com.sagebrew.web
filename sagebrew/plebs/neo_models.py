@@ -152,6 +152,7 @@ class Pleb(Searchable):
     email_verified = BooleanProperty(default=False)
     populated_personal_index = BooleanProperty(default=False)
     initial_verification_email_sent = BooleanProperty(default=False)
+    stripe_account = StringProperty()
     stripe_customer_id = StringProperty()
 
     # Relationships

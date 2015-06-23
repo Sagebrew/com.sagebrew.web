@@ -107,6 +107,7 @@ $(document).ready(function () {
                     $("[name='my-checkbox']").bootstrapSwitch('disabled', true);
                     if (stat) {
                         $("#submit_round").attr("disabled", "disabled");
+                        $("#submit_round").trigger("click");
                     } else {
                         $("#submit_round").removeAttr("disabled");
                     }
@@ -120,7 +121,9 @@ $(document).ready(function () {
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
                         success: function (data) {
-                            console.log(data);
+                            if (data.active) {
+                                window.location.href = "/quests/" + campaignId;
+                            }
                             $("[name='my-checkbox']").bootstrapSwitch('disabled', false);
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -133,11 +136,28 @@ $(document).ready(function () {
             });
             //$.notify("Updated next goal set!", {type: 'success'});
         },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
+        error: function (XMLHttpRequest) {
             errorDisplay(XMLHttpRequest);
         }
     });
-
+    $("#activate_round").click(function (event) {
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "PATCH",
+            url: "/v1/rounds/" + roundId + "/",
+            data: JSON.stringify({
+                "queued": true
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function () {
+                window.location.href = "/quests/" + campaignId;
+            },
+            error: function (XMLHttpRequest) {
+                errorDisplay(XMLHttpRequest);
+            }
+        });
+    });
     $("#toggle_create_goal").click(function (event) {
         $("#create_container").toggle();
     });

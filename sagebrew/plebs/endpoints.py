@@ -402,9 +402,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_200_OK)
 
 
-class MeViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
-                mixins.DestroyModelMixin, mixins.ListModelMixin,
-                viewsets.GenericViewSet):
+class MeViewSet(mixins.UpdateModelMixin,
+                mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     This endpoint provides the ability to get information regarding the
     currently authenticated user. This way AJAX, Ember, and other front end
@@ -417,18 +416,6 @@ class MeViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
     def get_object(self):
         return Pleb.get(self.request.user.username)
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        serializer_data = dict(serializer.data)
-        if serializer_data['wallpaper_pic'] is None:
-            serializer_data['wallpaper_pic'] = static(
-                'images/wallpaper_western.jpg')
-        if serializer_data['profile_pic'] is None:
-            serializer_data['profile_pic'] = static(
-                'images/sage_coffee_grey-01.png')
-        return Response(serializer_data)
-
     def get_queryset(self):
         return Pleb.get(self.request.user.username)
 
@@ -439,8 +426,16 @@ class MeViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
         return self.partial_update(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
-        return Response(self.get_serializer(self.get_object()).data,
-                        status=status.HTTP_200_OK)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        serializer_data = dict(serializer.data)
+        if serializer_data['wallpaper_pic'] is None:
+            serializer_data['wallpaper_pic'] = static(
+                'images/wallpaper_western.jpg')
+        if serializer_data['profile_pic'] is None:
+            serializer_data['profile_pic'] = static(
+                'images/sage_coffee_grey-01.png')
+        return Response(serializer_data, status=status.HTTP_200_OK)
 
     @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def newsfeed(self, request):

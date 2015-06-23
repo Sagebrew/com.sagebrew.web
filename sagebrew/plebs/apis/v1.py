@@ -24,16 +24,15 @@ router.register(r'me', MeViewSet, base_name="me")
 
 urlpatterns = patterns(
     'plebs.endpoints',
-    url(r'^', include(router.urls)),
-    url(r'^me/', include('sb_notifications.apis.relations.v1')),
 
+    url(r'^me/', include('sb_notifications.apis.relations.v1')),
     url(r'^me/friend_requests/$',
         FriendRequestList.as_view(), name="received_friend_request-list"),
     url(r'^me/friend_requests/render/$',
         friend_request_renderer, name="received_friend_request-render"),
     url(r'^me/friends/(?P<friend_username>[A-Za-z0-9.@_%+-]{1,30})/$',
         FriendManager.as_view(), name="friend-detail"),
-
+    url(r'^', include(router.urls)),
     url(r'^profiles/(?P<username>[A-Za-z0-9.@_%+-]{1,30})/wall/$',
         WallPostsListCreate.as_view(), name="profile-wall"),
     url(r'^profiles/(?P<username>[A-Za-z0-9.@_%+-]{1,30})/'

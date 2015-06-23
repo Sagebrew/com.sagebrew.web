@@ -151,6 +151,7 @@ class Round(SBObject):
     # active round.
     completed = DateTimeProperty()
     active = BooleanProperty(default=False)
+    queued = BooleanProperty(default=False)
 
     # relationships
     goals = RelationshipTo('sb_goals.neo_models.Goal', "STRIVING_FOR")

@@ -41,8 +41,6 @@ class GoalSerializer(CampaignAttributeSerializer):
         return goal
 
     def update(self, instance, validated_data):
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
         campaign = validated_data.pop('campaign', None)
         instance.title = validated_data.pop('title', instance.title)
         instance.summary = validated_data.pop('summary', instance.summary)
@@ -56,7 +54,6 @@ class GoalSerializer(CampaignAttributeSerializer):
                                                      instance.total_required)
         campaign_round = Round.nodes.get(
             object_uuid=PoliticalCampaign.get_upcoming_round(campaign))
-        logger.info(campaign_round)
         campaign_round.goals.connect(instance)
         instance.associated_round.connect(campaign_round)
         prev_goal = validated_data.pop('prev_goal', None)
@@ -116,12 +113,18 @@ class GoalSerializer(CampaignAttributeSerializer):
 
 class RoundSerializer(CampaignAttributeSerializer):
     active = serializers.BooleanField(read_only=True)
+    queued = serializers.BooleanField()
     start_date = serializers.DateTimeField(read_only=True)
     completed = serializers.DateTimeField(read_only=True)
 
     goals = serializers.SerializerMethodField()
     previous_round = serializers.SerializerMethodField()
     next_round = serializers.SerializerMethodField()
+
+    def update(self, instance, validated_data):
+        instance.queued = validated_data.pop('queued', instance.queued)
+        instance.save()
+        return instance
 
     def get_goals(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)

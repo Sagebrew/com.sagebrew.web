@@ -138,7 +138,7 @@ class RoundListCreate(generics.ListCreateAPIView):
         return [Round.inflate(row[0]) for row in res]
 
 
-class RoundRetrieve(generics.RetrieveAPIView):
+class RoundRetrieve(generics.RetrieveAPIView, generics.UpdateAPIView):
     serializer_class = RoundSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = "object_uuid"
@@ -158,6 +158,19 @@ class RoundRetrieve(generics.RetrieveAPIView):
                                  "status_code": status.HTTP_401_UNAUTHORIZED},
                                 status=status.HTTP_401_UNAUTHORIZED)
         return super(RoundRetrieve, self).get(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        queryset = self.get_object()
+        if queryset.completed is None and queryset.active is False:
+            if not (request.user.username in
+                    Campaign.get_campaign_helpers(Round.get_campaign(
+                        queryset.object_uuid))):
+                return Response({"detail": "Only owners, editors, or "
+                                           "accountants can modify upcoming "
+                                           "rounds.",
+                                 "status_code": status.HTTP_401_UNAUTHORIZED},
+                                status=status.HTTP_401_UNAUTHORIZED)
+        return super(RoundRetrieve, self).update(request, *args, **kwargs)
 
 
 @api_view(["GET"])

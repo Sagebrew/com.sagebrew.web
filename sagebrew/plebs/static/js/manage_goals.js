@@ -78,7 +78,7 @@ $(document).ready(function () {
         handle: ".sb_goal_draggable",
         draggable: ".sb_goal_draggable"
     });
-    Sortable.create(document.getElementById("current_goals"), {
+    var currentSortable = Sortable.create(document.getElementById("current_goals"), {
         group: {name: "goal_management", pull: true, put: true},
         delay: 0,
         animation: 0,
@@ -88,6 +88,56 @@ $(document).ready(function () {
             calculateTotalRequired();
         }
     });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: "/v1/rounds/" + roundId + "/",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            currentSortable.option("disabled", data.queued);
+            $("#submit_round").attr("disabled", data.queued);
+            $("[name='my-checkbox']").bootstrapSwitch({
+                size: "small",
+                onText: "Queued",
+                offText: "Unqueued",
+                state: data.queued,
+                onSwitchChange: function (event, stat, e) {
+                    currentSortable.option("disabled", stat);
+                    $("[name='my-checkbox']").bootstrapSwitch('disabled', true);
+                    if (stat) {
+                        $("#submit_round").attr("disabled", "disabled");
+                    } else {
+                        $("#submit_round").removeAttr("disabled");
+                    }
+                    $.ajax({
+                        xhrFields: {withCredentials: true},
+                        type: "PATCH",
+                        url: "/v1/rounds/" + roundId + "/",
+                        data: JSON.stringify({
+                            "queued": stat
+                        }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: "json",
+                        success: function (data) {
+                            console.log(data);
+                            $("[name='my-checkbox']").bootstrapSwitch('disabled', false);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            errorDisplay(XMLHttpRequest);
+                            $("[name='my-checkbox']").bootstrapSwitch('disabled', false);
+                            $("[name='my-checkbox']").bootstrapSwitch('state', false, true);
+                        }
+                    });
+                }
+            });
+            //$.notify("Updated next goal set!", {type: 'success'});
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            errorDisplay(XMLHttpRequest);
+        }
+    });
+
     $("#toggle_create_goal").click(function (event) {
         $("#create_container").toggle();
     });

@@ -16,4 +16,3 @@ class SBSerializer(serializers.Serializer):
             return obj.__class__.__name__.lower()
         except AttributeError:
             return None
-

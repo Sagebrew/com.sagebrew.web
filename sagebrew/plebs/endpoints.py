@@ -441,11 +441,12 @@ class MeViewSet(mixins.UpdateModelMixin,
     @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def newsfeed(self, request):
         """
-        The newsfeed endpoint expects to be called on the me endpoint and assumes
-        that the request object provided will contain the user the newsfeed is
-        being provided to. It is not included as a list_route on the me endpoint
-        due to the me endpoint not being a viewset. If we transition to that
-        structure it could easily be moved to a list_route there.
+        The newsfeed endpoint expects to be called on the me endpoint and
+        assumes that the request object provided will contain the user the
+        newsfeed is being provided to. It is not included as a list_route on
+        the me endpoint due to the me endpoint not being a viewset.
+        If we transition to that structure it could easily be moved to a
+        list_route there.
         Query if we want to grab tags:
         MATCH (a:Pleb {username: "%s"})-
                 [OWNS_QUESTION]->(questions:Question)-[:TAGGED_AS]->(tags:Tag)

@@ -2425,4 +2425,3 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['results'][0]['type'], 'solution')
         self.assertEqual(response.data['results'][1]['type'], 'question')
         self.assertEqual(response.data['results'][2]['type'], 'post')
-

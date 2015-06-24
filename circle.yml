@@ -28,7 +28,6 @@ dependencies:
         background: true
     - elasticsearch-1.3.2/bin/elasticsearch:
         background: true
-    - neoauth neo4j neo4j my-p4ssword
     - sudo apt-get install supervisor
     - sudo chown -R ubuntu /etc/supervisor/conf.d/
     - python ~/com.sagebrew.web/sagebrew/manage.py populatesupervisor worker-test ubuntu

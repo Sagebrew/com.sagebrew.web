@@ -1,3 +1,4 @@
+import pytz
 from datetime import datetime, timedelta
 from dateutil import parser
 from operator import attrgetter
@@ -489,7 +490,7 @@ class MeViewSet(mixins.UpdateModelMixin,
         # for post processing on unions as a whole to be added as a feature.
         # See Github issue #2725 for updates
         # https://github.com/neo4j/neo4j/issues/2725
-        then = (datetime.now() - timedelta(days=90)).strftime("%s")
+        then = (datetime.now(pytz.utc) - timedelta(days=90)).strftime("%s")
         query = \
             'MATCH (a:Pleb {username: "%s"})-[OWNS_QUESTION]->' \
             '(questions:Question) ' \

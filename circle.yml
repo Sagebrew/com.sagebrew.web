@@ -12,7 +12,7 @@ dependencies:
   cache_directories:
     - elasticsearch-1.3.2
     - DynamoDBLocal_lib
-    - neo4j-community-2.1.7
+    - neo4j-community-2.2.2
   post:
     - pip install -r ~/com.sagebrew.web/requirements/test.txt --exists-action=w
     - sudo chown ubuntu /etc/rsyslog.d/
@@ -21,13 +21,14 @@ dependencies:
     - sudo service rsyslog restart
     - if [[ ! -e elasticsearch-1.3.2.tar ]]; then wget https://s3.amazonaws.com/sagebrew/elasticsearch-1.3.2.tar && tar -xvf elasticsearch-1.3.2.tar; fi
     - if [[ ! -e dynamodb_local_latest.tar ]]; then wget https://s3.amazonaws.com/sagebrew/dynamodb_local_2015-04-27_1.0.tar && tar -xvf dynamodb_local_2015-04-27_1.0.tar; fi
-    - if [[ ! -e neo4j-community-2.1.7-unix.tar ]]; then wget https://s3.amazonaws.com/sagebrew/neo4j-community-2.1.7-unix.tar && tar -xvf neo4j-community-2.1.7-unix.tar; fi
-    - neo4j-community-2.1.7/bin/neo4j start:
+    - if [[ ! -e neo4j-community-2.2.2-unix.tar ]]; then wget https://s3.amazonaws.com/sagebrew/neo4j-community-2.2.2-unix.tar && tar -xvf neo4j-community-2.2.2-unix.tar; fi
+    - neo4j-community-2.2.2/bin/neo4j start:
         background: true
     - java  -Xmx1024m -Djava.library.path=DynamoDBLocal_lib/DynamoDBLocal_lib -jar DynamoDBLocal.jar:
         background: true
     - elasticsearch-1.3.2/bin/elasticsearch:
         background: true
+    - neoauth neo4j neo4j my-p4ssword
     - sudo apt-get install supervisor
     - sudo chown -R ubuntu /etc/supervisor/conf.d/
     - python ~/com.sagebrew.web/sagebrew/manage.py populatesupervisor worker-test ubuntu

@@ -275,6 +275,14 @@ class Campaign(Searchable):
         res, _ = db.cypher_query(query)
         return [Goal.inflate(row[0]) for row in res]
 
+    @classmethod
+    def get_active_round_donation_total(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
+                '(r:Round)-[:HAS_DONATIONS]-(d:Donation) ' \
+                'RETURN sum(d.amount)' % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
 
 class PoliticalCampaign(Campaign):
     """

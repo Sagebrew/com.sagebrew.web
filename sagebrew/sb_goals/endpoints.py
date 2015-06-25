@@ -177,7 +177,7 @@ class RoundRetrieve(generics.RetrieveAPIView, generics.UpdateAPIView):
 @permission_classes((IsAuthenticated,))
 def render_round_goals(request, object_uuid=None):
     query = 'MATCH (r:Round {object_uuid: "%s"})-[:STRIVING_FOR]->(g:Goal) ' \
-            'RETURN g ORDER BY g.total_required' % object_uuid
+            'RETURN g, r ORDER BY g.total_required' % object_uuid
     res, _ = db.cypher_query(query)
     html = [render_to_string('goal_draggable.html',
                              GoalSerializer(Goal.inflate(row[0])).data)

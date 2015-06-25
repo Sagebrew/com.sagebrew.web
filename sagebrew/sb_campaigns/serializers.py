@@ -21,7 +21,7 @@ logger = getLogger('loggly_logs')
 
 class CampaignSerializer(SBSerializer):
     active = serializers.BooleanField(required=False, read_only=True)
-    biography = serializers.CharField(required=False)
+    biography = serializers.CharField(required=False, max_length=150)
     epic = serializers.CharField(required=False, allow_blank=True)
     facebook = serializers.CharField(required=False, allow_blank=True)
     linkedin = serializers.CharField(required=False, allow_blank=True)
@@ -45,6 +45,8 @@ class CampaignSerializer(SBSerializer):
     upcoming_round = serializers.SerializerMethodField()
     public_official = serializers.SerializerMethodField()
     completed_stripe = serializers.SerializerMethodField()
+    total_donation_amount = serializers.SerializerMethodField()
+    total_pledge_vote_amount = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         request = self.context.get('request', None)
@@ -64,6 +66,8 @@ class CampaignSerializer(SBSerializer):
         return campaign
 
     def update(self, instance, validated_data):
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
         stripe.api_key = "sk_test_4VQN8LrYMe8xbLH5v9kLMoKt"
         stripe_token = validated_data.pop('stripe_token', None)
         instance.active = validated_data.get('active', instance.active)
@@ -79,6 +83,7 @@ class CampaignSerializer(SBSerializer):
         instance.biography = validated_data.get('biography',
                                                 instance.biography)
         instance.epic = validated_data.get('epic', instance.epic)
+        logger.info(stripe_token)
         if stripe_token is not None:
             owner = Pleb.nodes.get(username=instance.owner_username)
             if owner.stripe_account is None:
@@ -86,9 +91,12 @@ class CampaignSerializer(SBSerializer):
                                                    email=owner.email)
                 owner.stripe_account = stripe_res['id']
                 owner.save()
+            logger.info(owner.stripe_account)
             account = stripe.Account.retrieve(owner.stripe_account)
             bank_res = account.external_accounts.create(
                 external_account=stripe_token)
+            logger.info(account)
+            logger.info(bank_res)
             instance.stripe_id = bank_res['id']
         instance.save()
         cache.set("%s_campaign" % instance.object_uuid, instance)
@@ -176,6 +184,13 @@ class CampaignSerializer(SBSerializer):
         if obj.stripe_id == "Not Set":
             return False
         return True
+
+    def get_total_donation_amount(self, obj):
+        return PoliticalCampaign.get_active_round_donation_total(
+            obj.object_uuid)
+
+    def get_total_pledge_vote_amount(self, obj):
+        return PoliticalCampaign.get_vote_count(obj.object_uuid)
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):

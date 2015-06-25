@@ -1,7 +1,12 @@
-from neomodel import (db, StringProperty, IntegerProperty,
+import pytz
+from datetime import datetime
+
+from neomodel import (db, StringProperty, IntegerProperty, DoesNotExist,
                       BooleanProperty, RelationshipTo, DateTimeProperty)
 
 from api.neo_models import SBObject
+from api.utils import spawn_task
+from sb_campaigns.tasks import release_funds_task
 
 
 class Goal(SBObject):
@@ -117,18 +122,31 @@ class Goal(SBObject):
         except IndexError:
             return None
 
+    @classmethod
+    def get_associated_round_donation_total(cls, object_uuid):
+        query = 'MATCH (g:Goal {object_uuid: "%s"})-[:PART_OF]->(r:Round)-' \
+                '[:HAS_DONATIONS]->(d:Donation) RETURN sum(d.amount)' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
     def disconnect_from_upcoming(self):
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
         query = 'OPTIONAL MATCH (g:Goal {object_uuid: "%s"})-' \
                 '[:PART_OF]->(r:Round) RETURN r' % self.object_uuid
         res, _ = db.cypher_query(query)
         associated_round = res.one
-        logger.info(associated_round)
         if associated_round:
             associated_round = Round.inflate(associated_round)
             self.associated_round.disconnect(associated_round)
             associated_round.goals.disconnect(self)
+        return True
+
+    def check_for_update(self):
+        query = 'MATCH (g:Goal {object_uuid: "%s"})-[:UPDATE_FOR]->' \
+                '(u:Update) RETURN u'
+        res, _ = db.cypher_query(query)
+        if not res.one:
+            return False
         return True
 
 
@@ -206,3 +224,48 @@ class Round(SBObject):
             return res[0][0]
         except IndexError:
             return None
+
+    @classmethod
+    def get_total_donation_amount(cls, object_uuid):
+        query = 'MATCH (r:Round {object_uuid:"%s"})-[:HAS_DONATIONS]->' \
+                '(d:Donation) RETURN sum(d.amount)' % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def check_goal_completion(self):
+        from sb_campaigns.neo_models import PoliticalCampaign
+        query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:STRIVING_FOR]->' \
+                '(g:`Goal`), (r)-[:ASSOCIATED_WITH]->(c:Campaign) ' \
+                'RETURN g, c.object_uuid' % (self.object_uuid)
+        res, _ = db.cypher_query(query)
+        total_donations = Round.get_total_donation_amount(self.object_uuid)
+        try:
+            total_pledges = PoliticalCampaign.get_vote_count(res[0][1])
+        except IndexError:
+            total_pledges = 0
+        for goal in res:
+            goal_node = Goal.inflate(goal[0])
+            try:
+                prev_goal = Goal.nodes.get(object_uuid=
+                                            Goal.get_previous_goal(
+                                                goal_node.object_uuid))
+                update_provided = prev_goal.check_for_update()
+            except (Goal.DoesNotExist, DoesNotExist):
+                update_provided = True
+            if total_donations >= goal_node.total_required and \
+                            total_pledges >= goal_node.pledges_required \
+                    and update_provided:
+                goal_node.completed = True
+                goal_node.completed_date = datetime.now(pytz.utc)
+                goal_node.save()
+                spawn_task(task_func=release_funds_task,
+                           task_param={"goal_uuid": goal_node.object_uuid})
+                try:
+                    next_goal = Goal.nodes.get(object_uuid=
+                                               Goal.get_next_goal(
+                                                   goal_node.object_uuid))
+                    next_goal.target = True
+                except (Goal.DoesNotExist, DoesNotExist):
+                    pass
+        return True
+

@@ -21,8 +21,14 @@ $(document).ready(function () {
                 $.notify("Biography successfully updated.", {type: 'success'});
                 $("#bio_edit").toggle();
                 $("#bio_wrapper").text(data.biography);
+                $("#bio_wrapper").append('<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>');
                 $("#biography_input").text(data.biography);
                 $("#bio_wrapper").toggle();
+                $("#show_edit_bio").click(function (event) {
+                    event.preventDefault();
+                    $("#bio_edit").toggle();
+                    $("#bio_wrapper").toggle();
+                });
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 errorDisplay(XMLHttpRequest);

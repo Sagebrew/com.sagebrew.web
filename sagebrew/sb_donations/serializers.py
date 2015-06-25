@@ -1,3 +1,5 @@
+import stripe
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -40,12 +42,23 @@ class DonationSerializer(SBSerializer):
         return value
 
     def create(self, validated_data):
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
         request, _, _, _, _ = gather_request_data(self.context)
+        stripe.api_key = 'sk_test_4VQN8LrYMe8xbLH5v9kLMoKt'
         donor = Pleb.get(request.user.username)
+        token = validated_data.pop('token', None)
         validated_data['owner_username'] = donor.username
         campaign = validated_data.pop('campaign', None)
         donation = Donation(**validated_data).save()
-
+        if not donor.stripe_customer_id:
+            customer = stripe.Customer.create(
+                description="Customer for %s" % donor.email,
+                card=token,
+                email=donor.email)
+            logger.info(customer)
+            donor.stripe_customer_id = customer['id']
+            donor.save()
         current_round = Round.nodes.get(
             object_uuid=Campaign.get_active_round(campaign.object_uuid))
         current_round.donations.connect(donation)

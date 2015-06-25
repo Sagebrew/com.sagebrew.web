@@ -41,6 +41,7 @@ class GoalSerializer(CampaignAttributeSerializer):
     donations = serializers.SerializerMethodField()
     previous_goal = serializers.SerializerMethodField()
     next_goal = serializers.SerializerMethodField()
+    associated_round_donation_total = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         campaign = validated_data.pop('campaign', None)
@@ -123,6 +124,9 @@ class GoalSerializer(CampaignAttributeSerializer):
                            request=request)
         return next_goal
 
+    def get_associated_round_donation_total(self, obj):
+        return Goal.get_associated_round_donation_total(obj.object_uuid)
+
 
 class RoundSerializer(CampaignAttributeSerializer):
     active = serializers.BooleanField(read_only=True)
@@ -133,6 +137,7 @@ class RoundSerializer(CampaignAttributeSerializer):
     goals = serializers.SerializerMethodField()
     previous_round = serializers.SerializerMethodField()
     next_round = serializers.SerializerMethodField()
+    total_donation_amount = serializers.SerializerMethodField()
 
     def update(self, instance, validated_data):
         instance.queued = validated_data.pop('queued', instance.queued)
@@ -177,3 +182,6 @@ class RoundSerializer(CampaignAttributeSerializer):
             return reverse('round-detail', kwargs={'object_uuid': next_round},
                            request=request)
         return next_round
+
+    def get_total_donation_amount(self, obj):
+        return Round.get_total_donation_amount(obj.object_uuid)

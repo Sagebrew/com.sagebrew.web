@@ -15,7 +15,7 @@ urlpatterns = patterns(
                            "updates on how the funds are being used.",
             "content_path":
                 "%sdonation_goals.html" % (settings.HELP_DOCS_PATH),
-            "category": "representatives"
+            "category": "quests"
         },
         name="donation_goals"),
     url(r'^funding_not_in_account/$', TemplateView.as_view(
@@ -30,7 +30,7 @@ urlpatterns = patterns(
                            "out.",
             "content_path":
                 "%sfunding_not_in_account.html" % (settings.HELP_DOCS_PATH),
-            "category": "representatives"
+            "category": "quests"
         },
         name="funding_not_in_account"),
     url(r'^how_to_export_contributions/$', TemplateView.as_view(
@@ -42,7 +42,7 @@ urlpatterns = patterns(
                            "contributions they've received.",
             "content_path":
                 "%show_export_contributions.html" % (settings.HELP_DOCS_PATH),
-            "category": "representatives"
+            "category": "quests"
         },
         name="how_to_export_contributions"),
     url(r'^how_to_get_on_the_ballot/$', TemplateView.as_view(
@@ -53,7 +53,7 @@ urlpatterns = patterns(
                            "getting their name on the ballot.",
             "content_path":
                 "%show_to_get_name_on_ballot.html" % (settings.HELP_DOCS_PATH),
-            "category": "representatives"
+            "category": "quests"
         },
         name="how_to_get_on_the_ballot"),
     url(r'^how_to_run/$', TemplateView.as_view(
@@ -64,7 +64,7 @@ urlpatterns = patterns(
                            "run for public office.",
             "content_path":
                 "%show_to_run_for_office.html" % (settings.HELP_DOCS_PATH),
-            "category": "representatives"
+            "category": "quests"
         },
         name="how_to_run"),
     url(r'^name_on_ballot_to_run/$', TemplateView.as_view(
@@ -77,7 +77,7 @@ urlpatterns = patterns(
                            "article provides an solution to that question.",
             "content_path":
                 "%sname_on_ballot_to_run.html" % (settings.HELP_DOCS_PATH),
-            "category": "representatives"
+            "category": "quests"
         },
         name="name_on_ballot_to_run"),
     url(r'^need_more_help_public_official/$', TemplateView.as_view(
@@ -89,7 +89,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sneed_more_help_repsagetribune.html" % (
                     settings.HELP_DOCS_PATH),
-            "category": "representatives"
+            "category": "quests"
         },
         name="need_more_help_repsagetribune"),
     url(r'^principal_campaign_committee/$', TemplateView.as_view(
@@ -100,7 +100,7 @@ urlpatterns = patterns(
             "content_path":
                 "%swhat_is_principle_campaign_committee.html" % (
                     settings.HELP_DOCS_PATH),
-            "category": "representatives"
+            "category": "quests"
         },
         name="principle_campaign_committee"),
     url(r'^quest/$', TemplateView.as_view(
@@ -112,7 +112,7 @@ urlpatterns = patterns(
                            " and we're here to help you along your journey!",
             "content_path":
                 "%squest_signup.html" % (settings.HELP_DOCS_PATH),
-            "category": "representatives",
+            "category": "quests",
             "static_files": True
         },
         name="quest_signup"),
@@ -126,7 +126,7 @@ urlpatterns = patterns(
                            "assistance of the community.",
             "content_path":
                 "%ssuspicious_public_servants.html" % (settings.HELP_DOCS_PATH),
-            "category": "representatives"
+            "category": "quests"
         },
         name="suspicious_public_servants"),
 )

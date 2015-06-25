@@ -36,7 +36,7 @@ from .serializers import BetaUserSerializer, AddressSerializer
 
 def root_profile_page(request):
     if request.user.is_authenticated() is True:
-        return redirect("profile_page", pleb_username=request.user.username)
+        return redirect("newsfeed")
     else:
         return redirect("signup")
 
@@ -57,7 +57,9 @@ class ProfileView(LoginRequiredMixin):
     def dispatch(self, *args, **kwargs):
         return super(ProfileView, self).dispatch(*args, **kwargs)
 
-    def get(self, request, pleb_username):
+    def get(self, request, pleb_username=None):
+        if pleb_username is None:
+            pleb_username = request.user.username
         try:
             page_user_pleb = Pleb.get(username=pleb_username)
         except (Pleb.DoesNotExist, DoesNotExist):

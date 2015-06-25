@@ -88,10 +88,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 context = RequestContext(request, serializer)
                 return Response(
                     {
-                        "html": [render_to_string('solution.html', context)],
+                        "html": [render_to_string('question.html', context)],
                         "ids": [serializer["object_uuid"]]
                     },
-                    status=status.HTTP_200_OK)
+                    status=status.HTTP_201_CREATED)
 
             return Response(serializer, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,0 +1,48 @@
+<div class="block" style="margin-top: 15px; padding-bottom: 15px;">
+    <div class="row">
+        <div class="col-xs-1">
+            {% include 'vote.html' %}
+        </div>
+        <div class="col-xs-8">
+            <h5>Title</h5>
+            <div style="display: none" id="flagged-object" data-object_uuid="{{ id }}"></div>
+        </div>
+        <div class="col-xs-2">
+            <div style="margin-top: 5px;">{{ type }}Question</div>
+        </div>
+        <div class="col-xs-1">
+            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green expand" data-object_uuid="{{ id }}" id="{{ id }}-expand"><span class="fa fa-plus"></span></button>
+        </div>
+    </div>
+    <div class="col-xs-offset-1" id="{{ id }}-expandable" style="display: none;">
+        <div class="row">
+            <div class="col-xs-10">
+                <h6>Content</h6>
+                {% if html_content %}
+                    {% autoescape off %}
+                        {{ html_content }}
+                    {% endautoescape %}
+                {% else %}
+                    {{ content }}
+                {% endif %}
+            </div>
+        </div>
+        {% if parent_content %}
+            <div class="row">
+                <div class="col-lg-10">
+                    <h6>Parent Content</h6>
+                    Parent Content{{ parent_content }}
+                </div>
+            </div>
+        {% endif %}
+        <div class="row sb_input_wrapper">
+            <div class="col-lg-12">
+                <textarea class="form-control"
+                          id="{{ id }}-admin-comment"
+                          name="admin-comment"
+                          placeholder="Your comments here"
+                          rows="3"></textarea>
+            </div>
+        </div>
+    </div>
+</div>

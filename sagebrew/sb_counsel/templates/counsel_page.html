@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<div class="sb_page">
+    <div class="row-fluid">
+        <div class="col-xs-10">
+            <div class="sb_wall sb_conversation_wall">
+                <div class="row" style="padding-left: 15px; padding-right: 15px;">
+                    <div id="flag-voting-wrapper">
+                        {% include 'counsel_votable.html' %}
+                        {% include 'counsel_votable.html' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/vote_on_flagged.js' %}"></script>
+{% endblock %}

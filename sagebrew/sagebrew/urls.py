@@ -53,6 +53,7 @@ urlpatterns = patterns(
     (r'^search/', include('sb_search.urls')),
     (r'^docstore/', include('sb_docstore.urls')),
     (r'^quests/', include('sb_public_official.urls')),
+    (r'^counsel/', include('sb_counsel.urls')),
     (r'^updates/', include('sb_updates.urls')),
     url(r'^signup/$', signup_view, name="signup"),
     url(r'^quests/$',

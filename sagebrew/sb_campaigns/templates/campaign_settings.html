@@ -34,17 +34,16 @@
                                         <h5>Banking</h5>
                                     </div>
                                 </div>
-                                {% comment %} This is commented out because I don't think we actually need to ask them for this
+                                {% comment %} I think we should require full SSN from people for stripe verification {% endcomment %}
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <input type="text"
                                                id="ssn-number"
-                                               placeholder="Last Four of Social Security Number"
+                                               placeholder="Social Security Number (note: we do not store this)"
                                                class="form-control input-lg"
                                                value="">
                                     </div>
                                 </div>
-                                {% endcomment %}
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <input type="text"

@@ -6,8 +6,6 @@ $(document).ready(function () {
             key: 'pk_test_4VQN9H9N2kXFGMIziWSa09ak',
             image: '/img/documentation/checkout/marketplace.png',
             token: function (token) {
-                console.log(token);
-                console.log(donationAmount);
                 var campaignId = $("#campaign_id").data('object_uuid');
                 $.ajax({
                     xhrFields: {withCredentials: true},
@@ -37,7 +35,8 @@ $(document).ready(function () {
         handler.open({
             name: "Sagebrew LLC",
             description: "Quest Donation",
-            amount: $(this).data("amount") * 100
+            amount: $(this).data("amount") * 100,
+            panelLabel: "Pledge {{amount}}"
         });
     });
     $("#custom-donation-btn").click(function (event) {
@@ -46,7 +45,8 @@ $(document).ready(function () {
         handler.open({
             name: "Sagebrew LLC",
             description: "Quest Donation",
-            amount: $("#custom-donation").val() * 100
+            amount: $("#custom-donation").val() * 100,
+            panelLabel: "Pledge {{amount}}"
         });
     });
     $(window).on('popstate', function () {

@@ -35,7 +35,7 @@ dependencies:
     - sudo supervisorctl reread
     - sudo supervisorctl reload:
         background: true
-    - sleep 5
+    - sleep 10
     - python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
     - python ~/com.sagebrew.web/sagebrew/manage.py populate_indices
     - neoauth neo4j neo4j my-p4ssword || true

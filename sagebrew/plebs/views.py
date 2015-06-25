@@ -83,9 +83,6 @@ class ProfileView(LoginRequiredMixin):
         except IndexError:
             is_owner = True
             are_friends = False
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
-        logger.info(PlebSerializerNeo(page_user_pleb).data)
         return render(request, self.template_name, {
             'page_profile': PlebSerializerNeo(page_user_pleb).data,
             'page_user': page_user,
@@ -244,7 +241,6 @@ def authenticate_representative(request):
             "email_templates/email_internal_representative_confirmation.html",
             {"username": pleb.username, "phone": pleb.get_official_phone()})
     }
-    logger.info(pleb.get_official_phone())
     spawn_task(task_func=send_email_task, task_param=email_data)
     return Response({"detail": "We will be call your office phone to "
                                "verify soon."},

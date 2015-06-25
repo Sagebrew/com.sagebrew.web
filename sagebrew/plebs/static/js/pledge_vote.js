@@ -3,7 +3,7 @@ $(document).ready(function () {
     $("#create_vote").click(function (event) {
         $(this).attr("disabled", "disabled");
         event.preventDefault();
-        var campaignId = $("#submit_goal").data('object_uuid');
+        var campaignId = $(this).data('object_uuid');
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
@@ -14,8 +14,14 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                if (data.detail === true) {
+                    $.notify("Successfully Pledged Vote", {type: 'success'});
+                    $("#create_vote").text("Unpledge Vote");
+                } else {
+                    $.notify("Successfully Unpledged Vote", {type: 'success'});
+                    $("#create_vote").text("Pledge Vote");
+                }
                 $("#create_vote").removeAttr("disabled");
-                $.notify(data.detail, {type: 'success'});
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 $(this).removeAttr("disabled");

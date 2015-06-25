@@ -42,8 +42,6 @@ class DonationSerializer(SBSerializer):
         return value
 
     def create(self, validated_data):
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
         request, _, _, _, _ = gather_request_data(self.context)
         stripe.api_key = 'sk_test_4VQN8LrYMe8xbLH5v9kLMoKt'
         donor = Pleb.get(request.user.username)
@@ -56,7 +54,6 @@ class DonationSerializer(SBSerializer):
                 description="Customer for %s" % donor.email,
                 card=token,
                 email=donor.email)
-            logger.info(customer)
             donor.stripe_customer_id = customer['id']
             donor.save()
         current_round = Round.nodes.get(

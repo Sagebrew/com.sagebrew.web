@@ -20,6 +20,9 @@ def spawn_user_updates(username, object_uuids):
                                            max_retries=None)
     for item in vote_res:
         try:
+            from logging import getLogger
+            logger = getLogger('loggly_logs')
+            logger.info(item)
             item['status'] = int(item['status'])
             task_data = {
                 'vote_type': item['status'],

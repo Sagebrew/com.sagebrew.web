@@ -28,8 +28,11 @@ def saga(request, username):
     except (CypherException, IOError, PublicOfficial.DoesNotExist,
             DoesNotExist):
         return redirect("404_Error")
+    logger.info(PoliticalCampaignSerializer(
+                      campaign, context={'request': request}).data)
     return render(request, 'action_page.html',
-                  PoliticalCampaignSerializer(campaign).data)
+                  PoliticalCampaignSerializer(
+                      campaign, context={'request': request}).data)
 
 
 @login_required()
@@ -42,7 +45,8 @@ def edit_epic(request, username):
             DoesNotExist):
         return redirect("404_Error")
     return render(request, 'edit_epic.html',
-                  PoliticalCampaignSerializer(campaign).data)
+                  PoliticalCampaignSerializer(
+                      campaign, context={'request': request}).data)
 
 
 @login_required()
@@ -55,7 +59,8 @@ def create_update(request, username):
             DoesNotExist):
         return redirect("404_Error")
     return render(request, 'create_update.html',
-                  PoliticalCampaignSerializer(campaign).data)
+                  PoliticalCampaignSerializer(
+                      campaign, context={'request': request}).data)
 
 @login_required()
 @user_passes_test(verify_completed_registration,
@@ -67,7 +72,8 @@ def manage_goals(request, username):
             DoesNotExist):
         return redirect("404_Error")
     return render(request, 'manage_goals.html',
-                  PoliticalCampaignSerializer(campaign).data)
+                  PoliticalCampaignSerializer(
+                      campaign, context={'request': request}).data)
 
 
 @login_required()
@@ -80,7 +86,8 @@ def updates(request, username):
             DoesNotExist):
         return redirect("404_Error")
     return render(request, 'action_page.html',
-                  PoliticalCampaignSerializer(campaign).data)
+                  PoliticalCampaignSerializer(
+                      campaign, context={'request': request}).data)
 
 
 @api_view(['GET'])
@@ -92,6 +99,7 @@ def get_search_html(request, object_uuid):
         return Response('Server Error', status=500)
     rendered_html = render_to_string("saga_search_block.html",
                                      PoliticalCampaignSerializer(
-                                         campaign).data)
+                                         campaign,
+                                         context={'request': request}).data)
 
     return Response({'html': rendered_html}, status=200)

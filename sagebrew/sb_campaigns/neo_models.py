@@ -300,8 +300,7 @@ class PoliticalCampaign(Campaign):
     # Using the `vote_on` property we could just associate the vote with the
     # campaign as we look at it just like another piece of content.
     pledged_votes = RelationshipTo('plebs.neo_models.Pleb',
-                                   "RECEIVED_PLEDGED_VOTE",
-                                   model=VoteRelationship)
+                           "RECEIVED_PLEDGED_VOTE", model=VoteRelationship)
 
     # This will be set differently for each of the different campaigns
     # For State we'll get the plebs living within the state and assign them
@@ -334,6 +333,28 @@ class PoliticalCampaign(Campaign):
                 'RETURN p.username' % (object_uuid)
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
+
+    @classmethod
+    def vote_campaign(cls, object_uuid, username):
+        from plebs.neo_models import Pleb
+        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
+                '[r:RECEIVED_PLEDGED_VOTE]->(p:Pleb {username:"%s"}) ' \
+                'RETURN r' % (object_uuid, username)
+        res, _ = db.cypher_query(query)
+        vote_relation = res.one
+        if not vote_relation:
+            pleb = Pleb.get(username=username)
+            campaign = PoliticalCampaign.get(object_uuid=object_uuid)
+            rel = campaign.pledged_votes.connect(pleb)
+            rel.save()
+            return True
+        rel = VoteRelationship.inflate(vote_relation)
+        if rel.active:
+            rel.active = False
+        else:
+            rel.active = True
+        rel.save()
+        return rel.active
 
 
 class Position(SBObject):

@@ -8,6 +8,8 @@ from rest_framework import serializers, status
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import ValidationError
 
+from neomodel import db
+
 from api.serializers import SBSerializer
 from api.utils import gather_request_data
 from plebs.neo_models import Pleb
@@ -66,8 +68,6 @@ class CampaignSerializer(SBSerializer):
         return campaign
 
     def update(self, instance, validated_data):
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
         stripe.api_key = "sk_test_4VQN8LrYMe8xbLH5v9kLMoKt"
         stripe_token = validated_data.pop('stripe_token', None)
         instance.active = validated_data.get('active', instance.active)
@@ -83,7 +83,6 @@ class CampaignSerializer(SBSerializer):
         instance.biography = validated_data.get('biography',
                                                 instance.biography)
         instance.epic = validated_data.get('epic', instance.epic)
-        logger.info(stripe_token)
         if stripe_token is not None:
             owner = Pleb.nodes.get(username=instance.owner_username)
             if owner.stripe_account is None:
@@ -91,13 +90,11 @@ class CampaignSerializer(SBSerializer):
                                                    email=owner.email)
                 owner.stripe_account = stripe_res['id']
                 owner.save()
-            logger.info(owner.stripe_account)
+            instance.stripe_id = owner.stripe_account
             account = stripe.Account.retrieve(owner.stripe_account)
-            bank_res = account.external_accounts.create(
+            account.external_accounts.create(
                 external_account=stripe_token)
-            logger.info(account)
-            logger.info(bank_res)
-            instance.stripe_id = bank_res['id']
+
         instance.save()
         cache.set("%s_campaign" % instance.object_uuid, instance)
         return instance
@@ -194,6 +191,7 @@ class CampaignSerializer(SBSerializer):
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):
+    vote_type = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
     constituents = serializers.SerializerMethodField()
 
@@ -251,6 +249,16 @@ class PoliticalCampaignSerializer(CampaignSerializer):
             return [reverse('profile_page', kwargs={'pleb_username': row[0]},
                             request=request) for row in constituents]
         return constituents
+
+    def get_vote_type(self, obj):
+        request = self.context.get('request', None)
+        if request is None:
+            return None
+        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
+                '[r:RECEIVED_PLEDGED_VOTE]->(p:Pleb {username:"%s"}) ' \
+                'RETURN r.active' % (obj.object_uuid, request.user.username)
+        res, _ = db.cypher_query(query)
+        return res.one
 
 
 class PoliticalVoteSerializer(serializers.Serializer):

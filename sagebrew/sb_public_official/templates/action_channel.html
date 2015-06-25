@@ -3,6 +3,7 @@
 <div class="row sb_wallpaper sb_wallpaper_action hidden-xs">
     {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
     <img class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+    <div id="stripe_img" style="display: none;" data-stripe_image="{% static 'images/icon_sage.png' %}"></div>
 </div>
 <div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
@@ -22,14 +23,20 @@
             {% endif %}
         </div>
     </div>
-
     <div class="col-xs-5">
         <div align="right">
             <button class="btn btn-primary sb_btn"
                     data-toggle="modal"
                     data-target="#donationModal">Donate</button>
-            <button id="create_vote"
-                    class="btn btn-primary sb_btn">Pledge Vote</button>
+            {% if vote_type %}
+                <button id="create_vote"
+                        data-object_uuid="{{ id }}"
+                        class="btn btn-primary sb_btn">Unpledge Vote</button>
+            {% else %}
+                <button id="create_vote"
+                        data-object_uuid="{{ id }}"
+                        class="btn btn-primary sb_btn">Pledge Vote</button>
+            {% endif %}
         </div>
         <div class="row-fluid hidden-md hidden-sm hidden-xs">
             <div class="col-lg-9 col-lg-offset-3">

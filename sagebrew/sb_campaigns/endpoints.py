@@ -219,14 +219,16 @@ class PoliticalCampaignViewSet(CampaignViewSet):
         if serializer.is_valid():
             cache.delete("%s_vote_count" % (object_uuid))
             parent_object_uuid = self.kwargs[self.lookup_field]
-            now = unicode(datetime.now(pytz.utc))
-            res = handle_vote(parent_object_uuid, serializer.data['vote_type'],
-                              request, now)
+            res = PoliticalCampaign.vote_campaign(parent_object_uuid,
+                                                  request.user.username)
             if res:
-                return Response({"detail": "Successfully pledged vote.",
+                return Response({"detail": res,
                                  "status": status.HTTP_200_OK,
                                  "developer_message": None},
                                 status=status.HTTP_200_OK)
+            return Response({"detail": "Successfully unpledged vote.",
+                             "status": status.HTTP_200_OK,
+                             "developer_message": None})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @detail_route(methods=['get'], serializer_class=GoalSerializer)

@@ -66,7 +66,7 @@ class PopulateTags:
         pass
 
     def __call__(self, value):
-        if (self.object_uuid is not None):
+        if self.object_uuid is not None:
             message = 'Sorry you cannot add or change tags after the ' \
                       'creation of a Question. We tie Reputation and' \
                       " search tightly to these values and don't want " \

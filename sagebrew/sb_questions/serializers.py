@@ -161,8 +161,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
                                                            instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
-        instance.refresh()
-        cache.set(instance.object_uuid, instance)
+        cache.delete(instance.object_uuid)
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
         spawn_task(task_func=update_search_index, task_param={

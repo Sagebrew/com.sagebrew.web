@@ -1,5 +1,6 @@
 /*global $, jQuery, ajaxSecurity*/
 function activateVoting() {
+    $('[data-toggle="tooltip"]').tooltip();
     $(".expand").click(function (event) {
         event.preventDefault();
         var objectUuid = $(this).data('object_uuid');

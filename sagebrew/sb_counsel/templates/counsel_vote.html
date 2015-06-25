@@ -1,0 +1,12 @@
+<div class="row sb_votes sb_vote_wrapper_small vote_wrapper" id="vote_{{ object_uuid }}">
+    {% if profile.username == request.user.username %}
+        {% include "vote_own_up.html" %}
+    {% else %}
+        {% include "upvote.html" %}
+    {% endif %}
+    {% if profile.username == request.user.username %}
+        {% include "vote_own_down.html" %}
+    {% else %}
+        {% include "downvote.html" %}
+    {% endif %}
+</div>

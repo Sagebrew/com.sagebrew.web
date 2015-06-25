@@ -21,7 +21,7 @@ dependencies:
     - sudo service rsyslog restart
     - if [[ ! -e elasticsearch-1.3.2.tar ]]; then wget https://s3.amazonaws.com/sagebrew/elasticsearch-1.3.2.tar && tar -xvf elasticsearch-1.3.2.tar; fi
     - if [[ ! -e dynamodb_local_latest.tar ]]; then wget https://s3.amazonaws.com/sagebrew/dynamodb_local_2015-04-27_1.0.tar && tar -xvf dynamodb_local_2015-04-27_1.0.tar; fi
-    - if [[ ! -e neo4j-community-2.2.2.zip ]]; then wget https://s3.amazonaws.com/sagebrew/neo4j-community-2.2.2.zip && unzip neo4j-community-2.2.2.zip; fi
+    - if [[ ! -e neo4j-community-2.2.2.zip ]]; then wget https://s3.amazonaws.com/sagebrew/neo4j-community-2.2.2.zip && yes Y | unzip neo4j-community-2.2.2.zip; fi
     - neo4j-community-2.2.2/bin/neo4j start:
         background: true
     - java  -Xmx1024m -Djava.library.path=DynamoDBLocal_lib/DynamoDBLocal_lib -jar DynamoDBLocal.jar:

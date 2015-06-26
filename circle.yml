@@ -28,6 +28,8 @@ dependencies:
         background: true
     - elasticsearch-1.3.2/bin/elasticsearch:
         background: true
+    - sleep 30
+    - neoauth neo4j neo4j my-p4ssword || true
     - sudo apt-get install supervisor
     - sudo chown -R ubuntu /etc/supervisor/conf.d/
     - python ~/com.sagebrew.web/sagebrew/manage.py populatesupervisor worker-test ubuntu
@@ -35,10 +37,8 @@ dependencies:
     - sudo supervisorctl reread
     - sudo supervisorctl reload:
         background: true
-    - sleep 25
     - python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
     - python ~/com.sagebrew.web/sagebrew/manage.py populate_indices
-    - neoauth neo4j neo4j my-p4ssword || true
     - python ~/com.sagebrew.web/sagebrew/manage.py clear_neo_db
 
 checkout:

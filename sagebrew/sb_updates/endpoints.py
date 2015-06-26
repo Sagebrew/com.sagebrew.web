@@ -35,7 +35,8 @@ class UpdateListCreate(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(
-            campaign=Campaign.get(object_uuid=self.kwargs[self.lookup_field]))
+            campaign=Campaign.get(object_uuid=self.kwargs[self.lookup_field]),
+            associated_goals=self.request.data.get('goals', []))
 
     def create(self, request, *args, **kwargs):
         if not (request.user.username in Campaign.get_editors

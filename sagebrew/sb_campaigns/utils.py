@@ -29,7 +29,8 @@ def release_funds(goal_uuid):
             currency='usd',
             description='Quest Donation',
             destination=campaign,
-            application_fee=int(donation_node.amount * 0.05)
+            application_fee=int(donation_node.amount *
+                                campaign.application_fee)
         )
         donation_node.completed = True
         donation_node.save()

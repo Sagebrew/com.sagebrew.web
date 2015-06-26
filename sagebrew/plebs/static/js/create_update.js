@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, guid, Croppic*/
+/*global $, jQuery, ajaxSecurity, Bloodhound*/
 $(document).ready(function () {
     /*
     Can manipulate converter hooks by doing the following:
@@ -13,6 +13,36 @@ $(document).ready(function () {
         ],
      */
     "use strict";
+    var campaignId = $("#campaign-id").data('object_uuid');
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: "/v1/campaigns/" + campaignId + "/goals/",
+        contentType: "application/json; charset=utf-8",
+        success: function (data) {
+            var titleList = [];
+            $.each(data.results, function (index, value) {
+                titleList.push({"value": value.title});
+            });
+            var engine = new Bloodhound({
+                local: titleList,
+                datumTokenizer: function (d) {
+                    return Bloodhound.tokenizers.whitespace(d.value);
+                },
+                queryTokenizer: Bloodhound.tokenizers.whitespace
+            });
+            engine.initialize();
+            $('#goal-selector').tokenfield({
+                limit: 50,
+                typeahead: [null, {source: engine.ttAdapter()}],
+                delimiter: [",", "'", ".", "*", "_"]
+            });
+        },
+        error: function (XMLHttpRequest) {
+            errorDisplay(XMLHttpRequest);
+        }
+    });
+
     $("textarea#update_content_id").pagedownBootstrap({
         "sanatize": false,
         'editor_hooks': [
@@ -63,7 +93,8 @@ $(document).ready(function () {
     });
     $("#submit_update").click(function (event) {
         event.preventDefault();
-        var campaignId = $(this).data('object_uuid');
+        var campaignId = $(this).data('object_uuid'),
+            goals = $("#goal-selector").val().split(", ");
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
@@ -72,14 +103,20 @@ $(document).ready(function () {
             dataTye: "json",
             data: JSON.stringify({
                 "content": $("#wmd-input-0").val(),
-                "title": $("#title_id").val()
+                "title": $("#title_id").val(),
+                "goals": goals
             }),
             success: function (data) {
-                window.location.href = "/action/" + campaignId;
+                window.location.href = "/quests/" + campaignId + "/updates/";
             },
             error: function (XMLHttpRequest) {
                 errorDisplay(XMLHttpRequest);
             }
         });
+    });
+    $(".cancel_update-action").click(function (event) {
+        event.preventDefault();
+        console.log($(this).data('url'));
+        window.location.href = "/quests/" + campaignId + "/updates/";
     });
 });

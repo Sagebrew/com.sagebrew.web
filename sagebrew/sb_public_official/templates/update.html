@@ -16,17 +16,11 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
                         role="menu" aria-labelledby="dropdown-menu">
-                        <li role="presentation"><a class="sb_post_dropdown_menu show_edit_question-action"
+                        <li role="presentation"><a class="sb_post_dropdown_menu edit-update"
                                                    data-object_uuid="{{ object_uuid }}"
                                                    type="submit">Edit</a>
                         </li>
                     </ul>
-                {% else %}
-                    {% if "flag" in request_profile.privileges %}
-                        {% include "flag.html" %}
-                    {% else %}
-                        {% include "flag_restriction.html" %}
-                    {% endif %}
                 {% endif %}
 
         </div>
@@ -41,27 +35,5 @@
                 </div>
             </div>
         </div>
-
-    </div>
-
-    <div id="sb_comments_container_{{ object_uuid }}">
-        {% comment %}
-            Dynamically populated by JS to show existing comments.
-        {% endcomment %}
-    </div>
-    <div class="row">
-        {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
-            <form id="commentSubmitForm">
-            <div class="input-group sb_comment">
-                    <textarea class="input-group form-control sb_comment_input"
-                              id="post_comment_on_{{ object_uuid }}"
-                              rows="2"
-                              name="comment_content"
-                              placeholder="Write your comment..."></textarea>
-                    <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
-                       data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
-                </div>
-            </form>
-        {% endif %}
     </div>
 </div>

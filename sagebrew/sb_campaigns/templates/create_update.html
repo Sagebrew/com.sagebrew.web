@@ -51,8 +51,8 @@
         <div class="col-lg-12">
             <div class="sb_wall sb_conversation_wall">
                 <div class="sb_border sb_markdown">
-                    <h3>{% if not edit %}Submit Update{% else %} Edit Update{% endif %}</h3>
-                    <form id="updateInputForm">
+                    <div id="campaign-id" data-object_uuid="{% if not 'edit' in request.path %}{{ id }}{% else %}{{ campaign }}{% endif %}" style="display: none;"></div>
+                    <h3>{% if not 'edit' in request.path %}Submit Update{% else %} Edit Update{% endif %}</h3>
                         <div class="title_input">
                             {% if edit %}
                             <input class="form-control title_input" style="margin-bottom: 10px;"
@@ -74,30 +74,40 @@
                                       name="content"
                                       cols="20"
                                       rows="8"
-                                      placeholder="Update Context">{{ content }}</textarea>
+                                      placeholder="Update Content">{{ content }}</textarea>
                         </div>
+                    {% if not 'edit' in request.path %}
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <input type="text" id="goal-selector"
+                                       placeholder="Goal titles you want this updated to correspond to"
+                                       class="form-control input-md"
+                                       value="">
+                            </div>
+                        </div>
+                    {% endif %}
                     <div id="validation_errors"></div>
                         {% comment %}
                         TODO determine if this and other "buttons" need to be a tags
                         instead of buttons
                         {% endcomment %}
+
                         <div class="row">
                             <div class="col-lg-3 col-md-4">
-                                {% if not edit %}
+                                {% if not 'edit' in request.path %}
                                 <button class="btn btn-primary sb_btn sb_btn_fill submit_update-action" id="submit_update"
                                        data-url="/v1/campaigns/{{ id }}/updates/"
                                        data-object_uuid="{{ id }}">Create Update</button>
                                 {% else %}
-                                <button class="btn btn-primary sb_btn sb_btn_fill submit_edit-action"
+                                <button class="btn btn-primary sb_btn sb_btn_fill" id="edit-update"
                                         data-object_uuid="{{ object_uuid }}">Submit</button>
                                 {% endif %}
                             </div>
                             <div class="col-lg-3 col-md-4">
-                                <button class="btn btn-primary sb_btn sb_btn_fill cancel_update-action">Cancel</button>
+                                <button class="btn btn-primary sb_btn sb_btn_fill cancel_update-action" data-url="{{ url }}">Cancel</button>
 
                             </div>
                         </div>
-                    </form>
                 </div>
              </div>
         </div>
@@ -115,4 +125,5 @@
     <script src="{% static 'js/vendor/bootstrap-tokenfield.min.js' %}"></script>
     <script src="{% static 'js/vendor/typeahead.js' %}"></script>
     <script src="{% static 'js/create_update.js' %}"></script>
+    <script src="{% static 'js/edit_update.js' %}"></script>
 {% endblock scripts %}

@@ -3,6 +3,8 @@ import bleach
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from neomodel import db
+
 from plebs.neo_models import Pleb
 from sb_goals.neo_models import Goal
 from api.utils import gather_request_data
@@ -31,7 +33,11 @@ class UpdateSerializer(TitledContentSerializer):
         campaign.updates.connect(update)
         update.owned_by.connect(owner)
         for goal in associated_goals:
-            goal = Goal.nodes.get(object_uuid=goal)
+            query = 'MATCH (c:Campaign {object_uuid:"%s"})-[CURRENT_ROUND]->' \
+                    '(r:Round)-[STRIVING_FOR]->(g:Goal {title:"%s"}) ' \
+                    'RETURN g' % (campaign.object_uuid, goal)
+            res, _ = db.cypher_query(query)
+            goal = Goal.inflate(res.one)
             update.goals.connect(goal)
             goal.updates.connect(update)
         return update

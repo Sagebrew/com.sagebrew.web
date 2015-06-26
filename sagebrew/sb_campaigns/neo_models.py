@@ -3,7 +3,8 @@ from django.core.cache import cache
 
 from rest_framework.reverse import reverse
 
-from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty)
+from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
+                      FloatProperty)
 
 from sb_base.neo_models import (VoteRelationship)
 from sb_search.neo_models import Searchable, SBObject
@@ -74,6 +75,7 @@ class Campaign(Searchable):
     # when rendering potential representative html to a users profile page
     first_name = StringProperty()
     last_name = StringProperty()
+    application_fee = FloatProperty(default=0.07)
 
     # Relationships
     donations = RelationshipTo('sb_donations.neo_models.Donation',

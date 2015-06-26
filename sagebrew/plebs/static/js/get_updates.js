@@ -9,6 +9,10 @@ $(document).ready(function () {
         dataType: "json",
         success: function (data) {
             $("#update-container").append(data.results.html);
+            $(".edit-update").click(function (event) {
+                event.preventDefault();
+                window.location.href = "/updates/" + $(this).data('object_uuid') + "/edit/";
+            });
             //$.notify("Updated next goal set!", {type: 'success'});
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {

@@ -104,8 +104,8 @@ $(document).ready(function () {
             $("#submit_round").attr("disabled", data.queued);
             $("[name='my-checkbox']").bootstrapSwitch({
                 size: "small",
-                onText: "Queued",
-                offText: "Unqueued",
+                onText: "Queue",
+                offText: "Unqueue",
                 state: data.queued,
                 onSwitchChange: function (event, stat, e) {
                     currentSortable.option("disabled", stat);
@@ -186,7 +186,6 @@ $(document).ready(function () {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
-                    console.log(data);
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     submitGoal(goalData);

@@ -117,7 +117,7 @@ $(document).ready(function () {
         .tokenfield({
             limit: 50,
             typeahead: [null, {source: engine.ttAdapter()}],
-            delimiter: [",", " ", "'", ".", "*", "_"]
+            delimiter: [",", "'", ".", "*", "_"]
         });
     $(".sb_btn").on("click", function (event) {
         event.preventDefault();

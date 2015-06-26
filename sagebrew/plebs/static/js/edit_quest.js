@@ -78,4 +78,5 @@ $(document).ready(function () {
     $("#manage_goals").click(function (event) {
         window.location.href = "/quests/" + campaignId + "/manage_goals/";
     });
+
 });

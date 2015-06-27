@@ -2,12 +2,26 @@
 {% load static %}
 <div class="row sb_wallpaper sb_wallpaper_action hidden-xs">
     {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
-    <img class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+    {% if id == request.user.username %}
+        <div id="cropQuestWallpaperPictureEyecandy">
+            <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+        </div>
+    {% else %}
+        <img id="wallpaper_pic" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+    {% endif %}
     <div id="stripe_img" style="display: none;" data-stripe_image="{% static 'images/icon_sage.png' %}"></div>
 </div>
 <div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
-       <div class="thumbnail sb_thumbnail_md"><img src="{{ profile_pic }}"></div>
+       <div class="thumbnail sb_thumbnail_md">
+           {% if id == request.user.username %}
+            <div>
+                <img src="{{ profile_pic }}">
+            </div>
+           {% else %}
+            <img id="profile_pic" src="{{ profile_pic }}">
+           {% endif %}
+       </div>
     </div>
     <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
         <div class="block sb_bio_block">

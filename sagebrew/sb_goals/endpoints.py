@@ -116,8 +116,6 @@ class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView,
                         status=status.HTTP_200_OK)
 
 
-
-
 class RoundListCreate(generics.ListCreateAPIView):
     """
     This mixin allows for us to get a list of all the rounds that have ever

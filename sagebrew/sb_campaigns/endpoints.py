@@ -1,6 +1,3 @@
-import pytz
-from datetime import datetime
-
 from django.conf import settings
 from django.core.cache import cache
 from django.template.loader import render_to_string
@@ -16,7 +13,6 @@ from elasticsearch import Elasticsearch
 
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrAccountant,
                              IsOwnerOrEditor)
-from sb_votes.utils import handle_vote
 from sb_goals.serializers import GoalSerializer
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,

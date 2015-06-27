@@ -149,13 +149,14 @@ class RoundSerializer(CampaignAttributeSerializer):
             instance.start_date = datetime.now(pytz.utc)
             camp.upcoming_round.disconnect(instance)
             camp.active_round.connect(instance)
-            camp.round.connect(instance)
+            camp.rounds.connect(instance)
             cache.set("%s_active_round" % camp.object_uuid,
                       instance.object_uuid)
             new_upcoming = Round().save()
             camp.upcoming_round.connect(new_upcoming)
             new_upcoming.campaign.connect(camp)
-            cache.set("%s_upcoming_round" % camp.object_uuid)
+            cache.set("%s_upcoming_round" % camp.object_uuid,
+                      new_upcoming.object_uuid)
         instance.save()
         return instance
 

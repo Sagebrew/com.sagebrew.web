@@ -252,6 +252,7 @@ class Round(SBObject):
                 update_provided = prev_goal.check_for_update()
             except (Goal.DoesNotExist, DoesNotExist):
                 update_provided = True
+
             if total_donations >= goal_node.total_required and \
                             total_pledges >= goal_node.pledges_required \
                     and update_provided:
@@ -267,5 +268,30 @@ class Round(SBObject):
                     next_goal.target = True
                 except (Goal.DoesNotExist, DoesNotExist):
                     pass
+        self.check_round_completion()
+        return True
+
+    def check_round_completion(self):
+        from sb_campaigns.neo_models import PoliticalCampaign
+        query = 'MATCH (r:Round {object_uuid:"%s"})-[:STRIVING_FOR]->' \
+                '(g:Goal), (r)-[ASSOCIATED_WITH]->(c:Campaign) ' \
+                'RETURN g.completed, c.object_uuid ' % self.object_uuid
+        res, _ = db.cypher_query(query)
+        if False not in [row[0] for row in res]:
+            campaign = PoliticalCampaign.get(res[0][1])
+            upcoming_round = Round.nodes.get(
+                object_uuid=PoliticalCampaign.get_upcoming_round(
+                    campaign.object_uuid))
+            if upcoming_round.queued:
+                campaign.active_round.disconnect(self)
+                self.active = False
+                self.completed = datetime.now(pytz.utc)
+                self.save()
+                campaign.active_round.connect(upcoming_round)
+                upcoming_round.active = True
+                upcoming_round.save()
+                new_round = Round().save()
+                campaign.upcoming_round.connect(new_round)
+                new_round.campaign.connect(campaign)
         return True
 

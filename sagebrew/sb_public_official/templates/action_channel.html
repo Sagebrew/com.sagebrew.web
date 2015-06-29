@@ -15,11 +15,11 @@
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
        <div class="thumbnail sb_thumbnail_md">
            {% if id == request.user.username %}
-            <div>
-                <img src="{{ profile_pic }}">
+            <div id="cropQuestProfilePictureEyecandy">
+                <img id="quest_profile_pic" src="{{ profile_pic }}">
             </div>
            {% else %}
-            <img id="profile_pic" src="{{ profile_pic }}">
+            <img id="quest_profile_pic" src="{{ profile_pic }}">
            {% endif %}
        </div>
     </div>

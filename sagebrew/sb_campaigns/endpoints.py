@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.cache import cache
 from django.template.loader import render_to_string
+from django.templatetags.static import static
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
@@ -197,6 +198,18 @@ class PoliticalCampaignViewSet(CampaignViewSet):
         es.index(index='full-search-base', doc_type=serializer.data['type'],
                  id=serializer.data['id'], body=serializer.data)
         return instance
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        serializer_data = dict(serializer.data)
+        if serializer_data['wallpaper_pic'] is None:
+            serializer_data['wallpaper_pic'] = static(
+                'images/wallpaper_capitol_2.jpg')
+        if serializer_data['profile_pic'] is None:
+            serializer_data['profile_pic'] = static(
+                'images/sage_coffee_grey-01.png')
+        return Response(serializer_data)
 
     def update(self, request, *args, **kwargs):
         if not (request.user.username in Campaign.get_editors

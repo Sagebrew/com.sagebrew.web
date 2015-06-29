@@ -302,7 +302,7 @@ a {
 .sb_wallpaper_action{
   &:extend(.sb_wallpaper);
   background-color: @sb_green_medium;
-  height: auto;
+  height: 450px;
   border-radius: 5px 5px 0 0;
 }
 // TODO Review and potentially change to just standard side_container
@@ -810,6 +810,7 @@ a {
 }
 .sb_thumbnail_md {
   width: 100px;
+  height: 100px;
   padding: 0;
   img {
     border-radius: 4px;
@@ -1207,13 +1208,14 @@ textarea.sb_comment_input{
   //fixes gap at the bottom
   margin-top: 0;
   margin-bottom: 0;
+  height: 450px;
+  width: 100%;
 }
 
 #cropQuestProfilePictureEyecandy{
-  &:extend(.sb_thumbnail_md);
-  width: 100px;
+  width: 98px;
   height: 100px;
-  position: relative;
+  position: absolute;
 }
 
 .cropControls{
@@ -1241,4 +1243,8 @@ textarea.sb_comment_input{
   right: 0;
   border-radius: 5px;
   background: rgba(166, 166, 166, 0.75);
+}
+#quest_profile_pic {
+  width: 98px;
+  position: relative;
 }

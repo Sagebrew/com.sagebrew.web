@@ -64,7 +64,7 @@ $(document).ready(function () {
                     var profileImg = $("#profile_pic");
                     if (profileImg.length === 0) {
                         $(".croppedImg").remove();
-                        $("#cropQuestProfilePictureEyecandy").append('<img id="profile_pic" src="' + data.profile_pic + "?" + new Date().getTime() + '">');
+                        $("#cropQuestProfilePictureEyecandy").append('<img id="profile_pic" src="' + data.profile_pic + "?" + new Date().getTime() + '" style="width:100px;height:100px;">');
                     } else {
                         profileImg.attr('src', data.profile_pic);
                     }

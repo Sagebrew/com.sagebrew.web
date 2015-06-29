@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'css/vendor/croppic.css' %}" rel="stylesheet" type="text/css"/>
+{% endblock css %}
 {% block title %}{{ first_name }} {{ last_name }}'s Quest{% endblock title %}
 {% block content %}
 <div id="campaign_id" style="display: none" data-object_uuid="{{ id }}"></div>

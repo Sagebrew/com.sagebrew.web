@@ -72,7 +72,7 @@ $(document).ready(function () {
                     var wallpaperImg = $("#wallpaper_pic");
                     if (wallpaperImg.length === 0) {
                         $(".croppedImg").remove();
-                        $("#cropQuestWallpaperPictureEyecandy").append('<img id="wallpaper_pic" class="wallpaper_profile" src="' + data.wallpaper_pic + '">');
+                        $("#cropQuestWallpaperPictureEyecandy").append('<img id="wallpaper_pic" class="sb_wallpaper_action" src="' + data.wallpaper_pic + '">');
                     } else {
                         wallpaperImg.attr('src', data.wallpaper_pic);
                     }

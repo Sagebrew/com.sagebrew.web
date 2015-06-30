@@ -76,9 +76,16 @@ class ContentSerializer(VotableContentSerializer):
     # Need to figure out how we want to handle these user specific items
     # Maybe if no user is provided we just return None or don't include?
     flagged_by = serializers.SerializerMethodField()
+    counsel_vote = serializers.SerializerMethodField()
 
     def get_flagged_by(self, obj):
         return obj.get_flagged_by()
+
+    def get_counsel_vote(self, obj):
+        request = self.context.get('request', None)
+        if request is None:
+            return None
+        return obj.get_counsel_vote(request.user.username)
 
 
 class MarkdownContentSerializer(ContentSerializer):

@@ -51,6 +51,11 @@ class VoteRelationship(StructuredRel):
     created = DateTimeProperty(default=get_current_time)
 
 
+class CounselVote(VoteRelationship):
+    reasoning = StringProperty()
+    vote_type = BooleanProperty(default=None)  # True is up False is down
+
+
 class VotableContent(NotificationCapable):
     content = StringProperty()
     # Since both public and private content can be voted on this allows us to
@@ -207,7 +212,7 @@ class SBContent(VotableContent):
     # we can update it at some future point in time. It hopefully will enable
     # us to order in the Neo4j query rather than using python if necessary like
     # we currently do for created and last edited on. However we need to
-    # determine the potential for slippage from dyanmo's count and how we want
+    # determine the potential for slippage from dynamo's count and how we want
     # to update it. So at the moment it will remain at 0.
     vote_count = IntegerProperty(default=0)
 
@@ -222,10 +227,15 @@ class SBContent(VotableContent):
                                 model=RelationshipWeight)
     notifications = RelationshipTo(
         'sb_notifications.neo_models.Notification', 'NOTIFICATIONS')
+    counsel_votes = RelationshipTo('plebs.neo_models.Pleb', 'COUNSEL_VOTE',
+                                   model=CounselVote)
 
     @classmethod
     def get_model_name(cls):
         return cls.__name__
+
+    def update(self, instance):
+        pass
 
     def create_notification(self, pleb):
         pass
@@ -242,6 +252,46 @@ class SBContent(VotableContent):
                 "b:Pleb) Return b.username" % (self.object_uuid)
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
+
+    def counsel_vote(self, vote_type, pleb, reason):
+        logger.info(vote_type)
+        logger.info(reason)
+        try:
+            if self.counsel_votes.is_connected(pleb):
+                rel = self.counsel_votes.relationship(pleb)
+                logger.info("before vote type check")
+                logger.info(rel.vote_type)
+                logger.info(rel.active)
+                logger.info(rel.reasoning)
+                if vote_type == rel.vote_type and rel.active == True:
+                    return self.remove_vote(rel)
+                rel.vote_type = vote_type
+                rel.active = True
+                rel.reasoning = reason
+                rel.save()
+            else:
+                rel = self.counsel_votes.connect(pleb)
+                if vote_type == rel.vote_type and rel.active == True:
+                    rel.active = False
+                rel.vote_type = vote_type
+                rel.active = True
+                rel.reasoning = reason
+                rel.save()
+            logger.info(rel.active)
+            logger.info(rel.vote_type)
+            logger.info(rel.reasoning)
+            return self
+        except (CypherException, IOError) as e:
+            logger.info("exception")
+            logger.info(e)
+            return e
+
+    def get_counsel_vote(self, username):
+        query = 'MATCH (a:SBContent {object_uuid:"%s"})-[r:COUNSEL_VOTE]->' \
+                '(p:Pleb {username:"%s"}) WHERE r.active=true ' \
+                'RETURN r.vote_type' % (self.object_uuid, username)
+        res, _ = db.cypher_query(query)
+        return res.one
 
     def get_url(self, request):
         return None

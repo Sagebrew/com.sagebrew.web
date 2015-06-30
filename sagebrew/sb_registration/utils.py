@@ -13,6 +13,7 @@ from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import Pleb, BetaUser
 from sb_base.decorators import apply_defense
+from sb_campaigns.neo_models import Campaign
 
 
 def calc_age(birthday):
@@ -108,6 +109,19 @@ def verify_verified_email(user):
         return False
     except (CypherException, IOError) as e:
         return e
+
+
+def verify_no_campaign(user):
+    try:
+        campaign = Campaign.get(object_uuid=user.username)
+        if campaign is None:
+            return False
+        return True
+    except (Campaign.DoesNotExist, DoesNotExist):
+        return False
+    except (CypherException, IOError) as e:
+        return e
+
 
 
 @apply_defense

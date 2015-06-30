@@ -7,7 +7,7 @@
             <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
         </div>
     {% else %}
-        <img id="wallpaper_pic" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+            <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
     {% endif %}
     <div id="stripe_img" style="display: none;" data-stripe_image="{% static 'images/icon_sage.png' %}"></div>
 </div>

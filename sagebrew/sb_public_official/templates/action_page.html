@@ -48,14 +48,18 @@
     {{ block.super }}
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
-    <script src="{% static 'js/croppic.min.js' %}"></script>
-    <script src="{% static 'js/uuid.js' %}"></script>
-    <script src="{% static 'js/edit_quest.js' %}"></script>
-    <script src="{% static 'js/get_goals.js' %}"></script>
-    <script src="{% static 'js/get_updates.js' %}"></script>
-    <script src="{% static 'js/create_donations.js' %}"></script>
-    <script src="{% static 'js/donation_validator.js' %}"></script>
-    <script src="{% static 'js/pledge_vote.js' %}"></script>
-    <script src="{% static 'js/quest_profile_pic.js' %}"></script>
-    <script src="{% static 'js/quest_wallpaper_pic.js' %}"></script>
+    {% if active %}
+        <script src="{% static 'js/get_goals.js' %}"></script>
+        <script src="{% static 'js/get_updates.js' %}"></script>
+        <script src="{% static 'js/create_donations.js' %}"></script>
+        <script src="{% static 'js/donation_validator.js' %}"></script>
+        <script src="{% static 'js/pledge_vote.js' %}"></script>
+    {% endif %}
+    {% if request.user.username == id %}
+        <script src="{% static 'js/croppic.min.js' %}"></script>
+        <script src="{% static 'js/uuid.js' %}"></script>
+        <script src="{% static 'js/edit_quest.js' %}"></script>
+        <script src="{% static 'js/quest_profile_pic.js' %}"></script>
+        <script src="{% static 'js/quest_wallpaper_pic.js' %}"></script>
+    {% endif %}
 {% endblock scripts %}

@@ -55,6 +55,7 @@ $(document).ready(function () {
                 }
                 var dataList = data.html;
                 $.each(dataList, function (i, item) {
+                    console.log(item.type);
                     if (item.type === 'question') {
                         var objectUUID = item.question_uuid;
 
@@ -84,16 +85,16 @@ $(document).ready(function () {
                             }
                         });
                     }
-                    if (item.type === 'public_official') {
+                    if (item.type === 'public_official' || item.type === 'campaign') {
                         var sagaUUID = item.object_uuid;
-
                         $.ajax({
                             xhrFields: {withCredentials: true},
                             type: "GET",
-                            url: "/action/" + sagaUUID + '/search',
+                            url: "/quests/" + sagaUUID + '/search',
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
                             success: function (data) {
+
                                 searchResults.append(data.html);
                             }
                         });

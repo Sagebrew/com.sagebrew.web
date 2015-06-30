@@ -198,7 +198,12 @@ class PoliticalCampaignSerializer(CampaignSerializer):
     def create(self, validated_data):
         request = self.context.get('request', None)
         position = validated_data.pop('position', None)
+        account_type = request.session.get('account_type', None)
         owner = Pleb.get(username=request.user.username)
+        if account_type == 'free':
+            application_fee = 0.07
+        else:
+            application_fee = 0.05
         if owner.get_campaign():
             raise ValidationError(
                 detail={"detail": "You may only have one quest!",
@@ -215,6 +220,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
                                      owner_username=owner.username,
                                      object_uuid=owner.username,
                                      profile_pic=owner.profile_pic,
+                                     application_fee=application_fee,
                                      **validated_data).save()
         if official:
             temp_camp = official.get_campaign()

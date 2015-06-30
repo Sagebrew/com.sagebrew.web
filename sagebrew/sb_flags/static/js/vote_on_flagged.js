@@ -25,9 +25,7 @@ function activateVoting() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                console.log(data);
                 buttonSelector.removeAttr('disabled');
-                $.notify("Goals successfully created!", {type: 'success'});
                 if (voteDown.hasClass('vote_down_active') && voteType === true) {
                     voteDown.removeClass('vote_down_active');
                     voteUp.addClass('vote_up_active');

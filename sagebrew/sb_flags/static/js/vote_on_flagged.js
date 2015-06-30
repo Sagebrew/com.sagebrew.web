@@ -8,7 +8,12 @@ function activateVoting() {
     });
     $(".vote_object-action").click(function (event) {
         event.preventDefault();
-        var objectUuid = $(this).data('object_uuid');
+        $(this).attr('disabled', 'disabled');
+        var objectUuid = $(this).data('object_uuid'),
+            voteDown = $(this).parents('div.vote_wrapper').find(".vote_down"),
+            voteUp = $(this).parents('div.vote_wrapper').find(".vote_up"),
+            voteType = $(this).hasClass('vote_up') ? true : false,
+            buttonSelector = $(this);
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "PUT",
@@ -21,7 +26,32 @@ function activateVoting() {
             dataType: "json",
             success: function (data) {
                 console.log(data);
+                buttonSelector.removeAttr('disabled');
                 $.notify("Goals successfully created!", {type: 'success'});
+                if (voteDown.hasClass('vote_down_active') && voteType === true) {
+                    voteDown.removeClass('vote_down_active');
+                    voteUp.addClass('vote_up_active');
+                    //upvoteCount += 2;
+                } else if (voteDown.hasClass('vote_down_active') && voteType === false) {
+                    voteDown.removeClass('vote_down_active');
+                    //upvoteCount += 1;
+                } else if (voteUp.hasClass('vote_up_active') && voteType === true) {
+                    voteUp.removeClass('vote_up_active');
+                    //upvoteCount -= 1;
+                } else if (voteUp.hasClass('vote_up_active') && voteType === false) {
+                    voteDown.addClass('vote_down_active');
+                    voteUp.removeClass('vote_up_active');
+                    //upvoteCount -= 2;
+                } else {
+                    if (voteType === true) {
+                        $(this).addClass('vote_up_active');
+                        //upvoteCount += 1;
+                    }
+                    else {
+                        $(this).addClass('vote_down_active');
+                        //upvoteCount -= 1;
+                    }
+                }
             },
             error: function (XMLHttpRequest) {
                 errorDisplay(XMLHttpRequest);

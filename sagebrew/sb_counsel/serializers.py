@@ -1,13 +1,16 @@
 from rest_framework import serializers
+from sb_base.serializers import ContentSerializer
 
 from logging import getLogger
 logger = getLogger('loggly_logs')
 
 
-class CounselVoteSerializer(serializers.Serializer):
+class CounselVoteSerializer(ContentSerializer):
+    content = serializers.CharField(required=False)
     counsel_vote_type = serializers.BooleanField(required=True,
                                                  write_only=True)
-    reason = serializers.CharField(required=False, allow_blank=True)
+    reason = serializers.CharField(required=False, allow_blank=True,
+                                   write_only=True)
 
     def update(self, instance, validated_data):
         pleb = validated_data.get('pleb', None)

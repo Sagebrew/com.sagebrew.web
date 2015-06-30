@@ -254,15 +254,9 @@ class SBContent(VotableContent):
         return [row[0] for row in res]
 
     def counsel_vote(self, vote_type, pleb, reason):
-        logger.info(vote_type)
-        logger.info(reason)
         try:
             if self.counsel_votes.is_connected(pleb):
                 rel = self.counsel_votes.relationship(pleb)
-                logger.info("before vote type check")
-                logger.info(rel.vote_type)
-                logger.info(rel.active)
-                logger.info(rel.reasoning)
                 if vote_type == rel.vote_type and rel.active == True:
                     return self.remove_vote(rel)
                 rel.vote_type = vote_type
@@ -277,13 +271,8 @@ class SBContent(VotableContent):
                 rel.active = True
                 rel.reasoning = reason
                 rel.save()
-            logger.info(rel.active)
-            logger.info(rel.vote_type)
-            logger.info(rel.reasoning)
             return self
         except (CypherException, IOError) as e:
-            logger.info("exception")
-            logger.info(e)
             return e
 
     def get_counsel_vote(self, username):

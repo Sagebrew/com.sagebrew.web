@@ -13,7 +13,7 @@
 </div>
 <div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
-       <div class="thumbnail sb_thumbnail_md">
+       <div class="thumbnail sb_thumbnail_md sb_quest_profile">
            {% static 'images/sage_coffee_grey-01.png' as default_profile %}
            {% if id == request.user.username %}
             <div id="cropQuestProfilePictureEyecandy">
@@ -34,7 +34,13 @@
                   <p id="bio_wrapper">The {{ public_official.title }} has not yet joined Sagebrew.</p>
                 {% endif %}
             {% else %}
-                <p id="bio_wrapper">This user has not yet embarked on their Sagebrew Quest</p>
+                <p id="bio_wrapper">
+                {% if id == request.user.username %}
+                    {{ biography }}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
+                {% else %}
+                    This user has not yet embarked on their Sagebrew Quest
+                {% endif %}
+                </p>
             {% endif %}
             {% if id == request.user.username %}
                 <div id="bio_edit" style="display: none">
@@ -43,15 +49,8 @@
                 </div>
             {% endif %}
         </div>
-
     </div>
-    {% if id == request.user.username %}
-        <div class="hidden-xs hidden-sm col-md-1">
-            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
-
-        </div>
-    {% endif %}
-    <div class="col-lg-5 col-md-4 col-sm-12">
+    <div class="col-lg-7 col-md-4 col-sm-12">
 
         <div align="right" class="block sb_channel_social row-fluid hidden-md hidden-sm hidden-xs">
             {% if not facebook %}

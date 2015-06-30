@@ -55,7 +55,6 @@ $(document).ready(function () {
                 }
                 var dataList = data.html;
                 $.each(dataList, function (i, item) {
-                    console.log(item.type);
                     if (item.type === 'question') {
                         var objectUUID = item.question_uuid;
 

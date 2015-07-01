@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 from os import environ, path, makedirs
 from unipath import Path
-from datetime import timedelta
 import multiprocessing
 from logentries import LogentriesHandler
 import logging

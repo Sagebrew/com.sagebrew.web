@@ -91,5 +91,5 @@ class Command(BaseCommand):
         return True
 
     def handle(self, *args, **options):
-        self.populate_nginx(options['user'], options['worker'])
+        self.populate_nginx(options['user'][0], options['worker'][0])
         self.stdout.write("NGINX Files populated")

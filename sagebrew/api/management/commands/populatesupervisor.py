@@ -48,7 +48,7 @@ class Command(BaseCommand):
             pass
 
     def handle(self, *args, **options):
-        self.populate_supervisor(options['env'], options['user'])
+        self.populate_supervisor(options['env'][0], options['user'][0])
         self.stdout.write("Supervisor population complete")
 
 

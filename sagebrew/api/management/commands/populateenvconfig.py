@@ -58,7 +58,7 @@ class Command(BaseCommand):
         f.close()
 
     def handle(self, *args, **options):
-        self.populate_config(options['web_env'], options['worker_env'])
+        self.populate_config(options['web_env'][0], options['worker_env'][0])
 
 
 def populate_staging_values(data):

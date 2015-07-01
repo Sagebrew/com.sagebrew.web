@@ -13,6 +13,7 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_goals.neo_models import Goal, Round
+from sb_campaigns.neo_models import PoliticalCampaign
 
 
 class GoalEndpointTests(APITestCase):
@@ -30,6 +31,10 @@ class GoalEndpointTests(APITestCase):
                          pledged_vote_requirement=100,
                          monetary_requirement=1000, completed=False,
                          total_required=1000).save()
+        self.campaign = PoliticalCampaign().save()
+        self.round = Round().save()
+        self.campaign.upcoming_round.connect(self.round)
+        self.round.campaign.connect(self.campaign)
 
     def test_unauthorized(self):
         url = reverse('goal-detail',
@@ -255,7 +260,8 @@ class GoalEndpointTests(APITestCase):
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
         data = {
-            'title': 'test update'
+            'title': 'test update',
+            'campaign': self.campaign.object_uuid
         }
         response = self.client.patch(url, data=data, format='json')
 
@@ -268,7 +274,8 @@ class GoalEndpointTests(APITestCase):
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
         data = {
-            'summary': 'test update'
+            'summary': 'test update',
+            'campaign': self.campaign.object_uuid
         }
         response = self.client.patch(url, data=data, format='json')
 
@@ -281,7 +288,8 @@ class GoalEndpointTests(APITestCase):
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
         data = {
-            'description': 'test update'
+            'description': 'test update',
+            'campaign': self.campaign.object_uuid
         }
         response = self.client.patch(url, data=data, format='json')
         self.assertEqual(response.data['description'], data['description'])
@@ -293,7 +301,8 @@ class GoalEndpointTests(APITestCase):
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
         data = {
-            'pledged_vote_requirement': 4000
+            'pledged_vote_requirement': 4000,
+            'campaign': self.campaign.object_uuid
         }
         response = self.client.patch(url, data=data, format='json')
 
@@ -307,7 +316,8 @@ class GoalEndpointTests(APITestCase):
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
         data = {
-            'monetary_requirement': 70000
+            'monetary_requirement': 70000,
+            'campaign': self.campaign.object_uuid
         }
         response = self.client.patch(url, data=data, format='json')
 
@@ -495,24 +505,6 @@ class RoundEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['next_round'])
-
-    def test_patch(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('round-detail',
-                      kwargs={'object_uuid': self.round.object_uuid})
-        response = self.client.patch(url, data={}, format='json')
-
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_put(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('round-detail',
-                      kwargs={'object_uuid': self.round.object_uuid})
-        response = self.client.put(url, data={}, format='json')
-
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_delete(self):
         self.client.force_authenticate(user=self.user)

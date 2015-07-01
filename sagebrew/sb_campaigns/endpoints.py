@@ -21,6 +21,9 @@ from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           PositionSerializer, PoliticalVoteSerializer)
 from .neo_models import Campaign, PoliticalCampaign, Position
 
+from logging import getLogger
+logger = getLogger('loggly_logs')
+
 
 class CampaignViewSet(viewsets.ModelViewSet):
     serializer_class = CampaignSerializer
@@ -37,7 +40,9 @@ class CampaignViewSet(viewsets.ModelViewSet):
 
     def perform_update(self, serializer):
         serializer.save(stripe_token=self.request.data.get('stripe_token',
-                                                           None))
+                                                           None),
+                        ein=self.request.data.get('ein', None),
+                        ssn=self.request.data.get('ssn', None))
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated, IsOwnerOrEditor))
@@ -242,12 +247,18 @@ class PoliticalCampaignViewSet(CampaignViewSet):
 
     @detail_route(methods=['get'], serializer_class=GoalSerializer)
     def unassigned_goals(self, request, object_uuid=None):
+        if not (request.user.username in Campaign.get_editors
+                (self.kwargs[self.lookup_field])):
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "You are not authorized to access "
+                                       "this page."},
+                            status=status.HTTP_403_FORBIDDEN)
         html = request.query_params.get('html', 'false')
         queryset = PoliticalCampaign.get_unassigned_goals(object_uuid)
         if html == 'true':
             return Response([render_to_string(
                 "goal_draggable.html", GoalSerializer(goal).data)
-                             for goal in queryset], status=status.HTTP_200_OK)
+                for goal in queryset], status=status.HTTP_200_OK)
         return Response(self.serializer_class(queryset, many=True).data,
                         status=status.HTTP_200_OK)
 

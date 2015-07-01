@@ -9,7 +9,9 @@ $(document).ready(function () {
                 "facebook": $("#facebook-social-address").val(),
                 "twitter": $("#twitter-social-address").val(),
                 "linkedin": $("#linkedin-social-address").val(),
-                "youtube": $("#youtube-social-address").val()
+                "youtube": $("#youtube-social-address").val(),
+                "ssn": $("#ssn").val(),
+                "ein": $("#ein").val()
             },
             campaignId = $("#campaign_id").data('object_uuid');
         Stripe.bankAccount.createToken({
@@ -97,14 +99,21 @@ function stripeResponseHandler(status, response) {
         $.notify(response.error.message, {type: 'danger'});
     } else {
         var token = response.id,
-            campaignId = $("#campaign_id").data('object_uuid');
+            campaignId = $("#campaign_id").data('object_uuid'),
+            stripeData = {
+                "stripe_token": token
+            };
+        if ($("#ssn").val() !== "") {
+            stripeData.ssn = $("#ssn").val();
+        }
+        if ($("#ein").val() !== "") {
+            stripeData.ein = $("#ein").val();
+        }
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "PATCH",
             url: "/v1/campaigns/" + campaignId + "/",
-            data: JSON.stringify({
-                "stripe_token": token
-            }),
+            data: JSON.stringify(stripeData),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {

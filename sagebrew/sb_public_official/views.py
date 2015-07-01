@@ -60,6 +60,7 @@ def create_update(request, username):
                   PoliticalCampaignSerializer(
                       campaign, context={'request': request}).data)
 
+
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')

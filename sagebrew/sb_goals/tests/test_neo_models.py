@@ -102,4 +102,3 @@ class TestRoundNeoModel(TestCase):
             upcoming_round))
         self.assertTrue(self.campaign.active_round.is_connected(self.round))
         self.assertFalse(self.round.completed)
-

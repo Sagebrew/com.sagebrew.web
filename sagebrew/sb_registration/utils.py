@@ -123,7 +123,6 @@ def verify_no_campaign(user):
         return e
 
 
-
 @apply_defense
 def sb_send_email(source, to_email, subject, html_content):
     '''
@@ -209,7 +208,7 @@ def create_user_util(first_name, last_name, email, password, birthday):
                         first_name=user.first_name,
                         last_name=user.last_name,
                         username=user.username,
-                        birthday=birthday)
+                        date_of_birth=birthday)
             pleb.save()
             try:
                 beta_user = BetaUser.nodes.get(email=email)

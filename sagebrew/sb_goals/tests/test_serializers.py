@@ -3,7 +3,7 @@ from django.test import TestCase
 from sb_campaigns.neo_models import PoliticalCampaign
 
 from sb_goals.neo_models import Goal, Round
-from sb_goals.serializers import GoalSerializer, RoundSerializer
+from sb_goals.serializers import RoundSerializer
 
 
 class TestRoundSerializer(TestCase):
@@ -31,4 +31,3 @@ class TestRoundSerializer(TestCase):
 
         self.assertTrue(len(self.campaign.active_round.all()), 1)
         self.assertTrue(self.campaign.active_round.is_connected(serializer))
-

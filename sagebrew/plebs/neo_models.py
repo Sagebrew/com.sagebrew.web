@@ -338,6 +338,12 @@ class Pleb(Searchable):
     def deactivate(self):
         pass
 
+    def get_address(self):
+        query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->(a:Address) ' \
+                'RETURN a' % self.username
+        res, _ = db.cypher_query(query)
+        return Address.inflate(res.one)
+
     def is_beta_user(self):
         is_beta_user = cache.get("%s_is_beta" % self.username)
         if is_beta_user is None:

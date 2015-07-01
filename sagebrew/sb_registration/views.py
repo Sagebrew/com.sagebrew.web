@@ -27,6 +27,7 @@ from .utils import (verify_completed_registration, verify_verified_email,
 from .models import token_gen
 from .tasks import update_interests, store_address
 
+
 def signup_view(request):
     if (request.user.is_authenticated() is True and
             verify_completed_registration(request.user) is True):

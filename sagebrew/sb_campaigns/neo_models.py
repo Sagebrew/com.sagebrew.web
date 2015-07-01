@@ -302,7 +302,8 @@ class PoliticalCampaign(Campaign):
     # Using the `vote_on` property we could just associate the vote with the
     # campaign as we look at it just like another piece of content.
     pledged_votes = RelationshipTo('plebs.neo_models.Pleb',
-                           "RECEIVED_PLEDGED_VOTE", model=VoteRelationship)
+                                   "RECEIVED_PLEDGED_VOTE",
+                                   model=VoteRelationship)
 
     # This will be set differently for each of the different campaigns
     # For State we'll get the plebs living within the state and assign them

@@ -246,15 +246,14 @@ class Round(SBObject):
         for goal in res:
             goal_node = Goal.inflate(goal[0])
             try:
-                prev_goal = Goal.nodes.get(object_uuid=
-                                            Goal.get_previous_goal(
-                                                goal_node.object_uuid))
+                prev_goal = Goal.nodes.get(
+                    object_uuid=Goal.get_previous_goal(goal_node.object_uuid))
                 update_provided = prev_goal.check_for_update()
             except (Goal.DoesNotExist, DoesNotExist):
                 update_provided = True
 
-            if total_donations >= goal_node.total_required and \
-                            total_pledges >= goal_node.pledges_required \
+            if total_donations >= goal_node.total_required \
+                    and total_pledges >= goal_node.pledges_required \
                     and update_provided:
                 goal_node.completed = True
                 goal_node.completed_date = datetime.now(pytz.utc)
@@ -262,9 +261,8 @@ class Round(SBObject):
                 spawn_task(task_func=release_funds_task,
                            task_param={"goal_uuid": goal_node.object_uuid})
                 try:
-                    next_goal = Goal.nodes.get(object_uuid=
-                                               Goal.get_next_goal(
-                                                   goal_node.object_uuid))
+                    next_goal = Goal.nodes.get(
+                        object_uuid=Goal.get_next_goal(goal_node.object_uuid))
                     next_goal.target = True
                 except (Goal.DoesNotExist, DoesNotExist):
                     pass
@@ -294,4 +292,3 @@ class Round(SBObject):
                 campaign.upcoming_round.connect(new_round)
                 new_round.campaign.connect(campaign)
         return True
-

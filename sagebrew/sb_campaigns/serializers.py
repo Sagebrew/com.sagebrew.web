@@ -1,3 +1,4 @@
+import time
 import stripe
 import markdown
 from logging import getLogger
@@ -69,7 +70,10 @@ class CampaignSerializer(SBSerializer):
 
     def update(self, instance, validated_data):
         stripe.api_key = "sk_test_4VQN8LrYMe8xbLH5v9kLMoKt"
+        request = self.context.get('request', None)
         stripe_token = validated_data.pop('stripe_token', None)
+        ein = validated_data.pop('ein', None)
+        ssn = validated_data.pop('ssn', None)
         instance.active = validated_data.get('active', instance.active)
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
@@ -90,11 +94,51 @@ class CampaignSerializer(SBSerializer):
                                                    email=owner.email)
                 owner.stripe_account = stripe_res['id']
                 owner.save()
+            owner_address = owner.get_address()
             instance.stripe_id = owner.stripe_account
             account = stripe.Account.retrieve(owner.stripe_account)
             account.external_accounts.create(
                 external_account=stripe_token)
-
+            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+            if x_forwarded_for:
+                ip = x_forwarded_for.split(',')[0]
+            else:
+                ip = request.META.get('REMOTE_ADDR')
+            account.legal_entity.additional_owners = []
+            account.tos_acceptance.ip = ip
+            account.tos_acceptance.date = int(time.time())
+            account.legal_entity.personal_id_number = ssn
+            account.legal_entity.business_tax_id = ein
+            account.legal_entity.first_name = owner.first_name
+            account.legal_entity.last_name = owner.last_name
+            account.legal_entity.type = "company"
+            account.legal_entity.dob = dict(
+                day=owner.date_of_birth.day,
+                month=owner.date_of_birth.month,
+                year=owner.date_of_birth.year
+            )
+            account.legal_entity.address.line1 = owner_address.street
+            if owner_address.street_additional == "":
+                owner_address.street_additional = None
+            account.legal_entity.address.line2 = \
+                owner_address.street_additional
+            account.legal_entity.address.city = owner_address.city
+            account.legal_entity.address.state = owner_address.state
+            account.legal_entity.address.postal_code = \
+                owner_address.postal_code
+            account.legal_entity.address.country = "US"
+            account.legal_entity.personal_address.line1 = owner_address.street
+            if owner_address.street_additional == "":
+                owner_address.street_additional = None
+            account.legal_entity.personal_address.line2 = \
+                owner_address.street_additional
+            account.legal_entity.personal_address.city = owner_address.city
+            account.legal_entity.personal_address.state = owner_address.state
+            account.legal_entity.personal_address.postal_code = \
+                owner_address.postal_code
+            account.legal_entity.personal_address.country = \
+                owner_address.country
+            account.save()
         instance.save()
         cache.set("%s_campaign" % instance.object_uuid, instance)
         return instance

@@ -34,3 +34,4 @@ def release_funds(goal_uuid):
         )
         donation_node.completed = True
         donation_node.save()
+    return True

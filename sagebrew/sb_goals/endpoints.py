@@ -181,4 +181,3 @@ def render_round_goals(request, object_uuid=None):
                              GoalSerializer(Goal.inflate(row[0])).data)
             for row in res]
     return Response(html, status=status.HTTP_200_OK)
-

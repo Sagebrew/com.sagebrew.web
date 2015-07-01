@@ -45,6 +45,21 @@ $(document).ready(function () {
                                         dataType: "json",
                                         success: function (data) {
                                             $("#potential_rep_wrapper").append(data);
+                                            $.ajax({
+                                                xhrFields: {withCredentials: true},
+                                                type: 'GET',
+                                                url: '/v1/profiles/' + username + '/possible_presidents/?html=true',
+                                                contentType: 'application/json; charset=utf-8',
+                                                dataType: "json",
+                                                success: function (data) {
+                                                    $("#potential_president_wrapper").append(data);
+                                                },
+                                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                                    if (XMLHttpRequest.status === 500) {
+                                                        $("#server_error").show();
+                                                    }
+                                                }
+                                            });
                                         },
                                         error: function (XMLHttpRequest, textStatus, errorThrown) {
                                             if (XMLHttpRequest.status === 500) {

@@ -1,8 +1,10 @@
 import pytz
 from datetime import datetime
 
+from py2neo.cypher import ClientError
 from neomodel import (db, StringProperty, IntegerProperty, DoesNotExist,
-                      BooleanProperty, RelationshipTo, DateTimeProperty)
+                      BooleanProperty, RelationshipTo, DateTimeProperty,
+                      CypherException)
 
 from api.neo_models import SBObject
 from api.utils import spawn_task
@@ -244,34 +246,39 @@ class Round(SBObject):
         res, _ = db.cypher_query(query)
         total_donations = Round.get_total_donation_amount(self.object_uuid)
         try:
-            total_pledges = PoliticalCampaign.get_vote_count(res[0][1])
-        except IndexError:
-            total_pledges = 0
-        for goal in res:
-            goal_node = Goal.inflate(goal[0])
             try:
-                prev_goal = Goal.nodes.get(
-                    object_uuid=Goal.get_previous_goal(goal_node.object_uuid))
-                update_provided = prev_goal.check_for_update()
-            except (Goal.DoesNotExist, DoesNotExist):
-                update_provided = True
-
-            if total_donations >= goal_node.total_required \
-                    and total_pledges >= goal_node.pledges_required \
-                    and update_provided:
-                goal_node.completed = True
-                goal_node.completed_date = datetime.now(pytz.utc)
-                goal_node.save()
-                spawn_task(task_func=release_funds_task,
-                           task_param={"goal_uuid": goal_node.object_uuid})
+                total_pledges = PoliticalCampaign.get_vote_count(res[0][1])
+            except IndexError:
+                total_pledges = 0
+            for goal in res:
+                goal_node = Goal.inflate(goal[0])
                 try:
-                    next_goal = Goal.nodes.get(
-                        object_uuid=Goal.get_next_goal(goal_node.object_uuid))
-                    next_goal.target = True
+                    prev_goal = Goal.nodes.get(
+                        object_uuid=Goal.get_previous_goal(
+                            goal_node.object_uuid))
+                    update_provided = prev_goal.check_for_update()
                 except (Goal.DoesNotExist, DoesNotExist):
-                    pass
-        self.check_round_completion()
-        return True
+                    update_provided = True
+
+                if total_donations >= goal_node.total_required \
+                        and total_pledges >= goal_node.pledges_required \
+                        and update_provided:
+                    goal_node.completed = True
+                    goal_node.completed_date = datetime.now(pytz.utc)
+                    goal_node.save()
+                    spawn_task(task_func=release_funds_task,
+                               task_param={"goal_uuid": goal_node.object_uuid})
+                    try:
+                        next_goal = Goal.nodes.get(
+                            object_uuid=Goal.get_next_goal(
+                                goal_node.object_uuid))
+                        next_goal.target = True
+                    except (Goal.DoesNotExist, DoesNotExist):
+                        pass
+            self.check_round_completion()
+            return True
+        except (CypherException, IOError, ClientError) as e:
+            return e
 
     def check_round_completion(self):
         from sb_campaigns.neo_models import PoliticalCampaign

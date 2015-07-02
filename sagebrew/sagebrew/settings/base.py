@@ -15,6 +15,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     ('Devon Bleibtrey', 'devon@sagebrew.com'),
+    ('Tyler Wiersing', 'tyler@sagebrew.com')
 )
 worker_count = (multiprocessing.cpu_count() * 2) + 2
 if worker_count > 12 and environ.get("CIRCLECI", "false").lower() == "true":

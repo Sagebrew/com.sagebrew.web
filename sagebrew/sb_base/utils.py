@@ -9,7 +9,7 @@ from rest_framework.views import exception_handler
 from rest_framework import status
 from rest_framework.response import Response
 
-from py2neo.cypher.error.transaction import CouldNotCommit
+from py2neo.cypher.error.transaction import CouldNotCommit, ClientError
 from neomodel.exception import CypherException, DoesNotExist
 
 from sagebrew import errors
@@ -43,7 +43,7 @@ def defensive_exception(function_name, exception, return_value, message=None):
 
 def custom_exception_handler(exc, context):
     if isinstance(exc, CypherException) or isinstance(exc, IOError) \
-            or isinstance(exc, CouldNotCommit):
+            or isinstance(exc, CouldNotCommit) or isinstance(exc, ClientError):
         data = errors.CYPHER_EXCEPTION
         logger.exception("%s Cypher Exception" % context['view'])
         return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -57,6 +57,8 @@ def custom_exception_handler(exc, context):
         data = errors.JSON_ERROR_EXCEPTION
         logger.exception("%s JSON Exception" % context['view'])
         return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 
     if isinstance(exc, DoesNotExist):
         request = context.get('request', None)

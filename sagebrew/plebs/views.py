@@ -202,6 +202,7 @@ def get_user_search_view(request, pleb_username=""):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def delete_quest(request):
+    to = [row[1] for row in settings.]
     internal_data = {
         "source": "support@sagebrew.com",
         "to": ["tyler@sagebrew.com", "devon@sagebrew.com"],

@@ -5,11 +5,12 @@ from rest_framework.reverse import reverse
 
 from neomodel import db
 
-from api.utils import gather_request_data
+from api.utils import gather_request_data, spawn_task
 from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
 from sb_campaigns.neo_models import Campaign
 from sb_goals.neo_models import Round
+from sb_goals.tasks import check_goal_completion_task
 
 from .neo_models import Donation
 
@@ -97,7 +98,8 @@ class DonationSerializer(SBSerializer):
         donation.campaign.connect(campaign)
         donor.donations.connect(donation)
         donation.owned_by.connect(donor)
-        current_round.check_goal_completion()
+        spawn_task(task_func=check_goal_completion_task,
+                   task_param={"round_uuid": current_round.object_uuid})
         return donation
 
     def get_donated_for(self, obj):

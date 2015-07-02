@@ -76,6 +76,7 @@ class Campaign(Searchable):
     first_name = StringProperty()
     last_name = StringProperty()
     application_fee = FloatProperty(default=0.07)
+    last_four_soc = StringProperty()
 
     # Relationships
     donations = RelationshipTo('sb_donations.neo_models.Donation',

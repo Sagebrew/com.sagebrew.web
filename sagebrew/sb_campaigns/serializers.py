@@ -146,6 +146,7 @@ class CampaignSerializer(SBSerializer):
             account.legal_entity.personal_address.country = \
                 owner_address.country
             account.save()
+            instance.last_four_soc = ssn[-4:]
         instance.save()
         cache.set("%s_campaign" % instance.object_uuid, instance)
         return instance

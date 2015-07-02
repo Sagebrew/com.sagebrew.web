@@ -97,6 +97,7 @@ class DonationSerializer(SBSerializer):
         donation.campaign.connect(campaign)
         donor.donations.connect(donation)
         donation.owned_by.connect(donor)
+        current_round.check_goal_completion()
         return donation
 
     def get_donated_for(self, obj):

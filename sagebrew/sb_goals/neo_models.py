@@ -178,6 +178,9 @@ class Round(SBObject):
     completed = DateTimeProperty()
     active = BooleanProperty(default=False)
     queued = BooleanProperty(default=False)
+    # queued is an optimization added to allow us to easily determine
+    # whether or not the round should be moved into the active round
+    # position on completion of the currently active round.
 
     # relationships
     goals = RelationshipTo('sb_goals.neo_models.Goal', "STRIVING_FOR")
@@ -235,7 +238,8 @@ class Round(SBObject):
     def check_goal_completion(self):
         from sb_campaigns.neo_models import PoliticalCampaign
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:STRIVING_FOR]->' \
-                '(g:`Goal`), (r)-[:ASSOCIATED_WITH]->(c:Campaign) ' \
+                '(g:`Goal`) WITH r, g MATCH ' \
+                '(r)-[:ASSOCIATED_WITH]->(c:Campaign) ' \
                 'RETURN g, c.object_uuid' % (self.object_uuid)
         res, _ = db.cypher_query(query)
         total_donations = Round.get_total_donation_amount(self.object_uuid)
@@ -272,8 +276,9 @@ class Round(SBObject):
     def check_round_completion(self):
         from sb_campaigns.neo_models import PoliticalCampaign
         query = 'MATCH (r:Round {object_uuid:"%s"})-[:STRIVING_FOR]->' \
-                '(g:Goal), (r)-[ASSOCIATED_WITH]->(c:Campaign) ' \
-                'RETURN g.completed, c.object_uuid ' % self.object_uuid
+                '(g:Goal) WITH r, g MATCH (r)-[ASSOCIATED_WITH]->' \
+                '(c:Campaign) RETURN g.completed, c.object_uuid ' \
+                % self.object_uuid
         res, _ = db.cypher_query(query)
         if False not in [row[0] for row in res]:
             campaign = PoliticalCampaign.get(res[0][1])

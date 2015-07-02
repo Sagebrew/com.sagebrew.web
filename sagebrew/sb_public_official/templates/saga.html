@@ -1,4 +1,4 @@
-<h5>Epic{% if id == request.user.username %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="edit_epic" style="margin-top: -5px;"><span class="fa fa-edit"></span></button>{% endif %}</h5>
+<h5>Epic{% if id == request.user.username %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green toggle_create_goal" id="edit_epic"><span class="fa fa-edit"></span></button>{% endif %}</h5>
 <div class="block sb_action_content_block sb_markdown">
     {% autoescape off %}
         {{ rendered_epic }}

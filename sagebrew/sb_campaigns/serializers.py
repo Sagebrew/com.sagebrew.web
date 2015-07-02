@@ -36,7 +36,6 @@ class CampaignSerializer(SBSerializer):
     owner_username = serializers.CharField(read_only=True)
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
-    stripe_token = serializers.CharField(required=False, write_only=True)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
@@ -147,7 +146,6 @@ class CampaignSerializer(SBSerializer):
                 owner_address.country
             account.save()
             instance.last_four_soc = ssn[-4:]
-            logger.info(account)
         instance.save()
         cache.set("%s_campaign" % instance.object_uuid, instance)
         return instance

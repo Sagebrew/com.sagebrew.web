@@ -111,7 +111,40 @@ $(document).ready(function () {
         success: function (data) {
             currentSortable.option("disabled", data.queued);
             $("#submit_round").attr("disabled", data.queued);
-            $("[name='my-checkbox']").bootstrapSwitch({
+            $('input[name="my-checkbox"]').bootstrapSwitch('state', data.queued, true);
+            $('input[name="my-checkbox"]').on('switchChange.bootstrapSwitch', function (e, state) {
+                currentSortable.option("disabled", state);
+                $("[name='my-checkbox']").bootstrapSwitch('disabled', true);
+                if (state) {
+                    $("#submit_round").attr("disabled", "disabled");
+                    $("#submit_round").trigger("click");
+                } else {
+                    $("#submit_round").removeAttr("disabled");
+                }
+                $.ajax({
+                    xhrFields: {withCredentials: true},
+                    type: "PATCH",
+                    url: "/v1/rounds/" + roundId + "/",
+                    data: JSON.stringify({
+                        "queued": state
+                    }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        if (data.active) {
+                            window.location.href = "/quests/" + campaignId + '/';
+                        }
+                        $('[name="my-checkbox"]').bootstrapSwitch('disabled', false);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        errorDisplay(XMLHttpRequest);
+                        $("[name='my-checkbox']").bootstrapSwitch('disabled', false);
+                        $("[name='my-checkbox']").bootstrapSwitch('state', false, true);
+                    }
+                });
+            });
+            /*
+            $('[name="my-checkbox"]').bootstrapSwitch({
                 size: "small",
                 onText: "Queue",
                 offText: "Unqueue",
@@ -138,7 +171,7 @@ $(document).ready(function () {
                             if (data.active) {
                                 window.location.href = "/quests/" + campaignId;
                             }
-                            $("[name='my-checkbox']").bootstrapSwitch('disabled', false);
+                            $('[name="my-checkbox"]').bootstrapSwitch('disabled', false);
                         },
                         error: function (XMLHttpRequest, textStatus, errorThrown) {
                             errorDisplay(XMLHttpRequest);
@@ -147,7 +180,7 @@ $(document).ready(function () {
                         }
                     });
                 }
-            });
+            });*/
             //$.notify("Updated next goal set!", {type: 'success'});
         },
         error: function (XMLHttpRequest) {

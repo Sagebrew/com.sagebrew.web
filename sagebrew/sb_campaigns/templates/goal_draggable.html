@@ -18,7 +18,7 @@
 {% endcomment %}
 {% load humanize %}
 
-<div class="row sb_goal_draggable" data-object_uuid="{{ id }}" style="padding-left: 15px; padding-right: 15px; padding-bottom: 15px">
+<div class="row sb_goal_draggable" data-object_uuid="{{ id }}">
     {% if completed %}
         <div class="block sb_action_content_block sb_goals_block sb_dimmed">
     {% else %}
@@ -48,7 +48,7 @@
                 <div class="progress-bar sb_progress_bar" style="width: {{ pledge_progress }}%">
                 </div>
             {% else %}
-                <div class="progress-bar sb_progress_bar" style="width: 100%">
+                <div class="progress-bar sb_progress_bar sb_btn_fill_only">
                 </div>
             {% endif %}
         </div>
@@ -65,7 +65,7 @@
                 <div class="progress-bar sb_progress_bar" style="width: {{ progress }}%">
                 </div>
             {% else %}
-                <div class="progress-bar sb_progress_bar" style="width: 100%">
+                <div class="progress-bar sb_progress_bar sb_btn_fill_only">
                 </div>
             {% endif %}
         </div>

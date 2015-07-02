@@ -6,7 +6,7 @@ $(document).ready(function () {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "PATCH",
-            url: "/v1/updates/" + $("#edit-update").data('object_uuid'),
+            url: "/v1/updates/" + $("#edit-update").data('object_uuid') + "/",
             contentType: "application/json; charset=utf-8",
             dataTye: "json",
             data: JSON.stringify({

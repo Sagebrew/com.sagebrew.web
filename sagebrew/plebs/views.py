@@ -204,7 +204,7 @@ def get_user_search_view(request, pleb_username=""):
 def delete_quest(request):
     internal_data = {
         "source": "support@sagebrew.com",
-        "to": ["tyler@sagebrew.com"],
+        "to": ["tyler@sagebrew.com", "devon@sagebrew.com"],
         "subject": "Quest Deletion",
         "html_content": render_to_string(
             "email_templates/email_internal_quest_deletion.html", {
@@ -235,7 +235,7 @@ def authenticate_representative(request):
     pleb = Pleb.get(request.user.username)
     email_data = {
         "source": "support@sagebrew.com",
-        "to": ["tyler@sagebrew.com"],
+        "to": ["tyler@sagebrew.com", "devon@sagebrew.com"],
         "subject": "Representative Authentication",
         "html_content": render_to_string(
             "email_templates/email_internal_representative_confirmation.html",

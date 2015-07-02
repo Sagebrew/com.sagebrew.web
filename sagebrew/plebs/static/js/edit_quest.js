@@ -11,7 +11,7 @@ $(document).ready(function () {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "PUT",
-            url: "/v1/campaigns/" + campaignId,
+            url: "/v1/campaigns/" + campaignId + "/",
             data: JSON.stringify({
                 "biography": $("#biography_input").val()
             }),
@@ -29,40 +29,6 @@ $(document).ready(function () {
                     $("#bio_edit").toggle();
                     $("#bio_wrapper").toggle();
                 });
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                errorDisplay(XMLHttpRequest);
-            }
-        });
-    });
-    $("#delete_button").click(function (event) {
-        event.preventDefault();
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/user/delete_quest/",
-            data: JSON.stringify({}),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                $.notify(data.detail, {type: 'success'});
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                errorDisplay(XMLHttpRequest);
-            }
-        });
-    });
-    $("#rep_auth").click(function (event) {
-        event.preventDefault();
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/user/authenticate_representative/",
-            data: JSON.stringify({}),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                $.notify(data.detail, {type: 'success'});
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 errorDisplay(XMLHttpRequest);

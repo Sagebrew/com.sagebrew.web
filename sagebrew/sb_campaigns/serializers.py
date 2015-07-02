@@ -36,6 +36,7 @@ class CampaignSerializer(SBSerializer):
     owner_username = serializers.CharField(read_only=True)
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
+    stripe_token = serializers.CharField(required=False, write_only=True)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
@@ -52,6 +53,7 @@ class CampaignSerializer(SBSerializer):
     total_pledge_vote_amount = serializers.SerializerMethodField()
 
     def create(self, validated_data):
+        stripe.api_key = "sk_test_4VQN8LrYMe8xbLH5v9kLMoKt"
         request = self.context.get('request', None)
         owner = Pleb.get(request.user.username)
         validated_data['owner_username'] = owner.username
@@ -66,11 +68,24 @@ class CampaignSerializer(SBSerializer):
         campaign.editors.connect(owner)
         campaign.accountants.connect(owner)
         cache.set(campaign.object_uuid, campaign)
+        if owner.stripe_account is None:
+            stripe_res = stripe.Account.create(managed=True, country="US",
+                                               email=owner.email)
+            owner.stripe_account = stripe_res['id']
+            owner.save()
+        account = stripe.Account.retrieve(owner.stripe_account)
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        account.tos_acceptance.ip = ip
+        account.tos_acceptance.date = int(time.time())
+        account.save()
         return campaign
 
     def update(self, instance, validated_data):
         stripe.api_key = "sk_test_4VQN8LrYMe8xbLH5v9kLMoKt"
-        request = self.context.get('request', None)
         stripe_token = validated_data.pop('stripe_token', None)
         ein = validated_data.pop('ein', None)
         ssn = validated_data.pop('ssn', None)
@@ -88,7 +103,7 @@ class CampaignSerializer(SBSerializer):
                                                 instance.biography)
         instance.epic = validated_data.get('epic', instance.epic)
         if stripe_token is not None:
-            owner = Pleb.nodes.get(username=instance.owner_username)
+            owner = Pleb.get(username=instance.owner_username)
             if owner.stripe_account is None:
                 stripe_res = stripe.Account.create(managed=True, country="US",
                                                    email=owner.email)
@@ -97,16 +112,8 @@ class CampaignSerializer(SBSerializer):
             owner_address = owner.get_address()
             instance.stripe_id = owner.stripe_account
             account = stripe.Account.retrieve(owner.stripe_account)
-            account.external_accounts.create(
-                external_account=stripe_token)
-            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-            if x_forwarded_for:
-                ip = x_forwarded_for.split(',')[0]
-            else:
-                ip = request.META.get('REMOTE_ADDR')
+            account.external_accounts.create(external_account=stripe_token)
             account.legal_entity.additional_owners = []
-            account.tos_acceptance.ip = ip
-            account.tos_acceptance.date = int(time.time())
             account.legal_entity.personal_id_number = ssn
             account.legal_entity.business_tax_id = ein
             account.legal_entity.first_name = owner.first_name
@@ -240,14 +247,14 @@ class PoliticalCampaignSerializer(CampaignSerializer):
     constituents = serializers.SerializerMethodField()
 
     def create(self, validated_data):
+        stripe.api_key = "sk_test_4VQN8LrYMe8xbLH5v9kLMoKt"
         request = self.context.get('request', None)
         position = validated_data.pop('position', None)
         account_type = request.session.get('account_type', None)
         owner = Pleb.get(username=request.user.username)
-        if account_type == 'free':
-            application_fee = 0.07
-        else:
-            application_fee = 0.05
+        if account_type == 'paid':
+            validated_data['application_fee'] = 0.05
+
         if owner.get_campaign():
             raise ValidationError(
                 detail={"detail": "You may only have one quest!",
@@ -264,7 +271,6 @@ class PoliticalCampaignSerializer(CampaignSerializer):
                                      owner_username=owner.username,
                                      object_uuid=owner.username,
                                      profile_pic=owner.profile_pic,
-                                     application_fee=application_fee,
                                      **validated_data).save()
         if official:
             temp_camp = official.get_campaign()
@@ -284,6 +290,21 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         campaign.upcoming_round.connect(initial_round)
         campaign.editors.connect(owner)
         campaign.accountants.connect(owner)
+        if owner.stripe_account is None:
+            stripe_res = stripe.Account.create(managed=True, country="US",
+                                               email=owner.email)
+            owner.stripe_account = stripe_res['id']
+            owner.save()
+        account = stripe.Account.retrieve(owner.stripe_account)
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        account.legal_entity.additional_owners = []
+        account.tos_acceptance.ip = ip
+        account.tos_acceptance.date = int(time.time())
+        account.save()
         cache.set("%s_campaign" % campaign.object_uuid, campaign)
         return campaign
 

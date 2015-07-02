@@ -83,7 +83,7 @@ class UserSerializer(SBSerializer):
                     first_name=user.first_name,
                     last_name=user.last_name,
                     username=user.username,
-                    birthday=birthday)
+                    date_of_birth=birthday)
         pleb.save()
         # TODO Should move this out to the endpoint to remove circular
         # dependencies

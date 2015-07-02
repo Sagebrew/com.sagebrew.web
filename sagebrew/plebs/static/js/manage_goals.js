@@ -1,5 +1,14 @@
 /*global $, jQuery, ajaxSecurity, errorDisplay, Sortable*/
 Number.prototype.format = function (n, x) {
+    /*
+    This function will format any given integer into a comma separated string,
+    useful for converting integers to monetary representations
+    e.g.
+    1234..format();           // "1,234"
+    12345..format(2);         // "12,345.00"
+    123456.7.format(3, 2);    // "12,34,56.700"
+    123456.789.format(2, 4);  // "12,3456.79"
+     */
     var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\.' : '$') + ')';
     return this.toFixed(Math.max(0, ~~n)).replace(new RegExp(re, 'g'), '$&,');
 };
@@ -156,7 +165,7 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function () {
-                window.location.href = "/quests/" + campaignId;
+                window.location.href = "/quests/" + campaignId + "/";
             },
             error: function (XMLHttpRequest) {
                 errorDisplay(XMLHttpRequest);

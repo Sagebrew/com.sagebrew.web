@@ -230,7 +230,7 @@ $(document).ready(function () {
                 success: function (data) {
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    submitGoal(goalData);
+                    submitGoal(currentId, goalData);
                 }
             });
         });
@@ -252,7 +252,6 @@ $(document).ready(function () {
             var goalData = {
                 "prev_goal": prevGoal,
                 "total_required": totalRequired,
-                "campaign": campaignId,
                 "pledges_required": totalPledgesRequired
             };
             $.ajax({
@@ -265,7 +264,7 @@ $(document).ready(function () {
                 success: function (data) {
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    submitGoal(goalData);
+                    submitGoal(currentId, goalData);
                 }
             });
         });

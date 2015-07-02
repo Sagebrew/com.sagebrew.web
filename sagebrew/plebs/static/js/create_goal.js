@@ -21,6 +21,11 @@ $(document).ready(function () {
             success: function (data) {
                 $("#existing_goals").append(data);
                 $.notify("Goals successfully created!", {type: 'success'});
+                $("#goal_vote_req").val("");
+                $("#goal_monetary_req").val("");
+                $("#goal_description").val("");
+                $("#goal_summary").val("");
+                $("#goal_title").val("");
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 errorDisplay(XMLHttpRequest);

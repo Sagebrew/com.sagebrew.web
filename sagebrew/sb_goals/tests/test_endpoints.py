@@ -25,13 +25,14 @@ class GoalEndpointTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
+        self.campaign = PoliticalCampaign().save()
         self.goal = Goal(title='Test Goal',
                          summary="Test Summary",
                          description="Test Description", active=True,
                          pledged_vote_requirement=100,
                          monetary_requirement=1000, completed=False,
-                         total_required=1000).save()
-        self.campaign = PoliticalCampaign().save()
+                         total_required=1000,
+                         campaign_id=self.campaign.object_uuid).save()
         self.round = Round().save()
         self.campaign.upcoming_round.connect(self.round)
         self.round.campaign.connect(self.campaign)
@@ -118,7 +119,7 @@ class GoalEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.goal.object_uuid})
         response = self.client.get(url)
 
-        self.assertIsNone(response.data['campaign'])
+        self.assertEqual(response.data['campaign'], self.campaign.object_uuid)
 
     def test_get_title(self):
         self.client.force_authenticate(user=self.user)
@@ -260,8 +261,7 @@ class GoalEndpointTests(APITestCase):
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
         data = {
-            'title': 'test update',
-            'campaign': self.campaign.object_uuid
+            'title': 'test update'
         }
         response = self.client.patch(url, data=data, format='json')
 
@@ -274,8 +274,7 @@ class GoalEndpointTests(APITestCase):
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
         data = {
-            'summary': 'test update',
-            'campaign': self.campaign.object_uuid
+            'summary': 'test update'
         }
         response = self.client.patch(url, data=data, format='json')
 
@@ -288,8 +287,7 @@ class GoalEndpointTests(APITestCase):
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
         data = {
-            'description': 'test update',
-            'campaign': self.campaign.object_uuid
+            'description': 'test update'
         }
         response = self.client.patch(url, data=data, format='json')
         self.assertEqual(response.data['description'], data['description'])
@@ -301,8 +299,7 @@ class GoalEndpointTests(APITestCase):
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
         data = {
-            'pledged_vote_requirement': 4000,
-            'campaign': self.campaign.object_uuid
+            'pledged_vote_requirement': 4000
         }
         response = self.client.patch(url, data=data, format='json')
 
@@ -316,8 +313,7 @@ class GoalEndpointTests(APITestCase):
         url = reverse('goal-detail',
                       kwargs={'object_uuid': self.goal.object_uuid})
         data = {
-            'monetary_requirement': 70000,
-            'campaign': self.campaign.object_uuid
+            'monetary_requirement': 70000
         }
         response = self.client.patch(url, data=data, format='json')
 

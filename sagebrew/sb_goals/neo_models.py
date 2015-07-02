@@ -60,6 +60,10 @@ class Goal(SBObject):
     # This allows us to validate whether or not a goal can be changed by
     # looking directly at it rather than having to query up to the round.
     active = BooleanProperty(default=False)
+    # campaign_id allows us to have one less query when updating a goal and
+    # allows us to not have to worry about passing campaign to update method,
+    # the object knows which campaign it is owned by
+    campaign_id = StringProperty()
 
     # relationships
     updates = RelationshipTo('sb_updates.neo_models.Update', "UPDATE_FOR")

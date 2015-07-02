@@ -70,8 +70,7 @@ class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView,
         return Goal.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
     def perform_update(self, serializer):
-        serializer.save(prev_goal=self.request.data.get('prev_goal', None),
-                        campaign=self.request.data.get('campaign', None))
+        serializer.save(prev_goal=self.request.data.get('prev_goal', None))
 
     def update(self, request, *args, **kwargs):
         """

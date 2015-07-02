@@ -45,13 +45,13 @@ class GoalSerializer(CampaignAttributeSerializer):
 
     def create(self, validated_data):
         campaign = validated_data.pop('campaign', None)
-        goal = Goal(**validated_data).save()
+        goal = Goal(campaign_id=campaign.object_uuid,
+                    **validated_data).save()
         campaign.goals.connect(goal)
         goal.campaign.connect(campaign)
         return goal
 
     def update(self, instance, validated_data):
-        campaign = validated_data.pop('campaign', None)
         instance.title = validated_data.pop('title', instance.title)
         instance.summary = validated_data.pop('summary', instance.summary)
         instance.description = validated_data.pop('description',
@@ -65,7 +65,8 @@ class GoalSerializer(CampaignAttributeSerializer):
         instance.pledges_required = validated_data.pop(
             'pledges_required', instance.pledges_required)
         campaign_round = Round.nodes.get(
-            object_uuid=PoliticalCampaign.get_upcoming_round(campaign))
+            object_uuid=PoliticalCampaign.get_upcoming_round(
+                instance.campaign_id))
         campaign_round.goals.connect(instance)
         instance.associated_round.connect(campaign_round)
         prev_goal = validated_data.pop('prev_goal', None)
@@ -85,6 +86,14 @@ class GoalSerializer(CampaignAttributeSerializer):
             instance.target = True
         instance.save()
         return instance
+
+    def get_campaign(self, obj):
+        request, _, _, relation, expedite = gather_request_data(self.context)
+        if relation == 'hyperlink':
+            return reverse('campaign-detail',
+                           kwargs={'object_uuid': obj.campaign_id},
+                           request=request)
+        return obj.campaign_id
 
     def get_updates(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)

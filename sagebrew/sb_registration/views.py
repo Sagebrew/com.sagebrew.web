@@ -46,9 +46,14 @@ def signup_view(request):
 
 
 def quest_signup(request):
+    from logging import getLogger
+    logger = getLogger('loggly_logs')
     if request.method == 'POST':
         request.session['account_type'] = request.POST['account_type']
         request.session.set_expiry(1800)
+        if request.user.is_authenticated():
+            logger.info('here')
+            return redirect('rep_registration_page')
         return redirect('signup')
     return render(request, 'quest_signup.html')
 

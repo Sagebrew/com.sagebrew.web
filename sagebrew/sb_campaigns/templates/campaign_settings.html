@@ -24,7 +24,7 @@
                 </div>
                 <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
                     <div class="block sb_settings_block">
-                    {% if debug %}
+                    {% if campaign.id %}
                         <div id="campaign_id" data-object_uuid="{{ campaign.id }}" style="display: none"></div>
                         <form id="settings_form">
                         <div id="completed-stripe" data-completed_stripe="{{ campaign.completed_stripe }}"></div>
@@ -264,7 +264,11 @@
                             </div>
                         </div>
                     {% else %}
-                        <h3>Quest settings are currently under development.</h3>
+                        <div class="col-xs-12">
+                            <button id="register-for-quest" class="btn btn-primary sb_btn sb_btn_fill">
+                                Register for a Quest!
+                            </button>
+                        </div>
                     {% endif %}
                     </div>
                 </div>

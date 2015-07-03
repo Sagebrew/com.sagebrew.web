@@ -2,7 +2,7 @@
  * Created by tylerwiersing on 7/2/15.
  */
 $(document).ready(function () {
-    $("#signupForm").formValidation({
+    $("#updateForm").formValidation({
         framework: 'bootstrap',
         icon: {
             valid: 'glyphicon glyphicon-ok',
@@ -10,18 +10,29 @@ $(document).ready(function () {
         },
         live: 'enabled',
         button: {
-            selector: '#beta_email_submit'
+            selector: '#submit_update'
+        },
+        err: {
+            container: '#validation_errors'
         },
         fields: {
             title: {
-                row: 'sb_input_wrapper',
+                row: 'title_input',
                 validators: {
                     notEmpty: {
-                        message: "Email is required"
+                        message: "Title is required"
                     },
                     stringLength: {
-                        max: 200,
-                        message: "Email must not exceed 200 characters"
+                        min: 15,
+                        message: "Title must be at least 15 Characters long"
+                    }
+                }
+            },
+            content: {
+                row: 'update_content_input',
+                validators: {
+                    notEmpty: {
+                        message: "Content is required"
                     }
                 }
             }

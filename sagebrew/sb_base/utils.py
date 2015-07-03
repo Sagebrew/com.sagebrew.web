@@ -2,6 +2,7 @@ import pytz
 import datetime
 import logging
 from json import dumps
+from copy import deepcopy
 
 from django.conf import settings
 
@@ -9,7 +10,7 @@ from rest_framework.views import exception_handler
 from rest_framework import status
 from rest_framework.response import Response
 
-from py2neo.cypher.error.transaction import CouldNotCommit
+from py2neo.cypher.error.transaction import CouldNotCommit, ClientError
 from neomodel.exception import CypherException, DoesNotExist
 
 from sagebrew import errors
@@ -43,7 +44,7 @@ def defensive_exception(function_name, exception, return_value, message=None):
 
 def custom_exception_handler(exc, context):
     if isinstance(exc, CypherException) or isinstance(exc, IOError) \
-            or isinstance(exc, CouldNotCommit):
+            or isinstance(exc, CouldNotCommit) or isinstance(exc, ClientError):
         data = errors.CYPHER_EXCEPTION
         logger.exception("%s Cypher Exception" % context['view'])
         return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -74,6 +75,14 @@ def custom_exception_handler(exc, context):
         response.data['status_code'] = response.status_code
         response.data['detail'] = response.data.get(
             'detail', "Sorry, no details available.")
+        error = {}
+        response_data = deepcopy(response.data)
+        for k in response_data:
+            if k != 'status_code' and k != 'detail':
+                error[k] = [{"code": error_value, "message": error_value}
+                            for error_value in response_data[k]]
+        if error:
+            response.data['detail'] = dumps(error)
 
     return response
 

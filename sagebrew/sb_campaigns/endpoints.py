@@ -1,8 +1,7 @@
-import pytz
-from datetime import datetime
-
 from django.conf import settings
 from django.core.cache import cache
+from django.template.loader import render_to_string
+from django.templatetags.static import static
 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
@@ -15,12 +14,15 @@ from elasticsearch import Elasticsearch
 
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrAccountant,
                              IsOwnerOrEditor)
-from sb_votes.utils import handle_vote
+from sb_goals.serializers import GoalSerializer
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, AccountantSerializer,
                           PositionSerializer, PoliticalVoteSerializer)
 from .neo_models import Campaign, PoliticalCampaign, Position
+
+from logging import getLogger
+logger = getLogger('loggly_logs')
 
 
 class CampaignViewSet(viewsets.ModelViewSet):
@@ -36,9 +38,14 @@ class CampaignViewSet(viewsets.ModelViewSet):
     def get_object(self):
         return Campaign.get(object_uuid=self.kwargs[self.lookup_field])
 
+    def perform_update(self, serializer):
+        serializer.save(stripe_token=self.request.data.get('stripe_token',
+                                                           None),
+                        ein=self.request.data.get('ein', None),
+                        ssn=self.request.data.get('ssn', None))
+
     @detail_route(methods=['get'],
-                  permission_classes=(IsAuthenticated,
-                                      IsOwnerOrEditor))
+                  permission_classes=(IsAuthenticated, IsOwnerOrEditor))
     def editors(self, request, object_uuid=None):
         """
         This is a method on the endpoint because there should be no reason
@@ -197,6 +204,28 @@ class PoliticalCampaignViewSet(CampaignViewSet):
                  id=serializer.data['id'], body=serializer.data)
         return instance
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        serializer_data = dict(serializer.data)
+        if serializer_data['wallpaper_pic'] is None:
+            serializer_data['wallpaper_pic'] = static(
+                'images/wallpaper_capitol_2.jpg')
+        if serializer_data['profile_pic'] is None:
+            serializer_data['profile_pic'] = static(
+                'images/sage_coffee_grey-01.png')
+        return Response(serializer_data)
+
+    def update(self, request, *args, **kwargs):
+        if not (request.user.username in Campaign.get_editors
+                (self.kwargs[self.lookup_field])):
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "You are not authorized to access "
+                                       "this page."},
+                            status=status.HTTP_403_FORBIDDEN)
+        return super(PoliticalCampaignViewSet, self).update(request, *args,
+                                                            **kwargs)
+
     @detail_route(methods=['post'], serializer_class=PoliticalVoteSerializer)
     def vote(self, request, object_uuid=None):
         serializer = self.get_serializer(data=request.data,
@@ -204,15 +233,34 @@ class PoliticalCampaignViewSet(CampaignViewSet):
         if serializer.is_valid():
             cache.delete("%s_vote_count" % (object_uuid))
             parent_object_uuid = self.kwargs[self.lookup_field]
-            now = unicode(datetime.now(pytz.utc))
-            res = handle_vote(parent_object_uuid, serializer.data['vote_type'],
-                              request, now)
+            res = PoliticalCampaign.vote_campaign(parent_object_uuid,
+                                                  request.user.username)
             if res:
-                return Response({"detail": "Successfully pledged vote.",
+                return Response({"detail": res,
                                  "status": status.HTTP_200_OK,
                                  "developer_message": None},
                                 status=status.HTTP_200_OK)
+            return Response({"detail": "Successfully unpledged vote.",
+                             "status": status.HTTP_200_OK,
+                             "developer_message": None})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['get'], serializer_class=GoalSerializer)
+    def unassigned_goals(self, request, object_uuid=None):
+        if not (request.user.username in Campaign.get_editors
+                (self.kwargs[self.lookup_field])):
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "You are not authorized to access "
+                                       "this page."},
+                            status=status.HTTP_403_FORBIDDEN)
+        html = request.query_params.get('html', 'false')
+        queryset = PoliticalCampaign.get_unassigned_goals(object_uuid)
+        if html == 'true':
+            return Response([render_to_string(
+                "goal_draggable.html", GoalSerializer(goal).data)
+                for goal in queryset], status=status.HTTP_200_OK)
+        return Response(self.serializer_class(queryset, many=True).data,
+                        status=status.HTTP_200_OK)
 
 
 class PositionViewSet(viewsets.ReadOnlyModelViewSet):

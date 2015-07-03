@@ -3,7 +3,8 @@ from django.core.cache import cache
 
 from rest_framework.reverse import reverse
 
-from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty)
+from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
+                      FloatProperty)
 
 from sb_base.neo_models import (VoteRelationship)
 from sb_search.neo_models import Searchable, SBObject
@@ -58,6 +59,7 @@ class Campaign(Searchable):
     # an account cannot be taken offline until the end of a campaign
     active = BooleanProperty(default=False)
     biography = StringProperty()
+    epic = StringProperty()
     facebook = StringProperty()
     linkedin = StringProperty()
     youtube = StringProperty()
@@ -73,6 +75,8 @@ class Campaign(Searchable):
     # when rendering potential representative html to a users profile page
     first_name = StringProperty()
     last_name = StringProperty()
+    application_fee = FloatProperty(default=0.07)
+    last_four_soc = StringProperty()
 
     # Relationships
     donations = RelationshipTo('sb_donations.neo_models.Donation',
@@ -98,14 +102,14 @@ class Campaign(Searchable):
 
     @classmethod
     def get(cls, object_uuid):
-        campaign = cache.get(object_uuid)
+        campaign = cache.get("%s_campaign" % object_uuid)
         if campaign is None:
             query = 'MATCH (c:`Campaign` {object_uuid: "%s"}) RETURN c' % \
                     object_uuid
             res, col = db.cypher_query(query)
             try:
                 campaign = cls.inflate(res[0][0])
-                cache.set(object_uuid, campaign)
+                cache.set("%s_campaign" % object_uuid, campaign)
                 return campaign
             except IndexError:
                 campaign = None
@@ -146,7 +150,7 @@ class Campaign(Searchable):
                 '[:WAGED_BY]->(p:`Pleb`) return p.username' % (object_uuid)
         res, col = db.cypher_query(query)
         try:
-            return reverse('action_saga',
+            return reverse('quest_saga',
                            kwargs={"username": res[0][0]},
                            request=request)
         except IndexError:
@@ -265,6 +269,23 @@ class Campaign(Searchable):
                 public_official = None
         return public_official
 
+    @classmethod
+    def get_unassigned_goals(cls, object_uuid):
+        from sb_goals.neo_models import Goal
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:HAS_GOAL]->' \
+                '(g:Goal) WHERE NOT (g)-[:PART_OF]->(:Round) RETURN g ' \
+                'ORDER BY g.monetary_requirement' % object_uuid
+        res, _ = db.cypher_query(query)
+        return [Goal.inflate(row[0]) for row in res]
+
+    @classmethod
+    def get_active_round_donation_total(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
+                '(r:Round)-[:HAS_DONATIONS]-(d:Donation) ' \
+                'RETURN sum(d.amount)' % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
 
 class PoliticalCampaign(Campaign):
     """
@@ -316,6 +337,28 @@ class PoliticalCampaign(Campaign):
                 'RETURN p.username' % (object_uuid)
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
+
+    @classmethod
+    def vote_campaign(cls, object_uuid, username):
+        from plebs.neo_models import Pleb
+        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
+                '[r:RECEIVED_PLEDGED_VOTE]->(p:Pleb {username:"%s"}) ' \
+                'RETURN r' % (object_uuid, username)
+        res, _ = db.cypher_query(query)
+        vote_relation = res.one
+        if not vote_relation:
+            pleb = Pleb.get(username=username)
+            campaign = PoliticalCampaign.get(object_uuid=object_uuid)
+            rel = campaign.pledged_votes.connect(pleb)
+            rel.save()
+            return True
+        rel = VoteRelationship.inflate(vote_relation)
+        if rel.active:
+            rel.active = False
+        else:
+            rel.active = True
+        rel.save()
+        return rel.active
 
 
 class Position(SBObject):

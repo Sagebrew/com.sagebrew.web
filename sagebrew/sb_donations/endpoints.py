@@ -70,7 +70,8 @@ class DonationListCreate(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         campaign = Campaign.get(object_uuid=self.kwargs[self.lookup_field])
-        serializer.save(campaign=campaign)
+        serializer.save(campaign=campaign,
+                        token=self.request.data.get('token', None))
 
     def list(self, request, *args, **kwargs):
         """

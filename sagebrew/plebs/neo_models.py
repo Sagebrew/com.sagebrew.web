@@ -152,6 +152,7 @@ class Pleb(Searchable):
     email_verified = BooleanProperty(default=False)
     populated_personal_index = BooleanProperty(default=False)
     initial_verification_email_sent = BooleanProperty(default=False)
+    stripe_account = StringProperty()
     stripe_customer_id = StringProperty()
 
     # Relationships
@@ -321,7 +322,7 @@ class Pleb(Searchable):
 
     def get_campaign(self):
         query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Campaign) ' \
-                'RETURN c' % self.username
+                'RETURN c.object_uuid' % self.username
         res, _ = db.cypher_query(query)
         return res.one
 
@@ -332,8 +333,20 @@ class Pleb(Searchable):
         res, _ = db.cypher_query(query)
         return True
 
+    def get_official_phone(self):
+        query = 'MATCH (p:Pleb {username:"%s"})-[:IS_AUTHORIZED_AS]->' \
+                '(o:PublicOfficial) RETURN o.gov_phone' % self.username
+        res, _ = db.cypher_query(query)
+        return res.one
+
     def deactivate(self):
         pass
+
+    def get_address(self):
+        query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->(a:Address) ' \
+                'RETURN a' % self.username
+        res, _ = db.cypher_query(query)
+        return Address.inflate(res.one)
 
     def is_beta_user(self):
         is_beta_user = cache.get("%s_is_beta" % self.username)

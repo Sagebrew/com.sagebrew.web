@@ -13,6 +13,7 @@ from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import Pleb, BetaUser
 from sb_base.decorators import apply_defense
+from sb_campaigns.neo_models import Campaign
 
 
 def calc_age(birthday):
@@ -110,6 +111,18 @@ def verify_verified_email(user):
         return e
 
 
+def verify_no_campaign(user):
+    try:
+        campaign = Campaign.get(object_uuid=user.username)
+        if campaign is None:
+            return False
+        return True
+    except (Campaign.DoesNotExist, DoesNotExist):
+        return False
+    except (CypherException, IOError) as e:
+        return e
+
+
 @apply_defense
 def sb_send_email(source, to_email, subject, html_content):
     '''
@@ -127,8 +140,10 @@ def sb_send_email(source, to_email, subject, html_content):
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
         )
+        if type(to_email) == str:
+            to_email = [to_email]
         conn.send_email(source=source, subject=subject,
-                        body=html_content, to_addresses=[to_email],
+                        body=html_content, to_addresses=to_email,
                         format='html')
         return True
     except SESMaxSendingRateExceededError as e:
@@ -193,7 +208,7 @@ def create_user_util(first_name, last_name, email, password, birthday):
                         first_name=user.first_name,
                         last_name=user.last_name,
                         username=user.username,
-                        birthday=birthday)
+                        date_of_birth=birthday)
             pleb.save()
             try:
                 beta_user = BetaUser.nodes.get(email=email)

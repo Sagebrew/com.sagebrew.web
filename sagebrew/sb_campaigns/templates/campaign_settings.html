@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block title %}{{ page_user.first_name}} {{ page_user.last_name }}{% endblock title %}
+{% block title %}Quest Settings{% endblock title %}
 {% block content %}
 <div class="row-fluid sb_page">
     <div class="col-lg-10 col-lg-offset-1 col-md-12 col-sm-12 col-xs-12">
@@ -25,39 +25,53 @@
                 <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
                     <div class="block sb_settings_block">
                     {% if debug %}
+                        <div id="campaign_id" data-object_uuid="{{ campaign.id }}" style="display: none"></div>
                         <form id="settings_form">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <h5>Banking</h5>
+                        <div id="completed-stripe" data-completed_stripe="{{ campaign.completed_stripe }}"></div>
+                            {% if not campaign.completed_stripe %}
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <h5>Banking</h5>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <input type="text"
-                                           id="ssn-number"
-                                           placeholder="Social Security Number"
-                                           class="form-control input-lg"
-                                           value="">
+                                {% comment %} I think we should require full SSN from people for stripe verification {% endcomment %}
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <input type="text"
+                                               id="ssn"
+                                               placeholder="Social Security Number (we store the last four digits)"
+                                               class="form-control input-lg"
+                                               value="">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <input type="text"
-                                           id="routing-number"
-                                           placeholder="Routing Number"
-                                           class="form-control input-lg"
-                                           value="">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <input type="text"
+                                               id="ein"
+                                               placeholder="EIN for political campaign committee (we do not store this)"
+                                               class="form-control input-lg"
+                                               value="">
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <input type="text"
-                                           id="account-number"
-                                           placeholder="Account Number"
-                                           class="form-control input-lg"
-                                           value="">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <input type="text"
+                                               id="routing-number"
+                                               placeholder="Routing Number"
+                                               class="form-control input-lg"
+                                               value="">
+                                    </div>
                                 </div>
-                            </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <input type="text"
+                                               id="account-number"
+                                               placeholder="Account Number"
+                                               class="form-control input-lg"
+                                               value="">
+                                    </div>
+                                </div>
+                            {% endif %}
                             <div class="row">
                                 <div class="col-lg-12 password1">
                                     <h5>Web and Social Media</h5>
@@ -141,6 +155,50 @@
                                       <div class="modal-footer">
                                         <div class="col-md-6 col-md-offset-3">
                                             <button type="button"
+                                                    id="rep_auth"
+                                                    class="btn btn-primary sb_btn" style="width: 100%;"
+                                                    data-dismiss="modal">Continue</button>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 hidden-sm hidden-xs">
+                                <h5>Take Quest Live</h5>
+                                <div class="block sb_success_block">
+                                    <p>
+                                        Here you may take your Sagebrew Quest live for the world to see.
+                                    </p>
+                                    <button class="btn btn-primary"
+                                            id="delete_account"
+                                            data-toggle="modal"
+                                            data-target="#liveModal">Take Quest Live</button>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="liveModal" tabindex="-1" role="dialog" aria-labelledby="authModalLabel" aria-hidden="true">
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                        <h4 class="modal-title" id="myModalLabel">Take it live!</h4>
+                                      </div>
+                                      <div class="modal-body">
+                                        By continuing you are beginning your Sagebrew Quest! After it is live you will be able
+                                          to start collecting donations and pledged votes from your supporters.
+
+                                          Please note that if you wish to make any changes to a set of goals that you have queued please do so
+                                          before taking your Quest live as you will not be able to edit them after.
+
+                                          You must also have a bank account set up, we will prompt you to set this up should it not be done already.
+                                      </div>
+                                      <div class="modal-footer">
+                                        <div class="col-md-6 col-md-offset-3">
+                                            <button type="button"
+                                                    id="take_live"
                                                     class="btn btn-primary sb_btn" style="width: 100%;"
                                                     data-dismiss="modal">Continue</button>
                                         </div>
@@ -155,10 +213,10 @@
                                 <h5>Delete Account</h5>
                                 <div class="block sb_alert_block">
                                     <p>
-                                        TBD.
+                                        After you confirm you wish to delete your Quest we will send you a confirmation email and call you shortly after to begin the process of closing your Quest account.
                                     </p>
                                     <button class="btn btn-primary btn-danger"
-                                            id="delete_account"
+                                            id="delete-quest"
                                             data-toggle="modal"
                                             data-target="#myModal">Delete Account</button>
                                 </div>
@@ -169,10 +227,10 @@
                                     <div class="modal-content">
                                       <div class="modal-header">
                                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                                        <h4 class="modal-title" id="myModalLabel">Delete Account?</h4>
+                                        <h4 class="modal-title" id="myModalLabel">Delete Quest?</h4>
                                       </div>
                                       <div class="modal-body">
-                                        Are you absolutely sure you want to delete your account?
+                                        Are you absolutely sure you want to delete your quest?
                                       </div>
                                       <div class="modal-footer">
                                         <div class="col-lg-6 col-md-6">
@@ -222,7 +280,6 @@
 {% block scripts %}
     {{ block.super }}
     <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
-    <script src="{% static 'js/settings_validator.js' %}"></script>
-    <script src="{% static 'js/address_validation.js' %}"></script>
-    <script src="{% static 'js/submit_settings.js' %}"></script>
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    <script src="{% static 'js/submit_quest_settings.js' %}"></script>
 {% endblock scripts %}

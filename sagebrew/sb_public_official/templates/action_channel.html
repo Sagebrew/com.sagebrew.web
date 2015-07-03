@@ -1,34 +1,160 @@
+{% load staticfiles %}
+{% load static %}
 <div class="row sb_wallpaper sb_wallpaper_action hidden-xs">
+    {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
+    {% if id == request.user.username %}
+        <div id="cropQuestWallpaperPictureEyecandy">
+            <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+        </div>
+    {% else %}
+            <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+    {% endif %}
+    <div id="stripe_img" style="display: none;" data-stripe_image="{% static 'images/icon_sage.png' %}"></div>
 </div>
 <div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
-       <div class="thumbnail sb_thumbnail_md"></div>
+       <div class="thumbnail sb_thumbnail_md sb_quest_profile">
+           {% if id == request.user.username %}
+            <div id="cropQuestProfilePictureEyecandy">
+                <img id="quest_profile_pic" src="{{ profile_pic }}">
+            </div>
+           {% else %}
+            <img id="quest_profile_pic" src="{{ profile_pic }}">
+           {% endif %}
+       </div>
     </div>
     <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
         <div class="block sb_bio_block">
-            <h2></h2>
-            <p></p>
+            <h2>{{ first_name }} {{ last_name }}</h2>
+            <p id="bio_wrapper">{{ biography }}{% if id == request.user.username %}
+            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
+    {% endif %}</p>
+            {% if id == request.user.username %}
+                <div id="bio_edit" style="display: none">
+                    <textarea class="form-control edit_bio_input" id="biography_input" rows="3" placeholder="Biography, limit 255 characters">{{ biography }}</textarea>
+                    <button class="btn btn-block btn-primary sb_btn_fill" id="submit_biography">Submit Bio</button>
+                </div>
+            {% endif %}
         </div>
     </div>
-    <div class="col-lg-5">
-        <div class="col-lg-3 col-md-2 col-sm-12 col-lg-offset-5 col-md-offset-1 col-sm-offset-0 col-xs-offset-0">
-            <button class="btn btn-primary sb_btn sb_btn_fill">Donate</button>
-        </div>
-        <div class="col-lg-4 col-md-2 col-sm-12 col-lg-offset-0 col-md-offset-1 col-sm-offset-0 col-xs-offset-0">
-            <button class="btn btn-primary sb_btn sb_btn_fill">Pledge Vote</button>
+    <div class="col-xs-5">
+        <div align="right">
+            <button class="btn btn-primary sb_btn"
+                    data-toggle="modal"
+                    data-target="#donationModal">Donate</button>
+            {% if vote_type %}
+                <button id="create_vote"
+                        data-object_uuid="{{ id }}"
+                        class="btn btn-primary sb_btn">Unpledge Vote</button>
+            {% else %}
+                <button id="create_vote"
+                        data-object_uuid="{{ id }}"
+                        class="btn btn-primary sb_btn">Pledge Vote</button>
+            {% endif %}
         </div>
         <div class="row-fluid hidden-md hidden-sm hidden-xs">
             <div class="col-lg-9 col-lg-offset-3">
-                <div align="right" class="block sb_channel_social">
-                    <a href="#">300 Reputation</a>
-                    <button class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-facebook-square"></span></button>
-                    <button class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-linkedin-square"></span></button>
-                    <button class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-youtube-play"></span></button>
-                    <button class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-twitter-square"></span></button>
-                 </div>
-             </div>
+                <div align="right" class="block sb_channel_social row-fluid hidden-md hidden-sm hidden-xs">
+                    {% if not facebook %}
+                        <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-facebook-square"></span></button>
+                    {% else %}
+                        <button onclick="location.href='http://facebook.com/{{ facebook }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-facebook"></span></button>
+                    {% endif %}
+                    {% if not linkedin %}
+                        <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-linkedin-square"></span></button>
+                    {% else %}
+                        <button onclick="location.href='http://linkedin.com/{{ linkedin }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-linkedin"></span></button>
+                    {% endif %}
+                    {% if not youtube %}
+                        <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-youtube-play"></span></button>
+                    {% else %}
+                        <button onclick="location.href='http://youtube.com/{{ youtube }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-youtube-play"></span></button>
+                    {% endif %}
+                    {% if not twitter %}
+                        <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-twitter"></span></button>
+                    {% else %}
+                        <button onclick="location.href='http://twitter.com/{{ twitter }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-twitter"></span></button>
+                    {% endif %}
+                </div>
+            </div>
         </div>
     </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="donationModal" tabindex="-1" role="dialog" aria-labelledby="donationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="donationModalLabel">Donate to Quest</h4>
+      </div>
+      <div class="modal-body">
+        How much would you like to donate to this quest?
+          <ul class="nav nav-list">
+            <li style="margin-bottom: 0;">
+                <a class="donation-amount-selector"
+                   href="#"
+                   data-amount="5">
+                    <p>$5</p>
+                </a>
+            </li>
+            <li style="margin-bottom: 0;">
+                <a class="donation-amount-selector"
+                   href="#"
+                   data-amount="10">
+                    <p>$10</p>
+                </a>
+            </li>
+            <li style="margin-bottom: 0;">
+                <a class="donation-amount-selector"
+                   href="#"
+                   data-amount="20">
+                    <p>$20</p>
+                </a>
+            </li>
+            <li style="margin-bottom: 0;">
+                <a class="donation-amount-selector"
+                   href="#"
+                   data-amount="50">
+                    <p>$50</p>
+                </a>
+            </li>
+            <li style="margin-bottom: 0;">
+                <a class="donation-amount-selector"
+                   href="#"
+                   data-amount="100">
+                    <p>$100</p>
+                </a>
+            </li>
+            <li style="margin-bottom: 0;">
+                <form id="customDonation">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon">$</span>
+                            <input id="custom-donation"
+                                   class="form-control"
+                                   type="text"
+                                   placeholder="Custom Dollar Amount"
+                                   name="donation_amount">
+                            <span class="input-group-btn">
+                                <button id="custom-donation-btn" class="btn btn-default sb_btn" type="button" disabled>Confirm</button>
+                            </span>
+                        </div>
+                    </div>
+                </form>
+            </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <div class="col-lg-6 col-md-6">
+            <button type="button"
+                    class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove"
+                    data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 {% comment %}

@@ -1,7 +1,14 @@
-from neomodel import (db, StringProperty, IntegerProperty,
-                      BooleanProperty, RelationshipTo, DateTimeProperty)
+import pytz
+from datetime import datetime
+
+from py2neo.cypher import ClientError
+from neomodel import (db, StringProperty, IntegerProperty, DoesNotExist,
+                      BooleanProperty, RelationshipTo, DateTimeProperty,
+                      CypherException)
 
 from api.neo_models import SBObject
+from api.utils import spawn_task
+from sb_campaigns.tasks import release_funds_task
 
 
 class Goal(SBObject):
@@ -38,13 +45,25 @@ class Goal(SBObject):
     monetary_requirement = IntegerProperty(default=0)
     completed = BooleanProperty(default=False)
     completed_date = DateTimeProperty()
+    # total_required represents the total amount of donations required to
+    # complete the goal
     total_required = IntegerProperty()
+    # pledges_required represents the total amount of pledges required to
+    # complete the goal
+    pledges_required = IntegerProperty()
+    # target is an optimization property we use when rendering templates
+    # for a quest page
+    target = BooleanProperty(default=False)
 
     # optimizations
     # Active is automatically set when the round the goal is in is taken active
     # This allows us to validate whether or not a goal can be changed by
     # looking directly at it rather than having to query up to the round.
     active = BooleanProperty(default=False)
+    # campaign_id allows us to have one less query when updating a goal and
+    # allows us to not have to worry about passing campaign to update method,
+    # the object knows which campaign it is owned by
+    campaign_id = StringProperty()
 
     # relationships
     updates = RelationshipTo('sb_updates.neo_models.Update', "UPDATE_FOR")
@@ -109,6 +128,33 @@ class Goal(SBObject):
         except IndexError:
             return None
 
+    @classmethod
+    def get_associated_round_donation_total(cls, object_uuid):
+        query = 'MATCH (g:Goal {object_uuid: "%s"})-[:PART_OF]->(r:Round)-' \
+                '[:HAS_DONATIONS]->(d:Donation) RETURN sum(d.amount)' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def disconnect_from_upcoming(self):
+        query = 'OPTIONAL MATCH (g:Goal {object_uuid: "%s"})-' \
+                '[:PART_OF]->(r:Round) RETURN r' % self.object_uuid
+        res, _ = db.cypher_query(query)
+        associated_round = res.one
+        if associated_round:
+            associated_round = Round.inflate(associated_round)
+            self.associated_round.disconnect(associated_round)
+            associated_round.goals.disconnect(self)
+        return True
+
+    def check_for_update(self):
+        query = 'MATCH (g:Goal {object_uuid: "%s"})-[:UPDATE_FOR]->' \
+                '(u:Update) RETURN u'
+        res, _ = db.cypher_query(query)
+        if not res.one:
+            return False
+        return True
+
 
 class Round(SBObject):
     """
@@ -137,6 +183,10 @@ class Round(SBObject):
     # active round.
     completed = DateTimeProperty()
     active = BooleanProperty(default=False)
+    queued = BooleanProperty(default=False)
+    # queued is an optimization added to allow us to easily determine
+    # whether or not the round should be moved into the active round
+    # position on completion of the currently active round.
 
     # relationships
     goals = RelationshipTo('sb_goals.neo_models.Goal', "STRIVING_FOR")
@@ -183,3 +233,78 @@ class Round(SBObject):
             return res[0][0]
         except IndexError:
             return None
+
+    @classmethod
+    def get_total_donation_amount(cls, object_uuid):
+        query = 'MATCH (r:Round {object_uuid:"%s"})-[:HAS_DONATIONS]->' \
+                '(d:Donation) RETURN sum(d.amount)' % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def check_goal_completion(self):
+        from sb_campaigns.neo_models import PoliticalCampaign
+        query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:STRIVING_FOR]->' \
+                '(g:`Goal`) WITH r, g MATCH ' \
+                '(r)-[:ASSOCIATED_WITH]->(c:Campaign) ' \
+                'RETURN g, c.object_uuid' % (self.object_uuid)
+        res, _ = db.cypher_query(query)
+        total_donations = Round.get_total_donation_amount(self.object_uuid)
+        try:
+            try:
+                total_pledges = PoliticalCampaign.get_vote_count(res[0][1])
+            except IndexError:
+                total_pledges = 0
+            for goal in res:
+                goal_node = Goal.inflate(goal[0])
+                try:
+                    prev_goal = Goal.nodes.get(
+                        object_uuid=Goal.get_previous_goal(
+                            goal_node.object_uuid))
+                    update_provided = prev_goal.check_for_update()
+                except (Goal.DoesNotExist, DoesNotExist):
+                    update_provided = True
+
+                if total_donations >= goal_node.total_required \
+                        and total_pledges >= goal_node.pledges_required \
+                        and update_provided:
+                    goal_node.completed = True
+                    goal_node.completed_date = datetime.now(pytz.utc)
+                    goal_node.save()
+                    spawn_task(task_func=release_funds_task,
+                               task_param={"goal_uuid": goal_node.object_uuid})
+                    try:
+                        next_goal = Goal.nodes.get(
+                            object_uuid=Goal.get_next_goal(
+                                goal_node.object_uuid))
+                        next_goal.target = True
+                    except (Goal.DoesNotExist, DoesNotExist):
+                        pass
+            self.check_round_completion()
+            return True
+        except (CypherException, IOError, ClientError) as e:
+            return e
+
+    def check_round_completion(self):
+        from sb_campaigns.neo_models import PoliticalCampaign
+        query = 'MATCH (r:Round {object_uuid:"%s"})-[:STRIVING_FOR]->' \
+                '(g:Goal) WITH r, g MATCH (r)-[ASSOCIATED_WITH]->' \
+                '(c:Campaign) RETURN g.completed, c.object_uuid ' \
+                % self.object_uuid
+        res, _ = db.cypher_query(query)
+        if False not in [row[0] for row in res]:
+            campaign = PoliticalCampaign.get(res[0][1])
+            upcoming_round = Round.nodes.get(
+                object_uuid=PoliticalCampaign.get_upcoming_round(
+                    campaign.object_uuid))
+            if upcoming_round.queued:
+                campaign.active_round.disconnect(self)
+                self.active = False
+                self.completed = datetime.now(pytz.utc)
+                self.save()
+                campaign.active_round.connect(upcoming_round)
+                upcoming_round.active = True
+                upcoming_round.save()
+                new_round = Round().save()
+                campaign.upcoming_round.connect(new_round)
+                new_round.campaign.connect(campaign)
+        return True

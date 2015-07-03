@@ -1,9 +1,12 @@
 from logging import getLogger
+from django.template.loader import render_to_string
+
+from rest_framework.decorators import (api_view, permission_classes)
 
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import detail_route
 from rest_framework.response import Response
-from rest_framework import status, generics
-
+from rest_framework import status, generics, viewsets
 from neomodel import db
 
 from api.permissions import IsGoalOwnerOrEditor
@@ -36,6 +39,9 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
         res, col = db.cypher_query(query)
         return [Goal.inflate(row[0]) for row in res]
 
+    def perform_create(self, serializer):
+        serializer.save(campaign=Campaign.get(self.kwargs[self.lookup_field]))
+
     def create(self, request, *args, **kwargs):
         if not (request.user.username in
                 Campaign.get_editors(self.kwargs[self.lookup_field])):
@@ -43,22 +49,28 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
                              "detail": "Authentication credentials were "
                                        "not provided."},
                             status=status.HTTP_403_FORBIDDEN)
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            campaign = Campaign.get(self.kwargs[self.lookup_field])
-            serializer.save(campaign=campaign)
-            return Response({"detail": "Successfully created goal.",
-                             "status_code": status.HTTP_200_OK})
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        html = request.query_params.get('html', 'false')
+        if html == 'true':
+            instance = super(GoalListCreateMixin, self).create(request, *args,
+                                                               **kwargs)
+            return Response(render_to_string('goal_draggable.html',
+                                             instance.data),
+                            status=status.HTTP_200_OK)
+        return super(GoalListCreateMixin, self).create(request, *args,
+                                                       **kwargs)
 
 
-class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
+class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView,
+                                viewsets.GenericViewSet):
     serializer_class = GoalSerializer
     permission_classes = (IsAuthenticated, IsGoalOwnerOrEditor)
     lookup_field = "object_uuid"
 
     def get_object(self):
         return Goal.nodes.get(object_uuid=self.kwargs[self.lookup_field])
+
+    def perform_update(self, serializer):
+        serializer.save(prev_goal=self.request.data.get('prev_goal', None))
 
     def update(self, request, *args, **kwargs):
         """
@@ -87,6 +99,21 @@ class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         return super(GoalRetrieveUpdateDestroy, self).destroy(request, *args,
                                                               **kwargs)
 
+    @detail_route(methods=['PUT', 'PATCH'], serializer_class=GoalSerializer,
+                  permission_classes=(IsAuthenticated, IsGoalOwnerOrEditor))
+    def disconnect_round(self, request, object_uuid=None):
+        queryset = self.get_object()
+        if queryset.completed is True or queryset.active is True:
+            return Response({"status_code": status.HTTP_405_METHOD_NOT_ALLOWED,
+                             "detail": "You cannot modify a completed "
+                                       "or active goal."},
+                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
+        queryset.disconnect_from_upcoming()
+        return Response({"status_code": status.HTTP_200_OK,
+                         "detail": "Successfully removed goal from upcoming "
+                                   "round."},
+                        status=status.HTTP_200_OK)
+
 
 class RoundListCreate(generics.ListCreateAPIView):
     """
@@ -108,7 +135,7 @@ class RoundListCreate(generics.ListCreateAPIView):
         return [Round.inflate(row[0]) for row in res]
 
 
-class RoundRetrieve(generics.RetrieveAPIView):
+class RoundRetrieve(generics.RetrieveAPIView, generics.UpdateAPIView):
     serializer_class = RoundSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = "object_uuid"
@@ -128,3 +155,28 @@ class RoundRetrieve(generics.RetrieveAPIView):
                                  "status_code": status.HTTP_401_UNAUTHORIZED},
                                 status=status.HTTP_401_UNAUTHORIZED)
         return super(RoundRetrieve, self).get(request, *args, **kwargs)
+
+    def update(self, request, *args, **kwargs):
+        queryset = self.get_object()
+        if queryset.completed is None and queryset.active is False:
+            if not (request.user.username in
+                    Campaign.get_campaign_helpers(Round.get_campaign(
+                        queryset.object_uuid))):
+                return Response({"detail": "Only owners, editors, or "
+                                           "accountants can modify upcoming "
+                                           "rounds.",
+                                 "status_code": status.HTTP_401_UNAUTHORIZED},
+                                status=status.HTTP_401_UNAUTHORIZED)
+        return super(RoundRetrieve, self).update(request, *args, **kwargs)
+
+
+@api_view(["GET"])
+@permission_classes((IsAuthenticated,))
+def render_round_goals(request, object_uuid=None):
+    query = 'MATCH (r:Round {object_uuid: "%s"})-[:STRIVING_FOR]->(g:Goal) ' \
+            'RETURN g, r ORDER BY g.total_required' % object_uuid
+    res, _ = db.cypher_query(query)
+    html = [render_to_string('goal_draggable.html',
+                             GoalSerializer(Goal.inflate(row[0])).data)
+            for row in res]
+    return Response(html, status=status.HTTP_200_OK)

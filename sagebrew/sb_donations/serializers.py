@@ -1,13 +1,18 @@
+import stripe
+
+from django.conf import settings
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from neomodel import db
 
-from api.utils import gather_request_data
+from api.utils import gather_request_data, spawn_task
 from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
 from sb_campaigns.neo_models import Campaign
 from sb_goals.neo_models import Round
+from sb_goals.tasks import check_goal_completion_task
 
 from .neo_models import Donation
 
@@ -41,11 +46,19 @@ class DonationSerializer(SBSerializer):
 
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         donor = Pleb.get(request.user.username)
+        token = validated_data.pop('token', None)
         validated_data['owner_username'] = donor.username
         campaign = validated_data.pop('campaign', None)
         donation = Donation(**validated_data).save()
-
+        if not donor.stripe_customer_id:
+            customer = stripe.Customer.create(
+                description="Customer for %s" % donor.email,
+                card=token,
+                email=donor.email)
+            donor.stripe_customer_id = customer['id']
+            donor.save()
         current_round = Round.nodes.get(
             object_uuid=Campaign.get_active_round(campaign.object_uuid))
         current_round.donations.connect(donation)
@@ -87,6 +100,8 @@ class DonationSerializer(SBSerializer):
         donation.campaign.connect(campaign)
         donor.donations.connect(donation)
         donation.owned_by.connect(donor)
+        spawn_task(task_func=check_goal_completion_task,
+                   task_param={"round_uuid": current_round.object_uuid})
         return donation
 
     def get_donated_for(self, obj):

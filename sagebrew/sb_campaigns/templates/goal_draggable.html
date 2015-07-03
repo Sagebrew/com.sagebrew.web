@@ -1,0 +1,79 @@
+{% comment %}
+<div class="row sb_goal_draggable" data-object_uuid="{{ id }}" style="padding-left: 15px; padding-right: 15px; padding-bottom: 15px">
+    <div class="block sb_goal sb_provide_goal">
+        <div class="block">
+            <div class="row">
+                <div class="col-xs-12">
+                    <h6>{{ title }}</h6>
+                    <div id="{{ id }}_monetary_requirement" class="col-xs-6">{{ monetary_requirement }}</div>
+                    <div class="col-xs-6">{{ pledged_vote_requirement }}</div>
+                    <p>{{ summary }}</p>
+                    <p>{{ description }}</p>
+                    <p>Total Required: <div id="{{ id }}_total_required">{{ total_required }}</div></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endcomment %}
+{% load humanize %}
+
+<div class="row sb_goal_draggable" data-object_uuid="{{ id }}">
+    {% if completed %}
+        <div class="block sb_action_content_block sb_goals_block sb_dimmed">
+    {% else %}
+        <div class="block sb_action_content_block sb_goals_block">
+    {% endif %}
+        <div class="sb_header_bar">
+            <h6>{{ title }}</h6>
+            <div id="{{ id }}_monetary_requirement"
+                 class="col-xs-6"
+                 data-monetary_requirement="{{ monetary_requirement }}">${% widthratio monetary_requirement 100 1 as money %}{{ money|intcomma }}</div>
+            <div id="{{ id }}_pledge_vote_requirement"
+                 data-pledge_requirement="{{ pledged_vote_requirement }}"
+                 class="col-xs-6">{{ pledged_vote_requirement }}</div>
+        </div>
+        <p>{{ summary }}</p>
+        {% if not active %}
+            <div id="{{ id }}_required"
+                 data-total_required="{{ total_required }}">Total Required: ${% widthratio total_required 100 1 as total %}{{ total|intcomma }}</div>
+            <div id="{{ id }}_required_pledges"
+                 data-pledges_required="{{ pledges_required }}">Pledges Required: {{ pledges_required }}</div>
+        {% endif %}
+        <small>Pledges</small>
+        {% if target %}
+        <div class="progress sb_progress">
+            {% widthratio pledge_required current_pledge_amount 100 as pledge_progress %}
+            {% if not completed %}
+                <div class="progress-bar sb_progress_bar" style="width: {{ pledge_progress }}%">
+                </div>
+            {% else %}
+                <div class="progress-bar sb_progress_bar sb_btn_fill_only">
+                </div>
+            {% endif %}
+        </div>
+        {% else %}
+            <div>
+            {{ current_pledge_amount|default:0 }}/{{ pledges_required|default_if_none:pledged_vote_requirement}}
+            </div>
+        {% endif %}
+        <small>Donations</small>
+        {% if target %}
+        <div class="progress sb_progress">
+            {% widthratio associated_round_donation_total total_required 100 as progress %}
+            {% if not completed %}
+                <div class="progress-bar sb_progress_bar" style="width: {{ progress }}%">
+                </div>
+            {% else %}
+                <div class="progress-bar sb_progress_bar sb_btn_fill_only">
+                </div>
+            {% endif %}
+        </div>
+        {% else %}
+            <div>
+                ${% widthratio associated_round_donation_total 100 1 as current_total %}{{ current_total|intcomma }}/{% widthratio total_required 100 1 as total %}{{ total|intcomma }}
+            </div>
+        {% endif %}
+    </div>
+    </div>
+</div>

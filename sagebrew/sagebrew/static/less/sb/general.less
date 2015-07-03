@@ -313,8 +313,13 @@ a {
 .sb_wallpaper_action{
   &:extend(.sb_wallpaper);
   background-color: @sb_green_medium;
-  height: auto;
+  height: 450px;
   border-radius: 5px 5px 0 0;
+  position: relative;
+  //fixes gap at the bottom
+  margin-top: 0;
+  margin-bottom: 0;
+  width: 100%;
 }
 // TODO Review and potentially change to just standard side_container
 .sb_questions_side_container{
@@ -1221,6 +1226,22 @@ textarea.sb_comment_input{
   margin-bottom: 0;
 }
 
+#cropQuestWallpaperPictureEyecandy{
+  &:extend(.sb_wallpaper_action);
+  position: relative;
+  //fixes gap at the bottom
+  margin-top: 0;
+  margin-bottom: 0;
+  height: 450px;
+  width: 100%;
+}
+
+#cropQuestProfilePictureEyecandy{
+  width: 98px;
+  height: 100px;
+  position: absolute;
+}
+
 .cropControls{
   margin-right: 5px;
   margin-top: 5px;
@@ -1231,4 +1252,57 @@ textarea.sb_comment_input{
 }
 .sb_notifier{
   background-color: @sb_dark_blue;
+}
+
+.sb_dimmed{
+  position: relative;
+}
+.sb_dimmed:after {
+  content: " ";
+  z-index: 10;
+  position: absolute;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  border-radius: 5px;
+  background: rgba(166, 166, 166, 0.75);
+}
+#quest_profile_pic {
+  width: 98px;
+  position: relative;
+}
+.sb_quest_profile {
+  &:extend(.sb_thumbnail_md);
+  height: 104px;
+  width: 102px;
+}
+.sb_goal_draggable {
+  padding: 0 15px 15px 15px;
+}
+
+.sb_create_goal_wrapper {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.toggle_create_goal {
+  margin-top: -5px;
+}
+
+#create_goal_header {
+  margin-top: -15px;
+}
+
+#existing_goals {
+  min-height: 500px;
+}
+
+#current_goals {
+  &:extend(#existing_goals);
+  margin-top: 58px;
+}
+
+#sb_queue_switch {
+  margin-top: 10px;
 }

@@ -1,10 +1,16 @@
+import time
+import stripe
+import markdown
 from logging import getLogger
 
+from django.conf import settings
 from django.core.cache import cache
 
 from rest_framework import serializers, status
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import ValidationError
+
+from neomodel import db
 
 from api.serializers import SBSerializer
 from api.utils import gather_request_data
@@ -19,12 +25,13 @@ logger = getLogger('loggly_logs')
 
 class CampaignSerializer(SBSerializer):
     active = serializers.BooleanField(required=False, read_only=True)
-    biography = serializers.CharField(required=False)
-    facebook = serializers.CharField(required=False, allow_null=True)
-    linkedin = serializers.CharField(required=False, allow_null=True)
-    youtube = serializers.CharField(required=False, allow_null=True)
-    twitter = serializers.CharField(required=False, allow_null=True)
-    website = serializers.CharField(required=False, allow_null=True)
+    biography = serializers.CharField(required=False, max_length=150)
+    epic = serializers.CharField(required=False, allow_blank=True)
+    facebook = serializers.CharField(required=False, allow_blank=True)
+    linkedin = serializers.CharField(required=False, allow_blank=True)
+    youtube = serializers.CharField(required=False, allow_blank=True)
+    twitter = serializers.CharField(required=False, allow_blank=True)
+    website = serializers.CharField(required=False, allow_blank=True)
     wallpaper_pic = serializers.CharField(required=False)
     profile_pic = serializers.CharField(required=False)
     owner_username = serializers.CharField(read_only=True)
@@ -38,10 +45,15 @@ class CampaignSerializer(SBSerializer):
     position = serializers.SerializerMethodField()
     active_goals = serializers.SerializerMethodField()
     active_round = serializers.SerializerMethodField()
+    rendered_epic = serializers.SerializerMethodField()
     upcoming_round = serializers.SerializerMethodField()
     public_official = serializers.SerializerMethodField()
+    completed_stripe = serializers.SerializerMethodField()
+    total_donation_amount = serializers.SerializerMethodField()
+    total_pledge_vote_amount = serializers.SerializerMethodField()
 
     def create(self, validated_data):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         request = self.context.get('request', None)
         owner = Pleb.get(request.user.username)
         validated_data['owner_username'] = owner.username
@@ -56,9 +68,27 @@ class CampaignSerializer(SBSerializer):
         campaign.editors.connect(owner)
         campaign.accountants.connect(owner)
         cache.set(campaign.object_uuid, campaign)
+        if owner.stripe_account is None:
+            stripe_res = stripe.Account.create(managed=True, country="US",
+                                               email=owner.email)
+            owner.stripe_account = stripe_res['id']
+            owner.save()
+        account = stripe.Account.retrieve(owner.stripe_account)
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        account.tos_acceptance.ip = ip
+        account.tos_acceptance.date = int(time.time())
+        account.save()
         return campaign
 
     def update(self, instance, validated_data):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe_token = validated_data.pop('stripe_token', None)
+        ein = validated_data.pop('ein', None)
+        ssn = validated_data.pop('ssn', None)
         instance.active = validated_data.get('active', instance.active)
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
@@ -71,12 +101,58 @@ class CampaignSerializer(SBSerializer):
                                                   instance.profile_pic)
         instance.biography = validated_data.get('biography',
                                                 instance.biography)
+        instance.epic = validated_data.get('epic', instance.epic)
+        if stripe_token is not None:
+            owner = Pleb.get(username=instance.owner_username)
+            if owner.stripe_account is None:
+                stripe_res = stripe.Account.create(managed=True, country="US",
+                                                   email=owner.email)
+                owner.stripe_account = stripe_res['id']
+                owner.save()
+            owner_address = owner.get_address()
+            instance.stripe_id = owner.stripe_account
+            account = stripe.Account.retrieve(owner.stripe_account)
+            account.external_accounts.create(external_account=stripe_token)
+            account.legal_entity.additional_owners = []
+            account.legal_entity.personal_id_number = ssn
+            account.legal_entity.business_tax_id = ein
+            account.legal_entity.first_name = owner.first_name
+            account.legal_entity.last_name = owner.last_name
+            account.legal_entity.type = "company"
+            account.legal_entity.dob = dict(
+                day=owner.date_of_birth.day,
+                month=owner.date_of_birth.month,
+                year=owner.date_of_birth.year
+            )
+            account.legal_entity.address.line1 = owner_address.street
+            if owner_address.street_additional == "":
+                owner_address.street_additional = None
+            account.legal_entity.address.line2 = \
+                owner_address.street_additional
+            account.legal_entity.address.city = owner_address.city
+            account.legal_entity.address.state = owner_address.state
+            account.legal_entity.address.postal_code = \
+                owner_address.postal_code
+            account.legal_entity.address.country = "US"
+            account.legal_entity.personal_address.line1 = owner_address.street
+            if owner_address.street_additional == "":
+                owner_address.street_additional = None
+            account.legal_entity.personal_address.line2 = \
+                owner_address.street_additional
+            account.legal_entity.personal_address.city = owner_address.city
+            account.legal_entity.personal_address.state = owner_address.state
+            account.legal_entity.personal_address.postal_code = \
+                owner_address.postal_code
+            account.legal_entity.personal_address.country = \
+                owner_address.country
+            account.save()
+            instance.last_four_soc = ssn[-4:]
         instance.save()
-        cache.set(instance.object_uuid, instance)
+        cache.set("%s_campaign" % instance.object_uuid, instance)
         return instance
 
     def get_url(self, obj):
-        return reverse('action_saga',
+        return reverse('quest_saga',
                        kwargs={"username": obj.object_uuid},
                        request=self.context.get('request', None))
 
@@ -147,15 +223,39 @@ class CampaignSerializer(SBSerializer):
             return None
         return public_official
 
+    def get_rendered_epic(self, obj):
+        if obj.epic is not None:
+            return markdown.markdown(obj.epic.replace('&gt;', '>'))
+        else:
+            return ""
+
+    def get_completed_stripe(self, obj):
+        if obj.stripe_id == "Not Set":
+            return False
+        return True
+
+    def get_total_donation_amount(self, obj):
+        return PoliticalCampaign.get_active_round_donation_total(
+            obj.object_uuid)
+
+    def get_total_pledge_vote_amount(self, obj):
+        return PoliticalCampaign.get_vote_count(obj.object_uuid)
+
 
 class PoliticalCampaignSerializer(CampaignSerializer):
+    vote_type = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
     constituents = serializers.SerializerMethodField()
 
     def create(self, validated_data):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         request = self.context.get('request', None)
         position = validated_data.pop('position', None)
+        account_type = request.session.get('account_type', None)
         owner = Pleb.get(username=request.user.username)
+        if account_type == 'paid':
+            validated_data['application_fee'] = 0.05
+
         if owner.get_campaign():
             raise ValidationError(
                 detail={"detail": "You may only have one quest!",
@@ -191,6 +291,21 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         campaign.upcoming_round.connect(initial_round)
         campaign.editors.connect(owner)
         campaign.accountants.connect(owner)
+        if owner.stripe_account is None:
+            stripe_res = stripe.Account.create(managed=True, country="US",
+                                               email=owner.email)
+            owner.stripe_account = stripe_res['id']
+            owner.save()
+        account = stripe.Account.retrieve(owner.stripe_account)
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        account.legal_entity.additional_owners = []
+        account.tos_acceptance.ip = ip
+        account.tos_acceptance.date = int(time.time())
+        account.save()
         cache.set("%s_campaign" % campaign.object_uuid, campaign)
         return campaign
 
@@ -206,6 +321,16 @@ class PoliticalCampaignSerializer(CampaignSerializer):
             return [reverse('profile_page', kwargs={'pleb_username': row[0]},
                             request=request) for row in constituents]
         return constituents
+
+    def get_vote_type(self, obj):
+        request = self.context.get('request', None)
+        if request is None:
+            return None
+        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
+                '[r:RECEIVED_PLEDGED_VOTE]->(p:Pleb {username:"%s"}) ' \
+                'RETURN r.active' % (obj.object_uuid, request.user.username)
+        res, _ = db.cypher_query(query)
+        return res.one
 
 
 class PoliticalVoteSerializer(serializers.Serializer):

@@ -28,10 +28,13 @@ from sb_campaigns.neo_models import Campaign
 from sb_campaigns.serializers import CampaignSerializer
 
 from .serializers import PlebSerializerNeo
-from .tasks import create_friend_request_task
+from .tasks import create_friend_request_task, send_email_task
 from .forms import (GetUserSearchForm, SubmitFriendRequestForm,
                     RespondFriendRequestForm)
 from .serializers import BetaUserSerializer, AddressSerializer
+
+from logging import getLogger
+logger = getLogger('loggly_logs')
 
 
 def root_profile_page(request):
@@ -83,7 +86,7 @@ class ProfileView(LoginRequiredMixin):
             is_owner = True
             are_friends = False
         return render(request, self.template_name, {
-            'page_profile': page_user_pleb,
+            'page_profile': PlebSerializerNeo(page_user_pleb).data,
             'page_user': page_user,
             'is_owner': is_owner,
             'is_friend': are_friends,
@@ -196,6 +199,54 @@ def get_user_search_view(request, pleb_username=""):
             status=200)
     else:
         return Response({'detail': 'error'}, 400)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def delete_quest(request):
+    internal_data = {
+        "source": "support@sagebrew.com",
+        "to": [row[1] for row in settings.ADMINS],
+        "subject": "Quest Deletion",
+        "html_content": render_to_string(
+            "email_templates/email_internal_quest_deletion.html", {
+                "username": request.user.username,
+                "email": request.user.email
+            })
+    }
+    user_data = {
+        "source": "support@sagebrew.com",
+        "to": request.user.email,
+        "subject": "Quest Deletion Confirmation",
+        "html_content": render_to_string(
+            "email_templates/email_quest_deletion_confirmation.html", {
+                "first_name": request.user.first_name,
+                "last_name": request.user.last_name
+            })
+    }
+    spawn_task(task_func=send_email_task, task_param=internal_data)
+    spawn_task(task_func=send_email_task, task_param=user_data)
+    return Response({"detail": "We have sent a confirmation email to you "
+                               "and will be in contact soon to follow up!"},
+                    status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def authenticate_representative(request):
+    pleb = Pleb.get(request.user.username)
+    email_data = {
+        "source": "support@sagebrew.com",
+        "to": [row[1] for row in settings.ADMINS],
+        "subject": "Representative Authentication",
+        "html_content": render_to_string(
+            "email_templates/email_internal_representative_confirmation.html",
+            {"username": pleb.username, "phone": pleb.get_official_phone()})
+    }
+    spawn_task(task_func=send_email_task, task_param=email_data)
+    return Response({"detail": "We will be call your office phone to "
+                               "verify soon."},
+                    status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

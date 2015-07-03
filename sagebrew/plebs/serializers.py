@@ -83,7 +83,7 @@ class UserSerializer(SBSerializer):
                     first_name=user.first_name,
                     last_name=user.last_name,
                     username=user.username,
-                    birthday=birthday)
+                    date_of_birth=birthday)
         pleb.save()
         # TODO Should move this out to the endpoint to remove circular
         # dependencies
@@ -150,6 +150,7 @@ class PlebSerializerNeo(SBSerializer):
     donations = serializers.SerializerMethodField()
     actions = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
+    campaign = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         pass
@@ -200,6 +201,9 @@ class PlebSerializerNeo(SBSerializer):
 
     def get_donations(self, obj):
         return obj.get_donations()
+
+    def get_campaign(self, obj):
+        return obj.get_campaign()
 
 
 class AddressSerializer(SBSerializer):

@@ -1,4 +1,4 @@
-'''
+"""
 import logging
 
 from django.test import TestCase
@@ -35,4 +35,4 @@ class TestManagePrivilegeRelation(TestCase):
     def test_pleb_already_has_privilege(self):
         result = manage_privilege_relation(self.username)
         self.assertTrue(result)
-'''
+"""

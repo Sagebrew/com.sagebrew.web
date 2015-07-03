@@ -402,6 +402,33 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                                     many=True).data,
                         status=status.HTTP_200_OK)
 
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def possible_presidents(self, request, username=None):
+        possible_presidents = cache.get('possible_presidents')
+        if possible_presidents is None:
+            query = 'MATCH (p:Position {name:"President"})-[:CAMPAIGNS]->' \
+                    '(c:Campaign) WHERE c.active=true RETURN c LIMIT 5'
+            res, _ = db.cypher_query(query)
+            possible_presidents = [PoliticalCampaign.inflate(row[0])
+                                   for row in res]
+            cache.set("possible_presidents", possible_presidents)
+        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        if html == 'true':
+            if not possible_presidents:
+                return Response("<small>Currently No Registered "
+                                "Campaigning Presidents</small>",
+                                status=status.HTTP_200_OK)
+            possible_presidents_html = [
+                render_to_string('sb_home_section/sb_potential_rep.html',
+                                 possible_pres)
+                for possible_pres in PoliticalCampaignSerializer(
+                    possible_presidents, many=True).data]
+            return Response(possible_presidents_html,
+                            status=status.HTTP_200_OK)
+        return Response(PoliticalCampaignSerializer(possible_presidents,
+                                                    many=True).data,
+                        status=status.HTTP_200_OK)
+
 
 class MeViewSet(mixins.UpdateModelMixin,
                 mixins.ListModelMixin, viewsets.GenericViewSet):

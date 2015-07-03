@@ -55,6 +55,7 @@ class Command(BaseCommand):
                                          twitter=person.twitterid,
                                          youtube=person.youtubeid,
                                          gt_id=person.gt_id,
+                                         gov_phone=role.phone,
                                          bioguideid=person.bioguideid)
                     rep.save()
                 except (CypherException, IOError) as e:

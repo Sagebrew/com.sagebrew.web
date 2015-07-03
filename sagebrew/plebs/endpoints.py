@@ -345,7 +345,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def possible_house_representatives(self, request, username=None):
         possible_reps = cache.get('%s_possible_house_representatives' %
-                                  (username))
+                                  username)
         if possible_reps is None:
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
@@ -354,8 +354,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     (username)
             res, _ = db.cypher_query(query)
             possible_reps = [PoliticalCampaign.inflate(row[0]) for row in res]
-            cache.set('%s_possible_house_representatives' % (username),
-                      possible_reps)
+            cache.set('%s_possible_house_representatives' % username,
+                      possible_reps, timeout=1800)
         html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             if not possible_reps:
@@ -373,8 +373,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def possible_senators(self, request, username=None):
-        possible_senators = cache.get('%s_possible_senators' %
-                                      (username))
+        possible_senators = cache.get('%s_possible_senators' % username)
         if possible_senators is None:
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
@@ -385,8 +384,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
             res, _ = db.cypher_query(query)
             possible_senators = [PoliticalCampaign.inflate(row[0])
                                  for row in res]
-            cache.set('%s_possible_senators' % (username),
-                      possible_senators)
+            cache.set('%s_possible_senators' % username,
+                      possible_senators, timeout=1800)
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
             if not possible_senators:
@@ -411,7 +410,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             res, _ = db.cypher_query(query)
             possible_presidents = [PoliticalCampaign.inflate(row[0])
                                    for row in res]
-            cache.set("possible_presidents", possible_presidents)
+            cache.set("possible_presidents", possible_presidents, timeout=1800)
         html = self.request.QUERY_PARAMS.get('html', 'false').lower()
         if html == 'true':
             if not possible_presidents:

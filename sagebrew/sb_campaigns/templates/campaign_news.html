@@ -1,25 +1,17 @@
 {% load static %}
 <div class="block sb_search_block">
     <div class="row">
-       {% url "action_saga" username=id as the_url %}
-        <div class="col-xs-4">
+       {% url "quest_saga" username=id as the_url %}
+        <div class="col-xs-3 col-sm-2 col-md-3 col-lg-2">
             <div class="thumbnail sb_thumbnail_md sb_thumbnail_search">
                 <a href="{{ the_url }}"><img src="{{ profile_pic }}"></a>
             </div>
         </div>
         <div class="col-xs-8">
-            <h6><a href="{{ the_url }}">{{ first_name }} {{ last_name }} has started a Quest in your area!</a></h6>
+            <h4 style="margin-top: 10px;"><a href="{{ the_url }}">{{ first_name }} {{ last_name }} has started a Quest{% if position_name %} for {{ position_name }} {% endif %} in your area!</a></h4>
         </div>
-      </div>
-      <div class="row">
-        <div class="col-lg-8 col-xs-12">
-            {% if public_official %}
-                <p>{{ location }} - {{ position }}</p>
-            {% endif %}
-            {% comment %}
-            <p>Office Running for</p>
-            <p>2.54K pledged votes</p>
-            {% endcomment %}
+        <div class="col-xs-8">
+            <h5 style="margin-top: 0;">Reputation: {{ reputation }}</h5>
         </div>
     </div>
 </div>

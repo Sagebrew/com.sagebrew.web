@@ -16,11 +16,11 @@
 
            {% if id == request.user.username %}
                 <div id="cropQuestProfilePictureEyecandy" class="thumbnail sb_thumbnail_md">
-                    <img src="{{ profile_pic }}">
+                    <img id="quest_profile_pic" src="{{ profile_pic }}">
                 </div>
            {% else %}
                 <div class="thumbnail sb_thumbnail_md">
-                    <img src="{{ profile_pic }}">
+                    <img  src="{{ profile_pic }}">
                 </div>
            {% endif %}
     </div>

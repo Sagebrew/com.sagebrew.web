@@ -1,5 +1,7 @@
 import stripe
 
+from django.conf import settings
+
 from neomodel import (db, DoesNotExist)
 
 from .neo_models import Campaign
@@ -13,7 +15,7 @@ logger = getLogger('loggly_logs')
 
 def release_funds(goal_uuid):
     try:
-        stripe.api_key = "sk_test_4VQN8LrYMe8xbLH5v9kLMoKt"
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         query = 'MATCH (g:Goal {object_uuid:"%s"})-[:RECEIVED]-(d:Donation), ' \
                 '(g)-[:ASSOCIATED_WITH]->(c:Campaign) ' \
                 'RETURN d, c' % goal_uuid

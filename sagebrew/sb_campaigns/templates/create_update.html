@@ -104,7 +104,7 @@
                                 {% endif %}
                             </div>
                             <div class="col-lg-3 col-md-4">
-                                <button class="btn btn-primary sb_btn sb_btn_fill cancel_update-action" data-url="{{ url }}">Cancel</button>
+                                <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove cancel_update-action" data-url="{{ url }}">Cancel</button>
 
                             </div>
                         </div>
@@ -126,4 +126,5 @@
     <script src="{% static 'js/vendor/typeahead.js' %}"></script>
     <script src="{% static 'js/create_update.js' %}"></script>
     <script src="{% static 'js/edit_update.js' %}"></script>
+    <script src="{% static 'js/update_validator.js' %}"></script>
 {% endblock scripts %}

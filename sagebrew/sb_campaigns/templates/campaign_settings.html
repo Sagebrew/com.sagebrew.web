@@ -39,7 +39,7 @@
                                     <div class="col-lg-12">
                                         <input type="text"
                                                id="ssn"
-                                               placeholder="Social Security Number (note: we store the last four digits)"
+                                               placeholder="Social Security Number (we store the last four digits)"
                                                class="form-control input-lg"
                                                value="">
                                     </div>
@@ -48,7 +48,7 @@
                                     <div class="col-lg-12">
                                         <input type="text"
                                                id="ein"
-                                               placeholder="EIN for political campaign committee(note: we do not store this)"
+                                               placeholder="EIN for political campaign committee (we do not store this)"
                                                class="form-control input-lg"
                                                value="">
                                     </div>
@@ -281,7 +281,5 @@
     {{ block.super }}
     <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
-    <script src="{% static 'js/settings_validator.js' %}"></script>
-    <script src="{% static 'js/address_validation.js' %}"></script>
     <script src="{% static 'js/submit_quest_settings.js' %}"></script>
 {% endblock scripts %}

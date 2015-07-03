@@ -81,4 +81,9 @@ $(document).ready(function () {
             }
         });
     });
+    $(".cancel_edit_epic-action").click(function (event) {
+        event.preventDefault();
+        var campaignId = $("#submit_epic").data('object_uuid');
+        window.location.href = "/quests/" + campaignId + "/";
+    });
 });

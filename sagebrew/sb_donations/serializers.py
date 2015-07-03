@@ -1,5 +1,7 @@
 import stripe
 
+from django.conf import settings
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -44,7 +46,7 @@ class DonationSerializer(SBSerializer):
 
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
-        stripe.api_key = 'sk_test_4VQN8LrYMe8xbLH5v9kLMoKt'
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         donor = Pleb.get(request.user.username)
         token = validated_data.pop('token', None)
         validated_data['owner_username'] = donor.username

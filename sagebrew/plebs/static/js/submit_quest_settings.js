@@ -28,6 +28,7 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                $.notify("Successfully updated Quest!", {type: 'success'});
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 errorDisplay(XMLHttpRequest);
@@ -73,7 +74,7 @@ $(document).ready(function () {
         var completedStripe = $("#completed-stripe").data("completed_stripe");
         if (completedStripe === "False") {
             $("html, body").animate({scrollTop: 0}, "slow");
-            $.notify("Please fill in your routing and account numbers. Then hit save at the bottom of the page. Don't worry we do not store them.", {type: "success"});
+            $.notify("Please fill in the banking information portion of this page. You may only take your Quest active after that.", {type: "success"});
         } else {
             var campaignId = campaignId = $("#campaign_id").data('object_uuid');
             $.ajax({
@@ -96,7 +97,9 @@ $(document).ready(function () {
 });
 function stripeResponseHandler(status, response) {
     if (response.error) {
-        $.notify(response.error.message, {type: 'danger'});
+        if (!$("#completed-stripe").data("completed_stripe")) {
+            $.notify(response.error.message, {type: 'danger'});
+        }
     } else {
         var token = response.id,
             campaignId = $("#campaign_id").data('object_uuid'),

@@ -2,6 +2,7 @@ import pytz
 import datetime
 import logging
 from json import dumps
+from copy import deepcopy
 
 from django.conf import settings
 
@@ -76,6 +77,14 @@ def custom_exception_handler(exc, context):
         response.data['status_code'] = response.status_code
         response.data['detail'] = response.data.get(
             'detail', "Sorry, no details available.")
+        error = {}
+        response_data = deepcopy(response.data)
+        for k in response_data:
+            if k != 'status_code' and k!= 'detail':
+                error[k] = [{"code": error_value, "message": error_value}
+                            for error_value in response_data[k]]
+        if error:
+            response.data['detail'] = dumps(error)
 
     return response
 

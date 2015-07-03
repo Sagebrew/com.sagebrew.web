@@ -3,6 +3,7 @@ import stripe
 import markdown
 from logging import getLogger
 
+from django.conf import settings
 from django.core.cache import cache
 
 from rest_framework import serializers, status
@@ -52,7 +53,7 @@ class CampaignSerializer(SBSerializer):
     total_pledge_vote_amount = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        stripe.api_key = "sk_test_4VQN8LrYMe8xbLH5v9kLMoKt"
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         request = self.context.get('request', None)
         owner = Pleb.get(request.user.username)
         validated_data['owner_username'] = owner.username
@@ -84,7 +85,7 @@ class CampaignSerializer(SBSerializer):
         return campaign
 
     def update(self, instance, validated_data):
-        stripe.api_key = "sk_test_4VQN8LrYMe8xbLH5v9kLMoKt"
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe_token = validated_data.pop('stripe_token', None)
         ein = validated_data.pop('ein', None)
         ssn = validated_data.pop('ssn', None)
@@ -247,7 +248,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
     constituents = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        stripe.api_key = "sk_test_4VQN8LrYMe8xbLH5v9kLMoKt"
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         request = self.context.get('request', None)
         position = validated_data.pop('position', None)
         account_type = request.session.get('account_type', None)

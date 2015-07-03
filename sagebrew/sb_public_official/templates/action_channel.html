@@ -13,15 +13,16 @@
 </div>
 <div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
-       <div class="thumbnail sb_thumbnail_md sb_quest_profile">
+
            {% if id == request.user.username %}
-            <div id="cropQuestProfilePictureEyecandy">
-                <img id="quest_profile_pic" src="{{ profile_pic }}">
-            </div>
+                <div id="cropQuestProfilePictureEyecandy" class="thumbnail sb_thumbnail_md">
+                    <img src="{{ profile_pic }}">
+                </div>
            {% else %}
-            <img id="quest_profile_pic" src="{{ profile_pic }}">
+                <div class="thumbnail sb_thumbnail_md">
+                    <img src="{{ profile_pic }}">
+                </div>
            {% endif %}
-       </div>
     </div>
     <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
         <div class="block sb_bio_block">

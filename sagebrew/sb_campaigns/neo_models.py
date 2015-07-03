@@ -78,6 +78,10 @@ class Campaign(Searchable):
     application_fee = FloatProperty(default=0.07)
     last_four_soc = StringProperty()
 
+    # Optimizations
+    position_name = StringProperty()
+    location_name = StringProperty()
+
     # Relationships
     donations = RelationshipTo('sb_donations.neo_models.Donation',
                                'RECEIVED_DONATION')
@@ -414,6 +418,18 @@ class Position(SBObject):
                 cache.set("%s_location" % (object_uuid), location)
             except IndexError:
                 location = None
+        return location
+
+    @classmethod
+    def get_location_name(cls, object_uuid):
+        query = 'MATCH (p:Position {object_uuid: "%s"})-' \
+                '[:AVAILABLE_WITHIN]->(location:Location) ' \
+                'RETURN location.name' % object_uuid
+        res, col = db.cypher_query(query)
+        try:
+            location = res[0][0]
+        except IndexError:
+            location = None
         return location
 
     @classmethod

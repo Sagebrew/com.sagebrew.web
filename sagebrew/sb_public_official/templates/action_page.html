@@ -4,11 +4,12 @@
     {{ block.super }}
     <link href="{% static 'css/vendor/croppic.css' %}" rel="stylesheet" type="text/css"/>
 {% endblock css %}
-{% block title %}{{ first_name }} {{ last_name }}'s Quest{% endblock title %}
+{% block title %}{{ quest.first_name }} {{ quest.last_name }}'s Quest{% endblock title %}
 {% block content %}
-<div id="campaign_id" style="display: none" data-object_uuid="{{ id }}"></div>
+<div id="campaign_id" style="display: none" data-object_uuid="{{ quest.id }}"></div>
+<div id="stripe-publishable" data-stripe_key="{{ stripe_key }}"></div>
 <div class="row-fluid sb_page">
-    {% if active == True %}
+    {% if quest.active == True %}
         {% include "action_channel.html" %}
     {% else %}
         {% include "action_channel_disabled.html" %}
@@ -17,13 +18,13 @@
 <div class="row sb_wall sb_action_wall">
     <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
         {% if "updates" in request.path %}
-            {% if active == True %}
+            {% if quest.active == True %}
                 {% include "updates.html" %}
             {% else %}
                 {% include "updates_disabled.html" %}
             {% endif %}
         {% else %}
-            {% if active == True %}
+            {% if quest.active == True %}
                 {% include "saga.html" %}
             {% else %}
                 {% include "saga_disabled.html" %}
@@ -31,12 +32,12 @@
         {% endif %}
     </div>
     <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-        <h5>Goals{% if id == request.user.username %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="manage_goals" style="margin-top: -5px;"><span class="fa fa-edit"></span></button>{% endif %}</h5>
-        {% if active == True %}
-            <div id="active_round" data-object_uuid="{{ active_round }}"></div>
+        <h5>Goals{% if quest.id == request.user.username %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="manage_goals" style="margin-top: -5px;"><span class="fa fa-edit"></span></button>{% endif %}</h5>
+        {% if quest.active == True %}
+            <div id="active_round" data-object_uuid="{{ quest.active_round }}"></div>
             <div id="goal_wrapper"></div>
-        {% elif request.user.username == id %}
-            <div id="active_round" data-object_uuid="{{ upcoming_round }}"></div>
+        {% elif request.user.username == quest.id %}
+            <div id="active_round" data-object_uuid="{{ quest.upcoming_round }}"></div>
             <div id="goal_wrapper"></div>
         {% else %}
             {% include "goals_block_disabled.html" %}
@@ -51,18 +52,16 @@
     {{ block.super }}
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
-    {% if active %}
+    {% if quest.active or request.user.username == quest.id %}
         <script src="{% static 'js/get_goals.js' %}"></script>
         <script src="{% static 'js/get_updates.js' %}"></script>
         <script src="{% static 'js/create_donations.js' %}"></script>
         <script src="{% static 'js/donation_validator.js' %}"></script>
         <script src="{% static 'js/pledge_vote.js' %}"></script>
     {% endif %}
-    {% if request.user.username == id %}
+    {% if request.user.username == quest.id %}
         <script src="{% static 'js/croppic.min.js' %}"></script>
         <script src="{% static 'js/uuid.js' %}"></script>
-        <script src="{% static 'js/get_goals.js' %}"></script>
-        <script src="{% static 'js/get_updates.js' %}"></script>
         <script src="{% static 'js/edit_quest.js' %}"></script>
         <script src="{% static 'js/quest_profile_pic.js' %}"></script>
         <script src="{% static 'js/quest_wallpaper_pic.js' %}"></script>

@@ -2,34 +2,34 @@
 {% load static %}
 <div class="row sb_wallpaper sb_wallpaper_action hidden-xs">
     {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
-    {% if id == request.user.username %}
+    {% if quest.id == request.user.username %}
         <div id="cropQuestWallpaperPictureEyecandy">
-            <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+            <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ quest.wallpaper_pic|default_if_none:default_wallpaper }}">
         </div>
     {% else %}
-            <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+            <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ quest.wallpaper_pic|default_if_none:default_wallpaper }}">
     {% endif %}
     <div id="stripe_img" style="display: none;" data-stripe_image="{% static 'images/icon_sage.png' %}"></div>
 </div>
 <div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
        <div class="thumbnail sb_thumbnail_md sb_quest_profile">
-           {% if id == request.user.username %}
+           {% if quest.id == request.user.username %}
             <div id="cropQuestProfilePictureEyecandy">
-                <img id="quest_profile_pic" src="{{ profile_pic }}">
+                <img id="quest_profile_pic" src="{{ quest.profile_pic }}">
             </div>
            {% else %}
-            <img id="quest_profile_pic" src="{{ profile_pic }}">
+            <img id="quest_profile_pic" src="{{ quest.profile_pic }}">
            {% endif %}
        </div>
     </div>
     <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
         <div class="block sb_bio_block">
-            <h2>{{ first_name }} {{ last_name }}</h2>
-            <p id="bio_wrapper">{{ biography }}{% if id == request.user.username %}
+            <h2>{{ quest.first_name }} {{ quest.last_name }}</h2>
+            <p id="bio_wrapper">{{ quest.biography }}{% if quest.id == request.user.username %}
             <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
     {% endif %}</p>
-            {% if id == request.user.username %}
+            {% if quest.id == request.user.username %}
                 <div id="bio_edit" style="display: none">
                     <textarea class="form-control edit_bio_input" id="biography_input" rows="3" placeholder="Biography, limit 255 characters">{{ biography }}</textarea>
                     <button class="btn btn-block btn-primary sb_btn_fill" id="submit_biography">Submit Bio</button>
@@ -42,38 +42,38 @@
             <button class="btn btn-primary sb_btn"
                     data-toggle="modal"
                     data-target="#donationModal">Donate</button>
-            {% if vote_type %}
+            {% if quest.vote_type %}
                 <button id="create_vote"
-                        data-object_uuid="{{ id }}"
+                        data-object_uuid="{{ quest.id }}"
                         class="btn btn-primary sb_btn">Unpledge Vote</button>
             {% else %}
                 <button id="create_vote"
-                        data-object_uuid="{{ id }}"
+                        data-object_uuid="{{ quest.id }}"
                         class="btn btn-primary sb_btn">Pledge Vote</button>
             {% endif %}
         </div>
         <div class="row-fluid hidden-md hidden-sm hidden-xs">
             <div class="col-lg-9 col-lg-offset-3">
                 <div align="right" class="block sb_channel_social row-fluid hidden-md hidden-sm hidden-xs">
-                    {% if not facebook %}
+                    {% if not quest.facebook %}
                         <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-facebook-square"></span></button>
                     {% else %}
-                        <button onclick="location.href='http://facebook.com/{{ facebook }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-facebook"></span></button>
+                        <button onclick="location.href='http://facebook.com/{{ quest.facebook }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-facebook"></span></button>
                     {% endif %}
-                    {% if not linkedin %}
+                    {% if not quest.linkedin %}
                         <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-linkedin-square"></span></button>
                     {% else %}
-                        <button onclick="location.href='http://linkedin.com/{{ linkedin }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-linkedin"></span></button>
+                        <button onclick="location.href='http://linkedin.com/{{ quest.linkedin }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-linkedin"></span></button>
                     {% endif %}
-                    {% if not youtube %}
+                    {% if not quest.youtube %}
                         <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-youtube-play"></span></button>
                     {% else %}
-                        <button onclick="location.href='http://youtube.com/{{ youtube }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-youtube-play"></span></button>
+                        <button onclick="location.href='http://youtube.com/{{ quest.youtube }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-youtube-play"></span></button>
                     {% endif %}
-                    {% if not twitter %}
+                    {% if not quest.twitter %}
                         <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-twitter"></span></button>
                     {% else %}
-                        <button onclick="location.href='http://twitter.com/{{ twitter }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-twitter"></span></button>
+                        <button onclick="location.href='http://twitter.com/{{ quest.twitter }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-twitter"></span></button>
                     {% endif %}
                 </div>
             </div>

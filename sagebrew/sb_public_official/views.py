@@ -1,5 +1,6 @@
 from django.template.loader import render_to_string
 from django.shortcuts import redirect, render
+from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 from rest_framework.permissions import IsAuthenticated
@@ -28,9 +29,10 @@ def saga(request, username):
     except (CypherException, IOError, PublicOfficial.DoesNotExist,
             DoesNotExist):
         return redirect("404_Error")
-    return render(request, 'action_page.html',
-                  PoliticalCampaignSerializer(
-                      campaign, context={'request': request}).data)
+    return render(request, 'action_page.html', {
+        "quest": PoliticalCampaignSerializer(
+            campaign, context={'request': request}).data,
+        "stripe_key": settings.STRIPE_PUBLIC_KEY})
 
 
 @login_required()
@@ -84,9 +86,10 @@ def updates(request, username):
     except (CypherException, IOError, PublicOfficial.DoesNotExist,
             DoesNotExist):
         return redirect("404_Error")
-    return render(request, 'action_page.html',
-                  PoliticalCampaignSerializer(
-                      campaign, context={'request': request}).data)
+    return render(request, 'action_page.html',{
+        "quest": PoliticalCampaignSerializer(
+            campaign, context={'request': request}).data,
+        "stripe_key": settings.STRIPE_PUBLIC_KEY})
 
 
 @api_view(['GET'])

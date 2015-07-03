@@ -89,7 +89,7 @@ def updates(request, username):
     serializer_data = PoliticalCampaignSerializer(
         campaign, context={'request': request}).data
     serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
-    return render(request, 'action_page.html',serializer_data)
+    return render(request, 'action_page.html', serializer_data)
 
 
 @api_view(['GET'])

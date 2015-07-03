@@ -37,7 +37,10 @@ class CampaignSerializer(SBSerializer):
     owner_username = serializers.CharField(read_only=True)
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
+    location_name = serializers.CharField(read_only=True)
+    position_name = serializers.CharField(read_only=True)
 
+    reputation = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
     rounds = serializers.SerializerMethodField()
@@ -152,8 +155,12 @@ class CampaignSerializer(SBSerializer):
         return instance
 
     def get_url(self, obj):
+        if obj.owner_username is not None:
+            username = obj.owner_username
+        else:
+            username = obj.object_uuid
         return reverse('quest_saga',
-                       kwargs={"username": obj.object_uuid},
+                       kwargs={"username": username},
                        request=self.context.get('request', None))
 
     def get_href(self, obj):
@@ -241,6 +248,11 @@ class CampaignSerializer(SBSerializer):
     def get_total_pledge_vote_amount(self, obj):
         return PoliticalCampaign.get_vote_count(obj.object_uuid)
 
+    def get_reputation(self, obj):
+        if obj.owner_username is not None:
+            return Pleb.get(username=obj.owner_username).reputation
+        else:
+            return None
 
 class PoliticalCampaignSerializer(CampaignSerializer):
     vote_type = serializers.SerializerMethodField()
@@ -272,6 +284,9 @@ class PoliticalCampaignSerializer(CampaignSerializer):
                                      owner_username=owner.username,
                                      object_uuid=owner.username,
                                      profile_pic=owner.profile_pic,
+                                     position_name=position.name,
+                                     location_name=Position.get_location_name(
+                                         position.object_uuid),
                                      **validated_data).save()
         if official:
             temp_camp = official.get_campaign()

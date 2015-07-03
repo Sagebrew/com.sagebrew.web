@@ -46,8 +46,6 @@ def signup_view(request):
 
 
 def quest_signup(request):
-    from logging import getLogger
-    logger = getLogger('loggly_logs')
     if request.method == 'POST':
         request.session['account_type'] = request.POST['account_type']
         request.session.set_expiry(1800)

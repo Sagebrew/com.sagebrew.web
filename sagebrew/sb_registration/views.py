@@ -52,7 +52,6 @@ def quest_signup(request):
         request.session['account_type'] = request.POST['account_type']
         request.session.set_expiry(1800)
         if request.user.is_authenticated():
-            logger.info('here')
             return redirect('rep_registration_page')
         return redirect('signup')
     return render(request, 'quest_signup.html')

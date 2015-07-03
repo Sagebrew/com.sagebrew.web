@@ -59,8 +59,6 @@ def custom_exception_handler(exc, context):
         logger.exception("%s JSON Exception" % context['view'])
         return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
-
     if isinstance(exc, DoesNotExist):
         request = context.get('request', None)
         if request is not None:
@@ -80,7 +78,7 @@ def custom_exception_handler(exc, context):
         error = {}
         response_data = deepcopy(response.data)
         for k in response_data:
-            if k != 'status_code' and k!= 'detail':
+            if k != 'status_code' and k != 'detail':
                 error[k] = [{"code": error_value, "message": error_value}
                             for error_value in response_data[k]]
         if error:

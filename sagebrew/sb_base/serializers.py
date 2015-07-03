@@ -18,7 +18,6 @@ class VotableContentSerializer(SBSerializer):
     object_uuid = serializers.CharField(read_only=True)
 
     content = serializers.CharField()
-    created = serializers.DateTimeField(read_only=True)
 
     upvotes = serializers.SerializerMethodField()
     downvotes = serializers.SerializerMethodField()

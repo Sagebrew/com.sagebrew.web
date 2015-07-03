@@ -18,7 +18,10 @@ $(document).ready(function () {
                     for (var i = 0; i < data.results.length; i++) {
                         wallContainer.append(data.results[i].html);
                         enableContentFunctionality(data.results[i].id, data.results[i].type);
-                        populateComments([data.results[i].id], data.results[i].type + "s");
+                        if(data.results[i].type !== "politicalcampaign"){
+                            populateComments([data.results[i].id], data.results[i].type + "s");
+                        }
+
                     }
                     // TODO Went with this approach as the scrolling approach resulted
                     // in the posts getting out of order. It also had some interesting

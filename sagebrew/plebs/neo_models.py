@@ -172,6 +172,10 @@ class Pleb(Searchable):
     address = RelationshipTo("Address", "LIVES_AT")
     interests = RelationshipTo("sb_tags.neo_models.Tag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
+    # Optimization
+    # Due to the large amounts of content it is more performant to explicitly
+    # have relationships with each of the different pieces of content rather
+    # than just OWNS
     posts = RelationshipTo('sb_posts.neo_models.Post', 'OWNS_POST',
                            model=PostObjectCreated)
     questions = RelationshipTo('sb_questions.neo_models.Question',

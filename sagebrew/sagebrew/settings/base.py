@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 from os import environ, path, makedirs
 from unipath import Path
-from datetime import timedelta
 import multiprocessing
 from logentries import LogentriesHandler
 import logging
@@ -112,18 +111,6 @@ ROOT_URLCONF = 'sagebrew.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'sagebrew.wsgi.application'
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.request",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages",
-    "plebs.context_processors.request_profile",
-)
-
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates"
@@ -159,6 +146,17 @@ TEMPLATES = [{
                 'django.template.loaders.app_directories.Loader',
             ]),
         ],
+        'context_processors': [
+            "django.contrib.auth.context_processors.auth",
+            "django.core.context_processors.request",
+            "django.core.context_processors.debug",
+            "django.core.context_processors.i18n",
+            "django.core.context_processors.media",
+            "django.core.context_processors.static",
+            "django.core.context_processors.tz",
+            "django.contrib.messages.context_processors.messages",
+            "plebs.context_processors.request_profile",
+        ]
     },
 }]
 
@@ -177,7 +175,6 @@ INSTALLED_APPS = (
     'django_ses',
     'rest_framework',
     'rest_framework.authtoken',
-    'admin_honeypot',
     'oauth2_provider',
     'corsheaders',
     'storages',

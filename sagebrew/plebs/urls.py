@@ -12,6 +12,8 @@ urlpatterns = patterns(
     url(r'^delete_quest/$', delete_quest, name="delete_quest"),
     url(r'^authenticate_representative/$', authenticate_representative,
         name="auth_representative"),
+    url(r'^newsfeed/$',
+        ProfileView.as_view(template_name='newsfeed.html'), name="newsfeed"),
     url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,30})/friends/$',
         ProfileView.as_view(template_name='sb_friends_section/sb_friends.html'),
         name="friend_page"),

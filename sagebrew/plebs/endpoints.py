@@ -1,4 +1,7 @@
+import pytz
+from datetime import datetime, timedelta
 from dateutil import parser
+from operator import attrgetter
 from elasticsearch import Elasticsearch, NotFoundError
 
 from django.template.loader import render_to_string
@@ -12,11 +15,12 @@ from django.conf import settings
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.generics import (RetrieveUpdateDestroyAPIView, ListAPIView)
+from rest_framework.generics import (RetrieveUpdateDestroyAPIView, ListAPIView,
+                                     mixins)
 
 from neomodel import db
 
@@ -26,8 +30,11 @@ from api.permissions import IsSelfOrReadOnly, IsSelf
 from sb_base.utils import get_filter_params
 from sb_base.neo_models import SBContent
 from sb_base.serializers import MarkdownContentSerializer
-from sb_questions.neo_models import Question
-from sb_questions.serializers import QuestionSerializerNeo
+from sb_posts.neo_models import Post
+from sb_posts.serializers import PostSerializerNeo
+from sb_questions.neo_models import Question, Solution
+from sb_questions.serializers import (QuestionSerializerNeo,
+                                      SolutionSerializerNeo)
 from sb_public_official.serializers import PublicOfficialSerializer
 from sb_public_official.neo_models import PublicOfficial
 from sb_campaigns.neo_models import PoliticalCampaign
@@ -241,8 +248,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
         if html == 'true':
             html_array = []
             for item in serializer.data:
-                context = RequestContext(request, item)
                 item['page_user_username'] = username
+                context = RequestContext(request, item)
                 html_array.append(render_to_string('friend_block.html',
                                                    context))
             return self.get_paginated_response(html_array)
@@ -349,7 +356,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             possible_reps = [PoliticalCampaign.inflate(row[0]) for row in res]
             cache.set('%s_possible_house_representatives' % (username),
                       possible_reps)
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             if not possible_reps:
                 return Response("<small>Currently No Registered Campaigning "
@@ -423,7 +430,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_200_OK)
 
 
-class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
+class MeViewSet(mixins.UpdateModelMixin,
+                mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     This endpoint provides the ability to get information regarding the
     currently authenticated user. This way AJAX, Ember, and other front end
@@ -431,13 +439,21 @@ class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
     /profile/ url to get information on the signed in user.
     """
     serializer_class = PlebSerializerNeo
-    lookup_field = "username"
     permission_classes = (IsAuthenticated, IsSelf)
 
     def get_object(self):
         return Pleb.get(self.request.user.username)
 
-    def retrieve(self, request, *args, **kwargs):
+    def get_queryset(self):
+        return Pleb.get(self.request.user.username)
+
+    def put(self, request, *args, **kwargs):
+        return self.update(request, *args, **kwargs)
+
+    def patch(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         serializer_data = dict(serializer.data)
@@ -447,7 +463,148 @@ class MeRetrieveUpdateDestroy(RetrieveUpdateDestroyAPIView):
         if serializer_data['profile_pic'] is None:
             serializer_data['profile_pic'] = static(
                 'images/sage_coffee_grey-01.png')
-        return Response(serializer_data)
+        return Response(serializer_data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def newsfeed(self, request):
+        """
+        The newsfeed endpoint expects to be called on the me endpoint and
+        assumes that the request object provided will contain the user the
+        newsfeed is being provided to. It is not included as a list_route on
+        the me endpoint due to the me endpoint not being a viewset.
+        If we transition to that structure it could easily be moved to a
+        list_route there.
+        Query if we want to grab tags:
+        MATCH (a:Pleb {username: "%s"})-
+                [OWNS_QUESTION]->(questions:Question)-[:TAGGED_AS]->(tags:Tag)
+            WHERE questions.to_be_deleted = False AND questions.created > %s
+            RETURN questions, tags.name AS tags, NULL as solutions,
+                NULL as posts UNION
+        MATCH (a)-[OWNS_SOLUTION]->(solutions:Solution)
+            WHERE solutions.to_be_deleted = False AND solutions.created > %s
+            RETURN solutions, NULL as questions, NULL as posts,
+                NULL as tags UNION
+        MATCH (a)-[OWNS_POST]->(posts:Post)
+            WHERE posts.to_be_deleted = False AND posts.created > %s
+            RETURN posts, NULL as questions, NULL as solutions,
+                NULL as tags UNION
+        MATCH (a)-[r:FRIENDS_WITH {currently_friends: True}]->()-
+                [OWNS_POST]->(posts:Post)
+            WHERE posts.to_be_deleted = False AND posts.created > %s
+            RETURN posts, NULL as questions, NULL as solutions,
+            NULL as tags UNION
+        MATCH (a)-[manyFriends:FRIENDS_WITH*2 {currently_friends: True}]->
+                ()-[OWNS_QUESTION]->(questions:Question)-[:TAGGED_AS]->
+                (tags:Tag)
+            WHERE questions.to_be_deleted = False AND questions.created > %s
+            RETURN questions, tags.name AS tags, NULL as posts,
+                NULL as solutions UNION
+        MATCH (a)-[manyFriends]->()-[OWNS_SOLUTION]->(solutions:Solution)
+            WHERE solutions.to_be_deleted = False AND solutions.created > %s
+            RETURN solutions, NULL as posts, NULL as questions, NULL as tags
+        """
+        # This query retrieves all of the current user's posts, solutions,
+        # and questions as well as their direct friends posts, solutions,
+        # and questions. It then looks for all of their friends friends
+        # solutions and questions, combines all of the content and
+        # returns the result. The query filters out content scheduled for
+        # deletion and only looks for content created more recently than the
+        # time provided. The reasoning for not including friends of friends
+        # posts is to try and improve privacy. Friends of friends have not
+        # actually been accepted potentially as friends by the user and
+        # therefore should not have access to information posted on the user's
+        # wall which in this case would be their posts.
+        # We currently do not sort this query in neo because we are waiting
+        # for post processing on unions as a whole to be added as a feature.
+        # See Github issue #2725 for updates
+        # https://github.com/neo4j/neo4j/issues/2725
+        then = (datetime.now(pytz.utc) - timedelta(days=90)).strftime("%s")
+        query = \
+            'MATCH (a:Pleb {username: "%s"})-[OWNS_QUESTION]->' \
+            '(questions:Question) ' \
+            'WHERE questions.to_be_deleted = False AND questions.created > %s' \
+            ' RETURN questions, NULL AS solutions, NULL AS posts, ' \
+            'questions.created AS created, NULL AS s_question UNION ' \
+            'MATCH (a)-[OWNS_SOLUTION]->(solutions:Solution)-' \
+            '[POSSIBLE_ANSWER_TO]->(s_question:Question) ' \
+            'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
+            ' RETURN solutions, NULL AS questions, NULL AS posts, ' \
+            'solutions.created AS created, s_question AS s_question UNION ' \
+            'MATCH (a)-[OWNS_POST]->(posts:Post) ' \
+            'WHERE posts.to_be_deleted = False AND posts.created > %s ' \
+            'RETURN posts, NULL as questions, NULL as solutions, ' \
+            'posts.created AS created, NULL AS s_question UNION ' \
+            'MATCH (a)-[r:FRIENDS_WITH {currently_friends: True}]->()-' \
+            '[OWNS_POST]->(posts:Post) ' \
+            'WHERE posts.to_be_deleted = False AND posts.created > %s ' \
+            'RETURN posts, NULL AS questions, NULL AS solutions, ' \
+            'posts.created AS created, NULL AS s_question UNION ' \
+            'MATCH (a)-[manyFriends:FRIENDS_WITH*2 {currently_friends: True}]' \
+            '->()-[OWNS_QUESTION]->(questions:Question) ' \
+            'WHERE questions.to_be_deleted = False AND ' \
+            'questions.created > %s ' \
+            'RETURN questions, NULL AS posts, NULL AS solutions, ' \
+            'questions.created AS created, NULL AS s_question UNION ' \
+            'MATCH (a)-[manyFriends]->()-[OWNS_SOLUTION]->' \
+            '(solutions:Solution)-[POSSIBLE_ANSWER_TO]->' \
+            '(s_question:Question) ' \
+            'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
+            ' RETURN solutions, NULL AS posts, NULL AS questions, ' \
+            'solutions.created AS created, s_question AS s_question' % (
+                request.user.username, then, then, then, then, then, then)
+        news = []
+        article_html = None
+        html = request.query_params.get('html', 'false').lower()
+        res, _ = db.cypher_query(query)
+        # Profiled with ~50 objects and it was still performing under 1 ms.
+        # By the time sorting in python becomes an issue the above mentioned
+        # ticket should be resolved.
+        res = sorted(res, key=attrgetter('created'), reverse=True)
+        page = self.paginate_queryset(res)
+        for row in page:
+            news_article = None
+            if row.questions is not None:
+                news_article = QuestionSerializerNeo(
+                    Question.inflate(row.questions),
+                    context={'request': request}).data
+                if html == "true":
+                    news_article['last_edited_on'] = parser.parse(
+                        news_article['last_edited_on'])
+                    article_html = render_to_string(
+                        'question_news.html', RequestContext(
+                            request, news_article))
+            elif row.solutions is not None:
+                question_data = QuestionSerializerNeo(
+                    Question.inflate(row.s_question)).data
+                # TODO add question or at least title to top of solution to
+                # give context.
+                news_article = SolutionSerializerNeo(
+                    Solution.inflate(row.solutions),
+                    context={'request': request}).data
+                news_article['question'] = question_data
+                if html == "true":
+                    news_article['last_edited_on'] = parser.parse(
+                        news_article['last_edited_on'])
+                    article_html = render_to_string(
+                        'solution_news.html', RequestContext(
+                            request, news_article))
+            elif row.posts is not None:
+                news_article = PostSerializerNeo(
+                    Post.inflate(row.posts), context={'request': request}).data
+                if html == "true":
+                    news_article['last_edited_on'] = parser.parse(
+                        news_article['last_edited_on'])
+                    logger.critical(news_article)
+                    article_html = render_to_string(
+                        'post_news.html', RequestContext(request, news_article))
+            if html == "true":
+                news_article = {
+                    "html": article_html,
+                    "id": news_article['id'],
+                    'type': news_article['type']
+                }
+            news.append(news_article)
+        return self.get_paginated_response(news)
 
 
 class FriendRequestViewSet(viewsets.ModelViewSet):

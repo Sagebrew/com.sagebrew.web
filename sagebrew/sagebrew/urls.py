@@ -14,7 +14,7 @@ from sb_registration.forms import CustomPasswordResetForm
 urlpatterns = patterns(
     '',
     (r'^favicon.ico$', RedirectView.as_view(url="%sfavicon.ico" % (
-        settings.STATIC_URL))),
+        settings.STATIC_URL), permanent=True)),
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
     url(r'^password_reset/', 'django.contrib.auth.views.password_reset',
@@ -79,7 +79,6 @@ urlpatterns = patterns(
 
 if settings.DEBUG is True:
     urlpatterns += patterns(
-        (r'^admin/', include('admin_honeypot.urls')),
         (r'^secret/', include(admin.site.urls)),
         (r'^robots.txt$', TemplateView.as_view(
             template_name='robots_staging.txt', content_type='text/plain')),
@@ -94,7 +93,6 @@ if settings.DEBUG is True:
     )
 elif environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:
     urlpatterns += patterns(
-        (r'^admin/', include('admin_honeypot.urls')),
         (r'^secret/', include(admin.site.urls)),
         (r'^robots.txt$', TemplateView.as_view(
             template_name='robots_staging.txt', content_type='text/plain')),

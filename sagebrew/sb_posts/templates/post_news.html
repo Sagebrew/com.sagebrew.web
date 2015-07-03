@@ -1,0 +1,79 @@
+{% load staticfiles %}
+{% load humanize %}
+<div class="block_{{ object_uuid }}">
+    <div class="js-page-object" data-object_uuid="{{ object_uuid }}" style="display: None"></div>
+    <div class="sb_post_header">
+        <div class="row">
+            <div class="col-sm-1 hidden-xs">
+                <div class="sb_thumbnail_xs thumbnail">
+                    {% static 'images/sage_coffee_grey-01.png' as default_profile %}
+                    <a href="{{ profile.url }}"><img src="{{ profile.profile_pic|default_if_none:default_profile }}"/></a>
+                </div>
+            </div>
+            <div class="col-sm-9 col-xs-12">
+               <div style="margin-bottom: -10px;">
+                   <small><a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> created a spark</small>
+               </div>
+            </div>
+            <div class="col-xs-2" style="margin-top:-6px;  margin-bottom: -10px; padding-left:0;">
+                <small>
+                    <i class="fa fa-user-secret" style="padding-right: 5px;"></i>Private
+                </small>
+            </div>
+        </div>
+        <div class="row">
+            <div class="vote_small vote_count_medium">
+                <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
+                    {% include "vote.html" %}
+                </div>
+            </div>
+            <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 sb_post_wrapper">
+                <div class="sb_post_body" id="sb_content_{{ object_uuid }}">
+                    {{ content|urlize|linebreaksbr }}
+                </div>
+                <div id="edit_container_{{ object_uuid }}" style="display: none">
+                    <div class="row-fluid">
+                        <textarea class="form-control edit_post_input_class"
+                                  id="{{ object_uuid }}"
+                                  name="edit_post_input"
+                                  rows="1">{{ content }}</textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-8">
+                            <button class='btn btn-block btn-primary sb_btn_fill edit_object-action edit_{{ object_uuid }}'
+                               id="edit_post_button_id"
+                               data-parent_object="{{ profile.username }}"
+                               data-object_uuid="{{ object_uuid }}"
+                               data-created="{{ created }}">Edit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-offset-10 hidden-xs">
+                <small>
+                    {{ last_edited_on|naturaltime }}
+                </small>
+            </div>
+        </div>
+        <div id="sb_comments_container_{{ object_uuid }}">
+        </div>
+        {% comment %}
+            This area is for inputing a new comment. The include is needed for population of existing comments.
+        {% endcomment %}
+        <div class="row">
+            <form id="commentSubmitForm">
+            <div class="input-group sb_comment">
+                <textarea class="input-group form-control sb_comment_input"
+                          id="post_comment_on_{{ object_uuid }}"
+                          rows="2"
+                          name="comment_content"
+                          placeholder="Write your comment..."></textarea>
+                <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
+                   data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>

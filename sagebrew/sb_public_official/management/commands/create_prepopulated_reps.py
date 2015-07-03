@@ -18,7 +18,6 @@ logger = getLogger('loggly_logs')
 
 
 class Command(BaseCommand):
-    args = 'None.'
     help = 'Creates placeholder representatives.'
 
     def create_placeholders(self):

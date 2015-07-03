@@ -87,7 +87,7 @@ class UserSerializer(SBSerializer):
         pleb.save()
         # TODO Should move this out to the endpoint to remove circular
         # dependencies
-        cache.set(pleb.username, pleb)
+        cache.delete(pleb.username)
         spawn_task(task_func=create_pleb_task,
                    task_param={
                        "user_instance": user, "birthday": birthday,

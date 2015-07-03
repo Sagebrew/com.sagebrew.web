@@ -5,8 +5,13 @@
     {% if page_user.username == request.user.username or is_friend == True %}
 
         <ul>
+            {% if page_user.username == request.user.username %}
             <li>
-                <a {% if 'friends' not in request.path and 'about' not in request.path and 'reputation' not in request.path %}class="active"{% endif %} href="{% url 'profile_page' page_user.username %}">Home</a>
+                   <a {% if 'feed' in request.path %}class="active"{% endif %} href="{% url 'newsfeed' %}">Feed</a>
+            </li>
+            {% endif %}
+            <li>
+                <a {% if 'friends' not in request.path and 'about' not in request.path and 'reputation' not in request.path and 'feed' not in request.path %}class="active"{% endif %} href="{% url 'profile_page' page_user.username %}">Profile</a>
             </li>
                 {% if debug == True %}
                     {% comment %}

@@ -8,6 +8,10 @@ logger = logging.getLogger('loggly_logs')
 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument('web_env', nargs='+', type=str)
+        parser.add_argument('worker_env', nargs='+', type=str)
+
     def populate_config(self, web_env, worker_env):
         cur_branch = environ.get("CIRCLE_BRANCH", "")
         with open("%s/aws_environment_config/base.config" % (
@@ -54,7 +58,7 @@ class Command(BaseCommand):
         f.close()
 
     def handle(self, *args, **options):
-        self.populate_config(args[0], args[1])
+        self.populate_config(options['web_env'][0], options['worker_env'][0])
 
 
 def populate_staging_values(data):

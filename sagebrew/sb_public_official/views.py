@@ -29,10 +29,10 @@ def saga(request, username):
     except (CypherException, IOError, PublicOfficial.DoesNotExist,
             DoesNotExist):
         return redirect("404_Error")
-    return render(request, 'action_page.html', {
-        "quest": PoliticalCampaignSerializer(
-            campaign, context={'request': request}).data,
-        "stripe_key": settings.STRIPE_PUBLIC_KEY})
+    serializer_data = PoliticalCampaignSerializer(
+        campaign, context={'request': request}).data
+    serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
+    return render(request, 'action_page.html', serializer_data)
 
 
 @login_required()
@@ -86,10 +86,10 @@ def updates(request, username):
     except (CypherException, IOError, PublicOfficial.DoesNotExist,
             DoesNotExist):
         return redirect("404_Error")
-    return render(request, 'action_page.html',{
-        "quest": PoliticalCampaignSerializer(
-            campaign, context={'request': request}).data,
-        "stripe_key": settings.STRIPE_PUBLIC_KEY})
+    serializer_data = PoliticalCampaignSerializer(
+        campaign, context={'request': request}).data
+    serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
+    return render(request, 'action_page.html',serializer_data)
 
 
 @api_view(['GET'])

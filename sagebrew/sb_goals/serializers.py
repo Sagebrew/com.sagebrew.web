@@ -36,6 +36,7 @@ class GoalSerializer(CampaignAttributeSerializer):
     pledges_required = serializers.IntegerField(required=False,
                                                 allow_null=True)
 
+    current_pledge_amount = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
     associated_round = serializers.SerializerMethodField()
     donations = serializers.SerializerMethodField()
@@ -135,6 +136,9 @@ class GoalSerializer(CampaignAttributeSerializer):
 
     def get_associated_round_donation_total(self, obj):
         return Goal.get_associated_round_donation_total(obj.object_uuid)
+
+    def get_current_pledge_amount(self, obj):
+        return PoliticalCampaign.get_vote_count(obj.campaign_id)
 
 
 class RoundSerializer(CampaignAttributeSerializer):

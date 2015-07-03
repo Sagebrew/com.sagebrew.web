@@ -453,28 +453,12 @@ class MeViewSet(mixins.UpdateModelMixin,
             WHERE questions.to_be_deleted = False AND questions.created > %s
             RETURN questions, tags.name AS tags, NULL as solutions,
                 NULL as posts UNION
-        MATCH (a)-[OWNS_SOLUTION]->(solutions:Solution)
-            WHERE solutions.to_be_deleted = False AND solutions.created > %s
-            RETURN solutions, NULL as questions, NULL as posts,
-                NULL as tags UNION
-        MATCH (a)-[OWNS_POST]->(posts:Post)
-            WHERE posts.to_be_deleted = False AND posts.created > %s
-            RETURN posts, NULL as questions, NULL as solutions,
-                NULL as tags UNION
-        MATCH (a)-[r:FRIENDS_WITH {currently_friends: True}]->()-
-                [OWNS_POST]->(posts:Post)
-            WHERE posts.to_be_deleted = False AND posts.created > %s
-            RETURN posts, NULL as questions, NULL as solutions,
-            NULL as tags UNION
         MATCH (a)-[manyFriends:FRIENDS_WITH*2 {currently_friends: True}]->
                 ()-[OWNS_QUESTION]->(questions:Question)-[:TAGGED_AS]->
                 (tags:Tag)
             WHERE questions.to_be_deleted = False AND questions.created > %s
             RETURN questions, tags.name AS tags, NULL as posts,
                 NULL as solutions UNION
-        MATCH (a)-[manyFriends]->()-[OWNS_SOLUTION]->(solutions:Solution)
-            WHERE solutions.to_be_deleted = False AND solutions.created > %s
-            RETURN solutions, NULL as posts, NULL as questions, NULL as tags
         """
         # This query retrieves all of the current user's posts, solutions,
         # and questions as well as their direct friends posts, solutions,
@@ -493,38 +477,66 @@ class MeViewSet(mixins.UpdateModelMixin,
         # https://github.com/neo4j/neo4j/issues/2725
         then = (datetime.now(pytz.utc) - timedelta(days=90)).strftime("%s")
         query = \
+            '// Retrieve all the current users questions\n' \
             'MATCH (a:Pleb {username: "%s"})-[OWNS_QUESTION]->' \
             '(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND questions.created > %s' \
             ' RETURN questions, NULL AS solutions, NULL AS posts, ' \
-            'questions.created AS created, NULL AS s_question UNION ' \
+            'questions.created AS created, NULL AS s_question, ' \
+            'NULL AS campaigns UNION ' \
+            '' \
+            '// Retrieve all the current users solutions\n' \
             'MATCH (a)-[OWNS_SOLUTION]->(solutions:Solution)-' \
             '[POSSIBLE_ANSWER_TO]->(s_question:Question) ' \
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
             ' RETURN solutions, NULL AS questions, NULL AS posts, ' \
-            'solutions.created AS created, s_question AS s_question UNION ' \
+            'solutions.created AS created, s_question AS s_question,' \
+            'NULL AS campaigns UNION ' \
+            '' \
+            '// Retrieve all the current users posts\n' \
             'MATCH (a)-[OWNS_POST]->(posts:Post) ' \
             'WHERE posts.to_be_deleted = False AND posts.created > %s ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
-            'posts.created AS created, NULL AS s_question UNION ' \
+            'posts.created AS created, NULL AS s_question,' \
+            'NULL AS campaigns UNION ' \
+            '' \
+            '// Retrieve all the current users related Quests\n' \
+            'MATCH (a)-[:LIVES_AT]->(:Address)-[:ENCOMPASSED_BY*..]->' \
+            '(:Location)-[:POSITIONS_AVAILABLE]->(:Position)-[:CAMPAIGNS]->' \
+            '(campaigns:Campaign) ' \
+            'WHERE campaigns.active = True AND campaigns.created > %s ' \
+            'RETURN campaigns, NULL AS solutions, NULL AS posts, ' \
+            'NULL AS questions, campaigns.created AS created, ' \
+            'NULL AS s_question UNION ' \
+            '' \
+            '// Retrieve all the current users friends posts\n' \
             'MATCH (a)-[r:FRIENDS_WITH {currently_friends: True}]->()-' \
             '[OWNS_POST]->(posts:Post) ' \
             'WHERE posts.to_be_deleted = False AND posts.created > %s ' \
             'RETURN posts, NULL AS questions, NULL AS solutions, ' \
-            'posts.created AS created, NULL AS s_question UNION ' \
-            'MATCH (a)-[manyFriends:FRIENDS_WITH*2 {currently_friends: True}]' \
+            'posts.created AS created, NULL AS s_question,' \
+            'NULL AS campaigns UNION ' \
+            '' \
+            '// Retrieve all the current users friends and friends of friends' \
+            '// questions \n' \
+            'MATCH (a)-[manyFriends:FRIENDS_WITH*..2 {currently_friends: True}]' \
             '->()-[OWNS_QUESTION]->(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND ' \
             'questions.created > %s ' \
             'RETURN questions, NULL AS posts, NULL AS solutions, ' \
-            'questions.created AS created, NULL AS s_question UNION ' \
+            'questions.created AS created, NULL AS s_question,' \
+            'NULL AS campaigns UNION ' \
+            '' \
+            '// Retrieve all the current users friends and friends of friends' \
+            '// solutions \n' \
             'MATCH (a)-[manyFriends]->()-[OWNS_SOLUTION]->' \
             '(solutions:Solution)-[POSSIBLE_ANSWER_TO]->' \
             '(s_question:Question) ' \
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
             ' RETURN solutions, NULL AS posts, NULL AS questions, ' \
-            'solutions.created AS created, s_question AS s_question' % (
-                request.user.username, then, then, then, then, then, then)
+            'solutions.created AS created, s_question AS s_question,' \
+            'NULL AS campaigns' % (
+                request.user.username, then, then, then, then, then, then, then)
         news = []
         article_html = None
         html = request.query_params.get('html', 'false').lower()
@@ -567,9 +579,18 @@ class MeViewSet(mixins.UpdateModelMixin,
                 if html == "true":
                     news_article['last_edited_on'] = parser.parse(
                         news_article['last_edited_on'])
-                    logger.critical(news_article)
                     article_html = render_to_string(
                         'post_news.html', RequestContext(request, news_article))
+            elif row.campaigns is not None:
+                news_article = PoliticalCampaignSerializer(
+                    PoliticalCampaign.inflate(row.campaigns),
+                    context={'request': request}).data
+                if html == "true":
+                    news_article['created'] = parser.parse(
+                        news_article['created'])
+                    article_html = render_to_string(
+                        'campaign_news.html',
+                        RequestContext(request, news_article))
             if html == "true":
                 news_article = {
                     "html": article_html,

@@ -4,6 +4,7 @@ from rest_framework import serializers
 class SBSerializer(serializers.Serializer):
     id = serializers.SerializerMethodField()
     type = serializers.SerializerMethodField()
+    created = serializers.DateTimeField(read_only=True)
 
     def get_id(self, obj):
         try:

@@ -23,10 +23,10 @@
                     </ul>
                 </div>
                 <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
+                <form id="socialForm">
                     <div class="block sb_settings_block">
-                    {% if debug %}
+                    {% if campaign.id %}
                         <div id="campaign_id" data-object_uuid="{{ campaign.id }}" style="display: none"></div>
-                        <form id="settings_form">
                         <div id="completed-stripe" data-completed_stripe="{{ campaign.completed_stripe }}"></div>
                             {% if not campaign.completed_stripe %}
                                 <div class="row">
@@ -35,95 +35,106 @@
                                     </div>
                                 </div>
                                 {% comment %} I think we should require full SSN from people for stripe verification {% endcomment %}
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <input type="text"
-                                               id="ssn"
-                                               placeholder="Social Security Number (we store the last four digits)"
-                                               class="form-control input-lg"
-                                               value="">
+                                <form id="bankingForm">
+                                    <div class="row">
+                                        <div class="col-lg-12 social-number">
+                                            <input type="text"
+                                                   id="ssn"
+                                                   name="socnumb"
+                                                   placeholder="Social Security Number (we store the last four digits)"
+                                                   class="form-control input-lg"
+                                                   value="">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <input type="text"
-                                               id="ein"
-                                               placeholder="EIN for political campaign committee (we do not store this)"
-                                               class="form-control input-lg"
-                                               value="">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <input type="text"
+                                                   id="ein"
+                                                   name="employernumb"
+                                                   placeholder="EIN for political campaign committee (we do not store this)"
+                                                   class="form-control input-lg"
+                                                   value="">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <input type="text"
-                                               id="routing-number"
-                                               placeholder="Routing Number"
-                                               class="form-control input-lg"
-                                               value="">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <input type="text"
+                                                   id="routing-number"
+                                                   name="routingnumb"
+                                                   placeholder="Routing Number (we do not store this)"
+                                                   class="form-control input-lg"
+                                                   value="">
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <input type="text"
-                                               id="account-number"
-                                               placeholder="Account Number"
-                                               class="form-control input-lg"
-                                               value="">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <input type="text"
+                                                   name="accountnumb"
+                                                   id="account-number"
+                                                   placeholder="Account Number (we do not store this)"
+                                                   class="form-control input-lg"
+                                                   value="">
+                                        </div>
                                     </div>
-                                </div>
+                                </form>
                             {% endif %}
                             <div class="row">
                                 <div class="col-lg-12 password1">
                                     <h5>Web and Social Media</h5>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <input type="text"
-                                           id="personal-social-address"
-                                           placeholder="Website URL"
-                                           value="{{ campaign.website|default_if_none:'' }}"
-                                           class="form-control input-lg">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <input type="text"
-                                           id="facebook-social-address"
-                                           placeholder="Facebook Username"
-                                           value="{{ campaign.facebook|default_if_none:'' }}"
-                                           class="form-control input-lg">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <input type="text"
-                                           id="twitter-social-address"
-                                           placeholder="Twitter ID"
-                                           value="{{ campaign.twitter|default_if_none:'' }}"
-                                           class="form-control input-lg">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <input type="text"
-                                           id="linkedin-social-address"
-                                           placeholder="LinkedIn Username"
-                                           value="{{ campaign.linkedin|default_if_none:'' }}"
-                                           class="form-control input-lg">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12">
 
-                                    <input type="text"
-                                           id="youtube-social-address"
-                                           placeholder="Youtube Username"
-                                           value="{{ campaign.youtube|default_if_none:'' }}"
-                                           class="form-control input-lg">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <input type="text"
+                                               id="personal-social-address"
+                                               name="weburl"
+                                               placeholder="Website URL"
+                                               value="{{ campaign.website|default_if_none:'' }}"
+                                               class="form-control input-lg">
+                                    </div>
                                 </div>
-                            </div>
-                        </form>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <input type="text"
+                                               id="facebook-social-address"
+                                               name="facebook"
+                                               placeholder="Facebook Username"
+                                               value="{{ campaign.facebook|default_if_none:'' }}"
+                                               class="form-control input-lg">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12 twitter-row">
+                                        <input type="text"
+                                               id="twitter-social-address"
+                                               name="twitter"
+                                               placeholder="Twitter ID"
+                                               value="{{ campaign.twitter|default_if_none:'' }}"
+                                               class="form-control input-lg">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <input type="text"
+                                               name="linkedin"
+                                               id="linkedin-social-address"
+                                               placeholder="LinkedIn Username"
+                                               value="{{ campaign.linkedin|default_if_none:'' }}"
+                                               class="form-control input-lg">
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <input type="text"
+                                               name="youtube"
+                                               id="youtube-social-address"
+                                               placeholder="Youtube Username"
+                                               value="{{ campaign.youtube|default_if_none:'' }}"
+                                               class="form-control input-lg">
+                                    </div>
+                                </div>
+
                         <div class="row">
                             <div class="col-lg-12 hidden-sm hidden-xs">
                                 <h5>Sitting Representative Authorization</h5>
@@ -251,6 +262,7 @@
                             </div>
                         </div>
                         <div class="row">
+                            <div id="validation-errors"></div>
                             <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
                                 <button class="btn btn-primary sb_btn sb_btn_fill"
                                         id="submit_settings">
@@ -263,10 +275,16 @@
                                 </button>
                             </div>
                         </div>
+
                     {% else %}
-                        <h3>Quest settings are currently under development.</h3>
+                        <div class="col-xs-12">
+                            <button id="register-for-quest" class="btn btn-primary sb_btn sb_btn_fill">
+                                Register for a Quest!
+                            </button>
+                        </div>
                     {% endif %}
                     </div>
+                </form>
                 </div>
             </div>
         </div>
@@ -282,4 +300,5 @@
     <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script src="{% static 'js/submit_quest_settings.js' %}"></script>
+    <script src="{% static 'js/campaign_settings_validator.js' %}"></script>
 {% endblock scripts %}

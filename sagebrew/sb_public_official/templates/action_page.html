@@ -7,6 +7,7 @@
 {% block title %}{{ first_name }} {{ last_name }}'s Quest{% endblock title %}
 {% block content %}
 <div id="campaign_id" style="display: none" data-object_uuid="{{ id }}"></div>
+<div id="stripe-publishable" data-stripe_key="{{ stripe_key }}"></div>
 <div class="row-fluid sb_page">
     {% if active == True %}
         {% include "action_channel.html" %}
@@ -51,7 +52,7 @@
     {{ block.super }}
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
-    {% if active %}
+    {% if active or request.user.username == id %}
         <script src="{% static 'js/get_goals.js' %}"></script>
         <script src="{% static 'js/get_updates.js' %}"></script>
         <script src="{% static 'js/create_donations.js' %}"></script>
@@ -61,8 +62,6 @@
     {% if request.user.username == id %}
         <script src="{% static 'js/croppic.min.js' %}"></script>
         <script src="{% static 'js/uuid.js' %}"></script>
-        <script src="{% static 'js/get_goals.js' %}"></script>
-        <script src="{% static 'js/get_updates.js' %}"></script>
         <script src="{% static 'js/edit_quest.js' %}"></script>
         <script src="{% static 'js/quest_profile_pic.js' %}"></script>
         <script src="{% static 'js/quest_wallpaper_pic.js' %}"></script>

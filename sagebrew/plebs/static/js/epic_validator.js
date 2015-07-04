@@ -1,6 +1,6 @@
 /*global $, jQuery, ajaxSecurity, errorDisplay*/
 $(document).ready(function(){
-    $("#epicSubmitForm").formValidation({
+    $("#epicForm").formValidation({
         framework: 'bootstrap',
         icon: {
             valid: 'glyphicon glyphicon-ok',
@@ -10,9 +10,12 @@ $(document).ready(function(){
         button: {
             selector: '#submit_epic'
         },
+        err: {
+            container: "#validation-errors"
+        },
         fields: {
             epic_content: {
-                row: 'sb_epic_input',
+                row: 'epic-content',
                 validators: {
                     notEmpty: {
                         message: "Content is required"

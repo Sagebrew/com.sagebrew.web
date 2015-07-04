@@ -254,6 +254,7 @@ class CampaignSerializer(SBSerializer):
         else:
             return None
 
+
 class PoliticalCampaignSerializer(CampaignSerializer):
     vote_type = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()

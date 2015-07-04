@@ -13,8 +13,10 @@ WEB_ADDRESS = "https://127.0.0.1:8080"
 # calls
 VERIFY_SECURE = False
 if not VERIFY_SECURE:
-    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+    from requests.packages.urllib3.exceptions import (InsecureRequestWarning,
+                                                      InsecurePlatformWarning)
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
 
 CELERY_IGNORE_RESULT = False
 DATABASES = {

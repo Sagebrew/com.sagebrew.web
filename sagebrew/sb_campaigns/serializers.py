@@ -11,6 +11,7 @@ from rest_framework.reverse import reverse
 from rest_framework.exceptions import ValidationError
 
 from neomodel import db
+from neomodel.exception import DoesNotExist
 
 from api.serializers import SBSerializer
 from api.utils import gather_request_data
@@ -155,7 +156,10 @@ class CampaignSerializer(SBSerializer):
         return instance
 
     def get_url(self, obj):
-        if obj.owner_username is not None:
+        if obj.owner_username is not None and obj.owner_username != "":
+            # We need a try catch here as there are some campaigns that have
+            # username set but may not have a Pleb. This is only seen in tests
+            # and has not been observed in production.
             username = obj.owner_username
         else:
             username = obj.object_uuid
@@ -250,7 +254,13 @@ class CampaignSerializer(SBSerializer):
 
     def get_reputation(self, obj):
         if obj.owner_username is not None:
-            return Pleb.get(username=obj.owner_username).reputation
+            # We need a try catch here as there are some campaigns that have
+            # username set but may not have a Pleb. This is only seen in tests
+            # and has not been observed in production.
+            try:
+                return Pleb.get(username=obj.owner_username).reputation
+            except(DoesNotExist, Pleb.DoesNotExist):
+                return None
         else:
             return None
 

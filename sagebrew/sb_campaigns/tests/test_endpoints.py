@@ -1,9 +1,9 @@
 from uuid import uuid1
 
-from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
 
+from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -22,6 +22,8 @@ class CampaignEndpointTests(APITestCase):
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
+        for camp in self.pleb.campaign.all():
+            camp.delete()
         self.url = "http://testserver"
         self.campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username).save()
@@ -33,8 +35,6 @@ class CampaignEndpointTests(APITestCase):
         self.campaign.editors.connect(self.pleb)
         self.pleb.campaign_accountant.connect(self.campaign)
         self.pleb.campaign_editor.connect(self.campaign)
-        for camp in self.pleb.campaign.all():
-            camp.delete()
         cache.clear()
 
     def test_unauthorized(self):
@@ -457,7 +457,7 @@ class CampaignEndpointTests(APITestCase):
     def test_list(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')
-        response = self.client.get(url)
+        response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

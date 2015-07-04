@@ -10,6 +10,7 @@ class SBTestRunner(DiscoverRunner):
         sleep(1)
         success = call("/webapps/neo-test/neo4j-community-2.2.2/bin/neo4j"
                        " start-no-wait", shell=True)
+        sleep(10)
         if success != 0:
             return False
         try:
@@ -18,7 +19,6 @@ class SBTestRunner(DiscoverRunner):
                  "neo4j neo4j my-p4ssword")
         except OSError:
             pass
-        sleep(10)
         from neomodel import db
         query = "match (n)-[r]-() delete n,r"
         db.cypher_query(query)

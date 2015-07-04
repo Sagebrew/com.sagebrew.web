@@ -42,6 +42,9 @@ class DonationSerializer(SBSerializer):
                                             str(donation_amount)[:-2],
                                             str(270000)[:-2])
             raise serializers.ValidationError(message)
+        if not isinstance(value, int):
+            raise serializers.ValidationError("Sorry donations cannot include "
+                                              "change.")
         return value
 
     def create(self, validated_data):

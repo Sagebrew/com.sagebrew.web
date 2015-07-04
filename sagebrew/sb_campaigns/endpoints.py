@@ -191,7 +191,10 @@ class PoliticalCampaignViewSet(CampaignViewSet):
     def get_queryset(self):
         query = "MATCH (c:`PoliticalCampaign`) RETURN c"
         res, col = db.cypher_query(query)
-        return [PoliticalCampaign.inflate(row[0]) for row in res]
+        try:
+            return [PoliticalCampaign.inflate(row[0]) for row in res]
+        except IndexError:
+            return []
 
     def get_object(self):
         return PoliticalCampaign.get(self.kwargs[self.lookup_field])

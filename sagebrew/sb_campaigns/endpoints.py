@@ -33,7 +33,10 @@ class CampaignViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         query = "MATCH (c:`Campaign`) RETURN c"
         res, col = db.cypher_query(query)
-        return [Campaign.inflate(row[0]) for row in res]
+        try:
+            return [Campaign.inflate(row[0]) for row in res]
+        except IndexError:
+            return []
 
     def get_object(self):
         return Campaign.get(object_uuid=self.kwargs[self.lookup_field])

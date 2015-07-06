@@ -1,7 +1,7 @@
 /*global $, jQuery, ajaxSecurity, errorDisplay, Stripe*/
 
 $(document).ready(function () {
-    Stripe.setPublishableKey("pk_test_4VQN9H9N2kXFGMIziWSa09ak");
+    Stripe.setPublishableKey($("#stripe_key").data('key'));
     $("#submit_settings").click(function (event) {
         event.preventDefault();
         var settingsData = {

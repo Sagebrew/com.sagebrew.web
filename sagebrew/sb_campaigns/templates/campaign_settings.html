@@ -27,6 +27,7 @@
                     <div class="block sb_settings_block">
                     {% if campaign.id %}
                         <div id="campaign_id" data-object_uuid="{{ campaign.id }}" style="display: none"></div>
+                        <div id="stripe_key" data-key="{{ campaign.stripe_key }}" style="display: none"></div>
                         <div id="completed-stripe" data-completed_stripe="{{ campaign.completed_stripe }}"></div>
                             {% if not campaign.completed_stripe %}
                                 <div class="row">

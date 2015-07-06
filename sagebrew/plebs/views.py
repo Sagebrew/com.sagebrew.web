@@ -149,6 +149,7 @@ def quest_settings(request):
         return redirect("500_Error")
     except IndexError:
         campaign = False
+    campaign['stripe_key'] = settings.STRIPE_PUBLIC_KEY
     return render(request, 'campaign_settings.html',
                   {"campaign": campaign})
 

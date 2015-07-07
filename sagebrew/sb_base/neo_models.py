@@ -223,7 +223,7 @@ class SBContent(VotableContent):
     # closed this gets switched. After the crontab task runs and after two
     # days have elapsed since the last council vote occurred it will be
     # determined if this piece of content is closed or not.
-    last_council_vote = DateTimeProperty(
+    initial_vote_time = DateTimeProperty(
         default=lambda: datetime.now(pytz.utc))
     # last_council_vote is a property which lets us check if two days have
     # passed since the last council vote on this object. If two days have
@@ -297,6 +297,8 @@ class SBContent(VotableContent):
         return res.one
 
     def get_council_decision(self):
+        # True denotes that the vote is for the content to be removed, while
+        # false means that the content should not be removed
         query = 'MATCH (a:SBContent {object_uuid:"%s"})-[rs:COUNCIL_VOTE]->' \
                 '(p:Pleb) WHERE rs.active=true RETURN ' \
                 'reduce(remove_vote = 0, r in collect(rs)| ' \
@@ -306,9 +308,12 @@ class SBContent(VotableContent):
                 % self.object_uuid
         res, _ = db.cypher_query(query)
         try:
-            return float(res[0].remove_vote) / float(res[0].total_votes)
+            percentage = float(res[0].remove_vote) / float(res[0].total_votes)
         except ZeroDivisionError:
-            return 0
+            percentage = 0
+        if percentage >= .66:
+            return True
+        return False
 
 
     def get_url(self, request):

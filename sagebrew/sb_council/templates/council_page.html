@@ -19,5 +19,7 @@
 
 {% block scripts %}
     {{ block.super }}
+    <script src="{% static 'js/vendor/foggy.min.js' %}"></script>
     <script src="{% static 'js/vote_on_flagged.js' %}"></script>
+
 {% endblock %}

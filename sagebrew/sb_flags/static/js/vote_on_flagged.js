@@ -72,11 +72,15 @@ $(document).ready(function () {
                 $("#flag-voting-wrapper").append(data.results[i].html);
             }
             activateVoting();
+            $(".sb_blurred_content").foggy({
+                blurRadius: 6,
+                opacity: 0.9
+            });
             //$.notify("Updated next goal set!", {type: 'success'});
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
             errorDisplay(XMLHttpRequest);
         }
     });
-
+    $(".sb_blurred_content").foggy(false);
 });

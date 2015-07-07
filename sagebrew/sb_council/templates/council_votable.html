@@ -1,7 +1,7 @@
 <div class="block" style="margin-top: 15px; padding-bottom: 15px;">
     <div class="row">
         <div class="col-xs-1">
-            {% include 'counsel_vote.html' %}
+            {% include 'council_vote.html' %}
         </div>
         <div class="col-xs-5">
             <h4>{% if title %}{{ title|truncatewords:10 }}{% else %}{{ content|truncatewords:10 }}{% endif %}</h4>
@@ -40,23 +40,6 @@
                 </div>
             </div>
         {% endif %}
-        <div class="row">
-            <div class="col-xs-10">
-                <h6>Reasoning</h6>
-                    <textarea class="form-control"
-                              id="{{ id }}-response"
-                              name="flag-vote-response"
-                              placeholder="Reasoning behind your decision..."
-                              rows="2"></textarea>
-            </div>
-            <div class="col-xs-2">
-                <button class="btn btn-primary sb_btn sb_btn_fill submit-reasoning"
-                        style="margin-top: 30px;"
-                        data-object_uuid="{{ id }}">
-                    Submit
-                </button>
-            </div>
-        </div>
         {% comment %}
         <div class="row sb_input_wrapper">
             <div class="col-lg-12">

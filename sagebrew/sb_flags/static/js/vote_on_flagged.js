@@ -17,14 +17,15 @@ function activateVoting() {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "PUT",
-            url: "/v1/counsel/" + objectUuid,
+            url: "/v1/council/" + objectUuid,
             data: JSON.stringify({
-                "counsel_vote_type": $(this).data("vote_type"),
+                "council_vote_type": $(this).data("vote_type"),
                 "reason": $("#" + objectUuid + "-response").val()
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                console.log(data);
                 buttonSelector.removeAttr('disabled');
                 if (voteDown.hasClass('vote_down_active') && voteType === true) {
                     voteDown.removeClass('vote_down_active');
@@ -42,11 +43,11 @@ function activateVoting() {
                     //upvoteCount -= 2;
                 } else {
                     if (voteType === true) {
-                        $(this).addClass('vote_up_active');
+                        buttonSelector.addClass('vote_up_active');
                         //upvoteCount += 1;
                     }
                     else {
-                        $(this).addClass('vote_down_active');
+                        buttonSelector.addClass('vote_down_active');
                         //upvoteCount -= 1;
                     }
                 }
@@ -63,7 +64,7 @@ $(document).ready(function () {
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/counsel/?html=true",
+        url: "/v1/council/?html=true",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {

@@ -29,13 +29,13 @@ from sb_posts.serializers import PostSerializerNeo
 from sb_flags.neo_models import Flag
 from sb_flags.serializers import FlagSerializer
 
-from .serializers import CounselVoteSerializer
+from .serializers import CouncilVoteSerializer
 
 logger = getLogger('loggly_logs')
 
 
-class CounselObjectEndpoint(viewsets.ModelViewSet):
-    serializer_class = CounselVoteSerializer
+class CouncilObjectEndpoint(viewsets.ModelViewSet):
+    serializer_class = CouncilVoteSerializer
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticated,)
 
@@ -64,37 +64,36 @@ class CounselObjectEndpoint(viewsets.ModelViewSet):
         return res
 
     def list(self, request, *args, **kwargs):
-        counsel_list = []
+        council_list = []
         html = request.query_params.get('html', 'false')
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         for row in page:
-            counsel_object = None
+            council_object = None
             if row.questions is not None:
-                counsel_object = QuestionSerializerNeo(
+                council_object = QuestionSerializerNeo(
                     Question.inflate(row.questions),
                     context={'request':request}).data
             if row.solutions is not None:
-                counsel_object = SolutionSerializerNeo(
+                council_object = SolutionSerializerNeo(
                     Solution.inflate(row.solutions),
                     context={'request': request}).data
             if row.comments is not None:
-                counsel_object = CommentSerializer(
+                council_object = CommentSerializer(
                     Comment.inflate(row.comments),
                     context={'request': request}).data
             if row.posts is not None:
-                counsel_object = PostSerializerNeo(
+                council_object = PostSerializerNeo(
                     Post.inflate(row.posts),
                     context={'request': request}).data
             if html == 'true':
-                counsel_object['last_edited_on'] = parser.parse(
-                    counsel_object['last_edited_on'])
-                logger.info(counsel_object)
-                counsel_object = {
-                    "html": render_to_string("counsel_votable.html",
-                                             counsel_object),
-                    "id": counsel_object["id"],
-                    "type": counsel_object["type"]
+                council_object['last_edited_on'] = parser.parse(
+                    council_object['last_edited_on'])
+                council_object = {
+                    "html": render_to_string("council_votable.html",
+                                             council_object),
+                    "id": council_object["id"],
+                    "type": council_object["type"]
                 }
-            counsel_list.append(counsel_object)
-        return self.get_paginated_response(counsel_list)
+            council_list.append(council_object)
+        return self.get_paginated_response(council_list)

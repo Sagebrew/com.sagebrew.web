@@ -51,7 +51,7 @@ class VoteRelationship(StructuredRel):
     created = DateTimeProperty(default=get_current_time)
 
 
-class CounselVote(VoteRelationship):
+class CouncilVote(VoteRelationship):
     reasoning = StringProperty()
     vote_type = BooleanProperty(default=None)  # True is up False is down
 
@@ -82,7 +82,7 @@ class VotableContent(NotificationCapable):
                               model=PostedOnRel)
     votes = RelationshipFrom('plebs.neo_models.Pleb', 'PLEB_VOTES',
                              model=VoteRelationship)
-    # counsel_vote = RelationshipTo('sb_counsel.neo_models.SBCounselVote',
+    # counsel_vote = RelationshipTo('sb_council.neo_models.SBCounselVote',
     #                              'VOTE')
     # views = RelationshipTo('sb_views.neo_models.SBView', 'VIEWS')
 
@@ -215,6 +215,20 @@ class SBContent(VotableContent):
     # determine the potential for slippage from dynamo's count and how we want
     # to update it. So at the moment it will remain at 0.
     vote_count = IntegerProperty(default=0)
+    # optimizations
+    is_masked = BooleanProperty(default=False)
+    # is_masked is a property that gets set and checked every time a council
+    # member votes on whether this piece of content should get
+    # hidden/removed/closed. If a 2/3 majority has decided that it should be
+    # closed this gets switched. After the crontab task runs and after two
+    # days have elapsed since the last council vote occurred it will be
+    # determined if this piece of content is closed or not.
+    last_council_vote = DateTimeProperty(
+        default=lambda: datetime.now(pytz.utc))
+    # last_council_vote is a property which lets us check if two days have
+    # passed since the last council vote on this object. If two days have
+    # elapsed then whatever the council's decision at that point is will be
+    # executed, be it closure of the object or not.
 
     # relationships
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
@@ -227,8 +241,8 @@ class SBContent(VotableContent):
                                 model=RelationshipWeight)
     notifications = RelationshipTo(
         'sb_notifications.neo_models.Notification', 'NOTIFICATIONS')
-    counsel_votes = RelationshipTo('plebs.neo_models.Pleb', 'COUNSEL_VOTE',
-                                   model=CounselVote)
+    council_votes = RelationshipTo('plebs.neo_models.Pleb', 'COUNCIL_VOTE',
+                                   model=CouncilVote)
 
     @classmethod
     def get_model_name(cls):
@@ -253,10 +267,10 @@ class SBContent(VotableContent):
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 
-    def counsel_vote(self, vote_type, pleb, reason):
+    def council_vote(self, vote_type, pleb, reason):
         try:
-            if self.counsel_votes.is_connected(pleb):
-                rel = self.counsel_votes.relationship(pleb)
+            if self.council_votes.is_connected(pleb):
+                rel = self.council_votes.relationship(pleb)
                 if vote_type == rel.vote_type and rel.active == True:
                     return self.remove_vote(rel)
                 rel.vote_type = vote_type
@@ -264,7 +278,7 @@ class SBContent(VotableContent):
                 rel.reasoning = reason
                 rel.save()
             else:
-                rel = self.counsel_votes.connect(pleb)
+                rel = self.council_votes.connect(pleb)
                 if vote_type == rel.vote_type and rel.active == True:
                     rel.active = False
                 rel.vote_type = vote_type
@@ -275,12 +289,27 @@ class SBContent(VotableContent):
         except (CypherException, IOError) as e:
             return e
 
-    def get_counsel_vote(self, username):
-        query = 'MATCH (a:SBContent {object_uuid:"%s"})-[r:COUNSEL_VOTE]->' \
+    def get_council_vote(self, username):
+        query = 'MATCH (a:SBContent {object_uuid:"%s"})-[r:COUNCIL_VOTE]->' \
                 '(p:Pleb {username:"%s"}) WHERE r.active=true ' \
                 'RETURN r.vote_type' % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
         return res.one
+
+    def get_council_decision(self):
+        query = 'MATCH (a:SBContent {object_uuid:"%s"})-[rs:COUNCIL_VOTE]->' \
+                '(p:Pleb) WHERE rs.active=true RETURN ' \
+                'reduce(remove_vote = 0, r in collect(rs)| ' \
+                'CASE WHEN r.vote_type=True THEN remove_vote+1 ' \
+                'ELSE remove_vote END) as remove_vote, ' \
+                'count(rs) as total_votes' \
+                % self.object_uuid
+        res, _ = db.cypher_query(query)
+        try:
+            return float(res[0].remove_vote) / float(res[0].total_votes)
+        except ZeroDivisionError:
+            return 0
+
 
     def get_url(self, request):
         return None

@@ -53,7 +53,7 @@ urlpatterns = patterns(
     (r'^search/', include('sb_search.urls')),
     (r'^docstore/', include('sb_docstore.urls')),
     (r'^quests/', include('sb_public_official.urls')),
-    (r'^counsel/', include('sb_counsel.urls')),
+    (r'^council/', include('sb_council.urls')),
     (r'^updates/', include('sb_updates.urls')),
     url(r'^signup/$', signup_view, name="signup"),
     url(r'^quests/$',
@@ -75,7 +75,7 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_campaigns.apis.v1')),
     (r'^v1/', include('sb_donations.apis.v1')),
     (r'^v1/', include('sb_locations.apis.v1')),
-    (r'^v1/', include('sb_counsel.apis.v1')),
+    (r'^v1/', include('sb_council.apis.v1')),
     url(r'^$', beta_page, name='beta_page'),
 )
 

@@ -2,11 +2,11 @@
     {% if profile == request.user.username %}
         {% include "vote_own_up.html" %}
     {% else %}
-        {% include "counsel_upvote.html" %}
+        {% include "council_upvote.html" %}
     {% endif %}
     {% if profile == request.user.username %}
         {% include "vote_own_down.html" %}
     {% else %}
-        {% include "counsel_downvote.html" %}
+        {% include "council_downvote.html" %}
     {% endif %}
 </div>

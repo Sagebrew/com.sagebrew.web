@@ -52,7 +52,7 @@ def quest_signup(request):
         if request.user.is_authenticated():
             return redirect('rep_registration_page')
         return redirect('signup')
-    return render(request, 'quest_signup.html')
+    return render(request, 'quest_details.html')
 
 
 @api_view(['POST'])

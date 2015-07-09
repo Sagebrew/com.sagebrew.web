@@ -34,7 +34,7 @@
     </div>
     <div class="row">
         <div class="col-xs-10 col-xs-offset-1 sb_content_body">
-            <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
+            <div class="sb_markdown block_vertical{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                 {% autoescape off %}
                     {{ html_content }}
                 {% endautoescape %}
@@ -51,7 +51,7 @@
     <div id="sb_comments_container_{{ object_uuid }}">
     </div>
     <div class="row">
-        {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
+        {% if "comment" in request_profile.privileges and not is_closed or "beta_user" in request_profile.privileges and not is_closed %}
             <form id="commentSubmitForm">
                 <div class="input-group sb_comment">
                         <textarea class="input-group form-control sb_comment_input"

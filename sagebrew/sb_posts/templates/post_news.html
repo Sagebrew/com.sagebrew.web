@@ -28,7 +28,7 @@
                 </div>
             </div>
             <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 sb_post_wrapper">
-                <div class="sb_post_body" id="sb_content_{{ object_uuid }}">
+                <div class="sb_post_body{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                     {{ content|urlize|linebreaksbr }}
                 </div>
                 <div id="edit_container_{{ object_uuid }}" style="display: none">
@@ -63,6 +63,7 @@
             This area is for inputing a new comment. The include is needed for population of existing comments.
         {% endcomment %}
         <div class="row">
+            {% if not is_closed %}
             <form id="commentSubmitForm">
             <div class="input-group sb_comment">
                 <textarea class="input-group form-control sb_comment_input"
@@ -74,6 +75,7 @@
                    data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
             </div>
             </form>
+            {% endif %}
         </div>
     </div>
 </div>

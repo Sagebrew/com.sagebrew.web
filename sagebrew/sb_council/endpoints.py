@@ -47,18 +47,18 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query = 'MATCH (questions:Question)-[HAS_FLAG]->(f:Flag) ' \
-                'WHERE questions.to_be_deleted=False RETURN questions, ' \
+                'WHERE questions.to_be_deleted=False and questions.visibility="public" RETURN questions, ' \
                 'NULL as solutions, NULL as posts, NULL as comments ' \
                 'UNION MATCH (solutions:Solution)-[HAS_FLAG]->(f:Flag) ' \
-                'WHERE solutions.to_be_deleted=False RETURN ' \
+                'WHERE solutions.to_be_deleted=False and solutions.visibility="public" RETURN ' \
                 'NULL as questions, ' \
                 'solutions, NULL as posts, NULL as comments ' \
                 'UNION MATCH (comments:Comment)-[HAS_FLAG]->(f:Flag) ' \
-                'WHERE comments.to_be_deleted=false RETURN ' \
+                'WHERE comments.to_be_deleted=false and comments.visibility="public" RETURN ' \
                 'NULL as questions, ' \
                 'NULL as solutions, NULL as posts, comments ' \
                 'UNION MATCH (posts:Post)-[HAS_FLAG]->(f:Flag) WHERE ' \
-                'posts.to_be_deleted=false RETURN NULL as questions, ' \
+                'posts.to_be_deleted=false and posts.visibility="public" RETURN NULL as questions, ' \
                 'NULL as solutions, posts, NULL as comments'
         res, _ = db.cypher_query(query)
         return res

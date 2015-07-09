@@ -73,9 +73,15 @@ class VotableContent(NotificationCapable):
     up_vote_adjustment = IntegerProperty(default=0)
     down_vote_adjustment = IntegerProperty(default=0)
     down_vote_cost = IntegerProperty(default=0)
+    is_closed = BooleanProperty(default=False)
 
     # optimizations
     owner_username = StringProperty()
+    initial_vote_time = DateTimeProperty(
+        default=lambda: datetime.now(pytz.utc))
+    # initial_vote_time is a property which lets us check if five days have
+    # passed since the first council vote or if five days have passed since
+    # the last time the task that checks for reputation recalculation has run.
 
     # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
@@ -178,6 +184,17 @@ class VotableContent(NotificationCapable):
 
     @apply_defense
     def get_rep_breakout(self):
+        logger.info((datetime.now(pytz.utc) - self.initial_vote_time))
+        logger.info((datetime.now(pytz.utc) - self.initial_vote_time).seconds)
+        if self.is_closed and (datetime.now(pytz.utc) -
+                                   self.initial_vote_time).seconds >= 5:
+            self.initial_vote_time = datetime.now(pytz.utc)
+            self.save()
+            return {
+                'total_rep': -20,
+                'pos_rep': 0,
+                'neg_rep': -20
+            }
         votes_up = self.get_upvote_count()
         votes_down = self.get_downvote_count()
         if isinstance(votes_up, Exception) is True:
@@ -216,19 +233,7 @@ class SBContent(VotableContent):
     # to update it. So at the moment it will remain at 0.
     vote_count = IntegerProperty(default=0)
     # optimizations
-    is_masked = BooleanProperty(default=False)
-    # is_masked is a property that gets set and checked every time a council
-    # member votes on whether this piece of content should get
-    # hidden/removed/closed. If a 2/3 majority has decided that it should be
-    # closed this gets switched. After the crontab task runs and after two
-    # days have elapsed since the last council vote occurred it will be
-    # determined if this piece of content is closed or not.
-    initial_vote_time = DateTimeProperty(
-        default=lambda: datetime.now(pytz.utc))
-    # last_council_vote is a property which lets us check if two days have
-    # passed since the last council vote on this object. If two days have
-    # elapsed then whatever the council's decision at that point is will be
-    # executed, be it closure of the object or not.
+
 
     # relationships
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
@@ -267,7 +272,7 @@ class SBContent(VotableContent):
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 
-    def council_vote(self, vote_type, pleb, reason):
+    def council_vote(self, vote_type, pleb):
         try:
             if self.council_votes.is_connected(pleb):
                 rel = self.council_votes.relationship(pleb)
@@ -275,16 +280,13 @@ class SBContent(VotableContent):
                     return self.remove_vote(rel)
                 rel.vote_type = vote_type
                 rel.active = True
-                rel.reasoning = reason
-                rel.save()
             else:
                 rel = self.council_votes.connect(pleb)
                 if vote_type == rel.vote_type and rel.active == True:
                     rel.active = False
                 rel.vote_type = vote_type
                 rel.active = True
-                rel.reasoning = reason
-                rel.save()
+            rel.save()
             return self
         except (CypherException, IOError) as e:
             return e
@@ -302,7 +304,7 @@ class SBContent(VotableContent):
         query = 'MATCH (a:SBContent {object_uuid:"%s"})-[rs:COUNCIL_VOTE]->' \
                 '(p:Pleb) WHERE rs.active=true RETURN ' \
                 'reduce(remove_vote = 0, r in collect(rs)| ' \
-                'CASE WHEN r.vote_type=True THEN remove_vote+1 ' \
+                'CASE WHEN r.vote_type=true THEN remove_vote+1 ' \
                 'ELSE remove_vote END) as remove_vote, ' \
                 'count(rs) as total_votes' \
                 % self.object_uuid
@@ -403,10 +405,24 @@ class SBVersioned(TaggableContent):
         # TODO we may want to change the naming of this method
         :return:
         """
+        if self.is_closed and (datetime.now(pytz.utc) -
+                                   self.initial_vote_time).days >= 5:
+            self.initial_vote_time = datetime.now(pytz.utc)
+            self.save()
+            logger.info('here')
+            return {
+                'total_rep': -20,
+                'pos_rep': 0,
+                'neg_rep': -20,
+                'tag_list': [],
+                'rep_per_tag': 0,
+                'base_tag_list:': []
+            }
         tag_list = []
         base_tags = []
         pos_rep = self.get_upvote_count() * int(self.up_vote_adjustment)
         neg_rep = self.get_downvote_count() * int(self.down_vote_adjustment)
+
         for tag in self.tags.all():
             if tag.base:
                 base_tags.append(tag.name)

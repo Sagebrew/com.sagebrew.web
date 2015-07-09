@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from os import environ, path, makedirs
 from unipath import Path
 import multiprocessing
+from celery.schedules import crontab
 from logentries import LogentriesHandler
 import logging
 
@@ -284,6 +285,14 @@ CACHES = {
         'OPTIONS': {
             'MAX_ENTRIES': 2500
         }
+    }
+}
+
+CELERYBEAT_SCHEDULE = {
+    'check-closed-reputation-changes': {
+        'task': 'sb_council.tasks.check_closed_reputation_changes_task',
+        'schedule': crontab(minute='*/1'),
+        'args': ()
     }
 }
 

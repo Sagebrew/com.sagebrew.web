@@ -77,6 +77,7 @@ class ContentSerializer(VotableContentSerializer):
     # Maybe if no user is provided we just return None or don't include?
     flagged_by = serializers.SerializerMethodField()
     council_vote = serializers.SerializerMethodField()
+    is_closed = serializers.BooleanField(read_only=True)
 
     def get_flagged_by(self, obj):
         return obj.get_flagged_by()
@@ -89,7 +90,6 @@ class ContentSerializer(VotableContentSerializer):
 
 
 class MarkdownContentSerializer(ContentSerializer):
-    is_closed = serializers.BooleanField(read_only=True)
     html_content = serializers.SerializerMethodField()
 
     def get_html_content(self, obj):

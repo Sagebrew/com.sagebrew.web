@@ -184,10 +184,8 @@ class VotableContent(NotificationCapable):
 
     @apply_defense
     def get_rep_breakout(self):
-        logger.info((datetime.now(pytz.utc) - self.initial_vote_time))
-        logger.info((datetime.now(pytz.utc) - self.initial_vote_time).seconds)
         if self.is_closed and (datetime.now(pytz.utc) -
-                                   self.initial_vote_time).seconds >= 5:
+                                   self.initial_vote_time).seconds >= 1:
             self.initial_vote_time = datetime.now(pytz.utc)
             self.save()
             return {
@@ -406,10 +404,9 @@ class SBVersioned(TaggableContent):
         :return:
         """
         if self.is_closed and (datetime.now(pytz.utc) -
-                                   self.initial_vote_time).days >= 5:
+                                   self.initial_vote_time).seconds >= 5:
             self.initial_vote_time = datetime.now(pytz.utc)
             self.save()
-            logger.info('here')
             return {
                 'total_rep': -20,
                 'pos_rep': 0,

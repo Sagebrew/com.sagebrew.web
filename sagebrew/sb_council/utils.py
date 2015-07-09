@@ -18,6 +18,7 @@ def update_closed(object_uuid):
         node = SBContent.nodes.get(object_uuid=object_uuid)
         node.is_closed = node.get_council_decision()
         node.save()
+        cache.delete(node.object_uuid)
         return True
     except (SBContent.DoesNotExist, DoesNotExist, CypherException,
             ClientError, IOError) as e:
@@ -30,12 +31,9 @@ def check_closed_reputation_changes():
     :return:
     '''
     try:
-        for node in SBContent.nodes.all():
-            if (datetime.now(pytz.utc) - node.initial_council_vote).days >= 5:
-                owner = Pleb.nodes.get(object_uuid=node.owner_username)
-                owner.get_total_rep()
-                owner.refresh()
-                cache.set(owner.username, owner)
+        for pleb in Pleb.nodes.all():
+            pleb.get_total_rep()
+            cache.set(pleb.username, pleb)
         return True
     except (CypherException, IOError, ClientError) as e:
         return e

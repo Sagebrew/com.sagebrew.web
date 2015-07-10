@@ -59,6 +59,11 @@ function activateVoting() {
     });
 }
 function getParameterByName(name) {
+    /*
+    This function gets any query parameter in the current url so long as we pass the name to the function
+
+    http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values-in-javascript/901144#901144
+     */
     name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
     var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
         results = regex.exec(location.search);

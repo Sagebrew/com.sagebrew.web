@@ -58,18 +58,30 @@ function activateVoting() {
         });
     });
 }
+function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
 $(document).ready(function () {
     "use strict";
     activateVoting();
+    $("#flag-voting-wrapper").spin('small');
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/council/?html=true",
+        url: "/v1/council/?html=true&filter=" + getParameterByName('filter'),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            for (var i = 0; i < data.results.length; i++) {
-                $("#flag-voting-wrapper").append(data.results[i].html);
+            $("#flag-voting-wrapper").spin(false);
+            if (data.count === 0) {
+                $("#flag-voting-wrapper").append('<div>Sorry! There seems to be nothing here!</div>');
+            } else {
+                for (var i = 0; i < data.results.length; i++) {
+                    $("#flag-voting-wrapper").append(data.results[i].html);
+                }
             }
             activateVoting();
             //$.notify("Updated next goal set!", {type: 'success'});
@@ -79,4 +91,8 @@ $(document).ready(function () {
         }
     });
     $(".sb_blurred_content").foggy(false);
+    $(".query_council").click(function (event) {
+        event.preventDefault();
+        window.location.href = "/council/?filter=" + $(this).data('filter');
+    });
 });

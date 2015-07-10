@@ -45,25 +45,48 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         serializer.save(pleb=Pleb.get(self.request.user.username))
 
+    def get_filter(self):
+        vote_filter = self.request.query_params.get('filter', '').lower()
+        if not vote_filter:
+            return "AND cv IS NULL OR cv.active=false"
+        if vote_filter == 'voted':
+            return "AND cv.active=true"
+
     def get_queryset(self):
-        query = 'MATCH (questions:Question)-[HAS_FLAG]->(f:Flag) ' \
-                'WHERE questions.to_be_deleted=False and ' \
-                'questions.visibility="public" RETURN questions, ' \
+        """
+        This query gets all objects which are flagged and either not voted on
+        by the user visiting the page or where they have voted by deactivated
+        their vote.
+
+        Eventually we can add a feature which will allow us to simply filter
+        objects which have been voted on and which haven't.
+        :return:
+        """
+        vote_filter = self.get_filter()
+        query = 'MATCH (questions:Question)-[HAS_FLAG]->(f:Flag), ' \
+                '(questions)-[cv:COUNCIL_VOTE]->(p:Pleb {username:"%s"}) ' \
+                'WHERE questions.to_be_deleted=False AND ' \
+                'questions.visibility="public" %s RETURN questions, ' \
                 'NULL as solutions, NULL as posts, NULL as comments ' \
-                'UNION MATCH (solutions:Solution)-[HAS_FLAG]->(f:Flag) ' \
+                'UNION MATCH (solutions:Solution)-[HAS_FLAG]->(f:Flag), ' \
+                '(solutions)-[cv:COUNCIL_VOTE]->(p) ' \
                 'WHERE solutions.to_be_deleted=False and ' \
-                'solutions.visibility="public" RETURN ' \
+                'solutions.visibility="public" %s RETURN ' \
                 'NULL as questions, ' \
                 'solutions, NULL as posts, NULL as comments ' \
-                'UNION MATCH (comments:Comment)-[HAS_FLAG]->(f:Flag) ' \
+                'UNION MATCH (comments:Comment)-[HAS_FLAG]->(f:Flag), ' \
+                '(comments)-[cv:COUNCIL_VOTE]->(p) ' \
                 'WHERE comments.to_be_deleted=false and ' \
-                'comments.visibility="public" RETURN ' \
+                'comments.visibility="public" %s RETURN ' \
                 'NULL as questions, ' \
                 'NULL as solutions, NULL as posts, comments ' \
-                'UNION MATCH (posts:Post)-[HAS_FLAG]->(f:Flag) WHERE ' \
+                'UNION MATCH (posts:Post)-[HAS_FLAG]->(f:Flag), ' \
+                '(posts)-[cv:COUNCIL_VOTE]->(p) WHERE ' \
                 'posts.to_be_deleted=false and ' \
-                'posts.visibility="public" RETURN NULL as questions, ' \
-                'NULL as solutions, posts, NULL as comments'
+                'posts.visibility="public" %s RETURN NULL as questions, ' \
+                'NULL as solutions, posts, NULL as comments' % \
+                (self.request.user.username, vote_filter, vote_filter,
+                 vote_filter, vote_filter)
         res, _ = db.cypher_query(query)
         return res
 

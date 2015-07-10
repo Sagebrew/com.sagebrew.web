@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from sb_council.utils import update_closed, check_closed_reputation_changes
+from .utils import update_closed, check_closed_reputation_changes
 
 
 @shared_task()

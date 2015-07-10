@@ -8,9 +8,11 @@
             <div style="display: none" id="flagged-object" data-object_uuid="{{ id }}"></div>
         </div>
         <div style="margin-top: 5px;" class="col-xs-3">
+            {% comment %}
             <span data-title="Explicit flags" data-toggle="tooltip" data-placement="top" style="padding-right: 5px;" class="fa fa-icon fa-exclamation-circle sb-flag-info"> {{ explicit_count|default:0 }}</span>
             <span data-title="Spam flags" data-toggle="tooltip" data-placement="top" style="padding-right: 5px;" class="fa fa-icon fa-times-circle sb-flag-info"> {{ spam_count|default:0 }}</span>
             <span data-title="Other flags" data-toggle="tooltip" data-placement="top" style="padding-right: 5px;" class="fa fa-icon fa-question-circle sb-flag-info"> {{ other_count|default:0 }}</span>
+            {% endcomment %}
         </div>
         <div class="col-xs-2">
             <div style="margin-top: 5px;">{{ type|title }}</div>

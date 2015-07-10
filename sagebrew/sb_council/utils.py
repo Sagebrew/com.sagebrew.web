@@ -1,11 +1,10 @@
-import pytz
-from datetime import datetime
-
 from django.core.cache import cache
 
 from py2neo.cypher import ClientError
 from neomodel import (DoesNotExist, CypherException)
 
+from api.utils import spawn_task
+from sb_privileges.tasks import check_privileges
 from sb_base.neo_models import SBContent
 from plebs.neo_models import Pleb
 
@@ -32,8 +31,11 @@ def check_closed_reputation_changes():
     '''
     try:
         for pleb in Pleb.nodes.all():
-            pleb.get_total_rep()
+            res = pleb.get_total_rep()
             cache.set(pleb.username, pleb)
+            if res['previous_rep'] != res['total_rep']:
+                spawn_task(task_func=check_privileges,
+                           task_param={'username': pleb.username})
         return True
     except (CypherException, IOError, ClientError) as e:
         return e

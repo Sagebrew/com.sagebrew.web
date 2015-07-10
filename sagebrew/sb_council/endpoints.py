@@ -66,7 +66,7 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
         query = '// Retrieve all questions which have been flagged\n' \
                 'MATCH (content:Question)-[HAS_FLAG]->(f:Flag) ' \
                 'WITH content MATCH content WHERE %s ' \
-                '(content)-[:COUNCIL_VOTE]->(:Pleb {username:"%s"}) AND ' \
+                '(content)-[:COUNCIL_VOTE {active:true}]->(:Pleb {username:"%s"}) AND ' \
                 'content.to_be_deleted=False AND content.visibility="public" ' \
                 'RETURN content as questions, NULL as solutions, ' \
                 'NULL as posts, NULL as comments UNION MATCH ' \
@@ -74,7 +74,7 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                 '// Retrieve all solutions which have been flagged\n' \
                 '(content:Solution)-[HAS_FLAG]->(f:Flag) ' \
                 'WITH content MATCH content WHERE %s ' \
-                '(content)-[:COUNCIL_VOTE]->(:Pleb {username:"%s"}) AND ' \
+                '(content)-[:COUNCIL_VOTE {active:true}]->(:Pleb {username:"%s"}) AND ' \
                 'content.to_be_deleted=False and content.visibility="public" ' \
                 'RETURN NULL as questions, content as solutions, ' \
                 'NULL as posts, NULL as comments ' \
@@ -82,7 +82,7 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                 '// Retrieve all comments which have been flagged\n' \
                 'UNION MATCH (content:Comment)-[HAS_FLAG]->(f:Flag) ' \
                 'WITH content MATCH content WHERE %s ' \
-                '(content)-[:COUNCIL_VOTE]->(:Pleb {username:"%s"}) AND ' \
+                '(content)-[:COUNCIL_VOTE {active:true}]->(:Pleb {username:"%s"}) AND ' \
                 'content.to_be_deleted=False and content.visibility="public" ' \
                 'RETURN NULL as questions, content as comments, ' \
                 'NULL as posts, NULL as solutions ' \
@@ -90,7 +90,7 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                 '// Retrieve all posts which have been flagged\n' \
                 'UNION MATCH (content:Post)-[HAS_FLAG]->(f:Flag) ' \
                 'WITH content MATCH content WHERE %s ' \
-                '(content)-[:COUNCIL_VOTE]->(:Pleb {username:"%s"}) AND ' \
+                '(content)-[:COUNCIL_VOTE {active:true}]->(:Pleb {username:"%s"}) AND ' \
                 'content.to_be_deleted=False and content.visibility="public" ' \
                 'RETURN NULL as questions, content as posts, ' \
                 'NULL as comments, NULL as solutions' % \

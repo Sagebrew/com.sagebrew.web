@@ -95,6 +95,7 @@
 }
 .quest-block-title-xs{
   font-size: 30pt;
+  text-align: center;
 }
 .quest-rec-title-lg{
   &:extend(.quest-block-title-lg);
@@ -102,7 +103,7 @@
 }
 .quest-rec-title-md{
   &:extend(.quest-block-title-md);
-  margin-top: 220px;
+  margin-top: 210px;
 }
 .quest-rec-title{
   margin-top: 80px;
@@ -134,6 +135,145 @@
 }
 .quest-gauge-title-lg{
   &:extend(.quest-gauge-title);
-  margin-top: 23%;
-  font-size: 50pt;
+  &:extend(.quest-block-title-lg);
+  margin-top: 15%;
+}
+.quest-science-title-md{
+  &:extend(.quest-gauge-title);
+  &:extend(.quest-block-title-md);
+  margin-top: 70px;
+}
+.quest-science-title-sm{
+  &:extend(.quest-gauge-title);
+  &:extend(.quest-block-title-sm);
+  text-align: center;
+  margin-top: 100px;
+}
+.quest-science-title-xs{
+  &:extend(.quest-gauge-title);
+  &:extend(.quest-block-title-xs);
+  margin-top: 100px;
+  text-align: center;
+  font-size: 30pt;
+}
+.quest-gauge-science-kit-sm{
+  margin: -60px 0 0 0;
+}
+.quest-gauge-science-kit-image-sm {
+  max-width: 650px;
+  width: 100%;
+  display: block;
+  margin: auto;
+}
+.quest-science-xs{
+  margin: -35px 0 0 0;
+}
+.quest-gap-filler{
+  width: 101%;
+  height: 200px;
+  margin: -15px 0 0 0;
+}
+.quest-science-filler{
+  &:extend(.quest-gap-filler);
+  background-color:#A0C7E0;
+}
+.quest-science-kit-image-wrapper-xs{
+  margin: 0 -50px -100px 50px;
+}
+.quest-science-filler-xs{
+  &:extend(.quest-science-filler);
+  height: 290px;
+}
+.quest-connect-bk-lg{
+  margin: -15px -5px 0 -5px;
+}
+.quest-connect-bk-sm{
+  margin: -80px 0 0 0;
+}
+.quest-connect-title{
+  color: #492656;
+}
+.quest-connect-title-lg{
+  &:extend(.quest-connect-title);
+  &:extend(.quest-block-title-lg);
+  margin-top: 75%;
+}
+.quest-connect-title-md{
+  &:extend(.quest-connect-title);
+  &:extend(.quest-block-title-md);
+  margin-top: 80%;
+}
+.quest-connect-title-sm{
+  &:extend(.quest-connect-title);
+  &:extend(.quest-block-title-xs);
+  margin-top: -10px;
+}
+.quest-connect-img-sm{
+  width: 100%;
+  display:block;
+  margin:auto;
+}
+.quest-gap-filler-connect-sm{
+  &:extend(.quest-gap-filler);
+  background-color:#BADDCA;
+}
+.quest-connect-bk-xs{
+  &:extend(.quest-gauge-science-kit-sm);
+  background-color:#BADDCA;
+  width: 101%;
+  height: 850px;
+}
+.quest-garden-bk-lg{
+  margin: -15px -5px -190px -5px;
+}
+.quest-garden-bk-sm{
+  margin: -200px 0 0 0;
+}
+.quest-garden-bk-xs{
+  margin: -150px 0 0 0;
+}
+.quest-garden-title{
+  color: #472816;
+}
+.quest-garden-title-lg{
+  &:extend(.quest-garden-title);
+  &:extend(.quest-block-title-lg);
+  margin-top: 35%;
+}
+.quest-garden-title-md{
+  &:extend(.quest-garden-title);
+  &:extend(.quest-block-title-md);
+  margin-top: 40%;
+}
+.quest-garden-title-sm{
+  &:extend(.quest-garden-title);
+  &:extend(.quest-block-title-xs);
+  margin-top: 75%;
+}
+.quest-garden-title-xs{
+  &:extend(.quest-garden-title);
+  &:extend(.quest-block-title-xs);
+  margin-top: 73%;
+}
+.quest-garden-filler-sm{
+  &:extend(.quest-gap-filler);
+  background-color:#6DB58C;
+}
+.quest-garden-filler-xs{
+  &:extend(.quest-garden-filler-sm);
+  height: 50px;
+}
+.quest-end-mark{
+  padding: 30px 0 15px 0;
+  border-top:3px solid #685243;
+  width: 101%;
+  margin: 0 -5px 0 -5px;
+}
+.quest-plans{
+  background-color: #ffffff;
+  border-radius: 5px;
+  padding-bottom: 15px;
+  li{
+    font-size: 10pt;
+  }
 }

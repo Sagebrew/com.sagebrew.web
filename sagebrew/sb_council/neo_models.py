@@ -1,5 +1,4 @@
-from neomodel import (StringProperty, StructuredNode, StructuredRel,
-                      IntegerProperty)
+from neomodel import (StringProperty)
 
 from sb_base.neo_models import VoteRelationship
 

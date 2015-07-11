@@ -23,6 +23,7 @@ def update_closed(object_uuid):
             ClientError, IOError) as e:
         return e
 
+
 def check_closed_reputation_changes():
     '''
     This will be called in a task which is run either everyday or every other

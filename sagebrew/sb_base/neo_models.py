@@ -185,7 +185,7 @@ class VotableContent(NotificationCapable):
     @apply_defense
     def get_rep_breakout(self):
         if self.is_closed and (datetime.now(pytz.utc) -
-                                   self.initial_vote_time).days >= 5:
+                               self.initial_vote_time).days >= 5:
             self.initial_vote_time = datetime.now(pytz.utc)
             self.save()
             return {
@@ -230,8 +230,6 @@ class SBContent(VotableContent):
     # determine the potential for slippage from dynamo's count and how we want
     # to update it. So at the moment it will remain at 0.
     vote_count = IntegerProperty(default=0)
-    # optimizations
-
 
     # relationships
     flagged_by = RelationshipTo('plebs.neo_models.Pleb', 'FLAGGED_BY')
@@ -274,13 +272,13 @@ class SBContent(VotableContent):
         try:
             if self.council_votes.is_connected(pleb):
                 rel = self.council_votes.relationship(pleb)
-                if vote_type == rel.vote_type and rel.active == True:
+                if vote_type == rel.vote_type and rel.active is True:
                     return self.remove_vote(rel)
                 rel.vote_type = vote_type
                 rel.active = True
             else:
                 rel = self.council_votes.connect(pleb)
-                if vote_type == rel.vote_type and rel.active == True:
+                if vote_type == rel.vote_type and rel.active is True:
                     rel.active = False
                 rel.vote_type = vote_type
                 rel.active = True
@@ -314,7 +312,6 @@ class SBContent(VotableContent):
         if percentage >= .66:
             return True
         return False
-
 
     def get_url(self, request):
         return None
@@ -404,7 +401,7 @@ class SBVersioned(TaggableContent):
         :return:
         """
         if self.is_closed and (datetime.now(pytz.utc) -
-                                   self.initial_vote_time).days >= 5:
+                               self.initial_vote_time).days >= 5:
             self.initial_vote_time = datetime.now(pytz.utc)
             self.save()
             return {

@@ -1,5 +1,4 @@
 import time
-from datetime import datetime, timedelta
 from dateutil import parser
 
 from django.core.urlresolvers import reverse
@@ -277,8 +276,7 @@ class CouncilEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('council-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
-        self.client.put(url, data={'council_vote_type': True},
-                                   format='json')
-        time.sleep(10) # allow for task to finish
+        self.client.put(url, data={'council_vote_type': True}, format='json')
+        time.sleep(10)  # allow for task to finish
         get_response = self.client.get(url, format='json')
         self.assertTrue(get_response.data['is_closed'])

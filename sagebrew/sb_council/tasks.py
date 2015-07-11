@@ -10,6 +10,7 @@ def update_closed_task(object_uuid):
         raise update_closed_task.retry(exc=res, countdown=3, max_retries=None)
     return res
 
+
 @shared_task()
 def check_closed_reputation_changes_task():
     res = check_closed_reputation_changes()
@@ -18,5 +19,5 @@ def check_closed_reputation_changes_task():
         # has a chance to recover from the large amount of hits it will
         # receive during the task execution.
         raise check_closed_reputation_changes_task.retry(exc=res, countdown=60,
-                                          max_retries=None)
+                                                         max_retries=None)
     return res

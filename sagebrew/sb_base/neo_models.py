@@ -182,6 +182,16 @@ class VotableContent(NotificationCapable):
 
     @apply_defense
     def get_rep_breakout(self):
+        '''
+        This function will add up the amount of reputation that a user gets
+        for a piece of content. It first checks to see if the content is closed
+        and if 5 days have passed since the initial council vote was passed.
+        If these two are true then the user is rewarded no reputation from
+        the piece of content and loses 20 rep as per our content closure
+        system.
+        https://sagebrew.atlassian.net/wiki/display/RTS/Ability+to+Flag+Content
+        :return:
+        '''
         if self.is_closed and (datetime.now(pytz.utc) -
                                self.initial_vote_time).days >= 5:
             self.initial_vote_time = datetime.now(pytz.utc)

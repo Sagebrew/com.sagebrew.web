@@ -34,7 +34,7 @@ A 2/3 majority is needed to [remove][3] or [close][4] Flagged posts.
   removed or closed
 - Flagged content that is deleted results in the author of the Flagged content 
   losing all Reputation gained as a result of that content plus an additional 
-  loss of 10 Reputation
+  loss of 20 Reputation
 - Flagged content that is not deleted results in the author of the Flagged 
   content losing no Reputation
 - If a user's content is successfully Flagged three separate times in one month 

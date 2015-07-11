@@ -53,7 +53,6 @@ class VoteRelationship(StructuredRel):
 
 class CouncilVote(VoteRelationship):
     reasoning = StringProperty()
-    vote_type = BooleanProperty(default=None)  # True is up False is down
 
 
 class VotableContent(NotificationCapable):
@@ -77,8 +76,7 @@ class VotableContent(NotificationCapable):
 
     # optimizations
     owner_username = StringProperty()
-    initial_vote_time = DateTimeProperty(
-        default=lambda: datetime.now(pytz.utc))
+    initial_vote_time = DateTimeProperty()
     # initial_vote_time is a property which lets us check if five days have
     # passed since the first council vote or if five days have passed since
     # the last time the task that checks for reputation recalculation has run.

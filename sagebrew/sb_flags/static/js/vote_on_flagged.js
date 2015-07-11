@@ -25,7 +25,6 @@ function activateVoting() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                console.log(data);
                 buttonSelector.removeAttr('disabled');
                 if (voteDown.hasClass('vote_down_active') && voteType === true) {
                     voteDown.removeClass('vote_down_active');

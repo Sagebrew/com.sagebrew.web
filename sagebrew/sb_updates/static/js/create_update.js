@@ -116,7 +116,6 @@ $(document).ready(function () {
     });
     $(".cancel_update-action").click(function (event) {
         event.preventDefault();
-        console.log($(this).data('url'));
         window.location.href = "/quests/" + campaignId + "/updates/";
     });
 });

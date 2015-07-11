@@ -1,22 +1,14 @@
-from datetime import datetime
 from dateutil import parser
 from logging import getLogger
-from operator import attrgetter
 
-from django.core.cache import cache
 from django.template.loader import render_to_string
-from django.template import RequestContext
 
-from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status, viewsets
+from rest_framework import viewsets
 
 from neomodel import db
 
 from sb_base.neo_models import SBContent
-from sb_base.views import ObjectRetrieveUpdateDestroy
-from sb_base.serializers import SBSerializer
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import Question
 from sb_solutions.neo_models import Solution
@@ -26,8 +18,6 @@ from sb_questions.serializers import QuestionSerializerNeo
 from sb_solutions.serializers import SolutionSerializerNeo
 from sb_comments.serializers import CommentSerializer
 from sb_posts.serializers import PostSerializerNeo
-from sb_flags.neo_models import Flag
-from sb_flags.serializers import FlagSerializer
 
 from .serializers import CouncilVoteSerializer
 
@@ -66,7 +56,8 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
         query = '// Retrieve all questions which have been flagged\n' \
                 'MATCH (content:Question)-[HAS_FLAG]->(f:Flag) ' \
                 'WITH content MATCH content WHERE %s ' \
-                '(content)-[:COUNCIL_VOTE {active:true}]->(:Pleb {username:"%s"}) AND ' \
+                '(content)-[:COUNCIL_VOTE {active:true}]->' \
+                '(:Pleb {username:"%s"}) AND ' \
                 'content.to_be_deleted=False AND content.visibility="public" ' \
                 'RETURN content as questions, NULL as solutions, ' \
                 'NULL as posts, NULL as comments UNION MATCH ' \
@@ -74,7 +65,8 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                 '// Retrieve all solutions which have been flagged\n' \
                 '(content:Solution)-[HAS_FLAG]->(f:Flag) ' \
                 'WITH content MATCH content WHERE %s ' \
-                '(content)-[:COUNCIL_VOTE {active:true}]->(:Pleb {username:"%s"}) AND ' \
+                '(content)-[:COUNCIL_VOTE {active:true}]->' \
+                '(:Pleb {username:"%s"}) AND ' \
                 'content.to_be_deleted=False and content.visibility="public" ' \
                 'RETURN NULL as questions, content as solutions, ' \
                 'NULL as posts, NULL as comments ' \
@@ -82,7 +74,8 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                 '// Retrieve all comments which have been flagged\n' \
                 'UNION MATCH (content:Comment)-[HAS_FLAG]->(f:Flag) ' \
                 'WITH content MATCH content WHERE %s ' \
-                '(content)-[:COUNCIL_VOTE {active:true}]->(:Pleb {username:"%s"}) AND ' \
+                '(content)-[:COUNCIL_VOTE {active:true}]->' \
+                '(:Pleb {username:"%s"}) AND ' \
                 'content.to_be_deleted=False and content.visibility="public" ' \
                 'RETURN NULL as questions, content as comments, ' \
                 'NULL as posts, NULL as solutions ' \
@@ -90,7 +83,8 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                 '// Retrieve all posts which have been flagged\n' \
                 'UNION MATCH (content:Post)-[HAS_FLAG]->(f:Flag) ' \
                 'WITH content MATCH content WHERE %s ' \
-                '(content)-[:COUNCIL_VOTE {active:true}]->(:Pleb {username:"%s"}) AND ' \
+                '(content)-[:COUNCIL_VOTE {active:true}]->' \
+                '(:Pleb {username:"%s"}) AND ' \
                 'content.to_be_deleted=False and content.visibility="public" ' \
                 'RETURN NULL as questions, content as posts, ' \
                 'NULL as comments, NULL as solutions' % \
@@ -98,7 +92,6 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                  self.request.user.username, vote_filter,
                  self.request.user.username, vote_filter,
                  self.request.user.username)
-        logger.info(query)
         res, _ = db.cypher_query(query)
         return res
 
@@ -107,14 +100,12 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
         html = request.query_params.get('html', 'false')
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
-        logger.info(queryset)
         for row in page:
-            logger.info(row)
             council_object = None
             if row.questions is not None:
                 council_object = QuestionSerializerNeo(
                     Question.inflate(row.questions),
-                    context={'request':request}).data
+                    context={'request': request}).data
             elif row.solutions is not None:
                 council_object = SolutionSerializerNeo(
                     Solution.inflate(row.solutions),

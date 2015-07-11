@@ -4,10 +4,10 @@ from .utils import update_closed, check_closed_reputation_changes
 
 
 @shared_task()
-def update_masked_task(object_uuid):
+def update_closed_task(object_uuid):
     res = update_closed(object_uuid)
     if isinstance(res, Exception) is True:
-        raise update_masked_task.retry(exc=res, countdown=3, max_retries=None)
+        raise update_closed_task.retry(exc=res, countdown=3, max_retries=None)
     return res
 
 @shared_task()

@@ -11,7 +11,6 @@ logger = getLogger('loggly_logs')
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def council_page(request):
-    logger.info(request.user.username)
     if request.user.username == 'tyler_wiersing' \
             or request.user.username == 'devon_bleibtrey':
         return render(request, 'council_page.html')

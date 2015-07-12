@@ -80,7 +80,6 @@ STATICFILES_DIRS = (
 )
 
 HELP_DOCS_PATH = "%s/help_center/rendered_docs/" % PROJECT_DIR
-ALLOWED_INCLUDE_ROOTS = (HELP_DOCS_PATH,)
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -156,7 +155,8 @@ TEMPLATES = [{
             "django.core.context_processors.tz",
             "django.contrib.messages.context_processors.messages",
             "plebs.context_processors.request_profile",
-        ]
+        ],
+        'allowed_include_roots': [HELP_DOCS_PATH,]
     },
 }]
 

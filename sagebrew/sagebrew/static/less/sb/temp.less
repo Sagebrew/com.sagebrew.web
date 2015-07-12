@@ -51,13 +51,19 @@
 .quest-header-title-sm{
   &:extend(.quest-header-brand-lg);
   text-align: center;
+
 }
 .quest-header-brand-sm{
   &:extend(.quest-header-title-sm);
   margin-top: 30px;
+  margin-right: -15px;
 }
 .quest-logo-xs{
   margin: 0 -50px -100px 0;
+  padding-right: 0;
+}
+.quest-text-xs{
+  padding-right: 0;
 }
 .quest-logo-image-xs{
   &:extend(.quest-logo-image);
@@ -92,6 +98,9 @@
 }
 .quest-block-title-md{
   font-size: 35pt;
+}
+.quest-block-paragraph-xs{
+  text-align: center;
 }
 .quest-block-title-xs{
   font-size: 30pt;
@@ -178,7 +187,7 @@
 }
 .quest-science-filler-xs{
   &:extend(.quest-science-filler);
-  height: 290px;
+  height: 400px;
 }
 .quest-connect-bk-lg{
   margin: -15px -5px 0 -5px;
@@ -208,13 +217,14 @@
 }
 .quest-gap-filler-connect-sm{
   &:extend(.quest-gap-filler);
+  height: 350px;
   background-color:#BADDCA;
 }
 .quest-connect-bk-xs{
   &:extend(.quest-gauge-science-kit-sm);
   background-color:#BADDCA;
   width: 101%;
-  height: 850px;
+  height: 925px;
 }
 .quest-garden-bk-lg{
   margin: -15px -5px -190px -5px;
@@ -230,11 +240,11 @@
 }
 .quest-garden-title-lg{
   &:extend(.quest-block-title-lg);
-  margin-top: 35%;
+  margin-top: 33%;
 }
 .quest-garden-title-md{
   &:extend(.quest-block-title-md);
-  margin-top: 40%;
+  margin-top: 35%;
 }
 .quest-garden-title-sm{
   &:extend(.quest-block-title-xs);
@@ -250,7 +260,7 @@
 }
 .quest-garden-filler-xs{
   &:extend(.quest-garden-filler-sm);
-  height: 50px;
+  height: 120px;
 }
 .quest-end-mark{
   padding: 30px 0 15px 0;

@@ -1,6 +1,11 @@
 .quest-page{
   background-color:#DDEFF2;
 }
+.pricing-plan{
+  color: #397A69;
+  text-align: center;
+  margin-bottom: 30px;
+}
 .quest-width{
   width: 100%;
 }
@@ -281,3 +286,109 @@
   text-align: center;
   margin-bottom: 100px;
 }
+
+
+.pricingTable {
+  text-align: center;
+}
+
+.free-plan{
+  background: #397A69;
+  &:hover{
+    background-color: #43917B;
+  }
+}
+
+.paid-plan{
+  background: #2574A9;
+  &:hover{
+    background-color: #2889BF;
+  }
+}
+
+/* Each item*/
+.item {
+  display: inline-block;
+  width: 520px;
+  height: 380px;
+  background: #fff;
+  margin: 10px;
+  vertical-align: top;
+  position: relative;
+  overflow: hidden;
+}
+.item:before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 10px;
+}
+.item:nth-child(1):before {
+  background: #397A69;
+}
+.item:nth-child(2):before {
+  background: #2574A9;
+}
+
+
+
+/* Title */
+.title {
+  width: 180px;
+  height: 184px;
+  padding-top: 46px;
+  border-radius: 50%;
+  color: #fff;
+  font-size: 46px;
+  font-weight: 200;
+  margin: 10px auto;
+}
+.title .smallText {
+  font-size: 14px;
+}
+.title .undertext {
+  display: block;
+  font-size: 16px;
+}
+.item:nth-child(1) .title {
+  background: #397A69;
+  border: 2px solid #397A69;
+}
+.item:nth-child(2) .title {
+  background: #2574A9;
+  border: 2px solid #2574A9;
+}
+
+
+/* List */
+.item ul {
+  margin: 10px 0;
+  padding: 0;
+  list-style: none;
+}
+.item ul li {
+  display: block;
+  width: 90%;
+  height: 40px;
+  line-height: 40px;
+  font-size: 15px;
+  font-weight: 300;
+  border-bottom: 1px solid rgba( 0, 0, 0, 0.2);
+  margin: 0 auto;
+}
+.keywords {
+  font-weight: 400;
+}
+
+
+
+.button {
+  width: 140px;
+  height: 35px;
+  color: #fff;
+  font-weight: 300;
+  line-height: 35px;
+  border: 2px solid #fff;
+  margin: 0 auto;
+}
+

@@ -308,41 +308,44 @@
         <div class="row hidden-sm hidden-md hidden-lg quest-garden-filler-xs">
         </div>
     </div>
-    <div class="row quest-end-mark">
-        <form method="post">
-            {% csrf_token %}
-            <div class="col-xs-4 col-xs-offset-1 quest-plans">
-                <h1>Free Plan</h1>
-
-                <div>$0/month</div>
-                <ul>
-                    <li>Unlimited Editors</li>
-                    <li>7% Contribution Processing Fee</li>
-                </ul>
-                <button class="btn btn-block btn-lg btn-primary sb_btn"
-                        type="submit" id="free-account" value="free" name="account_type">
-                    Register
-                </button>
-
-            </div>
-            <div class="col-xs-4 col-xs-offset-2 quest-plans">
-                <h1>Pro Plan</h1>
-
-                <div>$100/month</div>
-                <ul>
-                    <li>Unlimited Editors</li>
-                    <li>5% Contribution Processing Fee</li>
-                </ul>
-                <button class="btn btn-block btn-lg btn-primary sb_btn"
-                        type="submit" id="pro-account" value="free" name="account_type">
-                    Register
-                </button>
-
-            </div>
-
-        </form>
-
+    <div class="row quest-end-mark"></div>
+    <div class="row">
+        <div class="col-xs-12">
+            <h1 class="pricing-plan">Start Your Sagebrew Quest Today</h1>
+        </div>
     </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="pricingTable">
+            <div class="item">
+
+                <div class="title">Free</div>
+                <ul>
+                    <li><span class="keywords">Unlimited </span>Editors</li>
+                    <li><span class="keywords">7%</span> Contribution Processing Fee</li>
+                </ul>
+                <div class="button"><button class="btn btn-block btn-lg btn-primary free-plan"
+                                            type="submit" id="free-account" value="free" name="account_type">
+                    Register
+                </button></div>
+            </div>
+            <div class="item">
+                <div class="title">$100.<span class="smallText">00</span>
+                    <span class="undertext">Per Month</span>
+                </div>
+                <ul>
+                    <li><span class="keywords">Unlimited </span>Editors</li>
+                    <li><span class="keywords">5%</span> Contribution Processing Fee</li>
+                </ul>
+                <div class="button">
+                    <button class="btn btn-block btn-lg btn-primary paid-plan"
+                            type="submit" id="pro-account" value="free" name="account_type">
+                        Register
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
     <div class="row quest-width">
         <div class="col-xs-12 quest-terms">
             <small>By registering, you agree to our
@@ -356,6 +359,7 @@
     <script src="{% static 'js/vendor/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/vendor/formValidation.min.js' %}"></script>
     <script src="{% static 'js/vendor/framework/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/quest_one_pager.js' %}"></script>
     {% include "google_analytics.html" %}
 </body>
 </html>

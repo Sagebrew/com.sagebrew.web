@@ -300,6 +300,7 @@ class SBContent(VotableContent):
                 '(p:Pleb {username:"%s"}) WHERE r.active=true ' \
                 'RETURN r.vote_type' % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
+        logger.info(res)
         return res.one
 
     def get_council_decision(self):

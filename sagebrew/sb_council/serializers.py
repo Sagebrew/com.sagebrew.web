@@ -15,14 +15,13 @@ logger = getLogger('loggly_logs')
 
 class CouncilVoteSerializer(ContentSerializer):
     content = serializers.CharField(required=False)
-    council_vote_type = serializers.BooleanField(required=True,
-                                                 write_only=True)
+    vote_type = serializers.BooleanField(required=True, write_only=True)
     reason = serializers.CharField(required=False, allow_blank=True,
                                    write_only=True)
 
     def update(self, instance, validated_data):
         pleb = validated_data.get('pleb', None)
-        vote_type = validated_data.get('council_vote_type', None)
+        vote_type = validated_data.get('vote_type', None)
         query = 'MATCH (s:SBContent {object_uuid:"%s"})-[:COUNCIL_VOTE]->' \
                 '(p:Pleb) RETURN p' % instance.object_uuid
         res, _ = db.cypher_query(query)

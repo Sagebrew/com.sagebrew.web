@@ -19,7 +19,7 @@ function activateVoting() {
             type: "PUT",
             url: "/v1/council/" + objectUuid,
             data: JSON.stringify({
-                "council_vote_type": $(this).data("vote_type"),
+                "vote_type": $(this).data("vote_type"),
                 "reason": $("#" + objectUuid + "-response").val()
             }),
             contentType: "application/json; charset=utf-8",

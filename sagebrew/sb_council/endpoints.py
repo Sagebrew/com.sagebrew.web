@@ -48,8 +48,6 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
         by the user visiting the page or where they have voted by deactivated
         their vote.
 
-        Eventually we can add a feature which will allow us to simply filter
-        objects which have been voted on and which haven't.
         :return:
         """
         vote_filter = self.get_filter()
@@ -119,6 +117,11 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                     Post.inflate(row.posts),
                     context={'request': request}).data
             if html == 'true':
+                try:
+                    if council_object['title'] == 'Question made in safari':
+                        logger.info(council_object)
+                except KeyError:
+                    pass
                 council_object['last_edited_on'] = parser.parse(
                     council_object['last_edited_on'])
                 council_object = {

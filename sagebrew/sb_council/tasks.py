@@ -7,7 +7,8 @@ from .utils import update_closed, check_closed_reputation_changes
 def update_closed_task(object_uuid):
     res = update_closed(object_uuid)
     if isinstance(res, Exception) is True:
-        raise update_closed_task.retry(exc=res, countdown=3, max_retries=None)
+        raise update_closed_task.retry(exc=res, countdown=300,
+                                       max_retries=None)
     return res
 
 

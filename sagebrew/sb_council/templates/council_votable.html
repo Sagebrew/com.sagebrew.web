@@ -5,7 +5,7 @@
         </div>
         <div class="col-xs-5">
             <h4>{% if title %}{{ title|truncatewords:10 }}{% else %}{{ content|truncatewords:10 }}{% endif %}</h4>
-            <div style="display: none" id="flagged-object" data-object_uuid="{{ id }}"></div>
+            <div class="sb_hidden" id="flagged-object" data-object_uuid="{{ id }}"></div>
         </div>
         <div style="margin-top: 5px;" class="col-xs-3">
             {% comment %}

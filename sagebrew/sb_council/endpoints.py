@@ -117,13 +117,10 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                     Post.inflate(row.posts),
                     context={'request': request}).data
             if html == 'true':
-                try:
-                    if council_object['title'] == 'Question made in safari':
-                        logger.info(council_object)
-                except KeyError:
-                    pass
+                logger.info(council_object['profile'])
                 council_object['last_edited_on'] = parser.parse(
                     council_object['last_edited_on'])
+                council_object['request'] = request
                 council_object = {
                     "html": render_to_string("council_votable.html",
                                              council_object),

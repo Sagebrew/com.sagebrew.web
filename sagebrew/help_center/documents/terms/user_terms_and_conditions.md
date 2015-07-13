@@ -50,6 +50,17 @@ You may not use the Service for any illegal or unauthorized purpose. You must
 not, in the use of the Service, violate any laws in your jurisdiction 
 (including but not limited to copyright or trademark laws).
 
+## A.2 Contributions ##
+All contributions are made with the contributors own funds. Funds are not being provided to the contributor by another person or entity for the purpose of making a contribution.
+
+Contributors will make contributions with their own personal credit card and not with a corporate or business credit card. Contributors will not make contributions with a card issued to another person.
+
+Federal Contractors may not contribute through the Sagebrew Service.
+
+Contributors must be at least eighteen years old.
+
+Contributors must be U.S. citizens or lawfully admitted permanent residents of the United States of America (i.e., green card holder).
+
 ## B. Revisions to the Service ##
 Sagebrew reserves the right at any time and from time to time to modify or 
 discontinue, temporarily or permanently, the Service (or any part thereof)

@@ -95,7 +95,7 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         council_list = []
-        html = request.query_params.get('html', 'false')
+        html = request.query_params.get('html', 'false').lower()
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         for row in page:
@@ -117,7 +117,6 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                     Post.inflate(row.posts),
                     context={'request': request}).data
             if html == 'true':
-                logger.info(council_object['profile'])
                 council_object['last_edited_on'] = parser.parse(
                     council_object['last_edited_on'])
                 council_object['request'] = request

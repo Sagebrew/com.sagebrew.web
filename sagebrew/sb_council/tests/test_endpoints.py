@@ -22,8 +22,10 @@ class CouncilEndpointTests(APITestCase):
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         self.flag = Flag().save()
-        self.question = Question().save()
+        self.question = Question(owner_username=self.pleb.username).save()
         self.question.flags.connect(self.flag)
+        self.question.owned_by.connect(self.pleb)
+        self.pleb.questions.connect(self.question)
 
     def test_unauthorized(self):
         url = reverse('council-list')
@@ -106,6 +108,13 @@ class CouncilEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_list_html(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('council-list') + "?html=true&filter="
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_list_with_object(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('council-list')
@@ -127,7 +136,7 @@ class CouncilEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.question.object_uuid})
 
         response = self.client.get(url, format='json')
-        self.assertIsNone(response.data['profile'])
+        self.assertEqual(response.data['profile'], self.pleb.username)
 
     def test_get_viewcount(self):
         self.client.force_authenticate(user=self.user)
@@ -164,13 +173,13 @@ class CouncilEndpointTests(APITestCase):
         self.assertEqual(parser.parse(response.data['created']),
                          self.question.created)
 
-    def test_get_vote_type(self):
+    def test_get_council_vote(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('council-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
 
         response = self.client.get(url, format='json')
-        self.assertIsNone(response.data['vote_type'])
+        self.assertIsNone(response.data['council_vote'])
 
     def test_get_downvotes(self):
         self.client.force_authenticate(user=self.user)
@@ -256,7 +265,7 @@ class CouncilEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('council-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
-        response = self.client.put(url, data={'council_vote_type': True},
+        response = self.client.put(url, data={'vote_type': True},
                                    format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -266,7 +275,7 @@ class CouncilEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('council-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
-        response = self.client.put(url, data={'council_vote_type': False},
+        response = self.client.put(url, data={'vote_type': False},
                                    format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -276,7 +285,7 @@ class CouncilEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('council-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
-        self.client.put(url, data={'council_vote_type': True}, format='json')
+        self.client.put(url, data={'vote_type': True}, format='json')
         time.sleep(10)  # allow for task to finish
         get_response = self.client.get(url, format='json')
         self.assertTrue(get_response.data['is_closed'])

@@ -51,6 +51,10 @@ class VoteRelationship(StructuredRel):
     created = DateTimeProperty(default=get_current_time)
 
 
+class CouncilVote(VoteRelationship):
+    reasoning = StringProperty()
+
+
 class VotableContent(NotificationCapable):
     content = StringProperty()
     # Since both public and private content can be voted on this allows us to
@@ -68,16 +72,21 @@ class VotableContent(NotificationCapable):
     up_vote_adjustment = IntegerProperty(default=0)
     down_vote_adjustment = IntegerProperty(default=0)
     down_vote_cost = IntegerProperty(default=0)
+    is_closed = BooleanProperty(default=False)
 
     # optimizations
     owner_username = StringProperty()
+    initial_vote_time = DateTimeProperty()
+    # initial_vote_time is a property which lets us check if five days have
+    # passed since the first council vote or if five days have passed since
+    # the last time the task that checks for reputation recalculation has run.
 
     # relationships
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'OWNED_BY',
                               model=PostedOnRel)
     votes = RelationshipFrom('plebs.neo_models.Pleb', 'PLEB_VOTES',
                              model=VoteRelationship)
-    # counsel_vote = RelationshipTo('sb_counsel.neo_models.SBCounselVote',
+    # counsel_vote = RelationshipTo('sb_council.neo_models.SBCounselVote',
     #                              'VOTE')
     # views = RelationshipTo('sb_views.neo_models.SBView', 'VIEWS')
 
@@ -173,6 +182,25 @@ class VotableContent(NotificationCapable):
 
     @apply_defense
     def get_rep_breakout(self):
+        '''
+        This function will add up the amount of reputation that a user gets
+        for a piece of content. It first checks to see if the content is closed
+        and if 5 days have passed since the initial council vote was passed.
+        If these two are true then the user is rewarded no reputation from
+        the piece of content and loses 20 rep as per our content closure
+        system.
+        https://sagebrew.atlassian.net/wiki/display/RTS/Ability+to+Flag+Content
+        :return:
+        '''
+        if self.is_closed and (datetime.now(pytz.utc) -
+                               self.initial_vote_time).days >= 5:
+            self.initial_vote_time = datetime.now(pytz.utc)
+            self.save()
+            return {
+                'total_rep': -20,
+                'pos_rep': 0,
+                'neg_rep': -20
+            }
         votes_up = self.get_upvote_count()
         votes_down = self.get_downvote_count()
         if isinstance(votes_up, Exception) is True:
@@ -207,7 +235,7 @@ class SBContent(VotableContent):
     # we can update it at some future point in time. It hopefully will enable
     # us to order in the Neo4j query rather than using python if necessary like
     # we currently do for created and last edited on. However we need to
-    # determine the potential for slippage from dyanmo's count and how we want
+    # determine the potential for slippage from dynamo's count and how we want
     # to update it. So at the moment it will remain at 0.
     vote_count = IntegerProperty(default=0)
 
@@ -222,10 +250,15 @@ class SBContent(VotableContent):
                                 model=RelationshipWeight)
     notifications = RelationshipTo(
         'sb_notifications.neo_models.Notification', 'NOTIFICATIONS')
+    council_votes = RelationshipTo('plebs.neo_models.Pleb', 'COUNCIL_VOTE',
+                                   model=CouncilVote)
 
     @classmethod
     def get_model_name(cls):
         return cls.__name__
+
+    def update(self, instance):
+        pass
 
     def create_notification(self, pleb):
         pass
@@ -242,6 +275,51 @@ class SBContent(VotableContent):
                 "b:Pleb) Return b.username" % (self.object_uuid)
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
+
+    def council_vote(self, vote_type, pleb):
+        try:
+            if self.council_votes.is_connected(pleb):
+                rel = self.council_votes.relationship(pleb)
+                if vote_type == rel.vote_type and rel.active is True:
+                    return self.remove_vote(rel)
+                rel.vote_type = vote_type
+                rel.active = True
+            else:
+                rel = self.council_votes.connect(pleb)
+                if vote_type == rel.vote_type and rel.active is True:
+                    rel.active = False
+                rel.vote_type = vote_type
+                rel.active = True
+            rel.save()
+            return self
+        except (CypherException, IOError) as e:
+            return e
+
+    def get_council_vote(self, username):
+        query = 'MATCH (a:SBContent {object_uuid:"%s"})-[r:COUNCIL_VOTE]->' \
+                '(p:Pleb {username:"%s"}) WHERE r.active=true ' \
+                'RETURN r.vote_type' % (self.object_uuid, username)
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def get_council_decision(self):
+        # True denotes that the vote is for the content to be removed, while
+        # false means that the content should not be removed
+        query = 'MATCH (a:SBContent {object_uuid:"%s"})-[rs:COUNCIL_VOTE]->' \
+                '(p:Pleb) WHERE rs.active=true RETURN ' \
+                'reduce(remove_vote = 0, r in collect(rs)| ' \
+                'CASE WHEN r.vote_type=true THEN remove_vote+1 ' \
+                'ELSE remove_vote END) as remove_vote, ' \
+                'count(rs) as total_votes' \
+                % self.object_uuid
+        res, _ = db.cypher_query(query)
+        try:
+            percentage = float(res[0].remove_vote) / float(res[0].total_votes)
+        except ZeroDivisionError:
+            percentage = 0
+        if percentage >= .66:
+            return True
+        return False
 
     def get_url(self, request):
         return None
@@ -330,10 +408,23 @@ class SBVersioned(TaggableContent):
         # TODO we may want to change the naming of this method
         :return:
         """
+        if self.is_closed and (datetime.now(pytz.utc) -
+                               self.initial_vote_time).days >= 5:
+            self.initial_vote_time = datetime.now(pytz.utc)
+            self.save()
+            return {
+                'total_rep': -20,
+                'pos_rep': 0,
+                'neg_rep': -20,
+                'tag_list': [],
+                'rep_per_tag': 0,
+                'base_tag_list:': []
+            }
         tag_list = []
         base_tags = []
         pos_rep = self.get_upvote_count() * int(self.up_vote_adjustment)
         neg_rep = self.get_downvote_count() * int(self.down_vote_adjustment)
+
         for tag in self.tags.all():
             if tag.base:
                 base_tags.append(tag.name)

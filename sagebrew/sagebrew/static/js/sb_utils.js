@@ -678,6 +678,7 @@ function enableObjectFunctionality(populatedIds) {
     readyFlags(populatedIds);
     readyVotes(populatedIds);
     readyComments(populatedIds);
+    foggyClosed();
 }
 
 
@@ -743,6 +744,17 @@ function getUrlParameter(sParam) {
             return sParameterName[1];
         }
     }
+}
+
+function foggyClosed() {
+    $(".sb_blurred_content").foggy({
+        blurRadius: 15,
+        opacity: 0.95
+    });
+    $(".sb_blurred_content").click(function (event) {
+        event.preventDefault();
+        $(this).foggy(false);
+    });
 }
 
 function errorDisplay(XMLHttpRequest) {

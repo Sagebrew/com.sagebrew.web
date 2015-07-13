@@ -448,8 +448,11 @@ class Pleb(Searchable):
                 for tag in rep_res['tag_list']:
                     tags[tag] = rep_res['rep_per_tag']
             rep_list.append(rep_res)
+        if total_rep < 0:
+            total_rep = 0
         self.reputation = total_rep
         self.save()
+        cache.set(self.username, self)
         return {"rep_list": rep_list,
                 "base_tags": base_tags,
                 "tags": tags,

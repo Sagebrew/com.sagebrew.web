@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from os import environ, path, makedirs
 from unipath import Path
 import multiprocessing
+from celery.schedules import crontab
 from logentries import LogentriesHandler
 import logging
 
@@ -123,6 +124,7 @@ TEMPLATE_DIRS = (
     '%s/sb_badges/templates/' % PROJECT_DIR,
     '%s/sb_campaigns/templates/' % PROJECT_DIR,
     '%s/sb_comments/templates/' % PROJECT_DIR,
+    '%s/sb_council/templates' % PROJECT_DIR,
     '%s/sb_flag/templates/' % PROJECT_DIR,
     '%s/sb_notifications/templates/' % PROJECT_DIR,
     '%s/sb_posts/templates/' % PROJECT_DIR,
@@ -190,6 +192,7 @@ INSTALLED_APPS = (
     'sb_base',
     'sb_campaigns',
     'sb_comments',
+    'sb_council',
     'sb_docstore',
     'sb_flags',
     'sb_locations',
@@ -282,6 +285,14 @@ CACHES = {
         'OPTIONS': {
             'MAX_ENTRIES': 2500
         }
+    }
+}
+
+CELERYBEAT_SCHEDULE = {
+    'check-closed-reputation-changes': {
+        'task': 'sb_council.tasks.check_closed_reputation_changes_task',
+        'schedule': crontab(minute=0, hour=3),
+        'args': ()
     }
 }
 

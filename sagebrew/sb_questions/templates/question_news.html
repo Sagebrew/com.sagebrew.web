@@ -41,7 +41,7 @@
     </div>
     <div class="row">
         <div class="col-xs-10 col-xs-offset-1 sb_content_body">
-            <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
+            <div class="sb_markdown block_vertical{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                     {% autoescape off %}
                         {{ html_content }}
                     {% endautoescape %}
@@ -57,7 +57,7 @@
     </div>
     <div class="row">
         <div class="col-md-2 hidden-xs hidden-sm col-lg-offset-1">
-            {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
+            {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges and not is_closed %}
             {% else %}
                 <div><small>
                     <span class="sb_comment_disabled" data-toggle="tooltip"

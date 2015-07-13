@@ -30,6 +30,11 @@
                             <a href="{% url 'quest_saga' page_user.username %}">Quest</a>
                         </li>
                     {% endif %}
+                    {% if request.user.username == 'tyler_wiersing' or request.user.username == 'devon_bleibtrey' %}
+                        <li>
+                            <a href="{% url 'council_page' %}">Council</a>
+                        </li>
+                    {% endif %}
                 {% endif %}
                     <li>
                            <a {% if 'friends' in request.path %}class="active"{% endif %} href="{% url 'friend_page' page_user.username %}">Friends</a>

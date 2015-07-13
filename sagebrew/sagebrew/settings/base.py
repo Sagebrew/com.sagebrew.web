@@ -291,7 +291,7 @@ CACHES = {
 CELERYBEAT_SCHEDULE = {
     'check-closed-reputation-changes': {
         'task': 'sb_council.tasks.check_closed_reputation_changes_task',
-        'schedule': crontab(minute='*/1'),
+        'schedule': crontab(minute=0, hour=3),
         'args': ()
     }
 }

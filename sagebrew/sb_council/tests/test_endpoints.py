@@ -221,14 +221,6 @@ class CouncilEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['flagged_by'], [])
 
-    def test_get_council_vote(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('council-detail',
-                      kwargs={'object_uuid': self.question.object_uuid})
-
-        response = self.client.get(url, format='json')
-        self.assertIsNone(response.data['council_vote'])
-
     def test_get_upvotes(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('council-detail',

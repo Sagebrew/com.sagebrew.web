@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
 from sb_registration.utils import verify_completed_registration
+from sb_questions.neo_models import Question
 
 from .utils import prepare_question_search_html
 
@@ -65,7 +66,8 @@ def question_detail_page(request, question_uuid=None):
     # TODO is this uuid1 creation necessary?
     if question_uuid is None:
         question_uuid = str(uuid1())
-    post_data = {'sort_by': 'uuid', 'uuid': question_uuid}
+    post_data = {'sort_by': 'uuid', 'uuid': question_uuid,
+                 'is_closed': Question.get(question_uuid).is_closed}
     return render(request, 'conversation.html', post_data)
 
 

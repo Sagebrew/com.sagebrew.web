@@ -1,5 +1,6 @@
 from dateutil import parser
 from logging import getLogger
+from operator import attrgetter
 
 from django.template.loader import render_to_string
 
@@ -58,6 +59,7 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                 '(:Pleb {username:"%s"}) AND ' \
                 'content.to_be_deleted=False AND content.visibility="public" ' \
                 'RETURN content as questions, NULL as solutions, ' \
+                'content.created as created, ' \
                 'NULL as posts, NULL as comments UNION MATCH ' \
                 '' \
                 '// Retrieve all solutions which have been flagged\n' \
@@ -67,6 +69,7 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                 '(:Pleb {username:"%s"}) AND ' \
                 'content.to_be_deleted=False and content.visibility="public" ' \
                 'RETURN NULL as questions, content as solutions, ' \
+                'content.created as created, ' \
                 'NULL as posts, NULL as comments ' \
                 '' \
                 '// Retrieve all comments which have been flagged\n' \
@@ -76,6 +79,7 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                 '(:Pleb {username:"%s"}) AND ' \
                 'content.to_be_deleted=False and content.visibility="public" ' \
                 'RETURN NULL as questions, content as comments, ' \
+                'content.created as created, ' \
                 'NULL as posts, NULL as solutions ' \
                 '' \
                 '// Retrieve all posts which have been flagged\n' \
@@ -85,12 +89,14 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                 '(:Pleb {username:"%s"}) AND ' \
                 'content.to_be_deleted=False and content.visibility="public" ' \
                 'RETURN NULL as questions, content as posts, ' \
+                'content.created as created, ' \
                 'NULL as comments, NULL as solutions' % \
                 (vote_filter, self.request.user.username, vote_filter,
                  self.request.user.username, vote_filter,
                  self.request.user.username, vote_filter,
                  self.request.user.username)
         res, _ = db.cypher_query(query)
+        res = sorted(res, key=attrgetter('created'), reverse=True)
         return res
 
     def list(self, request, *args, **kwargs):

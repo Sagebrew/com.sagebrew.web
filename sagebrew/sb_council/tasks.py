@@ -2,6 +2,9 @@ from celery import shared_task
 
 from .utils import update_closed, check_closed_reputation_changes
 
+from logging import getLogger
+logger = getLogger('loggly_logs')
+
 
 @shared_task()
 def update_closed_task(object_uuid):
@@ -21,4 +24,5 @@ def check_closed_reputation_changes_task():
         # receive during the task execution.
         raise check_closed_reputation_changes_task.retry(exc=res, countdown=60,
                                                          max_retries=None)
+    logger.critical('Scheduled reputation update task ran!')
     return res

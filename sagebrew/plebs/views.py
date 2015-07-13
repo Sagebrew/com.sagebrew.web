@@ -145,11 +145,11 @@ def quest_settings(request):
         res, col = db.cypher_query(query)
         campaign = CampaignSerializer(Campaign.inflate(res[0][0]),
                                       context={'request': request}).data
+        campaign['stripe_key'] = settings.STRIPE_PUBLIC_KEY
     except(CypherException, ClientError):
         return redirect("500_Error")
     except IndexError:
         campaign = False
-    campaign['stripe_key'] = settings.STRIPE_PUBLIC_KEY
     return render(request, 'campaign_settings.html',
                   {"campaign": campaign})
 

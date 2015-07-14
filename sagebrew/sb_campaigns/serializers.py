@@ -55,6 +55,8 @@ class CampaignSerializer(SBSerializer):
     completed_stripe = serializers.SerializerMethodField()
     total_donation_amount = serializers.SerializerMethodField()
     total_pledge_vote_amount = serializers.SerializerMethodField()
+    target_goal_donation_requirement = serializers.SerializerMethodField()
+    target_goal_pledge_vote_requirement = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -263,6 +265,13 @@ class CampaignSerializer(SBSerializer):
                 return None
         else:
             return None
+
+    def get_target_goal_donation_requirement(self, obj):
+        return Campaign.get_target_goal_donation_requirement(obj.object_uuid)
+
+    def get_target_goal_pledge_vote_requirement(self, obj):
+        return Campaign.get_target_goal_pledge_vote_requirement(
+            obj.object_uuid)
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):

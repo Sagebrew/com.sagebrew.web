@@ -166,6 +166,19 @@ $(document).ready(function () {
             console.log(data);
             $("#total_donation_amount").append("$" + data.total_donation_amount / 100);
             $("#total_pledge_vote_amount").append(data.total_pledge_vote_amount);
+            console.log(data.total_donation_amount);
+            console.log(data.target_goal_donation_requirement);
+            console.log((data.target_goal_donation_requirement - data.total_donation_amount));
+            var moneyReq = (data.target_goal_donation_requirement - data.total_donation_amount) / 100,
+                pledgeReq = data.target_goal_pledge_vote_requirement - data.total_pledge_vote_amount;
+            if (moneyReq < 0) {
+                moneyReq = 0;
+            }
+            if (pledgeReq < 0) {
+                pledgeReq = 0;
+            }
+            $("#required_for_goal").append("Donations: $" + moneyReq + "<br>");
+            $("#required_for_goal").append("Votes: " + pledgeReq);
         },
         error: function (XMLHttpRequest) {
             errorDisplay(XMLHttpRequest);

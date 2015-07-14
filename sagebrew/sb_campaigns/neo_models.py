@@ -290,6 +290,23 @@ class Campaign(Searchable):
         res, _ = db.cypher_query(query)
         return res.one
 
+    @classmethod
+    def get_target_goal_donation_requirement(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
+                '(r:Round)-[:STRIVING_FOR]->(g:Goal {target:true}) ' \
+                'RETURN g.total_required' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    @classmethod
+    def get_target_goal_pledge_vote_requirement(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
+                '(r:Round)-[:STRIVING_FOR]->(g:Goal {target:true}) ' \
+                'RETURN g.pledged_vote_requirement' % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
 
 class PoliticalCampaign(Campaign):
     """

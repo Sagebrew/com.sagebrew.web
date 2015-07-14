@@ -11,7 +11,7 @@
             </li>
             {% endif %}
             <li>
-                <a {% if 'friends' not in request.path and 'about' not in request.path and 'reputation' not in request.path and 'feed' not in request.path %}class="active"{% endif %} href="{% url 'profile_page' page_user.username %}">Profile</a>
+                <a {% if 'friends' not in request.path and 'about' not in request.path and 'reputation' not in request.path and 'feed' not in request.path and 'quest' not in request.path %}class="active"{% endif %} href="{% url 'profile_page' page_user.username %}">Profile</a>
             </li>
                 {% if debug == True %}
                     {% comment %}
@@ -31,7 +31,8 @@
                         </li>
                         {% if request.user.username == page_user.username %}
                             <li>
-                                <a href="{% url 'quest_charts' request.user.username %}">Quest Charts</a>
+
+                                <a {% if "quest_stats" in request.path %}class="active"{% endif %} href="{% url 'quest_stats' request.user.username %}">Quest Stats</a>
                             </li>
                         {% endif %}
                     {% endif %}

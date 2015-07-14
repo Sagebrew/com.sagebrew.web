@@ -382,7 +382,7 @@ class PoliticalVoteSerializer(serializers.Serializer):
     """
     vote_type = serializers.IntegerField(min_value=1, max_value=1)
     created = serializers.DateTimeField(read_only=True)
-    active = serializers.BooleanField()
+    active = serializers.BooleanField(read_only=True)
 
 
 class EditorSerializer(serializers.Serializer):

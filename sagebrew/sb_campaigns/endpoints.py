@@ -260,7 +260,6 @@ class PoliticalCampaignViewSet(CampaignViewSet):
         serializer_data = self.get_serializer(queryset, many=True).data
         return Response(serializer_data, status=status.HTTP_200_OK)
 
-
     @detail_route(methods=['get'], serializer_class=GoalSerializer)
     def unassigned_goals(self, request, object_uuid=None):
         if not (request.user.username in Campaign.get_editors

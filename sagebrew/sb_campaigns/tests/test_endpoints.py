@@ -662,7 +662,7 @@ class CampaignEndpointTests(APITestCase):
             'vote_type': 1
         }
         response = self.client.post(url, data=data, format='json')
-
+        print response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['detail'])
 

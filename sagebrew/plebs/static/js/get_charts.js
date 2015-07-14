@@ -1,18 +1,4 @@
 /*global $, jQuery, guid, Croppic, alert, highcharts*/
-Number.prototype.format = function (n, x) {
-    /*
-    This function will format any given integer into a comma separated string,
-    useful for converting integers to monetary representations
-    e.g.
-    1234..format();           // "1,234"
-    12345..format(2);         // "12,345.00"
-    123456.7.format(3, 2);    // "12,34,56.700"
-    123456.789.format(2, 4);  // "12,3456.79"
-     */
-    var re = '\\d(?=(\\d{' + (x || 3) + '})+' + (n > 0 ? '\\.' : '$') + ')';
-    return this.toFixed(Math.max(0, ~~n)).replace(new RegExp(re, 'g'), '$&,');
-};
-
 function prepareDonationData(donationData) {
     var parsedData = [],
         lifetimeTotalData = [],
@@ -163,12 +149,8 @@ $(document).ready(function () {
         cache: false,
         processData: false,
         success: function (data) {
-            console.log(data);
             $("#total_donation_amount").append("$" + data.total_donation_amount / 100);
             $("#total_pledge_vote_amount").append(data.total_pledge_vote_amount);
-            console.log(data.total_donation_amount);
-            console.log(data.target_goal_donation_requirement);
-            console.log((data.target_goal_donation_requirement - data.total_donation_amount));
             var moneyReq = (data.target_goal_donation_requirement - data.total_donation_amount) / 100,
                 pledgeReq = data.target_goal_pledge_vote_requirement - data.total_pledge_vote_amount;
             if (moneyReq < 0) {

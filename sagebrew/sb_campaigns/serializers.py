@@ -372,6 +372,8 @@ class PoliticalVoteSerializer(serializers.Serializer):
     their pledged vote.
     """
     vote_type = serializers.IntegerField(min_value=1, max_value=1)
+    created = serializers.DateTimeField(read_only=True)
+    active = serializers.BooleanField()
 
 
 class EditorSerializer(serializers.Serializer):

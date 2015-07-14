@@ -364,6 +364,14 @@ class PoliticalCampaign(Campaign):
         rel.save()
         return rel.active
 
+    def get_pledged_votes(self):
+        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
+                '[r:RECEIVED_PLEDGED_VOTE]->(:Pleb) RETURN r ' \
+                'ORDER BY r.created' \
+                % self.object_uuid
+        res, _ = db.cypher_query(query)
+        return [VoteRelationship.inflate(row[0]) for row in res]
+
 
 class Position(SBObject):
     name = StringProperty()

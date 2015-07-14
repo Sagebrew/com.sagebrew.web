@@ -17,20 +17,40 @@ function prepareDonationData(donationData) {
     var parsedData = [],
         lifetimeTotalData = [],
         tempTotal = 0,
-        startYear = new Date(donationData[0].created.toLocaleString()).getFullYear();
+        startYear = new Date(donationData[0].created.toLocaleString()).getFullYear(),
+        parsedShortData = [];
 
     $.each(donationData, function (index, value) {
         tempTotal += (value.amount / 100);
         lifetimeTotalData.push(tempTotal);
         var tempDate = new Date(value.created.toLocaleString());
-        parsedData.push([Date.UTC(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate()), value.amount / 100]);
+        parsedData.push([Date.UTC(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate(), tempDate.getHours(), tempDate.getMinutes(), tempDate.getSeconds()), value.amount / 100]);
+        parsedShortData.push([Date.UTC(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate()), value.amount / 100]);
     });
     return {
         'individualDonationData': parsedData,
         'lifetimeTotalData': {
             'totalAmount': lifetimeTotalData,
             'startYear': startYear
+        },
+        'lifetimeTotalDataDateWise': parsedShortData
+    };
+}
+
+function preparePledgedVoteData(voteData) {
+    var parsedVoteData = [];
+    $.each(voteData, function (index, value) {
+        var tempDate = new Date(value.created.toLocaleString()),
+            voteValue;
+        if (value.active) {
+            voteValue = 1;
+        } else {
+            voteValue = 0;
         }
+        parsedVoteData.push([Date.UTC(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate()), voteValue]);
+    });
+    return {
+        'dailyVoteTotal': parsedVoteData
     };
 }
 
@@ -45,7 +65,8 @@ $(document).ready(function () {
             var preparedData = prepareDonationData(data.results);
             $("#individual_donation_chart").highcharts({
                 chart: {
-                    type: 'scatter'
+                    type: 'scatter',
+                    zoomType: 'xy'
                 },
                 title: {
                     text: 'Individual Donations Over Time'
@@ -83,52 +104,71 @@ $(document).ready(function () {
                         data: preparedData.individualDonationData
                     }]
             });
-            $("#total_donation_chart").highcharts({
+        },
+        error: function (XMLHttpRequest) {
+            errorDisplay(XMLHttpRequest);
+        }
+    });
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: "/v1/campaigns/" + "tyler_wiersing" + "/pledged_votes/",
+        cache: false,
+        processData: false,
+        success: function (data) {
+            var preparedData = preparePledgedVoteData(data);
+            $("#pledged_vote_daily_chart").highcharts({
                 chart: {
-                    type: 'area'
+                    type: "column"
                 },
                 title: {
-                    text: 'Lifetime Cumulative Donations'
+                    text: "Pledged Votes Over Time"
                 },
                 xAxis: {
-                    allowDecimals: false,
+                    type: 'datetime',
+                    dateTimeLabelFormats: { // don't display the dummy year
+                        month: '%e. %b',
+                        year: '%b'
+                    },
                     title: {
-                        text: 'Donation Count'
+                        text: 'Date'
                     }
                 },
                 yAxis: {
-                    type: 'linear',
                     title: {
-                        text: 'Total Donations Received (in $)'
-                    }
+                        text: 'Pledged Vote Amount'
+                    },
+                    min: 0,
+                    allowDecimals: false
                 },
                 tooltip: {
-                    pointFormat: '${point.y:,.0f}'
+                    headerFormat: '<b>Pledge Amount</b><br>',
+                    pointFormat: '{point.y} Pledge Vote'
                 },
-                plotOptions: {
-                    area: {
-                        pointStart: 1,
-                        marker: {
-                            enabled: false,
-                            symbol: 'circle',
-                            radius: 2,
-                            states: {
-                                hover: {
-                                    enabled: true
-                                }
-                            }
-                        }
-                    }
-                },
-                series: [{
-                    name: 'Total Donations',
-                    data: preparedData.lifetimeTotalData.totalAmount
-                }]
+                series: [
+                    {
+                        name: 'Lifetime Pledged Votes',
+                        data: preparedData.dailyVoteTotal
+                    }]
             });
         },
         error: function (XMLHttpRequest) {
             errorDisplay(XMLHttpRequest);
         }
     });
-
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: "/v1/campaigns/" + "tyler_wiersing",
+        cache: false,
+        processData: false,
+        success: function (data) {
+            console.log(data);
+            $("#total_donation_amount").append("$" + data.total_donation_amount / 100);
+            $("#total_pledge_vote_amount").append(data.total_pledge_vote_amount);
+        },
+        error: function (XMLHttpRequest) {
+            errorDisplay(XMLHttpRequest);
+        }
+    });
 });

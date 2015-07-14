@@ -251,6 +251,16 @@ class PoliticalCampaignViewSet(CampaignViewSet):
                              "developer_message": None})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
+                                                       IsOwnerOrAccountant,),
+                  serializer_class=PoliticalVoteSerializer)
+    def pledged_votes(self, request, object_uuid=None):
+        camp_object = self.get_object()
+        queryset = camp_object.get_pledged_votes()
+        serializer_data = self.get_serializer(queryset, many=True).data
+        return Response(serializer_data, status=status.HTTP_200_OK)
+
+
     @detail_route(methods=['get'], serializer_class=GoalSerializer)
     def unassigned_goals(self, request, object_uuid=None):
         if not (request.user.username in Campaign.get_editors

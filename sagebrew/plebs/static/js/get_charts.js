@@ -154,15 +154,23 @@ $(document).ready(function () {
             $("#total_donation_amount").append("<h2>$" + data.total_donation_amount / 100 + "</h2>");
             $("#total_pledge_vote_amount").append("<h2>" + data.total_pledge_vote_amount + "</h2>");
             var moneyReq = (data.target_goal_donation_requirement - data.total_donation_amount) / 100,
-                pledgeReq = data.target_goal_pledge_vote_requirement - data.total_pledge_vote_amount;
+                pledgeReq = data.target_goal_pledge_vote_requirement - data.total_pledge_vote_amount,
+                donationPercentage = data.total_donation_amount / data.target_goal_donation_requirement * 100,
+                pledgePercentage = data.total_pledge_vote_amount / data.target_goal_pledge_vote_requirement * 100;
             if (moneyReq < 0) {
                 moneyReq = 0;
             }
             if (pledgeReq < 0) {
                 pledgeReq = 0;
             }
-            $("#required_for_goal").append('<div class="progress sb_progress"><div class="progress-bar sb_progress_bar" style="width: 50%"></div></div>');
-            $("#required_for_goal").append("Votes: " + pledgeReq);
+            if (donationPercentage > 100) {
+                donationPercentage = 100;
+            }
+            if (pledgePercentage > 100) {
+                pledgePercentage = 100;
+            }
+            $("#required_for_goal").append('<small>Donations</small><div class="progress sb_progress" style="margin-bottom: 0;"><div class="progress-bar sb_progress_bar" style="width: ' + donationPercentage + '%;"></div></div>');
+            $("#required_for_goal").append('<small>Pledges</small><div class="progress sb_progress" style="margin-bottom: 0;"><div class="progress-bar sb_progress_bar" style="width: ' + pledgePercentage + '%"></div></div>');
         },
         error: function (XMLHttpRequest) {
             errorDisplay(XMLHttpRequest);

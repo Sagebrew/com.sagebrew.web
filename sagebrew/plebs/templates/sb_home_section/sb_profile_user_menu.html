@@ -29,6 +29,11 @@
                         <li>
                             <a href="{% url 'quest_saga' page_user.username %}">Quest</a>
                         </li>
+                        {% if request.user.username == page_user.username %}
+                            <li>
+                                <a href="{% url 'quest_charts' request.user.username %}">Quest Charts</a>
+                            </li>
+                        {% endif %}
                     {% endif %}
                     {% if request.user.username == 'tyler_wiersing' or request.user.username == 'devon_bleibtrey' %}
                         <li>

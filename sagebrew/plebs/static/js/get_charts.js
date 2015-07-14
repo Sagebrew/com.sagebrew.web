@@ -49,6 +49,7 @@ $(document).ready(function () {
         processData: false,
         success: function (data) {
             var preparedData = prepareDonationData(data.results);
+            // Create a scatter plot showing each donation received as a point
             $("#individual_donation_chart").highcharts({
                 chart: {
                     type: 'scatter',
@@ -103,6 +104,7 @@ $(document).ready(function () {
         processData: false,
         success: function (data) {
             var preparedData = preparePledgedVoteData(data);
+            // Create a column chart which shows daily pledge vote amount
             $("#pledged_vote_daily_chart").highcharts({
                 chart: {
                     type: "column"

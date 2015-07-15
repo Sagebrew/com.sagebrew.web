@@ -15,6 +15,7 @@ from elasticsearch import Elasticsearch
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrAccountant,
                              IsOwnerOrEditor)
 from sb_goals.serializers import GoalSerializer
+from plebs.serializers import PlebSerializerNeo
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, AccountantSerializer,
@@ -259,12 +260,28 @@ class PoliticalCampaignViewSet(CampaignViewSet):
                              "detail": "You are not authorized to access "
                                        "this page."},
                             status=status.HTTP_403_FORBIDDEN)
-        html = request.query_params.get('html', 'false')
+        html = request.query_params.get('html', 'false').lower()
         queryset = PoliticalCampaign.get_unassigned_goals(object_uuid)
         if html == 'true':
             return Response([render_to_string(
                 "goal_draggable.html", GoalSerializer(goal).data)
                 for goal in queryset], status=status.HTTP_200_OK)
+        return Response(self.serializer_class(queryset, many=True).data,
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], serializer_class=PlebSerializerNeo)
+    def possible_helpers(self, request, object_uuid=None):
+        if not request.user.username == object_uuid:
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "You are not authorized to access "
+                                       "this page."},
+                            status=status.HTTP_403_FORBIDDEN)
+        html = request.query_params.get('html', 'false').lower()
+        queryset = PoliticalCampaign.get_possible_helpers(object_uuid)
+        if html == 'true':
+            return Response([render_to_string('potential_campaign_helper.html',
+                                              PlebSerializerNeo(pleb).data)
+                             for pleb in queryset], status=status.HTTP_200_OK)
         return Response(self.serializer_class(queryset, many=True).data,
                         status=status.HTTP_200_OK)
 

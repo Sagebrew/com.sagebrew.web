@@ -1,9 +1,11 @@
 {% load staticfiles %}
 <div class="col-xs-12">
-   <div class="col-lg-12 sb_wall">
-       <div class="row">
-           <div id="campaign_id" class="sb_hidden" data-object_uuid="{{ id }}"></div>
+    <div class="col-lg-12 sb_wall">
+        <div class="row">
+            <div id="js-campaign_id" class="sb_hidden" data-current_user="{{ request.user.username }}" data-object_uuid="{{ id }}"></div>
+            <div id="js-campaign_helper_wrapper">
 
-       </div>
-   </div>
+            </div>
+        </div>
+    </div>
 </div>

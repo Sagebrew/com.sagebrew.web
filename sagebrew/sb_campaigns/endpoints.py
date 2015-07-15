@@ -16,6 +16,7 @@ from api.permissions import (IsOwnerOrAdmin, IsOwnerOrAccountant,
                              IsOwnerOrEditor)
 from sb_goals.serializers import GoalSerializer
 from plebs.serializers import PlebSerializerNeo
+from plebs.neo_models import Pleb
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, AccountantSerializer,
@@ -63,6 +64,13 @@ class CampaignViewSet(viewsets.ModelViewSet):
         :return:
         """
         self.check_object_permissions(request, object_uuid)
+        queryset = Campaign.get_editors(object_uuid)
+        html = request.query_params.get('html', 'false').lower()
+        if html == 'true':
+            return Response([
+                render_to_string("current_editor.html",
+                                 PlebSerializerNeo(Pleb.get(pleb)).data)
+                for pleb in queryset])
         return Response(Campaign.get_editors(object_uuid),
                         status=status.HTTP_200_OK)
 
@@ -183,8 +191,14 @@ class CampaignViewSet(viewsets.ModelViewSet):
         :return:
         """
         self.check_object_permissions(request, object_uuid)
-        return Response(Campaign.get_accountants(object_uuid),
-                        status=status.HTTP_200_OK)
+        html = request.query_params.get('html', 'false').lower()
+        queryset = Campaign.get_accountants(object_uuid)
+        if html == 'true':
+            return Response([
+                render_to_string("current_accountant.html",
+                                 PlebSerializerNeo(Pleb.get(pleb)).data)
+                for pleb in queryset])
+        return Response(queryset, status=status.HTTP_200_OK)
 
 
 class PoliticalCampaignViewSet(CampaignViewSet):

@@ -16,8 +16,12 @@
     {% endif %}
 {% include "action_nav.html" %}
 <div class="row sb_wall sb_action_wall">
+    {% if "helpers" not in request.path %}
     <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
-        {% if "updates" not in request.path and "statistics" not in request.path %}
+    {% else %}
+    <div class="col-xs-12">
+    {% endif %}
+        {% if "updates" not in request.path and "statistics" not in request.path and "helpers" not in request.path %}
             {% if active == True %}
                 {% include "saga.html" %}
             {% else %}
@@ -35,6 +39,7 @@
             {% include 'add_campaign_helpers.html' %}
         {% endif %}
     </div>
+    {% if "helpers" not in request.path %}
     <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
         <h5>Goals{% if id == request.user.username %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="manage_goals" style="margin-top: -5px;"><span class="fa fa-edit"></span></button>{% endif %}</h5>
         {% if active == True %}
@@ -47,6 +52,7 @@
             {% include "goals_block_disabled.html" %}
         {% endif %}
     </div>
+    {% endif %}
 </div>
 </div>
 {% endblock %}
@@ -57,7 +63,9 @@
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
     {% if active or request.user.username == id %}
-        <script src="{% static 'js/get_goals.js' %}"></script>
+        {% if "helpers" not in request.path %}
+            <script src="{% static 'js/get_goals.js' %}"></script>
+        {% endif %}
         <script src="{% static 'js/get_updates.js' %}"></script>
         <script src="{% static 'js/create_donations.js' %}"></script>
         <script src="{% static 'js/donation_validator.js' %}"></script>

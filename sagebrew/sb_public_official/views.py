@@ -96,7 +96,7 @@ def updates(request, username):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def statistics(request, username):
-    if not request.user.username in \
+    if request.user.username not in \
             PoliticalCampaign.get_campaign_helpers(username):
         return redirect('quest_saga', username)
     try:

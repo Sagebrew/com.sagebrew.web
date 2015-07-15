@@ -277,14 +277,13 @@ class CampaignSerializer(SBSerializer):
 
     def get_is_editor(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
-        return request.user.username in \
-               PoliticalCampaign.get_editors(obj.object_uuid)
+        return request.user.username in PoliticalCampaign.get_editors(
+            obj.object_uuid)
 
     def get_is_accountant(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
-        return request.user.username in \
-               PoliticalCampaign.get_accountants(obj.object_uuid)
-
+        return request.user.username in PoliticalCampaign.get_accountants(
+            obj.object_uuid)
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):

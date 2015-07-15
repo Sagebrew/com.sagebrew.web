@@ -11,5 +11,10 @@
                 <a {% if "statistics" in request.path %}class="active"{% endif %} href="{% url 'quest_stats' id %}">Insight</a>
             </li>
         {% endif %}
+        {% if request.user.username == owner_username %}
+            <li>
+                <a {% if "helpers" in request.path %}class="active"{% endif %} href="">Helpers</a>
+            </li>
+        {% endif %}
     </ul>
 </div>

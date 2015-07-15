@@ -5,17 +5,11 @@ $(document).ready(function () {
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/profiles/" + username + "/friends/?html=true",
+        url: "/v1/campaigns/" + campaign_id + "/possible_helpers/?html=true",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            if (data.count === 0){
-                $("#friend_wrapper").append("<div><h3>Please use search to find your friends :)</h3></div>");
-            }
-            $.each(data.results, function (i, l) {
-                $("#friend_wrapper").append(l);
-            });
-            $("#next_url").data('url', data.next);
+            console.log(data);
         },
         error: function (XMLHttpRequest) {
             if (XMLHttpRequest.status === 500) {

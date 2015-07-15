@@ -31,6 +31,8 @@
             {% endif %}
         {% elif "statistics" in request.path and active == True %}
             {% include "sb_quest_chart.html" %}
+        {% elif "helpers" in request.path %}
+            {% include 'add_campaign_helpers.html' %}
         {% endif %}
     </div>
     <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
@@ -69,5 +71,6 @@
         <script src="{% static 'js/quest_wallpaper_pic.js' %}"></script>
         <script src="{% static 'js/vendor/highcharts.js' %}"></script>
         <script src="{% static 'js/get_charts.js' %}"></script>
+        <script src="{% static 'js/get_possible_helpers.js' %}"></script>
     {% endif %}
 {% endblock scripts %}

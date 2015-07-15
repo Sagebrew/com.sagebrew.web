@@ -255,8 +255,7 @@ class PoliticalCampaignViewSet(CampaignViewSet):
                                                        IsOwnerOrAccountant,),
                   serializer_class=PoliticalVoteSerializer)
     def pledged_votes(self, request, object_uuid=None):
-        camp_object = self.get_object()
-        queryset = camp_object.get_pledged_votes()
+        queryset = self.get_object().get_pledged_votes()
         serializer_data = self.get_serializer(queryset, many=True).data
         return Response(serializer_data, status=status.HTTP_200_OK)
 

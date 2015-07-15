@@ -41,10 +41,11 @@ function preparePledgedVoteData(voteData) {
 }
 
 $(document).ready(function () {
+    var campaignId = $("#campaign_id").data('object_uuid');
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/campaigns/" + "tyler_wiersing" + "/donations/",
+        url: "/v1/campaigns/" + campaignId + "/donations/",
         cache: false,
         processData: false,
         success: function (data) {
@@ -99,7 +100,7 @@ $(document).ready(function () {
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/campaigns/" + "tyler_wiersing" + "/pledged_votes/",
+        url: "/v1/campaigns/" + campaignId + "/pledged_votes/",
         cache: false,
         processData: false,
         success: function (data) {
@@ -147,7 +148,7 @@ $(document).ready(function () {
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/campaigns/" + "tyler_wiersing",
+        url: "/v1/campaigns/" + campaignId + "/",
         cache: false,
         processData: false,
         success: function (data) {

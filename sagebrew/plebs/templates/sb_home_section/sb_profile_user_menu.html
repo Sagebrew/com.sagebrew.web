@@ -39,8 +39,6 @@
                     <li>
                            <a {% if 'friends' in request.path %}class="active"{% endif %} href="{% url 'friend_page' page_user.username %}">Friends</a>
                     </li>
-
-
         </ul>
     {% elif not is_friend and page_user.username != request.user.username %}
         <div class="sb_friend_btn_wrapper">

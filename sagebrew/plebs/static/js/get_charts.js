@@ -51,7 +51,7 @@ $(document).ready(function () {
         success: function (data) {
             var preparedData = prepareDonationData(data.results);
             // Create a scatter plot showing each donation received as a point
-            $("#individual_donation_chart").highcharts({
+            $("#js-individual_donation_chart").highcharts({
                 chart: {
                     type: 'scatter',
                     zoomType: 'xy'
@@ -106,7 +106,7 @@ $(document).ready(function () {
         success: function (data) {
             var preparedData = preparePledgedVoteData(data);
             // Create a column chart which shows daily pledge vote amount
-            $("#pledged_vote_daily_chart").highcharts({
+            $("#js-pledged_vote_daily_chart").highcharts({
                 chart: {
                     type: "column"
                 },
@@ -152,8 +152,8 @@ $(document).ready(function () {
         cache: false,
         processData: false,
         success: function (data) {
-            $("#total_donation_amount").append("<h2>$" + data.total_donation_amount / 100 + "</h2>");
-            $("#total_pledge_vote_amount").append("<h2>" + data.total_pledge_vote_amount + "</h2>");
+            $("#js-total_donation_amount").append("<h2>$" + data.total_donation_amount / 100 + "</h2>");
+            $("#js-total_pledge_vote_amount").append("<h2>" + data.total_pledge_vote_amount + "</h2>");
             var moneyReq = (data.target_goal_donation_requirement - data.total_donation_amount) / 100,
                 pledgeReq = data.target_goal_pledge_vote_requirement - data.total_pledge_vote_amount,
                 donationPercentage = data.total_donation_amount / data.target_goal_donation_requirement * 100,
@@ -170,8 +170,8 @@ $(document).ready(function () {
             if (pledgePercentage > 100) {
                 pledgePercentage = 100;
             }
-            $("#required_for_goal").append('<small>Pledges</small><div class="progress sb_progress" style="margin-bottom: 0;"><div class="progress-bar sb_progress_bar" style="width: ' + pledgePercentage + '%"></div></div>');
-            $("#required_for_goal").append('<small>Donations</small><div class="progress sb_progress" style="margin-bottom: 0;"><div class="progress-bar sb_progress_bar" style="width: ' + donationPercentage + '%;"></div></div>');
+            $("#js-required_for_goal").append('<small>Pledges</small><div class="progress sb_progress" style="margin-bottom: 0;"><div class="progress-bar sb_progress_bar" style="width: ' + pledgePercentage + '%"></div></div>');
+            $("#js-required_for_goal").append('<small>Donations</small><div class="progress sb_progress" style="margin-bottom: 0;"><div class="progress-bar sb_progress_bar" style="width: ' + donationPercentage + '%;"></div></div>');
         },
         error: function (XMLHttpRequest) {
             errorDisplay(XMLHttpRequest);

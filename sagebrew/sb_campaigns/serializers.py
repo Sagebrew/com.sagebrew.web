@@ -41,14 +41,16 @@ class CampaignSerializer(SBSerializer):
     location_name = serializers.CharField(read_only=True)
     position_name = serializers.CharField(read_only=True)
 
-    reputation = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
     rounds = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
     position = serializers.SerializerMethodField()
+    is_editor = serializers.SerializerMethodField()
+    reputation = serializers.SerializerMethodField()
     active_goals = serializers.SerializerMethodField()
     active_round = serializers.SerializerMethodField()
+    is_accountant = serializers.SerializerMethodField()
     rendered_epic = serializers.SerializerMethodField()
     upcoming_round = serializers.SerializerMethodField()
     public_official = serializers.SerializerMethodField()
@@ -272,6 +274,17 @@ class CampaignSerializer(SBSerializer):
     def get_target_goal_pledge_vote_requirement(self, obj):
         return Campaign.get_target_goal_pledge_vote_requirement(
             obj.object_uuid)
+
+    def get_is_editor(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        return request.user.username in \
+               PoliticalCampaign.get_editors(obj.object_uuid)
+
+    def get_is_accountant(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        return request.user.username in \
+               PoliticalCampaign.get_accountants(obj.object_uuid)
+
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):

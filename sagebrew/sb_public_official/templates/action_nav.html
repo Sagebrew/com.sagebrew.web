@@ -1,10 +1,15 @@
 <div class="row sb_nav sb_secondary_nav sb_action_nav">
     <ul>
         <li>
-           <a {% if not 'updates' in request.path %}class="active" {% endif %}href="{% url 'quest_saga' username=id %}">Saga</a>
+           <a {% if not 'updates' in request.path and not 'statistics' in request.path %}class="active" {% endif %}href="{% url 'quest_saga' username=id %}">Saga</a>
         </li>
         <li>
            <a {% if 'updates' in request.path %}class="active" {% endif %}href="{% url 'quest_updates' username=id %}">Updates</a>
         </li>
+        {% if request.user.username == owner_username or is_accountant or is_editor %}
+            <li>
+                <a {% if "statistics" in request.path %}class="active"{% endif %} href="{% url 'quest_stats' id %}">Insight</a>
+            </li>
+        {% endif %}
     </ul>
 </div>

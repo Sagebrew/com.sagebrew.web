@@ -11,7 +11,7 @@
             </li>
             {% endif %}
             <li>
-                <a {% if 'friends' not in request.path and 'about' not in request.path and 'reputation' not in request.path and 'feed' not in request.path %}class="active"{% endif %} href="{% url 'profile_page' page_user.username %}">Profile</a>
+                <a {% if 'friends' not in request.path and 'about' not in request.path and 'reputation' not in request.path and 'feed' not in request.path and 'quest' not in request.path %}class="active"{% endif %} href="{% url 'profile_page' page_user.username %}">Profile</a>
             </li>
                 {% if debug == True %}
                     {% comment %}
@@ -39,8 +39,6 @@
                     <li>
                            <a {% if 'friends' in request.path %}class="active"{% endif %} href="{% url 'friend_page' page_user.username %}">Friends</a>
                     </li>
-
-
         </ul>
     {% elif not is_friend and page_user.username != request.user.username %}
         <div class="sb_friend_btn_wrapper">

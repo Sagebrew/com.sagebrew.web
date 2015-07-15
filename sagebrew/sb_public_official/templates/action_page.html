@@ -17,18 +17,20 @@
 {% include "action_nav.html" %}
 <div class="row sb_wall sb_action_wall">
     <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
-        {% if "updates" in request.path %}
-            {% if active == True %}
-                {% include "updates.html" %}
-            {% else %}
-                {% include "updates_disabled.html" %}
-            {% endif %}
-        {% else %}
+        {% if "updates" not in request.path and "statistics" not in request.path %}
             {% if active == True %}
                 {% include "saga.html" %}
             {% else %}
                 {% include "saga_disabled.html" %}
             {% endif %}
+        {% elif "updates" in request.path %}
+            {% if active == True %}
+                {% include "updates.html" %}
+            {% else %}
+                {% include "updates_disabled.html" %}
+            {% endif %}
+        {% elif "statistics" in request.path and active == True %}
+            {% include "sb_quest_chart.html" %}
         {% endif %}
     </div>
     <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
@@ -65,5 +67,7 @@
         <script src="{% static 'js/edit_quest.js' %}"></script>
         <script src="{% static 'js/quest_profile_pic.js' %}"></script>
         <script src="{% static 'js/quest_wallpaper_pic.js' %}"></script>
+        <script src="{% static 'js/vendor/highcharts.js' %}"></script>
+        <script src="{% static 'js/get_charts.js' %}"></script>
     {% endif %}
 {% endblock scripts %}

@@ -295,8 +295,8 @@ class Campaign(Searchable):
         from plebs.neo_models import Pleb
         query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:WAGED_BY]->(p:Pleb)-' \
                 '[:FRIENDS_WITH {currently_friends: true}]->' \
-                '(b:Pleb) WHERE NOT (c)-[:CAN_VIEW_MONETARY_DATA]->(b) OR ' \
-                '(c)-[:CAN_BE_EDITED_BY]->(b) RETURN b' % object_uuid
+                '(b:Pleb) WHERE NOT (c)-[:CAN_BE_EDITED_BY]->(b) XOR ' \
+                '(c)-[:CAN_VIEW_MONETARY_DATA]->(b) RETURN b' % object_uuid
         res, _ = db.cypher_query(query)
         return [Pleb.inflate(row[0]) for row in res]
 

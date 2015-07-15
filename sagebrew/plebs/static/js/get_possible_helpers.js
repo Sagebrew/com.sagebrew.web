@@ -7,6 +7,9 @@ function enablePromotion(campaignId) {
             type: "POST",
             url: "/v1/campaigns/" + campaignId + "/add_accountants/",
             contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                "profiles": [$(this).data('username')]
+            }),
             dataType: "json",
             success: function (data) {
                 $("#js-accountant_wrapper").append(data);
@@ -25,6 +28,9 @@ function enablePromotion(campaignId) {
             type: "POST",
             url: "/v1/campaigns/" + campaignId + "/add_editors/",
             contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                "profiles": [$(this).data('username')]
+            }),
             dataType: "json",
             success: function (data) {
                 $("#js-accountant_wrapper").append(data);
@@ -44,9 +50,12 @@ function enableEditorRemoval(campaignId) {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/v1/campaigns/" + campaignId + "/add_accountants/",
+            url: "/v1/campaigns/" + campaignId + "/remove_editors/",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
+            data: JSON.stringify({
+                "profiles": [$(this).data('username')]
+            }),
             success: function (data) {
                 $("#js-accountant_wrapper").append(data);
             },
@@ -65,9 +74,12 @@ function enableAccountantRemoval(campaignId) {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/v1/campaigns/" + campaignId + "/add_accountants/",
+            url: "/v1/campaigns/" + campaignId + "/remove_accountants/",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
+            data: JSON.stringify({
+                "profiles": [$(this).data('username')]
+            }),
             success: function (data) {
                 $("#js-accountant_wrapper").append(data);
             },

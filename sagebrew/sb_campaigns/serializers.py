@@ -425,9 +425,9 @@ class EditorSerializer(serializers.Serializer):
     def remove_profiles(self, instance):
         for profile in self.data['profiles']:
             profile_pleb = Pleb.get(username=profile)
-            instance.accountants.disconnect(profile_pleb)
-            profile_pleb.campaign_accountant.disconnect(instance)
-        cache.delete("%s_accountants" % (instance.object_uuid))
+            instance.editors.disconnect(profile_pleb)
+            profile_pleb.campaign_editor.disconnect(instance)
+        cache.delete("%s_editors" % (instance.object_uuid))
         return instance
 
 

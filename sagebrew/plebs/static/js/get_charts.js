@@ -170,8 +170,8 @@ $(document).ready(function () {
             if (pledgePercentage > 100) {
                 pledgePercentage = 100;
             }
-            $("#required_for_goal").append('<small>Donations</small><div class="progress sb_progress" style="margin-bottom: 0;"><div class="progress-bar sb_progress_bar" style="width: ' + donationPercentage + '%;"></div></div>');
             $("#required_for_goal").append('<small>Pledges</small><div class="progress sb_progress" style="margin-bottom: 0;"><div class="progress-bar sb_progress_bar" style="width: ' + pledgePercentage + '%"></div></div>');
+            $("#required_for_goal").append('<small>Donations</small><div class="progress sb_progress" style="margin-bottom: 0;"><div class="progress-bar sb_progress_bar" style="width: ' + donationPercentage + '%;"></div></div>');
         },
         error: function (XMLHttpRequest) {
             errorDisplay(XMLHttpRequest);

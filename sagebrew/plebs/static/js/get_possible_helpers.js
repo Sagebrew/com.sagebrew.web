@@ -1,6 +1,6 @@
-/*global $, jQuery, ajaxSecurity*/
+/*global $, jQuery, ajaxSecurity, errorDisplay*/
 function enablePromotion(campaignId) {
-    $(".js-add_accountant").click(function(event) {
+    $(".js-add_accountant").click(function (event) {
         var button = $(this);
         event.preventDefault();
         $.ajax({
@@ -18,9 +18,7 @@ function enablePromotion(campaignId) {
                 enableAccountantRemoval(campaignId);
             },
             error: function (XMLHttpRequest) {
-                if (XMLHttpRequest.status === 500) {
-                    $("#server_error").show();
-                }
+                errorDisplay(XMLHttpRequest);
             }
         });
     });
@@ -42,9 +40,7 @@ function enablePromotion(campaignId) {
                 enableEditorRemoval(campaignId);
             },
             error: function (XMLHttpRequest) {
-                if (XMLHttpRequest.status === 500) {
-                    $("#server_error").show();
-                }
+                errorDisplay(XMLHttpRequest);
             }
         });
     });
@@ -69,9 +65,7 @@ function enableEditorRemoval(campaignId) {
                 enablePromotion(campaignId);
             },
             error: function (XMLHttpRequest) {
-                if (XMLHttpRequest.status === 500) {
-                    $("#server_error").show();
-                }
+                errorDisplay(XMLHttpRequest);
             }
         });
     });
@@ -96,9 +90,7 @@ function enableAccountantRemoval(campaignId) {
                 enablePromotion(campaignId);
             },
             error: function (XMLHttpRequest) {
-                if (XMLHttpRequest.status === 500) {
-                    $("#server_error").show();
-                }
+                errorDisplay(XMLHttpRequest);
             }
         });
     });
@@ -118,9 +110,7 @@ $(document).ready(function () {
             enablePromotion(campaignId);
         },
         error: function (XMLHttpRequest) {
-            if (XMLHttpRequest.status === 500) {
-                $("#server_error").show();
-            }
+            errorDisplay(XMLHttpRequest);
         }
     });
     $.ajax({
@@ -134,9 +124,7 @@ $(document).ready(function () {
             enableAccountantRemoval(campaignId);
         },
         error: function (XMLHttpRequest) {
-            if (XMLHttpRequest.status === 500) {
-                $("#server_error").show();
-            }
+            errorDisplay(XMLHttpRequest);
         }
     });
     $.ajax({
@@ -150,9 +138,7 @@ $(document).ready(function () {
             enableEditorRemoval(campaignId);
         },
         error: function (XMLHttpRequest) {
-            if (XMLHttpRequest.status === 500) {
-                $("#server_error").show();
-            }
+            errorDisplay(XMLHttpRequest);
         }
     });
 });

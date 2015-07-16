@@ -450,7 +450,7 @@ class AccountantSerializer(serializers.Serializer):
         cache.delete("%s_accountants" % (instance.object_uuid))
         return instance
 
-    def remove_profiles(self, instance,):
+    def remove_profiles(self, instance):
         for profile in self.data['profiles']:
             profile_pleb = Pleb.get(username=profile)
             instance.accountants.disconnect(profile_pleb)

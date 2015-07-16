@@ -97,7 +97,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
                     render_to_string("current_editor.html",
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
                     for pleb in serializer.validated_data['profiles']],
-                                status=status.HTTP_200_OK)
+                    status=status.HTTP_200_OK)
             return Response({"detail": "Successfully added specified users "
                                        "to your campaign.",
                              "status": status.HTTP_200_OK,
@@ -131,7 +131,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
                     render_to_string("potential_campaign_helper.html",
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
                     for pleb in serializer.data['profiles']],
-                                status=status.HTTP_200_OK)
+                    status=status.HTTP_200_OK)
             return Response({"detail": "Successfully removed specified "
                                        "editors from your campaign.",
                              "status": status.HTTP_200_OK,
@@ -162,7 +162,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
                     render_to_string("current_accountant.html",
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
                     for pleb in serializer.validated_data['profiles']],
-                                status=status.HTTP_200_OK)
+                    status=status.HTTP_200_OK)
             return Response({"detail": "Successfully added specified users to"
                                        " your campaign accountants.",
                              "status": status.HTTP_200_OK,
@@ -195,7 +195,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
                     render_to_string("potential_campaign_helper.html",
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
                     for pleb in serializer.data['profiles']],
-                                status=status.HTTP_200_OK)
+                    status=status.HTTP_200_OK)
             return Response({"detail": "Successfully removed specified "
                                        "accountants from your campaign.",
                              "status": status.HTTP_200_OK,

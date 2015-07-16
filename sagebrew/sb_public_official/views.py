@@ -95,23 +95,8 @@ def updates(request, username):
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
-def updates(request, username):
-    try:
-        campaign = PoliticalCampaign.get(object_uuid=username)
-    except (CypherException, IOError, PublicOfficial.DoesNotExist,
-            DoesNotExist):
-        return redirect("404_Error")
-    serializer_data = PoliticalCampaignSerializer(
-        campaign, context={'request': request}).data
-    serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
-    return render(request, 'action_page.html', serializer_data)
-
-
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def statistics(request, username):
-    if not request.user.username in \
+    if request.user.username not in \
             PoliticalCampaign.get_campaign_helpers(username):
         return redirect('quest_saga', username)
     try:

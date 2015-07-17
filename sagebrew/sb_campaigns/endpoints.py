@@ -1,5 +1,8 @@
+import csv
+
 from django.conf import settings
 from django.core.cache import cache
+from django.core.servers.basehttp import FileWrapper
 from django.template.loader import render_to_string
 from django.templatetags.static import static
 
@@ -15,6 +18,8 @@ from elasticsearch import Elasticsearch
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrAccountant,
                              IsOwnerOrEditor)
 from sb_goals.serializers import GoalSerializer
+from sb_donations.neo_models import Donation
+from sb_donations.serializers import DonationExportSerializer
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, AccountantSerializer,
@@ -185,6 +190,50 @@ class CampaignViewSet(viewsets.ModelViewSet):
         return Response(Campaign.get_accountants(object_uuid),
                         status=status.HTTP_200_OK)
 
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
+                                                       IsOwnerOrAccountant,))
+    def donation_data(self, request, object_uuid=None):
+        """
+        This is a method on the endpoint because there should be no reason
+        for people other than the owner or accountants to view the accountants
+        of the page. We want to keep this information private so that no one
+        other than someone who is associated with the campaign knows who has
+        access to modify the campaign.
+
+        :param request:
+        :param object_uuid:
+        :return:
+        """
+        self.check_object_permissions(request, object_uuid)
+        donation_info = [DonationExportSerializer(
+            Donation.inflate(donation)).data for donation in
+                         Campaign.get_donations(object_uuid)]
+        # this loop merges the 'owned_by' and 'address' dictionaries into
+        # the top level dictionary, allows for simple writing to csv
+        for donation in donation_info:
+            donation.update(donation.pop('owned_by', {}))
+            donation.update(donation.pop('address', {}))
+        try:
+            keys = donation_info[0].keys()
+            with open('donations.csv', 'wb') as output_file:
+                dict_writer = csv.DictWriter(output_file, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(donation_info)
+            return Response(FileWrapper(open('donations.csv', 'rb')),
+                            status=status.HTTP_200_OK)
+        except KeyError:
+            return Response({'detail': 'Unable to find any donation data',
+                             'status_code':
+                                 status.HTTP_404_NOT_FOUND},
+                            status=status.HTTP_404_NOT_FOUND)
+
+def flatten_dict(d):
+    for k, v in d.items():
+        if isinstance(v, dict):
+            for item in flatten_dict(v):
+                yield [k]+item
+        else:
+            yield v
 
 class PoliticalCampaignViewSet(CampaignViewSet):
     serializer_class = PoliticalCampaignSerializer

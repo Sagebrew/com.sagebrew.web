@@ -1,3 +1,5 @@
+import csv
+
 from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.cache import cache
 
@@ -289,6 +291,13 @@ class Campaign(Searchable):
                 'RETURN sum(d.amount)' % object_uuid
         res, _ = db.cypher_query(query)
         return res.one
+
+    @classmethod
+    def get_donations(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-' \
+                '[:RECEIVED_DONATION]->(d:Donation) RETURN d' % object_uuid
+        res, _ = db.cypher_query(query)
+        return [donation[0] for donation in res]
 
 
 class PoliticalCampaign(Campaign):

@@ -10,6 +10,7 @@ from neomodel import db
 from api.utils import gather_request_data, spawn_task
 from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
+from plebs.serializers import PlebExportSerializer
 from sb_campaigns.neo_models import Campaign
 from sb_goals.neo_models import Round
 from sb_goals.tasks import check_goal_completion_task
@@ -124,7 +125,7 @@ class DonationSerializer(SBSerializer):
         return applied_to
 
     def get_owned_by(self, obj):
-        request, _, _, relation, _ = gather_request_data(self.context)
+        request, expand, _, relation, _ = gather_request_data(self.context)
         if relation == "hyperlink":
             return reverse('profile_page',
                            kwargs={"pleb_username": obj.owner_username},
@@ -139,3 +140,13 @@ class DonationSerializer(SBSerializer):
                            kwargs={"object_uuid": campaign},
                            request=request)
         return campaign
+
+
+class DonationExportSerializer(serializers.Serializer):
+    amount = serializers.IntegerField(required=True)
+    completed = serializers.BooleanField(read_only=True)
+
+    owned_by = serializers.SerializerMethodField()
+
+    def get_owned_by(self, obj):
+        return PlebExportSerializer(Pleb.get(obj.owner_username)).data

@@ -257,6 +257,19 @@ class AddressSerializer(SBSerializer):
             request=request)
 
 
+class AddressExportSerializer(serializers.Serializer):
+    street = serializers.CharField(max_length=125)
+    street_additional = serializers.CharField(required=False, allow_blank=True,
+                                              allow_null=True, max_length=125)
+    city = serializers.CharField(max_length=150)
+    state = serializers.CharField(max_length=50)
+    postal_code = serializers.CharField(max_length=15)
+    country = serializers.CharField(allow_null=True, required=False)
+    latitude = serializers.FloatField()
+    longitude = serializers.FloatField()
+    congressional_district = serializers.IntegerField()
+
+
 class FriendRequestSerializer(SBSerializer):
     seen = serializers.BooleanField()
     time_sent = serializers.DateTimeField(read_only=True)
@@ -283,3 +296,13 @@ class FriendRequestSerializer(SBSerializer):
         res, col = db.cypher_query(query)
 
         return PlebSerializerNeo(Pleb.inflate(res[0][0])).data
+
+
+class PlebExportSerializer(serializers.Serializer):
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+
+    address = serializers.SerializerMethodField()
+
+    def get_address(self, obj):
+        return AddressExportSerializer(obj.get_address()).data

@@ -41,20 +41,24 @@ class CampaignSerializer(SBSerializer):
     location_name = serializers.CharField(read_only=True)
     position_name = serializers.CharField(read_only=True)
 
-    reputation = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
     rounds = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
     position = serializers.SerializerMethodField()
+    is_editor = serializers.SerializerMethodField()
+    reputation = serializers.SerializerMethodField()
     active_goals = serializers.SerializerMethodField()
     active_round = serializers.SerializerMethodField()
+    is_accountant = serializers.SerializerMethodField()
     rendered_epic = serializers.SerializerMethodField()
     upcoming_round = serializers.SerializerMethodField()
     public_official = serializers.SerializerMethodField()
     completed_stripe = serializers.SerializerMethodField()
     total_donation_amount = serializers.SerializerMethodField()
     total_pledge_vote_amount = serializers.SerializerMethodField()
+    target_goal_donation_requirement = serializers.SerializerMethodField()
+    target_goal_pledge_vote_requirement = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -264,6 +268,23 @@ class CampaignSerializer(SBSerializer):
         else:
             return None
 
+    def get_target_goal_donation_requirement(self, obj):
+        return Campaign.get_target_goal_donation_requirement(obj.object_uuid)
+
+    def get_target_goal_pledge_vote_requirement(self, obj):
+        return Campaign.get_target_goal_pledge_vote_requirement(
+            obj.object_uuid)
+
+    def get_is_editor(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        return request.user.username in \
+            PoliticalCampaign.get_editors(obj.object_uuid)
+
+    def get_is_accountant(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        return request.user.username in \
+            PoliticalCampaign.get_accountants(obj.object_uuid)
+
 
 class PoliticalCampaignSerializer(CampaignSerializer):
     vote_type = serializers.SerializerMethodField()
@@ -372,6 +393,8 @@ class PoliticalVoteSerializer(serializers.Serializer):
     their pledged vote.
     """
     vote_type = serializers.IntegerField(min_value=1, max_value=1)
+    created = serializers.DateTimeField(read_only=True)
+    active = serializers.BooleanField(read_only=True)
 
 
 class EditorSerializer(serializers.Serializer):
@@ -401,9 +424,9 @@ class EditorSerializer(serializers.Serializer):
     def remove_profiles(self, instance):
         for profile in self.data['profiles']:
             profile_pleb = Pleb.get(username=profile)
-            instance.accountants.disconnect(profile_pleb)
-            profile_pleb.campaign_accountant.disconnect(instance)
-        cache.delete("%s_accountants" % (instance.object_uuid))
+            instance.editors.disconnect(profile_pleb)
+            profile_pleb.campaign_editor.disconnect(instance)
+        cache.delete("%s_editors" % (instance.object_uuid))
         return instance
 
 
@@ -426,7 +449,7 @@ class AccountantSerializer(serializers.Serializer):
         cache.delete("%s_accountants" % (instance.object_uuid))
         return instance
 
-    def remove_profiles(self, instance,):
+    def remove_profiles(self, instance):
         for profile in self.data['profiles']:
             profile_pleb = Pleb.get(username=profile)
             instance.accountants.disconnect(profile_pleb)

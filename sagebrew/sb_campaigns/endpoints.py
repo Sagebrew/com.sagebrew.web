@@ -1,5 +1,3 @@
-import csv
-
 from django.conf import settings
 from django.core.cache import cache
 from django.core.servers.basehttp import FileWrapper
@@ -20,6 +18,8 @@ from api.permissions import (IsOwnerOrAdmin, IsOwnerOrAccountant,
 from sb_goals.serializers import GoalSerializer
 from sb_donations.neo_models import Donation
 from sb_donations.serializers import DonationExportSerializer
+from plebs.serializers import PlebSerializerNeo
+from plebs.neo_models import Pleb
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, AccountantSerializer,
@@ -67,6 +67,14 @@ class CampaignViewSet(viewsets.ModelViewSet):
         :return:
         """
         self.check_object_permissions(request, object_uuid)
+        queryset = Campaign.get_editors(object_uuid)
+        html = request.query_params.get('html', 'false').lower()
+        if html == 'true':
+            queryset.remove(object_uuid)
+            return Response({"ids": queryset, "html": [
+                render_to_string("current_editor.html",
+                                 PlebSerializerNeo(Pleb.get(pleb)).data)
+                for pleb in queryset]}, status=status.HTTP_200_OK)
         return Response(Campaign.get_editors(object_uuid),
                         status=status.HTTP_200_OK)
 
@@ -83,10 +91,19 @@ class CampaignViewSet(viewsets.ModelViewSet):
         :param request:
         :return:
         """
-        serializer = self.get_serializer(self.get_object(),
-                                         data=request.data)
+        serializer = self.get_serializer(self.get_object(), data=request.data)
+        html = request.query_params.get('html', 'false').lower()
         if serializer.is_valid():
             serializer.save()
+            if html == 'true':
+                return Response(
+                    {"ids": serializer.validated_data['profiles'],
+                     "html": [render_to_string("current_editor.html",
+                                               PlebSerializerNeo(
+                                                   Pleb.get(pleb)).data)
+                              for pleb in
+                              serializer.validated_data['profiles']]},
+                    status=status.HTTP_200_OK)
             return Response({"detail": "Successfully added specified users "
                                        "to your campaign.",
                              "status": status.HTTP_200_OK,
@@ -110,10 +127,17 @@ class CampaignViewSet(viewsets.ModelViewSet):
         """
         serializer = self.get_serializer(data=request.data)
         queryset = self.get_object()
+        html = request.query_params.get('html', 'false').lower()
         if serializer.is_valid():
             # The profiles key here refers to a list of usernames
             # not the actual user objects
             serializer.remove_profiles(queryset)
+            if html == 'true':
+                return Response({"ids": serializer.data['profiles'], "html": [
+                    render_to_string("potential_campaign_helper.html",
+                                     PlebSerializerNeo(Pleb.get(pleb)).data)
+                    for pleb in serializer.data['profiles']]},
+                    status=status.HTTP_200_OK)
             return Response({"detail": "Successfully removed specified "
                                        "editors from your campaign.",
                              "status": status.HTTP_200_OK,
@@ -135,10 +159,19 @@ class CampaignViewSet(viewsets.ModelViewSet):
         :param kwargs:
         :return:
         """
-        serializer = self.get_serializer(self.get_object(),
-                                         data=request.data)
+        serializer = self.get_serializer(self.get_object(), data=request.data)
+        html = request.query_params.get('html', 'false').lower()
         if serializer.is_valid():
             serializer.save()
+            if html == 'true':
+                return Response({"ids": serializer.validated_data['profiles'],
+                                 "html": [render_to_string(
+                                     "current_accountant.html",
+                                     PlebSerializerNeo(Pleb.get(pleb)).data)
+                                     for pleb
+                                     in serializer.validated_data[
+                                     'profiles']]},
+                                status=status.HTTP_200_OK)
             return Response({"detail": "Successfully added specified users to"
                                        " your campaign accountants.",
                              "status": status.HTTP_200_OK,
@@ -163,8 +196,15 @@ class CampaignViewSet(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(data=request.data)
         queryset = self.get_object()
+        html = request.query_params.get('html', 'false').lower()
         if serializer.is_valid():
             serializer.remove_profiles(queryset)
+            if html == 'true':
+                return Response({"ids": serializer.data['profiles'], "html": [
+                    render_to_string("potential_campaign_helper.html",
+                                     PlebSerializerNeo(Pleb.get(pleb)).data)
+                    for pleb in serializer.data['profiles']]},
+                    status=status.HTTP_200_OK)
             return Response({"detail": "Successfully removed specified "
                                        "accountants from your campaign.",
                              "status": status.HTTP_200_OK,
@@ -187,8 +227,15 @@ class CampaignViewSet(viewsets.ModelViewSet):
         :return:
         """
         self.check_object_permissions(request, object_uuid)
-        return Response(Campaign.get_accountants(object_uuid),
-                        status=status.HTTP_200_OK)
+        html = request.query_params.get('html', 'false').lower()
+        queryset = Campaign.get_accountants(object_uuid)
+        if html == 'true':
+            queryset.remove(object_uuid)
+            return Response({"ids": queryset, "html": [
+                render_to_string("current_accountant.html",
+                                 PlebSerializerNeo(Pleb.get(pleb)).data)
+                for pleb in queryset]}, status=status.HTTP_200_OK)
+        return Response(queryset, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
                                                        IsOwnerOrAccountant,))
@@ -300,6 +347,14 @@ class PoliticalCampaignViewSet(CampaignViewSet):
                              "developer_message": None})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
+                                                       IsOwnerOrAccountant,),
+                  serializer_class=PoliticalVoteSerializer)
+    def pledged_votes(self, request, object_uuid=None):
+        queryset = self.get_object().get_pledged_votes()
+        serializer_data = self.get_serializer(queryset, many=True).data
+        return Response(serializer_data, status=status.HTTP_200_OK)
+
     @detail_route(methods=['get'], serializer_class=GoalSerializer)
     def unassigned_goals(self, request, object_uuid=None):
         if not (request.user.username in Campaign.get_editors
@@ -308,12 +363,32 @@ class PoliticalCampaignViewSet(CampaignViewSet):
                              "detail": "You are not authorized to access "
                                        "this page."},
                             status=status.HTTP_403_FORBIDDEN)
-        html = request.query_params.get('html', 'false')
+        html = request.query_params.get('html', 'false').lower()
         queryset = PoliticalCampaign.get_unassigned_goals(object_uuid)
         if html == 'true':
             return Response([render_to_string(
                 "goal_draggable.html", GoalSerializer(goal).data)
                 for goal in queryset], status=status.HTTP_200_OK)
+        return Response(self.serializer_class(queryset, many=True).data,
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], serializer_class=PlebSerializerNeo)
+    def possible_helpers(self, request, object_uuid=None):
+        if not request.user.username == object_uuid:
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "You are not authorized to access "
+                                       "this page."},
+                            status=status.HTTP_403_FORBIDDEN)
+        html = request.query_params.get('html', 'false').lower()
+        queryset = PoliticalCampaign.get_possible_helpers(object_uuid)
+        if html == 'true':
+            return Response({"ids": queryset,
+                             "html": [
+                                 render_to_string(
+                                     'potential_campaign_helper.html',
+                                     PlebSerializerNeo(Pleb.get(pleb)).data)
+                                 for pleb in queryset]},
+                            status=status.HTTP_200_OK)
         return Response(self.serializer_class(queryset, many=True).data,
                         status=status.HTTP_200_OK)
 

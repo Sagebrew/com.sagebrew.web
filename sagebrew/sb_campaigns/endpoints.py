@@ -245,11 +245,8 @@ class CampaignViewSet(viewsets.ModelViewSet):
                                                        IsOwnerOrAccountant,))
     def donation_data(self, request, object_uuid=None):
         """
-        This is a method on the endpoint because there should be no reason
-        for people other than the owner or accountants to view the accountants
-        of the page. We want to keep this information private so that no one
-        other than someone who is associated with the campaign knows who has
-        access to modify the campaign.
+        This endpoint allows for the owner or accountants to get a .csv file
+        containing all of the data for donations given to the campaign.
 
         :param request:
         :param object_uuid:
@@ -261,10 +258,11 @@ class CampaignViewSet(viewsets.ModelViewSet):
                          Campaign.get_donations(object_uuid)]
         # this loop merges the 'owned_by' and 'address' dictionaries into
         # the top level dictionary, allows for simple writing to csv
-        for donation in donation_info:
-            donation.update(donation.pop('owned_by', {}))
-            donation.update(donation.pop('address', {}))
+
         try:
+            for donation in donation_info:
+                donation.update(donation.pop('owned_by', {}))
+                donation.update(donation.pop('address', {}))
             keys = donation_info[0].keys()
             # use of named temporary file here is to handle deletion of file
             # after we return the file, after the new file object is evicted
@@ -275,12 +273,14 @@ class CampaignViewSet(viewsets.ModelViewSet):
             dict_writer = csv.DictWriter(newfile, keys)
             dict_writer.writeheader()
             dict_writer.writerows(donation_info)
+            # the HttpResponse use here allows us to do an automatic download
+            # upon hitting the button
             httpresponse = HttpResponse(FileWrapper(newfile),
                                         content_type="text/csv")
             httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
                                                   % newfile.name
             return httpresponse
-        except KeyError:
+        except IndexError:
             return Response({'detail': 'Unable to find any donation data',
                              'status_code':
                                  status.HTTP_404_NOT_FOUND},

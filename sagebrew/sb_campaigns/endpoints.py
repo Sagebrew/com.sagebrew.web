@@ -93,12 +93,13 @@ class CampaignViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             serializer.save()
             if html == 'true':
-                return Response({"ids":
-                                     serializer.validated_data['profiles'],
-                                 "html": [
-                    render_to_string("current_editor.html",
-                                     PlebSerializerNeo(Pleb.get(pleb)).data)
-                    for pleb in serializer.validated_data['profiles']]},
+                return Response(
+                    {"ids": serializer.validated_data['profiles'],
+                     "html": [render_to_string("current_editor.html",
+                                               PlebSerializerNeo(
+                                                   Pleb.get(pleb)).data)
+                              for pleb in
+                              serializer.validated_data['profiles']]},
                     status=status.HTTP_200_OK)
             return Response({"detail": "Successfully added specified users "
                                        "to your campaign.",
@@ -160,13 +161,14 @@ class CampaignViewSet(viewsets.ModelViewSet):
         if serializer.is_valid():
             serializer.save()
             if html == 'true':
-                return Response({"ids":
-                                     serializer.validated_data['profiles'],
-                                 "html": [
-                    render_to_string("current_accountant.html",
+                return Response({"ids": serializer.validated_data['profiles'],
+                                 "html": [render_to_string(
+                                     "current_accountant.html",
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
-                    for pleb in serializer.validated_data['profiles']]},
-                    status=status.HTTP_200_OK)
+                                     for pleb
+                                     in serializer.validated_data[
+                                     'profiles']]},
+                                status=status.HTTP_200_OK)
             return Response({"detail": "Successfully added specified users to"
                                        " your campaign accountants.",
                              "status": status.HTTP_200_OK,
@@ -334,10 +336,12 @@ class PoliticalCampaignViewSet(CampaignViewSet):
         queryset = PoliticalCampaign.get_possible_helpers(object_uuid)
         if html == 'true':
             return Response({"ids": queryset,
-                             "html":
-                [render_to_string('potential_campaign_helper.html',
-                                  PlebSerializerNeo(Pleb.get(pleb)).data)
-                             for pleb in queryset]}, status=status.HTTP_200_OK)
+                             "html": [
+                                 render_to_string(
+                                     'potential_campaign_helper.html',
+                                     PlebSerializerNeo(Pleb.get(pleb)).data)
+                                 for pleb in queryset]},
+                            status=status.HTTP_200_OK)
         return Response(self.serializer_class(queryset, many=True).data,
                         status=status.HTTP_200_OK)
 

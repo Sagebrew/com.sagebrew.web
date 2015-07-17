@@ -255,7 +255,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
         self.check_object_permissions(request, object_uuid)
         donation_info = [DonationExportSerializer(
             Donation.inflate(donation)).data for donation in
-                         Campaign.get_donations(object_uuid)]
+            Campaign.get_donations(object_uuid)]
         # this loop merges the 'owned_by' and 'address' dictionaries into
         # the top level dictionary, allows for simple writing to csv
 

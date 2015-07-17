@@ -1,18 +1,8 @@
 /*global $, jQuery, ajaxSecurity*/
 $(document).ready(function () {
-    $.ajax({
-        xhrFields: {withCredentials: true},
-        type: "GET",
-        url: "/v1/campaigns/" + "tyler_wiersing" + "/donation_data/",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data) {
-            console.log(data);
-        },
-        error: function (XMLHttpRequest) {
-            if (XMLHttpRequest.status === 500) {
-                $("#server_error").show();
-            }
-        }
+    $("#js-get_donation_csv").click(function (event) {
+        event.preventDefault();
+        var campaignId = $("#campaign_id").data('object_uuid');
+        window.location.href = "/v1/campaigns/" + campaignId + "/donation_data/";
     });
 });

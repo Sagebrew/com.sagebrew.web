@@ -1,6 +1,0 @@
-amount,completed,first_name,last_name,street,street_additional,city,state,postal_code,country,latitude,longitude,congressional_district
-1000,False,Tyler,Wiersing,125 Glenwood Dr,,Walled Lake,MI,48390-2919,,42.53202,-83.4965,11
-10000,False,Tyler,Wiersing,125 Glenwood Dr,,Walled Lake,MI,48390-2919,,42.53202,-83.4965,11
-5000,False,Tyler,Wiersing,125 Glenwood Dr,,Walled Lake,MI,48390-2919,,42.53202,-83.4965,11
-2000,False,Tyler,Wiersing,125 Glenwood Dr,,Walled Lake,MI,48390-2919,,42.53202,-83.4965,11
-500,False,Tyler,Wiersing,125 Glenwood Dr,,Walled Lake,MI,48390-2919,,42.53202,-83.4965,11

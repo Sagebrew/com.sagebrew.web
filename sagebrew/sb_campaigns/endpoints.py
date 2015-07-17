@@ -1,5 +1,9 @@
+import csv
+
 from django.conf import settings
 from django.core.cache import cache
+from django.http import HttpResponse
+from django.core.files.temp import NamedTemporaryFile
 from django.core.servers.basehttp import FileWrapper
 from django.template.loader import render_to_string
 from django.templatetags.static import static
@@ -262,25 +266,26 @@ class CampaignViewSet(viewsets.ModelViewSet):
             donation.update(donation.pop('address', {}))
         try:
             keys = donation_info[0].keys()
-            with open('donations.csv', 'wb') as output_file:
-                dict_writer = csv.DictWriter(output_file, keys)
-                dict_writer.writeheader()
-                dict_writer.writerows(donation_info)
-            return Response(FileWrapper(open('donations.csv', 'rb')),
-                            status=status.HTTP_200_OK)
+            # use of named temporary file here is to handle deletion of file
+            # after we return the file, after the new file object is evicted
+            # it gets deleted
+            # http://stackoverflow.com/questions/3582414/removing-tmp-file-after-return-httpresponse-in-django
+            newfile = NamedTemporaryFile(suffix='.csv')
+            newfile.name = "%s_quest_donations.csv" % object_uuid
+            dict_writer = csv.DictWriter(newfile, keys)
+            dict_writer.writeheader()
+            dict_writer.writerows(donation_info)
+            httpresponse = HttpResponse(FileWrapper(newfile),
+                                        content_type="text/csv")
+            httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
+                                                  % newfile.name
+            return httpresponse
         except KeyError:
             return Response({'detail': 'Unable to find any donation data',
                              'status_code':
                                  status.HTTP_404_NOT_FOUND},
                             status=status.HTTP_404_NOT_FOUND)
 
-def flatten_dict(d):
-    for k, v in d.items():
-        if isinstance(v, dict):
-            for item in flatten_dict(v):
-                yield [k]+item
-        else:
-            yield v
 
 class PoliticalCampaignViewSet(CampaignViewSet):
     serializer_class = PoliticalCampaignSerializer

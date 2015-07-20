@@ -114,14 +114,15 @@ def statistics(request, username):
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
-def helpers(request, username):
+def moderators(request, username):
     if not request.user.username == username:
         return redirect('quest_saga', username)
     try:
         campaign = PoliticalCampaign.get(object_uuid=username)
-    except (CypherException, IOError, PublicOfficial.DoesNotExist,
-            DoesNotExist):
+    except (PublicOfficial.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
+    except (CypherException, IOError):
+        return redirect("500_Error")
     serializer_data = PoliticalCampaignSerializer(
         campaign, context={'request': request}).data
 

@@ -125,7 +125,7 @@ class DonationSerializer(SBSerializer):
         return applied_to
 
     def get_owned_by(self, obj):
-        request, expand, _, relation, _ = gather_request_data(self.context)
+        request, _, _, relation, _ = gather_request_data(self.context)
         if relation == "hyperlink":
             return reverse('profile_page',
                            kwargs={"pleb_username": obj.owner_username},
@@ -143,7 +143,7 @@ class DonationSerializer(SBSerializer):
 
 
 class DonationExportSerializer(serializers.Serializer):
-    amount = serializers.IntegerField(required=True)
+    amount = serializers.IntegerField(read_only=True)
     completed = serializers.BooleanField(read_only=True)
 
     owned_by = serializers.SerializerMethodField()

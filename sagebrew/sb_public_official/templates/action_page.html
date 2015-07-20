@@ -16,12 +16,12 @@
     {% endif %}
 {% include "action_nav.html" %}
 <div class="row sb_wall sb_action_wall">
-    {% if "helpers" not in request.path %}
+    {% if "moderators" not in request.path %}
     <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
     {% else %}
     <div class="col-xs-12">
     {% endif %}
-        {% if "updates" not in request.path and "statistics" not in request.path and "helpers" not in request.path %}
+        {% if "updates" not in request.path and "statistics" not in request.path and "moderators" not in request.path %}
             {% if active == True %}
                 {% include "saga.html" %}
             {% else %}
@@ -35,11 +35,11 @@
             {% endif %}
         {% elif "statistics" in request.path and active == True %}
             {% include "sb_quest_chart.html" %}
-        {% elif "helpers" in request.path %}
+        {% elif "moderators" in request.path %}
             {% include 'add_campaign_helpers.html' %}
         {% endif %}
     </div>
-    {% if "helpers" not in request.path %}
+    {% if "moderators" not in request.path %}
     <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
         <h5>Goals{% if id == request.user.username %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="manage_goals" style="margin-top: -5px;"><span class="fa fa-edit"></span></button>{% endif %}</h5>
         {% if active == True %}
@@ -63,7 +63,7 @@
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
     {% if active or request.user.username == id %}
-        {% if "helpers" not in request.path %}
+        {% if "moderators" not in request.path %}
             <script src="{% static 'js/get_goals.js' %}"></script>
         {% endif %}
         <script src="{% static 'js/get_updates.js' %}"></script>
@@ -79,7 +79,7 @@
         <script src="{% static 'js/quest_wallpaper_pic.js' %}"></script>
         <script src="{% static 'js/vendor/highcharts.js' %}"></script>
         <script src="{% static 'js/get_charts.js' %}"></script>
-        {% if "helpers" in request.path %}
+        {% if "moderators" in request.path %}
             <script src="{% static 'js/get_possible_helpers.js' %}"></script>
         {% endif %}
         <script src="{% static 'js/get_donation_csv.js' %}"></script>

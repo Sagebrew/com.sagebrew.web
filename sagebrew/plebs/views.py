@@ -154,6 +154,20 @@ def quest_settings(request):
                   {"campaign": campaign})
 
 
+@login_required()
+def contribute_settings(request):
+    """
+    This view provides the necessary information for rendering a user's
+    Quest settings. If they have an ongoing Quest it provides the information
+    for that and if not it returns nothing and the template is expected to
+    provide a button for the user to start their Quest.
+
+    :param request:
+    :return:
+    """
+    return render(request, 'contribute_settings.html')
+
+
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_user_search_view(request, pleb_username=""):

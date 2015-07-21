@@ -1,6 +1,5 @@
 /*global $, jQuery, ajaxSecurity, errorDisplay, Stripe, StripeCheckout*/
 $(document).ready(function () {
-
     var donationAmount = 0,
         handler = StripeCheckout.configure({
             key: 'pk_test_4VQN9H9N2kXFGMIziWSa09ak',
@@ -17,7 +16,6 @@ $(document).ready(function () {
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {
-                        console.log(data);
                         $("#donationModal").modal("hide");
                         $.notify("Successfully Created Donation", {type: 'success'});
 

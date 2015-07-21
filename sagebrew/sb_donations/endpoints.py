@@ -103,4 +103,3 @@ def sagebrew_donation(request):
     if serializer.is_valid():
         serializer.save(token=request.data.get('token', None))
         return Response(serializer.data, status=status.HTTP_200_OK)
-

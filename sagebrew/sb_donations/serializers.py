@@ -1,6 +1,7 @@
 import stripe
 
 from django.conf import settings
+from django.template.loader import render_to_string
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -14,6 +15,7 @@ from plebs.serializers import PlebExportSerializer
 from sb_campaigns.neo_models import Campaign
 from sb_goals.neo_models import Round
 from sb_goals.tasks import check_goal_completion_task
+from plebs.tasks import send_email_task
 
 from .neo_models import Donation
 
@@ -181,4 +183,12 @@ class SBDonationSerializer(DonationSerializer):
             source=token,
             description="Donation to Sagebrew from %s" % donor.username
         )
+        user_data = {
+            "source": "support@sagebrew.com",
+            "to": donor.email,
+            "subject": "Thank you for your Donation!",
+            "html_content": render_to_string(
+                "email_templates/email_sagebrew_donation_thanks.html")
+        }
+        spawn_task(send_email_task, user_data)
         return donation

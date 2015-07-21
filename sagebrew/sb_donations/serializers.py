@@ -143,10 +143,13 @@ class DonationSerializer(SBSerializer):
 
 
 class DonationExportSerializer(serializers.Serializer):
-    amount = serializers.IntegerField(read_only=True)
     completed = serializers.BooleanField(read_only=True)
 
+    amount = serializers.SerializerMethodField()
     owned_by = serializers.SerializerMethodField()
 
     def get_owned_by(self, obj):
         return PlebExportSerializer(Pleb.get(obj.owner_username)).data
+
+    def get_amount(self, obj):
+        return float(obj.amount) / 100.0

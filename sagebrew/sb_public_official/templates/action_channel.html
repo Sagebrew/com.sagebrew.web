@@ -2,7 +2,7 @@
 {% load static %}
 <div class="row sb_wallpaper sb_wallpaper_action hidden-xs">
     {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
-    {% if id == request.user.username %}
+    {% if is_editor or is_accountant %}
         <div id="cropQuestWallpaperPictureEyecandy">
             <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
         </div>
@@ -14,7 +14,7 @@
 <div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
 
-           {% if id == request.user.username %}
+           {% if is_editor or is_accountant %}
                 <div id="cropQuestProfilePictureEyecandy" class="thumbnail sb_thumbnail_md">
                     <img id="quest_profile_pic" src="{{ profile_pic }}">
                 </div>
@@ -27,10 +27,10 @@
     <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
         <div class="block sb_bio_block">
             <h2>{{ first_name }} {{ last_name }}</h2>
-            <p id="bio_wrapper">{{ biography }}{% if id == request.user.username %}
+            <p id="bio_wrapper">{{ biography }}{% if is_editor or is_accountant %}
             <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
     {% endif %}</p>
-            {% if id == request.user.username %}
+            {% if is_editor or is_accountant %}
                 <div id="bio_edit" style="display: none">
                     <textarea class="form-control edit_bio_input" id="biography_input" rows="3" placeholder="Biography, limit 255 characters">{{ biography }}</textarea>
                     <button class="btn btn-block btn-primary sb_btn_fill" id="submit_biography">Submit Bio</button>

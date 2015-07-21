@@ -6,7 +6,7 @@
         <li>
            <a {% if 'updates' in request.path %}class="active" {% endif %}href="{% url 'quest_updates' username=id %}">Updates</a>
         </li>
-        {% if request.user.username == owner_username or is_accountant or is_editor %}
+        {% if request.user.username == owner_username or is_accountant %}
             <li>
                 <a {% if "statistics" in request.path %}class="active"{% endif %} href="{% url 'quest_stats' id %}">Insight</a>
             </li>

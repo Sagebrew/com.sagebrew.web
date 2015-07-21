@@ -268,14 +268,16 @@ class CampaignViewSet(viewsets.ModelViewSet):
             # after we return the file, after the new file object is evicted
             # it gets deleted
             # http://stackoverflow.com/questions/3582414/removing-tmp-file-after-return-httpresponse-in-django
-            newfile = NamedTemporaryFile(suffix='.csv')
-            newfile.name = "%s_quest_donations.csv" % object_uuid
+            newfile = NamedTemporaryFile(suffix='.csv', delete=False)
+            newfile.name = "%s_quest_donations.csv" % (object_uuid)
             dict_writer = csv.DictWriter(newfile, keys)
             dict_writer.writeheader()
             dict_writer.writerows(donation_info)
             # the HttpResponse use here allows us to do an automatic download
             # upon hitting the button
-            httpresponse = HttpResponse(FileWrapper(newfile),
+            newfile.seek(0)
+            wrapper = FileWrapper(newfile)
+            httpresponse = HttpResponse(wrapper,
                                         content_type="text/csv")
             httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
                                                   % newfile.name
@@ -324,8 +326,9 @@ class PoliticalCampaignViewSet(CampaignViewSet):
         return Response(serializer_data)
 
     def update(self, request, *args, **kwargs):
-        if not (request.user.username in Campaign.get_editors
-                (self.kwargs[self.lookup_field])):
+        if not (request.user.username in
+                Campaign.get_campaign_helpers(
+                    self.kwargs[self.lookup_field])):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "You are not authorized to access "
                                        "this page."},
@@ -362,8 +365,9 @@ class PoliticalCampaignViewSet(CampaignViewSet):
 
     @detail_route(methods=['get'], serializer_class=GoalSerializer)
     def unassigned_goals(self, request, object_uuid=None):
-        if not (request.user.username in Campaign.get_editors
-                (self.kwargs[self.lookup_field])):
+        if not (request.user.username in
+                Campaign.get_campaign_helpers(
+                    self.kwargs[self.lookup_field])):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "You are not authorized to access "
                                        "this page."},

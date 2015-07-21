@@ -1,3 +1,7 @@
+import stripe
+import datetime
+
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -202,3 +206,55 @@ class DonationEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
+
+
+class TestSagebrewDonation(APITestCase):
+    def setUp(self):
+        cache.clear()
+        self.unit_under_test_name = 'donations'
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.url = "http://testserver"
+        self.donation = Donation(completed=False, amount=1000,
+                                 owner_username=self.user.username).save()
+
+    def test_donation_create(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('direct_donation')
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        token = stripe.Token.create(
+            card={
+                "number": "4242424242424242",
+                "exp_month": 12,
+                "exp_year": (datetime.datetime.now() +
+                             datetime.timedelta(days=3*365)).year,
+                "cvc": '123'
+            }
+        )
+        data = {
+            'amount': 1000,
+            'token': token['id']
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+    def test_donation_create_invalid_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('direct_donation')
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        token = stripe.Token.create(
+            card={
+                "number": "4242424242424242",
+                "exp_month": 12,
+                "exp_year": (datetime.datetime.now() +
+                             datetime.timedelta(days=3*365)).year,
+                "cvc": '123'
+            }
+        )
+        data = {
+            'token': token['id']
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, 400)

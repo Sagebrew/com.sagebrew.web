@@ -166,8 +166,8 @@ class SBDonationSerializer(DonationSerializer):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         donor = Pleb.get(request.user.username)
         token = validated_data.pop('token', None)
-        validated_data['owner_username'] = donor.username
-        donation = Donation(**validated_data).save()
+        donation = Donation(owner_username=donor.username,
+                            **validated_data).save()
         if not donor.stripe_customer_id:
             customer = stripe.Customer.create(
                 description="Customer for %s" % donor.email,
@@ -180,7 +180,7 @@ class SBDonationSerializer(DonationSerializer):
         stripe.Charge.create(
             amount=donation.amount,
             currency="usd",
-            source=token,
+            customer=donor.stripe_customer_id,
             description="Donation to Sagebrew from %s" % donor.username
         )
         user_data = {

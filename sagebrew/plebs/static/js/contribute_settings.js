@@ -1,16 +1,14 @@
 /*global $, jQuery, ajaxSecurity, errorDisplay, Stripe, StripeCheckout*/
 $(document).ready(function () {
-
     var donationAmount = 0,
         handler = StripeCheckout.configure({
             key: 'pk_test_4VQN9H9N2kXFGMIziWSa09ak',
             image: $("#stripe_img").data('stripe_image'),
             token: function (token) {
-                var campaignId = $("#campaign_id").data('object_uuid');
                 $.ajax({
                     xhrFields: {withCredentials: true},
                     type: "POST",
-                    url: "/v1/campaigns/" + campaignId + "/donations/",
+                    url: "/v1/donations/sagebrew_donations/",
                     data: JSON.stringify({
                         "amount": donationAmount,
                         "token": token.id

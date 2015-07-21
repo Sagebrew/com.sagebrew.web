@@ -1,16 +1,16 @@
 from logging import getLogger
 
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import viewsets, generics
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets, generics
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import api_view, permission_classes
 
 from neomodel import db
 
 from sb_campaigns.neo_models import Campaign
 
 from .neo_models import Donation
-from .serializers import DonationSerializer
+from .serializers import DonationSerializer, SBDonationSerializer
 
 logger = getLogger('loggly_logs')
 
@@ -93,3 +93,14 @@ class DonationListCreate(generics.ListCreateAPIView):
                                        "this page."},
                             status=status.HTTP_403_FORBIDDEN)
         return super(DonationListCreate, self).list(request, *args, **kwargs)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def sagebrew_donation(request):
+    serializer = SBDonationSerializer(data=request.data,
+                                      context={'request': request})
+    if serializer.is_valid():
+        serializer.save(token=request.data.get('token', None))
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

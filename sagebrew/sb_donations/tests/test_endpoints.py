@@ -220,6 +220,76 @@ class TestSagebrewDonation(APITestCase):
         self.donation = Donation(completed=False, amount=1000,
                                  owner_username=self.user.username).save()
 
+    def test_unauthorized(self):
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.post(url, {}, format='json')
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_save_int_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.post(url, 98897965, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_string_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.post(url, 'asfonosdnf', format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_list_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.post(url, [], format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_float_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.post(url, 1.010101010, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_create_on_detail(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.post(url, {}, format='json')
+        response_data = {
+            'status_code': status.HTTP_405_METHOD_NOT_ALLOWED,
+            'detail': 'Method "POST" not allowed.'
+        }
+        self.assertEqual(response.data, response_data)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_list(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('donation-list')
+        response = self.client.get(url)
+
+        self.assertEqual(response.data['detail'],
+                         "Sorry, we currently do not allow for users to "
+                         "query all donations for every campaign.")
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_get(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_donation_create(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('direct_donation')

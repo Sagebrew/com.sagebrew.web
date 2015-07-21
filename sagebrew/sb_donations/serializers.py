@@ -153,3 +153,32 @@ class DonationExportSerializer(serializers.Serializer):
 
     def get_amount(self, obj):
         return float(obj.amount) / 100.0
+
+
+class SBDonationSerializer(DonationSerializer):
+    def validate_amount(self, value):
+        return value
+
+    def create(self, validated_data):
+        request, _, _, _, _ = gather_request_data(self.context)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        donor = Pleb.get(request.user.username)
+        token = validated_data.pop('token', None)
+        validated_data['owner_username'] = donor.username
+        donation = Donation(**validated_data).save()
+        if not donor.stripe_customer_id:
+            customer = stripe.Customer.create(
+                description="Customer for %s" % donor.email,
+                card=token,
+                email=donor.email)
+            donor.stripe_customer_id = customer['id']
+            donor.save()
+        donor.donations.connect(donation)
+        donation.owned_by.connect(donor)
+        stripe.Charge.create(
+            amount=donation.amount,
+            currency="usd",
+            source=token,
+            description="Donation to Sagebrew from %s" % donor.username
+        )
+        return donation

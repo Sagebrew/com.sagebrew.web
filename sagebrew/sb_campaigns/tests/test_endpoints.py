@@ -712,6 +712,7 @@ class CampaignEndpointTests(APITestCase):
     def test_goals_create_unauthorized(self):
         self.campaign.editors.disconnect(self.pleb)
         self.campaign.owned_by.disconnect(self.pleb)
+        self.campaign.accountants.disconnect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('goal-list',
                       kwargs={'object_uuid': self.campaign.object_uuid})

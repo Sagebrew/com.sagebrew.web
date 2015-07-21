@@ -298,8 +298,8 @@ class TestSagebrewDonation(APITestCase):
             card={
                 "number": "4242424242424242",
                 "exp_month": 12,
-                "exp_year": (datetime.datetime.now() +
-                             datetime.timedelta(days=3*365)).year,
+                "exp_year": (datetime.datetime.now() + datetime.timedelta(
+                    days=3 * 365)).year,
                 "cvc": '123'
             }
         )
@@ -318,8 +318,8 @@ class TestSagebrewDonation(APITestCase):
             card={
                 "number": "4242424242424242",
                 "exp_month": 12,
-                "exp_year": (datetime.datetime.now() +
-                             datetime.timedelta(days=3*365)).year,
+                "exp_year": (datetime.datetime.now() + datetime.timedelta(
+                    days=3 * 365)).year,
                 "cvc": '123'
             }
         )

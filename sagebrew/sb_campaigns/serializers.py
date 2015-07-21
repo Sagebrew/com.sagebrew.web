@@ -277,13 +277,13 @@ class CampaignSerializer(SBSerializer):
 
     def get_is_editor(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
-        return request.user.username in PoliticalCampaign.get_editors(
-            obj.object_uuid)
+        return request.user.username in \
+            PoliticalCampaign.get_editors(obj.object_uuid)
 
     def get_is_accountant(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
-        return request.user.username in PoliticalCampaign.get_accountants(
-            obj.object_uuid)
+        return request.user.username in \
+            PoliticalCampaign.get_accountants(obj.object_uuid)
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):
@@ -424,9 +424,9 @@ class EditorSerializer(serializers.Serializer):
     def remove_profiles(self, instance):
         for profile in self.data['profiles']:
             profile_pleb = Pleb.get(username=profile)
-            instance.accountants.disconnect(profile_pleb)
-            profile_pleb.campaign_accountant.disconnect(instance)
-        cache.delete("%s_accountants" % (instance.object_uuid))
+            instance.editors.disconnect(profile_pleb)
+            profile_pleb.campaign_editor.disconnect(instance)
+        cache.delete("%s_editors" % (instance.object_uuid))
         return instance
 
 
@@ -449,7 +449,7 @@ class AccountantSerializer(serializers.Serializer):
         cache.delete("%s_accountants" % (instance.object_uuid))
         return instance
 
-    def remove_profiles(self, instance,):
+    def remove_profiles(self, instance):
         for profile in self.data['profiles']:
             profile_pleb = Pleb.get(username=profile)
             instance.accountants.disconnect(profile_pleb)

@@ -291,6 +291,23 @@ class Campaign(Searchable):
         return res.one
 
     @classmethod
+    def get_donations(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-' \
+                '[:RECEIVED_DONATION]->(d:Donation) RETURN d' % object_uuid
+        res, _ = db.cypher_query(query)
+        return [donation[0] for donation in res]
+
+    @classmethod
+    def get_possible_helpers(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:WAGED_BY]->(p:Pleb)-' \
+                '[:FRIENDS_WITH {currently_friends: true}]->' \
+                '(b:Pleb) WHERE NOT (c)-[:CAN_BE_EDITED_BY]->(b) XOR ' \
+                '(c)-[:CAN_VIEW_MONETARY_DATA]->(b) RETURN b.username' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        return [row[0] for row in res]
+
+    @classmethod
     def get_target_goal_donation_requirement(cls, object_uuid):
         query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
                 '(r:Round)-[:STRIVING_FOR]->(g:Goal {target:true}) ' \

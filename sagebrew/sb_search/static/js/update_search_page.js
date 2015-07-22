@@ -84,16 +84,16 @@ $(document).ready(function () {
                             }
                         });
                     }
-                    if (item.type === 'public_official') {
+                    if (item.type === 'public_official' || item.type === 'campaign') {
                         var sagaUUID = item.object_uuid;
-
                         $.ajax({
                             xhrFields: {withCredentials: true},
                             type: "GET",
-                            url: "/action/" + sagaUUID + '/search',
+                            url: "/quests/" + sagaUUID + '/search',
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
                             success: function (data) {
+
                                 searchResults.append(data.html);
                             }
                         });

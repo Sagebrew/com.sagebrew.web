@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/vendor/bootstrap-switch.min.css' %}">
+{% endblock %}
+{% block content %}
+<div class="sb_page">
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="sb_wall sb_conversation_wall" style="min-height: 0;">
+                <div class="row sb_create_goal_wrapper">
+                    <h4>Manage Goals</h4>
+                        <div class="block sb_goal sb_provide_goal">
+                            <div class="row">
+                                <div class="col-xs-11" id="create_goal_header">
+                                    <h5>Create Goal</h5>
+                                    <div style="display: none" id="campaign_id" data-object_uuid="{{ id }}"></div>
+                                    <div style="display: none" id="upcoming_round" data-object_uuid="{{ upcoming_round }}"></div>
+                                </div>
+                                <div class="col-xs-1">
+                                    <button class="btn btn-primary sb_btn_icon sb_btn_icon_green toggle_create_goal" id="toggle_create_goal"><span class="fa fa-plus"></span></button>
+                                </div>
+                            </div>
+                            <div id="create_container" style="display: none;">
+                                <div class="row sb_input_wrapper">
+                                    <div class="col-lg-12">
+                                        <input class="form-control"
+                                                  id="goal_title"
+                                                  name="goal-title"
+                                                  placeholder="Goal Title"
+                                                  type="text"/>
+                                    </div>
+                                </div>
+                                <div class="row sb_input_wrapper">
+                                    <div class="col-xs-6">
+                                        <div class="input-group">
+                                            <span class="input-group-addon fa fa-check"></span>
+                                            <input class="form-control"
+                                                      id="goal_vote_req"
+                                                      name="goal_vote_req"
+                                                      placeholder="Pledge Vote Requirement"
+                                                      type="text"/>
+                                        </div>
+                                    </div>
+                                    <div class="col-xs-6">
+                                        <div class="input-group">
+                                            <span class="input-group-addon">$</span>
+                                            <input class="form-control"
+                                                   id="goal_monetary_req"
+                                                   name="goal_monetary_req"
+                                                   placeholder="Monetary Requirement (dollar amount only, no '.')"
+                                                   type="text"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row sb_input_wrapper">
+                                    <div class="col-lg-12">
+                                        <textarea class="form-control"
+                                                  id="goal_summary"
+                                                  name="goal_summary"
+                                                  placeholder="Goal Summary"
+                                                  rows="2"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row sb_input_wrapper">
+                                    <div class="col-lg-12">
+                                        <textarea class="form-control"
+                                                  id="goal_description"
+                                                  name="goal_description"
+                                                  placeholder="Goal Description (optional)"
+                                                  rows="10"></textarea>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-4">
+                                        <button class="btn btn-primary sb_btn sb_btn_fill edit_goal-action"
+                                                id="submit_goal"
+                                                data-object_uuid="{{ id }}">
+                                            Submit
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="hidden-xs col-sm-6">
+            <div class="sb_wall sb_conversation_wall">
+                <h4>Unused Goals</h4>
+                <div id="existing_goals">
+                </div>
+            </div>
+        </div>
+        <div class="hidden-xs col-sm-6">
+            <div class="sb_wall sb_conversation_wall">
+                <div class="col-xs-4">
+                    <h4>Next Goal Set</h4>
+                </div>
+                <div class="col-xs-4" id="sb_queue_switch">
+                    {% if active and not active_round %}
+                        <button id="activate_round" class="btn btn-primary sb_btn sb_btn_fill" style="margin-top: 5px;">Activate</button>
+                    {% else %}
+                        <input type="checkbox" data-toggle="bootstrap-switch" id="toggle-queued" name="my-checkbox" data-on-text="Queued" data-off-text="Unqueued"/>
+                    {% endif %}
+                </div>
+                <div class="col-xs-4">
+                    <button id="submit_round" class="btn btn-primary sb_btn sb_btn_fill" style="margin-top: 5px;">Save</button>
+                </div>
+                <div id="current_goals">
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/vendor/bootstrap-switch.min.js' %}"></script>
+    <script src="{% static 'js/vendor/sortable.min.js' %}"></script>
+    <script src="{% static 'js/create_goal.js' %}"></script>
+    <script src="{% static 'js/manage_goals.js' %}"></script>
+{% endblock %}

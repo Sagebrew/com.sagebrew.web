@@ -7,14 +7,14 @@ from django.views.generic.base import TemplateView, RedirectView
 from django.conf.urls import patterns, url
 
 from sb_registration.views import (login_view, logout_view, signup_view,
-                                   beta_page)
+                                   beta_page, quest_signup)
 from sb_registration.forms import CustomPasswordResetForm
 
 
 urlpatterns = patterns(
     '',
     (r'^favicon.ico$', RedirectView.as_view(url="%sfavicon.ico" % (
-        settings.STATIC_URL))),
+        settings.STATIC_URL), permanent=True)),
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
     url(r'^password_reset/', 'django.contrib.auth.views.password_reset',
@@ -52,11 +52,11 @@ urlpatterns = patterns(
     (r'^conversations/', include('sb_questions.urls')),
     (r'^search/', include('sb_search.urls')),
     (r'^docstore/', include('sb_docstore.urls')),
-    (r'^privilege/', include('sb_privileges.urls')),
-    (r'^action/', include('sb_public_official.urls')),
+    (r'^quests/', include('sb_public_official.urls')),
+    (r'^council/', include('sb_council.urls')),
+    (r'^updates/', include('sb_updates.urls')),
     url(r'^signup/$', signup_view, name="signup"),
-    url(r'^quests/$',
-        TemplateView.as_view(template_name="quest_signup.html")),
+    url(r'^quests/$', quest_signup, name='quest_info'),
     (r'^v1/', include('sb_questions.apis.v1')),
     (r'^v1/', include('sb_solutions.apis.v1')),
     (r'^v1/', include('sb_oauth.apis.v1')),
@@ -74,12 +74,12 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_campaigns.apis.v1')),
     (r'^v1/', include('sb_donations.apis.v1')),
     (r'^v1/', include('sb_locations.apis.v1')),
+    (r'^v1/', include('sb_council.apis.v1')),
     url(r'^$', beta_page, name='beta_page'),
 )
 
 if settings.DEBUG is True:
     urlpatterns += patterns(
-        (r'^admin/', include('admin_honeypot.urls')),
         (r'^secret/', include(admin.site.urls)),
         (r'^robots.txt$', TemplateView.as_view(
             template_name='robots_staging.txt', content_type='text/plain')),
@@ -94,7 +94,6 @@ if settings.DEBUG is True:
     )
 elif environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:
     urlpatterns += patterns(
-        (r'^admin/', include('admin_honeypot.urls')),
         (r'^secret/', include(admin.site.urls)),
         (r'^robots.txt$', TemplateView.as_view(
             template_name='robots_staging.txt', content_type='text/plain')),

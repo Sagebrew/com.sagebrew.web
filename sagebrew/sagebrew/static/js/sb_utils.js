@@ -9,7 +9,7 @@ function getCookie(name) {
             var cookie = jQuery.trim(cookies[i]);
             // Does this cookie string begin with the name we want?
 
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
             }
@@ -678,6 +678,7 @@ function enableObjectFunctionality(populatedIds) {
     readyFlags(populatedIds);
     readyVotes(populatedIds);
     readyComments(populatedIds);
+    foggyClosed();
 }
 
 
@@ -725,6 +726,15 @@ function enableSolutionFunctionality(populatedIds) {
     deleteObjects("/v1/solutions/", populatedIds, 'solution');
 }
 
+function enableContentFunctionality(populateId, type) {
+    "use strict";
+    enableObjectFunctionality([populateId]);
+    saveComments([populateId], '/v1/'+ type + 's/');
+    voteObjects([populateId], type + "s");
+    editObjects("/v1/"+ type + "s/", [populateId]);
+    deleteObjects("/v1/" + type +"s/", [populateId], type);
+}
+
 function getUrlParameter(sParam) {
     var sPageURL = window.location.search.substring(1);
     var sURLVariables = sPageURL.split('&');
@@ -734,6 +744,17 @@ function getUrlParameter(sParam) {
             return sParameterName[1];
         }
     }
+}
+
+function foggyClosed() {
+    $(".sb_blurred_content").foggy({
+        blurRadius: 15,
+        opacity: 0.95
+    });
+    $(".sb_blurred_content").click(function (event) {
+        event.preventDefault();
+        $(this).foggy(false);
+    });
 }
 
 function errorDisplay(XMLHttpRequest) {

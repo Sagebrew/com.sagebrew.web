@@ -2,8 +2,8 @@ from __future__ import absolute_import
 
 from os import environ, path, makedirs
 from unipath import Path
-from datetime import timedelta
 import multiprocessing
+from celery.schedules import crontab
 from logentries import LogentriesHandler
 import logging
 
@@ -15,6 +15,7 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     ('Devon Bleibtrey', 'devon@sagebrew.com'),
+    ('Tyler Wiersing', 'tyler@sagebrew.com')
 )
 worker_count = (multiprocessing.cpu_count() * 2) + 2
 if worker_count > 12 and environ.get("CIRCLECI", "false").lower() == "true":
@@ -75,11 +76,11 @@ STATICFILES_DIRS = (
     '%s/sb_search/static/' % PROJECT_DIR,
     '%s/sb_tags/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
+    '%s/sb_updates/static/' % PROJECT_DIR,
 
 )
 
 HELP_DOCS_PATH = "%s/help_center/rendered_docs/" % PROJECT_DIR
-ALLOWED_INCLUDE_ROOTS = (HELP_DOCS_PATH,)
 
 # List of finder classes that know how to find static files in
 # various locations.
@@ -110,18 +111,6 @@ ROOT_URLCONF = 'sagebrew.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'sagebrew.wsgi.application'
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.request",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages",
-    "plebs.context_processors.request_profile",
-)
-
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates"
@@ -135,6 +124,7 @@ TEMPLATE_DIRS = (
     '%s/sb_badges/templates/' % PROJECT_DIR,
     '%s/sb_campaigns/templates/' % PROJECT_DIR,
     '%s/sb_comments/templates/' % PROJECT_DIR,
+    '%s/sb_council/templates' % PROJECT_DIR,
     '%s/sb_flag/templates/' % PROJECT_DIR,
     '%s/sb_notifications/templates/' % PROJECT_DIR,
     '%s/sb_posts/templates/' % PROJECT_DIR,
@@ -157,6 +147,18 @@ TEMPLATES = [{
                 'django.template.loaders.app_directories.Loader',
             ]),
         ],
+        'context_processors': [
+            "django.contrib.auth.context_processors.auth",
+            "django.core.context_processors.request",
+            "django.core.context_processors.debug",
+            "django.core.context_processors.i18n",
+            "django.core.context_processors.media",
+            "django.core.context_processors.static",
+            "django.core.context_processors.tz",
+            "django.contrib.messages.context_processors.messages",
+            "plebs.context_processors.request_profile",
+        ],
+        'allowed_include_roots': [HELP_DOCS_PATH,]
     },
 }]
 
@@ -175,7 +177,6 @@ INSTALLED_APPS = (
     'django_ses',
     'rest_framework',
     'rest_framework.authtoken',
-    'admin_honeypot',
     'oauth2_provider',
     'corsheaders',
     'storages',
@@ -191,6 +192,7 @@ INSTALLED_APPS = (
     'sb_base',
     'sb_campaigns',
     'sb_comments',
+    'sb_council',
     'sb_docstore',
     'sb_flags',
     'sb_locations',
@@ -286,6 +288,14 @@ CACHES = {
     }
 }
 
+CELERYBEAT_SCHEDULE = {
+    'check-closed-reputation-changes': {
+        'task': 'sb_council.tasks.check_closed_reputation_changes_task',
+        'schedule': crontab(minute=0, hour=3),
+        'args': ()
+    }
+}
+
 CELERY_TIMEZONE = 'UTC'
 OPBEAT = {
     "ORGANIZATION_ID": environ.get("OPBEAT_ORG_ID", ""),
@@ -343,7 +353,7 @@ SEARCH_TYPES = [
     ("general", "general"),
     ("conversations", "question"),
     ("people", "profile"),
-    ("sagas", "public_official")
+    ("quests", ["campaign", "politicalcampaign"])
 ]
 
 
@@ -374,7 +384,8 @@ NON_SAFE = ["REMOVE", "DELETE", "CREATE", "SET",
 
 REMOVE_CLASSES = ["SBVersioned", "SBPublicContent", "SBPrivateContent",
                   "VotableContent", "NotificationCapable", "TaggableContent",
-                  "SBContent", "Searchable", "Term", "TitledContent"]
+                  "SBContent", "Searchable", "Term", "TitledContent",
+                  "SBObject"]
 
 QUERY_OPERATIONS = {
     "eq": "=",

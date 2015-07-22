@@ -1,7 +1,6 @@
 /*global $, jQuery, ajaxSecurity*/
 $(document).ready(function () {
     "use strict";
-    $("textarea.flag_content_reason").pagedownBootstrap();
     $('#flagModal').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget),
             flagTarget = button.data('href'),

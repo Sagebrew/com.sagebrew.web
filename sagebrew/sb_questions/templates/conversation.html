@@ -54,33 +54,35 @@
 
                         </div>
                     </div>
-                    <div class="row" style="padding-left: 15px; padding-right: 15px;">
-                        <div class="block sb_markdown sb_solution sb_provide_solution">
-                            <form id="solutionSubmitForm">
-                            <div class="row-fluid">
-                                <h5>Provide a Solution</h5>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <textarea class="form-control sb_solution_input_area"
-                                              id="solution_content_id"
-                                              name="solution_content"
-                                              placeholder="Write your solution..."></textarea>
+                    {% if not is_closed %}
+                        <div class="row" style="padding-left: 15px; padding-right: 15px;">
+                            <div class="block sb_markdown sb_solution sb_provide_solution">
+                                <form id="solutionSubmitForm">
+                                <div class="row-fluid">
+                                    <h5>Provide a Solution</h5>
                                 </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-4 col-md-4">
-                                    <button class="btn btn-primary sb_btn sb_btn_fill submit_solution-action"
-                                            id="submit_solution"
-                                            data-object_uuid="{{ uuid }}"
-                                            data-url="/solutions/submit_solution_api/">
-                                        Submit
-                                    </button>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <textarea class="form-control sb_solution_input_area"
+                                                  id="solution_content_id"
+                                                  name="solution_content"
+                                                  placeholder="Write your solution..."></textarea>
+                                    </div>
                                 </div>
+                                <div class="row">
+                                    <div class="col-lg-4 col-md-4">
+                                        <button class="btn btn-primary sb_btn sb_btn_fill submit_solution-action"
+                                                id="submit_solution"
+                                                data-object_uuid="{{ uuid }}"
+                                                data-url="/solutions/submit_solution_api/">
+                                            Submit
+                                        </button>
+                                    </div>
+                                </div>
+                                </form>
                             </div>
-                            </form>
                         </div>
-                    </div>
+                    {% endif %}
                 {% endif %}
                 </div>
             </div>

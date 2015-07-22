@@ -1,7 +1,5 @@
 from uuid import uuid1
-from datetime import datetime
-
-from logging import getLogger
+from dateutil import parser
 
 from django.template.loader import render_to_string
 from django.template import RequestContext
@@ -24,8 +22,6 @@ from plebs.neo_models import Pleb
 
 from .serializers import SolutionSerializerNeo
 from .neo_models import Solution
-
-logger = getLogger('loggly_logs')
 
 
 class SolutionViewSet(viewsets.ModelViewSet):
@@ -107,7 +103,7 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
             res, col = db.cypher_query(query)
             question_owner = Pleb.inflate(res[0][0])
             serializer = serializer.data
-            data = {
+            spawn_task(task_func=spawn_notifications, task_param={
                 "from_pleb": request.user.username,
                 "sb_object": serializer['object_uuid'],
                 "url": serializer['url'],
@@ -116,20 +112,18 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                 "to_plebs": [question_owner.username, ],
                 "notification_id": str(uuid1()),
                 'action_name': instance.action_name
-            }
-            spawn_task(task_func=spawn_notifications, task_param=data)
+            })
             # Not going to add until necessary for search
             # spawn_task(task_func=add_solution_to_search_index,
             #            task_param={"solution": serializer})
-            html = request.query_params.get('html', 'false').lower()
-            if html == "true":
-                serializer["vote_count"] = str(serializer["vote_count"])
-                serializer['last_edited_on'] = datetime.strptime(
-                    serializer['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
-                context = RequestContext(request, serializer)
+            if request.query_params.get('html', 'false').lower() == "true":
+                serializer['last_edited_on'] = parser.parse(
+                    serializer['last_edited_on'])
                 return Response(
                     {
-                        "html": [render_to_string('solution.html', context)],
+                        "html": [render_to_string(
+                            'solution.html',
+                            RequestContext(request, serializer))],
                         "ids": [serializer["object_uuid"]]
                     },
                     status=status.HTTP_200_OK)
@@ -140,23 +134,18 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def solution_renderer(request, object_uuid=None):
-    '''
+    """
     This is a intermediate step on the way to utilizing a JS Framework to
     handle template rendering.
-    '''
+    """
     html_array = []
     id_array = []
-    args = []
-    kwargs = {"object_uuid": object_uuid}
-    solutions = ObjectSolutionsListCreate.as_view()(request, *args, **kwargs)
+    solutions = ObjectSolutionsListCreate.as_view()(
+        request, object_uuid=object_uuid)
     for solution in solutions.data['results']:
-        # This is a work around for django templates and our current
-        # implementation of spacing for vote count in the template.
-        solution["vote_count"] = str(solution["vote_count"])
-        solution['last_edited_on'] = datetime.strptime(
-            solution['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
-        context = RequestContext(request, solution)
-        html_array.append(render_to_string('solution.html', context))
+        solution['last_edited_on'] = parser.parse(solution['last_edited_on'])
+        html_array.append(render_to_string(
+            'solution.html', RequestContext(request, solution)))
         id_array.append(solution["object_uuid"])
     solutions.data['results'] = {"html": html_array, "ids": id_array}
 

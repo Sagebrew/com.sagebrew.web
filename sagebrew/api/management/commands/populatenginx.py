@@ -6,6 +6,10 @@ from django.conf import settings
 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument('user', nargs='+', type=str)
+        parser.add_argument('worker', nargs='+', type=str)
+
     def populate_nginx(self, user, worker="web"):
         circle_branch = os.environ.get("CIRCLE_BRANCH", None)
         circle_ci = os.environ.get("CIRCLECI", "false").lower()
@@ -87,5 +91,5 @@ class Command(BaseCommand):
         return True
 
     def handle(self, *args, **options):
-        self.populate_nginx(args[0], args[1])
+        self.populate_nginx(options['user'][0], options['worker'][0])
         self.stdout.write("NGINX Files populated")

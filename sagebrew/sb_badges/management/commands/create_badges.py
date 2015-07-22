@@ -29,4 +29,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.create_badges()
-        print "Created all nodes"
+        self.stdout.write("Created all nodes")

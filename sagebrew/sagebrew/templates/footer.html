@@ -59,9 +59,9 @@
     <ul class="bottom-menu-list">
         {% if debug == True %}
             <li><a href="#fakelink">About Us</a></li>
-            <li><a href="#fakelink">Jobs</a></li>
             <li><a href="#fakelink">Privacy</a></li>
         {% endif %}
+        <li><a href="{% url 'quest_info' %}">Quests</a></li>
         <li><a href="{% url 'terms_and_conditions' %}">Terms</a></li>
         <li><a href="{% url 'support' %}">Support</a></li>
         <li><a href="{% url 'trust_and_safety' %}">Trust and Safety</a></li>

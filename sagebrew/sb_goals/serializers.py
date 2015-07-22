@@ -1,5 +1,12 @@
+import pytz
+from datetime import datetime
+
+from django.core.cache import cache
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
+
+from neomodel import db
 
 from sb_base.serializers import CampaignAttributeSerializer
 from api.utils import gather_request_data
@@ -12,7 +19,9 @@ class GoalSerializer(CampaignAttributeSerializer):
     active = serializers.BooleanField(read_only=True)
     title = serializers.CharField(required=True)
     summary = serializers.CharField(required=True)
-    description = serializers.CharField(required=False, allow_null=True)
+    description = serializers.CharField(required=False, allow_null=True,
+                                        allow_blank=True)
+    target = serializers.BooleanField(required=False)
     # We are requiring both a vote requirement and monetary requirement for
     # the first goal, the monetary requirement can be very small but it is
     # just easier for us with validation to allow them to make a monetary
@@ -23,31 +32,24 @@ class GoalSerializer(CampaignAttributeSerializer):
                                                     allow_null=False)
     completed = serializers.BooleanField(read_only=True)
     completed_date = serializers.DateTimeField(allow_null=True, read_only=True)
+    total_required = serializers.IntegerField(required=False, allow_null=True)
+    pledges_required = serializers.IntegerField(required=False,
+                                                allow_null=True)
 
+    current_pledge_amount = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
     associated_round = serializers.SerializerMethodField()
     donations = serializers.SerializerMethodField()
     previous_goal = serializers.SerializerMethodField()
     next_goal = serializers.SerializerMethodField()
+    associated_round_donation_total = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         campaign = validated_data.pop('campaign', None)
-        campaign_round = Round.nodes.get(
-            object_uuid=PoliticalCampaign.get_upcoming_round(
-                campaign.object_uuid))
-        next_goal = validated_data.pop('next_goal', None)
-        previous_goal = validated_data.pop('previous_goal', None)
-        goal = Goal(**validated_data).save()
-        if next_goal is not None:
-            next_goal.previous_goal.connect(goal)
-            goal.next_goal.connect(next_goal)
-        if previous_goal is not None:
-            previous_goal.next_goal.connect(goal)
-            goal.previous_goal.connect(previous_goal)
+        goal = Goal(campaign_id=campaign.object_uuid,
+                    **validated_data).save()
         campaign.goals.connect(goal)
         goal.campaign.connect(campaign)
-        campaign_round.goals.connect(goal)
-        goal.associated_round.connect(campaign_round)
         return goal
 
     def update(self, instance, validated_data):
@@ -59,8 +61,40 @@ class GoalSerializer(CampaignAttributeSerializer):
             'pledged_vote_requirement', instance.pledged_vote_requirement)
         instance.monetary_requirement = validated_data.pop(
             'monetary_requirement', instance.monetary_requirement)
+        instance.total_required = validated_data.pop('total_required',
+                                                     instance.total_required)
+        instance.pledges_required = validated_data.pop(
+            'pledges_required', instance.pledges_required)
+        campaign_round = Round.nodes.get(
+            object_uuid=PoliticalCampaign.get_upcoming_round(
+                instance.campaign_id))
+        campaign_round.goals.connect(instance)
+        instance.associated_round.connect(campaign_round)
+        prev_goal = validated_data.pop('prev_goal', None)
+        if prev_goal is not None:
+            query = 'MATCH (g:Goal {object_uuid:"%s"})-[:PREVIOUS]->' \
+                    '(pg:Goal) RETURN pg' % (instance.object_uuid)
+            res, _ = db.cypher_query(query)
+            if res.one:
+                temp_goal = Goal.inflate(res.one)
+                instance.previous_goal.disconnect(temp_goal)
+                temp_goal.next_goal.disconnect(instance)
+
+            prev_goal = Goal.nodes.get(object_uuid=prev_goal)
+            prev_goal.next_goal.connect(instance)
+            instance.previous_goal.connect(prev_goal)
+        else:
+            instance.target = True
         instance.save()
         return instance
+
+    def get_campaign(self, obj):
+        request, _, _, relation, expedite = gather_request_data(self.context)
+        if relation == 'hyperlink':
+            return reverse('campaign-detail',
+                           kwargs={'object_uuid': obj.campaign_id},
+                           request=request)
+        return obj.campaign_id
 
     def get_updates(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
@@ -100,15 +134,44 @@ class GoalSerializer(CampaignAttributeSerializer):
                            request=request)
         return next_goal
 
+    def get_associated_round_donation_total(self, obj):
+        return Goal.get_associated_round_donation_total(obj.object_uuid)
+
+    def get_current_pledge_amount(self, obj):
+        return PoliticalCampaign.get_vote_count(obj.campaign_id)
+
 
 class RoundSerializer(CampaignAttributeSerializer):
     active = serializers.BooleanField(read_only=True)
+    queued = serializers.BooleanField()
     start_date = serializers.DateTimeField(read_only=True)
     completed = serializers.DateTimeField(read_only=True)
 
     goals = serializers.SerializerMethodField()
     previous_round = serializers.SerializerMethodField()
     next_round = serializers.SerializerMethodField()
+    total_donation_amount = serializers.SerializerMethodField()
+
+    def update(self, instance, validated_data):
+        instance.queued = validated_data.pop('queued', instance.queued)
+        camp = PoliticalCampaign.nodes.get(
+            object_uuid=Round.get_campaign(instance.object_uuid))
+        if camp.active and not PoliticalCampaign.get_active_round(
+                camp.object_uuid):
+            instance.active = True
+            instance.start_date = datetime.now(pytz.utc)
+            camp.upcoming_round.disconnect(instance)
+            camp.active_round.connect(instance)
+            camp.rounds.connect(instance)
+            cache.set("%s_active_round" % camp.object_uuid,
+                      instance.object_uuid)
+            new_upcoming = Round().save()
+            camp.upcoming_round.connect(new_upcoming)
+            new_upcoming.campaign.connect(camp)
+            cache.set("%s_upcoming_round" % camp.object_uuid,
+                      new_upcoming.object_uuid)
+        instance.save()
+        return instance
 
     def get_goals(self, obj):
         request, _, _, relation, _ = gather_request_data(self.context)
@@ -133,3 +196,6 @@ class RoundSerializer(CampaignAttributeSerializer):
             return reverse('round-detail', kwargs={'object_uuid': next_round},
                            request=request)
         return next_round
+
+    def get_total_donation_amount(self, obj):
+        return Round.get_total_donation_amount(obj.object_uuid)

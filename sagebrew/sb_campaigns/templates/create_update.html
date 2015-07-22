@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load staticfiles %}
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'css/vendor/select2.css' %}" rel="stylesheet"/>
+    <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/vendor/bootstrap-tokenfield.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/vendor/tokenfield-typeahead.min.css' %}"/>
+{% endblock css %}
+
+{% block content %}
+
+<div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn btn-sm sb_btn close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="fileModalLabel">Upload Images</h3>
+            </div>
+            <div class="modal-form">
+                <div class="tabbable tabs-left">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#tab1" data-toggle="tab">Upload</a></li>
+                        <li><a href="#tab2" data-toggle="tab">Enter URL</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tab1">
+                            <div class="preview" id="preview" >
+                                <input id="upload_image" type="file" name="img">
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab2">
+                            <p><input type="text" class="form-control input-lg img-url" placeholder="Ex: http://yoursite.com/image.jpg" id="img-url" /></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                            <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                    <button class="btn btn-primary sb_btn sb_btn_fill" id="insert_image_post">Insert Image</button>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                    <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove" data-dismiss="modal" aria-hidden="true">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="row-fluid sb_page">
+        <div class="col-lg-12">
+            <div class="sb_wall sb_conversation_wall">
+                <div class="sb_border sb_markdown">
+                    <form id="updateForm">
+                    <div id="campaign-id" data-object_uuid="{% if not 'edit' in request.path %}{{ id }}{% else %}{{ campaign }}{% endif %}" style="display: none;"></div>
+                    <h3>{% if not 'edit' in request.path %}Submit Update{% else %} Edit Update{% endif %}</h3>
+                        <div class="title_input">
+                            {% if edit %}
+                            <input class="form-control title_input" style="margin-bottom: 10px;"
+                                      id="title_id"
+                                      name="title"
+                                      placeholder="Update Title"
+                                      value="{{ title }}" disabled="disabled"/>
+                            {% else %}
+                                <input class="form-control" style="margin-bottom: 10px;"
+                                      id="title_id"
+                                      name="title"
+                                      placeholder="Update Title"
+                                      value="{{ title }}"/>
+                            {% endif %}
+                        </div>
+                        <div class="update_content_input">
+                            <textarea class="form-control"
+                                      id="update_content_id"
+                                      name="content"
+                                      cols="20"
+                                      rows="8"
+                                      placeholder="Update Content">{{ content }}</textarea>
+                        </div>
+                    {% if not 'edit' in request.path %}
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <input type="text" id="goal-selector"
+                                       placeholder="Goal titles you want this updated to correspond to"
+                                       class="form-control input-md"
+                                       value="">
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div id="validation_errors"></div>
+                        {% comment %}
+                        TODO determine if this and other "buttons" need to be a tags
+                        instead of buttons
+                        {% endcomment %}
+
+                        <div class="row">
+                            <div class="col-lg-3 col-md-4">
+                                {% if not 'edit' in request.path %}
+                                <button class="btn btn-primary sb_btn sb_btn_fill submit_update-action" id="submit_update"
+                                       data-url="/v1/campaigns/{{ id }}/updates/"
+                                       data-object_uuid="{{ id }}">Create Update</button>
+                                {% else %}
+                                <button class="btn btn-primary sb_btn sb_btn_fill" id="edit-update"
+                                        data-object_uuid="{{ object_uuid }}">Submit</button>
+                                {% endif %}
+                            </div>
+                            <div class="col-lg-3 col-md-4">
+                                <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove cancel_update-action" data-url="{{ url }}">Cancel</button>
+
+                            </div>
+                        </div>
+                    </form>
+                </div>
+             </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
+    <script src="{% static 'js/vendor/bootstrap-tokenfield.min.js' %}"></script>
+    <script src="{% static 'js/vendor/typeahead.js' %}"></script>
+    <script src="{% static 'js/create_update.js' %}"></script>
+    <script src="{% static 'js/edit_update.js' %}"></script>
+    <script src="{% static 'js/update_validator.js' %}"></script>
+{% endblock scripts %}

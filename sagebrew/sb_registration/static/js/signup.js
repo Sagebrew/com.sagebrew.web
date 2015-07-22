@@ -20,6 +20,8 @@ $(document).ready(function () {
             success: function (data) {
                 if (data.detail === 'success') {
                     window.location.href = "/registration/signup/confirm/";
+                } else if (data.detail === 'redirect') {
+                    window.location.href = data.url;
                 } else {
                     $("#submit_signup").removeAttr("disabled");
                 }

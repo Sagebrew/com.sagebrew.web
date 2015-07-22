@@ -17,12 +17,13 @@ from neomodel import (DoesNotExist, CypherException)
 from api.utils import spawn_task
 from plebs.tasks import send_email_task, create_beta_user
 from plebs.neo_models import Pleb, BetaUser
+from sb_campaigns.neo_models import Position
 
 from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,
                     LoginForm, BetaSignupForm)
 from .utils import (verify_completed_registration, verify_verified_email,
-                    create_user_util)
+                    create_user_util, verify_no_campaign)
 from .models import token_gen
 from .tasks import update_interests, store_address
 
@@ -45,11 +46,18 @@ def signup_view(request):
 
 
 def quest_signup(request):
-    return render(request, 'quest_signup.html')
+    if request.method == 'POST':
+        request.session['account_type'] = request.POST['account_type']
+        request.session.set_expiry(1800)
+        if request.user.is_authenticated():
+            return redirect('rep_registration_page')
+        return redirect('signup')
+    return render(request, 'quest_details.html')
 
 
 @api_view(['POST'])
 def signup_view_api(request):
+    quest_registration = request.session.get('account_type', None)
     try:
         signup_form = SignupForm(request.DATA)
         valid_form = signup_form.is_valid()
@@ -89,6 +97,9 @@ def signup_view_api(request):
             if user is not None:
                 if user.is_active:
                     login(request, user)
+                    if quest_registration is not None:
+                        request.session['account_type'] = quest_registration
+                        request.session.set_expiry(1800)
                     return Response({'detail': 'success'}, status=200)
                 else:
                     return Response({'detail': 'account disabled'},
@@ -162,8 +173,7 @@ def login_view_api(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                rev = reverse('profile_page',
-                              kwargs={'pleb_username': user.username})
+                rev = reverse('newsfeed')
                 return Response({'detail': 'success',
                                  'user': user.email,
                                  'url': rev}, status=200)
@@ -193,6 +203,9 @@ def email_verification(request, confirmation):
             profile.save()
             profile.refresh()
             cache.set(profile.username, profile)
+            account_type = request.session.get('account_type', None)
+            if account_type is not None:
+                return redirect('rep_registration_page')
             return redirect('profile_info')
         else:
             # TODO Ensure to link up to a real redirect page
@@ -334,10 +347,14 @@ def profile_picture(request):
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def quest_registration(request):
-    return render(request, 'position_selection.html')
+@user_passes_test(verify_verified_email,
+                  login_url='/registration/signup/confirm/')
+def quest_position_selector(request):
+    if verify_no_campaign(request.user):
+        return redirect('quest_saga', username=request.user.username)
+    president = Position.nodes.get(name="President")
+    return render(request, 'position_selection.html',
+                  {'president': president.object_uuid})
 
 
 @api_view(['POST'])
@@ -361,7 +378,7 @@ def beta_signup(request):
 def beta_page(request):
     if request.user.is_authenticated() is True:
         if verify_completed_registration(request.user) is True:
-            return redirect('profile_page', pleb_username=request.user.username)
+            return redirect('newsfeed')
         else:
             return redirect('profile_info')
 

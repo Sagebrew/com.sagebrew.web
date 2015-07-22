@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<div class="sb_page">
+    <div class="row-fluid">
+        <div class="col-xs-12">
+            <div class="sb_wall sb_conversation_wall">
+                <div class="row">
+                    <div class="col-xs-6">
+                        <h2>Flagged Objects</h2>
+                    </div>
+                    <div class="col-xs-6">
+                        <h3>Upvote means close<br />
+                            Downvote means don't close</h3>
+                    </div>
+                </div>
+
+                <div class="row sb_create_goal_wrapper">
+                    <div class="sb_border sb_border_question" id="flag-voting-wrapper">
+                        <div class="row sb_tertiary_nav">
+                            <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs">
+                                <a class="btn sb_tab_question query_council"
+                                   data-filter="">Not Voted On</a>
+                            </div>
+                            <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs">
+                                <a class="btn sb_tab_question query_council"
+                                   data-filter="voted">Already Voted On</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/vendor/foggy.min.js' %}"></script>
+    <script src="{% static 'js/vote_on_flagged.js' %}"></script>
+
+{% endblock %}

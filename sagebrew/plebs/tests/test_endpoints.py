@@ -1,3 +1,4 @@
+import time
 import shortuuid
 from collections import OrderedDict
 
@@ -15,8 +16,12 @@ from sagebrew import errors
 from sb_public_official.neo_models import PublicOfficial
 from plebs.neo_models import Pleb, FriendRequest, Address, BetaUser
 from sb_privileges.neo_models import Privilege, SBAction
+from sb_campaigns.neo_models import Position, PoliticalCampaign
+from sb_locations.neo_models import Location
 from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
+from sb_posts.neo_models import Post
+from sb_solutions.neo_models import Solution
 
 
 class MeEndpointTests(APITestCase):
@@ -29,7 +34,7 @@ class MeEndpointTests(APITestCase):
         self.url = "http://testserver"
 
     def test_unauthorized(self):
-        url = reverse('me-detail')
+        url = reverse('me-list')
         data = {}
         response = self.client.post(url, data, format='json')
         self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
@@ -37,7 +42,7 @@ class MeEndpointTests(APITestCase):
 
     def test_missing_data(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         data = {'this': ['This field is required.']}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code,
@@ -45,35 +50,35 @@ class MeEndpointTests(APITestCase):
 
     def test_save_int_data(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.post(url, 98897965, format='json')
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_save_string_data(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.post(url, 'asfonosdnf', format='json')
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_save_list_data(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.post(url, [], format='json')
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_save_float_data(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.post(url, 1.010101010, format='json')
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_create_on_detail(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         data = {}
         response = self.client.post(url, data=data, format='json')
         response_data = {
@@ -84,62 +89,70 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    def test_delete(self):
+    def test_delete_status(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
-        data = None
+        url = reverse('me-list')
         response = self.client.delete(url, format='json')
-        self.assertEqual(response.data, data)
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_detail(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-list')
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.data['detail'],
+                         'Method "DELETE" not allowed.')
 
     def test_get_username(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.assertEqual('test_test', response.data['username'])
 
     def test_get_first_name(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.assertEqual('test', response.data['first_name'])
 
     def test_get_last_name(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.assertEqual('test', response.data['last_name'])
 
     def test_get_profile_pic(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['profile_pic'],
                          static.static("images/sage_coffee_grey-01.png"))
 
     def test_get_wallpaper_pic(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['wallpaper_pic'],
                          static.static("images/wallpaper_western.jpg"))
 
     def test_get_url(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.assertEqual('http://testserver/user/test_test/',
                          response.data['url'])
 
     def test_get_privileges(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.assertEqual([], response.data['privileges'])
 
     def test_get_actions(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         cache.clear()
         response = self.client.get(url, format='json')
         self.assertEqual([], response.data['actions'])
@@ -149,7 +162,7 @@ class MeEndpointTests(APITestCase):
         action = SBAction(resource="test_action").save()
         self.pleb.actions.connect(action)
         cache.clear()
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.pleb.actions.disconnect(action)
         self.assertEqual(['test_action'], response.data['actions'])
@@ -159,7 +172,7 @@ class MeEndpointTests(APITestCase):
         privilege = Privilege(name="test_privilege").save()
         self.pleb.privileges.connect(privilege)
         cache.clear()
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.pleb.privileges.disconnect(privilege)
         privilege.delete()
@@ -167,32 +180,32 @@ class MeEndpointTests(APITestCase):
 
     def test_get_href(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.assertEqual("http://testserver/v1/profiles/test_test/",
                          response.data['href'])
 
     def test_get_type(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.assertEqual("profile", response.data['type'])
 
     def test_get_id(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.assertEqual("test_test", response.data['id'])
 
     def test_get_reputation(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.assertEqual(0, response.data['reputation'])
 
     def test_get_populated_wallpaper(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('me-detail')
+        url = reverse('me-list')
         wallpaper = self.pleb.wallpaper_pic
         self.pleb.wallpaper_pic = "http://helloworld.com/this.jpeg"
         self.pleb.save()
@@ -1967,3 +1980,569 @@ class BetaUserMethodEndpointTests(APITestCase):
             'username': self.user.username})
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class NewsfeedTests(APITestCase):
+    def setUp(self):
+        query = "match (n)-[r]-() delete n,r"
+        db.cypher_query(query)
+        cache.clear()
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.address = Address(street="3295 Rio Vista St",
+                               city="Commerce Township", state="MI",
+                               postal_code="48382", country="US",
+                               congressional_district="11")
+        self.address.save()
+        self.address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(self.address)
+        self.url = "http://testserver"
+
+    def test_unauthorized(self):
+        url = reverse('me-newsfeed')
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_missing_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        data = {'this': ['This field is required.']}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_int_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.post(url, 98897965, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_string_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.post(url, 'asfonosdnf', format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_list_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.post(url, [], format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_float_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.post(url, 1.010101010, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_create_on_detail(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        data = {}
+        response = self.client.post(url, data=data, format='json')
+        response_data = {
+            'status_code': status.HTTP_405_METHOD_NOT_ALLOWED,
+            'detail': 'Method "POST" not allowed.'
+        }
+        self.assertEqual(response.data, response_data)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_status(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_detail(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.data['detail'],
+                         'Method "DELETE" not allowed.')
+
+    def test_get_count(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 0)
+
+    def test_get_success(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_posts(self):
+        post = Post(content="Hey I'm a post",
+                    owner_username=self.pleb.username).save()
+        post.owned_by.connect(self.pleb)
+        post.posted_on_wall.connect(self.pleb.get_wall())
+        self.pleb.get_wall().posts.connect(post)
+        self.pleb.posts.connect(post)
+        post.owned_by.connect(self.pleb)
+
+        post_two = Post(content="Hey I'm a post",
+                        owner_username=self.pleb.username).save()
+        post_two.owned_by.connect(self.pleb)
+        post_two.posted_on_wall.connect(self.pleb.get_wall())
+        self.pleb.get_wall().posts.connect(post_two)
+        self.pleb.posts.connect(post_two)
+        post_two.owned_by.connect(self.pleb)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 2)
+
+    def test_get_post_content(self):
+        content = "Hey I'm a post"
+        post = Post(content=content,
+                    owner_username=self.pleb.username).save()
+        post.owned_by.connect(self.pleb)
+        post.posted_on_wall.connect(self.pleb.get_wall())
+        self.pleb.get_wall().posts.connect(post)
+        self.pleb.posts.connect(post)
+        post.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['content'], content)
+
+    def test_get_post_content_rendered(self):
+        content = "Hey I'm a post"
+        post = Post(content=content,
+                    owner_username=self.pleb.username).save()
+        post.owned_by.connect(self.pleb)
+        post.posted_on_wall.connect(self.pleb.get_wall())
+        self.pleb.get_wall().posts.connect(post)
+        self.pleb.posts.connect(post)
+        post.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertTrue('html' in response.data['results'][0])
+
+    def test_get_post_content_rendered_expedite(self):
+        content = "Hey I'm a post"
+        post = Post(content=content,
+                    owner_username=self.pleb.username).save()
+        post.owned_by.connect(self.pleb)
+        post.posted_on_wall.connect(self.pleb.get_wall())
+        self.pleb.get_wall().posts.connect(post)
+        self.pleb.posts.connect(post)
+        post.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertTrue('html' in response.data['results'][0])
+
+    def test_get_post_username(self):
+        content = "Hey I'm a post"
+        post = Post(content=content,
+                    owner_username=self.pleb.username).save()
+        post.owned_by.connect(self.pleb)
+        post.posted_on_wall.connect(self.pleb.get_wall())
+        self.pleb.get_wall().posts.connect(post)
+        self.pleb.posts.connect(post)
+        post.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['profile'],
+                         self.pleb.username)
+
+    def test_get_campaigns(self):
+        campaign = PoliticalCampaign(
+            active=True, biography="Hey there this is my campaign. "
+                                   "Feel free to drop me a line!",
+            facebook="dbleibtrey", youtube="devonbleibtrey",
+            website="www.sagebrew.com", owner_username=self.pleb.username,
+            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
+            profile_pic=self.pleb.profile_pic).save()
+        campaign.owned_by.connect(self.pleb)
+        self.pleb.campaign.connect(campaign)
+        usa = Location(name="United States of America").save()
+        pres = Position(name="President").save()
+        usa.positions.connect(pres)
+        pres.location.connect(usa)
+        campaign.position.connect(pres)
+        pres.campaigns.connect(campaign)
+        self.address.encompassed_by.connect(usa)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 1)
+
+    def test_get_campaigns_website(self):
+        website = "www.sagebrew.com"
+        campaign = PoliticalCampaign(
+            active=True, biography="Hey there this is my campaign. "
+                                   "Feel free to drop me a line!",
+            facebook="dbleibtrey", youtube="devonbleibtrey",
+            website=website, owner_username=self.pleb.username,
+            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
+            profile_pic=self.pleb.profile_pic).save()
+        campaign.owned_by.connect(self.pleb)
+        self.pleb.campaign.connect(campaign)
+        usa = Location(name="United States of America").save()
+        pres = Position(name="President").save()
+        usa.positions.connect(pres)
+        pres.location.connect(usa)
+        campaign.position.connect(pres)
+        pres.campaigns.connect(campaign)
+        self.address.encompassed_by.connect(usa)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['website'], website)
+
+    def test_get_campaigns_rendered(self):
+        campaign = PoliticalCampaign(
+            active=True, biography="Hey there this is my campaign. "
+                                   "Feel free to drop me a line!",
+            facebook="dbleibtrey", youtube="devonbleibtrey",
+            website="www.sagebrew.com", owner_username=self.pleb.username,
+            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
+            profile_pic=self.pleb.profile_pic).save()
+        campaign.owned_by.connect(self.pleb)
+        self.pleb.campaign.connect(campaign)
+        usa = Location(name="United States of America").save()
+        pres = Position(name="President").save()
+        usa.positions.connect(pres)
+        pres.location.connect(usa)
+        campaign.position.connect(pres)
+        pres.campaigns.connect(campaign)
+        self.address.encompassed_by.connect(usa)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertTrue('html' in response.data['results'][0])
+
+    def test_get_campaigns_rendered_expedite(self):
+        campaign = PoliticalCampaign(
+            active=True, biography="Hey there this is my campaign. "
+                                   "Feel free to drop me a line!",
+            facebook="dbleibtrey", youtube="devonbleibtrey",
+            website="www.sagebrew.com", owner_username=self.pleb.username,
+            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
+            profile_pic=self.pleb.profile_pic).save()
+        campaign.owned_by.connect(self.pleb)
+        self.pleb.campaign.connect(campaign)
+        usa = Location(name="United States of America").save()
+        pres = Position(name="President").save()
+        usa.positions.connect(pres)
+        pres.location.connect(usa)
+        campaign.position.connect(pres)
+        pres.campaigns.connect(campaign)
+        self.address.encompassed_by.connect(usa)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertTrue('html' in response.data['results'][0])
+
+    def test_get_campaigns_title(self):
+        campaign = PoliticalCampaign(
+            active=True, biography="Hey there this is my campaign. "
+                                   "Feel free to drop me a line!",
+            facebook="dbleibtrey", youtube="devonbleibtrey",
+            website="www.sagebrew.com", owner_username=self.pleb.username,
+            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
+            profile_pic=self.pleb.profile_pic).save()
+        campaign.owned_by.connect(self.pleb)
+        self.pleb.campaign.connect(campaign)
+        usa = Location(name="United States of America").save()
+        pres = Position(name="President").save()
+        usa.positions.connect(pres)
+        pres.location.connect(usa)
+        campaign.position.connect(pres)
+        pres.campaigns.connect(campaign)
+        self.address.encompassed_by.connect(usa)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['owner_username'],
+                         self.pleb.username)
+
+    def test_get_question_content(self):
+        content = "This is the content for my question."
+        question = Question(
+            title="Hello there world",
+            content=content,
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['content'], content)
+
+    def test_get_question_title(self):
+        content = "This is the content for my question."
+        title = "Hello there world"
+        question = Question(
+            title=title,
+            content=content,
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['title'], title)
+
+    def test_get_question_profile(self):
+        content = "This is the content for my question."
+        title = "Hello there world"
+        question = Question(
+            title=title,
+            content=content,
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['profile'],
+                         self.pleb.username)
+
+    def test_get_question_multiple(self):
+        content = "This is the content for my question."
+        title = "Hello there world"
+        question = Question(
+            title=title,
+            content=content,
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+
+        question_two = Question(
+            title=title,
+            content=content,
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question_two)
+        question_two.owned_by.connect(self.pleb)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 2)
+
+    def test_get_question_rendered(self):
+        content = "This is the content for my question."
+        title = "Hello there world"
+        question = Question(
+            title=title,
+            content=content,
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertTrue('html' in response.data['results'][0])
+
+    def test_get_question_rendered_expedite(self):
+        content = "This is the content for my question."
+        title = "Hello there world"
+        question = Question(
+            title=title,
+            content=content,
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertTrue('html' in response.data['results'][0])
+
+    def test_get_solution_content(self):
+        content = 'this is fake content'
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username).save()
+        solution.owned_by.connect(self.pleb)
+        self.pleb.solutions.connect(solution)
+        question.solutions.connect(solution)
+        solution.solution_to.connect(question)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['content'], content)
+
+    def test_get_solution_profile(self):
+        content = 'this is fake content'
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username).save()
+        solution.owned_by.connect(self.pleb)
+        self.pleb.solutions.connect(solution)
+        question.solutions.connect(solution)
+        solution.solution_to.connect(question)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['profile'],
+                         self.pleb.username)
+
+    def test_get_solution_multiple(self):
+        content = 'this is fake content'
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username).save()
+        solution.owned_by.connect(self.pleb)
+        self.pleb.solutions.connect(solution)
+
+        solution_two = Solution(content=content,
+                                owner_username=self.pleb.username).save()
+        solution_two.owned_by.connect(self.pleb)
+        self.pleb.solutions.connect(solution_two)
+        question.solutions.connect(solution)
+        solution.solution_to.connect(question)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 2)
+
+    def test_get_solution_rendered(self):
+        content = 'this is fake content'
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username).save()
+        solution.owned_by.connect(self.pleb)
+        self.pleb.solutions.connect(solution)
+        question.solutions.connect(solution)
+        solution.solution_to.connect(question)
+
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertTrue('html' in response.data['results'][0])
+
+    def test_get_solution_rendered_expedite(self):
+        content = 'this is fake content'
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username).save()
+        solution.owned_by.connect(self.pleb)
+        self.pleb.solutions.connect(solution)
+        question.solutions.connect(solution)
+        solution.solution_to.connect(question)
+
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertTrue('html' in response.data['results'][0])
+
+    def test_get_multiple_objects(self):
+        post = Post(content="Hey I'm a post",
+                    owner_username=self.pleb.username).save()
+        post.owned_by.connect(self.pleb)
+        post.posted_on_wall.connect(self.pleb.get_wall())
+        self.pleb.get_wall().posts.connect(post)
+        self.pleb.posts.connect(post)
+        post.owned_by.connect(self.pleb)
+
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content='this is fake content',
+                            owner_username=self.pleb.username).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+        solution.solution_to.connect(question)
+        self.pleb.solutions.connect(solution)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 3)
+
+    def test_get_multiple_objects_ordering(self):
+        post = Post(content="Hey I'm a post",
+                    owner_username=self.pleb.username).save()
+        post.owned_by.connect(self.pleb)
+        post.posted_on_wall.connect(self.pleb.get_wall())
+        self.pleb.get_wall().posts.connect(post)
+        self.pleb.posts.connect(post)
+        post.owned_by.connect(self.pleb)
+
+        question = Question(
+            title="Hello there world",
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content='this is fake content',
+                            owner_username=self.pleb.username).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+        solution.solution_to.connect(question)
+        self.pleb.solutions.connect(solution)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        # This assumes that the above ordering creates the post first,
+        # then the question, then the solution. The newsfeed should order
+        # these in reverse based on their date created.
+        self.assertEqual(response.data['results'][0]['type'], 'solution')
+        self.assertEqual(response.data['results'][1]['type'], 'question')
+        self.assertEqual(response.data['results'][2]['type'], 'post')

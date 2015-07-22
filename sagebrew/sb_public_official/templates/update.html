@@ -1,18 +1,39 @@
 {% load humanize %}
-<div class="row block sb_action_content_block sb_update_block">
+{% load static %}
+<div class="sb_question_header">
     <div class="row">
-        <div class="col-lg-10 col-md-9 col-sm-6 col-xs-6">
-            <h1>{{ title|linebreaksbr }}</h1>
+        <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 ">
+            <h1 style="font-size:32px;">
+                {{ title|linebreaksbr }}
+            </h1>
         </div>
-        <div align="right" class="col-lg-2 col-md-3 col-sm-6 col-xs-6">
-            <p>{{ last_edited_on|naturaltime }}</p>
-            <p>Goal 3</p>
+        <div class="col-sm-1 hidden-xs">
+
+                {% if request.user.username == profile.username %}
+                    <button class="btn dropdown-toggle sb_btn_icon" type="button"
+                            data-toggle="dropdown">
+                        <span class="fa fa-cog sb_btn_icon_green_hover"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
+                        role="menu" aria-labelledby="dropdown-menu">
+                        <li role="presentation"><a class="sb_post_dropdown_menu edit-update"
+                                                   data-object_uuid="{{ object_uuid }}"
+                                                   type="submit">Edit</a>
+                        </li>
+                    </ul>
+                {% endif %}
+
         </div>
     </div>
-    <div class="sb_deco_line"></div>
-    <div class="sb_markdown">
-        {% autoescape off %}
-            {{ html_content }}
-        {% endautoescape %}
+    <div class="row">
+        <div class="col-xs-11 sb_post_wrapper">
+            <div class="sb_question_body" id="sb_question_{{ object_uuid }}">
+                <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
+                    {% autoescape off %}
+                        {{ html_content }}
+                    {% endautoescape %}
+                </div>
+            </div>
+        </div>
     </div>
 </div>

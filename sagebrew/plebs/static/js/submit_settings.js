@@ -10,12 +10,12 @@ $(document).ready(function(){
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                window.location.href = "/logout/"
+                window.location.href = "/logout/";
             }
         });
     });
     var settings_area = "#submit_settings";
-    $(settings_area).click(function(event){
+    $(settings_area).click(function (event) {
         $(settings_area).attr("disabled", "disabled");
         event.preventDefault();
         var username = $("#username").data("username");
@@ -39,7 +39,7 @@ $(document).ready(function(){
                 "last_name": last_name,
                 "email": email
             };
-        if (old_password !== "" && new_password !== ""){
+        if (old_password !== "" && new_password !== "") {
             json_data['password'] = old_password;
             json_data['new_password'] = new_password;
         }
@@ -81,5 +81,5 @@ $(document).ready(function(){
                 $(settings_area).removeAttr("disabled");
             }
         });
-    })
+    });
 });

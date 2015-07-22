@@ -1,0 +1,24 @@
+{% extends "sb_plebs_base/profile_page.html" %}
+{% load staticfiles %}
+{% block title %}{{ page_user.first_name }}'s Feed{% endblock title %}
+{%  block midsection %}
+<div class="col-md-4 hidden-sm hidden-xs">
+   {% include "sb_home_section/sb_profile_rep_stats.html" %}
+   {% include "sb_home_section/sb_profile_potential_reps_stats.html" %}
+</div>
+<div class="col-md-8">
+    <div class="sb_profile_post_enter">
+        {% include "input_post.html" %}
+    </div>
+    <div class="sb_wall" id="wall_app">
+
+    </div>
+</div>
+{% endblock %}
+{% block post_scripts %}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/newsfeed.js' %}"></script>
+{% endblock %}

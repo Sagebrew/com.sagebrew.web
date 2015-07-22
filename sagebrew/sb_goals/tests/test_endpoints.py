@@ -13,6 +13,7 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_goals.neo_models import Goal, Round
+from sb_campaigns.neo_models import PoliticalCampaign
 
 
 class GoalEndpointTests(APITestCase):
@@ -24,12 +25,17 @@ class GoalEndpointTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
+        self.campaign = PoliticalCampaign().save()
         self.goal = Goal(title='Test Goal',
                          summary="Test Summary",
                          description="Test Description", active=True,
                          pledged_vote_requirement=100,
                          monetary_requirement=1000, completed=False,
-                         total_required=1000).save()
+                         total_required=1000,
+                         campaign_id=self.campaign.object_uuid).save()
+        self.round = Round().save()
+        self.campaign.upcoming_round.connect(self.round)
+        self.round.campaign.connect(self.campaign)
 
     def test_unauthorized(self):
         url = reverse('goal-detail',
@@ -113,7 +119,7 @@ class GoalEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.goal.object_uuid})
         response = self.client.get(url)
 
-        self.assertIsNone(response.data['campaign'])
+        self.assertEqual(response.data['campaign'], self.campaign.object_uuid)
 
     def test_get_title(self):
         self.client.force_authenticate(user=self.user)
@@ -495,24 +501,6 @@ class RoundEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertIsNone(response.data['next_round'])
-
-    def test_patch(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('round-detail',
-                      kwargs={'object_uuid': self.round.object_uuid})
-        response = self.client.patch(url, data={}, format='json')
-
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_put(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('round-detail',
-                      kwargs={'object_uuid': self.round.object_uuid})
-        response = self.client.put(url, data={}, format='json')
-
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_delete(self):
         self.client.force_authenticate(user=self.user)

@@ -19,7 +19,7 @@ class Command(BaseCommand):
                           id=official.object_uuid)
             except NotFoundError:
                 pass
-            es.index(index='full-search-base', doc_type='public_official',
+            es.index(index='full-search-base', doc_type='campaign',
                      id=official.object_uuid,
                      body=PublicOfficialSerializer(official).data)
 

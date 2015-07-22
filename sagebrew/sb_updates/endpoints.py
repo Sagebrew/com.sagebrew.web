@@ -34,8 +34,22 @@ class UpdateListCreate(generics.ListCreateAPIView):
         return Update.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
     def perform_create(self, serializer):
+        # updates can only be attached to any of the currently active goals,
+        # completed or not
         serializer.save(
-            campaign=Campaign.get(object_uuid=self.kwargs[self.lookup_field]))
+            campaign=Campaign.get(object_uuid=self.kwargs[self.lookup_field]),
+            associated_goals=self.request.data.get('goals', []))
+
+    def create(self, request, *args, **kwargs):
+        if not (request.user.username in
+                Campaign.get_editors(self.kwargs[self.lookup_field])
+                or request.user.username in
+                Campaign.get_accountants(self.kwargs[self.lookup_field])):
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "You are not authorized to access "
+                                       "this page."},
+                            status=status.HTTP_403_FORBIDDEN)
+        return super(UpdateListCreate, self).create(request, *args, **kwargs)
 
 
 class UpdateRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
@@ -65,7 +79,6 @@ def update_renderer(request, object_uuid=None):
         update['last_edited_on'] = parser.parse(update['last_edited_on'])
         update['vote_count'] = str(update['vote_count'])
         context = RequestContext(request, update)
-        # TODO make a template for updates
         html_array.append(render_to_string('update.html', context))
         id_array.append(update['object_uuid'])
     updates.data['results'] = {'html': html_array, 'ids': id_array}

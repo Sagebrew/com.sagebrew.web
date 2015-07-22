@@ -18,7 +18,6 @@ class VotableContentSerializer(SBSerializer):
     object_uuid = serializers.CharField(read_only=True)
 
     content = serializers.CharField()
-    created = serializers.DateTimeField(read_only=True)
 
     upvotes = serializers.SerializerMethodField()
     downvotes = serializers.SerializerMethodField()
@@ -77,13 +76,20 @@ class ContentSerializer(VotableContentSerializer):
     # Need to figure out how we want to handle these user specific items
     # Maybe if no user is provided we just return None or don't include?
     flagged_by = serializers.SerializerMethodField()
+    council_vote = serializers.SerializerMethodField()
+    is_closed = serializers.BooleanField(read_only=True)
 
     def get_flagged_by(self, obj):
         return obj.get_flagged_by()
 
+    def get_council_vote(self, obj):
+        request = self.context.get('request', None)
+        if request is None:
+            return None
+        return obj.get_council_vote(request.user.username)
+
 
 class MarkdownContentSerializer(ContentSerializer):
-    is_closed = serializers.BooleanField(read_only=True)
     html_content = serializers.SerializerMethodField()
 
     def get_html_content(self, obj):

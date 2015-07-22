@@ -152,6 +152,7 @@ class Pleb(Searchable):
     email_verified = BooleanProperty(default=False)
     populated_personal_index = BooleanProperty(default=False)
     initial_verification_email_sent = BooleanProperty(default=False)
+    stripe_account = StringProperty()
     stripe_customer_id = StringProperty()
 
     # Relationships
@@ -171,6 +172,10 @@ class Pleb(Searchable):
     address = RelationshipTo("Address", "LIVES_AT")
     interests = RelationshipTo("sb_tags.neo_models.Tag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
+    # Optimization
+    # Due to the large amounts of content it is more performant to explicitly
+    # have relationships with each of the different pieces of content rather
+    # than just OWNS
     posts = RelationshipTo('sb_posts.neo_models.Post', 'OWNS_POST',
                            model=PostObjectCreated)
     questions = RelationshipTo('sb_questions.neo_models.Question',
@@ -315,6 +320,12 @@ class Pleb(Searchable):
                       (username, campaign_uuid), donation_amount)
         return donation_amount
 
+    def get_campaign(self):
+        query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Campaign) ' \
+                'RETURN c.object_uuid' % self.username
+        res, _ = db.cypher_query(query)
+        return res.one
+
     def update_campaign(self):
         query = 'MATCH (p:Pleb {username:"%s"})-[:IS_WAGING]->' \
                 '(c:Campaign) SET c.first_name="%s", c.last_name="%s"' % \
@@ -322,8 +333,23 @@ class Pleb(Searchable):
         res, _ = db.cypher_query(query)
         return True
 
+    def get_official_phone(self):
+        query = 'MATCH (p:Pleb {username:"%s"})-[:IS_AUTHORIZED_AS]->' \
+                '(o:PublicOfficial) RETURN o.gov_phone' % self.username
+        res, _ = db.cypher_query(query)
+        return res.one
+
     def deactivate(self):
         pass
+
+    def get_address(self):
+        query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->(a:Address) ' \
+                'RETURN a' % self.username
+        res, _ = db.cypher_query(query)
+        try:
+            return Address.inflate(res.one)
+        except AttributeError:
+            return None
 
     def is_beta_user(self):
         is_beta_user = cache.get("%s_is_beta" % self.username)
@@ -425,8 +451,11 @@ class Pleb(Searchable):
                 for tag in rep_res['tag_list']:
                     tags[tag] = rep_res['rep_per_tag']
             rep_list.append(rep_res)
+        if total_rep < 0:
+            total_rep = 0
         self.reputation = total_rep
         self.save()
+        cache.set(self.username, self)
         return {"rep_list": rep_list,
                 "base_tags": base_tags,
                 "tags": tags,
@@ -538,6 +567,21 @@ class Pleb(Searchable):
                 '(d:`Donation`) RETURN d.object_uuid' % (self.username)
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
+
+    def is_authorized_as(self):
+        from sb_public_official.neo_models import PublicOfficial
+        official = cache.get("%s_official" % self.username)
+        if official is None:
+            query = 'MATCH (p:Pleb {username: "%s"})-[r:IS_AUTHORIZED_AS]->' \
+                    '(o:PublicOfficial) WHERE r.active=true RETURN o' \
+                    % self.username
+            res, _ = db.cypher_query(query)
+            try:
+                official = PublicOfficial.inflate(res[0][0])
+                cache.set("%s_official" % self.username, official)
+            except IndexError:
+                official = None
+        return official
 
 
 class Address(SBObject):

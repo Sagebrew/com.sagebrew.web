@@ -39,8 +39,10 @@ class UpdateListCreate(generics.ListCreateAPIView):
             associated_goals=self.request.data.get('goals', []))
 
     def create(self, request, *args, **kwargs):
-        if not (request.user.username in Campaign.get_editors
-                (self.kwargs[self.lookup_field])):
+        if not (request.user.username in
+                Campaign.get_editors(self.kwargs[self.lookup_field])
+                or request.user.username in
+                Campaign.get_accountants(self.kwargs[self.lookup_field])):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "You are not authorized to access "
                                        "this page."},

@@ -4,21 +4,25 @@ from uuid import uuid1
 
 from django.conf import settings
 
-from neomodel import (StructuredNode, StringProperty, DateTimeProperty, db)
+from neomodel import (StructuredNode, StringProperty, IntegerProperty,
+                      DateTimeProperty, db)
 
 
 def get_current_time():
     return datetime.now(pytz.utc)
 
 
-class SBObject(StructuredNode):
-    __abstract_node__ = True
+def get_current_long_time():
+    return int(datetime.now(pytz.utc).strftime("%s")) * 1000
 
+
+class SBObject(StructuredNode):
     object_uuid = StringProperty(default=uuid1, unique_index=True)
     created = DateTimeProperty(default=get_current_time)
+    timestamp = IntegerProperty(default=get_current_long_time)
 
     def get_labels(self):
-        query = 'START n=node(%d) RETURN DISTINCT labels(n)' % (self._id)
+        query = 'MATCH n WHERE id(n)=%d RETURN DISTINCT labels(n)' % self._id
         res, col = db.cypher_query(query)
         return res[0][0]
 

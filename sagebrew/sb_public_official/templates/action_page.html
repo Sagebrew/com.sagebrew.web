@@ -16,23 +16,32 @@
     {% endif %}
 {% include "action_nav.html" %}
 <div class="row sb_wall sb_action_wall">
+    {% if "moderators" not in request.path %}
     <div class="col-lg-8 col-md-8 col-sm-12 col-xs-12">
-        {% if "updates" in request.path %}
-            {% if active == True %}
-                {% include "updates.html" %}
-            {% else %}
-                {% include "updates_disabled.html" %}
-            {% endif %}
-        {% else %}
+    {% else %}
+    <div class="col-xs-12">
+    {% endif %}
+        {% if "updates" not in request.path and "statistics" not in request.path and "moderators" not in request.path %}
             {% if active == True %}
                 {% include "saga.html" %}
             {% else %}
                 {% include "saga_disabled.html" %}
             {% endif %}
+        {% elif "updates" in request.path %}
+            {% if active == True %}
+                {% include "updates.html" %}
+            {% else %}
+                {% include "updates_disabled.html" %}
+            {% endif %}
+        {% elif "statistics" in request.path and active == True %}
+            {% include "sb_quest_chart.html" %}
+        {% elif "moderators" in request.path %}
+            {% include 'add_campaign_helpers.html' %}
         {% endif %}
     </div>
+    {% if "moderators" not in request.path %}
     <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-        <h5>Goals{% if id == request.user.username %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="manage_goals" style="margin-top: -5px;"><span class="fa fa-edit"></span></button>{% endif %}</h5>
+        <h5>Goals{% if is_editor or is_accountant %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="manage_goals" style="margin-top: -5px;"><span class="fa fa-edit"></span></button>{% endif %}</h5>
         {% if active == True %}
             <div id="active_round" data-object_uuid="{{ active_round }}"></div>
             <div id="goal_wrapper"></div>
@@ -43,6 +52,7 @@
             {% include "goals_block_disabled.html" %}
         {% endif %}
     </div>
+    {% endif %}
 </div>
 </div>
 {% endblock %}
@@ -53,17 +63,29 @@
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
     {% if active or request.user.username == id %}
-        <script src="{% static 'js/get_goals.js' %}"></script>
+        {% if "moderators" not in request.path %}
+            <script src="{% static 'js/get_goals.js' %}"></script>
+        {% endif %}
         <script src="{% static 'js/get_updates.js' %}"></script>
         <script src="{% static 'js/create_donations.js' %}"></script>
         <script src="{% static 'js/donation_validator.js' %}"></script>
         <script src="{% static 'js/pledge_vote.js' %}"></script>
     {% endif %}
-    {% if request.user.username == id %}
+    {% if is_accountant %}
+        <script src="{% static 'js/vendor/highcharts.js' %}"></script>
+        <script src="{% static 'js/get_charts.js' %}"></script>
+        <script src="{% static 'js/get_donation_csv.js' %}"></script>
+    {% endif %}
+    {% if is_editor or is_accountant %}
         <script src="{% static 'js/croppic.min.js' %}"></script>
         <script src="{% static 'js/uuid.js' %}"></script>
         <script src="{% static 'js/edit_quest.js' %}"></script>
         <script src="{% static 'js/quest_profile_pic.js' %}"></script>
         <script src="{% static 'js/quest_wallpaper_pic.js' %}"></script>
+    {% endif %}
+    {% if request.user.username == id %}
+        {% if "moderators" in request.path %}
+            <script src="{% static 'js/get_possible_helpers.js' %}"></script>
+        {% endif %}
     {% endif %}
 {% endblock scripts %}

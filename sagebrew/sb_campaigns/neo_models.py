@@ -290,6 +290,40 @@ class Campaign(Searchable):
         res, _ = db.cypher_query(query)
         return res.one
 
+    @classmethod
+    def get_donations(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-' \
+                '[:RECEIVED_DONATION]->(d:Donation) RETURN d' % object_uuid
+        res, _ = db.cypher_query(query)
+        return [donation[0] for donation in res]
+
+    @classmethod
+    def get_possible_helpers(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:WAGED_BY]->(p:Pleb)-' \
+                '[:FRIENDS_WITH {currently_friends: true}]->' \
+                '(b:Pleb) WHERE NOT (c)-[:CAN_BE_EDITED_BY]->(b) XOR ' \
+                '(c)-[:CAN_VIEW_MONETARY_DATA]->(b) RETURN b.username' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        return [row[0] for row in res]
+
+    @classmethod
+    def get_target_goal_donation_requirement(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
+                '(r:Round)-[:STRIVING_FOR]->(g:Goal {target:true}) ' \
+                'RETURN g.total_required' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    @classmethod
+    def get_target_goal_pledge_vote_requirement(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
+                '(r:Round)-[:STRIVING_FOR]->(g:Goal {target:true}) ' \
+                'RETURN g.pledged_vote_requirement' % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
 
 class PoliticalCampaign(Campaign):
     """
@@ -363,6 +397,14 @@ class PoliticalCampaign(Campaign):
             rel.active = True
         rel.save()
         return rel.active
+
+    def get_pledged_votes(self):
+        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
+                '[r:RECEIVED_PLEDGED_VOTE]->(:Pleb) RETURN r ' \
+                'ORDER BY r.created' \
+                % self.object_uuid
+        res, _ = db.cypher_query(query)
+        return [VoteRelationship.inflate(row[0]) for row in res]
 
 
 class Position(SBObject):

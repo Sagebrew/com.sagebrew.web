@@ -11,6 +11,7 @@ from plebs.neo_models import Pleb
 from sb_updates.neo_models import Update
 from sb_goals.neo_models import Goal, Round
 from sb_registration.utils import create_user_util_test
+from sb_donations.neo_models import Donation
 
 from sb_campaigns.neo_models import PoliticalCampaign, Position
 
@@ -662,7 +663,6 @@ class CampaignEndpointTests(APITestCase):
             'vote_type': 1
         }
         response = self.client.post(url, data=data, format='json')
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['detail'])
 
@@ -712,6 +712,7 @@ class CampaignEndpointTests(APITestCase):
     def test_goals_create_unauthorized(self):
         self.campaign.editors.disconnect(self.pleb)
         self.campaign.owned_by.disconnect(self.pleb)
+        self.campaign.accountants.disconnect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('goal-list',
                       kwargs={'object_uuid': self.campaign.object_uuid})
@@ -744,6 +745,26 @@ class CampaignEndpointTests(APITestCase):
 
         self.assertEqual(response.data['title'], ['This field is required.'])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_donation_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-donation-data',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        response = self.client.get(url)
+
+        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
+
+    def test_donation_data_with_donations(self):
+        donation = Donation(amount=100, completed=False,
+                            owner_username=self.pleb.username).save()
+        self.campaign.donations.connect(donation)
+        donation.campaign.connect(self.campaign)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-donation-data',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        response = self.client.get(url)
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
 
     def test_donations(self):
         self.client.force_authenticate(user=self.user)

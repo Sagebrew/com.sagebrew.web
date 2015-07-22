@@ -1,6 +1,7 @@
 import stripe
 
 from django.conf import settings
+from django.template.loader import render_to_string
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -10,9 +11,11 @@ from neomodel import db
 from api.utils import gather_request_data, spawn_task
 from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
+from plebs.serializers import PlebExportSerializer
 from sb_campaigns.neo_models import Campaign
 from sb_goals.neo_models import Round
 from sb_goals.tasks import check_goal_completion_task
+from plebs.tasks import send_email_task
 
 from .neo_models import Donation
 
@@ -139,3 +142,53 @@ class DonationSerializer(SBSerializer):
                            kwargs={"object_uuid": campaign},
                            request=request)
         return campaign
+
+
+class DonationExportSerializer(serializers.Serializer):
+    completed = serializers.BooleanField(read_only=True)
+
+    amount = serializers.SerializerMethodField()
+    owned_by = serializers.SerializerMethodField()
+
+    def get_owned_by(self, obj):
+        return PlebExportSerializer(Pleb.get(obj.owner_username)).data
+
+    def get_amount(self, obj):
+        return float(obj.amount) / 100.0
+
+
+class SBDonationSerializer(DonationSerializer):
+    def validate_amount(self, value):
+        return value
+
+    def create(self, validated_data):
+        request, _, _, _, _ = gather_request_data(self.context)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        donor = Pleb.get(request.user.username)
+        token = validated_data.pop('token', None)
+        donation = Donation(owner_username=donor.username,
+                            **validated_data).save()
+        if not donor.stripe_customer_id:
+            customer = stripe.Customer.create(
+                description="Customer for %s" % donor.email,
+                card=token,
+                email=donor.email)
+            donor.stripe_customer_id = customer['id']
+            donor.save()
+        donor.donations.connect(donation)
+        donation.owned_by.connect(donor)
+        stripe.Charge.create(
+            amount=donation.amount,
+            currency="usd",
+            customer=donor.stripe_customer_id,
+            description="Donation to Sagebrew from %s" % donor.username
+        )
+        user_data = {
+            "source": "support@sagebrew.com",
+            "to": donor.email,
+            "subject": "Thank you for your Donation!",
+            "html_content": render_to_string(
+                "email_templates/email_sagebrew_donation_thanks.html")
+        }
+        spawn_task(send_email_task, user_data)
+        return donation

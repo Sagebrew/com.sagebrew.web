@@ -34,6 +34,8 @@ class UpdateListCreate(generics.ListCreateAPIView):
         return Update.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
     def perform_create(self, serializer):
+        # updates can only be attached to any of the currently active goals,
+        # completed or not
         serializer.save(
             campaign=Campaign.get(object_uuid=self.kwargs[self.lookup_field]),
             associated_goals=self.request.data.get('goals', []))

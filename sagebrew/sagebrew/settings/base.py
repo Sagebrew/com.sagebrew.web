@@ -194,6 +194,7 @@ INSTALLED_APPS = (
     'sb_comments',
     'sb_council',
     'sb_docstore',
+    'sb_donations',
     'sb_flags',
     'sb_locations',
     'sb_notifications',

@@ -36,7 +36,7 @@ $(document).ready(function () {
         });
     });
     $("#register-for-quest").click(function (event) {
-        window.location.href = "/registration/quest_info/";
+        window.location.href = "/quests/";
     });
     $("#delete_button").click(function (event) {
         event.preventDefault();

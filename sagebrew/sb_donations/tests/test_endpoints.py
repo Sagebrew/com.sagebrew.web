@@ -276,6 +276,7 @@ class TestSagebrewDonation(APITestCase):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         self.pleb.stripe_customer_id = None
         self.pleb.save()
+        cache.set(self.pleb.username, self.pleb)
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",

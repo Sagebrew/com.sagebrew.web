@@ -297,7 +297,7 @@ class Round(SBObject):
     def check_round_completion(self):
         """
         This util checks to see if every goal attached to the round is
-        completed. If all of the gaols are completed, it changes the current
+        completed. If all of the goals are completed, it changes the current
         round to inactive. It then checks if there is a round attached to
         the upcoming round that is queued, if there is then it move that round
         to the currently active round relationship with the campaign.

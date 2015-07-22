@@ -242,6 +242,15 @@ class Round(SBObject):
         return res.one
 
     def check_goal_completion(self):
+        """
+        This loops through all goals connected to the round to see if
+        they are now completed with the current donation total and pledge vote
+        and if they have an update, if all of these are true the goal is
+        labeled as completed and sets the goal attached to it via the next_goal
+        relationship to the current target goal. It then checks to see if the
+        round is completed.
+        :return:
+        """
         from sb_campaigns.neo_models import PoliticalCampaign
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:STRIVING_FOR]->' \
                 '(g:`Goal`) WITH r, g MATCH ' \
@@ -267,6 +276,7 @@ class Round(SBObject):
                 if total_donations >= goal_node.total_required \
                         and total_pledges >= goal_node.pledges_required \
                         and update_provided:
+                    # update must be provided for the goal to be completed
                     goal_node.completed = True
                     goal_node.completed_date = datetime.now(pytz.utc)
                     goal_node.save()
@@ -285,6 +295,14 @@ class Round(SBObject):
             return e
 
     def check_round_completion(self):
+        """
+        This util checks to see if every goal attached to the round is
+        completed. If all of the goals are completed, it changes the current
+        round to inactive. It then checks if there is a round attached to
+        the upcoming round that is queued, if there is then it move that round
+        to the currently active round relationship with the campaign.
+        :return:
+        """
         from sb_campaigns.neo_models import PoliticalCampaign
         query = 'MATCH (r:Round {object_uuid:"%s"})-[:STRIVING_FOR]->' \
                 '(g:Goal) WITH r, g MATCH (r)-[ASSOCIATED_WITH]->' \
@@ -304,7 +322,7 @@ class Round(SBObject):
                 campaign.active_round.connect(upcoming_round)
                 upcoming_round.active = True
                 upcoming_round.save()
-                new_round = Round().save()
+                new_round = Round().save()  # create new upcoming round
                 campaign.upcoming_round.connect(new_round)
                 new_round.campaign.connect(campaign)
         return True

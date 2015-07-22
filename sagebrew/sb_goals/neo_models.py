@@ -322,7 +322,7 @@ class Round(SBObject):
                 campaign.active_round.connect(upcoming_round)
                 upcoming_round.active = True
                 upcoming_round.save()
-                new_round = Round().save() # create new upcoming round
+                new_round = Round().save()  # create new upcoming round
                 campaign.upcoming_round.connect(new_round)
                 new_round.campaign.connect(campaign)
         return True

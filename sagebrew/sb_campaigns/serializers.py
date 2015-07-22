@@ -46,6 +46,7 @@ class CampaignSerializer(SBSerializer):
     rounds = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
     position = serializers.SerializerMethodField()
+    sub_plan = serializers.SerializerMethodField()
     is_editor = serializers.SerializerMethodField()
     reputation = serializers.SerializerMethodField()
     active_goals = serializers.SerializerMethodField()
@@ -55,6 +56,7 @@ class CampaignSerializer(SBSerializer):
     upcoming_round = serializers.SerializerMethodField()
     public_official = serializers.SerializerMethodField()
     completed_stripe = serializers.SerializerMethodField()
+    completed_customer = serializers.SerializerMethodField()
     total_donation_amount = serializers.SerializerMethodField()
     total_pledge_vote_amount = serializers.SerializerMethodField()
     target_goal_donation_requirement = serializers.SerializerMethodField()
@@ -95,9 +97,10 @@ class CampaignSerializer(SBSerializer):
     def update(self, instance, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe_token = validated_data.pop('stripe_token', None)
+        customer_token = validated_data.pop('customer_token', None)
         ein = validated_data.pop('ein', None)
         ssn = validated_data.pop('ssn', None)
-        instance.active = validated_data.get('active', instance.active)
+        instance.active = validated_data.pop('activate', instance.active)
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
         instance.youtube = validated_data.get('youtube', instance.youtube)
@@ -110,8 +113,17 @@ class CampaignSerializer(SBSerializer):
         instance.biography = validated_data.get('biography',
                                                 instance.biography)
         instance.epic = validated_data.get('epic', instance.epic)
+        owner = Pleb.get(username=instance.owner_username)
+        if customer_token is not None:
+            customer = stripe.Customer.create(
+                description="Customer for %s quest" % instance.object_uuid,
+                card=customer_token,
+                email=owner.email
+            )
+            instance.stripe_customer_id = customer['id']
+            sub = customer.subscriptions.create(plan='quest_premium')
+            instance.stripe_subscription_id = sub['id']
         if stripe_token is not None:
-            owner = Pleb.get(username=instance.owner_username)
             if owner.stripe_account is None:
                 stripe_res = stripe.Account.create(managed=True, country="US",
                                                    email=owner.email)
@@ -284,6 +296,16 @@ class CampaignSerializer(SBSerializer):
         request, _, _, _, _ = gather_request_data(self.context)
         return request.user.username in \
             PoliticalCampaign.get_accountants(obj.object_uuid)
+
+    def get_sub_plan(self, obj):
+        if obj.application_fee > 0.05:
+            return "free"
+        return "paid"
+
+    def get_completed_customer(self, obj):
+        if obj.stripe_customer_id is None:
+            return False
+        return True
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):

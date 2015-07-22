@@ -53,8 +53,11 @@ class CampaignViewSet(viewsets.ModelViewSet):
     def perform_update(self, serializer):
         serializer.save(stripe_token=self.request.data.get('stripe_token',
                                                            None),
+                        customer_token=self.request.data.get('customer_token',
+                                                             None),
                         ein=self.request.data.get('ein', None),
-                        ssn=self.request.data.get('ssn', None))
+                        ssn=self.request.data.get('ssn', None),
+                        activate=self.request.data.get('activate', None))
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated, IsOwnerOrEditor))

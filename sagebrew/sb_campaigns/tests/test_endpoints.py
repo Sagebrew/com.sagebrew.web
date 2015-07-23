@@ -688,14 +688,6 @@ class CampaignEndpointTests(APITestCase):
         self.assertEqual(response.data['results'], [])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_stripe_subscription_update(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        card_token = stripe.Card.create(
-
-        )
-
     def test_goals(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('goal-list',

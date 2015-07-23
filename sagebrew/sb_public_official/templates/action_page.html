@@ -86,6 +86,9 @@
     {% if request.user.username == id %}
         {% if "moderators" in request.path %}
             <script src="{% static 'js/get_possible_helpers.js' %}"></script>
+            {% if "updates" not in request.path and "statistics" not in request.path and "moderators" not in request.path %}
+                <script src="{% static 'js/event_quest_intercom.js' %}"></script>
+            {% endif %}
         {% endif %}
     {% endif %}
 {% endblock scripts %}

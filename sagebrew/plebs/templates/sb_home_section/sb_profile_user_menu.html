@@ -13,32 +13,32 @@
             <li>
                 <a {% if 'friends' not in request.path and 'about' not in request.path and 'reputation' not in request.path and 'feed' not in request.path and 'quest' not in request.path %}class="active"{% endif %} href="{% url 'profile_page' page_user.username %}">Profile</a>
             </li>
-                {% if debug == True %}
-                    {% comment %}
-                        # TODO BETA ADD IN feature
-                    {% endcomment %}
-                    <li>
-                        <a href='#'>
-                            About</a>
-                    </li>
-                    <li>
-                        <a href='#'>
-                            Reputation</a>
-                    </li>
-                    {% if page_profile.campaign %}
-                        <li>
-                            <a href="{% url 'quest_saga' page_user.username %}">Quest</a>
-                        </li>
-                    {% endif %}
-                    {% if request.user.username == 'tyler_wiersing' or request.user.username == 'devon_bleibtrey' %}
-                        <li>
-                            <a href="{% url 'council_page' %}">Council</a>
-                        </li>
-                    {% endif %}
-                {% endif %}
-                    <li>
-                           <a {% if 'friends' in request.path %}class="active"{% endif %} href="{% url 'friend_page' page_user.username %}">Friends</a>
-                    </li>
+            {% if debug == True %}
+                {% comment %}
+                    # TODO BETA ADD IN feature
+                {% endcomment %}
+                <li>
+                    <a href='#'>
+                        About</a>
+                </li>
+                <li>
+                    <a href='#'>
+                        Reputation</a>
+                </li>
+            {% endif %}
+            <li>
+                   <a {% if 'friends' in request.path %}class="active"{% endif %} href="{% url 'friend_page' page_user.username %}">Friends</a>
+            </li>
+            {% if page_profile.campaign %}
+                <li>
+                    <a href="{% url 'quest_saga' page_user.username %}">Quest</a>
+                </li>
+            {% endif %}
+            {% if request.user.username == 'tyler_wiersing' or request.user.username == 'devon_bleibtrey' %}
+                <li>
+                    <a href="{% url 'council_page' %}">Council</a>
+                </li>
+            {% endif %}
         </ul>
     {% elif not is_friend and page_user.username != request.user.username %}
         <div class="sb_friend_btn_wrapper">

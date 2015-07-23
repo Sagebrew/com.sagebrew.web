@@ -50,6 +50,10 @@
                   {
                       "resource": "vote",
                       "permission": "upvote"
+                  },
+                  {
+                      "resource": "intercom",
+                      "permission": "write"
                   }
               ],
               "requirements": [

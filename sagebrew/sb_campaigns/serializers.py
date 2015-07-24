@@ -46,7 +46,6 @@ class CampaignSerializer(SBSerializer):
     rounds = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
     position = serializers.SerializerMethodField()
-    sub_plan = serializers.SerializerMethodField()
     is_editor = serializers.SerializerMethodField()
     reputation = serializers.SerializerMethodField()
     active_goals = serializers.SerializerMethodField()
@@ -300,11 +299,6 @@ class CampaignSerializer(SBSerializer):
             return None
         return request.user.username in \
             PoliticalCampaign.get_accountants(obj.object_uuid)
-
-    def get_sub_plan(self, obj):
-        if obj.application_fee > 0.05:
-            return "free"
-        return "paid"
 
     def get_completed_customer(self, obj):
         if obj.stripe_customer_id is None:

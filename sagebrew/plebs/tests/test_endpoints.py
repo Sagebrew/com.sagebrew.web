@@ -2512,7 +2512,6 @@ class NewsfeedTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
-        print response.data
         self.assertEqual(response.data['count'], 3)
 
     def test_get_multiple_objects_ordering(self):

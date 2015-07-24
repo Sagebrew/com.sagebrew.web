@@ -10,6 +10,9 @@ class Post(SBPrivateContent):
     table = StringProperty(default='posts')
     action_name = StringProperty(default="posted on your wall")
 
+    # optimizations
+    wall_owner_username = StringProperty()
+
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.Wall', 'POSTED_ON')
 
@@ -19,6 +22,9 @@ class Post(SBPrivateContent):
         }, request=request)
 
     def get_wall_owner_profile(self):
+        if (self.wall_owner_username is not None and
+                self.wall_owner_username != ""):
+            return Pleb.get(self.wall_owner_username)
         query = "MATCH (a:Post {object_uuid: '%s'})-[:POSTED_ON]->(b:Wall)-" \
                 "[:IS_OWNED_BY]->(c:Pleb) RETURN c" % self.object_uuid
         res, col = db.cypher_query(query)

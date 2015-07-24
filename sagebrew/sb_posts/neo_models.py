@@ -22,10 +22,4 @@ class Post(SBPrivateContent):
         }, request=request)
 
     def get_wall_owner_profile(self):
-        if (self.wall_owner_username is not None and
-                self.wall_owner_username != ""):
-            return Pleb.get(self.wall_owner_username)
-        query = "MATCH (a:Post {object_uuid: '%s'})-[:POSTED_ON]->(b:Wall)-" \
-                "[:IS_OWNED_BY]->(c:Pleb) RETURN c" % self.object_uuid
-        res, col = db.cypher_query(query)
-        return Pleb.inflate(res.one)
+        return Pleb.get(self.wall_owner_username)

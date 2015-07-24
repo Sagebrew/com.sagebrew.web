@@ -617,7 +617,6 @@ class MeViewSet(mixins.UpdateModelMixin,
                 if html == "true":
                     news_article['last_edited_on'] = parser.parse(
                         news_article['last_edited_on'])
-                    logger.critical(news_article['wall_owner_profile'])
                     article_html = render_to_string(
                         'post_news.html', RequestContext(request, news_article))
             elif row.campaigns is not None:

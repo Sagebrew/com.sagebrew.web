@@ -9,7 +9,6 @@ from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from plebs.tasks import send_email_task
 from sb_donations.neo_models import Donation
-from sb_donations.serializers import DonationSerializer
 
 from .neo_models import Campaign
 
@@ -18,6 +17,7 @@ logger = getLogger('loggly_logs')
 
 
 def release_funds(goal_uuid):
+    from sb_donations.serializers import DonationSerializer
     try:
         stripe.api_key = settings.STRIPE_SECRET_KEY
         query = 'MATCH (g:Goal {object_uuid:"%s"})-[:RECEIVED]-(d:Donation), ' \

@@ -1,13 +1,17 @@
 import stripe
 
 from django.conf import settings
+from django.template.loader import render_to_string
 
 from neomodel import (db, DoesNotExist)
 
-from .neo_models import Campaign
-
+from api.utils import spawn_task
 from plebs.neo_models import Pleb
+from plebs.tasks import send_email_task
 from sb_donations.neo_models import Donation
+from sb_donations.serializers import DonationSerializer
+
+from .neo_models import Campaign
 
 from logging import getLogger
 logger = getLogger('loggly_logs')
@@ -40,6 +44,17 @@ def release_funds(goal_uuid):
             )
             donation_node.completed = True
             donation_node.save()
+            serialized_donation = DonationSerializer(donation_node).data
+            serialized_donation['first_name'] = campaign.first_name
+            serialized_donation['last_name'] = campaign.last_name
+            email_data = {
+                "to": donor.email, "subject": "Donation Release",
+                "source": "support@sagebrew.com",
+                "html_content": render_to_string(
+                    "email_templates/email_donation_release.html",
+                    serialized_donation)
+            }
+            spawn_task(send_email_task, email_data)
         return True
     except (stripe.CardError, stripe.APIConnectionError, stripe.StripeError) \
             as e:

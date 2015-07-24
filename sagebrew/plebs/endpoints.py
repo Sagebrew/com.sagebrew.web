@@ -612,10 +612,12 @@ class MeViewSet(mixins.UpdateModelMixin,
                             request, news_article))
             elif row.posts is not None:
                 news_article = PostSerializerNeo(
-                    Post.inflate(row.posts), context={'request': request}).data
+                    Post.inflate(row.posts),
+                    context={'request': request, 'force_expand': True}).data
                 if html == "true":
                     news_article['last_edited_on'] = parser.parse(
                         news_article['last_edited_on'])
+                    logger.critical(news_article['wall_owner_profile'])
                     article_html = render_to_string(
                         'post_news.html', RequestContext(request, news_article))
             elif row.campaigns is not None:

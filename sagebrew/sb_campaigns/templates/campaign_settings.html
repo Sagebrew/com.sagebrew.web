@@ -34,6 +34,8 @@
                         <div id="campaign_id" data-object_uuid="{{ campaign.id }}" style="display: none"></div>
                         <div id="stripe_key" data-key="{{ campaign.stripe_key }}" style="display: none"></div>
                         <div id="completed-stripe" data-completed_stripe="{{ campaign.completed_stripe }}"></div>
+                        <div id="js-completed_customer" class="sb_hidden" data-completed_customer="{{ campaign.completed_customer }}"></div>
+                        <div id="js-active" class="sb_hidden" data-active="{{ campaign.active }}"></div>
                             {% if not campaign.completed_stripe %}
                                 <div class="row">
                                     <div class="col-lg-12">
@@ -190,7 +192,7 @@
                                         Here you may take your Sagebrew Quest live for the world to see.
                                     </p>
                                     <button class="btn btn-primary"
-                                            id="delete_account"
+                                            type="button"
                                             data-toggle="modal"
                                             data-target="#liveModal">Take Quest Live</button>
                                 </div>
@@ -207,10 +209,15 @@
                                         By continuing you are beginning your Sagebrew Quest! After it is live you will be able
                                           to start collecting donations and pledged votes from your supporters.
 
+
+
                                           Please note that if you wish to make any changes to a set of goals that you have queued please do so
                                           before taking your Quest live as you will not be able to edit them after.
 
-                                          You must also have a bank account set up, we will prompt you to set this up should it not be done already.
+
+
+                                          You must also have a bank account set up, we will prompt you to set this up should it not be done already. Also, if you are
+                                          part of our paid plan you will also need a credit card on file
                                       </div>
                                       <div class="modal-footer">
                                         <div class="col-md-6 col-md-offset-3">
@@ -305,6 +312,7 @@
     {{ block.super }}
     <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
     <script src="{% static 'js/submit_quest_settings.js' %}"></script>
     <script src="{% static 'js/campaign_settings_validator.js' %}"></script>
 {% endblock scripts %}

@@ -2488,7 +2488,8 @@ class NewsfeedTests(APITestCase):
 
     def test_get_multiple_objects(self):
         post = Post(content="Hey I'm a post",
-                    owner_username=self.pleb.username).save()
+                    owner_username=self.pleb.username,
+                    wall_owner_username=self.pleb.username).save()
         post.owned_by.connect(self.pleb)
         post.posted_on_wall.connect(self.pleb.get_wall())
         self.pleb.get_wall().posts.connect(post)
@@ -2508,10 +2509,10 @@ class NewsfeedTests(APITestCase):
         question.solutions.connect(solution)
         solution.solution_to.connect(question)
         self.pleb.solutions.connect(solution)
-
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
+        print response.data
         self.assertEqual(response.data['count'], 3)
 
     def test_get_multiple_objects_ordering(self):

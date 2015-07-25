@@ -36,7 +36,7 @@ $(document).ready(function () {
             name: "Sagebrew LLC",
             description: "Quest Donation",
             amount: $(this).data("amount") * 100,
-            panelLabel: "Donate {{amount}}"
+            panelLabel: "Pledge {{amount}}"
         });
     });
     $("#custom-donation-btn").click(function (event) {
@@ -44,9 +44,9 @@ $(document).ready(function () {
         donationAmount = $("#custom-donation").val() * 100;
         handler.open({
             name: "Sagebrew LLC",
-            description: "Direct Donation",
+            description: "Quest Donation",
             amount: $("#custom-donation").val() * 100,
-            panelLabel: "Donate {{amount}}"
+            panelLabel: "Pledge {{amount}}"
         });
     });
     $(window).on('popstate', function () {

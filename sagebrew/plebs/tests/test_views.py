@@ -52,7 +52,8 @@ class ProfilePageTest(TestCase):
 
     def test_with_post(self):
         test_post = Post(content='test', object_uuid=str(uuid1()),
-                         owner_username=self.pleb.username)
+                         owner_username=self.pleb.username,
+                         wall_owner_username=self.pleb.username)
         test_post.save()
         wall = self.pleb.get_wall()
         test_post.posted_on_wall.connect(wall)
@@ -70,7 +71,8 @@ class ProfilePageTest(TestCase):
 
     def test_post_with_comments(self):
         test_post = Post(content='test', object_uuid=str(uuid1()),
-                         owner_username=self.pleb.username)
+                         owner_username=self.pleb.username,
+                         wall_owner_username=self.pleb.username)
         test_post.save()
         wall = self.pleb.get_wall()
         test_post.posted_on_wall.connect(wall)
@@ -100,7 +102,8 @@ class ProfilePageTest(TestCase):
         test_user = Pleb(email=str(uuid1()) + '@gmail.com')
         test_user.save()
         test_post = Post(content='test', object_uuid=str(uuid1()),
-                         owner_username=self.pleb.username)
+                         owner_username=self.pleb.username,
+                         wall_owner_username=self.pleb.username)
         test_post.save()
         wall = self.pleb.wall.all()[0]
         test_post.posted_on_wall.connect(wall)
@@ -148,7 +151,8 @@ class ProfilePageTest(TestCase):
         wall = self.pleb.get_wall()
         for item in range(0, 50):
             test_post = Post(content='test', object_uuid=str(uuid1()),
-                             owner_username=self.pleb.username)
+                             owner_username=self.pleb.username,
+                             wall_owner_username=self.pleb.username)
             test_post.save()
             test_post.posted_on_wall.connect(wall)
             wall.posts.connect(test_post)
@@ -177,7 +181,8 @@ class ProfilePageTest(TestCase):
             pleb_array.append(test_pleb)
             for number in range(0, 10):
                 test_post = Post(content='test', object_uuid=str(uuid1()),
-                                 owner_username=self.pleb.username)
+                                 owner_username=self.pleb.username,
+                                 wall_owner_username=self.pleb.username)
                 test_post.save()
                 test_post.posted_on_wall.connect(wall)
                 wall.posts.connect(test_post)
@@ -187,7 +192,8 @@ class ProfilePageTest(TestCase):
                 rel_from_pleb.save()
                 post_array.append(test_post)
         test_post = Post(content='test', object_uuid=str(uuid1()),
-                         owner_username=self.pleb.username)
+                         owner_username=self.pleb.username,
+                         wall_owner_username=self.pleb.username)
         test_post.save()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
@@ -217,7 +223,8 @@ class ProfilePageTest(TestCase):
             pleb_array.append(test_pleb)
             for number in range(0, 10):
                 test_post = Post(content='test', object_uuid=str(uuid1()),
-                                 owner_username=self.pleb.username)
+                                 owner_username=self.pleb.username,
+                                 wall_owner_username=self.pleb.username)
                 test_post.save()
                 test_post.posted_on_wall.connect(wall)
                 wall.posts.connect(test_post)
@@ -250,7 +257,8 @@ class ProfilePageTest(TestCase):
                     rel_from_post.save()
                     comment_array.append(my_comment)
         test_post = Post(content='test', object_uuid=str(uuid1()),
-                         owner_username=self.pleb.username)
+                         owner_username=self.pleb.username,
+                         wall_owner_username=self.pleb.username)
         test_post.save()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)

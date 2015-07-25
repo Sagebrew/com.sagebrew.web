@@ -1,6 +1,6 @@
 from rest_framework.reverse import reverse
 
-from neomodel import (RelationshipTo, StringProperty, db)
+from neomodel import (RelationshipTo, StringProperty)
 
 from sb_base.neo_models import SBPrivateContent
 from plebs.neo_models import Pleb

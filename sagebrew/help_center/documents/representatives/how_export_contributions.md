@@ -1,5 +1,6 @@
 # I need to file the contributions to my campaign #
 
 On your Dashboard you'll be able to export a list of
-your contributions to Microsoft Excel. The "Export Contributions"
-button will be under your "Contributions" tab.
+your contributions to a CSV which can be opened using Microsoft Excel or an 
+alternative spreadsheet tool. The "Export Contributions"
+button will be under your Quest's "Insight" tab.

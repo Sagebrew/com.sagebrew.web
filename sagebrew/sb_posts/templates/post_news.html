@@ -15,7 +15,7 @@
                    {% if wall_owner_profile.username == profile.username %}
                        <small><a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> created a spark</small>
                    {% else %}
-                       <small><a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> created a spark on <a href="{{ wall_owner_profile.url }}">{{ wall_owner_profile.first_name }} {{ wall_owner_profile.last_name }}'s wall</a></small>
+                       <small><a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> created a spark on <a href="{{ wall_owner_profile.url }}">{{ wall_owner_profile.first_name }} {{ wall_owner_profile.last_name }}'s</a> wall</small>
                    {% endif %}
                </div>
             </div>

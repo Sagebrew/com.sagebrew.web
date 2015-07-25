@@ -61,7 +61,7 @@ $(document).ready(function () {
         });
     });
     $("#register-for-quest").click(function (event) {
-        window.location.href = "/quests/";
+        window.location.href = "/quest/";
     });
     $("#delete_button").click(function (event) {
         event.preventDefault();

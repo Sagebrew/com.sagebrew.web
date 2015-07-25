@@ -17,7 +17,7 @@
                                     <textarea class="form-control"
                                               id="epic_content_id"
                                               name="epic_content"
-                                              rows="10">{{ epic }}</textarea>
+                                              rows="10">{{ epic|default_if_none:"" }}</textarea>
                                 </div>
                             </div>
                             <div id="validation-errors"></div>

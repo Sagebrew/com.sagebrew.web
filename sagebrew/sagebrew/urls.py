@@ -56,7 +56,7 @@ urlpatterns = patterns(
     (r'^council/', include('sb_council.urls')),
     (r'^updates/', include('sb_updates.urls')),
     url(r'^signup/$', signup_view, name="signup"),
-    url(r'^quests/$', quest_signup, name='quest_info'),
+    url(r'^quest/$', quest_signup, name='quest_info'),
     (r'^v1/', include('sb_questions.apis.v1')),
     (r'^v1/', include('sb_solutions.apis.v1')),
     (r'^v1/', include('sb_oauth.apis.v1')),

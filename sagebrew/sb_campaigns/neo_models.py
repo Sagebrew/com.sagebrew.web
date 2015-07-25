@@ -55,6 +55,8 @@ class Campaign(Searchable):
     # This is only an index so that users don't have to assign it immediately
     # as they may not have it until after they've signed up.
     stripe_id = StringProperty(index=True, default="Not Set")
+    stripe_customer_id = StringProperty()
+    stripe_subscription_id = StringProperty()
     # Whether the account is in active or test/prep mode, once taken active
     # an account cannot be taken offline until the end of a campaign
     active = BooleanProperty(default=False)

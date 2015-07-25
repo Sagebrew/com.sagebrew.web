@@ -11,7 +11,7 @@ $(document).ready(function(){
             accountNumber: $('.account_number').val()
         }, stripeBankHandler);
         return false;
-    })
+    });
 });
 
 function stripeBankHandler(status, response) {
@@ -22,7 +22,7 @@ function stripeBankHandler(status, response) {
     } else {
         var token = response.id;
         $form.append($('<input type="hidden" name="stripeBankToken"/>').val(token));
-        $form.get(0).submit()
+        $form.get(0).submit();
     }
 }
 

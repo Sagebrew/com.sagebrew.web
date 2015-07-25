@@ -1,6 +1,6 @@
 /*global $, jQuery, ajaxSecurity, errorDisplay, Stripe, StripeCheckout*/
 $(document).ready(function () {
-
+    'use strict';
     var donationAmount = 0,
         stripeKey = $("#stripe-publishable").data("stripe_key"),
         handler = StripeCheckout.configure({
@@ -18,12 +18,11 @@ $(document).ready(function () {
                     }),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                    success: function (data) {
+                    success: function () {
                         $("#donationModal").modal("hide");
                         $.notify("Successfully Created Donation", {type: 'success'});
-
                     },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    error: function (XMLHttpRequest) {
                         $(this).removeAttr("disabled");
                         errorDisplay(XMLHttpRequest);
                     }
@@ -37,7 +36,7 @@ $(document).ready(function () {
             name: "Sagebrew LLC",
             description: "Quest Donation",
             amount: $(this).data("amount") * 100,
-            panelLabel: "Pledge {{amount}}"
+            panelLabel: "Donate {{amount}}"
         });
     });
     $("#custom-donation-btn").click(function (event) {
@@ -45,9 +44,9 @@ $(document).ready(function () {
         donationAmount = $("#custom-donation").val() * 100;
         handler.open({
             name: "Sagebrew LLC",
-            description: "Quest Donation",
+            description: "Direct Donation",
             amount: $("#custom-donation").val() * 100,
-            panelLabel: "Pledge {{amount}}"
+            panelLabel: "Donate {{amount}}"
         });
     });
     $(window).on('popstate', function () {

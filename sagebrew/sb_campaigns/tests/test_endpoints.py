@@ -1,5 +1,7 @@
+import stripe
 from uuid import uuid1
 
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 
@@ -37,6 +39,8 @@ class CampaignEndpointTests(APITestCase):
         self.pleb.campaign_accountant.connect(self.campaign)
         self.pleb.campaign_editor.connect(self.campaign)
         cache.clear()
+        self.stripe = stripe
+        self.stripe.api_key = settings.STRIPE_SECRET_KEY
 
     def test_unauthorized(self):
         url = reverse('campaign-list')

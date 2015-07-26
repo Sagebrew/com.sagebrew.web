@@ -165,7 +165,8 @@ def contribute_settings(request):
     :param request:
     :return:
     """
-    return render(request, 'contribute_settings.html')
+    return render(request, 'contribute_settings.html',
+                  {"stripe_key": settings.STRIPE_PUBLIC_KEY})
 
 
 @api_view(['GET'])

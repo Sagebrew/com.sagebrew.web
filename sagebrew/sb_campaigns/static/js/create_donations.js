@@ -1,6 +1,6 @@
 /*global $, jQuery, ajaxSecurity, errorDisplay, Stripe, StripeCheckout*/
 $(document).ready(function () {
-
+    'use strict';
     var donationAmount = 0,
         stripeKey = $("#stripe-publishable").data("stripe_key"),
         handler = StripeCheckout.configure({
@@ -18,12 +18,11 @@ $(document).ready(function () {
                     }),
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                    success: function (data) {
+                    success: function () {
                         $("#donationModal").modal("hide");
                         $.notify("Successfully Created Donation", {type: 'success'});
-
                     },
-                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    error: function (XMLHttpRequest) {
                         $(this).removeAttr("disabled");
                         errorDisplay(XMLHttpRequest);
                     }

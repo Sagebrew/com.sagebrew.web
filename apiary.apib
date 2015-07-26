@@ -166,7 +166,7 @@ The profile detail endpoint can be used to retrieve a singular profile.
             }
 
 ## Me [/me/] ##
-The me endpoint can be used to access the profile that is currently authenticated.
+The me endpoint is used to access the profile that is currently authenticated.
 
 ### Retrieve Logged In Profile [GET] ###
 + Response 200 (application/json)
@@ -200,6 +200,11 @@ The me endpoint can be used to access the profile that is currently authenticate
 
 
 ## Profile's Friend Requests [/me/friend_requests/] ##
+This provides access to all of the unhandled friend requests that have been sent
+to the currently authenticated user. These include requests they've seen but not
+responded to and ones they have yet to see. This is distinguished by `seen` key
+which shall be `True` if they have already viewed the request but not done anything
+and `False` if they have yet to see it.
 ### Retrieve Friend Requests [GET] ###
 + Response 200 (application/json)
 
@@ -209,7 +214,158 @@ The me endpoint can be used to access the profile that is currently authenticate
 
     + Body
 
-            {}
+            {
+                "count": 1,
+                "next": null,
+                "previous": null,
+                "results": [
+                    {
+                        "id": "28796d8c-33a9-11e5-93f6-080027a2dd8c",
+                        "type": "friend_request",
+                        "created": "2015-07-26T15:15:32.661206Z",
+                        "seen": false,
+                        "time_sent": "2015-07-26T15:15:32.661254Z",
+                        "time_seen": null,
+                        "response": null,
+                        "from_user": {
+                            "id": "jack_sage",
+                            "type": "profile",
+                            "created": "2015-07-24T01:24:10.263953Z",
+                            "first_name": "Jack",
+                            "last_name": "Sage",
+                            "username": "jack_sage",
+                            "href": "/v1/profiles/jack_sage/",
+                            "profile_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/jack_sage.jpeg",
+                            "wallpaper_pic": null,
+                            "reputation": 0,
+                            "privileges": [
+                                "base_privilege"
+                            ],
+                            "donations": [],
+                            "actions": [
+                                "question",
+                                "solution",
+                                "post"
+                            ],
+                            "url": "/user/jack_sage/",
+                            "campaign": null
+                        },
+                        "to_user": {
+                            "id": "devon_sage",
+                            "type": "profile",
+                            "created": "2015-07-03T19:33:37.944944Z",
+                            "first_name": "Devon",
+                            "last_name": "Sage",
+                            "username": "devon_sage",
+                            "href": "/v1/profiles/devon_sage/",
+                            "profile_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/devon_sage.jpeg",
+                            "wallpaper_pic": "https://sagebrew-dev.s3.amazonaws.com/profile_pictures/devon_background.jpeg",
+                            "reputation": 0,
+                            "privileges": [
+                                "base_privilege",
+                                "beta_user"
+                            ],
+                            "donations": [
+                                "94cd5b3e-21ba-11e5-93f5-080027a2dd8c",
+                                "94c565be-21ba-11e5-93f5-080027a2dd8c",
+                                "94be82ee-21ba-11e5-93f5-080027a2dd8c"
+                            ],
+                            "actions": [
+                                "post",
+                                "solution",
+                                "question",
+                                "intercom"
+                            ],
+                            "url": "/user/devon_sage/",
+                            "campaign": "devon_sage"
+                        }
+                    }
+                ]
+            }
+
+
+## Profile's Friend Requests Accept [/me/friend_requests/{id}/accept/] ##
+This endpoint requires an existing Friend Request id to be included in the URL and
+passed via a POST request. It is used to indicate the authenticated user has 
+accepted the given friend request and creates a Friend relationship between the
+two users. It will also result in removing the Friend Request from the system so
+that it will no longer appear in the user's Friend Request list.
+
+### Accept Friend Requests [POST] ###
++ request_id (string) - Identifier of the request that is being accepted
++ Request (application/json)
+
+        {"request_id": "c57f90b3-2839-4d50-a292-67c29c4d5b4f}
+
++ Response 200 (application/json)
+
+    + Header
+
+            Authorization: Bearer {access_token}
+
+    + Body
+
+            {
+                "detail": "Successfully accepted friend request.",
+                "status": 200,
+                "developer_message": ""
+            }
+
+## Profile's Friend Requests Decline [/me/friend_requests/{id}/decline/] ##
+This endpoint requires an existing Friend Request id to be included in the URL and
+passed via a POST request. It is used to indicate the authenticated user has 
+declined the given friend request. It will also result in removing the Friend 
+Request from the system so that it will no longer appear in the user's 
+Friend Request list.
+
+### Decline Friend Requests [POST] ###
++ request_id (string) - Identifier of the request that is being declined
++ Request (application/json)
+
+        {"request_id": "c57f90b3-2839-4d50-a292-67c29c4d5b4f}
+
++ Response 200 (application/json)
+
+    + Header
+
+            Authorization: Bearer {access_token}
+
+    + Body
+
+            {
+                "detail": "Successfully declined friend request.",
+                "status": 204,
+                "developer_message": ""
+            }
+
+
+## Profile's Friend Requests Block [/me/friend_requests/{id}/block/] ##
+This endpoint requires an existing Friend Request id to be included in the URL and
+passed via a POST request. It is used to indicate the authenticated user would like
+to block the current and all subsequent requests from the user who had sent the request.
+This will result in a blocker being put in place that will stop the other user from
+being able to send additional requests to the authenticated user. It will also result
+in the Friend Request being removed from the authenticated user's friend request list.
+
+### Block Friend Requests [POST] ###
++ request_id (string) - Identifier of the request that is being blocked
++ Request (application/json)
+
+        {"request_id": "c57f90b3-2839-4d50-a292-67c29c4d5b4f}
+
++ Response 200 (application/json)
+
+    + Header
+
+            Authorization: Bearer {access_token}
+
+    + Body
+
+            {
+                "detail": "Successfully blocked further friend requests.",
+                "status": 204,
+                "developer_message": ""
+            }
 
 
 ## Profile's Wall [/me/wall/] ##

@@ -12,15 +12,13 @@ from django.core.cache import cache
 from django.template import RequestContext
 from django.conf import settings
 
-from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.generics import (RetrieveUpdateDestroyAPIView, ListAPIView,
-                                     mixins)
+from rest_framework.generics import (RetrieveUpdateDestroyAPIView, mixins)
 
 from neomodel import db
 

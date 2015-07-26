@@ -715,7 +715,7 @@ class FriendManager(RetrieveUpdateDestroyAPIView):
                         status=status.HTTP_204_NO_CONTENT)
 
 
-class FriendRequestList(ListAPIView):
+class FriendRequestList(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     This endpoint assumes it is placed on a specific user endpoint where
     it can rely on the currently logged in user to gather notifications
@@ -753,92 +753,75 @@ class FriendRequestList(ListAPIView):
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
-
-@api_view(["GET"])
-@permission_classes((IsAuthenticated, ))
-def friend_request_renderer(request, object_uuid=None):
-    """
-    This is a intermediate step on the way to utilizing a JS Framework to
-    handle template rendering.
-    """
-    html_array = []
-    id_array = []
-    notifications = FriendRequestList.as_view()(request)
-    for notification in notifications.data['results']:
-        notification['time_sent'] = parser.parse(notification['time_sent'])
-        context = RequestContext(request, notification)
-        html_array.append(render_to_string('friend_request_block.html',
-                                           context))
-        id_array.append(notification["id"])
-
-    notifications.data['results'] = {
-        "html": html_array, "ids": id_array,
-        "unseen": FriendRequest.unseen(request.user.username)
-    }
-    return Response(notifications.data, status=status.HTTP_200_OK)
-
-
-"""
-Each of the following endpoints were originally action methods associated with
-the FriendRequestList class. We have not yet been able to get methods on
-non-ViewSet classes to work. Once we discover a way to either restructure
-the class to be Viewset or are able to add methods to GenericAPIViews then these
-should be moved back into methods to properly organize the code and cut down
-on necessary url definitions.
-"""
-
-
-@api_view(["POST"])
-@permission_classes((IsAuthenticated, ))
-def friend_request_accept(request, object_uuid=None):
-    query = "MATCH (from_pleb:Pleb)<-[:REQUEST_FROM]-" \
-            "(friend_request:FriendRequest {object_uuid: '%s'})" \
-            "-[:REQUEST_TO]->(to_pleb:Pleb) " \
-            "RETURN from_pleb, to_pleb, friend_request" % object_uuid
-    res, _ = db.cypher_query(query)
-    if res.one is None:
+    @detail_route(methods=['post'], permission_classes=(IsAuthenticated, ))
+    def accept(self, request, object_uuid=None):
+        query = "MATCH (from_pleb:Pleb)<-[:REQUEST_FROM]-" \
+                "(friend_request:FriendRequest {object_uuid: '%s'})" \
+                "-[:REQUEST_TO]->(to_pleb:Pleb) " \
+                "RETURN from_pleb, to_pleb, friend_request" % object_uuid
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            return Response({
+                'detail': 'Sorry this object does not exist.',
+                "status": status.HTTP_404_NOT_FOUND,
+                "developer_message":
+                    "It doesn't look that the ID that was provided"
+                    "was a valid object in our database. If "
+                    "you believe this is incorrect please reach"
+                    " out to us through our email at"
+                    " developers@sagebrew.com"
+            }, status=status.HTTP_404_NOT_FOUND)
+        to_pleb = Pleb.inflate(res.one.from_pleb)
+        from_pleb = Pleb.inflate(res.one.to_pleb)
+        to_pleb.friends.connect(from_pleb)
+        from_pleb.friends.connect(to_pleb)
+        FriendRequest.inflate(res.one.friend_request).delete()
         return Response({
-            'detail': 'Sorry this object does not exist.',
-            "status": status.HTTP_404_NOT_FOUND,
-            "developer_message": "It doesn't look that the ID that was provided"
-                                 "was a valid object in our database. If "
-                                 "you believe this is incorrect please reach"
-                                 " out to us through our email at"
-                                 " developers@sagebrew.com"
-        }, status=status.HTTP_404_NOT_FOUND)
-    to_pleb = Pleb.inflate(res.one.from_pleb)
-    from_pleb = Pleb.inflate(res.one.to_pleb)
-    to_pleb.friends.connect(from_pleb)
-    from_pleb.friends.connect(to_pleb)
-    FriendRequest.inflate(res.one.friend_request).delete()
-    return Response({
-        'detail': 'Successfully accepted friend request.',
-        "status": status.HTTP_200_OK,
-        "developer_message": ""
-    }, status=status.HTTP_200_OK)
+            'detail': 'Successfully accepted friend request.',
+            "status": status.HTTP_200_OK,
+            "developer_message": ""
+        }, status=status.HTTP_200_OK)
 
+    @detail_route(methods=['post'], permission_classes=(IsAuthenticated, ))
+    def decline(self, request, object_uuid=None):
+        friend_request = FriendRequest.nodes.get(object_uuid=object_uuid)
+        friend_request.delete()
+        return Response({
+            'detail': 'Successfully declined friend request.',
+            "status": status.HTTP_200_OK,
+            "developer_message": ""
+        }, status=status.HTTP_200_OK)
 
-@api_view(["POST"])
-@permission_classes((IsAuthenticated, ))
-def friend_request_decline(request, object_uuid=None):
-    friend_request = FriendRequest.nodes.get(object_uuid=object_uuid)
-    friend_request.delete()
-    return Response({
-        'detail': 'Successfully declined friend request.',
-        "status": status.HTTP_200_OK,
-        "developer_message": ""
-    }, status=status.HTTP_200_OK)
+    @detail_route(methods=['post'], permission_classes=(IsAuthenticated, ))
+    def block(self, request, object_uuid=None):
+        friend_request = FriendRequest.nodes.get(object_uuid=object_uuid)
+        friend_request.seen = True
+        friend_request.response = 'block'
+        friend_request.save()
+        return Response({
+            'detail': 'Successfully blocked further friend requests.',
+            "status": status.HTTP_200_OK,
+            "developer_message": ""
+        }, status=status.HTTP_200_OK)
 
+    @list_route(permission_classes=(IsAuthenticated, ))
+    def render(self, request, object_uuid=None):
+        """
+        This is a intermediate step on the way to utilizing a JS Framework to
+        handle template rendering.
+        """
+        html_array = []
+        id_array = []
+        notifications = self.list(request)
+        for notification in notifications.data['results']:
+            notification['time_sent'] = parser.parse(notification['time_sent'])
+            context = RequestContext(request, notification)
+            html_array.append(render_to_string('friend_request_block.html',
+                                               context))
+            id_array.append(notification["id"])
 
-@api_view(["POST"])
-@permission_classes((IsAuthenticated, ))
-def friend_request_block(request, object_uuid=None):
-    friend_request = FriendRequest.nodes.get(object_uuid=object_uuid)
-    friend_request.seen = True
-    friend_request.response = 'block'
-    friend_request.save()
-    return Response({
-        'detail': 'Successfully blocked further friend requests.',
-        "status": status.HTTP_200_OK,
-        "developer_message": ""
-    }, status=status.HTTP_200_OK)
+        notifications.data['results'] = {
+            "html": html_array, "ids": id_array,
+            "unseen": FriendRequest.unseen(request.user.username)
+        }
+        return Response(notifications.data, status=status.HTTP_200_OK)

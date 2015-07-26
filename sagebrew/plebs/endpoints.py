@@ -796,6 +796,16 @@ def friend_request_accept(request, object_uuid=None):
             "-[:REQUEST_TO]->(to_pleb:Pleb) " \
             "RETURN from_pleb, to_pleb, friend_request" % object_uuid
     res, _ = db.cypher_query(query)
+    if res.one is None:
+        return Response({
+            'detail': 'Sorry this object does not exist.',
+            "status": status.HTTP_404_NOT_FOUND,
+            "developer_message": "It doesn't look that the ID that was provided"
+                                 "was a valid object in our database. If "
+                                 "you believe this is incorrect please reach"
+                                 " out to us through our email at"
+                                 " developers@sagebrew.com"
+        }, status=status.HTTP_404_NOT_FOUND)
     to_pleb = Pleb.inflate(res.one.from_pleb)
     from_pleb = Pleb.inflate(res.one.to_pleb)
     to_pleb.friends.connect(from_pleb)
@@ -815,9 +825,9 @@ def friend_request_decline(request, object_uuid=None):
     friend_request.delete()
     return Response({
         'detail': 'Successfully declined friend request.',
-        "status": status.HTTP_204_NO_CONTENT,
+        "status": status.HTTP_200_OK,
         "developer_message": ""
-    }, status=status.HTTP_204_NO_CONTENT)
+    }, status=status.HTTP_200_OK)
 
 
 @api_view(["POST"])
@@ -828,7 +838,7 @@ def friend_request_block(request, object_uuid=None):
     friend_request.response = 'block'
     friend_request.save()
     return Response({
-        'detail': 'Successfully blocked friend request.',
+        'detail': 'Successfully blocked further friend requests.',
         "status": status.HTTP_200_OK,
         "developer_message": ""
     }, status=status.HTTP_200_OK)

@@ -10,7 +10,7 @@ $(document).ready(function () {
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "DELETE",
-            url: "/v1/friend_requests/" + objectUUID + "/",
+            url: "/v1/me/sent_friend_requests/" + objectUUID + "/",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function () {

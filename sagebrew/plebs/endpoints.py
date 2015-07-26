@@ -596,8 +596,6 @@ class MeViewSet(mixins.UpdateModelMixin,
             elif row.solutions is not None:
                 question_data = QuestionSerializerNeo(
                     Question.inflate(row.s_question)).data
-                # TODO add question or at least title to top of solution to
-                # give context.
                 news_article = SolutionSerializerNeo(
                     Solution.inflate(row.solutions),
                     context={'request': request}).data
@@ -637,7 +635,7 @@ class MeViewSet(mixins.UpdateModelMixin,
         return self.get_paginated_response(news)
 
 
-class FriendRequestViewSet(viewsets.ModelViewSet):
+class SentFriendRequestViewSet(viewsets.ModelViewSet):
     """
     This ViewSet enables the user that is currently authenticated to view and
     manage their friend requests. Instead of making a method view on a specific

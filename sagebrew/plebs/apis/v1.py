@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url, include
 from rest_framework import routers
 
 from plebs.endpoints import (UserViewSet, ProfileViewSet, AddressViewSet,
-                             FriendRequestViewSet, MeViewSet,
+                             SentFriendRequestViewSet, MeViewSet,
                              FriendManager, FriendRequestList)
 from sb_posts.endpoints import (WallPostsListCreate,
                                 WallPostsRetrieveUpdateDestroy, post_renderer)
@@ -17,8 +17,8 @@ me_router = routers.SimpleRouter()
 router.register(r'users', UserViewSet, base_name="user")
 router.register(r'profiles', ProfileViewSet, base_name="profile")
 router.register(r'addresses', AddressViewSet, base_name="address")
-router.register(r'friend_requests', FriendRequestViewSet,
-                base_name="friend_request")
+me_router.register(r'sent_friend_requests', SentFriendRequestViewSet,
+                   base_name="sent_friend_request")
 router.register(r'me', MeViewSet, base_name="me")
 
 me_router.register(r'friend_requests', FriendRequestList,

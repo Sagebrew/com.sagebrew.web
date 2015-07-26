@@ -21,7 +21,7 @@ from py2neo.cypher import ClientError
 from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task
-from plebs.neo_models import (Pleb, BetaUser, FriendRequest, Address,
+from plebs.neo_models import (Pleb, BetaUser, Address,
                               get_friend_requests_sent)
 from sb_registration.utils import (verify_completed_registration)
 from sb_campaigns.neo_models import Campaign
@@ -29,8 +29,7 @@ from sb_campaigns.serializers import CampaignSerializer
 
 from .serializers import PlebSerializerNeo
 from .tasks import create_friend_request_task, send_email_task
-from .forms import (GetUserSearchForm, SubmitFriendRequestForm,
-                    RespondFriendRequestForm)
+from .forms import (GetUserSearchForm, SubmitFriendRequestForm)
 from .serializers import BetaUserSerializer, AddressSerializer
 
 from logging import getLogger
@@ -327,49 +326,6 @@ def create_friend_request(request):
                          "friend_request_id": object_uuid}, status=200)
     else:
         return Response({'detail': 'invalid form'}, status=400)
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def respond_friend_request(request):
-    """
-    finds the friend request which is attached to both the from and to user
-    then, depending on the response type, either attaches the friend
-    relationship
-    in each pleb and deletes the request, deletes the request, or lets the
-    friend
-    request exist to stop the user from sending more but does not notify the
-    user
-    which blocked them that they have a friend request from them.
-
-    :param request:
-    :return:
-    """
-    # TODO This needs to be transitioned to a serializer. Currently there is
-    # a limitation where if a float or non string is passed the form doesn't
-    # catch the error and instead raises an attribute error
-    form = RespondFriendRequestForm(request.DATA)
-    if form.is_valid():
-        friend_request = FriendRequest.nodes.get(
-            object_uuid=form.cleaned_data['request_id'])
-        to_pleb = friend_request.request_to.all()[0]
-        from_pleb = friend_request.request_from.all()[0]
-
-        if form.cleaned_data['response'] == 'accept':
-            to_pleb.friends.connect(from_pleb)
-            from_pleb.friends.connect(to_pleb)
-            friend_request.delete()
-            return Response({'detail': 'success'}, status=200)
-        elif form.cleaned_data['response'] == 'deny':
-            friend_request.delete()
-            return Response({'detail': 'success'}, status=200)
-        elif form.cleaned_data['response'] == 'block':
-            friend_request.seen = True
-            friend_request.response = 'block'
-            friend_request.save()
-            return Response({'detail': 'success'}, status=200)
-    else:
-        return Response({"detail": "invalid form"}, status=400)
 
 
 class ListBetaUsers(ListAPIView):

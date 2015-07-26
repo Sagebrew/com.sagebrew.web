@@ -655,7 +655,7 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         friend_requests = cache.get("%s_friend_requests" %
-                                    (self.request.user.username))
+                                    self.request.user.username)
         if friend_requests is None:
             filter_by = self.request.query_params.get("filter", "")
             filtered = get_filter_by(filter_by)
@@ -664,7 +664,7 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
                     % (self.request.user.username, filtered)
             res, col = db.cypher_query(query)
             friend_requests = [FriendRequest.inflate(row[0]) for row in res]
-            cache.set("%s_friend_requests" % (self.request.user.username),
+            cache.set("%s_friend_requests" % self.request.user.username,
                       friend_requests)
         return friend_requests
 
@@ -718,7 +718,7 @@ class FriendManager(RetrieveUpdateDestroyAPIView):
 class FriendRequestList(ListAPIView):
     """
     This endpoint assumes it is placed on a specific user endpoint where
-    it can really on the currently logged in user to gather notifications
+    it can rely on the currently logged in user to gather notifications
     for. It is not capable of being set on an arbitrary user's profile
     endpoint like other method endpoints we have.
     """
@@ -729,7 +729,7 @@ class FriendRequestList(ListAPIView):
     def get_queryset(self):
         query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A_REQUEST]->' \
                 '(n:FriendRequest) RETURN n ORDER ' \
-                'BY n.created DESC LIMIT 5' % (self.request.user.username)
+                'BY n.created DESC LIMIT 5' % self.request.user.username
         res, col = db.cypher_query(query)
         return [FriendRequest.inflate(row[0]) for row in res]
 
@@ -776,3 +776,59 @@ def friend_request_renderer(request, object_uuid=None):
         "unseen": FriendRequest.unseen(request.user.username)
     }
     return Response(notifications.data, status=status.HTTP_200_OK)
+
+
+"""
+Each of the following endpoints were originally action methods associated with
+the FriendRequestList class. We have not yet been able to get methods on
+non-ViewSet classes to work. Once we discover a way to either restructure
+the class to be Viewset or are able to add methods to GenericAPIViews then these
+should be moved back into methods to properly organize the code and cut down
+on necessary url definitions.
+"""
+
+
+@api_view(["POST"])
+@permission_classes((IsAuthenticated, ))
+def friend_request_accept(request, object_uuid=None):
+    query = "MATCH (from_pleb:Pleb)<-[:REQUEST_FROM]-" \
+            "(friend_request:FriendRequest {object_uuid: '%s'})" \
+            "-[:REQUEST_TO]->(to_pleb:Pleb) " \
+            "RETURN from_pleb, to_pleb, friend_request" % object_uuid
+    res, _ = db.cypher_query(query)
+    to_pleb = Pleb.inflate(res.one.from_pleb)
+    from_pleb = Pleb.inflate(res.one.to_pleb)
+    to_pleb.friends.connect(from_pleb)
+    from_pleb.friends.connect(to_pleb)
+    FriendRequest.inflate(res.one.friend_request).delete()
+    return Response({
+        'detail': 'Successfully accepted friend request.',
+        "status": status.HTTP_200_OK,
+        "developer_message": ""
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(["POST"])
+@permission_classes((IsAuthenticated, ))
+def friend_request_decline(request, object_uuid=None):
+    friend_request = FriendRequest.nodes.get(object_uuid=object_uuid)
+    friend_request.delete()
+    return Response({
+        'detail': 'Successfully declined friend request.',
+        "status": status.HTTP_204_NO_CONTENT,
+        "developer_message": ""
+    }, status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(["POST"])
+@permission_classes((IsAuthenticated, ))
+def friend_request_block(request, object_uuid=None):
+    friend_request = FriendRequest.nodes.get(object_uuid=object_uuid)
+    friend_request.seen = True
+    friend_request.response = 'block'
+    friend_request.save()
+    return Response({
+        'detail': 'Successfully blocked friend request.',
+        "status": status.HTTP_200_OK,
+        "developer_message": ""
+    }, status=status.HTTP_200_OK)

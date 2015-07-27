@@ -236,7 +236,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         # method. But maybe we make both available.
         query = 'MATCH (a:Pleb {username: "%s"})-' \
                 '[:FRIENDS_WITH {currently_friends: true}]->' \
-                '(b:Pleb) RETURN b' % (username)
+                '(b:Pleb) RETURN b' % username
         res, col = db.cypher_query(query)
         queryset = [Pleb.inflate(row[0]) for row in res]
         html = self.request.query_params.get('html', 'false')
@@ -312,14 +312,14 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def president(self, request, username=None):
-        president = cache.get("%s_president" % (username))
+        president = cache.get("%s_president" % username)
         if president is None:
             query = 'MATCH (p:Pleb {username:"%s"})-[:HAS_PRESIDENT]->' \
-                    '(o:PublicOfficial) RETURN o' % (username)
+                    '(o:PublicOfficial) RETURN o' % username
             res, _ = db.cypher_query(query)
             try:
                 president = PublicOfficial.inflate(res[0][0])
-                cache.set("%s_president" % (username), president)
+                cache.set("%s_president" % username, president)
             except IndexError:
                 return Response("<small>Sorry we could not find your "
                                 "President. Please alert us to our error"
@@ -334,8 +334,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(PublicOfficialSerializer(president).data,
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
-                                                       IsSelf))
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def is_beta_user(self, request, username=None):
         return Response({'is_beta_user': self.get_object().is_beta_user()},
                         status.HTTP_200_OK)
@@ -349,7 +348,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
                     '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
                     '->(c:Campaign) WHERE c.active=true RETURN c LIMIT 5' % \
-                    (username)
+                    username
             res, _ = db.cypher_query(query)
             possible_reps = [PoliticalCampaign.inflate(row[0]) for row in res]
             cache.set('%s_possible_house_representatives' % username,
@@ -378,7 +377,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     '[:ENCOMPASSED_BY]->(l2:Location)-' \
                     '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
                     '->(c:Campaign) WHERE c.active=true RETURN c LIMIT 5' % \
-                    (username)
+                    username
             res, _ = db.cypher_query(query)
             possible_senators = [PoliticalCampaign.inflate(row[0])
                                  for row in res]

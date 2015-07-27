@@ -64,7 +64,20 @@ class QuestionViewSet(viewsets.ModelViewSet):
         # if sort_by == "" or sort_by == "vote_count":
         #    if questions is None:
         #        cache.set('question_list_vote_sort', queryset, 30)
-        return [Question.inflate(row[0]) for row in res]
+        return res
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            page = [Question.inflate(row[0]) for row in page]
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        queryset = [Question.inflate(row[0]) for row in queryset]
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def get_object(self):
         return Question.get(self.kwargs[self.lookup_field])

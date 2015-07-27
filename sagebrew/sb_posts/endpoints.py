@@ -100,8 +100,21 @@ class WallPostsListCreate(ListCreateAPIView):
                     "END AS result ORDER BY result.created DESC" % (
                         self.request.user.username,
                         self.kwargs[self.lookup_field])
-        res, col = db.cypher_query(query)
-        return [Post.inflate(row[0]) for row in res]
+        res, _ = db.cypher_query(query)
+        return res
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            page = [Post.inflate(row[0]) for row in page]
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        queryset = [Post.inflate(row[0]) for row in queryset]
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         wall_pleb = Pleb.get(self.kwargs[self.lookup_field])

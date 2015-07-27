@@ -89,7 +89,20 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                     " RETURN b %s %s" % (self.kwargs[self.lookup_field],
                                          sort_by, ordering)
         res, col = db.cypher_query(query)
-        return [Solution.inflate(row[0]) for row in res]
+        return res
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            page = [Solution.inflate(row[0]) for row in page]
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        queryset = [Solution.inflate(row[0]) for row in queryset]
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data,

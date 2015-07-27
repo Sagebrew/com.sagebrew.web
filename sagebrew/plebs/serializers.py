@@ -285,14 +285,14 @@ class FriendRequestSerializer(SBSerializer):
 
     def get_from_user(self, obj):
         query = 'MATCH (a:FriendRequest {object_uuid: "%s"})-' \
-                '[:REQUEST_FROM]->(b:Pleb) RETURN b' % (obj.object_uuid)
+                '[:REQUEST_FROM]->(b:Pleb) RETURN b' % obj.object_uuid
         res, col = db.cypher_query(query)
 
         return PlebSerializerNeo(Pleb.inflate(res[0][0])).data
 
     def get_to_user(self, obj):
         query = 'MATCH (a:FriendRequest {object_uuid: "%s"})-' \
-                '[:REQUEST_TO]->(b:Pleb) RETURN b' % (obj.object_uuid)
+                '[:REQUEST_TO]->(b:Pleb) RETURN b' % obj.object_uuid
         res, col = db.cypher_query(query)
 
         return PlebSerializerNeo(Pleb.inflate(res[0][0])).data

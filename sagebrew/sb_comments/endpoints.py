@@ -44,7 +44,20 @@ class ObjectCommentsListCreate(ListCreateAPIView):
                 " RETURN b ORDER BY b.created DESC" % (
                     self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
-        return [Comment.inflate(row[0]) for row in res]
+        return res
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            page = [Comment.inflate(row[0]) for row in page]
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        queryset = [Comment.inflate(row[0]) for row in queryset]
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

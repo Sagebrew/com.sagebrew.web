@@ -10,13 +10,13 @@
         </div>
         <div align="right" class="col-lg-6 col-md-6">
             <div class="btn-group">
-                <button class="btn btn-primary sb_btn sb_btn_friend respond_friend_request-action"
-                        data-response="accept" data-request_id="{{ id }}">Confirm</button>
-                <button class="btn btn-primary sb_btn  sb_btn_friend respond_friend_request-action"
+                <button class="btn btn-primary sb_btn sb_btn_friend respond_friend_request-accept-action"
+                        data-response="accept" data-request_id="{{ id }}">Accept</button>
+                <button class="btn btn-primary sb_btn  sb_btn_friend respond_friend_request-decline-action"
                         data-response="deny"
                         data-request_id="{{ id }}">Delete</button>
                 {% comment %}
-                <button class="btn btn-primary sb_btn sb_btn_friend respond_friend_request-action"
+                <button class="btn btn-primary sb_btn sb_btn_friend respond_friend_request-block-action"
                         data-response="block" data-request_id="{{ id }}">Block</button>
                 {% endcomment %}
             </div>

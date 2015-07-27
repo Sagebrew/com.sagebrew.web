@@ -11,8 +11,3 @@ class SubmitFriendRequestForm(forms.Form):
 
 class GetFriendRequestForm(forms.Form):
     email = forms.EmailField()
-
-
-class RespondFriendRequestForm(forms.Form):
-    request_id = forms.CharField()
-    response = forms.CharField()

@@ -12,15 +12,13 @@ from django.core.cache import cache
 from django.template import RequestContext
 from django.conf import settings
 
-from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.generics import (RetrieveUpdateDestroyAPIView, ListAPIView,
-                                     mixins)
+from rest_framework.generics import (RetrieveUpdateDestroyAPIView, mixins)
 
 from neomodel import db
 
@@ -238,7 +236,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         # method. But maybe we make both available.
         query = 'MATCH (a:Pleb {username: "%s"})-' \
                 '[:FRIENDS_WITH {currently_friends: true}]->' \
-                '(b:Pleb) RETURN b' % (username)
+                '(b:Pleb) RETURN b' % username
         res, col = db.cypher_query(query)
         queryset = [Pleb.inflate(row[0]) for row in res]
         html = self.request.query_params.get('html', 'false')
@@ -314,14 +312,14 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def president(self, request, username=None):
-        president = cache.get("%s_president" % (username))
+        president = cache.get("%s_president" % username)
         if president is None:
             query = 'MATCH (p:Pleb {username:"%s"})-[:HAS_PRESIDENT]->' \
-                    '(o:PublicOfficial) RETURN o' % (username)
+                    '(o:PublicOfficial) RETURN o' % username
             res, _ = db.cypher_query(query)
             try:
                 president = PublicOfficial.inflate(res[0][0])
-                cache.set("%s_president" % (username), president)
+                cache.set("%s_president" % username, president)
             except IndexError:
                 return Response("<small>Sorry we could not find your "
                                 "President. Please alert us to our error"
@@ -336,8 +334,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(PublicOfficialSerializer(president).data,
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
-                                                       IsSelf))
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
     def is_beta_user(self, request, username=None):
         return Response({'is_beta_user': self.get_object().is_beta_user()},
                         status.HTTP_200_OK)
@@ -351,7 +348,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
                     '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
                     '->(c:Campaign) WHERE c.active=true RETURN c LIMIT 5' % \
-                    (username)
+                    username
             res, _ = db.cypher_query(query)
             possible_reps = [PoliticalCampaign.inflate(row[0]) for row in res]
             cache.set('%s_possible_house_representatives' % username,
@@ -380,7 +377,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     '[:ENCOMPASSED_BY]->(l2:Location)-' \
                     '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
                     '->(c:Campaign) WHERE c.active=true RETURN c LIMIT 5' % \
-                    (username)
+                    username
             res, _ = db.cypher_query(query)
             possible_senators = [PoliticalCampaign.inflate(row[0])
                                  for row in res]
@@ -598,8 +595,6 @@ class MeViewSet(mixins.UpdateModelMixin,
             elif row.solutions is not None:
                 question_data = QuestionSerializerNeo(
                     Question.inflate(row.s_question)).data
-                # TODO add question or at least title to top of solution to
-                # give context.
                 news_article = SolutionSerializerNeo(
                     Solution.inflate(row.solutions),
                     context={'request': request}).data
@@ -639,7 +634,7 @@ class MeViewSet(mixins.UpdateModelMixin,
         return self.get_paginated_response(news)
 
 
-class FriendRequestViewSet(viewsets.ModelViewSet):
+class SentFriendRequestViewSet(viewsets.ModelViewSet):
     """
     This ViewSet enables the user that is currently authenticated to view and
     manage their friend requests. Instead of making a method view on a specific
@@ -655,7 +650,7 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         friend_requests = cache.get("%s_friend_requests" %
-                                    (self.request.user.username))
+                                    self.request.user.username)
         if friend_requests is None:
             filter_by = self.request.query_params.get("filter", "")
             filtered = get_filter_by(filter_by)
@@ -664,7 +659,7 @@ class FriendRequestViewSet(viewsets.ModelViewSet):
                     % (self.request.user.username, filtered)
             res, col = db.cypher_query(query)
             friend_requests = [FriendRequest.inflate(row[0]) for row in res]
-            cache.set("%s_friend_requests" % (self.request.user.username),
+            cache.set("%s_friend_requests" % self.request.user.username,
                       friend_requests)
         return friend_requests
 
@@ -715,10 +710,10 @@ class FriendManager(RetrieveUpdateDestroyAPIView):
                         status=status.HTTP_204_NO_CONTENT)
 
 
-class FriendRequestList(ListAPIView):
+class FriendRequestList(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     This endpoint assumes it is placed on a specific user endpoint where
-    it can really on the currently logged in user to gather notifications
+    it can rely on the currently logged in user to gather notifications
     for. It is not capable of being set on an arbitrary user's profile
     endpoint like other method endpoints we have.
     """
@@ -729,7 +724,7 @@ class FriendRequestList(ListAPIView):
     def get_queryset(self):
         query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A_REQUEST]->' \
                 '(n:FriendRequest) RETURN n ORDER ' \
-                'BY n.created DESC LIMIT 5' % (self.request.user.username)
+                'BY n.created DESC LIMIT 5' % self.request.user.username
         res, col = db.cypher_query(query)
         return [FriendRequest.inflate(row[0]) for row in res]
 
@@ -753,26 +748,75 @@ class FriendRequestList(ListAPIView):
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
+    @detail_route(methods=['post'], permission_classes=(IsAuthenticated, ))
+    def accept(self, request, object_uuid=None):
+        query = "MATCH (from_pleb:Pleb)<-[:REQUEST_FROM]-" \
+                "(friend_request:FriendRequest {object_uuid: '%s'})" \
+                "-[:REQUEST_TO]->(to_pleb:Pleb) " \
+                "RETURN from_pleb, to_pleb, friend_request" % object_uuid
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            return Response({
+                'detail': 'Sorry this object does not exist.',
+                "status": status.HTTP_404_NOT_FOUND,
+                "developer_message":
+                    "It doesn't look that the ID that was provided"
+                    "was a valid object in our database. If "
+                    "you believe this is incorrect please reach"
+                    " out to us through our email at"
+                    " developers@sagebrew.com"
+            }, status=status.HTTP_404_NOT_FOUND)
+        to_pleb = Pleb.inflate(res.one.from_pleb)
+        from_pleb = Pleb.inflate(res.one.to_pleb)
+        to_pleb.friends.connect(from_pleb)
+        from_pleb.friends.connect(to_pleb)
+        FriendRequest.inflate(res.one.friend_request).delete()
+        return Response({
+            'detail': 'Successfully accepted friend request.',
+            "status": status.HTTP_200_OK,
+            "developer_message": ""
+        }, status=status.HTTP_200_OK)
 
-@api_view(["GET"])
-@permission_classes((IsAuthenticated, ))
-def friend_request_renderer(request, object_uuid=None):
-    """
-    This is a intermediate step on the way to utilizing a JS Framework to
-    handle template rendering.
-    """
-    html_array = []
-    id_array = []
-    notifications = FriendRequestList.as_view()(request)
-    for notification in notifications.data['results']:
-        notification['time_sent'] = parser.parse(notification['time_sent'])
-        context = RequestContext(request, notification)
-        html_array.append(render_to_string('friend_request_block.html',
-                                           context))
-        id_array.append(notification["id"])
+    @detail_route(methods=['post'], permission_classes=(IsAuthenticated, ))
+    def decline(self, request, object_uuid=None):
+        friend_request = FriendRequest.nodes.get(object_uuid=object_uuid)
+        friend_request.delete()
+        return Response({
+            'detail': 'Successfully declined friend request.',
+            "status": status.HTTP_200_OK,
+            "developer_message": ""
+        }, status=status.HTTP_200_OK)
 
-    notifications.data['results'] = {
-        "html": html_array, "ids": id_array,
-        "unseen": FriendRequest.unseen(request.user.username)
-    }
-    return Response(notifications.data, status=status.HTTP_200_OK)
+    @detail_route(methods=['post'], permission_classes=(IsAuthenticated, ))
+    def block(self, request, object_uuid=None):
+        friend_request = FriendRequest.nodes.get(object_uuid=object_uuid)
+        friend_request.seen = True
+        friend_request.response = 'block'
+        friend_request.save()
+        return Response({
+            'detail': 'Successfully blocked further friend requests.',
+            "status": status.HTTP_200_OK,
+            "developer_message": ""
+        }, status=status.HTTP_200_OK)
+
+    @list_route(permission_classes=(IsAuthenticated, ))
+    def render(self, request, object_uuid=None):
+        """
+        This is a intermediate step on the way to utilizing a JS Framework to
+        handle template rendering.
+        """
+        html_array = []
+        id_array = []
+        notifications = self.list(request)
+        for notification in notifications.data['results']:
+            notification['time_sent'] = parser.parse(notification['time_sent'])
+            context = RequestContext(request, notification)
+            html_array.append(render_to_string('friend_request_block.html',
+                                               context))
+            id_array.append(notification["id"])
+
+        notifications.data['results'] = {
+            "html": html_array, "ids": id_array,
+            "unseen": FriendRequest.unseen(request.user.username)
+        }
+        return Response(notifications.data, status=status.HTTP_200_OK)

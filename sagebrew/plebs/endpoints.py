@@ -504,7 +504,7 @@ class MeViewSet(mixins.UpdateModelMixin,
         then = (datetime.now(pytz.utc) - timedelta(days=90)).strftime("%s")
         query = \
             '// Retrieve all the current users questions\n' \
-            'MATCH (a:Pleb {username: "%s"})-[OWNS_QUESTION]->' \
+            'MATCH (a:Pleb {username: "%s"})-[:OWNS_QUESTION]->' \
             '(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND questions.created > %s' \
             ' RETURN questions, NULL AS solutions, NULL AS posts, ' \
@@ -513,15 +513,15 @@ class MeViewSet(mixins.UpdateModelMixin,
             '' \
             '// Retrieve all the current users solutions\n' \
             'MATCH (a:Pleb {username: "%s"})-' \
-            '[OWNS_SOLUTION]->(solutions:Solution)-' \
-            '[POSSIBLE_ANSWER_TO]->(s_question:Question) ' \
+            '[:OWNS_SOLUTION]->(solutions:Solution)-' \
+            '[:POSSIBLE_ANSWER_TO]->(s_question:Question) ' \
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
             ' RETURN solutions, NULL AS questions, NULL AS posts, ' \
             'solutions.created AS created, s_question AS s_question,' \
             'NULL AS campaigns UNION ' \
             '' \
             '// Retrieve all the current users posts\n' \
-            'MATCH (a:Pleb {username: "%s"})-[OWNS_POST]->(posts:Post) ' \
+            'MATCH (a:Pleb {username: "%s"})-[:OWNS_POST]->(posts:Post) ' \
             'WHERE posts.to_be_deleted = False AND posts.created > %s ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
             'posts.created AS created, NULL AS s_question,' \
@@ -539,8 +539,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             '' \
             '// Retrieve all the current users friends posts\n' \
             'MATCH (a:Pleb {username: "%s"})-' \
-            '[r:FRIENDS_WITH {currently_friends: True}]->()-' \
-            '[OWNS_POST]->(posts:Post) ' \
+            '[r:FRIENDS_WITH {currently_friends: True}]->(:Pleb)-' \
+            '[:OWNS_POST]->(posts:Post) ' \
             'WHERE HAS(r.currently_friends) AND posts.to_be_deleted = False ' \
             'AND posts.created > %s ' \
             'RETURN posts, NULL AS questions, NULL AS solutions, ' \
@@ -551,7 +551,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// questions \n' \
             'MATCH (a:Pleb {username: "%s"})-' \
             '[manyFriends:FRIENDS_WITH*..2 {currently_friends: True}]' \
-            '->()-[OWNS_QUESTION]->(questions:Question) ' \
+            '->(:Pleb)-[:OWNS_QUESTION]->(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND ' \
             'questions.created > %s ' \
             'RETURN questions, NULL AS posts, NULL AS solutions, ' \
@@ -562,8 +562,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// solutions \n' \
             'MATCH (a:Pleb {username: "%s"})-' \
             '[manyFriends:FRIENDS_WITH*..2 {currently_friends: True}]->' \
-            '()-[OWNS_SOLUTION]->' \
-            '(solutions:Solution)-[POSSIBLE_ANSWER_TO]->' \
+            '(:Pleb)-[:OWNS_SOLUTION]->' \
+            '(solutions:Solution)-[:POSSIBLE_ANSWER_TO]->' \
             '(s_question:Question) ' \
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
             ' RETURN solutions, NULL AS posts, NULL AS questions, ' \

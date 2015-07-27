@@ -34,7 +34,7 @@
                     <a href="{% url 'quest_saga' page_user.username %}">Quest</a>
                 </li>
             {% endif %}
-            {% if request.user.username == 'tyler_wiersing' or request.user.username == 'devon_bleibtrey' %}
+            {% if request.user.username == 'tyler_wiersing' and request.user.username == page_user.username or request.user.username == 'devon_bleibtrey' and request.user.username == page_user.username %}
                 <li>
                     <a href="{% url 'council_page' %}">Council</a>
                 </li>

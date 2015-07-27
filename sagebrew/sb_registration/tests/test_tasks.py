@@ -1,5 +1,4 @@
 import time
-from uuid import uuid1
 
 from django.conf import settings
 from django.test import TestCase

@@ -318,7 +318,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         account_type = request.session.get('account_type', None)
         owner = Pleb.get(username=request.user.username)
         if account_type == 'paid':
-            validated_data['application_fee'] = 0.05
+            validated_data['application_fee'] = (0.021)
 
         if owner.get_campaign():
             raise ValidationError(

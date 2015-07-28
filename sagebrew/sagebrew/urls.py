@@ -79,7 +79,7 @@ urlpatterns = patterns(
 )
 
 if settings.DEBUG is True:
-    dev_patterns = patterns(
+    urlpatterns += patterns(
         (r'^robots.txt$', TemplateView.as_view(
             template_name='robots_staging.txt', content_type='text/plain')),
         (r'^loaderio-98182a198e035e1a9649f683fb42d23e/$', TemplateView.as_view(
@@ -92,7 +92,6 @@ if settings.DEBUG is True:
              content_type='text/plain')),
         (r'^secret/', include(admin.site.urls)),
     )
-    urlpatterns += dev_patterns
 elif environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:
     urlpatterns += patterns(
         (r'^robots.txt$', TemplateView.as_view(

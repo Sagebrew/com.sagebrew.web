@@ -172,7 +172,6 @@ class CampaignSerializer(SBSerializer):
                        kwargs={"username": username},
                        request=self.context.get('request', None))
 
-
     def get_href(self, obj):
         return reverse('campaign-detail',
                        kwargs={'object_uuid': obj.object_uuid},

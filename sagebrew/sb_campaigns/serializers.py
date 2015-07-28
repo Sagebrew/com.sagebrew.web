@@ -171,6 +171,7 @@ class CampaignSerializer(SBSerializer):
         return instance
 
     def get_url(self, obj):
+        logger.exception(obj)
         if obj.owner_username is not None and obj.owner_username != "":
             # We need a try catch here as there are some campaigns that have
             # username set but may not have a Pleb. This is only seen in tests

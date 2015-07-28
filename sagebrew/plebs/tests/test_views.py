@@ -19,7 +19,6 @@ from api.utils import wait_util
 
 
 class ProfilePageTest(TestCase):
-
     def setUp(self):
         self.factory = APIRequestFactory()
         self.client = Client()

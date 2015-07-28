@@ -84,9 +84,9 @@ def determine_pleb_reps(username):
         result = determine_reps(username)
         if result is False:
             raise Exception("Failed to determine reps")
+        return result
     except Exception as e:
         raise determine_pleb_reps.retry(exc=e, countdown=3, max_retries=None)
-
 
 @shared_task()
 def update_address_location(object_uuid):
@@ -267,14 +267,6 @@ def create_beta_user(email):
     except (CypherException, IOError) as e:
         raise create_beta_user.retry(exc=e, countdown=3, max_retries=None)
     return True
-
-
-@shared_task()
-def deactivate_user_task(username):
-    try:
-        Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
-        raise deactivate_user_task.retry(exc=e, countdown=3, max_retries=None)
 
 
 @shared_task()

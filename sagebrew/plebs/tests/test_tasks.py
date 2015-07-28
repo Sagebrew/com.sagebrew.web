@@ -9,7 +9,9 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from plebs.tasks import (create_pleb_task, create_wall_task,
                          finalize_citizen_creation, send_email_task,
-                         create_friend_request_task)
+                         create_friend_request_task, pleb_user_update,
+                         determine_pleb_reps, create_beta_user,
+                         update_reputation)
 from sb_wall.neo_models import Wall
 
 
@@ -273,3 +275,98 @@ class TestCreateFriendRequestTask(TestCase):
         res = res.result
 
         self.assertIsInstance(res, Exception)
+
+
+class TestPlebUserUpdate(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        self.username = res["username"]
+        self.assertNotEqual(res, False)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_pleb_user_update(self):
+        data = {
+            "username": self.pleb.username,
+            "first_name": "test2",
+            "last_name": "test2",
+            "email": self.pleb.email
+        }
+        res = pleb_user_update.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+
+
+class TestDeterminePlebReps(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        self.username = res["username"]
+        self.assertNotEqual(res, False)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_determine_pleb_reps(self):
+        data = {
+            'username': self.pleb.username
+        }
+        res = determine_pleb_reps.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+
+
+class TestCreateBetaUser(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        self.username = res["username"]
+        self.assertNotEqual(res, False)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_create_beta_user(self):
+        data = {
+            'email': self.pleb.email
+        }
+        res = create_beta_user.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+
+
+class TestUpdateReputation(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        self.username = res["username"]
+        self.assertNotEqual(res, False)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_update_reputation(self):
+        data ={
+            "username": self.pleb.username
+        }
+        res = update_reputation.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)

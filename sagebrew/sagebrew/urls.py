@@ -79,8 +79,7 @@ urlpatterns = patterns(
 )
 
 if settings.DEBUG is True:
-    urlpatterns += patterns(
-        (r'^secret/', include(admin.site.urls)),
+    dev_patterns = patterns(
         (r'^robots.txt$', TemplateView.as_view(
             template_name='robots_staging.txt', content_type='text/plain')),
         (r'^loaderio-98182a198e035e1a9649f683fb42d23e/$', TemplateView.as_view(
@@ -91,10 +90,11 @@ if settings.DEBUG is True:
              template_name='external_tests/'
                            '14c08cb7770b778cba5856e49dbf24d3d8a2048e.html',
              content_type='text/plain')),
+        (r'^secret/', include(admin.site.urls)),
     )
+    urlpatterns += dev_patterns
 elif environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:
     urlpatterns += patterns(
-        (r'^secret/', include(admin.site.urls)),
         (r'^robots.txt$', TemplateView.as_view(
             template_name='robots_staging.txt', content_type='text/plain')),
         (r'^loaderio-98182a198e035e1a9649f683fb42d23e/$', TemplateView.as_view(
@@ -105,6 +105,7 @@ elif environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:
              template_name='external_tests/'
                            '14c08cb7770b778cba5856e49dbf24d3d8a2048e.html',
              content_type='text/plain')),
+        (r'^secret/', include(admin.site.urls)),
     )
 else:
     urlpatterns += patterns(

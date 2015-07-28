@@ -36,7 +36,7 @@ def manage_privilege_relation(username):
     """
     try:
         pleb = Pleb.get(username=username)
-    except (CypherException, IOError) as e:
+    except (CypherException, IOError, DoesNotExist, Pleb.DoesNotExist) as e:
         return e
     try:
         privileges = Privilege.nodes.all()

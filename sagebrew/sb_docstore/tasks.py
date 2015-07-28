@@ -29,6 +29,7 @@ def spawn_user_updates(username, object_uuids):
             spawn_task(task_func=vote_object_task, task_param=task_data)
         except KeyError:
             pass
+    return True
 
 
 @shared_task()

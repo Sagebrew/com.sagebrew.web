@@ -1,8 +1,7 @@
 from rest_framework import status
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APITestCase
 
 from django.contrib.auth.models import User
-from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 
 from plebs.neo_models import Pleb
@@ -10,10 +9,8 @@ from sb_registration.utils import create_user_util_test
 from api.utils import wait_util
 
 
-class ProfilePageTest(TestCase):
+class ProfilePageTest(APITestCase):
     def setUp(self):
-        self.factory = APIRequestFactory()
-        self.client = Client()
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
         res = create_user_util_test(self.email)
@@ -27,18 +24,7 @@ class ProfilePageTest(TestCase):
         self.pleb.save()
 
     def test_council_page_unauthorized(self):
-        self.client.login(username=self.user.username,
-                          password=self.password)
+        self.client.force_authenticate(user=self.user)
         url = reverse("council_page")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-
-    def test_council_page_authorized(self):
-        self.user.username = "devon_bleibtrey"
-        self.user.save()
-        self.user = User.objects.get(email=self.email)
-        self.client.login(username=self.user.username,
-                          password=self.password)
-        url = reverse("council_page")
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)

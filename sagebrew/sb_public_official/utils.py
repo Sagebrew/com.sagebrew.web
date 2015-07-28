@@ -1,7 +1,4 @@
 import logging
-import importlib
-
-from django.conf import settings
 from django.core.cache import cache
 
 from neomodel import (DoesNotExist, CypherException)
@@ -14,7 +11,7 @@ from .neo_models import (PublicOfficial)
 
 logger = logging.getLogger('loggly_logs')
 
-
+"""
 def get_rep_type(rep_type):
     cls = rep_type
     module_name, class_name = cls.rsplit(".", 1)
@@ -51,7 +48,7 @@ def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
     except (CypherException, IOError) as e:
         return e
     return rep
-
+"""
 
 @apply_defense
 def determine_reps(username):

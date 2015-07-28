@@ -27,13 +27,18 @@ class ProfilePageTest(TestCase):
         self.pleb.save()
 
     def test_council_page_unauthorized(self):
+        self.client.login(username=self.user.username,
+                          password=self.password)
         url = reverse("council_page")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_council_page_authorized(self):
-        self.user.username = "tyler_wiersing"
+        self.user.username = "devon_bleibtrey"
         self.user.save()
+        self.user = User.objects.get(email=self.email)
+        self.client.login(username=self.user.username,
+                          password=self.password)
         url = reverse("council_page")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

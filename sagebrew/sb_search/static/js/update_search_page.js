@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity*/
+/*global $, jQuery*/
 $(document).ready(function () {
     "use strict";
     function sendFriendRequest(requestArea, username) {
@@ -109,11 +109,6 @@ $(document).ready(function () {
                 var loadNextPage = $('.load_next_page'),
                     nextPage = loadNextPage.data('next');
                 loadNextPage.spin("small");
-                $.ajaxSetup({
-                    beforeSend: function (xhr, settings) {
-                        ajaxSecurity(xhr, settings);
-                    }
-                });
                 $.ajax({
                     xhrFields: {withCredentials: true},
                     type: "GET",

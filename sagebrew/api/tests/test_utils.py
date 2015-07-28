@@ -5,8 +5,7 @@ from django.contrib.auth.models import User
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
-from api.utils import (add_failure_to_queue, refresh_oauth_access_token,
-                       check_oauth_needs_refresh, get_oauth_access_token,
+from api.utils import (add_failure_to_queue,
                        encrypt, decrypt, generate_short_token,
                        generate_long_token, create_auto_tags)
 

@@ -1,15 +1,11 @@
 from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import User
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
-from django.conf import settings
 
-from sb_comments.neo_models import Comment
-from sb_posts.neo_models import Post
-from plebs.neo_models import Pleb, FriendRequest
-from plebs.views import (ProfileView, create_friend_request)
+from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from api.utils import wait_util
 

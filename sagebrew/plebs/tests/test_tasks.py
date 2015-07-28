@@ -363,7 +363,7 @@ class TestUpdateReputation(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_update_reputation(self):
-        data ={
+        data = {
             "username": self.pleb.username
         }
         res = update_reputation.apply_async(kwargs=data)

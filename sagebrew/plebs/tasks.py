@@ -88,6 +88,7 @@ def determine_pleb_reps(username):
     except Exception as e:
         raise determine_pleb_reps.retry(exc=e, countdown=3, max_retries=None)
 
+
 @shared_task()
 def update_address_location(object_uuid):
     try:

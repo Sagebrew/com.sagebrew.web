@@ -10,7 +10,7 @@ from neomodel import db
 from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data
 
-from .neo_models import Address, Pleb, BetaUser
+from .neo_models import Address, Pleb
 from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
                     update_address_location)
 

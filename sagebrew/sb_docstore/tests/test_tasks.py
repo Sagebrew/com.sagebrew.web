@@ -6,9 +6,6 @@ from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from boto.dynamodb2.layer1 import DynamoDBConnection
-from boto.dynamodb2.table import Table
-
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question

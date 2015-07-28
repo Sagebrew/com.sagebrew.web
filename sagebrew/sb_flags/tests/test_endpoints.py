@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 
@@ -11,7 +10,6 @@ from sb_registration.utils import create_user_util_test
 
 from sb_flags.neo_models import Flag
 from sb_questions.neo_models import Question
-
 
 
 class FlagEndpointTest(APITestCase):

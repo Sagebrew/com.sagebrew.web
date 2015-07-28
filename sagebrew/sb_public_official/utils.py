@@ -50,6 +50,7 @@ def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
     return rep
 """
 
+
 @apply_defense
 def determine_reps(username):
     senators = []

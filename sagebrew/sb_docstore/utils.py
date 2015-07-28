@@ -1,6 +1,5 @@
 import os
 from logging import getLogger
-from datetime import datetime
 
 from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table

@@ -24,8 +24,8 @@ class TestManagePrivilegeRelation(TestCase):
         self.privilege = Privilege().save()
         self.requirement = Requirement(name=str(uuid1()),
                                        url=settings.WEB_ADDRESS +
-                                           "/v1/profiles/"
-                                           "<username>/reputation/",
+                                       "/v1/profiles/"
+                                       "<username>/reputation/",
                                        key="reputation",
                                        operator="coperator\nge\np0\n.",
                                        condition=0).save()
@@ -56,8 +56,8 @@ class TestCreatePrivilege(TestCase):
         self.privilege = Privilege().save()
         self.requirement = Requirement(name=str(uuid1()),
                                        url=settings.WEB_ADDRESS +
-                                           "/v1/profiles/"
-                                           "<username>/reputation/",
+                                       "/v1/profiles/"
+                                       "<username>/reputation/",
                                        key="reputation",
                                        operator="coperator\nge\np0\n.",
                                        condition=0).save()

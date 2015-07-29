@@ -846,3 +846,24 @@ class TestQuestSignup(TestCase):
         url = reverse('quest_info')
         res = self.client.post(url, data={"account_type": "paid"})
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
+
+class TestProfilePicture(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        self.client = Client()
+        res = create_user_util_test(self.email)
+        self.assertNotEqual(res, False)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.pleb.completed_profile_info = True
+        self.pleb.email_verified = True
+        self.pleb.save()
+        cache.set(self.pleb.username, self.pleb)
+        self.client.login(username=self.user.username, password='testpassword')
+
+    def test_profile_picture(self):
+        url = reverse("profile_picture")
+        res = self.client.get(url)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)

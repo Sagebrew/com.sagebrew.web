@@ -540,6 +540,53 @@ class TestUpdateSearchQuery(TestCase):
         self.assertTrue(pickle_instance)
         self.assertIsInstance(pickle.loads(pickle_instance), Exception)
 
+    def test_update_search_query_success(self):
+        from sb_search.neo_models import SearchQuery
+
+        test_query = SearchQuery(search_query=str(uuid1()))
+        test_query.save()
+
+        task_data = {
+            "pleb": self.pleb.username, "query_param": test_query.search_query,
+            "keywords": ['fake', 'keywords']
+        }
+
+        res = update_search_query.apply_async(kwargs=task_data)
+
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+
+    def test_update_search_query_success_already_connected(self):
+        from sb_search.neo_models import SearchQuery
+
+        test_query = SearchQuery(search_query=str(uuid1()))
+        test_query.save()
+        self.pleb.searches.connect(test_query)
+
+        task_data = {
+            "pleb": self.pleb.username, "query_param": test_query.search_query,
+            "keywords": ['fake', 'keywords']
+        }
+
+        res = update_search_query.apply_async(kwargs=task_data)
+
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+
+    def test_update_search_query_query_does_not_exist(self):
+        task_data = {
+            "pleb": self.pleb.username, "query_param": str(uuid1()),
+            "keywords": ['fake', 'keywords']
+        }
+
+        res = update_search_query.apply_async(kwargs=task_data)
+
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+
 
 class TestCreateKeywordTask(TestCase):
     def setUp(self):

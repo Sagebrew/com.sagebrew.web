@@ -36,5 +36,4 @@ class VoteEndpointTests(APITestCase):
         url = reverse("question-detail",
                       kwargs={'object_uuid': self.question.object_uuid})
         res = self.client.post(url + "votes/", data=data, format="json")
-        print res
         self.assertEqual(res.status_code, status.HTTP_200_OK)

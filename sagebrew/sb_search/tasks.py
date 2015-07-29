@@ -1,8 +1,8 @@
 import pytz
 import logging
-
 from datetime import datetime
 
+from py2neo import ClientError
 from celery import shared_task
 from neomodel import DoesNotExist, CypherException
 
@@ -320,6 +320,6 @@ def create_keyword(text, relevance, query_param):
             search_query.save()
             keyword.save()
             return True
-    except (CypherException, IOError) as e:
+    except (CypherException, IOError, ClientError) as e:
         logger.exception("Cypher Exception: ")
         raise create_keyword.retry(exc=e, countdown=3, max_retries=None)

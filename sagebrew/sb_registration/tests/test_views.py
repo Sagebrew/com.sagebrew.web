@@ -840,7 +840,7 @@ class TestQuestSignup(TestCase):
     def test_quest_signup_get(self):
         url = reverse('quest_info')
         res = self.client.get(url)
-        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_quest_signup_post(self):
         url = reverse('quest_info')

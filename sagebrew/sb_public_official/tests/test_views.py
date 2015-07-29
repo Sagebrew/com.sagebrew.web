@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 
 from rest_framework import status
 
+from neomodel import DoesNotExist
+
 from plebs.neo_models import Pleb
 from sb_campaigns.neo_models import PoliticalCampaign
 from sb_registration.utils import create_user_util_test
@@ -18,9 +20,12 @@ class PublicOfficialViews(TestCase):
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.campaign = PoliticalCampaign(
-            owner_username=self.pleb.username,
-            object_uuid=self.pleb.username).save()
+        try:
+            self.campaign = PoliticalCampaign.get(self.pleb.username)
+        except (PoliticalCampaign.DoesNotExist, DoesNotExist):
+            self.campaign = PoliticalCampaign(
+                owner_username=self.pleb.username,
+                object_uuid=self.pleb.username).save()
         self.pleb.campaign.connect(self.campaign)
         self.campaign.owned_by.connect(self.pleb)
         self.campaign.accountants.connect(self.pleb)

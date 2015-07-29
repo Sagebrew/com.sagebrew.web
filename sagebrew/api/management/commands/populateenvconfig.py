@@ -115,6 +115,15 @@ def populate_staging_values(data):
     data = data.replace("<CRED_USER>", environ.get("CRED_USER_STAGING", ""))
     data = data.replace("<CRED_PASSWORD>",
                         environ.get("CRED_PASSWORD_STAGING", ""))
+    data = data.replace("<CRED_USER_PUBLIC>",
+                        environ.get("CRED_USER_PUBLIC_STAGING", ""))
+    data = data.replace("<CRED_PASSWORD_PUBLIC>",
+                        environ.get("CRED_PASSWORD_PUBLIC_STAGING", ""))
+    data = data.replace("<OAUTH_CLIENT_SECRET_CRED_PUBLIC>",
+                        environ.get("OAUTH_CLIENT_SECRET_CRED_PUBLIC_STAGING",
+                                    ""))
+    data = data.replace("<OAUTH_CLIENT_ID_CRED_PUBLIC>",
+                        environ.get("OAUTH_CLIENT_ID_CRED_PUBLIC_STAGING", ""))
     data = data.replace("<ELASTIC_SEARCH_HOST>",
                         environ.get("ELASTIC_SEARCH_HOST_STAGING", ""))
     data = data.replace("<ELASTIC_SEARCH_PORT>",
@@ -187,6 +196,15 @@ def populate_production_values(data):
     data = data.replace("<CRED_USER>", environ.get("CRED_USER_PROD", ""))
     data = data.replace("<CRED_PASSWORD>",
                         environ.get("CRED_PASSWORD_PROD", ""))
+    data = data.replace("<CRED_USER_PUBLIC>",
+                        environ.get("CRED_USER_PUBLIC_PROD", ""))
+    data = data.replace("<CRED_PASSWORD_PUBLIC>",
+                        environ.get("CRED_PASSWORD_PUBLIC_PROD", ""))
+    data = data.replace("<OAUTH_CLIENT_SECRET_CRED_PUBLIC>",
+                        environ.get("OAUTH_CLIENT_SECRET_CRED_PUBLIC_PROD",
+                                    ""))
+    data = data.replace("<OAUTH_CLIENT_ID_CRED_PUBLIC>",
+                        environ.get("OAUTH_CLIENT_ID_CRED_PUBLIC_PROD", ""))
     data = data.replace("<ELASTIC_SEARCH_HOST>",
                         environ.get("ELASTIC_SEARCH_HOST_PROD", ""))
     data = data.replace("<ELASTIC_SEARCH_PORT>",
@@ -233,6 +251,15 @@ def populate_test_values(data):
     data = data.replace("<CRED_USER>", environ.get("CRED_USER", ""))
     data = data.replace("<CRED_PASSWORD>",
                         environ.get("CRED_PASSWORD", ""))
+    data = data.replace("<CRED_USER_PUBLIC>",
+                        environ.get("CRED_USER_PUBLIC", ""))
+    data = data.replace("<CRED_PASSWORD_PUBLIC>",
+                        environ.get("CRED_PASSWORD_PUBLIC", ""))
+    data = data.replace("<OAUTH_CLIENT_SECRET_CRED_PUBLIC>",
+                        environ.get("OAUTH_CLIENT_SECRET_CRED_PUBLIC",
+                                    ""))
+    data = data.replace("<OAUTH_CLIENT_ID_CRED_PUBLIC>",
+                        environ.get("OAUTH_CLIENT_ID_CRED_PUBLIC", ""))
     data = data.replace("<ELASTIC_SEARCH_HOST>",
                         environ.get("ELASTIC_SEARCH_HOST", ""))
     data = data.replace("<ELASTIC_SEARCH_PORT>",

@@ -2,7 +2,7 @@ import pytz
 import logging
 from datetime import datetime
 
-from py2neo import ClientError
+from py2neo.cypher.error import ClientError
 from celery import shared_task
 from neomodel import DoesNotExist, CypherException
 

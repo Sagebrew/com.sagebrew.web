@@ -825,3 +825,24 @@ class TestAgeRestrictionView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.client.logout()
+
+
+class TestQuestSignup(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        self.client = Client()
+        res = create_user_util_test(self.email)
+        self.assertNotEqual(res, False)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.client.login(username=self.user.username, password='testpassword')
+
+    def test_quest_signup_get(self):
+        url = reverse('quest_info')
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
+    def test_quest_signup_post(self):
+        url = reverse('quest_info')
+        res = self.client.post(url, data={"account_type": "paid"})
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)

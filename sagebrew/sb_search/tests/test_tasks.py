@@ -11,8 +11,7 @@ from elasticsearch import Elasticsearch
 
 from plebs.neo_models import Pleb
 
-from sb_search.tasks import (add_user_to_custom_index, update_user_indices,
-                             update_search_query, create_keyword)
+from sb_search.tasks import (update_search_query, create_keyword)
 from sb_registration.utils import create_user_util_test
 
 
@@ -429,7 +428,7 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
         self.assertFalse(res)
 """
 
-
+"""
 class TestAddUserToCustomIndexTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
@@ -451,8 +450,9 @@ class TestAddUserToCustomIndexTask(TestCase):
             time.sleep(1)
 
         self.assertTrue(res.result)
+"""
 
-
+"""
 class TestUpdateUserIndices(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
@@ -487,6 +487,7 @@ class TestUpdateUserIndices(TestCase):
         res = res.result
 
         self.assertTrue(res)
+"""
 
 
 class TestUpdateSearchQuery(TestCase):

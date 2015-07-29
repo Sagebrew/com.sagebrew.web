@@ -133,4 +133,13 @@ def populate_general_values(data, user, worker_count):
                         environ.get("OAUTH_CLIENT_ID", ""))
     data = data.replace("%(ENV_OAUTH_CLIENT_SECRET)s",
                         environ.get("OAUTH_CLIENT_SECRET", ""))
+    data = data.replace("%(ENV_CRED_USER_PUBLIC)s",
+                        environ.get("CRED_USER_PUBLIC", ""))
+    data = data.replace("%(ENV_CRED_PASSWORD_PUBLIC)s",
+                        environ.get("CRED_PASSWORD_PUBLIC", ""))
+    data = data.replace("%(ENV_OAUTH_CLIENT_SECRET_CRED_PUBLIC)s",
+                        environ.get("OAUTH_CLIENT_SECRET_CRED_PUBLIC",
+                                    ""))
+    data = data.replace("%(ENV_OAUTH_CLIENT_ID_CRED_PUBLIC)s",
+                        environ.get("OAUTH_CLIENT_ID_CRED_PUBLIC", ""))
     return data

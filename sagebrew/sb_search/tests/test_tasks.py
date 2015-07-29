@@ -1,13 +1,9 @@
 import time
 import pickle
-import pytz
 from uuid import uuid1
-from datetime import datetime
 from django.test import TestCase
 from django.conf import settings
 from django.contrib.auth.models import User
-
-from elasticsearch import Elasticsearch
 
 from plebs.neo_models import Pleb
 

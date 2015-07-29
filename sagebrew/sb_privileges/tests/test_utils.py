@@ -8,7 +8,7 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_privileges.neo_models import SBAction, Privilege
-from sb_privileges.utils import manage_privilege_relation, create_privilege
+from sb_privileges.utils import create_privilege
 from sb_requirements.neo_models import Requirement
 
 

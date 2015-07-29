@@ -37,6 +37,7 @@ def thumbnail_image(image, width, height, f_uuid=None):
     background.save(f_uuid + ".png")
 """
 
+
 def resize_image(image, resize_width, resize_height):
     """
     This function will resize an image based upon the given width and height.

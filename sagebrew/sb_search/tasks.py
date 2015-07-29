@@ -2,25 +2,14 @@ import pytz
 import logging
 
 from datetime import datetime
-from django.conf import settings
-from django.core.cache import cache
 
 from celery import shared_task
 from neomodel import DoesNotExist, CypherException
-from elasticsearch import Elasticsearch
-from elasticsearch.exceptions import (ElasticsearchException, TransportError,
-                                      ConnectionError, RequestError)
 
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
 
-from sb_base.utils import defensive_exception
-from sb_base.neo_models import SBContent
-from sb_questions.neo_models import Question
-from sb_public_official.neo_models import PublicOfficial
-
 from .neo_models import SearchQuery, KeyWord
-from .utils import (update_search_index_doc)
 
 logger = logging.getLogger('loggly_logs')
 
@@ -246,6 +235,7 @@ def update_user_indices(doc_type, doc_id):
 
     return True
 """
+
 
 @shared_task()
 def update_search_query(pleb, query_param, keywords):

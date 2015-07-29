@@ -44,7 +44,7 @@ class ObjectVotesListCreate(ListCreateAPIView):
         if serializer.is_valid():
             parent_object_uuid = self.kwargs[self.lookup_field]
 
-            vote_status = int(serializer.data['vote_type'])
+            vote_status = int(serializer.validated_data['vote_type'])
             res = handle_vote(parent_object_uuid, vote_status,
                               request.user.username, now)
             if res:

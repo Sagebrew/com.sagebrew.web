@@ -38,6 +38,7 @@ def create_tag_relations_util(tags):
         return e
 
 
+"""
 @apply_defense
 def calc_spheres():
     tags = Tag.nodes.all()
@@ -57,7 +58,7 @@ def calc_spheres():
                     ') as distance ' \
                     'return distance' % (tag.name, base_tag.name)
             execute_cypher_query(query)
-
+"""
 
 def update_tags_util(tags):
     tag_list = []

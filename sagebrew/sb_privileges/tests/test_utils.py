@@ -31,14 +31,6 @@ class TestManagePrivilegeRelation(TestCase):
                                        condition=0).save()
         self.privilege.requirements.connect(self.requirement)
 
-    def test_manage_privilege_relation_no_pleb(self):
-        result = manage_privilege_relation("hello_there")
-        self.assertIsInstance(result, Exception)
-
-    def test_pleb_already_has_privilege(self):
-        result = manage_privilege_relation(self.username)
-        self.assertTrue(result)
-
 
 class TestCreatePrivilege(TestCase):
     def setUp(self):

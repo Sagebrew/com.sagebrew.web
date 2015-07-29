@@ -53,5 +53,27 @@ class Command(BaseCommand):
                 client_secret=settings.OAUTH_CLIENT_SECRET_CRED,
                 name=oauth_user2.username, web_hook="http://localhost")
 
+        # Create frontend only cred, not for creating users
+        try:
+            oauth_user3 = User.objects.get(username=environ.get(
+                "CRED_USER_PUBLIC", ""))
+        except User.DoesNotExist:
+            oauth_user3 = User.objects.create_user(
+                username=environ.get("CRED_USER_PUBLIC", ""),
+                password=environ.get("CRED_PASSWORD_PUBLIC"))
+            oauth_user3.save()
+        try:
+            SBApplication.objects.get(
+                client_id=settings.OAUTH_CLIENT_ID_CRED_PUBLIC)
+        except SBApplication.DoesNotExist:
+            SBApplication.objects.create(
+                client_id=settings.OAUTH_CLIENT_ID_CRED_PUBLIC,
+                user=oauth_user3,
+                redirect_uris="%s%s" % (settings.WEB_ADDRESS, '/login'),
+                client_type='public',
+                authorization_grant_type="password",
+                client_secret=settings.OAUTH_CLIENT_SECRET_CRED_PUBLIC,
+                name=oauth_user3.username, web_hook="http://localhost")
+
     def handle(self, *args, **options):
         self.create_oauth_client()

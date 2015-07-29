@@ -211,7 +211,7 @@ class MeEndpointTests(APITestCase):
         wallpaper = self.pleb.wallpaper_pic
         self.pleb.wallpaper_pic = "http://helloworld.com/this.jpeg"
         self.pleb.save()
-        cache.clear()
+        cache.set(self.pleb.username, self.pleb)
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['wallpaper_pic'],
                          self.pleb.wallpaper_pic)

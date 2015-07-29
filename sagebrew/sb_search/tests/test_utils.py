@@ -6,9 +6,8 @@ from rest_framework.test import APIRequestFactory
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-from sb_questions.neo_models import Question
 
-from sb_search.utils import (process_search_result, update_campaign_search)
+from sb_search.utils import (process_search_result)
 
 
 class TestProcessSearchResult(TestCase):

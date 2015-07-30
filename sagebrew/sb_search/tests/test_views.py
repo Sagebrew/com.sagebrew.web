@@ -1,26 +1,14 @@
-import pytz
-import time
-import shortuuid
-from json import loads
-from datetime import datetime
-from uuid import uuid1
-
-from django.conf import settings
 from django.core.cache import cache
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
-from elasticsearch import Elasticsearch
 from rest_framework import status
-from rest_framework.test import APIRequestFactory, APIClient
+from rest_framework.test import APIRequestFactory
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
-from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
-
-from sb_search.views import search_result_view
 
 
 class TestSearchResultView(TestCase):

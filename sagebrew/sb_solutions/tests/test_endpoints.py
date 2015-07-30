@@ -1,7 +1,5 @@
 import time
-from dateutil import parser
 
-from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
@@ -111,7 +109,7 @@ class SolutionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse("question-solutions",
                       kwargs={'object_uuid': self.question.object_uuid}) \
-              + "?html=true"
+            + "?html=true"
         data = {
             "question": self.question.object_uuid,
             "content": self.solution.content

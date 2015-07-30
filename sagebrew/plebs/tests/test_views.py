@@ -20,7 +20,6 @@ from plebs.neo_models import Pleb, FriendRequest
 from plebs.views import (ProfileView, create_friend_request)
 
 
-
 class ProfilePageTest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()

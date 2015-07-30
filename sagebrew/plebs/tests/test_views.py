@@ -3,7 +3,7 @@ from base64 import b64encode
 from json import loads
 
 from rest_framework import status
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APIRequestFactory, APITestCase
 
 from django.contrib.auth.models import User, AnonymousUser
 from django.test import TestCase, Client
@@ -12,10 +12,13 @@ from django.conf import settings
 
 from sb_comments.neo_models import Comment
 from sb_posts.neo_models import Post
-from plebs.neo_models import Pleb, FriendRequest
-from plebs.views import (ProfileView, create_friend_request)
 from sb_registration.utils import create_user_util_test
 from api.utils import wait_util
+from sb_campaigns.neo_models import PoliticalCampaign
+
+from plebs.neo_models import Pleb, FriendRequest
+from plebs.views import (ProfileView, create_friend_request)
+
 
 
 class ProfilePageTest(TestCase):
@@ -392,3 +395,71 @@ class TestCreateFriendRequestView(TestCase):
         res = create_friend_request(request)
 
         self.assertEqual(res.status_code, 400)
+
+
+class TestSettingPages(TestCase):
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.client = Client()
+        self.email = "success@simulator.amazonses.com"
+        self.password = "testpassword"
+        res = create_user_util_test(self.email)
+        self.username = res["username"]
+        self.assertNotEqual(res, False)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.pleb.completed_profile_info = True
+        self.pleb.email_verified = True
+        self.pleb.save()
+
+    def test_settings_page(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse("general_settings")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_quest_settings_no_quest(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse("general_settings")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_quest_settings_quest(self):
+        campaign = PoliticalCampaign(
+            owner_username=self.pleb.username).save()
+        self.pleb.campaign.connect(campaign)
+        campaign.owned_by.connect(self.pleb)
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse("general_settings")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_contribute(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse("contribute_settings")
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TestUserSearchView(APITestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        self.password = "testpassword"
+        res = create_user_util_test(self.email)
+        self.username = res["username"]
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.pleb.completed_profile_info = True
+        self.pleb.email_verified = True
+        self.pleb.save()
+
+    def test_get_user_search_view(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse("get_user_search_view",
+                      kwargs={"pleb_username": self.pleb.username})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

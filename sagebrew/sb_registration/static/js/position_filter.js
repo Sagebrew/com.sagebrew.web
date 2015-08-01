@@ -61,7 +61,12 @@ $(document).ready(function () {
     engine.initialize();
     $('#state')
         .on('tokenfield:createtoken', function (e) {
-            var tokenArray = $('#state').tokenfield('getTokensList').split(', ');
+            var tokenArray;
+            try {
+                tokenArray = $('#state').tokenfield('getTokensList').split(', ');
+            } catch (err) {
+                tokenArray = $('#state').tokenfield('getTokensList');
+            }
             if ($.inArray(e.attrs.value, tokenArray) > -1) {
                 $(".tt-input").val("");
                 return false;
@@ -99,9 +104,13 @@ $(document).ready(function () {
                             }),
                             dataType: "json",
                             success: function (data) {
-                                window.location.href = data.url;
+                                //window.location.href = data.url;
+                                console.log(data);
                             },
                             error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                console.log(XMLHttpRequest);
+                                console.log(textStatus);
+                                console.log(errorThrown);
                                 errorDisplay(XMLHttpRequest);
                                 $(this).prop('disabled', false);
                             }

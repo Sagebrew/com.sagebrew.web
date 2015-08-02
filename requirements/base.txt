@@ -49,7 +49,7 @@ supervisor==3.1.3
 textblob==0.9.1
 urllib3==1.10.4
 wsgiref==0.1.2
--e git+https://github.com/bleib1dj/neomodel.git@canary#egg=neomodel-dev
+neomodel==2.0.1
 -e git+https://github.com/bleib1dj/django-oauth-toolkit.git@master#egg=oauth2_provider
 djangorestframework==3.1.3
 django-ses==0.7.0

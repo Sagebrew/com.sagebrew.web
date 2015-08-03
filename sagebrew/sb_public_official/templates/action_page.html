@@ -71,7 +71,7 @@
         <script src="{% static 'js/donation_validator.js' %}"></script>
         <script src="{% static 'js/pledge_vote.js' %}"></script>
     {% endif %}
-    {% if is_accountant %}
+    {% if is_accountant and "statistics" in request.path %}
         <script src="{% static 'js/vendor/highcharts.js' %}"></script>
         <script src="{% static 'js/get_charts.js' %}"></script>
         <script src="{% static 'js/get_donation_csv.js' %}"></script>

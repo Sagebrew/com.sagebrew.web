@@ -91,7 +91,7 @@ $(document).ready(function () {
                 dataType: "json",
                 success: function (data) {
                     $("#position_wrapper").append(data);
-                    $(".sb_btn").on("click", function (event) {
+                    $(".sb_btn").off().on("click", function (event) { // http://stackoverflow.com/questions/14969960/jquery-click-events-firing-multiple-times reason for off
                         event.preventDefault();
                         $(this).prop("disabled", true);
                         $.ajax({
@@ -104,7 +104,7 @@ $(document).ready(function () {
                             }),
                             dataType: "json",
                             success: function (data) {
-                                //window.location.href = data.url;
+                                window.location.href = data.url;
                                 console.log(data);
                             },
                             error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -128,7 +128,8 @@ $(document).ready(function () {
             typeahead: [null, {source: engine.ttAdapter()}],
             delimiter: [",", "'", ".", "*", "_"]
         });
-    $(".sb_btn").on("click", function (event) {
+    $("#js-president_selector").on("click", function (event) {
+        console.log($(this).data("object_uuid"));
         event.preventDefault();
         $(this).prop("disabled", true);
         $.ajax({

@@ -105,12 +105,8 @@ $(document).ready(function () {
                             dataType: "json",
                             success: function (data) {
                                 window.location.href = data.url;
-                                console.log(data);
                             },
                             error: function (XMLHttpRequest, textStatus, errorThrown) {
-                                console.log(XMLHttpRequest);
-                                console.log(textStatus);
-                                console.log(errorThrown);
                                 errorDisplay(XMLHttpRequest);
                                 $(this).prop('disabled', false);
                             }
@@ -129,7 +125,6 @@ $(document).ready(function () {
             delimiter: [",", "'", ".", "*", "_"]
         });
     $("#js-president_selector").on("click", function (event) {
-        console.log($(this).data("object_uuid"));
         event.preventDefault();
         $(this).prop("disabled", true);
         $.ajax({

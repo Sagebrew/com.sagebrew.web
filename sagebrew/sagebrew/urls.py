@@ -7,7 +7,7 @@ from django.views.generic.base import TemplateView, RedirectView
 from django.conf.urls import patterns, url
 
 from sb_registration.views import (login_view, logout_view, signup_view,
-                                   beta_page, quest_signup)
+                                   quest_signup)
 from sb_registration.forms import CustomPasswordResetForm
 
 

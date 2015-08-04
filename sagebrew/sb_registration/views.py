@@ -15,13 +15,13 @@ from rest_framework.response import Response
 from neomodel import (DoesNotExist, CypherException)
 
 from api.utils import spawn_task
-from plebs.tasks import send_email_task, create_beta_user
-from plebs.neo_models import Pleb, BetaUser
+from plebs.tasks import send_email_task
+from plebs.neo_models import Pleb
 from sb_campaigns.neo_models import Position
 
 from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,
-                    LoginForm, BetaSignupForm)
+                    LoginForm)
 from .utils import (verify_completed_registration, verify_verified_email,
                     create_user_util, verify_no_campaign)
 from .models import token_gen
@@ -345,31 +345,3 @@ def quest_position_selector(request):
     president = Position.nodes.get(name="President")
     return render(request, 'position_selection.html',
                   {'president': president.object_uuid})
-
-
-@api_view(['POST'])
-def beta_signup(request):
-    beta_form = BetaSignupForm(request.DATA or None)
-    if beta_form.is_valid() is True:
-        try:
-            BetaUser.nodes.get(email=beta_form.cleaned_data["email"])
-            return Response({"detail": "Beta User Already Exists"}, 409)
-        except (BetaUser.DoesNotExist, DoesNotExist):
-            res = spawn_task(create_beta_user, beta_form.cleaned_data)
-            if isinstance(res, Exception):
-                return Response({"detail": "Server Error"}, 500)
-            return Response({"detail": "success"}, 200)
-        except (CypherException, IOError):
-            return Response({"detail": "Server Error"}, 500)
-    else:
-        return Response({"detail": beta_form.errors.as_json()}, 400)
-
-
-def beta_page(request):
-    if request.user.is_authenticated() is True:
-        if verify_completed_registration(request.user) is True:
-            return redirect('newsfeed')
-        else:
-            return redirect('profile_info')
-
-    return render(request, "beta.html")

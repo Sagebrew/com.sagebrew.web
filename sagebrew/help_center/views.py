@@ -1,10 +1,9 @@
 from django.template.loader import render_to_string
 from django.core.urlresolvers import resolve
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.decorators import (api_view, permission_classes)
 
 from .forms import RelatedArticlesForm
@@ -12,7 +11,7 @@ from .utils import populate_urls
 
 
 @api_view(['GET'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def related_articles(request):
     """
 
@@ -43,7 +42,6 @@ def related_articles(request):
         return Response({'html': "<div></div>"}, status=400)
 
 
-@login_required()
 def help_area(request):
     category_dict = {}
     urlpatterns = populate_urls()

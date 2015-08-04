@@ -3,7 +3,7 @@ from django.shortcuts import redirect, render
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 
@@ -20,9 +20,6 @@ from logging import getLogger
 logger = getLogger('loggly_logs')
 
 
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def saga(request, username):
     try:
         campaign = PoliticalCampaign.get(object_uuid=username)
@@ -77,9 +74,6 @@ def manage_goals(request, username):
                       campaign, context={'request': request}).data)
 
 
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def updates(request, username):
     try:
         campaign = PoliticalCampaign.get(object_uuid=username)
@@ -131,7 +125,7 @@ def moderators(request, username):
 
 
 @api_view(['GET'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def get_search_html(request, object_uuid):
     try:
         campaign = PoliticalCampaign.get(object_uuid=object_uuid)

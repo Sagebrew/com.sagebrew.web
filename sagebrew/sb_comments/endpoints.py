@@ -6,7 +6,8 @@ from django.template import RequestContext
 
 from rest_framework.reverse import reverse
 from rest_framework.decorators import (api_view, permission_classes)
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import (ListCreateAPIView)
@@ -35,7 +36,7 @@ class ObjectCommentsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
 
 class ObjectCommentsListCreate(ListCreateAPIView):
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     lookup_field = "object_uuid"
 
     def get_queryset(self):
@@ -95,7 +96,7 @@ class ObjectCommentsListCreate(ListCreateAPIView):
 
 
 @api_view(["GET"])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def comment_renderer(request, object_uuid=None):
     """
     This is a intermediate step on the way to utilizing a JS Framework to

@@ -46,7 +46,8 @@
             {% else %}
                 {% include "downvote.html" %}
             {% endif %}
-
+        {% elif request.user.is_anonymous %}
+            {% include "downvote.html" %}
         {% elif "downvote" in request_profile.privileges %}
             {% if profile.username == request.user.username %}
                 {% include "vote_own_down.html" %}

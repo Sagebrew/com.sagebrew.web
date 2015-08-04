@@ -17,8 +17,6 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py logglypopulation && \
     chown root /etc/rsyslog.d/ && service rsyslog restart && \
     python manage.py migrate --noinput && \
-    python manage.py remove_official_search && \
-    python manage.py update_official_search && \
     python manage.py clear_cache && \
     python manage.py clearsessions && \
     python manage.py collectstatic --noinput && \

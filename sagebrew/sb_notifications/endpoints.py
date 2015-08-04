@@ -87,7 +87,7 @@ def notification_renderer(request, object_uuid=None):
     html_array = []
     id_array = []
     notifications = UserNotificationList.as_view()(request)
-    for notification in notifications.data['results']:
+    for notification in notifications.data.get('results', []):
         notification['time_sent'] = parser.parse(notification['time_sent'])
         context = RequestContext(request, notification)
         html_array.append(render_to_string('general_notification_block.html',

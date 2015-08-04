@@ -7,8 +7,7 @@ from sb_registration.utils import create_user_util_test
 
 from sb_donations.neo_models import Donation
 from sb_goals.neo_models import Goal
-from sb_campaigns.neo_models import Campaign, PoliticalCampaign
-from sb_campaigns.serializers import PoliticalCampaignSerializer
+from sb_campaigns.neo_models import Campaign
 
 
 class TestCampaignNeoModel(TestCase):

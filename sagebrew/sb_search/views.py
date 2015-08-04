@@ -96,6 +96,7 @@ def search_result_api(request):
 
     search_type_dict = dict(settings.SEARCH_TYPES)
     alchemyapi = AlchemyAPI()
+
     response = alchemyapi.keywords("text", query_param)
     # this .get on a dict is a temporary work around for the alchemyapi
     # package not having any exception handling, this will keep us safe

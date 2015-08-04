@@ -40,7 +40,7 @@ def release_funds(goal_uuid):
                 description='Quest Donation',
                 destination=campaign.stripe_id,
                 application_fee=int(donation_node.amount *
-                                    (campaign.application_fee - .029))
+                                    campaign.application_fee)
             )
             donation_node.completed = True
             donation_node.save()

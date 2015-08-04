@@ -11,45 +11,6 @@ from .neo_models import (PublicOfficial)
 
 logger = logging.getLogger('loggly_logs')
 
-"""
-def get_rep_type(rep_type):
-    cls = rep_type
-    module_name, class_name = cls.rsplit(".", 1)
-    sb_module = importlib.import_module(module_name)
-    sb_object = getattr(sb_module, class_name)
-    return sb_object
-
-
-@apply_defense
-def save_rep(pleb_username, rep_type, rep_id, recipient_id, gov_phone,
-             customer_id=None):
-    try:
-        pleb = Pleb.get(username=pleb_username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
-        return e
-    temp_type = dict(settings.BASE_REP_TYPES)[rep_type]
-    rep_type = get_rep_type(temp_type)
-    try:
-        rep = rep_type.nodes.get(object_uuid=rep_id)
-    except (CypherException, IOError) as e:
-        return e
-    except (rep_type.DoesNotExist, DoesNotExist):
-        rep = rep_type(object_uuid=rep_id, gov_phone=gov_phone).save()
-    try:
-        rep.pleb.connect(pleb)
-        pleb.official.connect(rep)
-    except (CypherException, IOError) as e:
-        return e
-    try:
-        rep.recipient_id = recipient_id
-        if customer_id is not None:
-            rep.customer_id = customer_id
-        rep.save()
-    except (CypherException, IOError) as e:
-        return e
-    return rep
-"""
-
 
 @apply_defense
 def determine_reps(username):

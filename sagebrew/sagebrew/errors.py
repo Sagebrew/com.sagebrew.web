@@ -63,7 +63,8 @@ DOES_NOT_EXIST_EXCEPTION = {
 
 STRIPE_CONNECTION_ERROR = {
     "detail": "Sorry, it looks like we're having some issues connecting to "
-              "Strip at the moment, please try again in a bit.",
+              "our account processor at the moment, "
+              "please try again in a bit.",
     "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
     "developer_message": "We have experience a connection error with Stripe, "
                          "this is often caused under heavy load, please "

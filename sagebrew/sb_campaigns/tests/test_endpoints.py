@@ -106,6 +106,49 @@ class CampaignEndpointTests(APITestCase):
         position.delete()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_create_paid(self):
+        self.client.force_authenticate(user=self.user)
+        session = self.client.session
+        session['account_type'] = 'paid'
+        session.save()
+
+        position = Position(name="Senator").save()
+        url = reverse('campaign-list')
+        data = {
+            "biography": "this is a test bio",
+            "facebook": "fake facebook link",
+            "linkedin": "fake linkedin link",
+            "youtube": "fake youtube link",
+            "twitter": "fake twitter link",
+            "website": "fake campaign website",
+            "position": position.object_uuid
+        }
+        response = self.client.post(url, data=data, format='json')
+        position.delete()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        campaign = PoliticalCampaign.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(campaign.application_fee, 0.021)
+
+    def test_create_unpaid(self):
+        self.client.force_authenticate(user=self.user)
+
+        position = Position(name="Senator").save()
+        url = reverse('campaign-list')
+        data = {
+            "biography": "this is a test bio",
+            "facebook": "fake facebook link",
+            "linkedin": "fake linkedin link",
+            "youtube": "fake youtube link",
+            "twitter": "fake twitter link",
+            "website": "fake campaign website",
+            "position": position.object_uuid
+        }
+        response = self.client.post(url, data=data, format='json')
+        position.delete()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        campaign = PoliticalCampaign.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(campaign.application_fee, 0.041)
+
     def test_create_active(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-list')

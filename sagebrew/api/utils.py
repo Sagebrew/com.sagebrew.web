@@ -165,7 +165,7 @@ def generate_short_token():
 def generate_long_token():
     long_hash = hashlib.sha1(shortuuid.uuid())
     long_hash.update(settings.SECRET_KEY)
-    return long_hash.hexidigest()
+    return long_hash.hexdigest()
 
 
 def add_failure_to_queue(message_info):

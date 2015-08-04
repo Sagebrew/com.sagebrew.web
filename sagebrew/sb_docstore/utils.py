@@ -1,6 +1,5 @@
 import os
 from logging import getLogger
-from datetime import datetime
 
 from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
@@ -88,30 +87,6 @@ def add_object_to_table(table_name, object_data):
         return e
 
     return True
-
-
-def convert_dynamo_content(raw_content):
-    content = dict(raw_content)
-    content['upvotes'] = get_vote_count(content['object_uuid'], 1)
-    content['downvotes'] = get_vote_count(content['object_uuid'], 0)
-    content['last_edited_on'] = datetime.strptime(
-        content['last_edited_on'][:len(content['last_edited_on']) - 6],
-        '%Y-%m-%d %H:%M:%S.%f')
-    content['created'] = datetime.strptime(
-        content['created'][:len(content['created']) - 6],
-        '%Y-%m-%d %H:%M:%S.%f')
-    content['vote_count'] = str(
-        content['upvotes'] - content['downvotes'])
-
-    return content
-
-
-def convert_dynamo_contents(raw_contents):
-    content_list = []
-    for content in raw_contents:
-        converted_content = convert_dynamo_content(content)
-        content_list.append(converted_content)
-    return content_list
 
 
 @apply_defense

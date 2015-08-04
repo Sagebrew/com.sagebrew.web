@@ -367,15 +367,6 @@ class Pleb(Searchable):
         # integers
         return bool(is_beta_user)
 
-    def has_flagged_object(self, object_uuid):
-        query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
-                "b:Pleb {username: '%s'}) Return b" % (
-                    object_uuid, self.username)
-        res, col = db.cypher_query(query)
-        if len(res) == 0:
-            return False
-        return True
-
     def get_restrictions(self):
         return self.restrictions.all()
 
@@ -465,36 +456,6 @@ class Pleb(Searchable):
     def get_object_rep_count(self):
         pass
 
-    def update_tag_rep(self, base_tags, tags):
-        from sb_tags.neo_models import Tag
-        for item in tags:
-            try:
-                tag = Tag.nodes.get(name=item)
-            except (Tag.DoesNotExist, DoesNotExist, CypherException, IOError):
-                continue
-            if self.tags.is_connected(tag):
-                rel = self.tags.relationship(tag)
-                rel.total = tags[item]
-                rel.save()
-            else:
-                rel = self.tags.connect(tag)
-                rel.total = tags[item]
-                rel.save()
-        for item in base_tags:
-            try:
-                tag = Tag.nodes.get(name=item)
-            except (Tag.DoesNotExist, DoesNotExist, CypherException, IOError):
-                continue
-            if self.tags.is_connected(tag):
-                rel = self.tags.relationship(tag)
-                rel.total = base_tags[item]
-                rel.save()
-            else:
-                rel = self.tags.connect(tag)
-                rel.total = base_tags[item]
-                rel.save()
-        return True
-
     def get_available_flags(self):
         pass
 
@@ -582,6 +543,38 @@ class Pleb(Searchable):
             except IndexError:
                 official = None
         return official
+
+    """
+    def update_tag_rep(self, base_tags, tags):
+        from sb_tags.neo_models import Tag
+        for item in tags:
+            try:
+                tag = Tag.nodes.get(name=item)
+            except (Tag.DoesNotExist, DoesNotExist, CypherException, IOError):
+                continue
+            if self.tags.is_connected(tag):
+                rel = self.tags.relationship(tag)
+                rel.total = tags[item]
+                rel.save()
+            else:
+                rel = self.tags.connect(tag)
+                rel.total = tags[item]
+                rel.save()
+        for item in base_tags:
+            try:
+                tag = Tag.nodes.get(name=item)
+            except (Tag.DoesNotExist, DoesNotExist, CypherException, IOError):
+                continue
+            if self.tags.is_connected(tag):
+                rel = self.tags.relationship(tag)
+                rel.total = base_tags[item]
+                rel.save()
+            else:
+                rel = self.tags.connect(tag)
+                rel.total = base_tags[item]
+                rel.save()
+        return True
+    """
 
 
 class Address(SBObject):

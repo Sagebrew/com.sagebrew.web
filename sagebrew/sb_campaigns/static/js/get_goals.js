@@ -9,7 +9,6 @@ $(document).ready(function () {
         dataType: "json",
         success: function (data) {
             $("#goal_wrapper").append(data);
-            calculateTotalRequired();
             //$.notify("Updated next goal set!", {type: 'success'});
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {

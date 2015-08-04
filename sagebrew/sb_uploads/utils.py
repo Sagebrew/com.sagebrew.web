@@ -1,11 +1,6 @@
-import os
-from uuid import uuid1
-from django.conf import settings
-
 from PIL import Image
-from sb_registration.utils import upload_image
 
-
+"""
 def crop_image(image, height, width, x, y, f_uuid=None):
     if f_uuid is None:
         f_uuid = str(uuid1())
@@ -40,6 +35,7 @@ def thumbnail_image(image, width, height, f_uuid=None):
                      ((size[0] - image.size[0]) / 2, (size[1] -
                                                       image.size[1]) / 2))
     background.save(f_uuid + ".png")
+"""
 
 
 def resize_image(image, resize_width, resize_height):

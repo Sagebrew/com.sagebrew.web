@@ -211,12 +211,23 @@ class MeEndpointTests(APITestCase):
         wallpaper = self.pleb.wallpaper_pic
         self.pleb.wallpaper_pic = "http://helloworld.com/this.jpeg"
         self.pleb.save()
-        cache.clear()
+        cache.set(self.pleb.username, self.pleb)
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['wallpaper_pic'],
                          self.pleb.wallpaper_pic)
         self.pleb.wallpaper_pic = wallpaper
         self.pleb.save()
+
+    def test_update(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-list')
+        data = {
+            "wallpaper_pic": "http://example.com/",
+            "profile_pic": "http://example.com/"
+        }
+        res = self.client.put(url, data)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
 
 class SentFriendRequestEndpointTests(APITestCase):
@@ -1791,6 +1802,23 @@ class AddressEndpointTests(APITestCase):
                     response.data['object_uuid'])
         res, col = db.cypher_query(query)
         self.assertEqual(Pleb.inflate(res[0][0]).username, self.user.username)
+
+    def test_update(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('address-detail', kwargs={
+            'object_uuid': self.address.object_uuid})
+        data = {
+            'city': "Walled Lake",
+            'longitude': -83.48016,
+            'state': "MI",
+            'street': "300 Eagle Pond Dr.",
+            'postal_code': "48390-3071",
+            'congressional_district': "11",
+            'latitude': 42.54083
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_200_OK)
 
 
 class ReputationMethodEndpointTests(APITestCase):

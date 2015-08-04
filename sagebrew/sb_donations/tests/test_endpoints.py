@@ -219,6 +219,7 @@ class TestSagebrewDonation(APITestCase):
         self.url = "http://testserver"
         self.donation = Donation(completed=False, amount=1000,
                                  owner_username=self.user.username).save()
+        cache.set(self.pleb.username, self.pleb)
 
     def test_unauthorized(self):
         url = reverse('direct_donation')

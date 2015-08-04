@@ -13,4 +13,4 @@ In the instance that a candidate does not reach their Donation Goal, you will
 not be charged.
 
 
-[1]: /help/citizens/donation_goals/
+[1]: /help/donating/donation_goals/

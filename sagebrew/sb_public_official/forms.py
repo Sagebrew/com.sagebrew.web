@@ -1,3 +1,4 @@
+"""
 from django import forms
 
 
@@ -41,3 +42,4 @@ class GoalForm(forms.Form):
     money_req = forms.IntegerField()
     initial = forms.BooleanField()
     description = forms.CharField(widget=forms.Textarea)
+"""

@@ -18,39 +18,32 @@ class Command(BaseCommand):
             try:
                 es.delete(index='full-search-base', doc_type='public_official',
                           id=official.object_uuid)
-                print "deleted %s public_official" % official.object_uuid
             except (NotFoundError):
                 try:
                     es.delete(index='full-search-base',
                               doc_type='politicalcampaign',
                               id=official.object_uuid)
-                    print "deleted %s politicalcampaign" % official.object_uuid
                 except (NotFoundError):
                     try:
                         es.delete(index='full-search-base',
                                   doc_type='campaign',
                                   id=official.object_uuid)
-                        print "deleted %s campaign" % official.object_uuid
                     except (NotFoundError):
                         pass
         for camp in PoliticalCampaign.nodes.all():
             try:
                 es.delete(index='full-search-base', doc_type='public_official',
                           id=camp.object_uuid)
-                print "deleted campaign %s public_official" % camp.object_uuid
             except (NotFoundError):
                 try:
                     es.delete(index='full-search-base',
                               doc_type='politicalcampaign',
                               id=camp.object_uuid)
-                    print "deleted campaign %s politicalcampaign" % \
-                          camp.object_uuid
                 except (NotFoundError):
                     try:
                         es.delete(index='full-search-base',
                                   doc_type='campaign',
                                   id=camp.object_uuid)
-                        print "deleted %s campaign" % camp.object_uuid
                     except (NotFoundError):
                         pass
 

@@ -1,4 +1,5 @@
 import pytz
+import stripe
 import datetime
 import logging
 from json import dumps
@@ -57,6 +58,11 @@ def custom_exception_handler(exc, context):
     if isinstance(exc, ValueError):
         data = errors.JSON_ERROR_EXCEPTION
         logger.exception("%s JSON Exception" % context['view'])
+        return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    if isinstance(exc, stripe.APIConnectionError):
+        data = errors.STRIPE_CONNECTION_ERROR
+        logger.exception("%s Stripe API Connection Error" % context['view'])
         return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     if isinstance(exc, DoesNotExist):

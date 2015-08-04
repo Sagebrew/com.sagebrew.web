@@ -60,3 +60,13 @@ DOES_NOT_EXIST_EXCEPTION = {
         "this is incorrect please feel free to contact us at "
         "developers@sagebrew.com."
 }
+
+STRIPE_CONNECTION_ERROR = {
+    "detail": "Sorry, it looks like we're having some issues connecting to "
+              "our account processor at the moment, "
+              "please try again in a bit.",
+    "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+    "developer_message": "We have experienced a connection error with Stripe, "
+                         "this is often caused under heavy load, please "
+                         "try again in a bit."
+}

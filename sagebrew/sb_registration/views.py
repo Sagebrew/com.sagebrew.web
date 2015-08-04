@@ -32,16 +32,6 @@ def signup_view(request):
     if (request.user.is_authenticated() is True and
             verify_completed_registration(request.user) is True):
         return redirect('profile_page', pleb_username=request.user.username)
-    user = request.GET.get('user', '')
-    if not user:
-        return redirect('beta_page')
-    try:
-        beta_user = BetaUser.nodes.get(email=user)
-    except (BetaUser.DoesNotExist, DoesNotExist, CypherException, IOError):
-        return redirect('beta_page')
-    if not beta_user.invited:
-        return redirect('beta_page')
-
     return render(request, 'sign_up_page/index.html')
 
 

@@ -1,7 +1,6 @@
 from django.template.loader import render_to_string
 from django.core.urlresolvers import resolve
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
 
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly

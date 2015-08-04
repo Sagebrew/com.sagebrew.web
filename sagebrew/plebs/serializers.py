@@ -5,13 +5,12 @@ from django.core.cache import cache
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel.exception import DoesNotExist
 from neomodel import db
 
 from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data
 
-from .neo_models import Address, Pleb, BetaUser
+from .neo_models import Address, Pleb
 from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
                     update_address_location)
 
@@ -35,14 +34,6 @@ def generate_username(first_name, last_name):
             (''.join(e for e in last_name if e.isalnum())).lower(),
             users_count)
     return username
-
-
-def check_beta_user(email, pleb):
-    try:
-        beta_user = BetaUser.nodes.get(email=email)
-        pleb.beta_user.connect(beta_user)
-    except(BetaUser.DoesNotExist, DoesNotExist):
-        pass
 
 
 class BetaUserSerializer(serializers.Serializer):

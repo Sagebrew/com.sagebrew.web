@@ -1,29 +1,20 @@
-'''
-import pytz
-import time
-import shortuuid
-from json import loads
-from datetime import datetime
-from uuid import uuid1
-from rest_framework.test import APIRequestFactory, APIClient
+from django.core.cache import cache
+from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from django.test import TestCase
-from django.conf import settings
 from django.core.urlresolvers import reverse
 
-from elasticsearch import Elasticsearch
+from rest_framework import status
+from rest_framework.test import APIRequestFactory
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb
-from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
-
-from sb_search.views import search_result_view
 
 
 class TestSearchResultView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
+        self.client = Client()
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
@@ -32,16 +23,21 @@ class TestSearchResultView(TestCase):
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
         self.pleb.save()
+        cache.clear()
 
     def test_search_result_view_success(self):
-        request = self.factory.post('/search/?q=test')
-        request.user = self.user
+        self.client.login(username=self.user.username, password="testpassword")
+        url = reverse("search_results")
+        response = self.client.get(url, data={'q': 'test'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        response = search_result_view(request)
+    def test_search_result_view_no_query(self):
+        self.client.login(username=self.user.username, password="testpassword")
+        url = reverse("search_results")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        self.assertEqual(response.status_code, 200)
-
-
+'''
 class TestSearchResultAPI(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -384,31 +380,29 @@ class TestSearchResultAPIReturns(TestCase):
         self.assertEqual(res2.title, question1.title)
         self.assertEqual(request.status_code, 200)
 
-
-
-question2 = Question(object_uuid=str(uuid1()),
-                       title='How can we reduce the amount of'
-                                      ' NO2 pollution in the '
-                                      'atmosphere?',
-                       question_content='NO2 is a greenhouse gas 300 '
-                                        'times more harmful to the '
-                                        'environment than CO2, and the'
-                                        ' levels of NO2 in the '
-                                        'environment are rising '
-                                        'far above average atmospheric'
-                                        ' fluctuation. What are some '
-                                        'of the causes of this and '
-                                        'what can we do to reduce the '
-                                        'amount of NO2 being placed '
-                                        'into the atmosphere? ')
-question2.save()
-question2.owned_by.connect(self.pleb)
-es.index(index='full-search-user-specific-1',
-         doc_type='question',
-         body={
-             'question_uuid': question2.object_uuid,
-             'title': question2.title,
-             'question_content': question2.question_content,
-             'related_user': self.user.email
-         })
+    question2 = Question(object_uuid=str(uuid1()),
+                           title='How can we reduce the amount of'
+                                          ' NO2 pollution in the '
+                                          'atmosphere?',
+                           question_content='NO2 is a greenhouse gas 300 '
+                                            'times more harmful to the '
+                                            'environment than CO2, and the'
+                                            ' levels of NO2 in the '
+                                            'environment are rising '
+                                            'far above average atmospheric'
+                                            ' fluctuation. What are some '
+                                            'of the causes of this and '
+                                            'what can we do to reduce the '
+                                            'amount of NO2 being placed '
+                                            'into the atmosphere? ')
+    question2.save()
+    question2.owned_by.connect(self.pleb)
+    es.index(index='full-search-user-specific-1',
+             doc_type='question',
+             body={
+                 'question_uuid': question2.object_uuid,
+                 'title': question2.title,
+                 'question_content': question2.question_content,
+                 'related_user': self.user.email
+             })
 '''

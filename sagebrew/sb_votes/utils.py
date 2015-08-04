@@ -30,14 +30,14 @@ def determine_vote_type(object_uuid, username):
     return vote_type
 
 
-def handle_vote(parent_object_uuid, status, request, now):
+def handle_vote(parent_object_uuid, status, username, now):
     vote_data = {
         "parent_object": parent_object_uuid,
-        "user": request.user.username,
+        "user": username,
         "status": status,
         "time": now
     }
-    res = get_vote(parent_object_uuid, user=request.user.username)
+    res = get_vote(parent_object_uuid, user=username)
     if isinstance(res, Exception) is True:
         raise res
     if not res:
@@ -45,7 +45,7 @@ def handle_vote(parent_object_uuid, status, request, now):
         if isinstance(add_res, Exception) is True:
             raise add_res
     else:
-        update = update_vote(parent_object_uuid, request.user.username,
+        update = update_vote(parent_object_uuid, username,
                              status, now)
         if isinstance(update, Exception) is True:
             raise update

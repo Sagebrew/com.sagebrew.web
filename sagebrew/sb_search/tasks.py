@@ -1,30 +1,20 @@
 import pytz
 import logging
-
 from datetime import datetime
-from django.conf import settings
-from django.core.cache import cache
 
+from py2neo.cypher.error import ClientError
 from celery import shared_task
 from neomodel import DoesNotExist, CypherException
-from elasticsearch import Elasticsearch
-from elasticsearch.exceptions import (ElasticsearchException, TransportError,
-                                      ConnectionError, RequestError)
 
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
 
-from sb_base.utils import defensive_exception
-from sb_base.neo_models import SBContent
-from sb_questions.neo_models import Question
-from sb_public_official.neo_models import PublicOfficial
-
 from .neo_models import SearchQuery, KeyWord
-from .utils import (update_search_index_doc)
 
 logger = logging.getLogger('loggly_logs')
 
 
+"""
 @shared_task()
 def spawn_weight_relationships(search_items):
     for item in search_items:
@@ -55,7 +45,6 @@ def spawn_weight_relationships(search_items):
             if isinstance(spawned, Exception) is True:
                 return spawned
     return True
-
 
 @shared_task()
 def update_weight_relationship(document_id, index, object_type,
@@ -245,6 +234,7 @@ def update_user_indices(doc_type, doc_id):
         raise update_user_indices.retry(exc=e, countdown=3, max_retries=None)
 
     return True
+"""
 
 
 @shared_task()
@@ -330,6 +320,6 @@ def create_keyword(text, relevance, query_param):
             search_query.save()
             keyword.save()
             return True
-    except (CypherException, IOError) as e:
+    except (CypherException, IOError, ClientError) as e:
         logger.exception("Cypher Exception: ")
         raise create_keyword.retry(exc=e, countdown=3, max_retries=None)

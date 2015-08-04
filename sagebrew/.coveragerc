@@ -24,6 +24,24 @@ omit =
     */management/commands/createsite.py
     */management/commands/populate_rep_models.py
     */management/commands/createtokens.py
+    */management/commands/populate_indices.py
+    */management/commands/repopulate_elasticsearch.py
+    */management/commands/update_rep_districts.py
+    */management/commands/create_prepopulated_reps.py
+    */management/commands/populate_president.py
+    */management/commands/update_posts.py
+    */management/commands/create_subscription_plans.py
+    */management/commands/empty_elasticsearch.py
+    */management/commands/update_official_search.py
+    */management/commands/populate_dummy_campaign.py
+    */management/commands/create_badges.py
+    */management/commands/populate_location_data.py
+    */management/commands/populate_owner_username.py
+    */management/commands/add_addresses_to_locations.py
+    */management/commands/clear_neo_db.py
+    */management/commands/create_dynamo_tables.py
+    */management/commands/create_privileges.py
+    */sagebrew/test_runner.py
 
 [report]
 # Regexes for lines to exclude from consideration

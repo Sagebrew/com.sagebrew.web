@@ -1,18 +1,13 @@
 import time
 import pickle
-import pytz
 from uuid import uuid1
-from datetime import datetime
 from django.test import TestCase
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from elasticsearch import Elasticsearch
-
 from plebs.neo_models import Pleb
 
-from sb_search.tasks import (add_user_to_custom_index, update_user_indices,
-                             update_search_query, create_keyword)
+from sb_search.tasks import (update_search_query, create_keyword)
 from sb_registration.utils import create_user_util_test
 
 
@@ -429,7 +424,7 @@ class TestUpdateWeightRelationshipTaskPleb(TestCase):
         self.assertFalse(res)
 """
 
-
+"""
 class TestAddUserToCustomIndexTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
@@ -451,8 +446,9 @@ class TestAddUserToCustomIndexTask(TestCase):
             time.sleep(1)
 
         self.assertTrue(res.result)
+"""
 
-
+"""
 class TestUpdateUserIndices(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
@@ -487,6 +483,7 @@ class TestUpdateUserIndices(TestCase):
         res = res.result
 
         self.assertTrue(res)
+"""
 
 
 class TestUpdateSearchQuery(TestCase):
@@ -538,6 +535,53 @@ class TestUpdateSearchQuery(TestCase):
         pickle_instance = pickle.dumps(res)
         self.assertTrue(pickle_instance)
         self.assertIsInstance(pickle.loads(pickle_instance), Exception)
+
+    def test_update_search_query_success(self):
+        from sb_search.neo_models import SearchQuery
+
+        test_query = SearchQuery(search_query=str(uuid1()))
+        test_query.save()
+
+        task_data = {
+            "pleb": self.pleb.username, "query_param": test_query.search_query,
+            "keywords": ['fake', 'keywords']
+        }
+
+        res = update_search_query.apply_async(kwargs=task_data)
+
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+
+    def test_update_search_query_success_already_connected(self):
+        from sb_search.neo_models import SearchQuery
+
+        test_query = SearchQuery(search_query=str(uuid1()))
+        test_query.save()
+        self.pleb.searches.connect(test_query)
+
+        task_data = {
+            "pleb": self.pleb.username, "query_param": test_query.search_query,
+            "keywords": ['fake', 'keywords']
+        }
+
+        res = update_search_query.apply_async(kwargs=task_data)
+
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+
+    def test_update_search_query_query_does_not_exist(self):
+        task_data = {
+            "pleb": self.pleb.username, "query_param": str(uuid1()),
+            "keywords": ['fake', 'keywords']
+        }
+
+        res = update_search_query.apply_async(kwargs=task_data)
+
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
 
 
 class TestCreateKeywordTask(TestCase):

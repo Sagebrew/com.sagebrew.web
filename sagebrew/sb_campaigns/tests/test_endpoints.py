@@ -936,6 +936,29 @@ class CampaignEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNotNone(response.data['results']['html'])
 
+    def test_pledged_votes(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-pledged-votes',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_unassigned_goals(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-unassigned-goals',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_possible_helpers(self):
+        self.client.force_authenticate(user=self.user)
+        self.campaign.object_uuid = self.pleb.username
+        self.campaign.save()
+        url = reverse('campaign-possible-helpers',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
 class PositionEndpointTests(APITestCase):
     def setUp(self):

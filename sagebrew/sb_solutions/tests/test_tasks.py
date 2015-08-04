@@ -24,7 +24,13 @@ class TestAddSolutionToSearchIndexTask(TestCase):
         solution = Solution(content='this is fake content',
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
-        data = {"solution": solution}
+        data = {
+            "solution": {
+                "object_uuid": solution.object_uuid,
+                "content": solution.content,
+                "owner_username": self.pleb.username
+            }
+        }
         res = add_solution_to_search_index.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
@@ -36,7 +42,13 @@ class TestAddSolutionToSearchIndexTask(TestCase):
                             added_to_search_index=True,
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
-        data = {"solution": solution}
+        data = {
+            "solution": {
+                "object_uuid": solution.object_uuid,
+                "content": solution.content,
+                "owner_username": self.pleb.username
+            }
+        }
         res = add_solution_to_search_index.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)

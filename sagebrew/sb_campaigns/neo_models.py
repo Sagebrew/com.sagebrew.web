@@ -77,7 +77,7 @@ class Campaign(Searchable):
     # when rendering potential representative html to a users profile page
     first_name = StringProperty()
     last_name = StringProperty()
-    application_fee = FloatProperty(default=0.07)
+    application_fee = FloatProperty(default=0.041)
     last_four_soc = StringProperty()
 
     # Optimizations

@@ -103,7 +103,7 @@ $(document).ready(function () {
             completedCustomer = $("#js-completed_customer").data("completed_customer");
         if (completedStripe === "False") {
             $("html, body").animate({scrollTop: 0}, "slow");
-            $.notify("Please fill in the banking information portion of this page. You may only take your Quest active after that.", {type: "success"});
+            $.notify("Please fill in the banking information portion of this page. You may only take your Quest active after that.", {type: "info"});
         } else if (completedCustomer === "False") {
             handler.open({
                 name: "Sagebrew LLC",

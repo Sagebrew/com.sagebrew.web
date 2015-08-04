@@ -1,7 +1,7 @@
 from requests import get
 from django.test.testcases import TestCase
 
-from govtrack.utils import create_gt_role, create_gt_person
+from govtrack.utils import create_gt_role, create_gt_person, populate_term_data
 
 
 class TestCreateGTRoleUtil(TestCase):
@@ -22,3 +22,9 @@ class TestCreateGTPerson(TestCase):
     def test_create_gt_person_success(self):
         res = create_gt_person(self.role_dict['objects'][0]['person'])
         self.assertIsNot(res, False)
+
+
+class TestPopulateTermData(TestCase):
+    def test_populate_term_data(self):
+        res = populate_term_data()
+        self.assertTrue(res)

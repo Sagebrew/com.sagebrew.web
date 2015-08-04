@@ -413,6 +413,7 @@ function saveSolution() {
             success: function (data) {
                 $("#solution_container").append(data.html);
                 $('textarea.sb_solution_input_area').val("");
+                $("#wmd-preview-0").empty();
                 var solutionCountText = $("#solution_count").text();
                 if (solutionCountText !== "--") {
                     // the reasoning for the addition of the 10 here is

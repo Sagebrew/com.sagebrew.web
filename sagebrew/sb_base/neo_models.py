@@ -52,6 +52,10 @@ class VoteRelationship(StructuredRel):
 
 
 class CouncilVote(VoteRelationship):
+    """
+    This model is here because if we moved it to sb_council.neo_models it
+    would cause circular dependencies.
+    """
     reasoning = StringProperty()
 
 

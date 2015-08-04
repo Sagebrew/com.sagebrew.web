@@ -37,39 +37,6 @@ def update_search_index_doc_script(document_id, index, field, update_value,
 """
 
 
-def update_search_index_doc(document_id, index, field, update_value,
-                            document_type):
-    """
-    This function can be used to update an existing document in an elasticsearch
-    index. This function uses the .update functionality provided by the
-    Elasticsearch python package but is also doable by using the script
-    language for elasticsearch.
-
-    :param document_id:
-    :param index:
-    :param field:
-    :param update_value:
-    :param document_type:
-    :return:
-    """
-    try:
-        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        body = {
-            "doc": {
-                field: update_value
-            }
-        }
-        es.update(index=index, fields=["_source"], doc_type=document_type,
-                  id=document_id, body=body)
-        return True
-    except HTTPError:
-        logger.error({"function": update_search_index_doc.__name__,
-                      "error": "HTTPError: "})
-        return False
-    except TransportError:
-        return False
-
-
 def process_search_result(item):
     """
     This util is called to process the search results returned from

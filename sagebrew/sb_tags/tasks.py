@@ -2,7 +2,7 @@ from celery import shared_task
 
 from api.utils import spawn_task
 
-from .utils import create_tag_relations_util, calc_spheres, update_tags_util
+from .utils import create_tag_relations_util, update_tags_util
 
 
 @shared_task()
@@ -38,14 +38,6 @@ def add_auto_tags(question, tag_list):
         raise add_auto_tags.retry(exc=response, countdown=3,
                                   max_retries=None)
     return response
-
-
-@shared_task()
-def calc_spheres_task():
-    res = calc_spheres()
-    if isinstance(res, Exception):
-        raise calc_spheres.retry(exc=res, countdown=3, max_retries=None)
-    return res
 
 
 @shared_task()

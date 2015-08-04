@@ -27,12 +27,12 @@
     <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
         <div class="block sb_bio_block">
             <h2>{{ first_name }} {{ last_name }}</h2>
-            <p id="bio_wrapper">{{ biography }}{% if is_editor or is_accountant %}
+            <p id="bio_wrapper">{{ biography|default_if_none:"This Quest has no Biography" }}{% if is_editor or is_accountant %}
             <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
     {% endif %}</p>
             {% if is_editor or is_accountant %}
                 <div id="bio_edit" style="display: none">
-                    <textarea class="form-control edit_bio_input" id="biography_input" rows="3" placeholder="Biography, limit 255 characters">{{ biography }}</textarea>
+                    <textarea class="form-control edit_bio_input" id="biography_input" rows="3" placeholder="Biography, limit 255 characters">{{ biography|default_if_none:"" }}</textarea>
                     <button class="btn btn-block btn-primary sb_btn_fill" id="submit_biography">Submit Bio</button>
                 </div>
             {% endif %}

@@ -84,7 +84,7 @@ $(document).ready(function () {
                             }
                         });
                     }
-                    if (item.type === 'public_official' || item.type === 'campaign') {
+                    if (item.type === 'public_official' || item.type === 'campaign' || item.type === 'politicalcampaign') {
                         var sagaUUID = item.object_uuid;
                         $.ajax({
                             xhrFields: {withCredentials: true},

@@ -66,7 +66,7 @@ STRIPE_CONNECTION_ERROR = {
               "our account processor at the moment, "
               "please try again in a bit.",
     "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-    "developer_message": "We have experience a connection error with Stripe, "
+    "developer_message": "We have experienced a connection error with Stripe, "
                          "this is often caused under heavy load, please "
                          "try again in a bit."
 }

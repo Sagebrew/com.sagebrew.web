@@ -54,7 +54,7 @@
 
                         </div>
                     </div>
-                    {% if not is_closed %}
+                    {% if not is_closed and not request.user.is_anonymous %}
                         <div class="row" style="padding-left: 15px; padding-right: 15px;">
                             <div class="block sb_markdown sb_solution sb_provide_solution">
                                 <form id="solutionSubmitForm">

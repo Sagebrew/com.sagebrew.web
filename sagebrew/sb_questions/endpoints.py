@@ -3,7 +3,7 @@ from dateutil import parser
 from django.template.loader import render_to_string
 from django.template import RequestContext
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
@@ -23,7 +23,7 @@ from .tasks import add_question_to_indices_task
 class QuestionViewSet(viewsets.ModelViewSet):
     serializer_class = QuestionSerializerNeo
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     # Tried a filtering class but it requires a order_by method to be defined
     # on the given queryset. Since django provides an actual QuerySet rather
     # than a plain list this works with the ORM but would require additional

@@ -1,0 +1,26 @@
+{% extends "sb_plebs_base/profile_page.html" %}
+{% load staticfiles %}
+{% block title %}{{ page_user.first_name }}'s Photos{% endblock title %}
+{%  block midsection %}
+<div class="col-md-4 hidden-sm hidden-xs">
+   {% include "sb_home_section/sb_profile_rep_stats.html" %}
+   {% include "sb_home_section/sb_profile_potential_reps_stats.html" %}
+</div>
+<div class="col-md-8">
+   <div class="col-lg-12 sb_wall">
+       <div class="row">
+           <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12"
+                id="photo_wrapper">
+               <div style="display: none"
+                    id="next_url" data-url=""></div>
+           </div>
+           <div class="col-lg-6 col-md-12 col-sm-12 col-xs-12">
+           </div>
+       </div>
+   </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+{% endblock %}

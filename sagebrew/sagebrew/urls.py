@@ -55,7 +55,6 @@ urlpatterns = patterns(
     (r'^quests/', include('sb_public_official.urls')),
     (r'^council/', include('sb_council.urls')),
     (r'^updates/', include('sb_updates.urls')),
-    url(r'^$', signup_view, name="signup"),
     url(r'^quest/$', quest_signup, name='quest_info'),
     (r'^v1/', include('sb_questions.apis.v1')),
     (r'^v1/', include('sb_solutions.apis.v1')),
@@ -74,7 +73,8 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_campaigns.apis.v1')),
     (r'^v1/', include('sb_donations.apis.v1')),
     (r'^v1/', include('sb_locations.apis.v1')),
-    (r'^v1/', include('sb_council.apis.v1'))
+    (r'^v1/', include('sb_council.apis.v1')),
+    url(r'^$', signup_view, name="signup"),
 )
 
 if settings.DEBUG is True:

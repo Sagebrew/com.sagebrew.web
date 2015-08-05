@@ -7,7 +7,7 @@ from django.views.generic.base import TemplateView, RedirectView
 from django.conf.urls import patterns, url
 
 from sb_registration.views import (login_view, logout_view, signup_view,
-                                   beta_page, quest_signup)
+                                   quest_signup)
 from sb_registration.forms import CustomPasswordResetForm
 
 
@@ -55,7 +55,6 @@ urlpatterns = patterns(
     (r'^quests/', include('sb_public_official.urls')),
     (r'^council/', include('sb_council.urls')),
     (r'^updates/', include('sb_updates.urls')),
-    url(r'^signup/$', signup_view, name="signup"),
     url(r'^quest/$', quest_signup, name='quest_info'),
     (r'^v1/', include('sb_questions.apis.v1')),
     (r'^v1/', include('sb_solutions.apis.v1')),
@@ -75,7 +74,7 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_donations.apis.v1')),
     (r'^v1/', include('sb_locations.apis.v1')),
     (r'^v1/', include('sb_council.apis.v1')),
-    url(r'^$', beta_page, name='beta_page'),
+    url(r'^$', signup_view, name="signup"),
 )
 
 if settings.DEBUG is True:

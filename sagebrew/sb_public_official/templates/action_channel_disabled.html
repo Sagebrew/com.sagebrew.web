@@ -36,7 +36,7 @@
             {% else %}
                 <p id="bio_wrapper">
                 {% if is_editor or is_accountant %}
-                    {{ biography }}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
+                    {{ biography|default_if_none:"Please fill out a short bio" }}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
                 {% else %}
                     This user has not yet embarked on their Sagebrew Quest
                 {% endif %}
@@ -44,7 +44,7 @@
             {% endif %}
             {% if is_editor or is_accountant %}
                 <div id="bio_edit" style="display: none">
-                    <textarea class="form-control edit_bio_input" id="biography_input" rows="3" placeholder="Biography, limit 255 characters">{{ biography }}</textarea>
+                    <textarea class="form-control edit_bio_input" id="biography_input" rows="3" placeholder="Biography, limit 255 characters">{{ biography|default_if_none:"" }}</textarea>
                     <button class="btn btn-block btn-primary sb_btn_fill" id="submit_biography">Submit Bio</button>
                 </div>
             {% endif %}

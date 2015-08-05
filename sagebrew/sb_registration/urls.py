@@ -5,7 +5,7 @@ from django.contrib.auth.decorators import login_required
 from .views import (profile_information, interests, profile_picture,
                     signup_view_api, quest_position_selector,
                     login_view_api, email_verification,
-                    resend_email_verification, beta_signup)
+                    resend_email_verification)
 
 
 urlpatterns = patterns(
@@ -26,8 +26,5 @@ urlpatterns = patterns(
         name="resend_verification"),
     url(r'^quest/$', quest_position_selector, name="rep_registration_page"),
     url(r'^email_confirmation/(?P<confirmation>[A-Za-z0-9.@_%+-]{24})/$',
-        email_verification, name="email_verification"),
-
-    # This is an api call
-    url(r'^beta/signup/$', beta_signup, name="beta_signup"),
+        email_verification, name="email_verification")
 )

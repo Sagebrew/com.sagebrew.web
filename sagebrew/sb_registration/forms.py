@@ -223,10 +223,6 @@ class LoginForm(forms.Form):
     password = forms.CharField(required=True, min_length=6)
 
 
-class BetaSignupForm(forms.Form):
-    email = forms.CharField()
-
-
 def validate_user(email):
     try:
         User.objects.get(email=email)

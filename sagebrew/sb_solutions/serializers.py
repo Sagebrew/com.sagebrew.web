@@ -28,8 +28,9 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         solution = Solution(**validated_data).save()
         solution.owned_by.connect(owner)
         owner.solutions.connect(solution)
-        question.solutions.connect(solution)
-        solution.solution_to.connect(question)
+        if question is not None:
+            question.solutions.connect(solution)
+            solution.solution_to.connect(question)
 
         return solution
 
@@ -45,7 +46,10 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         return obj.get_url(self.context.get('request', None))
 
     def get_solution_to(self, obj):
-        question = obj.solution_to.all()[0]
+        try:
+            question = obj.solution_to.all()[0]
+        except IndexError:
+            return None
         return reverse('question-detail',
                        kwargs={'object_uuid': question.object_uuid},
                        request=self.context.get('request', None))

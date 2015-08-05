@@ -4,7 +4,7 @@ from dateutil import parser
 from django.template.loader import render_to_string
 from django.template import RequestContext
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import viewsets
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
@@ -27,7 +27,7 @@ from .neo_models import Solution
 class SolutionViewSet(viewsets.ModelViewSet):
     serializer_class = SolutionSerializerNeo
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         sort_by = self.request.query_params.get('ordering', "")
@@ -65,7 +65,7 @@ class ObjectSolutionsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
 
 class ObjectSolutionsListCreate(ListCreateAPIView):
     serializer_class = SolutionSerializerNeo
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     lookup_field = "object_uuid"
 
     def get_queryset(self):
@@ -145,7 +145,7 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
 
 
 @api_view(["GET"])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def solution_renderer(request, object_uuid=None):
     """
     This is a intermediate step on the way to utilizing a JS Framework to

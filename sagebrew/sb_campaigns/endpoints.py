@@ -8,7 +8,8 @@ from django.core.servers.basehttp import FileWrapper
 from django.template.loader import render_to_string
 from django.templatetags.static import static
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated)
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
@@ -37,7 +38,7 @@ logger = getLogger('loggly_logs')
 class CampaignViewSet(viewsets.ModelViewSet):
     serializer_class = CampaignSerializer
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         query = "MATCH (c:`Campaign`) RETURN c"

@@ -15,19 +15,31 @@ urlpatterns = patterns(
                            "we need the help of the community to "
                            "facilitate this environment.",
             "content_path":
-                "%strust_and_safety.html" % (settings.HELP_DOCS_PATH),
+                "%strust_and_safety.html" % settings.HELP_DOCS_PATH,
             "category": "terms"
         },
         name="trust_and_safety"),
     url(r'^$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "Terms and Conditions",
+            "title": "User Terms and Conditions",
             "description": "If you follow these we'll get along swimmingly :).",
             "content_path":
-                "%suser_terms_and_conditions.html" % (settings.HELP_DOCS_PATH),
+                "%suser_terms_and_conditions.html" % settings.HELP_DOCS_PATH,
             "category": "terms",
             "static_files": True
         },
         name="terms_and_conditions"),
+    url(r'^quest_terms/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "Sagebrew Quest Terms and Conditions",
+            "description": "These are for our Quest Subscribers. If you follow "
+                           "them we'll get along swimmingly :).",
+            "content_path":
+                "%squest_terms_and_conditions.html" % settings.HELP_DOCS_PATH,
+            "category": "terms",
+            "static_files": True
+        },
+        name="quest_terms_and_conditions"),
 )

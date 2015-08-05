@@ -22,9 +22,6 @@ def submit_question_view_page(request):
     return render(request, 'save_question.html', {})
 
 
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def question_page(request, sort_by="most_recent"):
     """
     This is the page that displays what is returned from the get_question_view
@@ -51,9 +48,6 @@ def question_page(request, sort_by="most_recent"):
                   {"base_tags": tag_array})
 
 
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def question_detail_page(request, question_uuid=None):
     """
     This is the view that displays a single question with all solutions,

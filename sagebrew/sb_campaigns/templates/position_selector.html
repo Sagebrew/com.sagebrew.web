@@ -2,10 +2,17 @@
 <div class="row sb_input_wrapper {{ state_name }}">
     <div class="col-xs-1 hidden-xs hidden-sm">
         {% static 'images/sage_coffee_grey-01.png' as default_profile %}
-        <img class="sb_thumbnail_sm" src="{{ request_profile.profile_pic|default_if_none:default_profile }}">
+        {% if "House Representative" in name.full_name %}
+            <img class="sb_thumbnail_sm" src="{% static 'images/house_rep_badge.png' %}">
+        {% elif "Senator" in name.full_name %}
+            <img class="sb_thumbnail_sm" src="{% static 'images/senator_badge.png' %}">
+        {% else %}
+            <img class="sb_thumbnail_sm" src="{{ request_profile.profile_pic|default_if_none:default_profile }}">
+        {% endif %}
+
     </div>
     <div class="col-xs-7">
-        <p>{{ name.full_name }}</p>
+        <p class="quest-options">{{ name.full_name }}</p>
     </div>
     <div class="col-xs-4">
         <button id="submit_position" class="btn btn-block btn-sm btn-primary sb_btn" data-object_uuid="{{ name.object_uuid }}">Start</button>

@@ -1,3 +1,9 @@
+{% if request.user.is_anonymous %}
+<i class="fa fa-flag sb_restricted flag_restriction"
+   id="flag_{{ object_uuid }}" data-toggle="tooltip" data-placement="top"
+   data-title="Signup to Flag!"></i>
+{% else %}
 <i class="fa fa-flag sb_restricted flag_restriction"
    id="flag_{{ object_uuid }}" data-toggle="tooltip" data-placement="top"
    data-title="Requirement: 50+ Rep"></i>
+{% endif %}

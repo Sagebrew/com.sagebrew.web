@@ -18,7 +18,10 @@ class Solution(SBPublicContent):
                                  'POSSIBLE_ANSWER_TO')
 
     def get_url(self, request=None):
-        question = self.solution_to.all()[0]
+        try:
+            question = self.solution_to.all()[0]
+        except IndexError:
+            return None
         return reverse('question_detail_page',
                        kwargs={'question_uuid': question.object_uuid},
                        request=request)

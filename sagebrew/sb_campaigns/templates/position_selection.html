@@ -39,11 +39,11 @@
                     <div id="position_wrapper" class="col-xs-8 block_vertical">
                         <div class="row sb_input_wrapper">
                             <div class="col-xs-1 hidden-xs hidden-sm">
-                                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
-                                <img class="sb_thumbnail_sm" src="{{ request_profile.profile_pic|default_if_none:default_profile }}">
+                                {% static 'images/president_badge.png' as default_profile %}
+                                <img class="sb_thumbnail_sm" src="{{ default_profile }}">
                             </div>
                             <div class="col-xs-7">
-                                <p>President of the United States of America</p>
+                                <p class="quest-options">President of the United States of America</p>
                             </div>
                             <div class="col-xs-4">
                                 <button id="js-president_selector" class="btn btn-block btn-sm btn-primary sb_btn" data-object_uuid="{{ president }}">Start</button>

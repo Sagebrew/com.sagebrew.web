@@ -52,17 +52,15 @@
     -->
 
 <div class="row">
-  <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs col-lg-offset-1 col-md-offset-1">
+  <div class="hidden-xs col-sm-2 col-md-offset-1">
     <a href="{% url 'root_profile_page' %}" class="bottom-menu-brand">Sagebrew</a>
   </div>
-  <div class="col-sm-9 hidden-xs">
+  <div class="hidden-xs col-sm-10 col-md-9">
     <ul class="bottom-menu-list">
-        {% if debug == True %}
-            <li><a href="#fakelink">About Us</a></li>
-        {% endif %}
         <li><a href="{% url 'quest_info' %}">Quests</a></li>
         <li><a href="{% url 'question_page' %}">Conversations</a></li>
         <li><a href="{% url 'terms_and_conditions' %}">Terms</a></li>
+        <li><a href="http://blog.sagebrew.com/">Blog</a></li>
         <li><a href="{% url 'support' %}">Support</a></li>
         <li><a href="{% url 'trust_and_safety' %}">Trust and Safety</a></li>
         <li><a href="{% url 'help_center' %}">Help</a></li>

@@ -13,6 +13,8 @@ class UploadedObject(SBContent):
     # relationships
     modifications = RelationshipTo('sb_uploads.neo_models.ModifiedObject',
                                    "MODIFICATION")
+    related_content = RelationshipTo('sb_base.neo_models.SBContent',
+                                     'RELATED_CONTENT')
 
 
 class ModifiedObject(UploadedObject):

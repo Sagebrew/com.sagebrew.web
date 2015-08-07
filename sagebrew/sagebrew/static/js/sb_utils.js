@@ -61,6 +61,22 @@ function saveComment(commentArea, url, objectUuid) {
 }
 
 
+function enableExpandPostImage() {
+    $(".js-enlarge-post-image").off().on('click', function() {
+        var $this = $(this)[0],
+            modal = $("#image-modal"),
+            imageContainer = $('#js-image-modal-container'),
+            $dialog = modal.find(".modal-dialog"),
+            offset = ($(window).height() - $dialog.height() / 2);
+        console.log($this);
+        $dialog.css('margin-top', offset);
+        imageContainer.empty();
+        imageContainer.append('<img src="' + $this.src + '">');
+        modal.modal();
+    });
+}
+
+
 function saveComments(populatedIds, url) {
     if (typeof populatedIds !== 'undefined' && populatedIds.length > 0) {
         for (var i = 0; i < populatedIds.length; i += 1) {
@@ -763,6 +779,7 @@ function enableSinglePostFunctionality(populatedIds) {
     voteObjects(populatedIds, "posts");
     editObjects("/v1/posts/", populatedIds);
     deleteObjects("/v1/posts/", populatedIds, 'post');
+    enableExpandPostImage();
 }
 
 function enableSolutionFunctionality(populatedIds) {
@@ -780,6 +797,7 @@ function enableContentFunctionality(populateId, type) {
     voteObjects([populateId], type + "s");
     editObjects("/v1/"+ type + "s/", [populateId]);
     deleteObjects("/v1/" + type +"s/", [populateId], type);
+    enableExpandPostImage();
 }
 
 function getUrlParameter(sParam) {

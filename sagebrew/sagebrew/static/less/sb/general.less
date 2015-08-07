@@ -1065,6 +1065,7 @@ a {
   background-color: @sb_off_white;
   border: 1px solid @sb_green_light;
   word-wrap: break-word;
+  overflow: hidden;
 }
 .sb_question_body{
   &:extend(.sb_post_body);
@@ -1765,11 +1766,13 @@ textarea.sb_comment_input{
 .post-image-preview-container {
   position: absolute;
   max-width: 100%;
-  height: 59px;
+  width: auto;
+  height: 109px;
   bottom: 1px;
   left: 1px;
   right: 1px;
   margin-left: 15px;
+  margin-right: 15px;
   overflow: hidden;
   background-color: #f1f1f1;
   border-radius: 0 0 3px 3px;
@@ -1781,8 +1784,8 @@ textarea.sb_comment_input{
   left: 4px;
   top: 4px;
   padding: 0;
-  width: 48px;
-  height: 48px;
+  width: 98px;
+  height: 98px;
   vertical-align: middle;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1795,5 +1798,54 @@ textarea.sb_comment_input{
     z-index:1;
     width: auto;
     height: auto;
+  }
+}
+.sb-remove-image-upload {
+  border: 0 0 0 0;
+  height: 20px;
+  width: 16px;
+  opacity: .50;
+  right: 0;
+  top: 0;
+  background: #222222;
+  color: white;
+  margin-top: 0;
+  position: absolute;
+  z-index: 10;
+  float: right;
+}
+.sb-remove-image-icon {
+  position: absolute;
+  top: 0;
+  left: 1px;
+  width: 10px;
+  height: 12px;
+  color: red;
+  display: inline-block;
+  vertical-align: text-top;
+}
+.sb-post-image-wrapper {
+  position: relative;
+  float: left;
+  left: 15px;
+  top: 0;
+  width: 100%;
+  max-height: 300px;
+  height: auto;
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background-color: #111111;
+  border: 1px solid #aaaaaa;
+  border-radius: 2px;
+  img {
+    position:aboslute;
+    z-index:1;
+    width: 100%;
+    height: auto;
+    cursor: pointer;
+  }
+  img.sb-post-image-tall {
+    margin-top: -50%;
   }
 }

@@ -509,6 +509,22 @@ class CampaignEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_update_take_quest_active(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-detail',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        self.campaign.active = False
+        self.campaign.save()
+        cache.clear()
+        for active_round in self.campaign.active_round.all():
+            self.campaign.active_round.disconnect(active_round)
+        data = {
+            'activate': True,
+        }
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.campaign.active_round.is_connected(self.round))
+
     def test_update_biography(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-detail',

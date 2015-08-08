@@ -178,7 +178,7 @@ class CampaignSerializer(SBSerializer):
                 instance.active_round.connect(upcoming_round)
                 upcoming_round.active = True
                 upcoming_round.save()
-                for goal in upcoming_round.get_goals(upcoming_round.object_uuid):
+                for goal in Round.get_goals(upcoming_round.object_uuid):
                     temp_goal = Goal.nodes.get(object_uuid=goal)
                     temp_goal.active = True
                     temp_goal.save()

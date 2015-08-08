@@ -16,7 +16,7 @@ from neomodel.exception import DoesNotExist
 from api.serializers import SBSerializer
 from api.utils import gather_request_data
 from plebs.neo_models import Pleb
-from sb_goals.neo_models import Round
+from sb_goals.neo_models import Round, Goal
 from sb_public_official.serializers import PublicOfficialSerializer
 
 from .neo_models import (Campaign, PoliticalCampaign, Position)
@@ -99,6 +99,7 @@ class CampaignSerializer(SBSerializer):
         customer_token = validated_data.pop('customer_token', None)
         ein = validated_data.pop('ein', None)
         ssn = validated_data.pop('ssn', None)
+        active_prev = instance.active
         instance.active = validated_data.pop('activate', instance.active)
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
@@ -167,6 +168,29 @@ class CampaignSerializer(SBSerializer):
             account.save()
             instance.last_four_soc = ssn[-4:]
         instance.save()
+        instance.refresh()
+        logger.info(active_prev)
+        logger.info(instance.active)
+        if active_prev == False and instance.active == True:
+            if not Campaign.get_active_round(instance.object_uuid):
+                upcoming_round = Round.nodes.get(
+                    object_uuid=Campaign.get_upcoming_round(instance.object_uuid))
+                instance.upcoming_round.disconnect(upcoming_round)
+                instance.rounds.connect(upcoming_round)
+                instance.active_round.connect(upcoming_round)
+                upcoming_round.active = True
+                upcoming_round.save()
+                for goal in upcoming_round.get_goals(upcoming_round.object_uuid):
+                    temp_goal = Goal.nodes.get(object_uuid=goal)
+                    temp_goal.active = True
+                    temp_goal.save()
+                cache.set("%s_active_round" % instance.object_uuid,
+                          instance.object_uuid)
+                new_upcoming = Round().save()
+                instance.upcoming_round.connect(new_upcoming)
+                new_upcoming.campaign.connect(instance)
+                cache.set("%s_upcoming_round" % instance.object_uuid,
+                          new_upcoming.object_uuid)
         cache.set("%s_campaign" % instance.object_uuid, instance)
         return instance
 

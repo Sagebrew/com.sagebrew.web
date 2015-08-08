@@ -3,7 +3,8 @@ from django.template.loader import render_to_string
 
 from rest_framework.decorators import (api_view, permission_classes)
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
+                                        IsAuthenticated)
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework import status, generics, viewsets
@@ -29,7 +30,7 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
     """
     # to view the current and past goals
     serializer_class = GoalSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
     lookup_field = "object_uuid"
 
     def get_queryset(self):
@@ -63,7 +64,7 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
 class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView,
                                 viewsets.GenericViewSet):
     serializer_class = GoalSerializer
-    permission_classes = (IsAuthenticated, IsGoalOwnerOrEditor)
+    permission_classes = (IsAuthenticatedOrReadOnly, IsGoalOwnerOrEditor)
     lookup_field = "object_uuid"
 
     def get_object(self):
@@ -171,7 +172,7 @@ class RoundRetrieve(generics.RetrieveAPIView, generics.UpdateAPIView):
 
 
 @api_view(["GET"])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def render_round_goals(request, object_uuid=None):
     query = 'MATCH (r:Round {object_uuid: "%s"})-[:STRIVING_FOR]->(g:Goal) ' \
             'RETURN g, r ORDER BY g.total_required' % object_uuid

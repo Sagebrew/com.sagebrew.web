@@ -169,7 +169,7 @@ class CampaignSerializer(SBSerializer):
             instance.last_four_soc = ssn[-4:]
         instance.save()
         instance.refresh()
-        if not active_prev and instance.active == True:
+        if not active_prev and instance.active:
             if not Campaign.get_active_round(instance.object_uuid):
                 upcoming_round = Round.nodes.get(
                     object_uuid=Campaign.get_upcoming_round(

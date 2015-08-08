@@ -67,8 +67,9 @@ function enableExpandPostImage() {
             modal = $("#image-modal"),
             imageContainer = $('#js-image-modal-container'),
             $dialog = modal.find(".modal-dialog"),
-            offset = ($(window).height() - $dialog.height() / 2);
-        console.log($this);
+            offset = (($(window).height() - $dialog.height()) / 2);
+        console.log(offset);
+        modal.css('display', 'block');
         $dialog.css('margin-top', offset);
         imageContainer.empty();
         imageContainer.append('<img src="' + $this.src + '">');

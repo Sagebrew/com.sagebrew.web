@@ -5,11 +5,13 @@
     <meta name="description" content="Sagebrew is where people connect, collaborate, learn, and lead the world.">
 {% endblock description %}
 {% block background_image %}
-<video autoplay loop poster="{% static 'images/intro_poster.jpg' %}" id="bgvid">
-    <source src="{% static 'videos/loop.webm' %}" type="video/webm" />
-    <source src="{% static 'videos/loop.mp4' %}" type="video/mp4" />
-    Your browser does not support the video tag.
-</video>
+<div class="intro-video">
+    <video autoplay loop poster="{% static 'images/intro_poster.jpg' %}" id="bgvid">
+        <source src="{% static 'videos/loop.webm' %}" type="video/webm" />
+        <source src="{% static 'videos/loop.mp4' %}" type="video/mp4" />
+        Your browser does not support the video tag.
+    </video>
+</div>
 {% endblock background_image %}
 {% block content %}
 <div class="row sb_signup">

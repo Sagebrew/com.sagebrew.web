@@ -914,7 +914,14 @@ a {
 }
 .intro-video-wrapper{
   display:inline-block;
+
 }
+.intro-video{
+  video::-webkit-media-controls {
+      display: none !important;
+    }
+}
+
 .terms-description{
   color: #6fcea8;
   a{
@@ -926,8 +933,8 @@ a {
 }
 .intro-video-play{
   background: rgba(255, 255, 255, 0.60);
-  border-radius: 5px;
-  padding: 8px 15px 8px 15px;
+  border-radius: 65px;
+  padding: 25px 35px 25px 35px;
   position: absolute;
 }
 .intro-video-play-btn{

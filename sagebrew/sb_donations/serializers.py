@@ -16,6 +16,7 @@ from sb_campaigns.neo_models import Campaign
 from sb_goals.neo_models import Round
 from sb_goals.tasks import check_goal_completion_task
 from plebs.tasks import send_email_task
+from sb_privileges.tasks import check_privileges
 
 from .neo_models import Donation
 
@@ -108,6 +109,8 @@ class DonationSerializer(SBSerializer):
         donation.owned_by.connect(donor)
         spawn_task(task_func=check_goal_completion_task,
                    task_param={"round_uuid": current_round.object_uuid})
+        spawn_task(task_func=check_privileges,
+                   task_param={"username": donor.username})
         return donation
 
     def get_donated_for(self, obj):

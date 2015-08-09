@@ -381,7 +381,11 @@ OPERATOR_TYPES = [
     ('coperator\ngt\np0\n.', '>'),
     ('coperator\nne\np0\n.', '!='),
     ('coperator\nlt\np0\n.', '<'),
-    ('coperator\nge\np0\n.', '>=')
+    ('coperator\nge\np0\n.', '>='),
+    ('coperator\nnot_\np0\n.', 'not'),
+    ('coperator\nis_not\np0\n.', 'is_not'),
+    ('coperator\nis_\np0\n.', 'is'),
+    ('coperator\ntruth\np0\n.', 'truth')
 ]
 
 NON_SAFE = ["REMOVE", "DELETE", "CREATE", "SET",

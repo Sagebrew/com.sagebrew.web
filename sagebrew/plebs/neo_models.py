@@ -525,7 +525,7 @@ class Pleb(Searchable):
 
     def get_donations(self):
         query = 'MATCH (p:`Pleb` {username: "%s"})-[:DONATIONS_GIVEN]->' \
-                '(d:`Donation`) RETURN d.object_uuid' % (self.username)
+                '(d:`Donation`) RETURN d.object_uuid' % self.username
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 

@@ -1,4 +1,5 @@
 import pickle
+import operator
 from django.conf import settings
 
 from neomodel import (StringProperty)
@@ -21,8 +22,7 @@ class Requirement(SBObject):
     def check_requirement(self, username):
         # TODO need to elaborate on this
         url = str(self.url).replace("<username>", username)
-        res = request_to_api(url, username, req_method='get',
-                             internal=True)
+        res = request_to_api(url, username, req_method='get')
         # TODO should probably handle any response greater than a
         # 400 and stop the function as they may have the req just
         # having server issues.
@@ -32,9 +32,13 @@ class Requirement(SBObject):
         except KeyError as e:
             return e
         temp_cond = temp_type(self.condition)
-        return self.build_check_dict(
-            pickle.loads(self.operator)(res[self.key], temp_cond),
-            res[self.key])
+        operator_holder = pickle.loads(self.operator)
+        if operator_holder is operator.not_ or \
+                operator_holder is operator.truth:
+            self.build_check_dict(operator_holder(res[self.key]),
+                                  res[self.key])
+        return self.build_check_dict(operator_holder(res[self.key], temp_cond),
+                                     res[self.key])
 
     def build_check_dict(self, check, current):
         if check is False:

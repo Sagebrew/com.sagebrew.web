@@ -26,23 +26,11 @@ class Privilege(SBObject):
         :param pleb:
         :return:
         """
-        for req in self.get_requirements():
+        for req in self.requirements.all():
             req_response = req.check_requirement(pleb.username)
             if req_response['response'] is False:
                 return False
         return True
-
-    def check_badges(self, pleb):
-        for badge in pleb.get_badges():
-            if badge not in self.badges.all():
-                return False
-        return True
-
-    def get_requirements(self):
-        return self.requirements.all()
-
-    def get_actions(self):
-        return self.actions.all()
 
 
 class SBAction(SBObject):
@@ -61,9 +49,6 @@ class SBAction(SBObject):
     restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
                                   'RESTRICTED_BY')
 
-    def get_restrictions(self):
-        return self.restrictions.all()
-
 
 class Restriction(SBObject):
     base = BooleanProperty(default=False)
@@ -78,8 +63,7 @@ class Restriction(SBObject):
     recurring = BooleanProperty(default=False)
 
     def check_restriction(self, username, start_date):
-        res = request_to_api(self.url, username, req_method='get',
-                             internal=True)
+        res = request_to_api(self.url, username, req_method='get')
         # TODO should probably handle any response greater than a
         # 400 and stop the function as they may have the req just
         # having server issues.
@@ -102,7 +86,7 @@ class Restriction(SBObject):
                         self.get_operator_string(), self.condition, 'flags',
                         current)}
         else:
-            return {"detail": "The restriction %s was met" % (self.object_uuid),
+            return {"detail": "The restriction %s was met" % self.object_uuid,
                     "key": self.key,
                     "operator": pickle.loads(self.operator),
                     "response": check}

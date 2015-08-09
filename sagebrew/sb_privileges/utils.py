@@ -58,7 +58,7 @@ def manage_privilege_relation(username):
                 rel.active = False
                 rel.lost_on = datetime.now(pytz.utc)
                 rel.save()
-            for action in privilege.get_actions():
+            for action in privilege.actions.all():
                 rel = pleb.actions.relationship(action)
                 if rel.active:
                     rel.active = False
@@ -70,7 +70,7 @@ def manage_privilege_relation(username):
         elif meets_reqs:
             rel = pleb.privileges.connect(privilege)
             rel.save()
-            for action in privilege.get_actions():
+            for action in privilege.actions.all():
                 rel = pleb.actions.connect(action)
                 rel.save()
         # Adding short sleep so we don't DDoS ourselves

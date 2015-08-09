@@ -367,9 +367,6 @@ class Pleb(Searchable):
         # integers
         return bool(is_beta_user)
 
-    def get_restrictions(self):
-        return self.restrictions.all()
-
     def get_actions(self, cache_buster=False):
         actions = cache.get("%s_actions" % self.username)
         if actions is None or cache_buster is True:

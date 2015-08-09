@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 
 from rest_framework import status
 
+from neomodel.exception import DoesNotExist
+
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
@@ -378,12 +380,15 @@ class TestRequirementModel(TestCase):
         m.get('%s/profiles/%s/' % (
             self.api_endpoint, self.pleb.username),
             json={"campaign": "john_apple"}, status_code=status.HTTP_200_OK)
-        req = Requirement(
-            name="Quest Subscriber",
-            url='%s/profiles/<username>/' % self.api_endpoint,
-            key="campaign", operator="coperator\nis_not\np0\n.",
-            condition=None)
-        req.save()
+        try:
+            req = Requirement.nodes.get(name="Quest Subscriber")
+        except DoesNotExist:
+            req = Requirement(
+                name="Quest Subscriber",
+                url='%s/profiles/<username>/' % self.api_endpoint,
+                key="campaign", operator="coperator\nis_not\np0\n.",
+                condition=None)
+            req.save()
         result = req.check_requirement(self.user.username)
         self.assertTrue(result['response'])
         self.assertEqual(result['operator'], 'is not')
@@ -397,12 +402,15 @@ class TestRequirementModel(TestCase):
         m.get('%s/profiles/%s/' % (
             self.api_endpoint, self.pleb.username),
             json={"campaign": None}, status_code=status.HTTP_200_OK)
-        req = Requirement(
-            name="Quest Subscriber",
-            url='%s/profiles/<username>/' % self.api_endpoint,
-            key="campaign", operator="coperator\nis_not\np0\n.",
-            condition=None)
-        req.save()
+        try:
+            req = Requirement.nodes.get(name="Quest Subscriber")
+        except DoesNotExist:
+            req = Requirement(
+                name="Quest Subscriber",
+                url='%s/profiles/<username>/' % self.api_endpoint,
+                key="campaign", operator="coperator\nis_not\np0\n.",
+                condition=None)
+            req.save()
         result = req.check_requirement(self.user.username)
         self.assertFalse(result['response'])
         self.assertEqual(result['operator'], 'is not')

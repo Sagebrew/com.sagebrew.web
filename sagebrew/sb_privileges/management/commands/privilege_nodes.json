@@ -14,6 +14,10 @@
                 {
                     "resource": "post",
                     "permission": "write"
+                },
+                {
+                      "resource": "vote",
+                      "permission": "upvote"
                 }
             ],
             "requirements": [
@@ -47,10 +51,6 @@
           {
               "name": "upvote",
               "actions": [
-                  {
-                      "resource": "vote",
-                      "permission": "upvote"
-                  },
                   {
                       "resource": "intercom",
                       "permission": "write"
@@ -94,11 +94,11 @@
               ],
               "requirements": [
                   {
-                      "name": "Contributor 1+",
+                      "name": "Contributor +1",
                       "url": "/v1/profiles/<username>/",
                       "key": "donations",
                       "operator": "coperator\ntruth\np0\n.",
-                      "condition": null
+                      "condition": "[...]"
                   }
               ]
           },

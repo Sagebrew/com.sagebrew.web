@@ -18,11 +18,17 @@ class Privilege(SBObject):
     badges = RelationshipTo('sb_badges.neo_models.Badge', "REQUIRES_BADGE")
 
     def check_requirements(self, pleb):
+        """
+        Any functions calling this method should handle a potential IOError
+        which is thrown if connection issues are had with the external
+        APIs associated with the requirements. It should be okay to retry
+        the function a couple seconds later if this error is thrown.
+        :param pleb:
+        :return:
+        """
         for req in self.get_requirements():
             req_response = req.check_requirement(pleb.username)
-            if isinstance(req_response, Exception):
-                return False
-            if req_response['detail'] is False:
+            if req_response['response'] is False:
                 return False
         return True
 

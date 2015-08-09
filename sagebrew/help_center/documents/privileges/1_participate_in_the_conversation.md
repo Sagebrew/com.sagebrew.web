@@ -1,5 +1,5 @@
 # Participate in the Conversation #
-*Reputation Needed: 1*
+*Reputation Needed: 0*
 
 ## Overview ##
 ### What does this mean? ###

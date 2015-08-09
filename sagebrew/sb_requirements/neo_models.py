@@ -1,5 +1,6 @@
 import pickle
 import operator
+
 from django.conf import settings
 
 from rest_framework import status
@@ -43,37 +44,76 @@ class Requirement(SBObject):
         res = request_to_api(url, username, req_method='get')
         if res.status_code >= status.HTTP_400_BAD_REQUEST:
             raise IOError("%d" % res.status_code)
-        res = res.json()
+        try:
+            res = res.json()
+        except ValueError:
+            return {
+                "detail": "We're sorry we cannot check this requirement. "
+                          "It looks like the url you're checking doesn't return"
+                          " a JSON response.",
+                "response": False
+            }
         try:
             temp_type = type(res[self.key])
-        except KeyError as e:
-            return e
-        temp_cond = temp_type(self.condition)
-        operator_holder = pickle.loads(self.operator)
+        except KeyError:
+            return {
+                "detail": "We're sorry we cannot check this requirement. "
+                          "The key cannot be found in the response we received "
+                          "from the server.",
+                "response": False
+            }
+        try:
+            if self.condition is not None:
+                try:
+                    temp_cond = temp_type(self.condition)
+                except TypeError:
+                    return {
+                        "detail": "We're sorry we cannot check this "
+                                  "requirement. We cannot compare a null "
+                                  "type in this case. Please try using 'is not'"
+                                  " instead.",
+                        "response": False
+                    }
+            else:
+                temp_cond = self.condition
+        except ValueError:
+            return {
+                "detail": "We're sorry we cannot check this requirement. The"
+                          " condition is not the same type as the value it's "
+                          "being compared to.",
+                "response": False
+            }
+        try:
+            operator_holder = pickle.loads(self.operator)
+        except IndexError:
+            return {
+                "detail": "We're sorry we cannot check this requirement. The"
+                          " operator does not seem to be valid.",
+                "response": False
+            }
         if (operator_holder is operator.not_ or
                 operator_holder is operator.truth):
-            self.build_check_dict(operator_holder(res[self.key]),
-                                  res[self.key])
+            return self.build_check_dict(operator_holder(res[self.key]),
+                                         res[self.key])
         return self.build_check_dict(operator_holder(res[self.key], temp_cond),
                                      res[self.key])
 
     def build_check_dict(self, check, current):
         if check is False:
             return {
-                "detail": False,
+                "detail": "You have %s %s, %s must be %s %s to gain "
+                          "the %s Privilege." % (current, self.key, self.key,
+                                                 self.get_operator_string(),
+                                                 self.condition, self.name),
                 "key": self.key,
-                "operator": pickle.loads(self.operator),
-                "response": check,
-                "reason": "You must have %s %s, you have %s to gain the %s "
-                          "Privilege." % (
-                    self.get_operator_string(), self.condition, current,
-                    self.name)
+                "operator": self.get_operator_string(),
+                "response": check
             }
         else:
             return {
-                "detail": "The requirement %s was met" % self.object_uuid,
+                "detail": "The requirement %s was met" % self.name,
                 "key": self.key,
-                "operator": pickle.loads(self.operator),
+                "operator": self.get_operator_string(),
                 "response": check
             }
 

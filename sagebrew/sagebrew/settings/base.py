@@ -410,7 +410,11 @@ OPERATOR_DICT = {
     'coperator\ngt\np0\n.': 'more than',
     'coperator\nne\np0\n.': 'not have',
     'coperator\nlt\np0\n.': 'less than',
-    'coperator\nge\np0\n.': 'at least'
+    'coperator\nge\np0\n.': 'at least',
+    'coperator\nnot_\np0\n.': 'not',
+    'coperator\nis_not\np0\n.': 'is not',
+    'coperator\nis_\np0\n.': 'is',
+    'coperator\ntruth\np0\n.': 'truth'
 }
 
 CORS_ORIGIN_ALLOW_ALL = True

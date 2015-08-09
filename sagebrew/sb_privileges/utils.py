@@ -1,3 +1,4 @@
+from logging import getLogger
 from time import sleep
 import pytz
 from datetime import datetime
@@ -10,6 +11,8 @@ from plebs.neo_models import Pleb
 from sb_requirements.neo_models import Requirement
 
 from .neo_models import Privilege, SBAction
+
+logger = getLogger('loggly_logs')
 
 
 def manage_privilege_relation(username):
@@ -43,7 +46,12 @@ def manage_privilege_relation(username):
     except(CypherException, IOError) as e:
         return e
     for privilege in privileges:
-        meets_reqs = privilege.check_requirements(pleb)
+        try:
+            meets_reqs = privilege.check_requirements(pleb)
+        except IOError as e:
+            logger.exception(e)
+            sleep(1)
+            continue
         if not meets_reqs and privilege in pleb.privileges.all():
             rel = pleb.privileges.relationship(privilege)
             if rel.active:

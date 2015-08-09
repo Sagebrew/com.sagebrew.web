@@ -26,11 +26,14 @@ class TestRequirementModel(TestCase):
         m.get('%s/profiles/%s/reputation/' % (
             self.api_endpoint, self.pleb.username),
             json={"reputation": 0}, status_code=status.HTTP_200_OK)
-        req = Requirement(
-            name="Total Rep 0",
-            url='%s/profiles/<username>/reputation/' % self.api_endpoint,
-            key="reputation", operator='coperator\neq\np0\n.', condition=0)
-        req.save()
+        try:
+            req = Requirement.nodes.get(name="Total Rep 0")
+        except DoesNotExist:
+            req = Requirement(
+                name="Total Rep 0",
+                url='%s/profiles/<username>/reputation/' % self.api_endpoint,
+                key="reputation", operator='coperator\neq\np0\n.', condition=0)
+            req.save()
         result = req.check_requirement(self.user.username)
         self.assertTrue(result['response'])
         self.assertEqual(result['operator'], 'equal to')
@@ -45,7 +48,7 @@ class TestRequirementModel(TestCase):
             self.api_endpoint, self.pleb.username),
             json={"test": "hello"}, status_code=status.HTTP_200_OK)
         req = Requirement(
-            name="Total Rep 0",
+            name="Total Rep Hello",
             url='%s/profiles/<username>/testing/' % self.api_endpoint,
             key="test", operator='coperator\neq\np0\n.',
             condition="hello")
@@ -59,11 +62,14 @@ class TestRequirementModel(TestCase):
         m.get('%s/profiles/%s/reputation/' % (
             self.api_endpoint, self.pleb.username),
             json={"reputation": 5}, status_code=status.HTTP_200_OK)
-        req = Requirement(
-            name="Total Rep 0",
-            url='%s/profiles/<username>/reputation/' % self.api_endpoint,
-            key="reputation", operator='coperator\neq\np0\n.', condition=0)
-        req.save()
+        try:
+            req = Requirement.nodes.get(name="Total Rep 0")
+        except DoesNotExist
+            req = Requirement(
+                name="Total Rep 0",
+                url='%s/profiles/<username>/reputation/' % self.api_endpoint,
+                key="reputation", operator='coperator\neq\np0\n.', condition=0)
+            req.save()
         result = req.check_requirement(self.user.username)
         self.assertFalse(result['response'])
         self.assertEqual(result['operator'], 'equal to')
@@ -79,7 +85,7 @@ class TestRequirementModel(TestCase):
             self.api_endpoint, self.pleb.username),
             json={"test": "goodbye"}, status_code=status.HTTP_200_OK)
         req = Requirement(
-            name="Total Rep 0",
+            name="Total Rep Key Test Hello",
             url='%s/profiles/<username>/testing/' % self.api_endpoint,
             key="test", operator='coperator\neq\np0\n.',
             condition="hello")

@@ -516,7 +516,7 @@ class TestRequirementModel(TestCase):
               json={"donations": []},
               status_code=status.HTTP_400_BAD_REQUEST)
         req = Requirement(
-            name="Contributor +1",
+            name="Contributor +1 Requirement",
             url='%s/profiles/<username>/' % self.api_endpoint,
             key="donations", operator="coperator\ntruth\np0\n.",
             condition="[...]")
@@ -534,7 +534,7 @@ class TestRequirementModel(TestCase):
               json={"donations": []},
               status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
         req = Requirement(
-            name="Contributor +1",
+            name="Contributor +1 Requirement",
             url='%s/profiles/<username>/' % self.api_endpoint,
             key="donations", operator="coperator\ntruth\np0\n.",
             condition="[...]")
@@ -552,7 +552,7 @@ class TestRequirementModel(TestCase):
               text="hello this is not json :)",
               status_code=status.HTTP_200_OK)
         req = Requirement(
-            name="Contributor +1",
+            name="Contributor +1 Requirement",
             url='%s/profiles/<username>/' % self.api_endpoint,
             key="donations", operator="coperator\ntruth\np0\n.",
             condition="[...]")

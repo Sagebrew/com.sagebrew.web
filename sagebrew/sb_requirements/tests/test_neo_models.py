@@ -5,8 +5,6 @@ from django.contrib.auth.models import User
 
 from rest_framework import status
 
-from neomodel.exception import DoesNotExist
-
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
@@ -26,14 +24,11 @@ class TestRequirementModel(TestCase):
         m.get('%s/profiles/%s/reputation/' % (
             self.api_endpoint, self.pleb.username),
             json={"reputation": 0}, status_code=status.HTTP_200_OK)
-        try:
-            req = Requirement.nodes.get(name="Total Rep 0")
-        except DoesNotExist:
-            req = Requirement(
-                name="Total Rep 0",
-                url='%s/profiles/<username>/reputation/' % self.api_endpoint,
-                key="reputation", operator='coperator\neq\np0\n.', condition=0)
-            req.save()
+        req = Requirement(
+            name="Total Rep 0",
+            url='%s/profiles/<username>/reputation/' % self.api_endpoint,
+            key="reputation", operator='coperator\neq\np0\n.', condition=0)
+        req.save()
         result = req.check_requirement(self.user.username)
         self.assertTrue(result['response'])
         self.assertEqual(result['operator'], 'equal to')
@@ -62,14 +57,11 @@ class TestRequirementModel(TestCase):
         m.get('%s/profiles/%s/reputation/' % (
             self.api_endpoint, self.pleb.username),
             json={"reputation": 5}, status_code=status.HTTP_200_OK)
-        try:
-            req = Requirement.nodes.get(name="Total Rep 0")
-        except DoesNotExist:
-            req = Requirement(
-                name="Total Rep 0",
-                url='%s/profiles/<username>/reputation/' % self.api_endpoint,
-                key="reputation", operator='coperator\neq\np0\n.', condition=0)
-            req.save()
+        req = Requirement(
+            name="Total Rep 0",
+            url='%s/profiles/<username>/reputation/' % self.api_endpoint,
+            key="reputation", operator='coperator\neq\np0\n.', condition=0)
+        req.save()
         result = req.check_requirement(self.user.username)
         self.assertFalse(result['response'])
         self.assertEqual(result['operator'], 'equal to')
@@ -386,20 +378,17 @@ class TestRequirementModel(TestCase):
         m.get('%s/profiles/%s/' % (
             self.api_endpoint, self.pleb.username),
             json={"campaign": "john_apple"}, status_code=status.HTTP_200_OK)
-        try:
-            req = Requirement.nodes.get(name="Quest Subscriber")
-        except DoesNotExist:
-            req = Requirement(
-                name="Quest Subscriber",
-                url='%s/profiles/<username>/' % self.api_endpoint,
-                key="campaign", operator="coperator\nis_not\np0\n.",
-                condition=None)
-            req.save()
+        req = Requirement(
+            name="Quest Subscriber Requirement",
+            url='%s/profiles/<username>/' % self.api_endpoint,
+            key="campaign", operator="coperator\nis_not\np0\n.",
+            condition=None)
+        req.save()
         result = req.check_requirement(self.user.username)
         self.assertTrue(result['response'])
         self.assertEqual(result['operator'], 'is not')
-        self.assertEqual(result['detail'], 'The requirement Quest Subscriber'
-                                           ' was met')
+        self.assertEqual(result['detail'], 'The requirement Quest Subscriber '
+                                           'Requirement was met')
         self.assertEqual(result['key'], 'campaign')
         req.delete()
 
@@ -408,21 +397,19 @@ class TestRequirementModel(TestCase):
         m.get('%s/profiles/%s/' % (
             self.api_endpoint, self.pleb.username),
             json={"campaign": None}, status_code=status.HTTP_200_OK)
-        try:
-            req = Requirement.nodes.get(name="Quest Subscriber")
-        except DoesNotExist:
-            req = Requirement(
-                name="Quest Subscriber",
-                url='%s/profiles/<username>/' % self.api_endpoint,
-                key="campaign", operator="coperator\nis_not\np0\n.",
-                condition=None)
-            req.save()
+        req = Requirement(
+            name="Quest Subscriber Requirement",
+            url='%s/profiles/<username>/' % self.api_endpoint,
+            key="campaign", operator="coperator\nis_not\np0\n.",
+            condition=None)
+        req.save()
         result = req.check_requirement(self.user.username)
         self.assertFalse(result['response'])
         self.assertEqual(result['operator'], 'is not')
         self.assertEqual(result['detail'], 'You have None campaign, campaign '
                                            'must be is not None to gain the '
-                                           'Quest Subscriber Privilege.')
+                                           'Quest Subscriber Requirement'
+                                           ' Privilege.')
         self.assertEqual(result['key'], 'campaign')
         req.delete()
 
@@ -489,7 +476,7 @@ class TestRequirementModel(TestCase):
               json={"donations": ["7c8a59a1-847c-42e0-b178-6d1deac01d5f", ]},
               status_code=status.HTTP_200_OK)
         req = Requirement(
-            name="Contributor +1",
+            name="Contributor +1 Requirement",
             url='%s/profiles/<username>/' % self.api_endpoint,
             key="donations", operator="coperator\ntruth\np0\n.",
             condition="[...]")
@@ -498,7 +485,7 @@ class TestRequirementModel(TestCase):
         self.assertTrue(result['response'])
         self.assertEqual(result['operator'], 'truth')
         self.assertEqual(result['detail'], 'The requirement Contributor +1'
-                                           ' was met')
+                                           ' Requirement was met')
         self.assertEqual(result['key'], 'donations')
         req.delete()
 
@@ -508,7 +495,7 @@ class TestRequirementModel(TestCase):
               json={"donations": []},
               status_code=status.HTTP_200_OK)
         req = Requirement(
-            name="Contributor +1",
+            name="Contributor +1 Requirement",
             url='%s/profiles/<username>/' % self.api_endpoint,
             key="donations", operator="coperator\ntruth\np0\n.",
             condition="[...]")
@@ -518,7 +505,8 @@ class TestRequirementModel(TestCase):
         self.assertEqual(result['operator'], 'truth')
         self.assertEqual(result['detail'], 'You have [] donations, donations '
                                            'must be truth [...] to gain the '
-                                           'Contributor +1 Privilege.')
+                                           'Contributor +1 Requirement '
+                                           'Privilege.')
         self.assertEqual(result['key'], 'donations')
         req.delete()
 

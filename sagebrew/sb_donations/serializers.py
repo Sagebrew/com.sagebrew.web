@@ -194,4 +194,6 @@ class SBDonationSerializer(DonationSerializer):
                 "email_templates/email_sagebrew_donation_thanks.html")
         }
         spawn_task(send_email_task, user_data)
+        spawn_task(task_func=check_privileges,
+                   task_param={"username": donor.username})
         return donation

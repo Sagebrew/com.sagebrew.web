@@ -64,7 +64,7 @@ class TestRequirementModel(TestCase):
             json={"reputation": 5}, status_code=status.HTTP_200_OK)
         try:
             req = Requirement.nodes.get(name="Total Rep 0")
-        except DoesNotExist
+        except DoesNotExist:
             req = Requirement(
                 name="Total Rep 0",
                 url='%s/profiles/<username>/reputation/' % self.api_endpoint,

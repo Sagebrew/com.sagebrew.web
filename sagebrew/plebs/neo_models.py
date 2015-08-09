@@ -367,9 +367,6 @@ class Pleb(Searchable):
         # integers
         return bool(is_beta_user)
 
-    def get_restrictions(self):
-        return self.restrictions.all()
-
     def get_actions(self, cache_buster=False):
         actions = cache.get("%s_actions" % self.username)
         if actions is None or cache_buster is True:
@@ -525,7 +522,7 @@ class Pleb(Searchable):
 
     def get_donations(self):
         query = 'MATCH (p:`Pleb` {username: "%s"})-[:DONATIONS_GIVEN]->' \
-                '(d:`Donation`) RETURN d.object_uuid' % (self.username)
+                '(d:`Donation`) RETURN d.object_uuid' % self.username
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 

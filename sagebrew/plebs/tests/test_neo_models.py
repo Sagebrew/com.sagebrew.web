@@ -38,9 +38,6 @@ class TestPleb(TestCase):
     def test_get_official_phone(self):
         self.assertIsNone(self.pleb.get_official_phone())
 
-    def test_get_restrictions(self):
-        self.assertIsNotNone(self.pleb.get_restrictions())
-
     def test_get_badges(self):
         self.assertIsNotNone(self.pleb.get_badges())
 

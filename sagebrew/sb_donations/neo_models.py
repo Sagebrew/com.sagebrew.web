@@ -52,8 +52,8 @@ class Donation(SBObject):
     @classmethod
     def get_donated_for(cls, object_uuid):
         query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
-                '[:DONATED_FOR]->(g:`Goal`) RETURN g.object_uuid' % \
-                (object_uuid)
+                '[:DONATED_FOR]->(g:`Goal`) RETURN g.object_uuid' % (
+                    object_uuid)
         res, col = db.cypher_query(query)
         try:
             return res[0][0]
@@ -63,16 +63,16 @@ class Donation(SBObject):
     @classmethod
     def get_applied_to(cls, object_uuid):
         query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
-                '[:APPLIED_TO]->(g:`Goal`) RETURN g.object_uuid' % \
-                (object_uuid)
+                '[:APPLIED_TO]->(g:`Goal`) RETURN g.object_uuid' % (
+                    object_uuid)
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 
     @classmethod
     def get_campaign(cls, object_uuid):
         query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
-                '[:DONATED_TO]->(c:`Campaign`) RETURN c.object_uuid' % \
-                (object_uuid)
+                '[:DONATED_TO]->(c:`Campaign`) RETURN c.object_uuid' % (
+                    object_uuid)
         res, col = db.cypher_query(query)
         try:
             return res[0][0]
@@ -82,7 +82,7 @@ class Donation(SBObject):
     @classmethod
     def get_owner(cls, object_uuid):
         query = 'MATCH (d:`Donation` {object_uuid: "%s"}) ' \
-                'RETURN d.owner_username' % (object_uuid)
+                'RETURN d.owner_username' % object_uuid
         res, col = db.cypher_query(query)
         try:
             return res[0][0]

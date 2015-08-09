@@ -1,3 +1,4 @@
+from logging import getLogger
 from time import sleep
 import pytz
 from datetime import datetime
@@ -10,6 +11,8 @@ from plebs.neo_models import Pleb
 from sb_requirements.neo_models import Requirement
 
 from .neo_models import Privilege, SBAction
+
+logger = getLogger('loggly_logs')
 
 
 def manage_privilege_relation(username):
@@ -43,14 +46,19 @@ def manage_privilege_relation(username):
     except(CypherException, IOError) as e:
         return e
     for privilege in privileges:
-        meets_reqs = privilege.check_requirements(pleb)
+        try:
+            meets_reqs = privilege.check_requirements(pleb)
+        except IOError as e:
+            logger.exception(e)
+            sleep(1)
+            continue
         if not meets_reqs and privilege in pleb.privileges.all():
             rel = pleb.privileges.relationship(privilege)
             if rel.active:
                 rel.active = False
                 rel.lost_on = datetime.now(pytz.utc)
                 rel.save()
-            for action in privilege.get_actions():
+            for action in privilege.actions.all():
                 rel = pleb.actions.relationship(action)
                 if rel.active:
                     rel.active = False
@@ -62,7 +70,7 @@ def manage_privilege_relation(username):
         elif meets_reqs:
             rel = pleb.privileges.connect(privilege)
             rel.save()
-            for action in privilege.get_actions():
+            for action in privilege.actions.all():
                 rel = pleb.actions.connect(action)
                 rel.save()
         # Adding short sleep so we don't DDoS ourselves

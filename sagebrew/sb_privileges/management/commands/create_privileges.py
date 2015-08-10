@@ -22,8 +22,7 @@ class Command(BaseCommand):
 
     def create_privileges(self):
         with open('%s/sb_privileges/management/commands'
-                  '/privilege_nodes.json' % settings.PROJECT_DIR,
-                  'r') as data_file:
+                  '/privilege_nodes.json' % settings.PROJECT_DIR) as data_file:
             data = loads(data_file.read())
             for privilege in data['privileges']:
                 requirements = privilege.pop('requirements', [])
@@ -41,7 +40,8 @@ class Command(BaseCommand):
                                     "missing privileges")
                 for requirement in requirements:
                     try:
-                        Requirement.nodes.get(name=requirement["name"])
+                        req = Requirement.nodes.get(name=requirement["name"])
+                        privilege_obj.requirements.connect(req)
                     except(Requirement.DoesNotExist, DoesNotExist):
                         try:
                             requirement["url"] = "%s%s" % (settings.WEB_ADDRESS,
@@ -90,7 +90,7 @@ class Command(BaseCommand):
                         action_obj = SBAction.nodes.get(url=action_url)
                     except(SBAction.DoesNotExist, DoesNotExist):
                         try:
-                            action["url"] = (action_url)
+                            action["url"] = action_url
                             action_obj = SBAction(**action).save()
                         except(CypherException, IOError):
                             logger.critical("potential error there may"

@@ -14,10 +14,11 @@ from neomodel import db
 from neomodel.exception import DoesNotExist
 
 from api.serializers import SBSerializer
-from api.utils import gather_request_data
+from api.utils import gather_request_data, spawn_task
 from plebs.neo_models import Pleb
 from sb_goals.neo_models import Round, Goal
 from sb_public_official.serializers import PublicOfficialSerializer
+from sb_privileges.tasks import check_privileges
 
 from .neo_models import (Campaign, PoliticalCampaign, Position)
 
@@ -342,7 +343,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         account_type = request.session.get('account_type', None)
         owner = Pleb.get(username=request.user.username)
         if account_type == 'paid':
-            validated_data['application_fee'] = (0.021)
+            validated_data['application_fee'] = 0.021
 
         if owner.get_campaign():
             raise ValidationError(
@@ -398,6 +399,9 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         account.tos_acceptance.date = int(time.time())
         account.save()
         cache.set("%s_campaign" % campaign.object_uuid, campaign)
+        cache.delete(owner.username)
+        spawn_task(task_func=check_privileges,
+                   task_param={"username": owner.username})
         return campaign
 
     def get_vote_count(self, obj):

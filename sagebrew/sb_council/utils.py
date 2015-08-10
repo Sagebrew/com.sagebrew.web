@@ -25,11 +25,11 @@ def update_closed(object_uuid):
 
 
 def check_closed_reputation_changes():
-    '''
+    """
     This will be called in a task which is run either everyday or every other
     day and will check which objects need to be closed
     :return:
-    '''
+    """
     try:
         for pleb in Pleb.nodes.all():
             res = pleb.get_total_rep()

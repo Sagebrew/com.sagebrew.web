@@ -7,7 +7,7 @@ You will then receive a notification that your contribution has been blocked
 due to spam. 
 
 If multiple pieces of content are labeled as spam in this way, your 
-account will be suspended from adding additional contributions to the Public 
+account will be suspended from adding additional contributions to the 
 Conversation.
 
 [1]: /help/conversation/deletions/

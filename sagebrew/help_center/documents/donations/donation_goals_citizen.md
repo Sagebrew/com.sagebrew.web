@@ -1,6 +1,6 @@
 # What are Donation Goals? #
 Donation Goals are a way for a candidate running for office to fundraise and 
-organize their campaign goals.
+organize their campaign needs and objectives.
 
 ## How do they work? ##
 Donation Goals work in rounds. A candidate will first set a round of Donation 
@@ -25,7 +25,7 @@ spent. After the Donation Goal has been reached the candidate will be able to
 follow through on their goal.
 
 **Note:** A candidate MUST provide an update showing evidence of their 
-tangible follow up or an update on its progress before citizens 
+follow up or an update on its progress before users 
 will be charged for their donations towards the next Donation Goal. 
 The purpose of this is to increase transparency between donors and candidates 
 so that the donors can track their donations and the candidates they donate 

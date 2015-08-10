@@ -1,0 +1,17 @@
+{% extends "email_templates/email_base.html" %}
+
+
+{% block email_content %}
+    <p style="font-size: 12px;
+              color: #000000;
+              margin-bottom: 25px;
+              line-height: 15px">
+        {% if phone %}
+            The user {{ username }} has requested to verify his account as a representative,
+            we can contact them at {{ phone }} to begin the process.
+        {% else %}
+            The user {{ username }} has requested to verify his account as a representative,
+            we do not have a phone number to call.
+        {% endif %}
+    </p>
+{% endblock email_content %}

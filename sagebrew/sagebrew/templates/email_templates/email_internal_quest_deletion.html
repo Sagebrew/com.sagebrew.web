@@ -1,0 +1,12 @@
+{% extends "email_templates/email_base.html" %}
+
+
+{% block email_content %}
+    <p style="font-size: 12px;
+              color: #000000;
+              margin-bottom: 25px;
+              line-height: 15px">
+        The user {{ username }} has requested to delete their Quest,
+        we can contact them at {{ email }} to begin the process.
+    </p>
+{% endblock email_content %}

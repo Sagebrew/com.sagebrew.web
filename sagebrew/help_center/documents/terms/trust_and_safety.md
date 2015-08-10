@@ -78,5 +78,5 @@ this uncharted territory together and make some real change! **
 [1]: /help/privileges/flagging/
 [2]: /help/conversation/deletions/
 [3]: /help/conversation/closed/
-[4]: /help/campaigns/donation_goals/
+[4]: /help/quests/donation_goals/
 [5]: /help/reputation/admin_council/

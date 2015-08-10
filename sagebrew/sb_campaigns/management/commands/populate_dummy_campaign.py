@@ -21,15 +21,21 @@ class Command(BaseCommand):
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=user.username,
             first_name=user.first_name, last_name=user.last_name,
-            profile_pic=user.profile_pic).save()
+            profile_pic=user.profile_pic,
+            object_uuid=user.username).save()
         campaign.owned_by.connect(user)
         user.campaign.connect(campaign)
         query = "MATCH (a:Location {name: 'Michigan'})-[:POSITIONS_AVAILABLE]" \
                 "->(p:Position) RETURN p"
         res, col = db.cypher_query(query)
         position = Position.inflate(res[0][0])
+        campaign.position_name = position.name
+        campaign.location_name = "Michigan"
+        campaign.save()
         campaign.position.connect(position)
         position.campaigns.connect(campaign)
+        campaign.editors.connect(user)
+        campaign.accountants.connect(user)
         first_round = Round(start_date=datetime.now(), active=True).save()
         goal_one = Goal(
             title="This is my first goal", summary="This is a summary of my "
@@ -58,6 +64,7 @@ class Command(BaseCommand):
         campaign.goals.connect(goal_two)
         campaign.rounds.connect(first_round)
         campaign.active_round.connect(first_round)
+        first_round.campaign.connect(campaign)
         for value in range(0, 19):
             donation = PoliticalDonation(
                 amount=500, owner_username=user.username,

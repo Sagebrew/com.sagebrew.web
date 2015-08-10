@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
 from sb_registration.utils import verify_completed_registration
+from sb_questions.neo_models import Question
 
 from .utils import prepare_question_search_html
 
@@ -21,9 +22,6 @@ def submit_question_view_page(request):
     return render(request, 'save_question.html', {})
 
 
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def question_page(request, sort_by="most_recent"):
     """
     This is the page that displays what is returned from the get_question_view
@@ -50,9 +48,6 @@ def question_page(request, sort_by="most_recent"):
                   {"base_tags": tag_array})
 
 
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def question_detail_page(request, question_uuid=None):
     """
     This is the view that displays a single question with all solutions,
@@ -65,7 +60,8 @@ def question_detail_page(request, question_uuid=None):
     # TODO is this uuid1 creation necessary?
     if question_uuid is None:
         question_uuid = str(uuid1())
-    post_data = {'sort_by': 'uuid', 'uuid': question_uuid}
+    post_data = {'sort_by': 'uuid', 'uuid': question_uuid,
+                 'is_closed': Question.get(question_uuid).is_closed}
     return render(request, 'conversation.html', post_data)
 
 

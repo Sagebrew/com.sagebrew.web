@@ -1,6 +1,6 @@
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty)
+                      BooleanProperty, db)
 
 from sb_search.neo_models import Searchable
 
@@ -71,6 +71,19 @@ class PublicOfficial(Searchable):
     current_term = RelationshipTo('govtrack.neo_models.Term', 'CURRENT_TERM')
     campaign = RelationshipTo('sb_campaigns.neo_models.PoliticalCampaign',
                               'HAS_CAMPAIGN')
+
+    def get_campaign(self):
+        from sb_campaigns.neo_models import PoliticalCampaign
+        query = 'MATCH (o:PublicOfficial {object_uuid:"%s"})-' \
+                '[:HAS_CAMPAIGN]->(c:PoliticalCampaign) RETURN c' \
+                % self.object_uuid
+        res, _ = db.cypher_query(query)
+        try:
+            campaign = PoliticalCampaign.inflate(res[0][0])
+        except IndexError:
+            campaign = None
+        return campaign
+
 
 '''
 class Bill(StructuredNode):

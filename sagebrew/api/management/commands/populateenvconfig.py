@@ -8,6 +8,10 @@ logger = logging.getLogger('loggly_logs')
 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument('web_env', nargs='+', type=str)
+        parser.add_argument('worker_env', nargs='+', type=str)
+
     def populate_config(self, web_env, worker_env):
         cur_branch = environ.get("CIRCLE_BRANCH", "")
         with open("%s/aws_environment_config/base.config" % (
@@ -54,7 +58,7 @@ class Command(BaseCommand):
         f.close()
 
     def handle(self, *args, **options):
-        self.populate_config(args[0], args[1])
+        self.populate_config(options['web_env'][0], options['worker_env'][0])
 
 
 def populate_staging_values(data):
@@ -85,7 +89,7 @@ def populate_staging_values(data):
     data = data.replace("<WEB_SECURITY_GROUP>",
                         environ.get("WEB_SECURITY_GROUP_STAGING", ""))
     data = data.replace("<STRIPE_PUBLIC_KEY>",
-                        environ.get("STRIP_PUBLIC_KEY", ""))
+                        environ.get("STRIPE_PUBLIC_KEY", ""))
     data = data.replace("<STRIPE_SECRET_KEY>",
                         environ.get("STRIPE_SECRET_KEY", ""))
     data = data.replace("<MASKED_NAME>",
@@ -111,6 +115,15 @@ def populate_staging_values(data):
     data = data.replace("<CRED_USER>", environ.get("CRED_USER_STAGING", ""))
     data = data.replace("<CRED_PASSWORD>",
                         environ.get("CRED_PASSWORD_STAGING", ""))
+    data = data.replace("<CRED_USER_PUBLIC>",
+                        environ.get("CRED_USER_PUBLIC_STAGING", ""))
+    data = data.replace("<CRED_PASSWORD_PUBLIC>",
+                        environ.get("CRED_PASSWORD_PUBLIC_STAGING", ""))
+    data = data.replace("<OAUTH_CLIENT_SECRET_CRED_PUBLIC>",
+                        environ.get("OAUTH_CLIENT_SECRET_CRED_PUBLIC_STAGING",
+                                    ""))
+    data = data.replace("<OAUTH_CLIENT_ID_CRED_PUBLIC>",
+                        environ.get("OAUTH_CLIENT_ID_CRED_PUBLIC_STAGING", ""))
     data = data.replace("<ELASTIC_SEARCH_HOST>",
                         environ.get("ELASTIC_SEARCH_HOST_STAGING", ""))
     data = data.replace("<ELASTIC_SEARCH_PORT>",
@@ -157,9 +170,9 @@ def populate_production_values(data):
     data = data.replace("<WEB_SECURITY_GROUP>",
                         environ.get("WEB_SECURITY_GROUP_PROD", ""))
     data = data.replace("<STRIPE_PUBLIC_KEY>",
-                        environ.get("STRIP_PUBLIC_KEY_PROD", ""))
+                        environ.get("STRIPE_PUBLIC_KEY_PROD", ""))
     data = data.replace("<STRIPE_SECRET_KEY>",
-                        environ.get("STRIP_SECRET_KEY_PROD", ""))
+                        environ.get("STRIPE_SECRET_KEY_PROD", ""))
     data = data.replace("<MASKED_NAME>",
                         environ.get("MASKED_NAME_PROD", ""))
     data = data.replace("<LOGENT_TOKEN>",
@@ -183,6 +196,15 @@ def populate_production_values(data):
     data = data.replace("<CRED_USER>", environ.get("CRED_USER_PROD", ""))
     data = data.replace("<CRED_PASSWORD>",
                         environ.get("CRED_PASSWORD_PROD", ""))
+    data = data.replace("<CRED_USER_PUBLIC>",
+                        environ.get("CRED_USER_PUBLIC_PROD", ""))
+    data = data.replace("<CRED_PASSWORD_PUBLIC>",
+                        environ.get("CRED_PASSWORD_PUBLIC_PROD", ""))
+    data = data.replace("<OAUTH_CLIENT_SECRET_CRED_PUBLIC>",
+                        environ.get("OAUTH_CLIENT_SECRET_CRED_PUBLIC_PROD",
+                                    ""))
+    data = data.replace("<OAUTH_CLIENT_ID_CRED_PUBLIC>",
+                        environ.get("OAUTH_CLIENT_ID_CRED_PUBLIC_PROD", ""))
     data = data.replace("<ELASTIC_SEARCH_HOST>",
                         environ.get("ELASTIC_SEARCH_HOST_PROD", ""))
     data = data.replace("<ELASTIC_SEARCH_PORT>",
@@ -211,7 +233,7 @@ def populate_test_values(data):
     data = data.replace("<APPLICATION_SECRET_KEY>",
                         environ.get("APPLICATION_SECRET_KEY", ""))
     data = data.replace("<STRIPE_PUBLIC_KEY>",
-                        environ.get("STRIP_PUBLIC_KEY", ""))
+                        environ.get("STRIPE_PUBLIC_KEY", ""))
     data = data.replace("<STRIPE_SECRET_KEY>",
                         environ.get("STRIPE_SECRET_KEY", ""))
     data = data.replace("<MASKED_NAME>",
@@ -229,6 +251,15 @@ def populate_test_values(data):
     data = data.replace("<CRED_USER>", environ.get("CRED_USER", ""))
     data = data.replace("<CRED_PASSWORD>",
                         environ.get("CRED_PASSWORD", ""))
+    data = data.replace("<CRED_USER_PUBLIC>",
+                        environ.get("CRED_USER_PUBLIC", ""))
+    data = data.replace("<CRED_PASSWORD_PUBLIC>",
+                        environ.get("CRED_PASSWORD_PUBLIC", ""))
+    data = data.replace("<OAUTH_CLIENT_SECRET_CRED_PUBLIC>",
+                        environ.get("OAUTH_CLIENT_SECRET_CRED_PUBLIC",
+                                    ""))
+    data = data.replace("<OAUTH_CLIENT_ID_CRED_PUBLIC>",
+                        environ.get("OAUTH_CLIENT_ID_CRED_PUBLIC", ""))
     data = data.replace("<ELASTIC_SEARCH_HOST>",
                         environ.get("ELASTIC_SEARCH_HOST", ""))
     data = data.replace("<ELASTIC_SEARCH_PORT>",

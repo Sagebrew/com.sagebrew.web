@@ -9,7 +9,7 @@ function getCookie(name) {
             var cookie = jQuery.trim(cookies[i]);
             // Does this cookie string begin with the name we want?
 
-            if (cookie.substring(0, name.length + 1) == (name + '=')) {
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
             }
@@ -413,6 +413,7 @@ function saveSolution() {
             success: function (data) {
                 $("#solution_container").append(data.html);
                 $('textarea.sb_solution_input_area').val("");
+                $("#wmd-preview-0").empty();
                 var solutionCountText = $("#solution_count").text();
                 if (solutionCountText !== "--") {
                     // the reasoning for the addition of the 10 here is
@@ -651,23 +652,69 @@ function activateMontage() {
 }
 
 function respondFriendRequest() {
-    $(".respond_friend_request-action").click(function (event) {
+    $(".respond_friend_request-accept-action").click(function (event) {
         event.preventDefault();
+        var requestID = $(this).data('request_id');
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
-            url: "/relationships/respond_friend_request/",
+            url: "/v1/me/friend_requests/" + requestID + "/accept/",
             data: JSON.stringify({
-                'response': $(this).data('response'),
-                'request_id': $(this).data('request_id')
+                'request_id': requestID
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function () {
-                $("#friend_request_div").fadeToggle();
+                $('#friend_request_' + requestID).remove();
             },
             error: function (XMLHttpRequest) {
-                errorDisplay(XMLHttpRequest);
+                if (XMLHttpRequest.status === 500) {
+                    $("#server_error").show();
+                }
+            }
+        });
+    });
+    $(".respond_friend_request-decline-action").click(function (event) {
+        event.preventDefault();
+        var requestID = $(this).data('request_id');
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/v1/me/friend_requests/" + requestID + "/decline/",
+            data: JSON.stringify({
+                'request_id': requestID
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function () {
+                $('#friend_request_' + requestID).remove();
+            },
+            error: function (XMLHttpRequest) {
+                if (XMLHttpRequest.status === 500) {
+                    $("#server_error").show();
+                }
+            }
+        });
+    });
+    $(".respond_friend_request-block-action").click(function (event) {
+        event.preventDefault();
+        var requestID = $(this).data('request_id');
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "POST",
+            url: "/v1/me/friend_requests/" + requestID + "/block/",
+            data: JSON.stringify({
+                'request_id': requestID
+            }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function () {
+                $('#friend_request_' + requestID).remove();
+            },
+            error: function (XMLHttpRequest) {
+                if (XMLHttpRequest.status === 500) {
+                    $("#server_error").show();
+                }
             }
         });
     });
@@ -678,6 +725,7 @@ function enableObjectFunctionality(populatedIds) {
     readyFlags(populatedIds);
     readyVotes(populatedIds);
     readyComments(populatedIds);
+    foggyClosed();
 }
 
 
@@ -725,6 +773,15 @@ function enableSolutionFunctionality(populatedIds) {
     deleteObjects("/v1/solutions/", populatedIds, 'solution');
 }
 
+function enableContentFunctionality(populateId, type) {
+    "use strict";
+    enableObjectFunctionality([populateId]);
+    saveComments([populateId], '/v1/'+ type + 's/');
+    voteObjects([populateId], type + "s");
+    editObjects("/v1/"+ type + "s/", [populateId]);
+    deleteObjects("/v1/" + type +"s/", [populateId], type);
+}
+
 function getUrlParameter(sParam) {
     var sPageURL = window.location.search.substring(1);
     var sURLVariables = sPageURL.split('&');
@@ -734,6 +791,17 @@ function getUrlParameter(sParam) {
             return sParameterName[1];
         }
     }
+}
+
+function foggyClosed() {
+    $(".sb_blurred_content").foggy({
+        blurRadius: 15,
+        opacity: 0.95
+    });
+    $(".sb_blurred_content").click(function (event) {
+        event.preventDefault();
+        $(this).foggy(false);
+    });
 }
 
 function errorDisplay(XMLHttpRequest) {

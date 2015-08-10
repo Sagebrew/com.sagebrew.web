@@ -7,6 +7,7 @@ from neomodel.exception import DoesNotExist
 
 from plebs.neo_models import Pleb, FriendRequest
 from plebs.utils import create_friend_request_util
+from plebs.serializers import generate_username
 from sb_registration.utils import create_user_util_test
 
 
@@ -86,3 +87,14 @@ class TestCreateFriendRequestUtil(TestCase):
         pickle_instance = pickle.dumps(res)
         self.assertTrue(pickle_instance)
         self.assertTrue(pickle.loads(pickle_instance))
+
+
+class TestGenerateUsername(TestCase):
+    def test_generate_username(self):
+        res = generate_username("Test", "Username")
+        self.assertEqual(res, "test_username")
+
+    def test_long_username(self):
+        res = generate_username("Thisisasuperlong",
+                                "fistandlastnamecombination")
+        self.assertEqual(res, "thisisasuperlong_fistandlastna")

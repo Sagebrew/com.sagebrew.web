@@ -1,8 +1,10 @@
+from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.cache import cache
 
 from rest_framework.reverse import reverse
 
-from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty)
+from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
+                      FloatProperty)
 
 from sb_base.neo_models import (VoteRelationship)
 from sb_search.neo_models import Searchable, SBObject
@@ -53,10 +55,13 @@ class Campaign(Searchable):
     # This is only an index so that users don't have to assign it immediately
     # as they may not have it until after they've signed up.
     stripe_id = StringProperty(index=True, default="Not Set")
+    stripe_customer_id = StringProperty()
+    stripe_subscription_id = StringProperty()
     # Whether the account is in active or test/prep mode, once taken active
     # an account cannot be taken offline until the end of a campaign
     active = BooleanProperty(default=False)
     biography = StringProperty()
+    epic = StringProperty()
     facebook = StringProperty()
     linkedin = StringProperty()
     youtube = StringProperty()
@@ -72,6 +77,12 @@ class Campaign(Searchable):
     # when rendering potential representative html to a users profile page
     first_name = StringProperty()
     last_name = StringProperty()
+    application_fee = FloatProperty(default=0.041)
+    last_four_soc = StringProperty()
+
+    # Optimizations
+    position_name = StringProperty()
+    location_name = StringProperty()
 
     # Relationships
     donations = RelationshipTo('sb_donations.neo_models.Donation',
@@ -97,14 +108,14 @@ class Campaign(Searchable):
 
     @classmethod
     def get(cls, object_uuid):
-        campaign = cache.get(object_uuid)
+        campaign = cache.get("%s_campaign" % object_uuid)
         if campaign is None:
             query = 'MATCH (c:`Campaign` {object_uuid: "%s"}) RETURN c' % \
                     object_uuid
             res, col = db.cypher_query(query)
             try:
                 campaign = cls.inflate(res[0][0])
-                cache.set(object_uuid, campaign)
+                cache.set("%s_campaign" % object_uuid, campaign)
                 return campaign
             except IndexError:
                 campaign = None
@@ -145,7 +156,7 @@ class Campaign(Searchable):
                 '[:WAGED_BY]->(p:`Pleb`) return p.username' % (object_uuid)
         res, col = db.cypher_query(query)
         try:
-            return reverse('action_saga',
+            return reverse('quest_saga',
                            kwargs={"username": res[0][0]},
                            request=request)
         except IndexError:
@@ -264,6 +275,57 @@ class Campaign(Searchable):
                 public_official = None
         return public_official
 
+    @classmethod
+    def get_unassigned_goals(cls, object_uuid):
+        from sb_goals.neo_models import Goal
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:HAS_GOAL]->' \
+                '(g:Goal) WHERE NOT (g)-[:PART_OF]->(:Round) RETURN g ' \
+                'ORDER BY g.monetary_requirement' % object_uuid
+        res, _ = db.cypher_query(query)
+        return [Goal.inflate(row[0]) for row in res]
+
+    @classmethod
+    def get_active_round_donation_total(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
+                '(r:Round)-[:HAS_DONATIONS]-(d:Donation) ' \
+                'RETURN sum(d.amount)' % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    @classmethod
+    def get_donations(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-' \
+                '[:RECEIVED_DONATION]->(d:Donation) RETURN d' % object_uuid
+        res, _ = db.cypher_query(query)
+        return [donation[0] for donation in res]
+
+    @classmethod
+    def get_possible_helpers(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:WAGED_BY]->(p:Pleb)-' \
+                '[:FRIENDS_WITH {currently_friends: true}]->' \
+                '(b:Pleb) WHERE NOT (c)-[:CAN_BE_EDITED_BY]->(b) XOR ' \
+                '(c)-[:CAN_VIEW_MONETARY_DATA]->(b) RETURN b.username' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        return [row[0] for row in res]
+
+    @classmethod
+    def get_target_goal_donation_requirement(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
+                '(r:Round)-[:STRIVING_FOR]->(g:Goal {target:true}) ' \
+                'RETURN g.total_required' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    @classmethod
+    def get_target_goal_pledge_vote_requirement(cls, object_uuid):
+        query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
+                '(r:Round)-[:STRIVING_FOR]->(g:Goal {target:true}) ' \
+                'RETURN g.pledged_vote_requirement' % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
 
 class PoliticalCampaign(Campaign):
     """
@@ -315,6 +377,36 @@ class PoliticalCampaign(Campaign):
                 'RETURN p.username' % (object_uuid)
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
+
+    @classmethod
+    def vote_campaign(cls, object_uuid, username):
+        from plebs.neo_models import Pleb
+        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
+                '[r:RECEIVED_PLEDGED_VOTE]->(p:Pleb {username:"%s"}) ' \
+                'RETURN r' % (object_uuid, username)
+        res, _ = db.cypher_query(query)
+        vote_relation = res.one
+        if not vote_relation:
+            pleb = Pleb.get(username=username)
+            campaign = PoliticalCampaign.get(object_uuid=object_uuid)
+            rel = campaign.pledged_votes.connect(pleb)
+            rel.save()
+            return True
+        rel = VoteRelationship.inflate(vote_relation)
+        if rel.active:
+            rel.active = False
+        else:
+            rel.active = True
+        rel.save()
+        return rel.active
+
+    def get_pledged_votes(self):
+        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
+                '[r:RECEIVED_PLEDGED_VOTE]->(:Pleb) RETURN r ' \
+                'ORDER BY r.created' \
+                % self.object_uuid
+        res, _ = db.cypher_query(query)
+        return [VoteRelationship.inflate(row[0]) for row in res]
 
 
 class Position(SBObject):
@@ -371,3 +463,50 @@ class Position(SBObject):
             except IndexError:
                 location = None
         return location
+
+    @classmethod
+    def get_location_name(cls, object_uuid):
+        query = 'MATCH (p:Position {object_uuid: "%s"})-' \
+                '[:AVAILABLE_WITHIN]->(location:Location) ' \
+                'RETURN location.name' % object_uuid
+        res, col = db.cypher_query(query)
+        try:
+            location = res[0][0]
+        except IndexError:
+            location = None
+        return location
+
+    @classmethod
+    def get_full_name(cls, object_uuid):
+        full_name = cache.get("%s_full_name" % (object_uuid))
+        if full_name is None:
+            query = 'MATCH (p:Position {object_uuid: "%s"})-' \
+                    '[:AVAILABLE_WITHIN]->(l:Location) WITH p, l ' \
+                    'OPTIONAL MATCH (l:Location)-[:ENCOMPASSED_BY]->' \
+                    '(l2:Location) WHERE l2.name<>"United States of ' \
+                    'America" RETURN p.name as position_name, ' \
+                    'l.name as location_name1, l2.name as location_name2' \
+                    % object_uuid
+            res, _ = db.cypher_query(query)
+            # position_name will be either 'House Representative' or 'Senator',
+            #  location_name1 will be either a district number or a state name
+            # and location_name2 will be a state name. This is done to build
+            # up the full name of a position that a user can run for, we do
+            # this because the query is set up the same for each different
+            # query, for the senator we will get back a state name and a
+            # string: "United States of America" and we don't want that
+            # string included in the name but we also don't want to have to
+            # do an if to determine what position we are looking at, it allows
+            # for generalization of the query.
+            try:
+                if res[0][0] == 'House Representative':
+                    full_name = "%s for %s's %s district" % \
+                                (res[0].position_name, res[0].location_name2,
+                                 ordinal(res[0].location_name1))
+
+                else:
+                    full_name = "%s of %s" % (res[0].position_name,
+                                              res[0].location_name1)
+                return {"full_name": full_name, "object_uuid": object_uuid}
+            except IndexError:
+                return None

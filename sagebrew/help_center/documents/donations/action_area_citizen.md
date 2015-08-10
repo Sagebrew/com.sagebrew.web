@@ -10,7 +10,7 @@ reasons for running for office.
 
 ## What's on it? ##
 #### Donation Goals ####
-This is where a candidate will outline their fundraising plans and campaign 
+This is where a candidate will outline their fundraising plans and Quest 
 goals. If you're interested in contributing to a candidate, you'll want to 
 check their Donation Goals to get an idea of how they plan to spend their 
 funds.

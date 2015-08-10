@@ -65,7 +65,7 @@
                             </div>
                         </div>
                         <div class="col-lg-8 col-md-10 col-sm-10 col-xs-12 col-md-offset-1 col-sm-offset-1">
-                            <div class="sb_comment_body" id="sb_content_{{ object_uuid }}">
+                            <div class="sb_comment_body{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                                 {{ content|urlize|linebreaksbr }}
                             </div>
                             <div id="edit_container_{{ object_uuid }}" style="display: none">

@@ -22,7 +22,6 @@ class Question(TitledContent):
     # provided in the serializer or in the endpoint
     #  /v1/questions/uuid/solution_count/
     solution_count = IntegerProperty(default=0)
-    is_closed = BooleanProperty(default=False)
     is_private = BooleanProperty()
     is_protected = BooleanProperty(default=False)
     is_mature = BooleanProperty(default=False)

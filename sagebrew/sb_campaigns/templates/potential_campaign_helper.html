@@ -1,0 +1,22 @@
+{% load staticfiles %}
+<div class="block sb_friend_block" id="js-sb_friend_{{ username }}">
+    <div class="row">
+        <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+            <div class="thumbnail sb_thumbnail_lg">
+                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
+                <a href="{{ url }}"><img src="{{ profile_pic|default_if_none:default_profile }}"></a>
+            </div>
+        </div>
+      <div class="col-md-7">
+        <h3><a href="{{ url }}">{{ first_name }} {{ last_name }}</a></h3>
+      </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-6">
+            <button class="btn btn-primary sb_btn sb_btn_fill js-add_accountant_{{ username }}" data-username="{{ username }}">Make Admin</button>
+        </div>
+        <div class="col-xs-6">
+            <button class="btn btn-primary sb_btn sb_btn_fill js-add_editor_{{ username }}" data-username="{{ username }}">Make Editor</button>
+        </div>
+    </div>
+</div>

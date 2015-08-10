@@ -21,19 +21,24 @@ from py2neo.cypher import ClientError
 from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task
-from plebs.neo_models import (Pleb, BetaUser, FriendRequest, Address,
+from plebs.neo_models import (Pleb, BetaUser, Address,
                               get_friend_requests_sent)
 from sb_registration.utils import (verify_completed_registration)
+from sb_campaigns.neo_models import Campaign
+from sb_campaigns.serializers import CampaignSerializer
+
 from .serializers import PlebSerializerNeo
-from .tasks import create_friend_request_task
-from .forms import (GetUserSearchForm, SubmitFriendRequestForm,
-                    RespondFriendRequestForm)
+from .tasks import create_friend_request_task, send_email_task
+from .forms import (GetUserSearchForm, SubmitFriendRequestForm)
 from .serializers import BetaUserSerializer, AddressSerializer
+
+from logging import getLogger
+logger = getLogger('loggly_logs')
 
 
 def root_profile_page(request):
     if request.user.is_authenticated() is True:
-        return redirect("profile_page", pleb_username=request.user.username)
+        return redirect("newsfeed")
     else:
         return redirect("signup")
 
@@ -54,7 +59,9 @@ class ProfileView(LoginRequiredMixin):
     def dispatch(self, *args, **kwargs):
         return super(ProfileView, self).dispatch(*args, **kwargs)
 
-    def get(self, request, pleb_username):
+    def get(self, request, pleb_username=None):
+        if pleb_username is None:
+            pleb_username = request.user.username
         try:
             page_user_pleb = Pleb.get(username=pleb_username)
         except (Pleb.DoesNotExist, DoesNotExist):
@@ -78,7 +85,7 @@ class ProfileView(LoginRequiredMixin):
             is_owner = True
             are_friends = False
         return render(request, self.template_name, {
-            'page_profile': page_user_pleb,
+            'page_profile': PlebSerializerNeo(page_user_pleb).data,
             'page_user': page_user,
             'is_owner': is_owner,
             'is_friend': are_friends,
@@ -130,20 +137,35 @@ def quest_settings(request):
     :param request:
     :return:
     """
-    address_key = settings.ADDRESS_AUTH_ID
     query = 'MATCH (person:Pleb {username: "%s"})' \
-            '-[r:LIVES_AT]->(house:Address) RETURN house' % (
+            '-[r:IS_WAGING]->(campaign:Campaign) RETURN campaign' % (
                 request.user.username)
     try:
         res, col = db.cypher_query(query)
-        address = AddressSerializer(Address.inflate(res[0][0]),
-                                    context={'request': request}).data
+        campaign = CampaignSerializer(Campaign.inflate(res[0][0]),
+                                      context={'request': request}).data
+        campaign['stripe_key'] = settings.STRIPE_PUBLIC_KEY
     except(CypherException, ClientError):
         return redirect("500_Error")
     except IndexError:
-        address = False
+        campaign = False
     return render(request, 'campaign_settings.html',
-                  {"address": address, "address_key": address_key})
+                  {"campaign": campaign})
+
+
+@login_required()
+def contribute_settings(request):
+    """
+    This view provides the necessary information for rendering a user's
+    Quest settings. If they have an ongoing Quest it provides the information
+    for that and if not it returns nothing and the template is expected to
+    provide a button for the user to start their Quest.
+
+    :param request:
+    :return:
+    """
+    return render(request, 'contribute_settings.html',
+                  {"stripe_key": settings.STRIPE_PUBLIC_KEY})
 
 
 @api_view(['GET'])
@@ -192,6 +214,54 @@ def get_user_search_view(request, pleb_username=""):
             status=200)
     else:
         return Response({'detail': 'error'}, 400)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def delete_quest(request):
+    internal_data = {
+        "source": "support@sagebrew.com",
+        "to": [row[1] for row in settings.ADMINS],
+        "subject": "Quest Deletion",
+        "html_content": render_to_string(
+            "email_templates/email_internal_quest_deletion.html", {
+                "username": request.user.username,
+                "email": request.user.email
+            })
+    }
+    user_data = {
+        "source": "support@sagebrew.com",
+        "to": request.user.email,
+        "subject": "Quest Deletion Confirmation",
+        "html_content": render_to_string(
+            "email_templates/email_quest_deletion_confirmation.html", {
+                "first_name": request.user.first_name,
+                "last_name": request.user.last_name
+            })
+    }
+    spawn_task(task_func=send_email_task, task_param=internal_data)
+    spawn_task(task_func=send_email_task, task_param=user_data)
+    return Response({"detail": "We have sent a confirmation email to you "
+                               "and will be in contact soon to follow up!"},
+                    status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def authenticate_representative(request):
+    pleb = Pleb.get(request.user.username)
+    email_data = {
+        "source": "support@sagebrew.com",
+        "to": [row[1] for row in settings.ADMINS],
+        "subject": "Representative Authentication",
+        "html_content": render_to_string(
+            "email_templates/email_internal_representative_confirmation.html",
+            {"username": pleb.username, "phone": pleb.get_official_phone()})
+    }
+    spawn_task(task_func=send_email_task, task_param=email_data)
+    return Response({"detail": "We will be call your office phone to "
+                               "verify soon."},
+                    status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -256,49 +326,6 @@ def create_friend_request(request):
                          "friend_request_id": object_uuid}, status=200)
     else:
         return Response({'detail': 'invalid form'}, status=400)
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def respond_friend_request(request):
-    """
-    finds the friend request which is attached to both the from and to user
-    then, depending on the response type, either attaches the friend
-    relationship
-    in each pleb and deletes the request, deletes the request, or lets the
-    friend
-    request exist to stop the user from sending more but does not notify the
-    user
-    which blocked them that they have a friend request from them.
-
-    :param request:
-    :return:
-    """
-    # TODO This needs to be transitioned to a serializer. Currently there is
-    # a limitation where if a float or non string is passed the form doesn't
-    # catch the error and instead raises an attribute error
-    form = RespondFriendRequestForm(request.DATA)
-    if form.is_valid():
-        friend_request = FriendRequest.nodes.get(
-            object_uuid=form.cleaned_data['request_id'])
-        to_pleb = friend_request.request_to.all()[0]
-        from_pleb = friend_request.request_from.all()[0]
-
-        if form.cleaned_data['response'] == 'accept':
-            to_pleb.friends.connect(from_pleb)
-            from_pleb.friends.connect(to_pleb)
-            friend_request.delete()
-            return Response({'detail': 'success'}, status=200)
-        elif form.cleaned_data['response'] == 'deny':
-            friend_request.delete()
-            return Response({'detail': 'success'}, status=200)
-        elif form.cleaned_data['response'] == 'block':
-            friend_request.seen = True
-            friend_request.response = 'block'
-            friend_request.save()
-            return Response({'detail': 'success'}, status=200)
-    else:
-        return Response({"detail": "invalid form"}, status=400)
 
 
 class ListBetaUsers(ListAPIView):

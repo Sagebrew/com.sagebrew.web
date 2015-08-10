@@ -1,6 +1,6 @@
 from rest_framework.reverse import reverse
 
-from neomodel import (RelationshipTo, StringProperty, db)
+from neomodel import (RelationshipTo, StringProperty)
 
 from sb_base.neo_models import SBPrivateContent
 from plebs.neo_models import Pleb
@@ -9,6 +9,9 @@ from plebs.neo_models import Pleb
 class Post(SBPrivateContent):
     table = StringProperty(default='posts')
     action_name = StringProperty(default="posted on your wall")
+
+    # optimizations
+    wall_owner_username = StringProperty()
 
     # relationships
     posted_on_wall = RelationshipTo('sb_wall.neo_models.Wall', 'POSTED_ON')
@@ -19,7 +22,4 @@ class Post(SBPrivateContent):
         }, request=request)
 
     def get_wall_owner_profile(self):
-        query = "MATCH (a:Post {object_uuid: '%s'})-[:POSTED_ON]->(b:Wall)-" \
-                "[:IS_OWNED_BY]->(c:Pleb) RETURN c" % self.object_uuid
-        res, col = db.cypher_query(query)
-        return Pleb.inflate(res[0][0])
+        return Pleb.get(self.wall_owner_username)

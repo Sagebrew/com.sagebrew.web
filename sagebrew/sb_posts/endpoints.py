@@ -1,6 +1,5 @@
 from uuid import uuid1
-from datetime import datetime
-from logging import getLogger
+from dateutil import parser
 
 from django.template.loader import render_to_string
 from django.template import RequestContext
@@ -22,9 +21,6 @@ from plebs.neo_models import Pleb
 
 from .serializers import PostSerializerNeo
 from .neo_models import Post
-
-
-logger = getLogger('loggly_logs')
 
 
 class PostsViewSet(viewsets.ModelViewSet):
@@ -91,7 +87,7 @@ class WallPostsListCreate(ListCreateAPIView):
             query = "MATCH (current:Pleb {username: '%s'})-[:OWNS_WALL]" \
                     "->(wall:Wall)-[:HAS_POST]->(c) WHERE " \
                     "c.to_be_deleted=false RETURN c " \
-                    "ORDER BY c.created DESC" % (self.request.user.username)
+                    "ORDER BY c.created DESC" % self.request.user.username
         else:
             # Returns the posts only if the current user is friends with the
             # owner of the current wall
@@ -104,8 +100,21 @@ class WallPostsListCreate(ListCreateAPIView):
                     "END AS result ORDER BY result.created DESC" % (
                         self.request.user.username,
                         self.kwargs[self.lookup_field])
-        res, col = db.cypher_query(query)
-        return [Post.inflate(row[0]) for row in res]
+        res, _ = db.cypher_query(query)
+        return res
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            page = [Post.inflate(row[0]) for row in page]
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        queryset = [Post.inflate(row[0]) for row in queryset]
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         wall_pleb = Pleb.get(self.kwargs[self.lookup_field])
@@ -118,25 +127,21 @@ class WallPostsListCreate(ListCreateAPIView):
         if serializer.is_valid():
             instance = serializer.save(wall_owner_profile=wall_pleb)
             serializer = serializer.data
-            data = {
+            spawn_task(task_func=spawn_notifications, task_param={
                 "from_pleb": request.user.username,
                 "sb_object": serializer['object_uuid'],
                 "url": serializer['url'],
                 "to_plebs": [self.kwargs[self.lookup_field], ],
                 "notification_id": str(uuid1()),
                 "action_name": instance.action_name
-            }
-            spawn_task(task_func=spawn_notifications, task_param=data)
-            html = request.query_params.get('html', 'false').lower()
-            if html == "true":
-                serializer["vote_count"] = str(serializer["vote_count"])
-                serializer['last_edited_on'] = datetime.strptime(
-                    serializer['last_edited_on'][:-6],
-                    '%Y-%m-%dT%H:%M:%S.%f')
-                context = RequestContext(request, serializer)
+            })
+            if request.query_params.get('html', 'false').lower() == "true":
+                serializer['last_edited_on'] = parser.parse(
+                    serializer['last_edited_on'])
                 return Response(
                     {
-                        "html": [render_to_string('post.html', context)],
+                        "html": [render_to_string(
+                            'post.html', RequestContext(request, serializer))],
                         "ids": [serializer["object_uuid"]]
                     },
                     status=status.HTTP_200_OK)
@@ -147,23 +152,17 @@ class WallPostsListCreate(ListCreateAPIView):
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def post_renderer(request, username=None):
-    '''
+    """
     This is a intermediate step on the way to utilizing a JS Framework to
     handle template rendering.
-    '''
+    """
     html_array = []
     id_array = []
-    args = []
-    kwargs = {"username": username}
-    posts = WallPostsListCreate.as_view()(request, *args, **kwargs)
+    posts = WallPostsListCreate.as_view()(request, username=username)
     for post in posts.data['results']:
-        # This is a work around for django templates and our current
-        # implementation of spacing for vote count in the template.
-        post["vote_count"] = str(post["vote_count"])
-        post['last_edited_on'] = datetime.strptime(
-            post['last_edited_on'][:-6], '%Y-%m-%dT%H:%M:%S.%f')
-        context = RequestContext(request, post)
-        html_array.append(render_to_string('post.html', context))
+        post['last_edited_on'] = parser.parse(post['last_edited_on'])
+        html_array.append(render_to_string(
+            'post.html', RequestContext(request, post)))
         id_array.append(post["object_uuid"])
     posts.data['results'] = {"html": html_array, "ids": id_array}
     return Response(posts.data, status=status.HTTP_200_OK)

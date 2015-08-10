@@ -1,0 +1,14 @@
+<h5>Epic{% if is_editor or is_accountant %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green toggle_create_goal" id="edit_epic" ><span class="fa fa-edit"></span></button>{% endif %}</h5>
+
+<div class="block sb_action_content_block sb_markdown_disabled">
+    {% if is_editor or is_accountant %}
+        {% autoescape off %}
+            {{ rendered_epic }}
+        {% endautoescape %}
+    {% elif public_official %}
+        <h4>This representative has not yet embarked upon their Sagebrew Quest.</h4>
+    {% else %}
+        <h4>This user has not begun their Quest yet.</h4>
+    {% endif %}
+
+</div>

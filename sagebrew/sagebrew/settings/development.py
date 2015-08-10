@@ -26,8 +26,10 @@ WEB_ADDRESS = "https://sagebrew.local.dev"
 # calls
 VERIFY_SECURE = False
 if not VERIFY_SECURE:
-    from requests.packages.urllib3.exceptions import InsecureRequestWarning
+    from requests.packages.urllib3.exceptions import (InsecureRequestWarning,
+                                                      InsecurePlatformWarning)
     requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+    requests.packages.urllib3.disable_warnings(InsecurePlatformWarning)
 
 MEDIA_ROOT = PROJECT_DIR.child("media")
 STATIC_ROOT = PROJECT_DIR.child("static")

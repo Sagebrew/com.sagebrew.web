@@ -5,13 +5,12 @@ from django.core.cache import cache
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel.exception import DoesNotExist
 from neomodel import db
 
 from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data
 
-from .neo_models import Address, Pleb, BetaUser
+from .neo_models import Address, Pleb
 from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
                     update_address_location)
 
@@ -35,14 +34,6 @@ def generate_username(first_name, last_name):
             (''.join(e for e in last_name if e.isalnum())).lower(),
             users_count)
     return username
-
-
-def check_beta_user(email, pleb):
-    try:
-        beta_user = BetaUser.nodes.get(email=email)
-        pleb.beta_user.connect(beta_user)
-    except(BetaUser.DoesNotExist, DoesNotExist):
-        pass
 
 
 class BetaUserSerializer(serializers.Serializer):
@@ -83,11 +74,11 @@ class UserSerializer(SBSerializer):
                     first_name=user.first_name,
                     last_name=user.last_name,
                     username=user.username,
-                    birthday=birthday)
+                    date_of_birth=birthday)
         pleb.save()
         # TODO Should move this out to the endpoint to remove circular
         # dependencies
-        cache.set(pleb.username, pleb)
+        cache.delete(pleb.username)
         spawn_task(task_func=create_pleb_task,
                    task_param={
                        "user_instance": user, "birthday": birthday,
@@ -150,6 +141,7 @@ class PlebSerializerNeo(SBSerializer):
     donations = serializers.SerializerMethodField()
     actions = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
+    campaign = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         pass
@@ -200,6 +192,9 @@ class PlebSerializerNeo(SBSerializer):
 
     def get_donations(self, obj):
         return obj.get_donations()
+
+    def get_campaign(self, obj):
+        return obj.get_campaign()
 
 
 class AddressSerializer(SBSerializer):
@@ -253,6 +248,19 @@ class AddressSerializer(SBSerializer):
             request=request)
 
 
+class AddressExportSerializer(serializers.Serializer):
+    street = serializers.CharField(max_length=125)
+    street_additional = serializers.CharField(required=False, allow_blank=True,
+                                              allow_null=True, max_length=125)
+    city = serializers.CharField(max_length=150)
+    state = serializers.CharField(max_length=50)
+    postal_code = serializers.CharField(max_length=15)
+    country = serializers.CharField(allow_null=True, required=False)
+    latitude = serializers.FloatField()
+    longitude = serializers.FloatField()
+    congressional_district = serializers.IntegerField()
+
+
 class FriendRequestSerializer(SBSerializer):
     seen = serializers.BooleanField()
     time_sent = serializers.DateTimeField(read_only=True)
@@ -268,14 +276,25 @@ class FriendRequestSerializer(SBSerializer):
 
     def get_from_user(self, obj):
         query = 'MATCH (a:FriendRequest {object_uuid: "%s"})-' \
-                '[:REQUEST_FROM]->(b:Pleb) RETURN b' % (obj.object_uuid)
+                '[:REQUEST_FROM]->(b:Pleb) RETURN b' % obj.object_uuid
         res, col = db.cypher_query(query)
 
         return PlebSerializerNeo(Pleb.inflate(res[0][0])).data
 
     def get_to_user(self, obj):
         query = 'MATCH (a:FriendRequest {object_uuid: "%s"})-' \
-                '[:REQUEST_TO]->(b:Pleb) RETURN b' % (obj.object_uuid)
+                '[:REQUEST_TO]->(b:Pleb) RETURN b' % obj.object_uuid
         res, col = db.cypher_query(query)
 
         return PlebSerializerNeo(Pleb.inflate(res[0][0])).data
+
+
+class PlebExportSerializer(serializers.Serializer):
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    email = serializers.CharField()
+
+    address = serializers.SerializerMethodField()
+
+    def get_address(self, obj):
+        return AddressExportSerializer(obj.get_address()).data

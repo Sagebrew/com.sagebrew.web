@@ -22,10 +22,11 @@ class PostSerializerNeo(ContentSerializer):
         request = self.context["request"]
         owner = Pleb.get(request.user.username)
         wall_owner = validated_data.pop('wall_owner_profile', None)
-        validated_data['content'] = bleach.clean(
-            validated_data.get('content', ''))
-        validated_data['owner_username'] = owner.username
-        post = Post(**validated_data).save()
+        content = validated_data.pop('content')
+        post = Post(owner_username=owner.username,
+                    content=bleach.clean(content),
+                    wall_owner_username=wall_owner.username,
+                    **validated_data).save()
         post.owned_by.connect(owner)
         owner.posts.connect(post)
         wall = wall_owner.get_wall()
@@ -50,6 +51,9 @@ class PostSerializerNeo(ContentSerializer):
 
     def get_wall_owner_profile(self, obj):
         request, expand, _, _, expedite = gather_request_data(self.context)
+        if self.context.get('force_expand', False):
+            return PlebSerializerNeo(
+                obj.get_wall_owner_profile(), context={'request': request}).data
         if expedite == "true":
             return None
         if isinstance(obj, dict) is True:

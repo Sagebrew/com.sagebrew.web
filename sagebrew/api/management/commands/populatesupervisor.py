@@ -10,6 +10,10 @@ logger = logging.getLogger('loggly_logs')
 
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument('env', nargs='+', type=str)
+        parser.add_argument('user', nargs='+', type=str)
+
     def populate_supervisor(self, env, user):
         worker_count = (multiprocessing.cpu_count() * 3) + 2
         if(environ.get("CIRCLECI", "false").lower() == "true"):
@@ -44,7 +48,7 @@ class Command(BaseCommand):
             pass
 
     def handle(self, *args, **options):
-        self.populate_supervisor(args[0], args[1])
+        self.populate_supervisor(options['env'][0], options['user'][0])
         self.stdout.write("Supervisor population complete")
 
 
@@ -129,4 +133,13 @@ def populate_general_values(data, user, worker_count):
                         environ.get("OAUTH_CLIENT_ID", ""))
     data = data.replace("%(ENV_OAUTH_CLIENT_SECRET)s",
                         environ.get("OAUTH_CLIENT_SECRET", ""))
+    data = data.replace("%(ENV_CRED_USER_PUBLIC)s",
+                        environ.get("CRED_USER_PUBLIC", ""))
+    data = data.replace("%(ENV_CRED_PASSWORD_PUBLIC)s",
+                        environ.get("CRED_PASSWORD_PUBLIC", ""))
+    data = data.replace("%(ENV_OAUTH_CLIENT_SECRET_CRED_PUBLIC)s",
+                        environ.get("OAUTH_CLIENT_SECRET_CRED_PUBLIC",
+                                    ""))
+    data = data.replace("%(ENV_OAUTH_CLIENT_ID_CRED_PUBLIC)s",
+                        environ.get("OAUTH_CLIENT_ID_CRED_PUBLIC", ""))
     return data

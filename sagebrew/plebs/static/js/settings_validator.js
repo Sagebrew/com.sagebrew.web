@@ -1,4 +1,4 @@
-$(document).ready(function(){
+$(document).ready(function () {
     $("#settings_form").formValidation({
         framework: 'bootstrap',
         icon: {

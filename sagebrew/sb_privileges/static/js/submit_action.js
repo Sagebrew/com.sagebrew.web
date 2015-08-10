@@ -13,7 +13,6 @@ $(document).ready(function () {
                 data[this.name] = this.value || '';
             }
         });
-        console.log(data);
 
         $.ajax({
             xhrFields: {withCredentials: true},

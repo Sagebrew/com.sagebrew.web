@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}{{ page_user.first_name}} {{ page_user.last_name }}{% endblock title %}
+{% block content %}
+<div class="row-fluid sb_page">
+    <div class="col-lg-10 col-lg-offset-1 col-md-12 col-sm-12 col-xs-12">
+        <div class="sb_wall sb_settings_wall">
+            <div class="row">
+                <div class="col-md-3 col-sm-12 col-xs-12 col-lg-offset-1 col-md-offset-1 col-sm-offset-0 col-xs-offset-0">
+                    <ul class="nav nav-list nav-list-vivid sb-side-nav">
+                        <li class="nav-header sb-nav-header"><h3>Settings</h3></li>
+                        <li style="margin-bottom: 0;">
+                            <a href="{% url 'general_settings' %}">
+                                <p>General</p>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{% url 'quest_settings' %}">
+                                <p>Quests</p>
+                            </a>
+                        </li>
+                        <li class="active" style="margin-bottom: 0;">
+                            <a id="sb-nav-link-active" href="#">
+                                <p>Contribute</p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-md-7 col-xs-12">
+                    <div class="block sb_markdown">
+                        <h1>Contributions</h1>
+                        <p>We'd like to start out by saying thanks for being here! We
+                        couldn't be achieving our goals without the enormous amount of support
+                        we've received, be it criticism, positive feedback, new ideas,
+                        or donations. We're immensely grateful for it all! We're doing our best
+                        to find ways to empower you and will continue to spend each
+                        day trying to craft a service that helps you to make
+                        worldly changes. If you believe in our cause and can spare a
+                        dollar or two we'd greatly appreciate it!</p>
+                        <p style="padding-bottom: 30px;"><b>Thank you for the support!!!</b></p>
+                    </div>
+                    <button class="btn btn-primary sb_btn sb_btn_fill"
+                    data-toggle="modal"
+                    data-target="#donationModal">Donate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="donationModal" tabindex="-1" role="dialog" aria-labelledby="donationModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="donationModalLabel">Donate to Sagebrew</h4>
+      </div>
+      <div class="modal-body">
+        How much would you like to donate?
+          <ul class="nav nav-list">
+            <li style="margin-bottom: 0;">
+                <a class="donation-amount-selector"
+                   href="#"
+                   data-amount="5">
+                    <p>$5</p>
+                </a>
+            </li>
+            <li style="margin-bottom: 0;">
+                <a class="donation-amount-selector"
+                   href="#"
+                   data-amount="10">
+                    <p>$10</p>
+                </a>
+            </li>
+            <li style="margin-bottom: 0;">
+                <a class="donation-amount-selector"
+                   href="#"
+                   data-amount="20">
+                    <p>$20</p>
+                </a>
+            </li>
+            <li style="margin-bottom: 0;">
+                <a class="donation-amount-selector"
+                   href="#"
+                   data-amount="50">
+                    <p>$50</p>
+                </a>
+            </li>
+            <li style="margin-bottom: 0;">
+                <a class="donation-amount-selector"
+                   href="#"
+                   data-amount="100">
+                    <p>$100</p>
+                </a>
+            </li>
+            <li style="margin-bottom: 0;">
+                <form id="customDonation">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <span class="input-group-addon">$</span>
+                            <input id="custom-donation"
+                                   class="form-control"
+                                   type="text"
+                                   placeholder="Custom Dollar Amount"
+                                   name="donation_amount">
+                            <span class="input-group-btn">
+                                <button id="custom-donation-btn" class="btn btn-default sb_btn" type="button" disabled>Confirm</button>
+                            </span>
+                        </div>
+                    </div>
+                </form>
+            </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <div class="col-lg-6 col-md-6">
+            <button type="button"
+                    class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove"
+                    data-dismiss="modal">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<div id="stripe-publishable" data-stripe_key="{{ stripe_key }}"></div>
+</div>
+{% endblock %}
+{% block footer %}
+{% endblock %}
+{% block scripts %}
+    {{ block.super }}
+    <script src="https://checkout.stripe.com/checkout.js"></script>
+    <script src="{% static 'js/contribute_settings.js' %}"></script>
+{% endblock scripts %}

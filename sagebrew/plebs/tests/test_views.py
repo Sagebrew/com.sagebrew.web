@@ -3,7 +3,7 @@ from base64 import b64encode
 from json import loads
 
 from rest_framework import status
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APIRequestFactory, APITestCase
 
 from django.contrib.auth.models import User, AnonymousUser
 from django.test import TestCase, Client
@@ -12,15 +12,15 @@ from django.conf import settings
 
 from sb_comments.neo_models import Comment
 from sb_posts.neo_models import Post
-from plebs.neo_models import Pleb, FriendRequest
-from plebs.views import (ProfileView, create_friend_request,
-                         respond_friend_request)
 from sb_registration.utils import create_user_util_test
 from api.utils import wait_util
+from sb_campaigns.neo_models import PoliticalCampaign
+
+from plebs.neo_models import Pleb, FriendRequest
+from plebs.views import (ProfileView, create_friend_request)
 
 
 class ProfilePageTest(TestCase):
-
     def setUp(self):
         self.factory = APIRequestFactory()
         self.client = Client()
@@ -52,7 +52,8 @@ class ProfilePageTest(TestCase):
 
     def test_with_post(self):
         test_post = Post(content='test', object_uuid=str(uuid1()),
-                         owner_username=self.pleb.username)
+                         owner_username=self.pleb.username,
+                         wall_owner_username=self.pleb.username)
         test_post.save()
         wall = self.pleb.get_wall()
         test_post.posted_on_wall.connect(wall)
@@ -70,7 +71,8 @@ class ProfilePageTest(TestCase):
 
     def test_post_with_comments(self):
         test_post = Post(content='test', object_uuid=str(uuid1()),
-                         owner_username=self.pleb.username)
+                         owner_username=self.pleb.username,
+                         wall_owner_username=self.pleb.username)
         test_post.save()
         wall = self.pleb.get_wall()
         test_post.posted_on_wall.connect(wall)
@@ -100,7 +102,8 @@ class ProfilePageTest(TestCase):
         test_user = Pleb(email=str(uuid1()) + '@gmail.com')
         test_user.save()
         test_post = Post(content='test', object_uuid=str(uuid1()),
-                         owner_username=self.pleb.username)
+                         owner_username=self.pleb.username,
+                         wall_owner_username=self.pleb.username)
         test_post.save()
         wall = self.pleb.wall.all()[0]
         test_post.posted_on_wall.connect(wall)
@@ -148,7 +151,8 @@ class ProfilePageTest(TestCase):
         wall = self.pleb.get_wall()
         for item in range(0, 50):
             test_post = Post(content='test', object_uuid=str(uuid1()),
-                             owner_username=self.pleb.username)
+                             owner_username=self.pleb.username,
+                             wall_owner_username=self.pleb.username)
             test_post.save()
             test_post.posted_on_wall.connect(wall)
             wall.posts.connect(test_post)
@@ -177,7 +181,8 @@ class ProfilePageTest(TestCase):
             pleb_array.append(test_pleb)
             for number in range(0, 10):
                 test_post = Post(content='test', object_uuid=str(uuid1()),
-                                 owner_username=self.pleb.username)
+                                 owner_username=self.pleb.username,
+                                 wall_owner_username=self.pleb.username)
                 test_post.save()
                 test_post.posted_on_wall.connect(wall)
                 wall.posts.connect(test_post)
@@ -187,7 +192,8 @@ class ProfilePageTest(TestCase):
                 rel_from_pleb.save()
                 post_array.append(test_post)
         test_post = Post(content='test', object_uuid=str(uuid1()),
-                         owner_username=self.pleb.username)
+                         owner_username=self.pleb.username,
+                         wall_owner_username=self.pleb.username)
         test_post.save()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
@@ -217,7 +223,8 @@ class ProfilePageTest(TestCase):
             pleb_array.append(test_pleb)
             for number in range(0, 10):
                 test_post = Post(content='test', object_uuid=str(uuid1()),
-                                 owner_username=self.pleb.username)
+                                 owner_username=self.pleb.username,
+                                 wall_owner_username=self.pleb.username)
                 test_post.save()
                 test_post.posted_on_wall.connect(wall)
                 wall.posts.connect(test_post)
@@ -250,7 +257,8 @@ class ProfilePageTest(TestCase):
                     rel_from_post.save()
                     comment_array.append(my_comment)
         test_post = Post(content='test', object_uuid=str(uuid1()),
-                         owner_username=self.pleb.username)
+                         owner_username=self.pleb.username,
+                         wall_owner_username=self.pleb.username)
         test_post.save()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
@@ -388,182 +396,69 @@ class TestCreateFriendRequestView(TestCase):
         self.assertEqual(res.status_code, 400)
 
 
-class TestRespondFriendRequestView(TestCase):
+class TestSettingPages(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
+        self.client = Client()
         self.email = "success@simulator.amazonses.com"
+        self.password = "testpassword"
         res = create_user_util_test(self.email)
+        self.username = res["username"]
         self.assertNotEqual(res, False)
-        wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
-        self.user2 = User.objects.get(email=self.email2)
+        self.pleb.completed_profile_info = True
+        self.pleb.email_verified = True
+        self.pleb.save()
 
-    def test_respond_friend_request_view_success_accept(self):
-        friend_request = FriendRequest(object_uuid=str(uuid1()))
-        friend_request.save()
-        pleb = Pleb.nodes.get(email=self.user.email)
-        pleb2 = Pleb.nodes.get(email=self.user2.email)
-        data = {
-            'request_id': friend_request.object_uuid,
-            'response': 'accept'
-        }
-        friend_request.request_to.connect(pleb2)
-        friend_request.request_from.connect(pleb)
-        pleb.friend_requests_sent.connect(friend_request)
-        pleb2.friend_requests_received.connect(friend_request)
+    def test_settings_page(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse("general_settings")
+        response = self.client.get(url)
 
-        request = self.factory.post('/relationships/respond_friend_request/',
-                                    data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        request.user = self.user
+    def test_quest_settings_no_quest(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse("general_settings")
+        response = self.client.get(url)
 
-        res = respond_friend_request(request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(res.status_code, 200)
+    def test_quest_settings_quest(self):
+        campaign = PoliticalCampaign(
+            owner_username=self.pleb.username).save()
+        self.pleb.campaign.connect(campaign)
+        campaign.owned_by.connect(self.pleb)
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse("general_settings")
+        response = self.client.get(url)
 
-    def test_respond_friend_request_view_success_deny(self):
-        friend_request = FriendRequest(object_uuid=str(uuid1()))
-        friend_request.save()
-        pleb = Pleb.nodes.get(email=self.user.email)
-        pleb2 = Pleb.nodes.get(email=self.user2.email)
-        data = {
-            'request_id': friend_request.object_uuid,
-            'response': 'deny'
-        }
-        friend_request.request_to.connect(pleb2)
-        friend_request.request_from.connect(pleb)
-        pleb.friend_requests_sent.connect(friend_request)
-        pleb2.friend_requests_received.connect(friend_request)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        request = self.factory.post('/relationships/respond_friend_request/',
-                                    data=data, format='json')
+    def test_contribute(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse("contribute_settings")
+        response = self.client.get(url)
 
-        request.user = self.user
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        res = respond_friend_request(request)
 
-        self.assertEqual(res.status_code, 200)
+class TestUserSearchView(APITestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        self.password = "testpassword"
+        res = create_user_util_test(self.email)
+        self.username = res["username"]
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.pleb.completed_profile_info = True
+        self.pleb.email_verified = True
+        self.pleb.save()
 
-    def test_respond_friend_request_view_success_block(self):
-        friend_request = FriendRequest(object_uuid=str(uuid1()))
-        friend_request.save()
-        pleb = Pleb.nodes.get(email=self.user.email)
-        pleb2 = Pleb.nodes.get(email=self.user2.email)
-        data = {
-            'request_id': friend_request.object_uuid,
-            'response': 'block'
-        }
-        friend_request.request_to.connect(pleb2)
-        friend_request.request_from.connect(pleb)
-        pleb.friend_requests_sent.connect(friend_request)
-        pleb2.friend_requests_received.connect(friend_request)
-
-        request = self.factory.post('/relationships/respond_friend_request/',
-                                    data=data, format='json')
-
-        request.user = self.user
-
-        res = respond_friend_request(request)
-
-        friend_request.refresh()
-
-        self.assertEqual(friend_request.response, 'block')
-        self.assertEqual(res.status_code, 200)
-
-    def test_respond_friend_request_view_failure_invalid_form(self):
-        data = {
-            'rst_id': str(uuid1()),
-            'response': 'accept'
-        }
-
-        request = self.factory.post('/relationships/respond_friend_request/',
-                                    data=data, format='json')
-
-        request.user = self.user
-
-        res = respond_friend_request(request)
-        res.render()
-
-        self.assertEqual(loads(res.content)['detail'], 'invalid form')
-        self.assertEqual(res.status_code, 400)
-
-    """
-    # TODO once we complete WA-1257 this should pass
-    def test_respond_friend_request_view_failure_incorrect_data_int(self):
-        request = self.factory.post('/relationships/respond_friend_request/',
-                                    data=1545, format='json')
-
-        request.user = self.user
-
-        res = respond_friend_request(request)
-
-        self.assertEqual(res.status_code, 400)
-    """
-
-    """
-    # TODO once we complete WA-1257 this should pass
-    def test_respond_friend_request_view_failure_incorrect_data_string(self):
-        request = self.factory.post('/relationships/respond_friend_request/',
-                                    data='1545', format='json')
-
-        request.user = self.user
-
-        res = respond_friend_request(request)
-
-        self.assertEqual(res.status_code, 400)
-    """
-
-    """
-    # TODO once we complete WA-1257 this should pass
-    def test_respond_friend_request_view_failure_incorrect_data_float(self):
-        request = self.factory.post('/relationships/respond_friend_request/',
-                                    data=15.45, format='json')
-
-        request.user = self.user
-
-        res = respond_friend_request(request)
-
-        self.assertEqual(res.status_code, 400)
-    """
-
-    def test_respond_friend_request_view_failure_incorrect_data_list(self):
-        request = self.factory.post('/relationships/respond_friend_request/',
-                                    data=[], format='json')
-
-        request.user = self.user
-
-        res = respond_friend_request(request)
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_respond_friend_request_view_failure_incorrect_data_dict(self):
-        request = self.factory.post('/relationships/respond_friend_request/',
-                                    data={}, format='json')
-
-        request.user = self.user
-
-        res = respond_friend_request(request)
-
-        self.assertEqual(res.status_code, 400)
-
-    """
-    # TODO once we complete WA-1257 this should pass
-    def test_respond_friend_request_view_failure_incorrect_data_image(self):
-        with open(settings.PROJECT_DIR + "/sb_posts/" +
-                  "tests/images/test_image.jpg", "rb") as image_file:
-            image = b64encode(image_file.read())
-        request = self.factory.post('/relationships/respond_friend_request/',
-                                    data=image, format='json')
-
-        request.user = self.user
-
-        res = respond_friend_request(request)
-
-        self.assertEqual(res.status_code, 400)
-    """
+    def test_get_user_search_view(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse("get_user_search_view",
+                      kwargs={"pleb_username": self.pleb.username})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -1,68 +1,13 @@
-<!--
-    <div class="hidden-xs">
-        <div class="row sb_footer_color">
-            <div class="col-lg-2 col-md-2 col-sm-12 col-xs-6 ">
-                <a class="bottom-menu-brand"
-                   href="">&#169;Sagebrew</a>
-            </div>
-            <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs">
-                <ul class="sb_nav_bottom_links">
-                    <ul><a class="sb_link"
-                           href="#fakelink">About</a></ul>
-                    <ul><a class="sb_link"
-                           href="#fakelink">Reputation</a></ul>
-                </ul>
-            </div>
-            <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs">
-                <ul class="sb_nav_bottom_links">
-                    <ul><a class="sb_link"
-                           href="#fakelink">Developers</a></ul>
-                    <ul><a class="sb_link"
-                           href="#fakelink">FAQ</a></ul>
-                </ul>
-            </div>
-            <div class="col-lg-2 col-md-2 col-sm-3  hidden-xs">
-                 <ul class="sb_nav_bottom_links">
-                    <ul><a class="sb_link"
-                           href="#fakelink">Register</a></ul>
-                    <ul><a class="sb_link"
-                           href="#fakelink">Find Friends</a></ul>
-                 </ul>
-            </div>
-                <div class="col-lg-2 col-md-2 col-sm-3  hidden-xs">
-                <ul class="sb_nav_bottom_links">
-                    <ul><a class="sb_link"
-                           href="#fakelink">Representatives</a></ul>
-                    <ul><a class="sb_link"
-                           href="#fakelink">Etiquette</a></ul>
-                </ul>
-            </div>
-            <div class="col-lg-2 col-md-2 col-sm-2  hidden-xs">
-                 <ul class="sb_nav_bottom_links">
-                    <ul><a class="sb_link"
-                           href="#fakelink">Help</a></ul>
-                    <ul><a class="sb_link"
-                           href="#fakelink">Donate</a></ul>
-                 </ul>
-            </div>
-        </div>
-    </div>
-
-    class="active"
-    -->
-
 <div class="row">
-  <div class="col-lg-2 col-md-2 col-sm-2 hidden-xs col-lg-offset-1 col-md-offset-1">
+  <div class="hidden-xs col-sm-2 col-md-1 col-md-offset-2">
     <a href="{% url 'root_profile_page' %}" class="bottom-menu-brand">Sagebrew</a>
   </div>
-  <div class="col-lg-6 col-md-9 col-sm-9 hidden-xs">
+  <div class="hidden-xs col-sm-10 col-md-7 col-md-offset-1 ">
     <ul class="bottom-menu-list">
-        {% if debug == True %}
-            <li><a href="#fakelink">About Us</a></li>
-            <li><a href="#fakelink">Jobs</a></li>
-            <li><a href="#fakelink">Privacy</a></li>
-        {% endif %}
+        <li><a href="{% url 'quest_info' %}">Quests</a></li>
+        <li><a href="{% url 'question_page' %}">Conversations</a></li>
         <li><a href="{% url 'terms_and_conditions' %}">Terms</a></li>
+        <li><a href="http://blog.sagebrew.com/">Blog</a></li>
         <li><a href="{% url 'support' %}">Support</a></li>
         <li><a href="{% url 'trust_and_safety' %}">Trust and Safety</a></li>
         <li><a href="{% url 'help_center' %}">Help</a></li>

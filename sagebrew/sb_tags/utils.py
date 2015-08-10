@@ -2,7 +2,6 @@ import logging
 from neomodel.exception import CypherException
 
 from sb_base.decorators import apply_defense
-from api.utils import execute_cypher_query
 from sb_tags.neo_models import Tag
 
 logger = logging.getLogger('loggly_logs')
@@ -38,6 +37,7 @@ def create_tag_relations_util(tags):
         return e
 
 
+"""
 @apply_defense
 def calc_spheres():
     tags = Tag.nodes.all()
@@ -57,6 +57,7 @@ def calc_spheres():
                     ') as distance ' \
                     'return distance' % (tag.name, base_tag.name)
             execute_cypher_query(query)
+"""
 
 
 def update_tags_util(tags):

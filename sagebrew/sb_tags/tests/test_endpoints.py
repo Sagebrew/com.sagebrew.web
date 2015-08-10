@@ -56,13 +56,22 @@ class TagEndpointTest(APITestCase):
                       kwargs={"name": self.tag.name})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual({
-            "id": response.data['id'],
-            "type": "tag",
-            "name": self.tag.name,
-            "href": response.data['href']
-        }, response.data)
+        self.assertEqual(response.data['id'], self.tag.object_uuid)
         self.assertIn('http', response.data['href'])
+
+    def test_get_type(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('tag-detail',
+                      kwargs={"name": self.tag.name})
+        response = self.client.get(url)
+        self.assertEqual(response.data['type'], "tag")
+
+    def test_get_name(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('tag-detail',
+                      kwargs={"name": self.tag.name})
+        response = self.client.get(url)
+        self.assertEqual(response.data['name'], self.tag.name)
 
     def test_update_detail(self):
         self.client.force_authenticate(user=self.user)

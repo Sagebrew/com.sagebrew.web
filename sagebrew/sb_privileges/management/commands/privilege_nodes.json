@@ -14,6 +14,10 @@
                 {
                     "resource": "post",
                     "permission": "write"
+                },
+                {
+                      "resource": "vote",
+                      "permission": "upvote"
                 }
             ],
             "requirements": [
@@ -48,8 +52,8 @@
               "name": "upvote",
               "actions": [
                   {
-                      "resource": "vote",
-                      "permission": "upvote"
+                      "resource": "intercom",
+                      "permission": "write"
                   }
               ],
               "requirements": [
@@ -59,6 +63,42 @@
                       "key": "reputation",
                       "operator": "coperator\nge\np0\n.",
                       "condition": 10
+                  }
+              ]
+          },
+          {
+              "name": "quest",
+              "actions": [
+                  {
+                      "resource": "intercom",
+                      "permission": "write"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Quest Subscriber",
+                      "url": "/v1/profiles/<username>/",
+                      "key": "campaign",
+                      "operator": "coperator\nis_not\np0\n.",
+                      "condition": null
+                  }
+              ]
+          },
+          {
+              "name": "contributor",
+              "actions": [
+                  {
+                      "resource": "intercom",
+                      "permission": "write"
+                  }
+              ],
+              "requirements": [
+                  {
+                      "name": "Contributor +1",
+                      "url": "/v1/profiles/<username>/",
+                      "key": "donations",
+                      "operator": "coperator\ntruth\np0\n.",
+                      "condition": "[...]"
                   }
               ]
           },

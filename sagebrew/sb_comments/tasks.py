@@ -31,3 +31,4 @@ def spawn_comment_notifications(object_uuid, parent_object_uuid,
         'action_name': "%s %s" % (comment.action_name,
                                   parent_object_type)
     })
+    return True

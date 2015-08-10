@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity*/
+/*global $, jQuery*/
 $(document).ready(function () {
     "use strict";
     function sendFriendRequest(requestArea, username) {
@@ -84,16 +84,16 @@ $(document).ready(function () {
                             }
                         });
                     }
-                    if (item.type === 'public_official') {
+                    if (item.type === 'public_official' || item.type === 'campaign' || item.type === 'politicalcampaign') {
                         var sagaUUID = item.object_uuid;
-
                         $.ajax({
                             xhrFields: {withCredentials: true},
                             type: "GET",
-                            url: "/action/" + sagaUUID + '/search',
+                            url: "/quests/" + sagaUUID + '/search',
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
                             success: function (data) {
+
                                 searchResults.append(data.html);
                             }
                         });
@@ -109,11 +109,6 @@ $(document).ready(function () {
                 var loadNextPage = $('.load_next_page'),
                     nextPage = loadNextPage.data('next');
                 loadNextPage.spin("small");
-                $.ajaxSetup({
-                    beforeSend: function (xhr, settings) {
-                        ajaxSecurity(xhr, settings);
-                    }
-                });
                 $.ajax({
                     xhrFields: {withCredentials: true},
                     type: "GET",

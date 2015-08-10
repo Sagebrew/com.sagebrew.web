@@ -39,10 +39,6 @@
   p {
     font-size: 16px;
   }
-  img {
-    max-height: 300px;
-    max-width: 400px;
-  }
   textarea {
     border-radius: @sb_common_radius;
     width: 100%;
@@ -76,11 +72,16 @@
     display: inline-block;
     font-family: "Inconsolata", Monaco, monospace;
     white-space: pre;
+    max-width: 100%;
   }
   img {
     border-radius: @sb_common_radius;
-    max-width: 696px;
-    max-height: 696px;
+    max-width: 100%;
+    width: auto;
+  }
+  video {
+    border-radius: @sb_common_radius;
+    width: 100%;
   }
   blockquote{
 // This is how you would add the quotes next to the quote however does not work

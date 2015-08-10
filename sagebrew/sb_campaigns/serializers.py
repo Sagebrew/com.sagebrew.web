@@ -407,11 +407,11 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         # correctly
         query = 'MATCH (a:Pleb { username: "%s" }),' \
                 '(b:SBAction {resource: "intercom"}) CREATE UNIQUE ' \
-                '(a)-[r:CAN]->(b) RETURN r'
+                '(a)-[r:CAN]->(b) RETURN r' % owner.username
         db.cypher_query(query)
         query = 'MATCH (a:Pleb { username: "%s" }),' \
                 '(b:Privilege {name: "quest"}) CREATE UNIQUE ' \
-                '(a)-[r:HAS]->(b) RETURN r'
+                '(a)-[r:HAS]->(b) RETURN r' % owner.username
         db.cypher_query(query)
         spawn_task(task_func=check_privileges,
                    task_param={"username": owner.username})

@@ -400,6 +400,19 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         account.save()
         cache.set("%s_campaign" % campaign.object_uuid, campaign)
         cache.delete(owner.username)
+        # Potential optimization in combining these utilizing a transaction
+        # Added these to ensure that the user has intercom when they hit the
+        # Quest page for the first time. The privilege still is fired through
+        # the spawn_task as a backup and to ensure all connections are made
+        # correctly
+        query = 'MATCH (a:Pleb { username: "%s" }),' \
+                '(b:SBAction {resource: "intercom"}) CREATE UNIQUE ' \
+                '(a)-[r:CAN]->(b) RETURN r' % owner.username
+        db.cypher_query(query)
+        query = 'MATCH (a:Pleb { username: "%s" }),' \
+                '(b:Privilege {name: "quest"}) CREATE UNIQUE ' \
+                '(a)-[r:HAS]->(b) RETURN r' % owner.username
+        db.cypher_query(query)
         spawn_task(task_func=check_privileges,
                    task_param={"username": owner.username})
         return campaign

@@ -22,9 +22,9 @@ Question or Solution. Upvoting doesn't harm you, and in fact, may help you
 acquire Badges!
 
 ## Can people see my Upvotes? ##
-In the Public Conversation Area people cannot see how you are voting, this 
+In the Conversation people cannot see how you are voting, this 
 ensures that you are able to vote based on what you think is best rather than
-how your vote will look. Please note in Private Areas such as your Profile Page
+how your vote will look. Please note in private areas such as your Profile Page
 your friends will be able to see what you Upvote and Downvote.
  
 ## Limitations ##

@@ -25,11 +25,10 @@ practice proper discussion etiquette, or to blow off etiquette altogether if
 you’d like. It’s your space. Have fun.
 {% endif %}
 
-You can create Questions and provide Solutions in the Public Conversation 
-Area. This is your opportunity to lend your voice to the ongoing discussions, 
+You can create Questions and provide Solutions in the Conversation. This is your opportunity to lend your voice to the ongoing discussions, 
 allowing you to interact with other like-minded visionaries and find solutions 
-to real problems. Note that Reputation is on the line in the Public 
-Conversation Area. You may amass Reputation for quality Questions and 
+to real problems. Note that Reputation is on the line in the 
+Conversation. You may amass Reputation for quality Questions and 
 Solutions, or you may lose Reputation for poor quality Questions and Solutions. 
 
 {% if debug == True %}

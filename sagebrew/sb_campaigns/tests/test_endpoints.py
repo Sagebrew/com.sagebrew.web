@@ -132,7 +132,7 @@ class CampaignEndpointTests(APITestCase):
         res, _ = db.cypher_query(query)
         action.delete()
         privilege.delete()
-        self.assertEqual(res.one.resource, "intercom")
+        self.assertEqual(SBAction.inflate(res.one).resource, "intercom")
 
     def test_create_gain_quest_privilege(self):
         self.client.force_authenticate(user=self.user)
@@ -157,7 +157,7 @@ class CampaignEndpointTests(APITestCase):
         res, _ = db.cypher_query(query)
         action.delete()
         privilege.delete()
-        self.assertEqual(res.one.name, "quest")
+        self.assertEqual(Privilege.inflate(res.one.name), "quest")
 
     def test_create_paid(self):
         self.client.force_authenticate(user=self.user)

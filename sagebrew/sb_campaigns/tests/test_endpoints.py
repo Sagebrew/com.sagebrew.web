@@ -157,7 +157,7 @@ class CampaignEndpointTests(APITestCase):
         res, _ = db.cypher_query(query)
         action.delete()
         privilege.delete()
-        self.assertEqual(Privilege.inflate(res.one.name), "quest")
+        self.assertEqual(Privilege.inflate(res.one).name, "quest")
 
     def test_create_paid(self):
         self.client.force_authenticate(user=self.user)

@@ -152,7 +152,7 @@ class CampaignEndpointTests(APITestCase):
         self.client.post(url, data=data, format='json')
         position.delete()
         query = 'MATCH (a:Pleb {username:"%s"})-[:HAS]->' \
-                '(b:SBAction {resource: "intercom"}) RETURN b' % (
+                '(b:Privilege {name: "quest"}) RETURN b' % (
                     self.pleb.username)
         res, _ = db.cypher_query(query)
         action.delete()

@@ -1,7 +1,7 @@
 # What's the Admin Council and how do I get on it? #
 The Admin Council, is a collective group of Sagebrew's most trusted members who 
 have achieved 10,000+ [Reputation][2] and reached the rank of [Brewmaster][1]. They 
-are responsible for general public conversation maintenance.
+are responsible for general Conversation maintenance.
 
 Duties as an Admin include:
 

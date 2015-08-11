@@ -3,7 +3,7 @@ Some of the reasons a Solution might be removed are detailed below:
 
 - A Solution was [Flagged][1] for containing inappropriate language,
   offensive language, or insults of any kind
-- A Solution didn't offer anything relevant to the conversation
+- A Solution didn't offer anything relevant to the Conversation
 - A Solution was a [duplicate][2] of another Solution
 
 For a Solution to be removed, it must first be flagged

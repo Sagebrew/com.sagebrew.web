@@ -362,7 +362,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         try:
             formal_name = Position.get_full_name(
                 position.object_uuid).get('full_name', None)
-        except TypeError:
+        except AttributeError:
             formal_name = None
         campaign = PoliticalCampaign(first_name=owner.first_name,
                                      last_name=owner.last_name,

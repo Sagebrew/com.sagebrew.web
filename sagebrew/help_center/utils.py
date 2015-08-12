@@ -4,7 +4,7 @@ from sub_urls.donations import urlpatterns as donations
 from sub_urls.conversation import urlpatterns as conversation
 from sub_urls.policies import urlpatterns as policies
 from sub_urls.privileges import urlpatterns as privileges
-from sub_urls.quests import urlpatterns as representatives
+from sub_urls.quest import urlpatterns as representatives
 from sub_urls.reputation_and_moderation import (
     urlpatterns as reputation_and_moderation)
 from sub_urls.security import urlpatterns as security

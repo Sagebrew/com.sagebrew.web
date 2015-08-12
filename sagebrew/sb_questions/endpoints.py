@@ -138,16 +138,6 @@ class QuestionViewSet(viewsets.ModelViewSet):
         return Response({"solution_count": count}, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'])
-    def upvote(self, request, object_uuid=None):
-        return Response({"detail": "TBD"},
-                        status=status.HTTP_501_NOT_IMPLEMENTED)
-
-    @detail_route(methods=['get'])
-    def downvote(self, request, object_uuid=None):
-        return Response({"detail": "TBD"},
-                        status=status.HTTP_501_NOT_IMPLEMENTED)
-
-    @detail_route(methods=['get'])
     def close(self, request, object_uuid=None):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)

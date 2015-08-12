@@ -22,8 +22,8 @@ class Location(SBObject):
     def get(cls, object_uuid):
         location = cache.get(object_uuid)
         if location is None:
-            query = 'MATCH (n:`Location` {object_uuid: "%s"}) RETURN n' % \
-                    (object_uuid)
+            query = 'MATCH (n:`Location` {object_uuid: "%s"}) RETURN n' % (
+                object_uuid)
             res, col = db.cypher_query(query)
             try:
                 location = Location.inflate(res[0][0])
@@ -35,23 +35,23 @@ class Location(SBObject):
     @classmethod
     def get_encompasses(cls, object_uuid):
         query = 'MATCH (n:`Location` {object_uuid: "%s"})-' \
-                '[:ENCOMPASSES]->(e:`Location`) RETURN e.object_uuid' % \
-                (object_uuid)
+                '[:ENCOMPASSES]->(e:`Location`) RETURN e.object_uuid' % (
+                    object_uuid)
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 
     @classmethod
     def get_encompassed_by(cls, object_uuid):
         query = 'MATCH (n:`Location` {object_uuid: "%s"})-' \
-                '[:ENCOMPASSED_BY]->(e:`Location`) RETURN e.object_uuid' \
-                % (object_uuid)
+                '[:ENCOMPASSED_BY]->(e:`Location`) RETURN e.object_uuid' % (
+                    object_uuid)
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 
     @classmethod
     def get_positions(cls, object_uuid):
         query = 'MATCH (l:`Location` {object_uuid: "%s"})-' \
-                '[:POSITIONS_AVAILABLE]->(p:`Position`) RETURN p.object_uuid' \
-                % (object_uuid)
+                '[:POSITIONS_AVAILABLE]->(p:`Position`) RETURN ' \
+                'p.object_uuid' % object_uuid
         res, col = db.cypher_query(query)
         return [row[0] for row in res]

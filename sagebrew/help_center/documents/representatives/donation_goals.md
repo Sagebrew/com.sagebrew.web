@@ -1,8 +1,8 @@
 # What are donation goals and how should I set them? #
 One of the exciting Sagebrew features for current representatives and those 
-running for office is the ability to collect donations. The Sagebrew donation 
+running for office with a Quest is the ability to collect donations. The Sagebrew donation 
 system is a unique and meaningful donation system that offers benefactors the 
-ability to track the progress of their donations while allowing representatives 
+ability to track the progress of their donations while allowing candidates 
 to lay out detailed plans for the funds they raise. How is all of this 
 possible? Donation Goals. 
 
@@ -38,10 +38,9 @@ between candidates and those supporting them.
 
 ## Odds and Ends ##
 - A contributor may retract their donation at any time until the following 
-  Donation Goal is reached and they actually donate to the representative or 
-  candidate. 
+  Donation Goal is reached and they actually donate to the Quest. 
 
-- Once a Donation Goal is reached the representative or candidate must provide 
+- Once a Donation Goal is reached the Quest must provide 
   an update to their constituents and contributors. (i.e. if you've promised to 
   make a commercial after reaching your $10,000 Donation Goal, you should show 
   the commercial to your contributors so they can see the tangible results of 
@@ -51,14 +50,6 @@ between candidates and those supporting them.
 - At the end of a Round, during the last Donation Goal, you may set your next 
   Round of Donation Goals. All excess donor donations from one Round will roll 
   over into the next Round. 
-
-- The initial Donation Goal (the first set by any candidate or representative 
-  during a campaign and at the outset of each round) may include a number of 
-  promised votes as well as a monetary goal. (i.e. if a candidate isn't sure 
-  whether or not it'll be worth it to run, they can set their first Donation 
-  Goal at $5,000 and 1000 pledged votes. This will ensure that they have enough
-  support to launch a campaign. The pledged votes must come through the Sagebrew 
-  Pledged Vote system)
 
 - Once a Donation Goal is set it may not be changed. This encourages 
   representatives and candidates to set pragmatic Donation Goals and ensures 

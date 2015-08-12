@@ -4,4 +4,4 @@ federal office. Once you've risen $5000 or once your campaign expenditures
 have exceed $5000 you must then register with the FEC to get your name on the 
 ballot. See [How do I get my name on the ballot.][1]
 
-[1]: /help/quests/how_to_get_on_the_ballot/
+[1]: /help/quest/how_to_get_on_the_ballot/

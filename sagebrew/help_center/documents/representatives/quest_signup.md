@@ -125,4 +125,4 @@ embark on this exciting adventure!
 [Click here][1] to begin setting up your Quest!
 
 
-[1]: /quests/
+[1]: /quest/

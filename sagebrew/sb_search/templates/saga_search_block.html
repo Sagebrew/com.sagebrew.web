@@ -14,6 +14,14 @@
         <div class="col-xs-8">
             {% if public_official %}
                 <p>{{ public_official.state }} - {{ public_official.title }}</p>
+            {% else %}
+                {% if position_name == "Senator" %}
+                    <p>Quest: Running to be a {{ position_name }} of {{ location_name }}</p>
+                {% elif position_name == "President" %}
+                    <p>Quest: Running for {{ position_name }} of the {{ location_name }}</p>
+                {% elif position_name == "House Representative" %}
+                    <p>Quest: Running to be {{ position_formal_name }}</p>
+                {% endif %}
             {% endif %}
             {% comment %}
             <p>Office Running for</p>

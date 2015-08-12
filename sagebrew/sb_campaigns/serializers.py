@@ -1,3 +1,5 @@
+import pytz
+from datetime import datetime
 import time
 import stripe
 import markdown
@@ -41,6 +43,7 @@ class CampaignSerializer(SBSerializer):
     last_name = serializers.CharField(read_only=True)
     location_name = serializers.CharField(read_only=True)
     position_name = serializers.CharField(read_only=True)
+    position_formal_name = serializers.CharField(read_only=True)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
@@ -364,6 +367,9 @@ class PoliticalCampaignSerializer(CampaignSerializer):
                                      position_name=position.name,
                                      location_name=Position.get_location_name(
                                          position.object_uuid),
+                                     position_formal_name=
+                                     Position.get_full_name(
+                                         position.object_uuid)['full_name'],
                                      **validated_data).save()
         if official:
             temp_camp = official.get_campaign()
@@ -398,21 +404,30 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         account.tos_acceptance.ip = ip
         account.tos_acceptance.date = int(time.time())
         account.save()
-        cache.set("%s_campaign" % campaign.object_uuid, campaign)
-        cache.delete(owner.username)
         # Potential optimization in combining these utilizing a transaction
         # Added these to ensure that the user has intercom when they hit the
         # Quest page for the first time. The privilege still is fired through
         # the spawn_task as a backup and to ensure all connections are made
         # correctly
+        epoch_date = datetime(1970, 1, 1, tzinfo=pytz.utc)
         query = 'MATCH (a:Pleb { username: "%s" }),' \
                 '(b:SBAction {resource: "intercom"}) CREATE UNIQUE ' \
-                '(a)-[r:CAN]->(b) RETURN r' % owner.username
+                '(a)-[r:CAN {active: true, gained_on: %f}]->(b) RETURN r' % (
+                    owner.username, float((datetime.now(pytz.utc) -
+                                           epoch_date).total_seconds()))
         db.cypher_query(query)
         query = 'MATCH (a:Pleb { username: "%s" }),' \
                 '(b:Privilege {name: "quest"}) CREATE UNIQUE ' \
-                '(a)-[r:HAS]->(b) RETURN r' % owner.username
+                '(a)-[r:HAS {active: true, gained_on: %f}]->(b) RETURN r' % (
+                    owner.username, float((datetime.now(pytz.utc) -
+                                           epoch_date).total_seconds()))
         db.cypher_query(query)
+        cache.set("%s_campaign" % campaign.object_uuid, campaign)
+        cache.delete(owner.username)
+        cache.set("%s_privileges" % owner.username,
+                  owner.get_privileges(cache_buster=True))
+        cache.set("%s_actions" % owner.username,
+                  owner.get_actions(cache_buster=True))
         spawn_task(task_func=check_privileges,
                    task_param={"username": owner.username})
         return campaign

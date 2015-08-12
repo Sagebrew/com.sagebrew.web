@@ -83,6 +83,7 @@ class Campaign(Searchable):
     # Optimizations
     position_name = StringProperty()
     location_name = StringProperty()
+    position_formal_name = StringProperty()
 
     # Relationships
     donations = RelationshipTo('sb_donations.neo_models.Donation',
@@ -126,23 +127,23 @@ class Campaign(Searchable):
         editors = cache.get("%s_editors" % object_uuid)
         if editors is None:
             query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
-                    '[:CAN_BE_EDITED_BY]->(p:`Pleb`) RETURN p.username' \
-                    % (object_uuid)
+                    '[:CAN_BE_EDITED_BY]->(p:`Pleb`) RETURN p.username' % (
+                        object_uuid)
             res, col = db.cypher_query(query)
             editors = [row[0] for row in res]
-            cache.set("%s_editors" % (object_uuid), editors)
+            cache.set("%s_editors" % object_uuid, editors)
         return editors
 
     @classmethod
     def get_accountants(cls, object_uuid):
-        accountants = cache.get("%s_accountants" % (object_uuid))
+        accountants = cache.get("%s_accountants" % object_uuid)
         if accountants is None:
             query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
                     '[:CAN_VIEW_MONETARY_DATA]->(p:`Pleb`) RETURN p.username' \
-                    % (object_uuid)
+                    % object_uuid
             res, col = db.cypher_query(query)
             accountants = [row[0] for row in res]
-            cache.set("%s_accountants" % (object_uuid), accountants)
+            cache.set("%s_accountants" % object_uuid, accountants)
         return accountants
 
     @classmethod
@@ -153,7 +154,7 @@ class Campaign(Searchable):
     @classmethod
     def get_url(cls, object_uuid, request):
         query = 'MATCH (c:`Campaign` {object_uuid:"%s"})-' \
-                '[:WAGED_BY]->(p:`Pleb`) return p.username' % (object_uuid)
+                '[:WAGED_BY]->(p:`Pleb`) return p.username' % object_uuid
         res, col = db.cypher_query(query)
         try:
             return reverse('quest_saga',
@@ -177,15 +178,15 @@ class Campaign(Searchable):
 
     @classmethod
     def get_active_goals(cls, object_uuid):
-        active_goals = cache.get("%s_active_goals" % (object_uuid))
+        active_goals = cache.get("%s_active_goals" % object_uuid)
         if active_goals is None:
             query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
                     "[:CURRENT_ROUND]->(r:`Round`)-[:STRIVING_FOR]->" \
-                    "(g:`Goal`) RETURN g.object_uuid ORDER BY g.created" % \
-                    (object_uuid)
+                    "(g:`Goal`) RETURN g.object_uuid ORDER BY g.created" % (
+                        object_uuid)
             res, col = db.cypher_query(query)
             active_goals = [row[0] for row in res]
-            cache.set("%s_active_goals" % (object_uuid), active_goals)
+            cache.set("%s_active_goals" % object_uuid, active_goals)
         return active_goals
 
     '''
@@ -374,7 +375,7 @@ class PoliticalCampaign(Campaign):
     def get_constituents(cls, object_uuid):
         query = 'MATCH (c:`PoliticalCampaign` {object_uuid:"%s"})-' \
                 '[r:POTENTIAL_REPRESENTATIVE_FOR]->(p:`Pleb`) ' \
-                'RETURN p.username' % (object_uuid)
+                'RETURN p.username' % object_uuid
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 
@@ -439,27 +440,27 @@ class Position(SBObject):
 
     @classmethod
     def get_campaigns(cls, object_uuid):
-        campaigns = cache.get("%s_campaigns" % (object_uuid))
+        campaigns = cache.get("%s_campaigns" % object_uuid)
         if campaigns is None:
             query = 'MATCH (p:`Position` {object_uuid: "%s"})-[:CAMPAIGNS]->' \
                     '(c:`PoliticalCampaign`) RETURN c.object_uuid' % \
-                    (object_uuid)
+                    object_uuid
             res, col = db.cypher_query(query)
             campaigns = [row[0] for row in res]
-            cache.set("%s_campaigns" % (object_uuid), campaigns)
+            cache.set("%s_campaigns" % object_uuid, campaigns)
         return campaigns
 
     @classmethod
     def get_location(cls, object_uuid):
-        location = cache.get("%s_location" % (object_uuid))
+        location = cache.get("%s_location" % object_uuid)
         if location is None:
             query = 'MATCH (p:`Position` {object_uuid: "%s"})-' \
                     '[:AVAILABLE_WITHIN]->(c:`Location`) ' \
-                    'RETURN c.object_uuid' % (object_uuid)
+                    'RETURN c.object_uuid' % object_uuid
             res, col = db.cypher_query(query)
             try:
                 location = res[0][0]
-                cache.set("%s_location" % (object_uuid), location)
+                cache.set("%s_location" % object_uuid, location)
             except IndexError:
                 location = None
         return location
@@ -478,7 +479,7 @@ class Position(SBObject):
 
     @classmethod
     def get_full_name(cls, object_uuid):
-        full_name = cache.get("%s_full_name" % (object_uuid))
+        full_name = cache.get("%s_full_name" % object_uuid)
         if full_name is None:
             query = 'MATCH (p:Position {object_uuid: "%s"})-' \
                     '[:AVAILABLE_WITHIN]->(l:Location) WITH p, l ' \

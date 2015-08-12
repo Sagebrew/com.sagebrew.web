@@ -27,7 +27,7 @@ class Command(BaseCommand):
             if not dirs:
                 _, state = root.split("states/")
                 state_name = us.states.lookup(state).name
-                with open(root + "/" + files[0], 'r') as geo_data:
+                with open(root + "/" + files[0]) as geo_data:
                     file_data = loads(geo_data.read())
                     try:
                         state = Location.nodes.get(name=state_name)

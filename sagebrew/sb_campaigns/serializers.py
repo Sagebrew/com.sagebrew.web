@@ -359,6 +359,11 @@ class PoliticalCampaignSerializer(CampaignSerializer):
             validated_data['website'] = official.website
             validated_data['twitter'] = official.twitter
             validated_data['biography'] = official.bio
+        try:
+            formal_name = Position.get_full_name(
+                position.object_uuid).get('full_name', None)
+        except TypeError:
+            formal_name = None
         campaign = PoliticalCampaign(first_name=owner.first_name,
                                      last_name=owner.last_name,
                                      owner_username=owner.username,
@@ -367,9 +372,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
                                      position_name=position.name,
                                      location_name=Position.get_location_name(
                                          position.object_uuid),
-                                     position_formal_name=
-                                     Position.get_full_name(
-                                         position.object_uuid)['full_name'],
+                                     position_formal_name=formal_name,
                                      **validated_data).save()
         if official:
             temp_camp = official.get_campaign()

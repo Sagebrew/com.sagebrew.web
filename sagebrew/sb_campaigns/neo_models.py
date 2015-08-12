@@ -362,11 +362,11 @@ class PoliticalCampaign(Campaign):
     def get_vote_count(cls, object_uuid):
         query = 'MATCH (c:`PoliticalCampaign` {object_uuid:"%s"})-' \
                 '[r:RECEIVED_PLEDGED_VOTE]->(p:`Pleb`) WHERE ' \
-                'r.active=true RETURN count(r)' % (object_uuid)
+                'r.active=true RETURN count(r)' % object_uuid
         res, col = db.cypher_query(query)
         try:
             vote_count = res[0][0]
-            cache.set("%s_vote_count" % (object_uuid), vote_count)
+            cache.set("%s_vote_count" % object_uuid, vote_count)
             return vote_count
         except IndexError:
             return None

@@ -511,6 +511,30 @@ class PostListCreateTest(APITestCase):
         self.assertEqual(response.status_code,
                          status.HTTP_400_BAD_REQUEST)
 
+    def test_create_on_own_wall(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('post-list')
+        data = {
+            "content": "hey I made a post!"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data['content'], data['content'])
+
+    def test_create_on_friends_wall(self):
+        self.client.force_authenticate(user=self.user)
+        email2 = "bounce@simulator.amazonses.com"
+        res = create_user_util_test(email2)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        friend = Pleb.nodes.get(email=email2)
+        url = reverse('post-list')
+        data = {
+            "content": "hey I made a post!",
+            "wall": friend.username
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data['content'], data['content'])
+
     def test_create_on_detail_message(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('post-list')

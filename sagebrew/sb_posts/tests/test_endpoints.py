@@ -535,8 +535,25 @@ class PostListCreateTest(APITestCase):
             "wall": friend.username
         }
         response = self.client.post(url, data=data, format='json')
-        print response.data
         self.assertEqual(response.data['content'], data['content'])
+
+    def test_create_on_non_friends_wall(self):
+        self.client.force_authenticate(user=self.user)
+        email2 = "bounce@simulator.amazonses.com"
+        res = create_user_util_test(email2)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        friend = Pleb.nodes.get(email=email2)
+        self.pleb.friends.disconnect(friend)
+        friend.friends.disconnect(self.pleb)
+        url = reverse('post-list')
+        data = {
+            "content": "hey I made a post!",
+            "wall": friend.username
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data['detail'], "Sorry you are not friends "
+                                                  "with this person.")
 
     def test_create_on_detail_message(self):
         self.client.force_authenticate(user=self.user)

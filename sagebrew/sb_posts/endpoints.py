@@ -75,7 +75,8 @@ class PostsViewSet(viewsets.ModelViewSet):
             if friend_with is False and wall_pleb.username != \
                     request.user.username:
                 return Response({"detail": "Sorry you are not friends with this"
-                                           "person."},
+                                           " person.",
+                                 "status": status.HTTP_400_BAD_REQUEST},
                                 status=status.HTTP_400_BAD_REQUEST)
             instance = serializer.save(wall_owner_profile=wall_pleb)
             serializer = serializer.data
@@ -141,7 +142,7 @@ class WallPostsListCreate(ListCreateAPIView):
         friend_with = wall_pleb.is_friends_with(request.user.username)
         if friend_with is False and wall_pleb.username != request.user.username:
             return Response({"detail": "Sorry you are not friends with this"
-                                       "person."},
+                                       " person."},
                             status=status.HTTP_400_BAD_REQUEST)
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():

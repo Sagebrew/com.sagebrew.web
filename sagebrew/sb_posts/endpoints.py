@@ -37,21 +37,42 @@ class PostsViewSet(viewsets.ModelViewSet):
         instance.save()
         return instance
 
+    def get_queryset(self):
+        username = self.request.query_params.get('wall', None)
+        if username is None:
+            username = self.request.user.username
+        if self.request.user.username == username:
+            # Returns the posts for the current user's wall
+            query = "MATCH (current:Pleb {username: '%s'})-[:OWNS_WALL]" \
+                    "->(wall:Wall)-[:HAS_POST]->(c) WHERE " \
+                    "c.to_be_deleted=false RETURN c " \
+                    "ORDER BY c.created DESC" % self.request.user.username
+        else:
+            # Returns the posts only if the current user is friends with the
+            # owner of the current wall
+            query = "MATCH (current:Pleb {username: '%s'})-" \
+                    "[friend:FRIENDS_WITH]->(wall_pleb:Pleb {username: " \
+                    "'%s'})-" \
+                    "[:OWNS_WALL]->(wall:Wall)-[:HAS_POST]->(c) " \
+                    "WHERE c.to_be_deleted=false RETURN " \
+                    "CASE friend.currently_friends WHEN True THEN c " \
+                    "END AS result ORDER BY result.created DESC" % (
+                        self.request.user.username, username)
+        res, _ = db.cypher_query(query)
+        return res
+
     def list(self, request, *args, **kwargs):
-        response = {"status": status.HTTP_501_NOT_IMPLEMENTED,
-                    "detail": "We do not allow users to query all the posts on"
-                              "the site.",
-                    "developer_message":
-                        "We're working on enabling easier access to posts based"
-                        "on user's friends and walls they have access to. "
-                        "However this endpoint currently does not return any "
-                        "post data. Please utilize the 'wall' endpoint for "
-                        "the time being. It is located at "
-                        "'/v1/profiles/<username>/wall/'. It will provide "
-                        "you with all the posts for a given wall. You still "
-                        "must be friends with the user to access the "
-                        "information"}
-        return Response(response, status=status.HTTP_501_NOT_IMPLEMENTED)
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            page = [Post.inflate(row[0]) for row in page]
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        queryset = [Post.inflate(row[0]) for row in queryset]
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

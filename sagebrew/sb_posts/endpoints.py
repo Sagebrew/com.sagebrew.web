@@ -64,15 +64,9 @@ class PostsViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
-
-        if page is not None:
-            page = [Post.inflate(row[0]) for row in page]
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        queryset = [Post.inflate(row[0]) for row in queryset]
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        page = [Post.inflate(row[0]) for row in page]
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -140,14 +134,9 @@ class WallPostsListCreate(ListCreateAPIView):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
 
-        if page is not None:
-            page = [Post.inflate(row[0]) for row in page]
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        queryset = [Post.inflate(row[0]) for row in queryset]
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        page = [Post.inflate(row[0]) for row in page]
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         wall_pleb = Pleb.get(self.kwargs[self.lookup_field])

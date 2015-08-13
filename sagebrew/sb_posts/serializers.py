@@ -70,4 +70,4 @@ class PostSerializerNeo(ContentSerializer):
 
 
 class PostEndpointSerializerNeo(PostSerializerNeo):
-    wall = serializers.CharField(write_only=True)
+    wall = serializers.CharField(write_only=True, required=False)

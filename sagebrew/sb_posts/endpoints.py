@@ -77,7 +77,8 @@ class PostsViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
-            wall_pleb = Pleb.get(serializer.validated_data.get('wall'))
+            wall_pleb = Pleb.get(
+                serializer.validated_data.get('wall', request.user.username))
             friend_with = wall_pleb.is_friends_with(request.user.username)
             if friend_with is False and wall_pleb.username != \
                     request.user.username:

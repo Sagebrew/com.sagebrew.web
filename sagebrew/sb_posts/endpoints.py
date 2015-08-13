@@ -39,9 +39,7 @@ class PostsViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         username = self.request.query_params.get('wall', None)
-        if username is None:
-            username = self.request.user.username
-        if self.request.user.username == username:
+        if self.request.user.username == username or username is None:
             # Returns the posts for the current user's wall
             query = "MATCH (current:Pleb {username: '%s'})-[:OWNS_WALL]" \
                     "->(wall:Wall)-[:HAS_POST]->(c) WHERE " \

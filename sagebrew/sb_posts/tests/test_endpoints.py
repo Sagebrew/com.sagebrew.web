@@ -598,4 +598,3 @@ class PostListCreateTest(APITestCase):
         url = "%s?wall=%s" % (reverse('post-list'), friend.username)
         response = self.client.get(url, format='json')
         self.assertGreater(response.data['count'], 0)
-

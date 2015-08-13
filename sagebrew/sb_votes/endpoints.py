@@ -52,7 +52,12 @@ class ObjectVotesListCreate(ListCreateAPIView):
                                            "vote.",
                                  "status": status.HTTP_200_OK,
                                  "developer_message": None})
-            return Response({"detail": ""})
+            return Response({"detail": "Failed to place vote",
+                             "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                             "developer_message": "Appears we're having some "
+                                                  "issues right now. Please "
+                                                  "try posting the vote again "
+                                                  "in a few minutes."})
         else:
             return Response(serializer.errors, status=400)
 

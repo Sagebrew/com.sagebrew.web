@@ -67,3 +67,7 @@ class PostSerializerNeo(ContentSerializer):
                                    kwargs={"username": wall_owner.username},
                                    request=request)
         return profile_dict
+
+
+class PostEndpointSerializerNeo(PostSerializerNeo):
+    wall = serializers.CharField(write_only=True)

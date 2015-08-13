@@ -19,12 +19,12 @@ from sb_base.views import ObjectRetrieveUpdateDestroy
 from sb_notifications.tasks import spawn_notifications
 from plebs.neo_models import Pleb
 
-from .serializers import PostSerializerNeo
+from .serializers import PostSerializerNeo, PostEndpointSerializerNeo
 from .neo_models import Post
 
 
 class PostsViewSet(viewsets.ModelViewSet):
-    serializer_class = PostSerializerNeo
+    serializer_class = PostEndpointSerializerNeo
     permission_classes = [IsAuthenticated, IsOwnerOrAdmin]
     lookup_field = "object_uuid"
 
@@ -54,16 +54,37 @@ class PostsViewSet(viewsets.ModelViewSet):
         return Response(response, status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def create(self, request, *args, **kwargs):
-        response = {"status": status.HTTP_501_NOT_IMPLEMENTED,
-                    "detail": "We do not allow users to create that are not "
-                              "associated with a wall.",
-                    "developer_message":
-                        "We're working on enabling additional ways to allow "
-                        "for users to save posts but for the time being"
-                        "we require that users utilize the "
-                        "'/v1/profiles/<username>/wall/' endpoint to create"
-                        "new posts."}
-        return Response(response, status=status.HTTP_501_NOT_IMPLEMENTED)
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            wall_pleb = Pleb.get(serializer.validated_data.get('wall'))
+            friend_with = wall_pleb.is_friends_with(request.user.username)
+            if friend_with is False and wall_pleb.username != \
+                    request.user.username:
+                return Response({"detail": "Sorry you are not friends with this"
+                                           "person."},
+                                status=status.HTTP_400_BAD_REQUEST)
+            instance = serializer.save(wall_owner_profile=wall_pleb)
+            serializer = serializer.data
+            spawn_task(task_func=spawn_notifications, task_param={
+                "from_pleb": request.user.username,
+                "sb_object": serializer['object_uuid'],
+                "url": serializer['url'],
+                "to_plebs": [wall_pleb.username, ],
+                "notification_id": str(uuid1()),
+                "action_name": instance.action_name
+            })
+            if request.query_params.get('html', 'false').lower() == "true":
+                serializer['last_edited_on'] = parser.parse(
+                    serializer['last_edited_on'])
+                return Response(
+                    {
+                        "html": [render_to_string(
+                            'post.html', RequestContext(request, serializer))],
+                        "ids": [serializer["object_uuid"]]
+                    },
+                    status=status.HTTP_200_OK)
+            return Response(serializer, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class WallPostsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):

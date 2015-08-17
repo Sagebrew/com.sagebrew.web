@@ -29,7 +29,7 @@ community and to lead through example.
 {% endcomment %}
 
 ## Limitations ##
-Admin and up privileges are suspended if you open a representative account or are 
+Admin and up privileges are suspended if you open a Quest account or are 
 elected to office. Also if you are a spouse of an elected official your 
 moderator privileges shall be suspended for the length of their service to 
 their country.

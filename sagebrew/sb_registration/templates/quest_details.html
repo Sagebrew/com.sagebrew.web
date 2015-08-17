@@ -356,8 +356,13 @@
             </small>
         </div>
     </div>
-    <!-- Working on removing right area. Caused by form, logo, and increase recognition -->
-    <!-- Also in large dirt on garden overlaps over flowers -->
+{% block footer %}
+<div class="bottom-menu sb_footer quest-footer">
+    <div class="container">
+        {% include "footer.html" %}
+    </div>
+</div>
+{% endblock footer %}
     <script src="{% static 'js/vendor/jquery-2.1.4.min.js' %}"></script>
     <script src="{% static 'js/vendor/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/vendor/formValidation.min.js' %}"></script>

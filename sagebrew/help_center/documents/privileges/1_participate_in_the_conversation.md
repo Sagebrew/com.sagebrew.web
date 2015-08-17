@@ -1,5 +1,5 @@
 # Participate in the Conversation #
-*Reputation Needed: 1*
+*Reputation Needed: 0*
 
 ## Overview ##
 ### What does this mean? ###
@@ -25,11 +25,10 @@ practice proper discussion etiquette, or to blow off etiquette altogether if
 you’d like. It’s your space. Have fun.
 {% endif %}
 
-You can create Questions and provide Solutions in the Public Conversation 
-Area. This is your opportunity to lend your voice to the ongoing discussions, 
+You can create Questions and provide Solutions in the Conversation. This is your opportunity to lend your voice to the ongoing discussions, 
 allowing you to interact with other like-minded visionaries and find solutions 
-to real problems. Note that Reputation is on the line in the Public 
-Conversation Area. You may amass Reputation for quality Questions and 
+to real problems. Note that Reputation is on the line in the 
+Conversation. You may amass Reputation for quality Questions and 
 Solutions, or you may lose Reputation for poor quality Questions and Solutions. 
 
 {% if debug == True %}
@@ -125,6 +124,14 @@ Your Solution will be grayed out. What this means for you:
   to the user of the "better" Solution 
 - The process of Conceding a Solution is irreversible
 {% endif %}
+
+### Question Linking ###
+
+If you have a question about a specific detail in another Question, it may be best to pose an entirely new Question. In this case, it would be beneficial both to you and to the author of the original Question if you provided a link in your context to the other authors Question. For example:
+
+ - Somebody asks the Question "How can we reform the institution of higher learning in the U.S.?" The problem of student debt is raised, but you think it's an entirely new Question waiting to happen. You decide to ask the Question "How can we reduce the enormous amount of accrued student debt in the U.S.?" In the context of your question, you provide a link to the original Question (How can we reform the institution of higher learning in the U.S.?) and by linking to that Question you're acknowledging that that Question exists, is worth looking into, and relates to your Question. 
+ 
+Question linking can be a great way to reach a broader audience and support other authors' Questions by diving deeper.  
 
 ## Research ##
 There are many different types of [research studies][1] conducted with the aim of 

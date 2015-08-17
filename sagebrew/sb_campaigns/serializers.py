@@ -1,3 +1,5 @@
+import pytz
+from datetime import datetime
 import time
 import stripe
 import markdown
@@ -14,10 +16,11 @@ from neomodel import db
 from neomodel.exception import DoesNotExist
 
 from api.serializers import SBSerializer
-from api.utils import gather_request_data
+from api.utils import gather_request_data, spawn_task
 from plebs.neo_models import Pleb
-from sb_goals.neo_models import Round
+from sb_goals.neo_models import Round, Goal
 from sb_public_official.serializers import PublicOfficialSerializer
+from sb_privileges.tasks import check_privileges
 
 from .neo_models import (Campaign, PoliticalCampaign, Position)
 
@@ -40,6 +43,7 @@ class CampaignSerializer(SBSerializer):
     last_name = serializers.CharField(read_only=True)
     location_name = serializers.CharField(read_only=True)
     position_name = serializers.CharField(read_only=True)
+    position_formal_name = serializers.CharField(read_only=True)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
@@ -70,6 +74,7 @@ class CampaignSerializer(SBSerializer):
         customer_token = validated_data.pop('customer_token', None)
         ein = validated_data.pop('ein', None)
         ssn = validated_data.pop('ssn', None)
+        active_prev = instance.active
         instance.active = validated_data.pop('activate', instance.active)
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
@@ -138,6 +143,28 @@ class CampaignSerializer(SBSerializer):
             account.save()
             instance.last_four_soc = ssn[-4:]
         instance.save()
+        instance.refresh()
+        if not active_prev and instance.active:
+            if not Campaign.get_active_round(instance.object_uuid):
+                upcoming_round = Round.nodes.get(
+                    object_uuid=Campaign.get_upcoming_round(
+                        instance.object_uuid))
+                instance.upcoming_round.disconnect(upcoming_round)
+                instance.rounds.connect(upcoming_round)
+                instance.active_round.connect(upcoming_round)
+                upcoming_round.active = True
+                upcoming_round.save()
+                for goal in Round.get_goals(upcoming_round.object_uuid):
+                    temp_goal = Goal.nodes.get(object_uuid=goal)
+                    temp_goal.active = True
+                    temp_goal.save()
+                cache.set("%s_active_round" % instance.object_uuid,
+                          instance.object_uuid)
+                new_upcoming = Round().save()
+                instance.upcoming_round.connect(new_upcoming)
+                new_upcoming.campaign.connect(instance)
+                cache.set("%s_upcoming_round" % instance.object_uuid,
+                          new_upcoming.object_uuid)
         cache.set("%s_campaign" % instance.object_uuid, instance)
         return instance
 
@@ -290,7 +317,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         account_type = request.session.get('account_type', None)
         owner = Pleb.get(username=request.user.username)
         if account_type == 'paid':
-            validated_data['application_fee'] = (0.021)
+            validated_data['application_fee'] = 0.021
 
         if owner.get_campaign():
             raise ValidationError(
@@ -303,6 +330,11 @@ class PoliticalCampaignSerializer(CampaignSerializer):
             validated_data['website'] = official.website
             validated_data['twitter'] = official.twitter
             validated_data['biography'] = official.bio
+        try:
+            formal_name = Position.get_full_name(
+                position.object_uuid).get('full_name', None)
+        except AttributeError:
+            formal_name = None
         campaign = PoliticalCampaign(first_name=owner.first_name,
                                      last_name=owner.last_name,
                                      owner_username=owner.username,
@@ -311,6 +343,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
                                      position_name=position.name,
                                      location_name=Position.get_location_name(
                                          position.object_uuid),
+                                     position_formal_name=formal_name,
                                      **validated_data).save()
         if official:
             temp_camp = official.get_campaign()
@@ -345,7 +378,32 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         account.tos_acceptance.ip = ip
         account.tos_acceptance.date = int(time.time())
         account.save()
+        # Potential optimization in combining these utilizing a transaction
+        # Added these to ensure that the user has intercom when they hit the
+        # Quest page for the first time. The privilege still is fired through
+        # the spawn_task as a backup and to ensure all connections are made
+        # correctly
+        epoch_date = datetime(1970, 1, 1, tzinfo=pytz.utc)
+        query = 'MATCH (a:Pleb { username: "%s" }),' \
+                '(b:SBAction {resource: "intercom"}) CREATE UNIQUE ' \
+                '(a)-[r:CAN {active: true, gained_on: %f}]->(b) RETURN r' % (
+                    owner.username, float((datetime.now(pytz.utc) -
+                                           epoch_date).total_seconds()))
+        db.cypher_query(query)
+        query = 'MATCH (a:Pleb { username: "%s" }),' \
+                '(b:Privilege {name: "quest"}) CREATE UNIQUE ' \
+                '(a)-[r:HAS {active: true, gained_on: %f}]->(b) RETURN r' % (
+                    owner.username, float((datetime.now(pytz.utc) -
+                                           epoch_date).total_seconds()))
+        db.cypher_query(query)
         cache.set("%s_campaign" % campaign.object_uuid, campaign)
+        cache.delete(owner.username)
+        cache.set("%s_privileges" % owner.username,
+                  owner.get_privileges(cache_buster=True))
+        cache.set("%s_actions" % owner.username,
+                  owner.get_actions(cache_buster=True))
+        spawn_task(task_func=check_privileges,
+                   task_param={"username": owner.username})
         return campaign
 
     def get_vote_count(self, obj):

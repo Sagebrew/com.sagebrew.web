@@ -62,6 +62,9 @@
     {{ block.super }}
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
+    {% if request.user.is_anonymous %}
+        <script src="{% static 'js/activate_tooltips.js' %}"></script>
+    {% endif %}
     {% if active or request.user.username == id %}
         {% if "moderators" not in request.path %}
             <script src="{% static 'js/get_goals.js' %}"></script>
@@ -86,9 +89,9 @@
     {% if request.user.username == id %}
         {% if "moderators" in request.path %}
             <script src="{% static 'js/get_possible_helpers.js' %}"></script>
-            {% if "updates" not in request.path and "statistics" not in request.path and "moderators" not in request.path %}
-                <script src="{% static 'js/event_quest_intercom.js' %}"></script>
-            {% endif %}
+        {% endif %}
+        {% if "updates" not in request.path and "statistics" not in request.path and "moderators" not in request.path %}
+            <script src="{% static 'js/event_quest_intercom.js' %}"></script>
         {% endif %}
     {% endif %}
 {% endblock scripts %}

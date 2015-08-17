@@ -9,6 +9,9 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from neomodel import db
+
+from sb_privileges.neo_models import SBAction, Privilege
 from plebs.neo_models import Pleb
 from sb_updates.neo_models import Update
 from sb_goals.neo_models import Goal, Round
@@ -105,6 +108,56 @@ class CampaignEndpointTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
         position.delete()
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_gain_intercom(self):
+        self.client.force_authenticate(user=self.user)
+        position = Position(name="Senator").save()
+        action = SBAction(resource="intercom", permission="write").save()
+        privilege = Privilege(name="quest").save()
+        url = reverse('campaign-list')
+        data = {
+            "biography": "this is a test bio",
+            "facebook": "fake facebook link",
+            "linkedin": "fake linkedin link",
+            "youtube": "fake youtube link",
+            "twitter": "fake twitter link",
+            "website": "fake campaign website",
+            "position": position.object_uuid
+        }
+        self.client.post(url, data=data, format='json')
+        position.delete()
+        query = 'MATCH (a:Pleb {username:"%s"})-[:CAN]->' \
+                '(b:SBAction {resource: "intercom"}) RETURN b' % (
+                    self.pleb.username)
+        res, _ = db.cypher_query(query)
+        action.delete()
+        privilege.delete()
+        self.assertEqual(SBAction.inflate(res.one).resource, "intercom")
+
+    def test_create_gain_quest_privilege(self):
+        self.client.force_authenticate(user=self.user)
+        position = Position(name="Senator").save()
+        action = SBAction(resource="intercom", permission="write").save()
+        privilege = Privilege(name="quest").save()
+        url = reverse('campaign-list')
+        data = {
+            "biography": "this is a test bio",
+            "facebook": "fake facebook link",
+            "linkedin": "fake linkedin link",
+            "youtube": "fake youtube link",
+            "twitter": "fake twitter link",
+            "website": "fake campaign website",
+            "position": position.object_uuid
+        }
+        self.client.post(url, data=data, format='json')
+        position.delete()
+        query = 'MATCH (a:Pleb {username:"%s"})-[:HAS]->' \
+                '(b:Privilege {name: "quest"}) RETURN b' % (
+                    self.pleb.username)
+        res, _ = db.cypher_query(query)
+        action.delete()
+        privilege.delete()
+        self.assertEqual(Privilege.inflate(res.one).name, "quest")
 
     def test_create_paid(self):
         self.client.force_authenticate(user=self.user)
@@ -508,6 +561,22 @@ class CampaignEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_take_quest_active(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-detail',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        self.campaign.active = False
+        self.campaign.save()
+        cache.clear()
+        for active_round in self.campaign.active_round.all():
+            self.campaign.active_round.disconnect(active_round)
+        data = {
+            'activate': True,
+        }
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.campaign.active_round.is_connected(self.round))
 
     def test_update_biography(self):
         self.client.force_authenticate(user=self.user)

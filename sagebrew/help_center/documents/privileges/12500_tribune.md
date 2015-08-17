@@ -14,7 +14,7 @@ the Sagebrew Community.
 {% comment %}
 - You now have 3 Reach Posts per week and they reach your entire county
 - 8 Reach Posts to interact with those that represent you
-- 5 Reach Posts to interact with representatives/sages/tribunes outside your 
+- 5 Reach Posts to interact with Quests, Representatives, Sages, Tribunes outside your 
   area.
 {% endcomment %}
 {% comment %}

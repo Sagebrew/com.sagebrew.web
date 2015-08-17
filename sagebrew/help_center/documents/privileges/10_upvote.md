@@ -1,10 +1,8 @@
 # Ability to Upvote #
-*Reputation needed: 10*
+*Reputation needed: 0*
 
 ## Description ##
-You’re fairly familiar with the site and how it works. To get more involved 
-you now have the ability to Upvote Questions, Solutions, and Comments in the Public
-Conversation Area. Upvote the Questions that you believe are 
+Upvote the Questions that you believe are 
 important topics that you'd like to see conversation surround. Upvote Solutions
 you believe are the best out of those provided. The more Upvotes a
 conversation gets, the more traffic that conversation will get.
@@ -22,9 +20,9 @@ Question or Solution. Upvoting doesn't harm you, and in fact, may help you
 acquire Badges!
 
 ## Can people see my Upvotes? ##
-In the Public Conversation Area people cannot see how you are voting, this 
+In the Conversation people cannot see how you are voting, this 
 ensures that you are able to vote based on what you think is best rather than
-how your vote will look. Please note in Private Areas such as your Profile Page
+how your vote will look. Please note in private areas such as your Profile Page
 your friends will be able to see what you Upvote and Downvote.
  
 ## Limitations ##

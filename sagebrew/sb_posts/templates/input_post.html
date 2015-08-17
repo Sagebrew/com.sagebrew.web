@@ -2,10 +2,11 @@
     <form id="postInputForm">
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12 post_input_class">
+
             <textarea class="form-control sb_post"
                   id="post_input_id"
                   name="post_input"
-                  placeholder="Set a Spark . . ."></textarea>
+                  placeholder="Set a Spark on {% if page_user.username == request.user.username %}your{% else %}{{ page_user.first_name }}'s{% endif %} wall. . ."></textarea>
             <div class="post-image-preview-container sb_hidden" id="js-image-wrapper"></div>
         </div>
     </div>

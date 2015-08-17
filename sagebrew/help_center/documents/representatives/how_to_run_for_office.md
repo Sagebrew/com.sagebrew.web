@@ -149,5 +149,5 @@ the FEC has this [campaign guideline][2].
 
 [1]: http://www.fec.gov/ans/answers_general.shtml
 [2]: http://www.fec.gov/pdf/candgui.pdf
-[3]: /help/quests/donation_goals/
-[4]: /help/quests/principal_campaign_committee/
+[3]: /help/quest/donation_goals/
+[4]: /help/quest/principal_campaign_committee/

@@ -708,11 +708,10 @@ a {
 }
 // Footers
 .sb_footer{
-  color: @sb_green;
+  color: white;
   background-color: transparent;
   position: relative;
-  margin-left: -15px;
-  margin-right: -15px;
+
 }
 
 // Signup
@@ -726,6 +725,9 @@ a {
 }
 .sb_input_wrapper{
   margin-bottom: 15px;
+  h3 {
+    color: white;
+  }
 }
 
 // Groupings
@@ -902,8 +904,42 @@ a {
   margin-top: @sb_common_margin_positive;
   margin-bottom: @sb_common_margin_positive;
   position: relative;
+  color: white;
+}
+.sb-signup-mission{
+ h4{
+   color: white;
+   position: absolute;
+ }
+}
+.intro-video-wrapper{
+  display:inline-block;
+
+}
+.intro-video{
+  video::-webkit-media-controls {
+      display: none !important;
+  }
 }
 
+.terms-description{
+  color: #6fcea8;
+  a{
+    color: white;
+    &:hover{
+       color: @sb_green_impressed;
+    }
+  }
+}
+.intro-video-play{
+  background: rgba(255, 255, 255, 0.60);
+  border-radius: 65px;
+  padding: 25px 35px 25px 35px;
+  position: absolute;
+}
+.intro-video-play-btn{
+  font-size: 50pt;
+}
 .sb_content_wrapper{
   margin-top: 60px;
 }
@@ -1255,9 +1291,6 @@ textarea.sb_comment_input{
   width: 100px;
 }
 
-#intercom-container .intercom-launcher {
- bottom:50px !important;
-}
 .sb_notifier{
   background-color: @sb_dark_blue;
 }
@@ -1602,6 +1635,9 @@ textarea.sb_comment_input{
     font-size: 10pt;
   }
 }
+.quest-footer{
+  color: @sb_green;
+}
 
 .quest-terms{
   text-align: center;
@@ -1848,4 +1884,18 @@ textarea.sb_comment_input{
   img.sb-post-image-tall {
     margin-top: -50%;
   }
+}
+
+#bgvid {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -100;
+  -webkit-transform: translateX(-50%) translateY(-50%);
+  transform: translateX(-50%) translateY(-50%);
+  background-size: cover;
 }

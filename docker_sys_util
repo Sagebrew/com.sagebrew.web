@@ -16,8 +16,9 @@ WORKDIR /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/
 CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py logglypopulation && \
     chown root /etc/rsyslog.d/ && service rsyslog restart && \
+    python manage.py migrate oauth2_provider --fake && \
     python manage.py migrate --noinput && \
+    python manage.py create_privileges && \
     python manage.py clear_cache && \
     python manage.py clearsessions && \
-    python manage.py collectstatic --noinput && \
-    python manage.py create_privileges
+    python manage.py collectstatic --noinput

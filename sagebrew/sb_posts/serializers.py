@@ -78,3 +78,7 @@ class PostSerializerNeo(ContentSerializer):
 
     def get_uploaded_objects(self, obj):
         return obj.get_uploaded_objects()
+
+
+class PostEndpointSerializerNeo(PostSerializerNeo):
+    wall = serializers.CharField(write_only=True, required=False)

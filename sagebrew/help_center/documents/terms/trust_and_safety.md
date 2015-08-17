@@ -17,9 +17,9 @@ make Sagebrew a great experience for everyone.
 
 - Although it's easier to communicate with your representatives
   and candidates than ever before, we cannot promise that they'll respond
-  immediately, or at all. Representatives are busy, and it may be
+  immediately, or at all. Candidates and representatives are busy, and it may be
   that they cannot answer your concerns for a week or two. Sagebrew
-  cannot force representatives to respond to their constituents.
+  cannot force either party to respond to their constituents.
 
 - The public Conversation area is a great tool for talking
   about and instigating change, but only if we collaborate
@@ -78,5 +78,5 @@ this uncharted territory together and make some real change! **
 [1]: /help/privileges/flagging/
 [2]: /help/conversation/deletions/
 [3]: /help/conversation/closed/
-[4]: /help/quests/donation_goals/
+[4]: /help/quest/donation_goals/
 [5]: /help/reputation/admin_council/

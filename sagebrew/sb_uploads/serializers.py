@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.template.loader import render_to_string
 
 from rest_framework import serializers
 
@@ -6,6 +7,9 @@ from api.serializers import SBSerializer
 from sb_registration.utils import upload_image
 
 from .neo_models import UploadedObject, ModifiedObject
+
+from logging import getLogger
+logger = getLogger('loggly_logs')
 
 
 class MediaType:
@@ -42,6 +46,8 @@ class UploadSerializer(SBSerializer):
     height = serializers.IntegerField(read_only=True)
     url = serializers.CharField(read_only=True)
 
+    html = serializers.SerializerMethodField()
+
     def create(self, validated_data):
         owner = validated_data.pop('owner')
         width = validated_data.pop('width')
@@ -63,6 +69,10 @@ class UploadSerializer(SBSerializer):
 
     def update(self, instance, validated_data):
         return None
+
+    def get_html(self, instance):
+        logger.info(instance)
+        return render_to_string('contained_image.html', {"uploaded_object": instance})
 
 
 class ModifiedSerializer(UploadSerializer):

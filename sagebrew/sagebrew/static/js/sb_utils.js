@@ -1,3 +1,4 @@
+/*global $, jQuery, enableSinglePostFunctionality, errorDisplay, lightbox*/
 /**
  * csrftoken support for django
  */
@@ -62,18 +63,9 @@ function saveComment(commentArea, url, objectUuid) {
 
 
 function enableExpandPostImage() {
-    $(".js-enlarge-post-image").off().on('click', function() {
-        var $this = $(this)[0],
-            modal = $("#image-modal"),
-            imageContainer = $('#js-image-modal-container'),
-            $dialog = modal.find(".modal-dialog"),
-            offset = (($(window).height() - $dialog.height()) / 2);
-        console.log(offset);
-        modal.css('display', 'block');
-        $dialog.css('margin-top', offset);
-        imageContainer.empty();
-        imageContainer.append('<img src="' + $this.src + '">');
-        modal.modal();
+    lightbox.option({
+        'resizeDuration': 200,
+        'wrapAround': true
     });
 }
 
@@ -798,7 +790,7 @@ function enableContentFunctionality(populateId, type) {
     voteObjects([populateId], type + "s");
     editObjects("/v1/"+ type + "s/", [populateId]);
     deleteObjects("/v1/" + type +"s/", [populateId], type);
-    enableExpandPostImage();
+    // enableExpandPostImage();
 }
 
 function getUrlParameter(sParam) {

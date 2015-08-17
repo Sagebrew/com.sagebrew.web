@@ -62,36 +62,7 @@ class CampaignSerializer(SBSerializer):
     target_goal_pledge_vote_requirement = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        stripe.api_key = settings.STRIPE_SECRET_KEY
-        request = self.context.get('request', None)
-        owner = Pleb.get(request.user.username)
-        validated_data['owner_username'] = owner.username
-        campaign = Campaign(**validated_data).save()
-        campaign.owned_by.connect(owner)
-        owner.campaign.connect(campaign)
-        owner.campaign_editor.connect(campaign)
-        owner.campaign_accountant.connect(campaign)
-        initial_round = Round().save()
-        initial_round.campaign.connect(campaign)
-        campaign.upcoming_round.connect(initial_round)
-        campaign.editors.connect(owner)
-        campaign.accountants.connect(owner)
-        cache.set(campaign.object_uuid, campaign)
-        if owner.stripe_account is None:
-            stripe_res = stripe.Account.create(managed=True, country="US",
-                                               email=owner.email)
-            owner.stripe_account = stripe_res['id']
-            owner.save()
-        account = stripe.Account.retrieve(owner.stripe_account)
-        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-        if x_forwarded_for:
-            ip = x_forwarded_for.split(',')[0]
-        else:
-            ip = request.META.get('REMOTE_ADDR')
-        account.tos_acceptance.ip = ip
-        account.tos_acceptance.date = int(time.time())
-        account.save()
-        return campaign
+        raise NotImplementedError
 
     def update(self, instance, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY

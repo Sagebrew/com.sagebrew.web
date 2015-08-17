@@ -51,6 +51,8 @@ $(document).ready(function () {
                 dataType: "json",
                 data: formdata,
                 success: function (data) {
+                    $("#sb_btn_post").attr("disabled", "");
+                    $("#post_input_id").text(" ");
                     jsImageWrapper.spin(false);
                     jsImageWrapper.empty();
                     buttonSelector.prop('disabled', false);

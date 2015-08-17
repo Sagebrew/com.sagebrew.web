@@ -1,7 +1,7 @@
 import stripe
 
 from django.conf import settings
-from django.template.loader import render_to_string, get_template
+from django.template.loader import render_to_string
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse

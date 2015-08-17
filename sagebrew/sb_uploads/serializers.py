@@ -71,8 +71,8 @@ class UploadSerializer(SBSerializer):
         return None
 
     def get_html(self, instance):
-        logger.info(instance)
-        return render_to_string('contained_image.html', {"uploaded_object": instance})
+        return render_to_string('contained_image.html',
+                                {"uploaded_object": instance})
 
 
 class ModifiedSerializer(UploadSerializer):

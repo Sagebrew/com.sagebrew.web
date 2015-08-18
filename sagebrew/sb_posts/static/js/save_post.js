@@ -12,8 +12,6 @@ $(document).ready(function () {
         if (!jsImageWrapper.is(':empty')) {
             images = jsImageWrapper.find('img');
             $.each(images, function (key, value) {
-                console.log(key);
-                console.log(value);
                 imageIds.push($(value).data('object_uuid'));
             });
         }

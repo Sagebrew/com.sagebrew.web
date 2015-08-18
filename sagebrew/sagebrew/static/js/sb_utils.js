@@ -475,7 +475,6 @@ function editObject(editArea, url, objectUuid, dataArea) {
             }),
             dataType: "json",
             success: function (data) {
-                console.log(data);
                 $(editButton).removeAttr("disabled");
                 var contentContainer = $("#sb_content_" + objectUuid);
                 contentContainer.text(data.content);
@@ -799,7 +798,6 @@ function enableContentFunctionality(populateId, type) {
     voteObjects([populateId], type + "s");
     editObjects("/v1/"+ type + "s/", [populateId]);
     deleteObjects("/v1/" + type +"s/", [populateId], type);
-    // enableExpandPostImage();
 }
 
 function getUrlParameter(sParam) {

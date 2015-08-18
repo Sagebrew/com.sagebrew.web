@@ -37,10 +37,8 @@ class PostSerializerNeo(ContentSerializer):
         wall = wall_owner.get_wall()
         post.posted_on_wall.connect(wall)
         wall.posts.connect(post)
-        for image in images:
-            image_node = UploadedObject.nodes.get(object_uuid=image)
-            post.uploaded_objects.connect(image_node)
-            image_node.related_content.connect(post)
+        [post.uploaded_objects.connect(
+            UploadedObject.nodes.get(object_uuid=image)) for image in images]
         return post
 
     def update(self, instance, validated_data):

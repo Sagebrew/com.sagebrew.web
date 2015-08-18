@@ -334,7 +334,7 @@ class SBContent(VotableContent):
         from sb_uploads.neo_models import UploadedObject
         from sb_uploads.serializers import UploadSerializer
         query = 'MATCH (a:SBContent {object_uuid:"%s"})-' \
-                '[:UPLOADED_WITH]-(u:UploadedObject) RETURN u' % \
+                '[:UPLOADED_WITH]->(u:UploadedObject) RETURN u' % \
                 self.object_uuid
         res, col = db.cypher_query(query)
         try:

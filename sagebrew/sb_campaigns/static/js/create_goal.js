@@ -1,6 +1,8 @@
 /*global $, jQuery, ajaxSecurity, errorDisplay*/
 $(document).ready(function () {
     $("#submit_goal").click(function (event) {
+        var $this = $(this);
+        $this.attr("disabled", "disabled");
         event.preventDefault();
         var campaignId = $("#submit_goal").data('object_uuid');
         $.ajax({
@@ -19,6 +21,7 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                $this.attr("disabled", false);
                 $("#existing_goals").append(data);
                 $.notify("Goals successfully created!", {type: 'success'});
                 $("#goal_vote_req").val("");

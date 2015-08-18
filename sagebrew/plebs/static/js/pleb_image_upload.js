@@ -52,7 +52,9 @@ $(document).ready(function () {
                 data: formdata,
                 success: function (data) {
                     $("#sb_btn_post").attr("disabled", "");
-                    $("#post_input_id").text(" ");
+                    if (!postInput.val()) {
+                        postInput.val(" ");
+                    }
                     jsImageWrapper.spin(false);
                     jsImageWrapper.empty();
                     buttonSelector.prop('disabled', false);

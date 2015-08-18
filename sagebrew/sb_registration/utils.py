@@ -210,14 +210,6 @@ def create_user_util(first_name, last_name, email, password, birthday):
                         username=user.username,
                         date_of_birth=birthday)
             pleb.save()
-            try:
-                beta_user = BetaUser.nodes.get(email=email)
-                pleb.beta_user.connect(beta_user)
-            except(BetaUser.DoesNotExist, DoesNotExist):
-                pass
-            except(CypherException, IOError):
-                return False
-
         except(CypherException, IOError):
             return False
     except(CypherException, IOError):

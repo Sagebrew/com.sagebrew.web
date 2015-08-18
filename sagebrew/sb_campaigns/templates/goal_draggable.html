@@ -26,12 +26,14 @@
     {% endif %}
         <div class="sb_header_bar">
             <h6>{{ title }}</h6>
-            <div id="{{ id }}_monetary_requirement"
-                 class="col-xs-6"
-                 data-monetary_requirement="{{ monetary_requirement }}">${% widthratio monetary_requirement 100 1 as money %}{{ money|intcomma }}</div>
-            <div id="{{ id }}_pledge_vote_requirement"
-                 data-pledge_requirement="{{ pledged_vote_requirement }}"
-                 class="col-xs-6">{{ pledged_vote_requirement }}</div>
+            <div class="sb_hidden">
+                <div id="{{ id }}_monetary_requirement"
+                     class="col-xs-6"
+                     data-monetary_requirement="{{ monetary_requirement }}">${% widthratio monetary_requirement 100 1 as money %}{{ money|intcomma }}</div>
+                <div id="{{ id }}_pledge_vote_requirement"
+                     data-pledge_requirement="{{ pledged_vote_requirement }}"
+                     class="col-xs-6">{{ pledged_vote_requirement }}</div>
+            </div>
         </div>
         <p>{{ summary }}</p>
         {% if not active %}

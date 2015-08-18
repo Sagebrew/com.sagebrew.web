@@ -1,0 +1,5 @@
+{% if uploaded_object.height > uploaded_object.width %}
+    <a href="{{ uploaded_object.url }}" data-lightbox="{{ uploaded_object.object_uuid }}"><img class="sb-post-image sb-post-image-tall js-enlarge-post-image" src="{{ uploaded_object.url }}"></a>
+{% else %}
+    <a href="{{ uploaded_object.url }}" data-lightbox="{{ uploaded_object.object_uuid }}"><img class="sb-post-image js-enlarge-post-image" src="{{ uploaded_object.url }}"></a>
+{% endif %}

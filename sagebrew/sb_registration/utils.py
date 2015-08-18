@@ -11,7 +11,7 @@ from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
-from plebs.neo_models import Pleb, BetaUser
+from plebs.neo_models import Pleb
 from sb_base.decorators import apply_defense
 from sb_campaigns.neo_models import Campaign
 
@@ -210,14 +210,6 @@ def create_user_util(first_name, last_name, email, password, birthday):
                         username=user.username,
                         date_of_birth=birthday)
             pleb.save()
-            try:
-                beta_user = BetaUser.nodes.get(email=email)
-                pleb.beta_user.connect(beta_user)
-            except(BetaUser.DoesNotExist, DoesNotExist):
-                pass
-            except(CypherException, IOError):
-                return False
-
         except(CypherException, IOError):
             return False
     except(CypherException, IOError):

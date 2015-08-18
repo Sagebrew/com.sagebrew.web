@@ -1,3 +1,4 @@
+/*global $, jQuery, enableSinglePostFunctionality, errorDisplay, lightbox*/
 /**
  * csrftoken support for django
  */
@@ -57,6 +58,15 @@ function saveComment(commentArea, url, objectUuid) {
                 errorDisplay(XMLHttpRequest);
             }
         });
+    });
+}
+
+
+function enableExpandPostImage() {
+    lightbox.option({
+        'resizeDuration': 200,
+        'wrapAround': true,
+        'alwaysShowNavOnTouchDevices': true
     });
 }
 
@@ -468,6 +478,13 @@ function editObject(editArea, url, objectUuid, dataArea) {
                 $(editButton).removeAttr("disabled");
                 var contentContainer = $("#sb_content_" + objectUuid);
                 contentContainer.text(data.content);
+                if (data.uploaded_objects) {
+                    contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
+                    var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
+                    $.each(data.uploaded_objects, function(index, value){
+                        uploadContainer.append(value.html);
+                    });
+                }
                 $("#edit_container_" + objectUuid).hide();
                 contentContainer.show();
             },
@@ -763,6 +780,7 @@ function enableSinglePostFunctionality(populatedIds) {
     voteObjects(populatedIds, "posts");
     editObjects("/v1/posts/", populatedIds);
     deleteObjects("/v1/posts/", populatedIds, 'post');
+    enableExpandPostImage();
 }
 
 function enableSolutionFunctionality(populatedIds) {

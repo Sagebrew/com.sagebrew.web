@@ -33,7 +33,7 @@
             {% else %}
                 {% include "updates_disabled.html" %}
             {% endif %}
-        {% elif "statistics" in request.path and active == True %}
+        {% elif "statistics" in request.path %}
             {% include "quest_insight.html" %}
         {% elif "moderators" in request.path %}
             {% include 'add_campaign_helpers.html' %}

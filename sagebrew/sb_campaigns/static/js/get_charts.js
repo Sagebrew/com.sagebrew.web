@@ -3,16 +3,18 @@ function prepareDonationData(donationData) {
     var parsedData = [],
         lifetimeTotalData = [],
         tempTotal = 0,
-        startYear = new Date(donationData[0].created.toLocaleString()).getFullYear(),
+        startYear,
         parsedShortData = [];
-
-    $.each(donationData, function (index, value) {
-        tempTotal += (value.amount / 100);
-        lifetimeTotalData.push(tempTotal);
-        var tempDate = new Date(value.created.toLocaleString());
-        parsedData.push([Date.UTC(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate(), tempDate.getHours(), tempDate.getMinutes(), tempDate.getSeconds()), value.amount / 100]);
-        parsedShortData.push([Date.UTC(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate()), value.amount / 100]);
-    });
+    if (donationData.length > 0) {
+        startYear = new Date(donationData[0].created.toLocaleString()).getFullYear();
+        $.each(donationData, function (index, value) {
+            tempTotal += (value.amount / 100);
+            lifetimeTotalData.push(tempTotal);
+            var tempDate = new Date(value.created.toLocaleString());
+            parsedData.push([Date.UTC(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate(), tempDate.getHours(), tempDate.getMinutes(), tempDate.getSeconds()), value.amount / 100]);
+            parsedShortData.push([Date.UTC(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate()), value.amount / 100]);
+        });
+    }
     return {
         'individualDonationData': parsedData,
         'lifetimeTotalData': {

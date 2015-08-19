@@ -534,7 +534,6 @@ class PostListCreateTest(APITestCase):
         self.assertEqual(response.data['uploaded_objects'][0]['id'],
                          uploaded_object.object_uuid)
 
-
     def test_create_on_friends_wall(self):
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"

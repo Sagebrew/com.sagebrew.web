@@ -1,3 +1,6 @@
+import requests
+from bs4 import BeautifulSoup
+
 from django.conf import settings
 from django.template.loader import render_to_string
 
@@ -110,21 +113,33 @@ class CropSerializer(serializers.Serializer):
 
 
 class URLContentSerializer(serializers.Serializer):
-    refresh_timer = serializers.IntegerField()
-    url = serializers.CharField()
-    description = serializers.CharField()
-    image = serializers.CharField()
+    refresh_timer = serializers.IntegerField(read_only=True)
+    url = serializers.CharField(required=True)
+    description = serializers.CharField(required=False)
+    selected_image = serializers.CharField(required=False)
 
-    parent_content = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         owner = validated_data.pop('owner')
-        object_uuid = validated_data.pop('object_uuid')
         validated_data['owner_username'] = owner.username
-        url_content = URLContent(object_uuid=object_uuid).save()
+        if not 'http' in validated_data['url']:
+            validated_data['url'] = 'http://' + validated_data['url']
+        response = requests.get(validated_data['url'])
+        if response.status_code != 200:
+            pass
+        soupified = BeautifulSoup(response.text, 'html.parser')
+        logger.info(soupified)
+        meta = soupified.find('meta')
+        images = soupified.find('img')
+        title = soupified.find('title')
+        logger.info(title)
+        logger.info(meta)
+        logger.info(images)
+        url_content = URLContent(**validated_data).save()
         url_content.owned_by.connect(owner)
         owner.url_content.connect(url_content)
         return url_content
 
-    def get_parent_content(self):
-        return None
+    def get_images(self, instance):
+        return instance.get_images()

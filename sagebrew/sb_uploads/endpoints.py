@@ -21,8 +21,9 @@ from rest_framework.parsers import FileUploadParser
 from plebs.neo_models import Pleb
 from sb_registration.utils import delete_image
 
-from .serializers import UploadSerializer, ModifiedSerializer, CropSerializer
-from .neo_models import UploadedObject
+from .serializers import (UploadSerializer, ModifiedSerializer, CropSerializer,
+                          URLContentSerializer)
+from .neo_models import (UploadedObject, URLContent)
 from .utils import resize_image, crop_image2
 
 logger = getLogger('loggly_logs')
@@ -155,3 +156,29 @@ class UploadViewSet(viewsets.ModelViewSet):
                                 status=status.HTTP_200_OK)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class URLContentViewSet(viewsets.ModelViewSet):
+    """
+    This endpoint enables users to input URLs into content and create a URL
+    """
+    serializer_class = URLContentSerializer
+    lookup_field = 'object_uuid'
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        return URLContent.nodes.get(
+            object_uuid=self.kwargs[self.lookup_field])
+
+    def perform_create(self, serializer):
+        return serializer.save(owner=Pleb.get(self.request.user.username))
+
+    def list(self, request, *args, **kwargs):
+        response = {"status": status.HTTP_501_NOT_IMPLEMENTED,
+                    "detail": "We do not allow users to query all the expanded"
+                              " url content on the site."
+                    }
+        return Response(response, status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def update(self, request, *args, **kwargs):
+        pass

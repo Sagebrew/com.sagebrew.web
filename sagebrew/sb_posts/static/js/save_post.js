@@ -1,4 +1,4 @@
-/*global $, jQuery, enableSinglePostFunctionality, errorDisplay, enableExpandPostImage*/
+/*global $, jQuery, guid, enableSinglePostFunctionality, errorDisplay, enableExpandPostImage*/
 $(document).ready(function () {
     "use strict";
     // This function hits the Post API and saves off a given post from a user
@@ -9,7 +9,9 @@ $(document).ready(function () {
             imageIds = [],
             postInput = $("#post_input_id"),
             content = postInput.val(),
-            regexMatches = content.match();
+            regExp = /\b((?:[a-z][\w-]+:(?:|[a-z0-9%])|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4})(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’]))/gi,
+            regexMatches = content.match(regExp);
+        console.log(regexMatches);
         event.preventDefault();
         if (!jsImageWrapper.is(':empty')) {
             images = jsImageWrapper.find('img');
@@ -17,6 +19,26 @@ $(document).ready(function () {
                 imageIds.push($(value).data('object_uuid'));
             });
         }
+        $.each(regexMatches, function (key, value) {
+            $.ajax({
+                xhrFields: {withCredentials: true},
+                type: "POST",
+                url: "/v1/urlcontent/",
+                data: JSON.stringify({
+                    'object_uuid': guid(),
+                    'url': value
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    console.log(data);
+                },
+                error: function (XMLHttpRequest) {
+                    $("#sb_btn_post").removeAttr("disabled");
+                    errorDisplay(XMLHttpRequest);
+                }
+            });
+        });
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

@@ -197,7 +197,7 @@ a {
   min-height: 600px;
 }
 .sb_goals_block{
-  &:extend(.sb_action_content_block);
+  background-color: @sb_off_white;
   height: 300px;
   min-height: 0;
   margin-bottom: 30px;
@@ -1909,4 +1909,19 @@ textarea.sb_comment_input{
   -webkit-transform: translateX(-50%) translateY(-50%);
   transform: translateX(-50%) translateY(-50%);
   background-size: cover;
+}
+
+#goal_wrapper {
+  padding: 15px;
+  min-height: 615px;
+}
+
+.goal-create-header {
+  margin-top: -10px;
+}
+
+.manage-goal-wrapper {
+  border-radius: 5px;
+  background-color: @sb_green_extra_light;
+  padding: 10px;
 }

@@ -225,7 +225,8 @@ class Pleb(Searchable):
     flags = RelationshipTo('sb_flags.neo_models.Flag', "FLAGS")
     beta_user = RelationshipTo('plebs.neo_models.BetaUser', "BETA_USER")
     uploads = RelationshipTo('sb_uploads.neo_models.UploadedObject', 'UPLOADS')
-
+    url_content = RelationshipTo('sb_uploads.neo_models.URLContent',
+                                 'URL_CONTENT')
     # This is relating to which campaigns will affect you specifically.
     # So anyone who is running in your district will show up here.
     related_campaigns = RelationshipTo('sb_campaigns.neo_models.Campaign',

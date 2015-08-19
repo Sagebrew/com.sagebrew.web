@@ -7,7 +7,9 @@ $(document).ready(function () {
         var jsImageWrapper = $("#js-image-wrapper"),
             images,
             imageIds = [],
-            postInput = $("#post_input_id");
+            postInput = $("#post_input_id"),
+            content = postInput.val(),
+            regexMatches = content.match();
         event.preventDefault();
         if (!jsImageWrapper.is(':empty')) {
             images = jsImageWrapper.find('img');

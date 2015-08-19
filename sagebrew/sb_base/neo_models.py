@@ -258,6 +258,8 @@ class SBContent(VotableContent):
                                    model=CouncilVote)
     uploaded_objects = RelationshipTo('sb_uploads.neo_models.UploadedObject',
                                       'UPLOADED_WITH')
+    url_content = RelationshipTo('sb_uploads.neo_models.URLContent',
+                                 'INCLUDED_URL_CONTENT')
 
     @classmethod
     def get_model_name(cls):
@@ -339,6 +341,19 @@ class SBContent(VotableContent):
         res, col = db.cypher_query(query)
         try:
             return [UploadSerializer(UploadedObject.inflate(row[0])).data
+                    for row in res]
+        except IndexError:
+            return []
+
+    def get_url_content(self):
+        from sb_uploads.neo_models import URLContent
+        from sb_uploads.serializers import URLContentSerializer
+        query = 'MATCH (a:SBContent {object_uuid:"%s"})-' \
+                '[:INCLUDED_URL_CONTENT]->(u:URLContent) RETURN U' \
+                % self.object_uuid
+        res, col = db.cypher_query(query)
+        try:
+            return [URLContentSerializer(URLContent.inflate(row[0])).data
                     for row in res]
         except IndexError:
             return []

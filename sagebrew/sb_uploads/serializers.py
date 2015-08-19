@@ -6,7 +6,7 @@ from rest_framework import serializers
 from api.serializers import SBSerializer
 from sb_registration.utils import upload_image
 
-from .neo_models import UploadedObject, ModifiedObject
+from .neo_models import UploadedObject, ModifiedObject, URLContent
 
 from logging import getLogger
 logger = getLogger('loggly_logs')
@@ -107,3 +107,24 @@ class CropSerializer(serializers.Serializer):
     image_y1 = serializers.IntegerField()
     resize_width = serializers.FloatField()
     resize_height = serializers.FloatField()
+
+
+class URLContentSerializer(serializers.Serializer):
+    refresh_timer = serializers.IntegerField()
+    url = serializers.CharField()
+    description = serializers.CharField()
+    image = serializers.CharField()
+
+    parent_content = serializers.SerializerMethodField()
+
+    def create(self, validated_data):
+        owner = validated_data.pop('owner')
+        object_uuid = validated_data.pop('object_uuid')
+        validated_data['owner_username'] = owner.username
+        url_content = URLContent(object_uuid=object_uuid).save()
+        url_content.owned_by.connect(owner)
+        owner.url_content.connect(url_content)
+        return url_content
+
+    def get_parent_content(self):
+        return None

@@ -66,6 +66,7 @@
             <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 sb_post_wrapper">
                 <div class="sb_post_body{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                     {{ content|urlize|linebreaksbr }}
+                <iframe class="embedly-embed" src="//cdn.embedly.com/widgets/media.html?src=https%3A%2F%2Fplayer.vimeo.com%2Fvideo%2F18150336&url=https%3A%2F%2Fvimeo.com%2F18150336&image=http%3A%2F%2Fi.vimeocdn.com%2Fvideo%2F117311910_1280.jpg&key=internal&type=text%2Fhtml&schema=vimeo" width="500" height="281" scrolling="no" frameborder="0" allowfullscreen></iframe>
                     {% if uploaded_objects %}
                         <div class="row sb-post-image-wrapper">
                             {% for uploaded_object in uploaded_objects %}

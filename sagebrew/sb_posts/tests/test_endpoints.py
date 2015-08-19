@@ -10,6 +10,7 @@ from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
 from sb_posts.neo_models import Post
+from sb_uploads.neo_models import UploadedObject
 from sb_registration.utils import create_user_util_test
 
 
@@ -519,6 +520,20 @@ class PostListCreateTest(APITestCase):
         }
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.data['content'], data['content'])
+
+    def test_create_with_uploaded_object(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('post-list')
+        uploaded_object = UploadedObject().save()
+        data = {
+            "content": "hey I made a post!",
+            "images": [uploaded_object.object_uuid]
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['uploaded_objects'][0]['id'],
+                         uploaded_object.object_uuid)
+
 
     def test_create_on_friends_wall(self):
         self.client.force_authenticate(user=self.user)

@@ -338,25 +338,19 @@ class SBContent(VotableContent):
         query = 'MATCH (a:SBContent {object_uuid:"%s"})-' \
                 '[:UPLOADED_WITH]->(u:UploadedObject) RETURN u' % \
                 self.object_uuid
-        res, col = db.cypher_query(query)
-        try:
-            return [UploadSerializer(UploadedObject.inflate(row[0])).data
-                    for row in res]
-        except IndexError:
-            return []
+        res, _ = db.cypher_query(query)
+        return [UploadSerializer(UploadedObject.inflate(row[0])).data
+                for row in res]
 
     def get_url_content(self):
         from sb_uploads.neo_models import URLContent
         from sb_uploads.serializers import URLContentSerializer
         query = 'MATCH (a:SBContent {object_uuid:"%s"})-' \
-                '[:INCLUDED_URL_CONTENT]->(u:URLContent) RETURN U' \
+                '[:INCLUDED_URL_CONTENT]->(u:URLContent) RETURN u' \
                 % self.object_uuid
-        res, col = db.cypher_query(query)
-        try:
-            return [URLContentSerializer(URLContent.inflate(row[0])).data
-                    for row in res]
-        except IndexError:
-            return []
+        res, _ = db.cypher_query(query)
+        return [URLContentSerializer(URLContent.inflate(row[0])).data
+                for row in res]
 
 
 class TaggableContent(SBContent):

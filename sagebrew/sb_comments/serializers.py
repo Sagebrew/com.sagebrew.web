@@ -17,6 +17,8 @@ from .neo_models import Comment
 
 
 class CommentSerializer(ContentSerializer):
+    parent_type = serializers.CharField(read_only=True)
+
     href = serializers.SerializerMethodField()
     comment_on = serializers.SerializerMethodField()
 
@@ -26,7 +28,11 @@ class CommentSerializer(ContentSerializer):
         validated_data['content'] = bleach.clean(
             validated_data.get('content', ''))
         validated_data['owner_username'] = owner.username
-        comment = Comment(**validated_data).save()
+        # we use get_child_label() here because the parent_object is an
+        # instance of SBContent and not the required Post, Solution,
+        # Question this gets us the proper label of the node
+        comment = Comment(parent_type=parent_object.get_child_label().lower(),
+                          **validated_data).save()
         comment.owned_by.connect(owner)
         owner.comments.connect(comment)
         parent_object.comments.connect(comment)

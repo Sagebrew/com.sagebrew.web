@@ -24,7 +24,7 @@ class ModifiedObject(UploadedObject):
 
 class URLContent(SBContent):
     refresh_timer = IntegerProperty(default=2) # in days
-    url = StringProperty()
+    url = StringProperty(unique_index=True)
     description = StringProperty()
     selected_image = StringProperty()
 

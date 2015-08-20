@@ -136,6 +136,7 @@ TEMPLATE_DIRS = (
     '%s/sb_requirements/templates/' % PROJECT_DIR,
     '%s/sb_search/templates/' % PROJECT_DIR,
     '%s/sb_tags/templates/' % PROJECT_DIR,
+    '%s/sb_uploads/templates/' % PROJECT_DIR
 )
 
 TEMPLATES = [{

@@ -6,6 +6,8 @@ from django.template.loader import render_to_string
 
 from rest_framework import serializers
 
+from neomodel import DoesNotExist
+
 from api.serializers import SBSerializer
 from sb_registration.utils import upload_image
 
@@ -125,6 +127,10 @@ class URLContentSerializer(serializers.Serializer):
         validated_data['owner_username'] = owner.username
         if not 'http' in validated_data['url']:
             validated_data['url'] = 'http://' + validated_data['url']
+        try:
+            return URLContent.nodes.get(url=validated_data['url'])
+        except (URLContent.DoesNotExist, DoesNotExist):
+            pass
         response = requests.get(validated_data['url'])
         if response.status_code != 200:
             pass

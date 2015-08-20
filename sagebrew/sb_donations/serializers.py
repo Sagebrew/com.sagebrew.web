@@ -20,6 +20,9 @@ from sb_privileges.tasks import check_privileges
 
 from .neo_models import Donation
 
+from logging import getLogger
+logger = getLogger('loggly_logs')
+
 
 class DonationSerializer(SBSerializer):
     completed = serializers.BooleanField(read_only=True)
@@ -107,6 +110,15 @@ class DonationSerializer(SBSerializer):
         donation.campaign.connect(campaign)
         donor.donations.connect(donation)
         donation.owned_by.connect(donor)
+        email_data = {
+            "source": "support@sagebrew.com",
+            "to": donor.email,
+            "subject": "Thank you for your Quest Donation!",
+            "html_content": render_to_string(
+                "email_templates/email_quest_donation_pledge.html")
+        }
+        spawn_task(task_func=send_email_task,
+                   task_param=email_data)
         spawn_task(task_func=check_goal_completion_task,
                    task_param={"round_uuid": current_round.object_uuid})
         spawn_task(task_func=check_privileges,

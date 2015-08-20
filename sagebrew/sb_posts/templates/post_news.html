@@ -34,6 +34,17 @@
             <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 sb_post_wrapper">
                 <div class="sb_post_body{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                     {{ content|urlize|linebreaksbr }}
+                    {% if uploaded_objects %}
+                        <div class="row sb-post-image-wrapper">
+                            {% for uploaded_object in uploaded_objects %}
+                                {% if uploaded_object.height > uploaded_object.width %}
+                                    <a href="{{ uploaded_object.url }}" data-lightbox="{{ uploaded_object.id }}"><img class="sb-post-image sb-post-image-tall js-enlarge-post-image" src="{{ uploaded_object.url }}"></a>
+                                {% else %}
+                                    <a href="{{ uploaded_object.url }}" data-lightbox="{{ uploaded_object.id }}"><img class="sb-post-image js-enlarge-post-image" src="{{ uploaded_object.url }}"></a>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
                 <div id="edit_container_{{ object_uuid }}" style="display: none">
                     <div class="row-fluid">
@@ -48,7 +59,7 @@
                                id="edit_post_button_id"
                                data-parent_object="{{ profile.username }}"
                                data-object_uuid="{{ object_uuid }}"
-                               data-created="{{ created }}">Edit</button>
+                               data-created="{{ created }}">Save</button>
                         </div>
                     </div>
                 </div>

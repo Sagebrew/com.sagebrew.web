@@ -9,8 +9,15 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="sb_wall sb_conversation_wall" style="min-height: 0;">
+                <div class="goal-create-header">
+                    <div class="col-xs-10">
+                        <h4>Manage Goals</h4>
+                    </div>
+                    <div class="col-xs-2">
+                        <a href="{% url "quest_saga" id %}" class="btn btn-primary sb_btn_fill">Return to Quest</a>
+                    </div>
+                </div>
                 <div class="row sb_create_goal_wrapper">
-                    <h4>Manage Goals</h4>
                         <div class="block sb_goal sb_provide_goal">
                             <div class="row">
                                 <div class="col-xs-11" id="create_goal_header">
@@ -91,7 +98,7 @@
         <div class="hidden-xs col-sm-6">
             <div class="sb_wall sb_conversation_wall">
                 <h4>Unused Goals</h4>
-                <div id="existing_goals">
+                <div class="manage-goal-wrapper" id="existing_goals">
                 </div>
             </div>
         </div>
@@ -110,7 +117,7 @@
                 <div class="col-xs-4">
                     <button id="submit_round" class="btn btn-primary sb_btn sb_btn_fill" style="margin-top: 5px;">Save</button>
                 </div>
-                <div id="current_goals">
+                <div class="manage-goal-wrapper" id="current_goals">
 
                 </div>
             </div>

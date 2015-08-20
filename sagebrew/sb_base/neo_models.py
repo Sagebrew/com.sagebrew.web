@@ -256,6 +256,8 @@ class SBContent(VotableContent):
         'sb_notifications.neo_models.Notification', 'NOTIFICATIONS')
     council_votes = RelationshipTo('plebs.neo_models.Pleb', 'COUNCIL_VOTE',
                                    model=CouncilVote)
+    uploaded_objects = RelationshipTo('sb_uploads.neo_models.UploadedObject',
+                                      'UPLOADED_WITH')
 
     @classmethod
     def get_model_name(cls):
@@ -327,6 +329,19 @@ class SBContent(VotableContent):
 
     def get_url(self, request):
         return None
+
+    def get_uploaded_objects(self):
+        from sb_uploads.neo_models import UploadedObject
+        from sb_uploads.serializers import UploadSerializer
+        query = 'MATCH (a:SBContent {object_uuid:"%s"})-' \
+                '[:UPLOADED_WITH]->(u:UploadedObject) RETURN u' % \
+                self.object_uuid
+        res, col = db.cypher_query(query)
+        try:
+            return [UploadSerializer(UploadedObject.inflate(row[0])).data
+                    for row in res]
+        except IndexError:
+            return []
 
 
 class TaggableContent(SBContent):

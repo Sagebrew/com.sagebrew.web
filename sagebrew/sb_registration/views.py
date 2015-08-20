@@ -31,7 +31,7 @@ from .tasks import update_interests, store_address
 def signup_view(request):
     if (request.user.is_authenticated() is True and
             verify_completed_registration(request.user) is True):
-        return redirect('profile_page', pleb_username=request.user.username)
+        return redirect('newsfeed')
     return render(request, 'sign_up_page/index.html')
 
 

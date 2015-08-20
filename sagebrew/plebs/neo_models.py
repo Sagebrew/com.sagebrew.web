@@ -497,7 +497,7 @@ class Pleb(Searchable):
         wall = cache.get("%s_wall" % self.username)
         if wall is None:
             query = "MATCH (a:Pleb {username:'%s'})-" \
-                    "[:OWNS_WALL]->(b:Wall) RETURN b" % (self.username)
+                    "[:OWNS_WALL]->(b:Wall) RETURN b" % self.username
             res, col = db.cypher_query(query)
             try:
                 wall = Wall.inflate(res[0][0])

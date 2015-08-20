@@ -54,7 +54,7 @@ class VoteSerializer(SBSerializer):
 def get_vote_parent(object_uuid):
     try:
         query = "MATCH (a:Vote {object_uuid:'%s'})-[:VOTE_ON]->" \
-                "(b:SBContent) RETURN b" % (object_uuid)
+                "(b:SBContent) RETURN b" % object_uuid
         res, col = db.cypher_query(query)
         try:
             content = SBContent.inflate(res[0][0])
@@ -67,5 +67,5 @@ def get_vote_parent(object_uuid):
             # the serializers ensure this singleness prior to removing this.
             content = SBContent.inflate(res[0][0][0])
         return content
-    except(IndexError):
+    except IndexError:
         return None

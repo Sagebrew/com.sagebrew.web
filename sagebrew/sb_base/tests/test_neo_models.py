@@ -6,6 +6,7 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_posts.neo_models import Post
 from sb_questions.neo_models import Question
+from sb_uploads.neo_models import UploadedObject
 from sb_tags.neo_models import Tag
 from sb_base.neo_models import get_parent_votable_content, VotableContent
 
@@ -127,3 +128,27 @@ class TestGetParentVotableContent(TestCase):
         res = get_parent_votable_content(self.question.object_uuid)
         self.assertEqual(res, VotableContent.nodes.get(
             object_uuid=self.question.object_uuid))
+
+
+class TestGetUploadedObject(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        self.assertNotEqual(res, False)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.post = Post(content='test', owner_username=self.pleb.username,
+                         wall_owner_username=self.pleb.username).save()
+        self.post.owned_by.connect(self.pleb)
+        self.uploaded_object = UploadedObject(url='www.example.com',
+                                              height=300, width=300).save()
+        self.post.uploaded_objects.connect(self.uploaded_object)
+
+    def test_get_uploaded_object(self):
+        res = self.post.get_uploaded_objects()
+        self.assertEqual(res[0]['url'], self.uploaded_object.url)
+
+    def test_get_uploaded_object_no_objects(self):
+        self.post.uploaded_objects.disconnect(self.uploaded_object)
+        res = self.post.get_uploaded_objects()
+        self.assertFalse(res)

@@ -31,6 +31,7 @@ $(document).ready(function () {
     enableExpandPostImage();
     $("#upload_image").on("change", function () {
         var files = $(this).val(),
+            postImageButtom = $(".post-image-btn"),
             buttonSelector = $("#sb_btn_post"),
             jsImageWrapper = $("#js-image-wrapper"),
             postInput = $("#post_input_id");
@@ -39,6 +40,7 @@ $(document).ready(function () {
         buttonSelector.prop('disabled', true);
         jsImageWrapper.spin('small');
         if (files.length > 1) {
+            postImageButtom.prop('disabled', true);
             var formdata = new FormData(),
                 file = $("#upload_image")[0].files[0];
             formdata.append("file", file);
@@ -51,6 +53,7 @@ $(document).ready(function () {
                 dataType: "json",
                 data: formdata,
                 success: function (data) {
+                    postImageButtom.prop('disabled', false);
                     $("#sb_btn_post").attr("disabled", "");
                     if (!postInput.val()) {
                         postInput.val(" ");

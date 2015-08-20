@@ -126,6 +126,7 @@ $(document).ready(function () {
         });
     $("#js-president_selector").on("click", function (event) {
         event.preventDefault();
+        $(this).spin('small');
         $(this).prop("disabled", true);
         $.ajax({
             xhrFields: {withCredentials: true},
@@ -137,6 +138,7 @@ $(document).ready(function () {
             }),
             dataType: "json",
             success: function (data) {
+                $(this).spin(false);
                 window.location.href = data.url;
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {

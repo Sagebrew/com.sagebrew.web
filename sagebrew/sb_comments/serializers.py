@@ -17,7 +17,7 @@ from .neo_models import Comment
 
 
 class CommentSerializer(ContentSerializer):
-    parent_type = serializers.CharField(required=False)
+    parent_type = serializers.CharField(read_only=True)
 
     href = serializers.SerializerMethodField()
     comment_on = serializers.SerializerMethodField()

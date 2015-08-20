@@ -16,4 +16,5 @@ class Comment(TaggableContent):
     # Valid values for visibility are private and public. If this is set to
     # public any votes on the content will be counted towards reputation.
     action_name = StringProperty(default="commented on your ")
+    parent_type = StringProperty()
     comment_on = RelationshipTo('sb_base.neo_models.SBContent', 'COMMENT_ON')

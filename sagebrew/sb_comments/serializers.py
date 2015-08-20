@@ -17,7 +17,8 @@ from .neo_models import Comment
 
 
 class CommentSerializer(ContentSerializer):
-    parent_type = serializers.SerializerMethodField()
+    parent_type = serializers.CharField(required=False)
+
     href = serializers.SerializerMethodField()
     comment_on = serializers.SerializerMethodField()
 
@@ -27,7 +28,8 @@ class CommentSerializer(ContentSerializer):
         validated_data['content'] = bleach.clean(
             validated_data.get('content', ''))
         validated_data['owner_username'] = owner.username
-        comment = Comment(**validated_data).save()
+        comment = Comment(parent_type=parent_object.get_child_label().lower(),
+                          **validated_data).save()
         comment.owned_by.connect(owner)
         owner.comments.connect(comment)
         parent_object.comments.connect(comment)
@@ -93,9 +95,6 @@ class CommentSerializer(ContentSerializer):
             return parent_info
         else:
             return None
-
-    def get_parent_type(self, obj):
-        return get_parent_object(obj.object_uuid).get_child_label().lower()
 
 
 def get_parent_object(object_uuid):

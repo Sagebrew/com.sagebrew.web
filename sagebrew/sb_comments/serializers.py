@@ -17,6 +17,7 @@ from .neo_models import Comment
 
 
 class CommentSerializer(ContentSerializer):
+    parent_type = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
     comment_on = serializers.SerializerMethodField()
 
@@ -92,6 +93,9 @@ class CommentSerializer(ContentSerializer):
             return parent_info
         else:
             return None
+
+    def get_parent_type(self, obj):
+        return get_parent_object(obj.object_uuid).get_child_label().lower()
 
 
 def get_parent_object(object_uuid):

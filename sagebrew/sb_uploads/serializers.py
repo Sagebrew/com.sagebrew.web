@@ -118,6 +118,7 @@ class URLContentSerializer(serializers.Serializer):
     refresh_timer = serializers.IntegerField(read_only=True)
     url = serializers.CharField(required=True)
     description = serializers.CharField(required=False)
+    title = serializers.CharField(required=False)
     selected_image = serializers.CharField(required=False)
 
     images = serializers.SerializerMethodField()
@@ -135,14 +136,15 @@ class URLContentSerializer(serializers.Serializer):
         if response.status_code != 200:
             pass
         soupified = BeautifulSoup(response.text, 'html.parser')
-        logger.info(soupified)
-        meta = soupified.find('meta')
-        images = soupified.find('img')
+        #logger.info(soupified)
+        meta = soupified.find_all('meta').find()
+        image = soupified.find('img')
         title = soupified.find('title')
-        logger.info(title)
         logger.info(meta)
-        logger.info(images)
-        url_content = URLContent(**validated_data).save()
+        logger.info(image)
+        logger.info(title)
+        url_content = URLContent(selected_image=image['src'],
+                                 title=title.string, **validated_data).save()
         url_content.owned_by.connect(owner)
         owner.url_content.connect(url_content)
         return url_content

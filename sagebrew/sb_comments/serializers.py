@@ -28,6 +28,9 @@ class CommentSerializer(ContentSerializer):
         validated_data['content'] = bleach.clean(
             validated_data.get('content', ''))
         validated_data['owner_username'] = owner.username
+        # we use get_child_label() here because the parent_object is an
+        # instance of SBContent and not the required Post, Solution,
+        # Question this gets us the proper label of the node
         comment = Comment(parent_type=parent_object.get_child_label().lower(),
                           **validated_data).save()
         comment.owned_by.connect(owner)

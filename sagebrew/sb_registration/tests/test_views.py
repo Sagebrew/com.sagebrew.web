@@ -127,6 +127,7 @@ class TestProfileInfoView(TestCase):
         my_dict = {'date_of_birth': [u'']}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         request.user = self.user
         response = profile_information(request)
 
@@ -144,6 +145,7 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         request.user = self.user
         response = profile_information(request)
         self.assertIn(response.status_code, [200, 302])
@@ -159,6 +161,7 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         request.user = self.user
         response = profile_information(request)
         self.assertIn(response.status_code, [200, 302])
@@ -175,6 +178,7 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         request.user = self.user
         response = profile_information(request)
         self.assertIn(response.status_code, [200, 302])
@@ -190,6 +194,7 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         request.user = self.user
         response = profile_information(request)
         self.assertIn(response.status_code, [200, 302])
@@ -206,6 +211,7 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         request.user = self.user
         response = profile_information(request)
         self.assertIn(response.status_code, [200, 302])
@@ -222,6 +228,7 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         request.user = self.user
         response = profile_information(request)
         self.assertIn(response.status_code, [200, 302])
@@ -238,6 +245,7 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         request.user = self.user
         response = profile_information(request)
 
@@ -252,6 +260,7 @@ class TestProfileInfoView(TestCase):
                    "high_school": [], "postal_code": ["48390"]}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         request.user = self.user
         response = profile_information(request)
 
@@ -266,6 +275,7 @@ class TestProfileInfoView(TestCase):
                    "high_school": [], "postal_code": ["45890"]}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         request.user = self.user
         response = profile_information(request)
 
@@ -280,6 +290,7 @@ class TestProfileInfoView(TestCase):
                    "high_school": [], "postal_code": ["21229"]}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         request.user = self.user
         response = profile_information(request)
 
@@ -297,6 +308,7 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         self.user.username = "fakeeemail"
         request.user = self.user
         response = profile_information(request)
@@ -318,6 +330,7 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         self.pleb.completed_profile_info = True
         self.pleb.save()
         request.user = self.user
@@ -341,6 +354,7 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
 
         request.user = self.user
         response = profile_information(request)
@@ -359,6 +373,7 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         address = Address(address_hash=str(uuid1())).save()
         self.pleb.address.connect(address)
         request.user = self.user
@@ -378,6 +393,7 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         address = Address(address_hash=str(uuid1())).save()
         self.pleb.address.connect(address)
         request.user = self.user
@@ -397,6 +413,7 @@ class TestProfileInfoView(TestCase):
                    "latitude": 42.53202}
         request = self.factory.post('/registration/profile_information',
                                     data=my_dict)
+        request.session = {}
         request.user = self.user
         response = profile_information(request)
 

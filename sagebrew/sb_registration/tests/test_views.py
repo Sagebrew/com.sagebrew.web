@@ -456,6 +456,27 @@ class TestSignupAPIView(TestCase):
         res = signup_view_api(request)
         self.assertEqual(res.status_code, 200)
 
+    def test_signup_view_api_success_user_is_not_active(self):
+        signup_dict = {
+            'first_name': self.user.first_name,
+            'last_name': self.user.last_name,
+            'email': self.user.email,
+            'password': 'testpassword',
+            'password2': 'testpassword',
+            'birthday': "06/23/1990"
+        }
+        self.user.is_active = False
+        self.user.save()
+        request = self.factory.post('/registration/signup/', data=signup_dict,
+                                    format='json')
+        s = SessionStore()
+        s.save()
+        request.session = s
+        res = signup_view_api(request)
+        res.render()
+        self.assertEqual(loads(res.content)['detail'], 'existing success')
+        self.assertEqual(res.status_code, 200)
+
     def test_signup_view_api_failure_user_exists(self):
         signup_dict = {
             'first_name': self.user.first_name,

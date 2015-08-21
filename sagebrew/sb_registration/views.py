@@ -193,9 +193,6 @@ def email_verification(request, confirmation):
             profile.save()
             profile.refresh()
             cache.set(profile.username, profile)
-            account_type = request.session.get('account_type', None)
-            if account_type is not None:
-                return redirect('rep_registration_page')
             return redirect('profile_info')
         else:
             # TODO Ensure to link up to a real redirect page
@@ -260,6 +257,9 @@ def profile_information(request):
                 # indicates we're sorry but there was an error communicating
                 # with the server.
                 return HttpResponseServerError('Server Error')
+            account_type = request.session.get('account_type', None)
+            if account_type is not None:
+                return redirect('rep_registration_page')
             return redirect('interests')
         else:
             # TODO this is just a place holder, what should we really be doing

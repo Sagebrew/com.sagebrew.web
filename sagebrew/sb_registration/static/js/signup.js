@@ -18,8 +18,11 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+                console.log(data);
                 if (data.detail === 'success') {
                     window.location.href = "/registration/signup/confirm/";
+                } else if (data.detail === 'existing success') {
+                    window.location.href = "/registration/profile_info/";
                 } else if (data.detail === 'redirect') {
                     window.location.href = data.url;
                 } else {

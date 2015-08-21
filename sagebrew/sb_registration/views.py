@@ -11,6 +11,7 @@ from django.template import Context
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 
 from neomodel import (DoesNotExist, CypherException)
 
@@ -63,10 +64,23 @@ def signup_view_api(request):
                                        "please follow this link, or use a "
                                        "personal email address."}, 200)
         try:
-            User.objects.get(email=signup_form.cleaned_data['email'])
-            return Response(
-                {'detail': 'A user with this email already exists!'},
-                status=401)
+            test_user = User.objects.get(
+                email=signup_form.cleaned_data['email'])
+            if test_user.is_active:
+                return Response(
+                    {'detail': 'A user with this email already exists!'},
+                    status=401)
+            test_user.is_active = True
+            test_user.set_password(signup_form.cleaned_data['password'])
+            test_user.save()
+            user = authenticate(username=test_user.username,
+                                password=signup_form.cleaned_data['password'])
+            login(request, user)
+            if quest_registration is not None:
+                request.session['account_type'] = quest_registration
+                request.session.set_expiry(1800)
+            return Response({"detail": "existing success"},
+                            status=status.HTTP_200_OK)
         except User.DoesNotExist:
             res = create_user_util(first_name=signup_form.
                                    cleaned_data['first_name'],

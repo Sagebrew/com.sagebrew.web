@@ -11,6 +11,7 @@ from django.template import Context
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 
 from neomodel import (DoesNotExist, CypherException)
 
@@ -52,21 +53,36 @@ def signup_view_api(request):
         signup_form = SignupForm(request.DATA)
         valid_form = signup_form.is_valid()
     except AttributeError:
-        return Response({'detail': 'Form Error'}, status=400)
+        return Response({'detail': 'Form Error'},
+                        status=status.HTTP_400_BAD_REQUEST)
     if valid_form is True:
         if signup_form.cleaned_data['password'] != \
                 signup_form.cleaned_data['password2']:
             return Response({'detail': 'Passwords do not match!'},
-                            status=401)
+                            status=status.HTTP_401_UNAUTHORIZED)
         if signup_form.cleaned_data['email'][-4:] == '.gov':
             return Response({"detail": "If you are using a .gov email address "
                                        "please follow this link, or use a "
-                                       "personal email address."}, 200)
+                                       "personal email address."},
+                            status.HTTP_200_OK)
         try:
-            User.objects.get(email=signup_form.cleaned_data['email'])
-            return Response(
-                {'detail': 'A user with this email already exists!'},
-                status=401)
+            test_user = User.objects.get(
+                email=signup_form.cleaned_data['email'])
+            if test_user.is_active:
+                return Response(
+                    {'detail': 'A user with this email already exists!'},
+                    status=status.HTTP_401_UNAUTHORIZED)
+            test_user.is_active = True
+            test_user.set_password(signup_form.cleaned_data['password'])
+            test_user.save()
+            user = authenticate(username=test_user.username,
+                                password=signup_form.cleaned_data['password'])
+            login(request, user)
+            if quest_registration is not None:
+                request.session['account_type'] = quest_registration
+                request.session.set_expiry(1800)
+            return Response({"detail": "existing success"},
+                            status=status.HTTP_200_OK)
         except User.DoesNotExist:
             res = create_user_util(first_name=signup_form.
                                    cleaned_data['first_name'],
@@ -83,23 +99,25 @@ def signup_view_api(request):
                                     password=signup_form.cleaned_data[
                                         'password'])
             else:
-                return Response({'detail': 'system error'}, status=500)
+                return Response({'detail': 'system error'},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             if user is not None:
                 if user.is_active:
                     login(request, user)
                     if quest_registration is not None:
                         request.session['account_type'] = quest_registration
                         request.session.set_expiry(1800)
-                    return Response({'detail': 'success'}, status=200)
+                    return Response({'detail': 'success'},
+                                    status=status.HTTP_200_OK)
                 else:
                     return Response({'detail': 'account disabled'},
-                                    status=400)
+                                    status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response({'detail': 'invalid login'},
-                                status=400)
+                                status=status.HTTP_400_BAD_REQUEST)
     else:
         return Response({"detail": signup_form.errors.as_json()},
-                        status=400)
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 def login_view(request):

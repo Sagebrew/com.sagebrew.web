@@ -7,6 +7,7 @@ from copy import deepcopy
 from logging import getLogger
 
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.core.files.uploadhandler import TemporaryUploadedFile
 
 from PIL import Image
@@ -179,6 +180,17 @@ class URLContentViewSet(viewsets.ModelViewSet):
                               " url content on the site."
                     }
         return Response(response, status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(owner=Pleb.get(self.request.user.username))
+            serializer = serializer.data
+            if request.query_params.get('html', 'false').lower() == 'true':
+                return Response({"html": render_to_string(
+                    'expanded_url_content.html', serializer)},
+                                status=status.HTTP_200_OK)
+            return Response(serializer, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
         pass

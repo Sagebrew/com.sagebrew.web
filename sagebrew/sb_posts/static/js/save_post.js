@@ -11,7 +11,7 @@ $(document).ready(function () {
                 $.ajax({
                     xhrFields: {withCredentials: true},
                     type: "POST",
-                    url: "/v1/urlcontent/",
+                    url: "/v1/urlcontent/?html=true",
                     data: JSON.stringify({
                         'object_uuid': guid(),
                         'url': value

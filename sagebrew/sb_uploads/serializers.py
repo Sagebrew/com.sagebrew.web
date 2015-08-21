@@ -1,4 +1,5 @@
 import requests
+import bleach
 from bs4 import BeautifulSoup
 
 from django.conf import settings
@@ -137,14 +138,19 @@ class URLContentSerializer(serializers.Serializer):
             pass
         soupified = BeautifulSoup(response.text, 'html.parser')
         #logger.info(soupified)
-        meta = soupified.find_all('meta').find()
-        image = soupified.find('img')
-        title = soupified.find('title')
-        logger.info(meta)
-        logger.info(image)
+        image = soupified.find(attrs={"property": "og:image"})
+        title = soupified.find(attrs={"property": "og:title"})
+        description = soupified.find(attrs={"property": "og:description"})
         logger.info(title)
-        url_content = URLContent(selected_image=image['src'],
-                                 title=title.string, **validated_data).save()
+        logger.info(description)
+        logger.info(image)
+        url_content = URLContent(selected_image=
+                                 bleach.clean(image.get('content')),
+                                 title=bleach.clean(title.get(
+                                     'content', title.string)),
+                                 description=bleach.clean(description.get(
+                                     'content', description.string)),
+                                 **validated_data).save()
         url_content.owned_by.connect(owner)
         owner.url_content.connect(url_content)
         return url_content

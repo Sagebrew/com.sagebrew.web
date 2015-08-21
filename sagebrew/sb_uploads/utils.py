@@ -1,3 +1,4 @@
+import bleach
 from PIL import Image
 
 """
@@ -58,3 +59,13 @@ def resize_image(image, resize_width, resize_height):
 def crop_image2(image, width, height, x, y):
     region = image.crop((x, y, x + width, y + height))
     return region
+
+
+def parse_page_html(soupified):
+    image = soupified.find(attrs={"property": "og:image"})
+    title = soupified.find(attrs={"property": "og:title"})
+    description = soupified.find(attrs={"property": "og:description"})
+    bleach.clean(image.get('content'))
+    bleach.clean(title.get('content', title.string))
+    bleach.clean(description.get('content', description.string))
+    return title, description, image

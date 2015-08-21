@@ -12,6 +12,7 @@ from neomodel import DoesNotExist
 from api.serializers import SBSerializer
 from sb_registration.utils import upload_image
 
+from .utils import parse_page_html
 from .neo_models import UploadedObject, ModifiedObject, URLContent
 
 from logging import getLogger
@@ -138,12 +139,7 @@ class URLContentSerializer(serializers.Serializer):
             pass
         soupified = BeautifulSoup(response.text, 'html.parser')
         #logger.info(soupified)
-        image = soupified.find(attrs={"property": "og:image"})
-        title = soupified.find(attrs={"property": "og:title"})
-        description = soupified.find(attrs={"property": "og:description"})
-        logger.info(title)
-        logger.info(description)
-        logger.info(image)
+        title, description, image = parse_page_html(soupified)
         url_content = URLContent(selected_image=
                                  bleach.clean(image.get('content')),
                                  title=bleach.clean(title.get(

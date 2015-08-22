@@ -1,3 +1,4 @@
+from unidecode import unidecode
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -33,6 +34,7 @@ def generate_username(first_name, last_name):
             (''.join(e for e in first_name if e.isalnum())).lower(),
             (''.join(e for e in last_name if e.isalnum())).lower(),
             users_count)
+    username = unidecode(unicode(username, "utf-8"))
     return username
 
 

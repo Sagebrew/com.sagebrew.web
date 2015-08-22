@@ -165,22 +165,22 @@ def generate_username(first_name, last_name):
     """
     users_count = User.objects.filter(first_name__iexact=first_name).filter(
         last_name__iexact=last_name).count()
-    username = u"%s_%s" % (first_name.lower(), last_name.lower())
+    username = "%s_%s" % (first_name.lower(), last_name.lower())
     if len(username) > 30:
         username = username[:30]
         users_count = User.objects.filter(username__iexact=username).count()
         if users_count > 0:
             username = username[:(30 - len(users_count))] + str(users_count)
     elif len(username) < 30 and users_count == 0:
-        username = u"%s_%s" % (
+        username = "%s_%s" % (
             (''.join(e for e in first_name if e.isalnum())).lower(),
             (''.join(e for e in last_name if e.isalnum())).lower())
     else:
-        username = u"%s_%s%d" % (
+        username = "%s_%s%d" % (
             (''.join(e for e in first_name if e.isalnum())).lower(),
             (''.join(e for e in last_name if e.isalnum())).lower(),
             users_count)
-    username = unidecode(username)
+    username = unidecode(unicode(username, "utf-8"))
     return username
 
 

@@ -1,6 +1,7 @@
 from django.core.cache import cache
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.core.exceptions import MultipleObjectsReturned
 from django.http import (HttpResponse, HttpResponseServerError)
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
@@ -176,6 +177,12 @@ def login_view_api(request):
             return Response({'detail': 'Incorrect password and '
                                        'username combination.'},
                             status=400)
+        except MultipleObjectsReturned:
+            return Response({'detail': 'Appears we have two users with '
+                                       'that email. Please contact '
+                                       'support@sagebrew.com.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         user = authenticate(username=user.username,
                             password=login_form.cleaned_data['password'])
         if user is not None:

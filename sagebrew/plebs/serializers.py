@@ -125,6 +125,7 @@ class PlebSerializerNeo(SBSerializer):
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
     username = serializers.CharField(read_only=True)
+    completed_profile_info = serializers.BooleanField(read_only=True)
     href = serializers.SerializerMethodField()
 
     # These are read only because we force users to use a different endpoint

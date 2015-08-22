@@ -116,6 +116,11 @@ def signup_view_api(request):
             else:
                 return Response({'detail': 'invalid login'},
                                 status=status.HTTP_400_BAD_REQUEST)
+        except MultipleObjectsReturned:
+            return Response({'detail': 'Appears we have two users with '
+                                       'that email. Please contact '
+                                       'support@sagebrew.com.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         return Response({"detail": signup_form.errors.as_json()},
                         status=status.HTTP_400_BAD_REQUEST)

@@ -180,7 +180,11 @@ def generate_username(first_name, last_name):
             (''.join(e for e in first_name if e.isalnum())).lower(),
             (''.join(e for e in last_name if e.isalnum())).lower(),
             users_count)
-    username = unidecode(unicode(username, "utf-8"))
+    try:
+        username = unidecode(unicode(username, "utf-8"))
+    except TypeError:
+        # Handles cases where the username is already in unicode format
+        username = unidecode(username)
     return username
 
 

@@ -23,7 +23,7 @@ from sb_registration.views import (profile_information,
                                    resend_email_verification,
                                    email_verification, interests)
 from sb_registration.models import EmailAuthTokenGenerator
-from sb_registration.utils import create_user_util_test
+from sb_registration.utils import create_user_util_test, generate_username
 from plebs.neo_models import Pleb, Address
 
 
@@ -553,23 +553,9 @@ class TestSignupAPIView(TestCase):
         s.save()
         request.session = s
         signup_view_api(request)
-
-        signup_dict['email'] = "fake@thisaddress.com"
-        request = self.factory.post('/registration/signup/', data=signup_dict,
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        signup_view_api(request)
-        username = "Thisismyfirstnamereallyitsuper_bereadyformylastname" \
-                   "causeitsev"[:30]
-        username2 = "thisismyfirstnamereallyitsupe1"
-        test_user = User.objects.get(username=username)
-        test_user2 = User.objects.get(username=username2)
-        self.assertEqual(test_user.username, username)
-        self.assertEqual(test_user.username, username2)
-        test_user.delete()
-        test_user2.delete()
+        username = generate_username(signup_dict['first_name'],
+                                     signup_dict['last_name'])
+        self.assertEqual(username, "thisismyfirstnamereallyitsupe1")
 
     def test_signup_view_api_success_user_is_not_active(self):
         signup_dict = {

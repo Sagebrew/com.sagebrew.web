@@ -473,6 +473,25 @@ class TestSignupAPIView(TestCase):
         res = signup_view_api(request)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
+    def test_signup_view_api_international_character(self):
+        signup_dict = {
+            'first_name': 'Martin',
+            'last_name': 'Jänsch',
+            'email': 'ooto@simulator.amazonses.com',
+            'password': 'testpassword',
+            'password2': 'testpassword',
+            'birthday': "06/23/1990"
+        }
+        request = self.factory.post('/registration/signup/', data=signup_dict,
+                                    format='json')
+        s = SessionStore()
+        s.save()
+        request.session = s
+        res = signup_view_api(request)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        test_user = User.objects.get(username="martin_jansch")
+        self.assertEqual(test_user.username, "martin_jansch")
+
     def test_signup_view_api_success_user_is_not_active(self):
         signup_dict = {
             'first_name': self.user.first_name,
@@ -505,7 +524,10 @@ class TestSignupAPIView(TestCase):
         }
         self.user.is_active = False
         self.user.save()
-        User.objects.create(**signup_dict)
+        User.objects.create_user(first_name=self.user.first_name,
+                                 last_name=self.user.last_name,
+                                 email=self.user.email, password="test",
+                                 username="blablabla")
         request = self.factory.post('/registration/signup/', data=signup_dict,
                                     format='json')
         s = SessionStore()

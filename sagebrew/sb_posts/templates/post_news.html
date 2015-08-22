@@ -44,6 +44,8 @@
                                 {% endif %}
                             {% endfor %}
                         </div>
+                    {% elif first_url_content %}
+                        {% include "expanded_url_content.html" %}
                     {% endif %}
                 </div>
                 <div id="edit_container_{{ object_uuid }}" style="display: none">

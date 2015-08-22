@@ -342,13 +342,18 @@ class SBContent(VotableContent):
         return [UploadSerializer(UploadedObject.inflate(row[0])).data
                 for row in res]
 
-    def get_url_content(self):
+    def get_url_content(self, single=False):
         from sb_uploads.neo_models import URLContent
         from sb_uploads.serializers import URLContentSerializer
         query = 'MATCH (a:SBContent {object_uuid:"%s"})-' \
                 '[:INCLUDED_URL_CONTENT]->(u:URLContent) RETURN u' \
                 % self.object_uuid
         res, _ = db.cypher_query(query)
+        if single:
+            try:
+                return URLContentSerializer(URLContent.inflate(res.one)).data
+            except AttributeError:
+                return {}
         return [URLContentSerializer(URLContent.inflate(row[0])).data
                 for row in res]
 

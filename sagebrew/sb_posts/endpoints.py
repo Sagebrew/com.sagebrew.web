@@ -22,6 +22,9 @@ from plebs.neo_models import Pleb
 from .serializers import PostSerializerNeo, PostEndpointSerializerNeo
 from .neo_models import Post
 
+from logging import getLogger
+logger = getLogger('loggly_logs')
+
 
 class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostEndpointSerializerNeo
@@ -138,6 +141,7 @@ class WallPostsListCreate(ListCreateAPIView):
         return self.get_paginated_response(serializer.data)
 
     def create(self, request, *args, **kwargs):
+        logger.info(request.data)
         wall_pleb = Pleb.get(self.kwargs[self.lookup_field])
         friend_with = wall_pleb.is_friends_with(request.user.username)
         if friend_with is False and wall_pleb.username != request.user.username:
@@ -159,6 +163,7 @@ class WallPostsListCreate(ListCreateAPIView):
             if request.query_params.get('html', 'false').lower() == "true":
                 serializer['last_edited_on'] = parser.parse(
                     serializer['last_edited_on'])
+                logger.info(serializer)
                 return Response(
                     {
                         "html": [render_to_string(

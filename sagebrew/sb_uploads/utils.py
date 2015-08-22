@@ -1,5 +1,13 @@
 import bleach
+import string
+import urllib
+import cStringIO
 from PIL import Image
+
+from api.utils import smart_truncate
+
+from logging import getLogger
+logger = getLogger("loggly_logs")
 
 """
 def crop_image(image, height, width, x, y, f_uuid=None):
@@ -61,11 +69,31 @@ def crop_image2(image, width, height, x, y):
     return region
 
 
-def parse_page_html(soupified):
+def parse_page_html(soupified, url, content_type='html/text'):
+    logger.info(soupified)
+    width = 0
+    height = 0
     image = soupified.find(attrs={"property": "og:image"})
     title = soupified.find(attrs={"property": "og:title"})
     description = soupified.find(attrs={"property": "og:description"})
-    bleach.clean(image.get('content'))
-    bleach.clean(title.get('content', title.string))
-    bleach.clean(description.get('content', description.string))
-    return title, description, image
+    try:
+        image = filter(lambda x: x in string.printable,
+                       bleach.clean(image.get('content')))
+    except AttributeError:
+        image = url
+    try:
+        title = filter(lambda x: x in string.printable,
+                       bleach.clean(title.get('content')))
+    except AttributeError:
+        pass
+    try:
+        description = smart_truncate(
+            filter(lambda x: x in string.printable,
+                   bleach.clean(description.get('content'))))
+    except AttributeError:
+        pass
+    if 'image' in content_type:
+        temp_file = cStringIO.StringIO(urllib.urlopen(image).read())
+        im = Image.open(temp_file)
+        width, height = im.size
+    return title, description, image, width, height

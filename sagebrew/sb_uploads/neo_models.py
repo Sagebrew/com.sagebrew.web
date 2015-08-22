@@ -28,6 +28,8 @@ class URLContent(SBContent):
     description = StringProperty()
     selected_image = StringProperty()
     title = StringProperty()
+    image_height = IntegerProperty()
+    image_width = IntegerProperty()
 
     images = RelationshipTo('sb_uploads.neo_models.UploadedObject',
                             'IMAGE_ON_PAGE')

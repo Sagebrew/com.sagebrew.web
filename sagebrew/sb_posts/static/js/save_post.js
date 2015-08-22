@@ -5,13 +5,15 @@ $(document).ready(function () {
         finalURLs;
     $("#post_input_id").keyup(function () {
         var inputText = $(this).val(),
-            regexMatches = inputText.match(regExp);
+            regexMatches = inputText.match(regExp),
+            postButton = $("#sb_btn_post");
         if (regexMatches) {
+            postButton.attr("disabled", "disabled");
             $.each(regexMatches, function (key, value) {
                 $.ajax({
                     xhrFields: {withCredentials: true},
                     type: "POST",
-                    url: "/v1/urlcontent/?html=true",
+                    url: "/v1/urlcontent/",
                     data: JSON.stringify({
                         'object_uuid': guid(),
                         'url': value
@@ -20,12 +22,14 @@ $(document).ready(function () {
                     dataType: "json",
                     success: function (data) {
                         console.log(data);
+                        $("#wall_app").append(data.html);
                     },
                     error: function (XMLHttpRequest) {
                         $("#sb_btn_post").removeAttr("disabled");
                     }
                 });
             });
+            postButton.removeAttr("disabled");
         }
     });
     // This function hits the Post API and saves off a given post from a user
@@ -37,23 +41,26 @@ $(document).ready(function () {
             postInput = $("#post_input_id"),
             content = postInput.val();
         finalURLs = content.match(regExp);
-        $.unique(finalURLs);
+        if (finalURLs) {
+            $.unique(finalURLs);
+        } else {
+            finalURLs = [];
+        }
         event.preventDefault();
-        console.log(finalURLs);
         if (!jsImageWrapper.is(':empty')) {
             images = jsImageWrapper.find('img');
             $.each(images, function (key, value) {
                 imageIds.push($(value).data('object_uuid'));
             });
         }
-
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",
             url: "/v1/profiles/" + $('#user_info').data('page_user_username') + "/wall/?html=true",
             data: JSON.stringify({
                 'content': $('textarea#post_input_id').val(),
-                'images': imageIds
+                'images': imageIds,
+                'included_urls': finalURLs
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",

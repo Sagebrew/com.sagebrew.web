@@ -9,25 +9,35 @@ from api.utils import gather_request_data
 from sb_base.serializers import ContentSerializer
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
-from sb_uploads.neo_models import UploadedObject
+from sb_uploads.neo_models import UploadedObject, URLContent
 
 from .neo_models import Post
+
+from logging import getLogger
+logger = getLogger('loggly_logs')
 
 
 class PostSerializerNeo(ContentSerializer):
     href = serializers.HyperlinkedIdentityField(view_name='post-detail',
                                                 lookup_field="object_uuid")
     images = serializers.ListField(write_only=True, required=False)
+    included_urls = serializers.ListField(write_only=True, required=False)
 
+    url_content = serializers.SerializerMethodField()
     uploaded_objects = serializers.SerializerMethodField()
+    first_url_content = serializers.SerializerMethodField()
     wall_owner_profile = serializers.SerializerMethodField()
+
 
     def create(self, validated_data):
         request = self.context["request"]
         owner = Pleb.get(request.user.username)
+        logger.info(validated_data)
         wall_owner = validated_data.pop('wall_owner_profile', None)
         content = validated_data.pop('content')
         images = validated_data.pop('images', [])
+        included_urls = validated_data.pop('included_urls', [])
+        logger.info(included_urls)
         post = Post(owner_username=owner.username,
                     content=bleach.clean(content),
                     wall_owner_username=wall_owner.username,
@@ -37,8 +47,11 @@ class PostSerializerNeo(ContentSerializer):
         wall = wall_owner.get_wall()
         post.posted_on_wall.connect(wall)
         wall.posts.connect(post)
+
         [post.uploaded_objects.connect(
             UploadedObject.nodes.get(object_uuid=image)) for image in images]
+        [post.url_content.connect(URLContent.nodes.get(url=url))
+         for url in included_urls]
         return post
 
     def update(self, instance, validated_data):
@@ -46,7 +59,6 @@ class PostSerializerNeo(ContentSerializer):
             'content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
-
         return instance
 
     def get_url(self, obj):
@@ -76,6 +88,12 @@ class PostSerializerNeo(ContentSerializer):
 
     def get_uploaded_objects(self, obj):
         return obj.get_uploaded_objects()
+
+    def get_url_content(self, obj):
+        return obj.get_url_content()
+
+    def get_first_url_content(self, obj):
+        return obj.get_url_content(single=True)
 
 
 class PostEndpointSerializerNeo(PostSerializerNeo):

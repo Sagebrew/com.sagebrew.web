@@ -1,5 +1,4 @@
 import requests
-import bleach
 from bs4 import BeautifulSoup
 
 from django.conf import settings
@@ -122,6 +121,8 @@ class URLContentSerializer(serializers.Serializer):
     description = serializers.CharField(required=False)
     title = serializers.CharField(required=False)
     selected_image = serializers.CharField(required=False)
+    image_width = serializers.IntegerField(read_only=True)
+    image_height = serializers.IntegerField(read_only=True)
 
     images = serializers.SerializerMethodField()
 
@@ -129,24 +130,23 @@ class URLContentSerializer(serializers.Serializer):
         owner = validated_data.pop('owner')
         validated_data['owner_username'] = owner.username
         if not 'http' in validated_data['url']:
-            validated_data['url'] = 'http://' + validated_data['url']
+            validated_data['url'] = 'https://' + validated_data['url']
         try:
             return URLContent.nodes.get(url=validated_data['url'])
         except (URLContent.DoesNotExist, DoesNotExist):
             pass
-        response = requests.get(validated_data['url'])
+        response = requests.get(validated_data['url'],
+                                headers={'content-type': 'html/text'})
         if response.status_code != 200:
             pass
         soupified = BeautifulSoup(response.text, 'html.parser')
-        #logger.info(soupified)
-        title, description, image = parse_page_html(soupified)
-        url_content = URLContent(selected_image=
-                                 bleach.clean(image.get('content')),
-                                 title=bleach.clean(title.get(
-                                     'content', title.string)),
-                                 description=bleach.clean(description.get(
-                                     'content', description.string)),
-                                 **validated_data).save()
+        title, description, image, width, height = \
+            parse_page_html(
+                soupified, validated_data['url'],
+                response.headers.get('Content-Type', 'html/text'))
+        url_content = URLContent(selected_image=image, title=title,
+                                 description=description, image_width=width,
+                                 image_height=height, **validated_data).save()
         url_content.owned_by.connect(owner)
         owner.url_content.connect(url_content)
         return url_content

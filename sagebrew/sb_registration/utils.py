@@ -170,7 +170,7 @@ def generate_username(first_name, last_name):
         username = username[:30]
         users_count = User.objects.filter(username__iexact=username).count()
         if users_count > 0:
-            username = username[:(30 - len(users_count))] + str(users_count)
+            username = username[:(30 - users_count)] + str(users_count)
     elif len(username) < 30 and users_count == 0:
         username = "%s_%s" % (
             (''.join(e for e in first_name if e.isalnum())).lower(),

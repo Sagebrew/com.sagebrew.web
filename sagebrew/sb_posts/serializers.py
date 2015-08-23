@@ -32,12 +32,10 @@ class PostSerializerNeo(ContentSerializer):
     def create(self, validated_data):
         request = self.context["request"]
         owner = Pleb.get(request.user.username)
-        logger.info(validated_data)
         wall_owner = validated_data.pop('wall_owner_profile', None)
         content = validated_data.pop('content')
         images = validated_data.pop('images', [])
         included_urls = validated_data.pop('included_urls', [])
-        logger.info(included_urls)
         post = Post(owner_username=owner.username,
                     content=bleach.clean(content),
                     wall_owner_username=wall_owner.username,
@@ -47,7 +45,6 @@ class PostSerializerNeo(ContentSerializer):
         wall = wall_owner.get_wall()
         post.posted_on_wall.connect(wall)
         wall.posts.connect(post)
-
         [post.uploaded_objects.connect(
             UploadedObject.nodes.get(object_uuid=image)) for image in images]
         [post.url_content.connect(URLContent.nodes.get(url=url))

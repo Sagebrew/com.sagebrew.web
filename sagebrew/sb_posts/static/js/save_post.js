@@ -8,8 +8,8 @@ $(document).ready(function () {
             regexMatches = inputText.match(regExp),
             postButton = $("#sb_btn_post");
         if (regexMatches) {
-            postButton.attr("disabled", "disabled");
             $.each(regexMatches, function (key, value) {
+                postButton.attr("disabled", "disabled");
                 $.ajax({
                     xhrFields: {withCredentials: true},
                     type: "POST",
@@ -21,15 +21,13 @@ $(document).ready(function () {
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {
-                        console.log(data);
-                        $("#wall_app").append(data.html);
+                        postButton.removeAttr('disabled');
                     },
                     error: function (XMLHttpRequest) {
                         $("#sb_btn_post").removeAttr("disabled");
                     }
                 });
             });
-            postButton.removeAttr("disabled");
         }
     });
     // This function hits the Post API and saves off a given post from a user

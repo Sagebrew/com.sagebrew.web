@@ -123,22 +123,26 @@ class URLContentSerializer(serializers.Serializer):
     selected_image = serializers.CharField(required=False)
     image_width = serializers.IntegerField(read_only=True)
     image_height = serializers.IntegerField(read_only=True)
+    is_explicit = serializers.BooleanField(read_only=True)
 
     images = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         owner = validated_data.pop('owner')
         validated_data['owner_username'] = owner.username
+        new_url = validated_data['url']
         if not 'http' in validated_data['url']:
-            validated_data['url'] = 'https://' + validated_data['url']
+            new_url = 'https://' + validated_data['url']
         try:
             return URLContent.nodes.get(url=validated_data['url'])
         except (URLContent.DoesNotExist, DoesNotExist):
             pass
-        response = requests.get(validated_data['url'],
+        if any(validated_data['url'] in s for s in settings.EXPLICIT_STIES):
+            validated_data['is_explicit'] = True
+        response = requests.get(new_url,
                                 headers={'content-type': 'html/text'})
         if response.status_code != 200:
-            pass
+            return URLContent(url=new_url).save()
         soupified = BeautifulSoup(response.text, 'html.parser')
         title, description, image, width, height = \
             parse_page_html(

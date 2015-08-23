@@ -1,7 +1,9 @@
 import bleach
 import string
 import urllib
+import urlparse
 import cStringIO
+import HTMLParser
 from PIL import Image
 
 from api.utils import smart_truncate
@@ -69,30 +71,62 @@ def crop_image2(image, width, height, x, y):
     return region
 
 
+def is_absolute(url):
+    return bool(urlparse.urlparse(url).netloc)
+
+
 def parse_page_html(soupified, url, content_type='html/text'):
-    logger.info(soupified)
+    html_parser = HTMLParser.HTMLParser()
     width = 0
     height = 0
     image = soupified.find(attrs={"property": "og:image"})
     title = soupified.find(attrs={"property": "og:title"})
     description = soupified.find(attrs={"property": "og:description"})
-    try:
-        image = filter(lambda x: x in string.printable,
-                       bleach.clean(image.get('content')))
-    except AttributeError:
+    if not 'image' in content_type:
+        try:
+            image = filter(lambda x: x in string.printable,
+                           bleach.clean(image.get('content')))
+        except AttributeError:
+            try:
+                images = soupified.find_all('img')
+                for test_url in images:
+                    if is_absolute(test_url['src']):
+                        image = test_url['src']
+                        break
+            except AttributeError:
+                pass
+    else:
         image = url
     try:
         title = filter(lambda x: x in string.printable,
-                       bleach.clean(title.get('content')))
+                       html_parser.unescape(
+                           bleach.clean(title.get('content'))))
     except AttributeError:
-        pass
+        try:
+            title = filter(
+                lambda x: x in string.printable,
+                html_parser.unescape(bleach.clean(
+                    soupified.find('title').string)))
+        except AttributeError:
+            pass
     try:
         description = smart_truncate(
             filter(lambda x: x in string.printable,
-                   bleach.clean(description.get('content'))))
+                   html_parser.unescape(bleach.clean(
+                       description.get('content')))))
     except AttributeError:
-        pass
-    if 'image' in content_type:
+        description = ""
+    if description == "":
+        try:
+            description = smart_truncate(
+                filter(lambda x: x in string.printable,
+                       html_parser.unescape(bleach.clean(
+                           soupified.find(
+                               attrs={"name": "description"}).get(
+                               'content')))))
+        except AttributeError:
+            pass
+    if 'image' in content_type or image:
         temp_file = cStringIO.StringIO(urllib.urlopen(image).read())
         im = Image.open(temp_file)
         width, height = im.size

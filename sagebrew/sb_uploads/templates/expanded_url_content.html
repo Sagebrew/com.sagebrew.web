@@ -1,3 +1,4 @@
+{% if first_url_content.selected_image and not first_url_content.is_explicit %}
 <a class="expanded-url-content-wrapper" href="{{ first_url_content.url }}" target="_blank">
     <div class="row sb-post-image-wrapper">
         {% if first_url_content.image_height > first_url_content.image_width %}
@@ -11,3 +12,4 @@
         <div>{{ first_url_content.description|default_if_none:"" }}</div>
     </div>
 </a>
+{% endif %}

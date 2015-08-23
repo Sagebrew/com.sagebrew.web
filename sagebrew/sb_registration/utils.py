@@ -1,3 +1,4 @@
+from unidecode import unidecode
 from datetime import datetime
 import boto.ses
 from boto.ses.exceptions import SESMaxSendingRateExceededError
@@ -169,7 +170,7 @@ def generate_username(first_name, last_name):
         username = username[:30]
         users_count = User.objects.filter(username__iexact=username).count()
         if users_count > 0:
-            username = username[:(30 - len(users_count))] + str(users_count)
+            username = username[:(30 - users_count)] + str(users_count)
     elif len(username) < 30 and users_count == 0:
         username = "%s_%s" % (
             (''.join(e for e in first_name if e.isalnum())).lower(),
@@ -179,6 +180,11 @@ def generate_username(first_name, last_name):
             (''.join(e for e in first_name if e.isalnum())).lower(),
             (''.join(e for e in last_name if e.isalnum())).lower(),
             users_count)
+    try:
+        username = unidecode(unicode(username, "utf-8"))
+    except TypeError:
+        # Handles cases where the username is already in unicode format
+        username = unidecode(username)
     return username
 
 
@@ -195,19 +201,22 @@ def create_user_util(first_name, last_name, email, password, birthday):
     :param birthday:
     :return:
     """
-    username = generate_username(first_name, last_name)
-    user = User.objects.create_user(first_name=first_name, last_name=last_name,
-                                    email=email, password=password,
-                                    username=username)
-    user.save()
+    try:
+        user = User.objects.get(email=email)
+        username = user.username
+    except User.DoesNotExist:
+        username = generate_username(first_name, last_name)
+        user = User.objects.create_user(first_name=first_name,
+                                        last_name=last_name,
+                                        email=email, password=password,
+                                        username=username)
+        user.save()
     try:
         Pleb.nodes.get(username=user.username)
     except (Pleb.DoesNotExist, DoesNotExist):
         try:
-            pleb = Pleb(email=user.email,
-                        first_name=user.first_name,
-                        last_name=user.last_name,
-                        username=user.username,
+            pleb = Pleb(email=user.email, first_name=user.first_name,
+                        last_name=user.last_name, username=user.username,
                         date_of_birth=birthday)
             pleb.save()
         except(CypherException, IOError):

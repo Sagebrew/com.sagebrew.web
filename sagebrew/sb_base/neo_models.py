@@ -98,7 +98,7 @@ class VotableContent(NotificationCapable):
     # methods
     def vote_content(self, vote_type, pleb):
         try:
-            if self.votes.is_connected(pleb):
+            if pleb in self.votes:
                 rel = self.votes.relationship(pleb)
                 if vote_type == 2:
                     return self.remove_vote(rel)

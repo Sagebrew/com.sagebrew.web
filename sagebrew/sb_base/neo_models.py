@@ -104,6 +104,9 @@ class VotableContent(NotificationCapable):
                 else:
                     rel = self.votes.connect(pleb)
             except(CardinalityViolation, ConstraintViolation):
+                # This is not tested as we still do not know how to recreate
+                # the exception. It has just appeared in New Relic and
+                # tests previously.
                 rel = self.votes.relationship(pleb)
             rel.active = True
             if vote_type == 2:

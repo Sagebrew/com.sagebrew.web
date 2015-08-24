@@ -8,6 +8,7 @@ from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
                       RelationshipFrom, DoesNotExist, CardinalityViolation)
+from py2neo.cypher.error.statement import ConstraintViolation
 from neomodel import db
 
 from sb_notifications.neo_models import NotificationCapable
@@ -107,7 +108,7 @@ class VotableContent(NotificationCapable):
             else:
                 try:
                     rel = self.votes.connect(pleb)
-                except CardinalityViolation:
+                except(CardinalityViolation, ConstraintViolation):
                     rel = self.votes.relationship(pleb)
                 rel.vote_type = vote_type
                 rel.active = True

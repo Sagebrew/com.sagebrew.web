@@ -277,3 +277,13 @@ class URLContentEndpointTests(APITestCase):
         self.assertEqual(response.data['title'],
                          "Beautiful Soup Documentation  "
                          "Beautiful Soup 4.4.0 documentation")
+
+    def test_create_explicit(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-list')
+        data = {
+            "url": "pornhub.com"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['is_explicit'])

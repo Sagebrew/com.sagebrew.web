@@ -98,31 +98,17 @@ class VotableContent(NotificationCapable):
     # methods
     def vote_content(self, vote_type, pleb):
         try:
-            if pleb in self.votes:
-                rel = self.votes.relationship(pleb)
-                if vote_type == 2:
-                    return self.remove_vote(rel)
-                rel.vote_type = vote_type
-                rel.active = True
-                rel.save()
-            else:
-                try:
-                    rel = self.votes.connect(pleb)
-                except(CardinalityViolation, ConstraintViolation):
+            try:
+                if pleb in self:
                     rel = self.votes.relationship(pleb)
-                rel.vote_type = vote_type
-                rel.active = True
-                if vote_type == 2:
-                    rel.active = False
-                rel.save()
-            return self
-        except (CypherException, IOError) as e:
-            return e
-
-    @apply_defense
-    def remove_vote(self, rel):
-        try:
-            rel.active = False
+                else:
+                    rel = self.votes.connect(pleb)
+            except(CardinalityViolation, ConstraintViolation):
+                rel = self.votes.relationship(pleb)
+            rel.active = True
+            if vote_type == 2:
+                rel.active = False
+            rel.vote_type = vote_type
             rel.save()
             return self
         except (CypherException, IOError) as e:

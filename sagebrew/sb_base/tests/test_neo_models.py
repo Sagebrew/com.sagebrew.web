@@ -46,6 +46,15 @@ class TestVotableContentNeoModel(TestCase):
 
         self.assertIsInstance(res, Post)
 
+    def test_vote_content_change_vote(self):
+        rel = self.post.votes.connect(self.pleb)
+        rel.vote_type = False
+        rel.save()
+
+        res = self.post.vote_content(True, self.pleb)
+
+        self.assertIsInstance(res, Post)
+
     def test_remove_content(self):
         rel = self.post.votes.connect(self.pleb)
         rel.vote_type = False

@@ -7,7 +7,7 @@ from datetime import datetime
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
-                      RelationshipFrom, DoesNotExist)
+                      RelationshipFrom, DoesNotExist, CardinalityViolation)
 from neomodel import db
 
 from sb_notifications.neo_models import NotificationCapable
@@ -105,7 +105,10 @@ class VotableContent(NotificationCapable):
                 rel.active = True
                 rel.save()
             else:
-                rel = self.votes.connect(pleb)
+                try:
+                    rel = self.votes.connect(pleb)
+                except CardinalityViolation:
+                    rel = self.votes.relationship(pleb)
                 rel.vote_type = vote_type
                 rel.active = True
                 if vote_type == 2:

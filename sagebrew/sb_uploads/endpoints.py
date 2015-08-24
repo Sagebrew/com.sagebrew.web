@@ -189,8 +189,7 @@ class URLContentViewSet(viewsets.ModelViewSet):
             if request.query_params.get('html', 'false').lower() == 'true':
                 return Response({"html": render_to_string(
                     'expanded_url_content.html', serializer),
-                                 "serialized": serializer},
-                                status=status.HTTP_200_OK)
+                    "serialized": serializer}, status=status.HTTP_200_OK)
             return Response(serializer, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):

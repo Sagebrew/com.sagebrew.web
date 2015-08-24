@@ -191,11 +191,11 @@ class URLContentEndpointTests(APITestCase):
         self.test_url = "example.com"
         try:
             self.url_content = URLContent(url=self.test_url,
-                                          description=
-                                          "this is a test description",
+                                          description="this is a test "
+                                                      "description",
                                           title="this is a test title",
-                                          selected_image=
-                                          "http://i.imgur.com/7ItPc2M.jpg")\
+                                          selected_image="http://i.imgur.com"
+                                                         "/7ItPc2M.jpg")\
                 .save()
         except UniqueProperty:
             self.url_content = URLContent.nodes.get(url=self.test_url)

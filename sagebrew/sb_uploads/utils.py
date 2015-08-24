@@ -82,7 +82,7 @@ def parse_page_html(soupified, url, content_type='html/text'):
     image = soupified.find(attrs={"property": "og:image"})
     title = soupified.find(attrs={"property": "og:title"})
     description = soupified.find(attrs={"property": "og:description"})
-    if not 'image' in content_type:
+    if 'image' not in content_type:
         try:
             image = filter(lambda x: x in string.printable,
                            bleach.clean(image.get('content')))

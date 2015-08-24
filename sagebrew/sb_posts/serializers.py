@@ -28,7 +28,6 @@ class PostSerializerNeo(ContentSerializer):
     first_url_content = serializers.SerializerMethodField()
     wall_owner_profile = serializers.SerializerMethodField()
 
-
     def create(self, validated_data):
         request = self.context["request"]
         owner = Pleb.get(request.user.username)

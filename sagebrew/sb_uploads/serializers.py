@@ -131,7 +131,7 @@ class URLContentSerializer(SBSerializer):
         owner = validated_data.pop('owner')
         validated_data['owner_username'] = owner.username
         new_url = validated_data['url']
-        if not 'http' in validated_data['url']:
+        if 'http' not in validated_data['url']:
             new_url = 'https://' + validated_data['url']
         try:
             return URLContent.nodes.get(url=validated_data['url'])

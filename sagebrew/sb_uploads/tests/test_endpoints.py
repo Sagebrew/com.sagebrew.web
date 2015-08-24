@@ -3,11 +3,15 @@ from uuid import uuid1
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
+from neomodel import UniqueProperty
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
+
+from sb_uploads.neo_models import URLContent
 
 
 class UploadEndpointTests(APITestCase):
@@ -172,3 +176,104 @@ class UploadEndpointTests(APITestCase):
         url = reverse('upload-detail', kwargs={"object_uuid": self.uuid})
         response = self.client.get(url, format='json')
         self.assertEqual('uploadedobject', response.data['type'])
+
+
+class URLContentEndpointTests(APITestCase):
+    def setUp(self):
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.url = "http://testserver"
+        self.client.force_authenticate(user=self.user)
+        self.client.logout()
+        self.test_url = "example.com"
+        try:
+            self.url_content = URLContent(url=self.test_url,
+                                          description=
+                                          "this is a test description",
+                                          title="this is a test title",
+                                          selected_image=
+                                          "http://i.imgur.com/7ItPc2M.jpg")\
+                .save()
+        except UniqueProperty:
+            self.url_content = URLContent.nodes.get(url=self.test_url)
+
+    def test_unauthorized(self):
+        url = reverse('urlcontent-list')
+        response = self.client.get(url)
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_get(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-detail',
+                      kwargs={'object_uuid': self.url_content.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_description(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-detail',
+                      kwargs={'object_uuid': self.url_content.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['description'],
+                         self.url_content.description)
+
+    def test_get_title(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-detail',
+                      kwargs={'object_uuid': self.url_content.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['title'],
+                         self.url_content.title)
+
+    def test_get_url(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-detail',
+                      kwargs={'object_uuid': self.url_content.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['url'],
+                         self.url_content.url)
+
+    def test_get_selected_image(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-detail',
+                      kwargs={'object_uuid': self.url_content.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['selected_image'],
+                         self.url_content.selected_image)
+
+    def test_create_with_og(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-list')
+        data = {
+            "url": "https://twitter.com/twitter/status/628335876867645440"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data['title'], 'Twitter on Twitter')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_just_image(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-list')
+        data = {
+            "url": "http://i.imgur.com/Mh17Blf.jpg"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['selected_image'], data['url'])
+
+    def test_create_not_og(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-list')
+        data = {
+            "url": "http://www.crummy.com/software/"
+                   "BeautifulSoup/bs4/doc/#the-name-argument"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['title'],
+                         "Beautiful Soup Documentation  "
+                         "Beautiful Soup 4.4.0 documentation")

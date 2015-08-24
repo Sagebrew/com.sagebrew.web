@@ -10,6 +10,7 @@ $(document).ready(function () {
         if (regexMatches) {
             $.each(regexMatches, function (key, value) {
                 postButton.attr("disabled", "disabled");
+                postButton.spin('small');
                 $.ajax({
                     xhrFields: {withCredentials: true},
                     type: "POST",
@@ -22,6 +23,7 @@ $(document).ready(function () {
                     dataType: "json",
                     success: function (data) {
                         postButton.removeAttr('disabled');
+                        postButton.spin(false);
                     },
                     error: function (XMLHttpRequest) {
                         $("#sb_btn_post").removeAttr("disabled");

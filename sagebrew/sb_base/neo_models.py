@@ -99,7 +99,7 @@ class VotableContent(NotificationCapable):
     def vote_content(self, vote_type, pleb):
         try:
             try:
-                if pleb in self:
+                if pleb in self.votes:
                     rel = self.votes.relationship(pleb)
                 else:
                     rel = self.votes.connect(pleb)
@@ -176,7 +176,7 @@ class VotableContent(NotificationCapable):
 
     @apply_defense
     def get_rep_breakout(self):
-        '''
+        """
         This function will add up the amount of reputation that a user gets
         for a piece of content. It first checks to see if the content is closed
         and if 5 days have passed since the initial council vote was passed.
@@ -185,7 +185,7 @@ class VotableContent(NotificationCapable):
         system.
         https://sagebrew.atlassian.net/wiki/display/RTS/Ability+to+Flag+Content
         :return:
-        '''
+        """
         if self.is_closed and (datetime.now(pytz.utc) -
                                self.initial_vote_time).days >= 5:
             self.initial_vote_time = datetime.now(pytz.utc)
@@ -268,24 +268,23 @@ class SBContent(VotableContent):
 
     def get_flagged_by(self):
         query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
-                "b:Pleb) Return b.username" % (self.object_uuid)
+                "b:Pleb) Return b.username" % self.object_uuid
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 
     def council_vote(self, vote_type, pleb):
         try:
-            if self.council_votes.is_connected(pleb):
+            try:
+                if pleb in self.council_votes:
+                    rel = self.council_votes.relationship(pleb)
+                else:
+                    rel = self.council_votes.connect(pleb)
+            except(CardinalityViolation, ConstraintViolation):
                 rel = self.council_votes.relationship(pleb)
-                if vote_type == rel.vote_type and rel.active is True:
-                    return self.remove_vote(rel)
-                rel.vote_type = vote_type
-                rel.active = True
-            else:
-                rel = self.council_votes.connect(pleb)
-                if vote_type == rel.vote_type and rel.active is True:
-                    rel.active = False
-                rel.vote_type = vote_type
-                rel.active = True
+            rel.active = True
+            if vote_type == rel.vote_type and rel.active is True:
+                rel.active = False
+            rel.vote_type = vote_type
             rel.save()
             return self
         except (CypherException, IOError) as e:
@@ -482,7 +481,7 @@ def get_parent_content(object_uuid, relation, child_object):
             # the serializers ensure this singleness prior to removing this.
             content = SBContent.inflate(res[0][0][0])
         return content
-    except(IndexError):
+    except IndexError:
         return None
 
 

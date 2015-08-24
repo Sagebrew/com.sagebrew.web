@@ -4,12 +4,12 @@ from logging import getLogger
 from json import dumps
 from datetime import datetime
 
+from py2neo.cypher.error.statement import ConstraintViolation
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
-                      RelationshipFrom, DoesNotExist, CardinalityViolation)
-from py2neo.cypher.error.statement import ConstraintViolation
-from neomodel import db
+                      RelationshipFrom, DoesNotExist, CardinalityViolation,
+                      db)
 
 from sb_notifications.neo_models import NotificationCapable
 from sb_docstore.utils import get_vote_count as doc_vote_count

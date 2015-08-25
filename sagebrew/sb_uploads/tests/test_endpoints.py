@@ -1,3 +1,4 @@
+import time
 from uuid import uuid1
 
 from django.core.urlresolvers import reverse
@@ -307,4 +308,43 @@ class URLContentEndpointTests(APITestCase):
         }
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_list(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-list')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_list_friend(self):
+        self.client.force_authenticate(user=self.user)
+        email2 = "bounce@simulator.amazonses.com"
+        res = create_user_util_test(email2)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        friend = Pleb.nodes.get(email=email2)
+        content = URLContent(url="test.com").save()
+        content.owned_by.connect(friend)
+        self.pleb.friends.connect(friend)
+        friend.friends.connect(self.pleb)
+        url = reverse('urlcontent-list') + "?user=%s" % friend.username
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(response.data['count'], 0)
+
+    def test_list_not_friend(self):
+        self.client.force_authenticate(user=self.user)
+        email2 = "bounce@simulator.amazonses.com"
+        res = create_user_util_test(email2)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        friend = Pleb.nodes.get(email=email2)
+        content = URLContent(url="https://www.test.com/our-platform.html")\
+            .save()
+        content.owned_by.connect(friend)
+        self.pleb.friends.disconnect(friend)
+        friend.friends.disconnect(self.pleb)
+        url = reverse('urlcontent-list') + "?user=%s" % friend.username
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['results'], [])
 

@@ -353,7 +353,7 @@ class SBContent(VotableContent):
             try:
                 return URLContentSerializer(URLContent.inflate(res.one)).data
             except AttributeError:
-                return {}
+                return []
         return [URLContentSerializer(URLContent.inflate(row[0])).data
                 for row in res]
 

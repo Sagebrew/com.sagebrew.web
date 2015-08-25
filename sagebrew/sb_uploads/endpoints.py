@@ -171,9 +171,6 @@ class URLContentViewSet(viewsets.ModelViewSet):
         return URLContent.nodes.get(
             object_uuid=self.kwargs[self.lookup_field])
 
-    def perform_create(self, serializer):
-        return serializer.save(owner=Pleb.get(self.request.user.username))
-
     def list(self, request, *args, **kwargs):
         response = {"status": status.HTTP_501_NOT_IMPLEMENTED,
                     "detail": "We do not allow users to query all the expanded"
@@ -191,6 +188,3 @@ class URLContentViewSet(viewsets.ModelViewSet):
                     'expanded_url_content.html', serializer),
                     "serialized": serializer}, status=status.HTTP_200_OK)
             return Response(serializer, status=status.HTTP_200_OK)
-
-    def update(self, request, *args, **kwargs):
-        pass

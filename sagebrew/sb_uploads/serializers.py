@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from rest_framework import serializers
+from rest_framework import serializers, status
 
 from neomodel import DoesNotExist
 
@@ -118,9 +118,9 @@ class CropSerializer(serializers.Serializer):
 class URLContentSerializer(SBSerializer):
     refresh_timer = serializers.IntegerField(read_only=True)
     url = serializers.CharField(required=True)
-    description = serializers.CharField(required=False)
-    title = serializers.CharField(required=False)
-    selected_image = serializers.CharField(required=False)
+    description = serializers.CharField(read_only=True)
+    title = serializers.CharField(read_only=True)
+    selected_image = serializers.CharField(read_only=True)
     image_width = serializers.IntegerField(read_only=True)
     image_height = serializers.IntegerField(read_only=True)
     is_explicit = serializers.BooleanField(read_only=True)
@@ -141,7 +141,7 @@ class URLContentSerializer(SBSerializer):
             validated_data['is_explicit'] = True
         response = requests.get(new_url,
                                 headers={'content-type': 'html/text'})
-        if response.status_code != 200:
+        if response.status_code != status.HTTP_200_OK:
             return URLContent(url=new_url).save()
         soupified = BeautifulSoup(response.text, 'html.parser')
         title, description, image, width, height = \

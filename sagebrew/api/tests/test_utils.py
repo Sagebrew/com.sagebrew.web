@@ -7,7 +7,7 @@ from sb_registration.utils import create_user_util_test
 
 from api.utils import (add_failure_to_queue,
                        encrypt, decrypt, generate_short_token,
-                       generate_long_token, create_auto_tags)
+                       generate_long_token, create_auto_tags, smart_truncate)
 
 
 class TestAddFailureToQueue(TestCase):
@@ -53,3 +53,25 @@ class TestCreateAutoTags(TestCase):
         self.assertEqual(res['status'], 'OK')
         self.assertEqual(res['keywords'], [{'relevance': '0.965652',
                                             'text': 'test content'}])
+
+
+class TestSmartTruncate(TestCase):
+    def test_smart_truncate(self):
+        res = smart_truncate("this is some test content which is longer than "
+                             "100 characters to determine if the logic in "
+                             "this function actually works")
+        self.assertEqual(res, "this is some test content which is longer "
+                              "than 100 characters to determine if the "
+                              "logic in this...")
+
+    def test_smart_truncate_short(self):
+        res = smart_truncate("this is a short truncate")
+        self.assertEqual(res, "this is a short truncate")
+
+    def test_custom_truncate_suffix(self):
+        res = smart_truncate("this is some test content which is longer than "
+                             "100 characters to determine if the logic in "
+                             "this function actually works", suffix="WOOOO")
+        self.assertEqual(res, "this is some test content which is longer "
+                              "than 100 characters to determine if the "
+                              "logic in thisWOOOO")

@@ -87,17 +87,14 @@ def parse_page_html(soupified, url, content_type='html/text'):
             image = filter(lambda x: x in string.printable,
                            bleach.clean(image.get('content')))
         except AttributeError:
-            try:
-                images = soupified.find_all('img')
-                for test_url in images:
-                    try:
-                        if is_absolute(test_url['src']):
-                            image = test_url['src']
-                            break
-                    except KeyError:
-                        pass
-            except AttributeError:
-                pass
+            images = soupified.find_all('img')
+            for test_url in images:
+                try:
+                    if is_absolute(test_url['src']):
+                        image = test_url['src']
+                        break
+                except KeyError:
+                    pass
     else:
         image = url
     try:

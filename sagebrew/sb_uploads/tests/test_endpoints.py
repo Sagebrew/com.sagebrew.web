@@ -287,3 +287,24 @@ class URLContentEndpointTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['is_explicit'])
+
+    def test_create_html(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-list') + "?html=true"
+        data = {
+            "url": "example.com"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['html'], '')
+
+    def test_create_invalid_status_code(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-list')
+        data = {
+            "url": "https://github.com/asdfasdfasdfashdfjhalsdhf"
+                   "kjabsldjghalsjdbhlkj1;3ouihr13/"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+

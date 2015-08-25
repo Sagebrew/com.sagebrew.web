@@ -81,8 +81,8 @@ def get_page_image(url, soup, content_type='html/text'):
     image = soup.find(attrs={"property": "og:image"})
     if 'image' not in content_type:
         try:
-            image =  filter(lambda x: x in string.printable,
-                          bleach.clean(image.get('content')))
+            image = filter(lambda x: x in string.printable,
+                           bleach.clean(image.get('content')))
         except AttributeError:
             images = soup.find_all('img')
             for test_url in images:

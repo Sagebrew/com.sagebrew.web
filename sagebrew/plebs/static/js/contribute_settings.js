@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, errorDisplay, Stripe, StripeCheckout*/
+/*global $, jQuery, ajaxSecurity, errorDisplay, Stripe, StripeCheckout, Intercom*/
 $(document).ready(function () {
     'use strict';
     var donationAmount = 0,
@@ -20,7 +20,7 @@ $(document).ready(function () {
                     success: function () {
                         $("#donationModal").modal("hide");
                         $.notify("Successfully Created Donation", {type: 'success'});
-
+                        Intercom('trackEvent', 'donation-to-sagebrew');
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         $(this).removeAttr("disabled");

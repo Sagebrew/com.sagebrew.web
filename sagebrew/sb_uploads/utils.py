@@ -75,19 +75,16 @@ def is_absolute(url):
     return bool(urlparse.urlparse(url).netloc)
 
 
-def parse_page_html(soupified, url, content_type='html/text'):
-    html_parser = HTMLParser.HTMLParser()
-    width = 0
+def get_page_image(url, soup, content_type='html/text'):
     height = 0
-    image = soupified.find(attrs={"property": "og:image"})
-    title = soupified.find(attrs={"property": "og:title"})
-    description = soupified.find(attrs={"property": "og:description"})
+    width = 0
+    image = soup.find(attrs={"property": "og:image"})
     if 'image' not in content_type:
         try:
-            image = filter(lambda x: x in string.printable,
-                           bleach.clean(image.get('content')))
+            image =  filter(lambda x: x in string.printable,
+                          bleach.clean(image.get('content')))
         except AttributeError:
-            images = soupified.find_all('img')
+            images = soup.find_all('img')
             for test_url in images:
                 try:
                     if is_absolute(test_url['src']):
@@ -97,6 +94,16 @@ def parse_page_html(soupified, url, content_type='html/text'):
                     pass
     else:
         image = url
+    if 'image' in content_type or image:
+        temp_file = cStringIO.StringIO(urllib.urlopen(image).read())
+        im = Image.open(temp_file)
+        width, height = im.size
+    return image, height, width
+
+
+def get_page_title(soup):
+    html_parser = HTMLParser.HTMLParser()
+    title = soup.find(attrs={"property": "og:title"})
     try:
         title = filter(lambda x: x in string.printable,
                        html_parser.unescape(
@@ -106,9 +113,15 @@ def parse_page_html(soupified, url, content_type='html/text'):
             title = filter(
                 lambda x: x in string.printable,
                 html_parser.unescape(bleach.clean(
-                    soupified.find('title').string)))
+                    soup.find('title').string)))
         except AttributeError:
             pass
+    return title
+
+
+def get_page_description(soup):
+    html_parser = HTMLParser.HTMLParser()
+    description = soup.find(attrs={"property": "og:description"})
     try:
         description = smart_truncate(
             filter(lambda x: x in string.printable,
@@ -121,13 +134,16 @@ def parse_page_html(soupified, url, content_type='html/text'):
             description = smart_truncate(
                 filter(lambda x: x in string.printable,
                        html_parser.unescape(bleach.clean(
-                           soupified.find(
+                           soup.find(
                                attrs={"name": "description"}).get(
                                'content')))))
         except AttributeError:
             pass
-    if 'image' in content_type or image:
-        temp_file = cStringIO.StringIO(urllib.urlopen(image).read())
-        im = Image.open(temp_file)
-        width, height = im.size
+    return description
+
+
+def parse_page_html(soupified, url, content_type='html/text'):
+    image, height, width = get_page_image(url, soupified, content_type)
+    description = get_page_description(soupified)
+    title = get_page_title(soupified)
     return title, description, image, width, height

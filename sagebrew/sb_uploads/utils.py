@@ -1,4 +1,15 @@
+import bleach
+import string
+import urllib
+import urlparse
+import cStringIO
+import HTMLParser
 from PIL import Image
+
+from api.utils import smart_truncate
+
+from logging import getLogger
+logger = getLogger("loggly_logs")
 
 """
 def crop_image(image, height, width, x, y, f_uuid=None):
@@ -58,3 +69,81 @@ def resize_image(image, resize_width, resize_height):
 def crop_image2(image, width, height, x, y):
     region = image.crop((x, y, x + width, y + height))
     return region
+
+
+def is_absolute(url):
+    return bool(urlparse.urlparse(url).netloc)
+
+
+def get_page_image(url, soup, content_type='html/text'):
+    height = 0
+    width = 0
+    image = soup.find(attrs={"property": "og:image"})
+    if 'image' not in content_type:
+        try:
+            image = filter(lambda x: x in string.printable,
+                           bleach.clean(image.get('content')))
+        except AttributeError:
+            images = soup.find_all('img')
+            for test_url in images:
+                try:
+                    if is_absolute(test_url['src']):
+                        image = test_url['src']
+                        break
+                except KeyError:
+                    pass
+    else:
+        image = url
+    if 'image' in content_type or image:
+        temp_file = cStringIO.StringIO(urllib.urlopen(image).read())
+        im = Image.open(temp_file)
+        width, height = im.size
+    return image, height, width
+
+
+def get_page_title(soup):
+    html_parser = HTMLParser.HTMLParser()
+    title = soup.find(attrs={"property": "og:title"})
+    try:
+        title = filter(lambda x: x in string.printable,
+                       html_parser.unescape(
+                           bleach.clean(title.get('content'))))
+    except AttributeError:
+        try:
+            title = filter(
+                lambda x: x in string.printable,
+                html_parser.unescape(bleach.clean(
+                    soup.find('title').string)))
+        except AttributeError:
+            pass
+    return title
+
+
+def get_page_description(soup):
+    html_parser = HTMLParser.HTMLParser()
+    description = soup.find(attrs={"property": "og:description"})
+    try:
+        description = smart_truncate(
+            filter(lambda x: x in string.printable,
+                   html_parser.unescape(bleach.clean(
+                       description.get('content')))))
+    except AttributeError:
+        description = ""
+    if description == "":
+        try:
+            description = smart_truncate(
+                filter(lambda x: x in string.printable,
+                       html_parser.unescape(bleach.clean(
+                           soup.find(
+                               attrs={"name": "description"}).get(
+                               'content')))))
+        except AttributeError:
+            pass
+    return description
+
+
+def parse_page_html(soupified, url, content_type='html/text'):
+    image, height, width = get_page_image(url, soupified, content_type)
+    description = get_page_description(soupified)
+    title = get_page_title(soupified)
+    return title, description, image, width, height

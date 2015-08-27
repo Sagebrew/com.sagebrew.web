@@ -950,7 +950,7 @@ a {
 
 
 #sb_search_input{
-  width: 400px;
+  width: 350px;
   border-radius: 5px 0 0 5px;
   border: 1px @sb_grey;
   border-right-style: none;
@@ -1896,7 +1896,6 @@ textarea.sb_comment_input{
   }
 }
 
-
 #bgvid {
   position: fixed;
   top: 50%;
@@ -1924,4 +1923,34 @@ textarea.sb_comment_input{
   border-radius: 5px;
   background-color: @sb_green_extra_light;
   padding: 10px;
+}
+
+#epic-container {
+  min-height: 615px;
+}
+
+.expanded-url-content-wrapper{
+  margin-left:15px;
+  &:hover{
+    h3{
+      color: @sb_green_impressed;
+    }
+  }
+  h3{
+    color: @sb_green;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  div{
+    color: #000000;
+    line-height: 1;
+  }
+}
+.expanded-url-content-image-wrapper{
+  margin-right: 15px;
+}
+
+.expanded-url-content-text{
+  margin-left: 0;
+  margin-right: 0;
 }

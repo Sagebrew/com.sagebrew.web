@@ -5,12 +5,14 @@ from dateutil import parser
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
+from neomodel import UniqueProperty
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
 from sb_posts.neo_models import Post
-from sb_uploads.neo_models import UploadedObject
+from sb_uploads.neo_models import UploadedObject, URLContent
 from sb_registration.utils import create_user_util_test
 
 
@@ -533,6 +535,22 @@ class PostListCreateTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['uploaded_objects'][0]['id'],
                          uploaded_object.object_uuid)
+
+    def test_create_with_url(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('post-list')
+        try:
+            url_content = URLContent(url="example.com").save()
+        except UniqueProperty:
+            url_content = URLContent.nodes.get(url="example.com")
+        data = {
+            "content": "hey I made a post!",
+            "included_urls": ["example.com"]
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['url_content'][0]['id'],
+                         url_content.object_uuid)
 
     def test_create_on_friends_wall(self):
         self.client.force_authenticate(user=self.user)

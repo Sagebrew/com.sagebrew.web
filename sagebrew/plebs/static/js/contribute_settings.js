@@ -20,7 +20,8 @@ $(document).ready(function () {
                     success: function () {
                         $("#donationModal").modal("hide");
                         $.notify("Successfully Created Donation", {type: 'success'});
-                        Intercom('trackEvent', 'donation-to-sagebrew');
+
+                        //Intercom('trackEvent', 'donation-to-sagebrew');
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         $(this).removeAttr("disabled");

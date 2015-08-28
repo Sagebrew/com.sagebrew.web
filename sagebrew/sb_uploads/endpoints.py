@@ -7,9 +7,11 @@ from copy import deepcopy
 from logging import getLogger
 
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.core.files.uploadhandler import TemporaryUploadedFile
 
 from PIL import Image
+from neomodel import db
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework.reverse import reverse
@@ -18,11 +20,13 @@ from rest_framework.decorators import detail_route
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser
 
+
 from plebs.neo_models import Pleb
 from sb_registration.utils import delete_image
 
-from .serializers import UploadSerializer, ModifiedSerializer, CropSerializer
-from .neo_models import UploadedObject
+from .serializers import (UploadSerializer, ModifiedSerializer, CropSerializer,
+                          URLContentSerializer)
+from .neo_models import (UploadedObject, URLContent)
 from .utils import resize_image, crop_image2
 
 logger = getLogger('loggly_logs')
@@ -155,3 +159,53 @@ class UploadViewSet(viewsets.ModelViewSet):
                                 status=status.HTTP_200_OK)
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class URLContentViewSet(viewsets.ModelViewSet):
+    """
+    This endpoint enables users to input URLs into content and create a URL
+    """
+    serializer_class = URLContentSerializer
+    lookup_field = 'object_uuid'
+    permission_classes = (IsAuthenticated,)
+
+    def get_object(self):
+        return URLContent.nodes.get(
+            object_uuid=self.kwargs[self.lookup_field])
+
+    def get_queryset(self):
+        username = self.request.query_params.get('user', None)
+        if self.request.user.username == username or username is None:
+            # Returns the urlcontent created by the user accessing the endpoint
+            query = 'MATCH (a:Pleb {username:"%s"})<-[:OWNED_BY]-' \
+                    '(b:URLContent) RETURN b ORDER BY b.created DESC' % \
+                    self.request.user.username
+        else:
+            # Returns the urlcontent created by the user passed as a query
+            # param but only if the current user is friends with that user
+            query = 'MATCH (current:Pleb {username:"%s"})-' \
+                    '[friend:FRIENDS_WITH]->(other:' \
+                    'Pleb {username:"%s"})<-[:OWNED_BY]-(url:URLContent) ' \
+                    'RETURN CASE friend.currently_friends WHEN True THEN ' \
+                    'url END AS result ORDER BY result.created DESC' % \
+                    (self.request.user.username, username)
+        res, _ = db.cypher_query(query)
+        return res
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        page = [URLContent.inflate(row[0]) for row in page]
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(owner=Pleb.get(self.request.user.username))
+            serializer = serializer.data
+            if request.query_params.get('html', 'false').lower() == 'true':
+                return Response({"html": render_to_string(
+                    'expanded_url_content.html', serializer),
+                    "serialized": serializer}, status=status.HTTP_200_OK)
+            return Response(serializer, status=status.HTTP_200_OK)

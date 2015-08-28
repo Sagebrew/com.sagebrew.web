@@ -4,11 +4,12 @@ from logging import getLogger
 from json import dumps
 from datetime import datetime
 
+from py2neo.cypher.error.statement import ConstraintViolation
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
-                      RelationshipFrom, DoesNotExist)
-from neomodel import db
+                      RelationshipFrom, DoesNotExist, CardinalityViolation,
+                      db)
 
 from sb_notifications.neo_models import NotificationCapable
 from sb_docstore.utils import get_vote_count as doc_vote_count
@@ -97,28 +98,20 @@ class VotableContent(NotificationCapable):
     # methods
     def vote_content(self, vote_type, pleb):
         try:
-            if self.votes.is_connected(pleb):
+            try:
+                if pleb in self.votes:
+                    rel = self.votes.relationship(pleb)
+                else:
+                    rel = self.votes.connect(pleb)
+            except(CardinalityViolation, ConstraintViolation):
+                # This is not tested as we still do not know how to recreate
+                # the exception. It has just appeared in New Relic and
+                # tests previously.
                 rel = self.votes.relationship(pleb)
-                if vote_type == 2:
-                    return self.remove_vote(rel)
-                rel.vote_type = vote_type
-                rel.active = True
-                rel.save()
-            else:
-                rel = self.votes.connect(pleb)
-                rel.vote_type = vote_type
-                rel.active = True
-                if vote_type == 2:
-                    rel.active = False
-                rel.save()
-            return self
-        except (CypherException, IOError) as e:
-            return e
-
-    @apply_defense
-    def remove_vote(self, rel):
-        try:
-            rel.active = False
+            rel.active = True
+            if vote_type == 2:
+                rel.active = False
+            rel.vote_type = vote_type
             rel.save()
             return self
         except (CypherException, IOError) as e:
@@ -186,7 +179,7 @@ class VotableContent(NotificationCapable):
 
     @apply_defense
     def get_rep_breakout(self):
-        '''
+        """
         This function will add up the amount of reputation that a user gets
         for a piece of content. It first checks to see if the content is closed
         and if 5 days have passed since the initial council vote was passed.
@@ -195,7 +188,7 @@ class VotableContent(NotificationCapable):
         system.
         https://sagebrew.atlassian.net/wiki/display/RTS/Ability+to+Flag+Content
         :return:
-        '''
+        """
         if self.is_closed and (datetime.now(pytz.utc) -
                                self.initial_vote_time).days >= 5:
             self.initial_vote_time = datetime.now(pytz.utc)
@@ -258,6 +251,8 @@ class SBContent(VotableContent):
                                    model=CouncilVote)
     uploaded_objects = RelationshipTo('sb_uploads.neo_models.UploadedObject',
                                       'UPLOADED_WITH')
+    url_content = RelationshipTo('sb_uploads.neo_models.URLContent',
+                                 'INCLUDED_URL_CONTENT')
 
     @classmethod
     def get_model_name(cls):
@@ -278,24 +273,23 @@ class SBContent(VotableContent):
 
     def get_flagged_by(self):
         query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
-                "b:Pleb) Return b.username" % (self.object_uuid)
+                "b:Pleb) Return b.username" % self.object_uuid
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 
     def council_vote(self, vote_type, pleb):
         try:
-            if self.council_votes.is_connected(pleb):
+            try:
+                if pleb in self.council_votes:
+                    rel = self.council_votes.relationship(pleb)
+                else:
+                    rel = self.council_votes.connect(pleb)
+            except(CardinalityViolation, ConstraintViolation):
                 rel = self.council_votes.relationship(pleb)
-                if vote_type == rel.vote_type and rel.active is True:
-                    return self.remove_vote(rel)
-                rel.vote_type = vote_type
-                rel.active = True
-            else:
-                rel = self.council_votes.connect(pleb)
-                if vote_type == rel.vote_type and rel.active is True:
-                    rel.active = False
-                rel.vote_type = vote_type
-                rel.active = True
+            rel.active = True
+            if vote_type == rel.vote_type and rel.active is True:
+                rel.active = False
+            rel.vote_type = vote_type
             rel.save()
             return self
         except (CypherException, IOError) as e:
@@ -336,12 +330,24 @@ class SBContent(VotableContent):
         query = 'MATCH (a:SBContent {object_uuid:"%s"})-' \
                 '[:UPLOADED_WITH]->(u:UploadedObject) RETURN u' % \
                 self.object_uuid
-        res, col = db.cypher_query(query)
-        try:
-            return [UploadSerializer(UploadedObject.inflate(row[0])).data
-                    for row in res]
-        except IndexError:
-            return []
+        res, _ = db.cypher_query(query)
+        return [UploadSerializer(UploadedObject.inflate(row[0])).data
+                for row in res]
+
+    def get_url_content(self, single=False):
+        from sb_uploads.neo_models import URLContent
+        from sb_uploads.serializers import URLContentSerializer
+        query = 'MATCH (a:SBContent {object_uuid:"%s"})-' \
+                '[:INCLUDED_URL_CONTENT]->(u:URLContent) RETURN u' \
+                % self.object_uuid
+        res, _ = db.cypher_query(query)
+        if single:
+            try:
+                return URLContentSerializer(URLContent.inflate(res.one)).data
+            except AttributeError:
+                return []
+        return [URLContentSerializer(URLContent.inflate(row[0])).data
+                for row in res]
 
 
 class TaggableContent(SBContent):
@@ -492,7 +498,7 @@ def get_parent_content(object_uuid, relation, child_object):
             # the serializers ensure this singleness prior to removing this.
             content = SBContent.inflate(res[0][0][0])
         return content
-    except(IndexError):
+    except IndexError:
         return None
 
 

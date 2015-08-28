@@ -2,7 +2,7 @@ from celery import shared_task
 
 from django.core.cache import cache
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
 from plebs.neo_models import Pleb
 from sb_search.neo_models import Searchable
@@ -11,7 +11,10 @@ from .utils import update_view_count
 
 @shared_task()
 def update_view_count_task(object_uuid, username):
-    profile = Pleb.get(username)
+    try:
+        profile = Pleb.get(username)
+    except (Pleb.DoesNotExist, DoesNotExist) as e:
+        raise update_view_count_task.retry(exc=e, max_retries=5, countdown=45)
 
     sb_object = cache.get(object_uuid)
     if sb_object is None:

@@ -22,6 +22,9 @@ from plebs.neo_models import Pleb
 from .serializers import PostSerializerNeo, PostEndpointSerializerNeo
 from .neo_models import Post
 
+from logging import getLogger
+logger = getLogger('loggly_logs')
+
 
 class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostEndpointSerializerNeo

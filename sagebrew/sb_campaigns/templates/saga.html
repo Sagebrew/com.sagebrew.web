@@ -1,5 +1,5 @@
 <h5>Epic{% if is_editor or is_accountant %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green toggle_create_goal" id="edit_epic"><span class="fa fa-edit"></span></button>{% endif %}</h5>
-<div class="block sb_action_content_block sb_markdown">
+<div id="epic-container" class="block sb_action_content_block sb_markdown">
     {% autoescape off %}
         {{ rendered_epic }}
     {% endautoescape %}

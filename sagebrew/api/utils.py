@@ -264,5 +264,7 @@ def gather_request_data(context):
     return request, expand, expand_array, relations, expedite
 
 
-def create_user_util_test(email):
-    pass
+def smart_truncate(content, length=100, suffix='...'):
+    if len(content) <= length:
+        return content
+    return content[:length].rsplit(' ', 1)[0] + suffix

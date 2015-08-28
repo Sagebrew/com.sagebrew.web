@@ -1,12 +1,18 @@
+import requests
+from bs4 import BeautifulSoup
+
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from rest_framework import serializers
+from rest_framework import serializers, status
+
+from neomodel import DoesNotExist
 
 from api.serializers import SBSerializer
 from sb_registration.utils import upload_image
 
-from .neo_models import UploadedObject, ModifiedObject
+from .utils import parse_page_html
+from .neo_models import UploadedObject, ModifiedObject, URLContent
 
 from logging import getLogger
 logger = getLogger('loggly_logs')
@@ -107,3 +113,47 @@ class CropSerializer(serializers.Serializer):
     image_y1 = serializers.IntegerField()
     resize_width = serializers.FloatField()
     resize_height = serializers.FloatField()
+
+
+class URLContentSerializer(SBSerializer):
+    refresh_timer = serializers.IntegerField(read_only=True)
+    url = serializers.CharField(required=True)
+    description = serializers.CharField(read_only=True)
+    title = serializers.CharField(read_only=True)
+    selected_image = serializers.CharField(read_only=True)
+    image_width = serializers.IntegerField(read_only=True)
+    image_height = serializers.IntegerField(read_only=True)
+    is_explicit = serializers.BooleanField(read_only=True)
+
+    images = serializers.SerializerMethodField()
+
+    def create(self, validated_data):
+        owner = validated_data.pop('owner')
+        validated_data['owner_username'] = owner.username
+        new_url = validated_data['url']
+        if 'http' not in validated_data['url']:
+            new_url = 'https://' + validated_data['url']
+        try:
+            return URLContent.nodes.get(url=validated_data['url'])
+        except (URLContent.DoesNotExist, DoesNotExist):
+            pass
+        if any(validated_data['url'] in s for s in settings.EXPLICIT_STIES):
+            validated_data['is_explicit'] = True
+        response = requests.get(new_url,
+                                headers={'content-type': 'html/text'})
+        if response.status_code != status.HTTP_200_OK:
+            return URLContent(url=new_url).save()
+        soupified = BeautifulSoup(response.text, 'html.parser')
+        title, description, image, width, height = \
+            parse_page_html(
+                soupified, validated_data['url'],
+                response.headers.get('Content-Type', 'html/text'))
+        url_content = URLContent(selected_image=image, title=title,
+                                 description=description, image_width=width,
+                                 image_height=height, **validated_data).save()
+        url_content.owned_by.connect(owner)
+        owner.url_content.connect(url_content)
+        return url_content
+
+    def get_images(self, instance):
+        return instance.get_images()

@@ -1,6 +1,6 @@
 {% load staticfiles %}
 <div class="btn-group sb_dropdown">
-        <div class="btn-group">
+    <div class="btn-group">
         <button class="btn dropdown-toggle sb_btn_nav show_friend_request-action"
                 type="button"
                 id="sb_friend"
@@ -21,11 +21,13 @@
             </li>
         </ul>
     </div>
+
     <div class="btn-group">
         <a href="{% url "question_page" %}" class="btn dropdown-toggle sb_btn_nav show_friend_request-action">
             <span class="sb_btn_icon conversation_logo" style="background-image: url({% static 'media/conversation.svg' %});"></span>
         </a>
     </div>
+
     <div class="btn-group">
         <div id="js-friend_request_notifier_wrapper"></div>
         <button class="btn dropdown-toggle sb_btn_nav show_friend_request-action"
@@ -64,6 +66,13 @@
             </li>
         </ul>
     </div>
+    {% if request_profile.campaign %}
+    <div class="btn-group">
+        <a href="{% url "quest_saga" request_profile.username %}" class="btn dropdown-toggle sb_btn_nav show_friend_request-action">
+            <span class="fa fa-rocket sb_btn_icon"></span>
+        </a>
+    </div>
+    {% endif %}
     <div class="btn-group"
          align="left">
         <button class="btn dropdown-toggle sb_btn_nav"

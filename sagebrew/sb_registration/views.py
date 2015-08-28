@@ -1,6 +1,7 @@
 from django.core.cache import cache
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from django.core.exceptions import MultipleObjectsReturned
 from django.http import (HttpResponse, HttpResponseServerError)
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
@@ -11,6 +12,7 @@ from django.template import Context
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework import status
 
 from neomodel import (DoesNotExist, CypherException)
 
@@ -52,21 +54,36 @@ def signup_view_api(request):
         signup_form = SignupForm(request.DATA)
         valid_form = signup_form.is_valid()
     except AttributeError:
-        return Response({'detail': 'Form Error'}, status=400)
+        return Response({'detail': 'Form Error'},
+                        status=status.HTTP_400_BAD_REQUEST)
     if valid_form is True:
         if signup_form.cleaned_data['password'] != \
                 signup_form.cleaned_data['password2']:
             return Response({'detail': 'Passwords do not match!'},
-                            status=401)
+                            status=status.HTTP_401_UNAUTHORIZED)
         if signup_form.cleaned_data['email'][-4:] == '.gov':
             return Response({"detail": "If you are using a .gov email address "
                                        "please follow this link, or use a "
-                                       "personal email address."}, 200)
+                                       "personal email address."},
+                            status.HTTP_200_OK)
         try:
-            User.objects.get(email=signup_form.cleaned_data['email'])
-            return Response(
-                {'detail': 'A user with this email already exists!'},
-                status=401)
+            test_user = User.objects.get(
+                email=signup_form.cleaned_data['email'])
+            if test_user.is_active:
+                return Response(
+                    {'detail': 'A user with this email already exists!'},
+                    status=status.HTTP_401_UNAUTHORIZED)
+            test_user.is_active = True
+            test_user.set_password(signup_form.cleaned_data['password'])
+            test_user.save()
+            user = authenticate(username=test_user.username,
+                                password=signup_form.cleaned_data['password'])
+            login(request, user)
+            if quest_registration is not None:
+                request.session['account_type'] = quest_registration
+                request.session.set_expiry(1800)
+            return Response({"detail": "existing success"},
+                            status=status.HTTP_200_OK)
         except User.DoesNotExist:
             res = create_user_util(first_name=signup_form.
                                    cleaned_data['first_name'],
@@ -83,23 +100,30 @@ def signup_view_api(request):
                                     password=signup_form.cleaned_data[
                                         'password'])
             else:
-                return Response({'detail': 'system error'}, status=500)
+                return Response({'detail': 'system error'},
+                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             if user is not None:
                 if user.is_active:
                     login(request, user)
                     if quest_registration is not None:
                         request.session['account_type'] = quest_registration
                         request.session.set_expiry(1800)
-                    return Response({'detail': 'success'}, status=200)
+                    return Response({'detail': 'success'},
+                                    status=status.HTTP_200_OK)
                 else:
                     return Response({'detail': 'account disabled'},
-                                    status=400)
+                                    status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response({'detail': 'invalid login'},
-                                status=400)
+                                status=status.HTTP_400_BAD_REQUEST)
+        except MultipleObjectsReturned:
+            return Response({'detail': 'Appears we have two users with '
+                                       'that email. Please contact '
+                                       'support@sagebrew.com.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     else:
         return Response({"detail": signup_form.errors.as_json()},
-                        status=400)
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 def login_view(request):
@@ -158,6 +182,12 @@ def login_view_api(request):
             return Response({'detail': 'Incorrect password and '
                                        'username combination.'},
                             status=400)
+        except MultipleObjectsReturned:
+            return Response({'detail': 'Appears we have two users with '
+                                       'that email. Please contact '
+                                       'support@sagebrew.com.'},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
         user = authenticate(username=user.username,
                             password=login_form.cleaned_data['password'])
         if user is not None:
@@ -193,9 +223,6 @@ def email_verification(request, confirmation):
             profile.save()
             profile.refresh()
             cache.set(profile.username, profile)
-            account_type = request.session.get('account_type', None)
-            if account_type is not None:
-                return redirect('rep_registration_page')
             return redirect('profile_info')
         else:
             # TODO Ensure to link up to a real redirect page
@@ -260,6 +287,9 @@ def profile_information(request):
                 # indicates we're sorry but there was an error communicating
                 # with the server.
                 return HttpResponseServerError('Server Error')
+            account_type = request.session.get('account_type', None)
+            if account_type is not None:
+                return redirect('rep_registration_page')
             return redirect('interests')
         else:
             # TODO this is just a place holder, what should we really be doing

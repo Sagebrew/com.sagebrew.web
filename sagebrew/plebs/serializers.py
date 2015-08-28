@@ -1,3 +1,4 @@
+from unidecode import unidecode
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -16,6 +17,8 @@ from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
 
 
 def generate_username(first_name, last_name):
+    # NOTE the other implementation of this is still in use and should be
+    # updated if this version is. /sb_registration/utils.py generate_username
     users_count = User.objects.filter(first_name__iexact=first_name).filter(
         last_name__iexact=last_name).count()
     username = "%s_%s" % (first_name.lower(), last_name.lower())
@@ -23,7 +26,7 @@ def generate_username(first_name, last_name):
         username = username[:30]
         users_count = User.objects.filter(username__iexact=username).count()
         if users_count > 0:
-            username = username[:(30 - len(users_count))] + str(users_count)
+            username = username[:(30 - users_count)] + str(users_count)
     elif len(username) < 30 and users_count == 0:
         username = "%s_%s" % (
             (''.join(e for e in first_name if e.isalnum())).lower(),
@@ -33,6 +36,11 @@ def generate_username(first_name, last_name):
             (''.join(e for e in first_name if e.isalnum())).lower(),
             (''.join(e for e in last_name if e.isalnum())).lower(),
             users_count)
+    try:
+        username = unidecode(unicode(username, "utf-8"))
+    except TypeError:
+        # Handles cases where the username is already in unicode format
+        username = unidecode(username)
     return username
 
 
@@ -125,6 +133,7 @@ class PlebSerializerNeo(SBSerializer):
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
     username = serializers.CharField(read_only=True)
+    completed_profile_info = serializers.BooleanField(read_only=True)
     href = serializers.SerializerMethodField()
 
     # These are read only because we force users to use a different endpoint

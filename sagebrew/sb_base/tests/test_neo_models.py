@@ -46,13 +46,14 @@ class TestVotableContentNeoModel(TestCase):
 
         self.assertIsInstance(res, Post)
 
-    def test_remove_content(self):
+    def test_vote_content_change_vote_negative(self):
         rel = self.post.votes.connect(self.pleb)
         rel.vote_type = False
         rel.save()
 
-        res = self.post.remove_vote(rel)
-
+        res = self.post.vote_content(2, self.pleb)
+        rel = self.post.votes.relationship(self.pleb)
+        self.assertFalse(rel.active)
         self.assertIsInstance(res, Post)
 
     def test_council_vote(self):

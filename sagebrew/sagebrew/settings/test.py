@@ -111,6 +111,12 @@ LOGGING = {
             'format': 'loggly: %(message)s',
             'level': 'CRITICAL',
         },
+        'opbeat.errors': {
+            'handlers': ['logentries_handler'],
+            'propagate': True,
+            'format': 'loggly: %(message)s',
+            'level': 'CRITICAL',
+        },
         'neomodel.properties': {
             'handlers': ['logentries_handler'],
             'propagate': True,

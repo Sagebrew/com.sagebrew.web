@@ -29,6 +29,9 @@
             <li>
                    <a {% if 'friends' in request.path %}class="active"{% endif %} href="{% url 'friend_page' page_user.username %}">Friends</a>
             </li>
+            <li>
+                <a {% if 'donations' in request.path %}class="active"{% endif %} href="{% url 'donation_page' page_user.username %}">Donations</a>
+            </li>
             {% if page_profile.campaign %}
                 <li>
                     <a href="{% url 'quest_saga' page_user.username %}">Quest</a>

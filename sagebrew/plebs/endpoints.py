@@ -35,6 +35,8 @@ from sb_questions.serializers import (QuestionSerializerNeo,
                                       SolutionSerializerNeo)
 from sb_public_official.serializers import PublicOfficialSerializer
 from sb_public_official.neo_models import PublicOfficial
+from sb_donations.neo_models import Donation
+from sb_donations.serializers import DonationSerializer
 from sb_campaigns.neo_models import PoliticalCampaign
 from sb_campaigns.serializers import PoliticalCampaignSerializer
 
@@ -632,6 +634,28 @@ class MeViewSet(mixins.UpdateModelMixin,
                 }
             news.append(news_article)
         return self.get_paginated_response(news)
+
+    @list_route(methods=['get'], serializer_class=DonationSerializer,
+                permission_classes=(IsAuthenticated,))
+    def donations(self, request):
+        query = 'MATCH (a:Pleb {username:"%s"})-[:DONATIONS_GIVEN]->' \
+                '(d:Donation) RETURN d' % request.user.username
+        res, _ = db.cypher_query(query)
+        queryset = [Donation.inflate(row[0]) for row in res]
+        html = self.request.query_params.get('html', 'false')
+        page = self.paginate_queryset(queryset)
+        serializer = self.get_serializer(page, many=True,
+                                         context={'request': request})
+        logger.info(serializer.data)
+        if html == 'true':
+            html_array = []
+            logger.info('here')
+            for item in serializer.data:
+                context = RequestContext(request, item)
+                html_array.append(render_to_string("single_donation.html",
+                                                   context))
+            return self.get_paginated_response(html_array)
+        return self.get_paginated_response(serializer.data)
 
 
 class SentFriendRequestViewSet(viewsets.ModelViewSet):

@@ -112,36 +112,33 @@ ROOT_URLCONF = 'sagebrew.urls'
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'sagebrew.wsgi.application'
 
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates"
-    # or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    '%s/help_center/templates/' % PROJECT_DIR,
-    '%s/plebs/templates/' % PROJECT_DIR,
-    '%s/sagebrew/templates/' % PROJECT_DIR,
-    '%s/sb_solutions/templates/' % PROJECT_DIR,
-    '%s/sb_badges/templates/' % PROJECT_DIR,
-    '%s/sb_campaigns/templates/' % PROJECT_DIR,
-    '%s/sb_comments/templates/' % PROJECT_DIR,
-    '%s/sb_council/templates' % PROJECT_DIR,
-    '%s/sb_flag/templates/' % PROJECT_DIR,
-    '%s/sb_notifications/templates/' % PROJECT_DIR,
-    '%s/sb_posts/templates/' % PROJECT_DIR,
-    '%s/sb_privileges/templates/' % PROJECT_DIR,
-    '%s/sb_public_official/templates/' % PROJECT_DIR,
-    '%s/sb_questions/templates/' % PROJECT_DIR,
-    '%s/sb_registration/templates/' % PROJECT_DIR,
-    '%s/sb_requirements/templates/' % PROJECT_DIR,
-    '%s/sb_search/templates/' % PROJECT_DIR,
-    '%s/sb_tags/templates/' % PROJECT_DIR,
-    '%s/sb_uploads/templates/' % PROJECT_DIR
-)
-
 TEMPLATES = [{
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
-    'DIRS': TEMPLATE_DIRS,
+    'DIRS': (
+        # Put strings here, like "/home/html/django_templates"
+        # or "C:/www/django/templates".
+        # Always use forward slashes, even on Windows.
+        # Don't forget to use absolute paths, not relative paths.
+        '%s/help_center/templates/' % PROJECT_DIR,
+        '%s/plebs/templates/' % PROJECT_DIR,
+        '%s/sagebrew/templates/' % PROJECT_DIR,
+        '%s/sb_solutions/templates/' % PROJECT_DIR,
+        '%s/sb_badges/templates/' % PROJECT_DIR,
+        '%s/sb_campaigns/templates/' % PROJECT_DIR,
+        '%s/sb_comments/templates/' % PROJECT_DIR,
+        '%s/sb_council/templates' % PROJECT_DIR,
+        '%s/sb_flag/templates/' % PROJECT_DIR,
+        '%s/sb_notifications/templates/' % PROJECT_DIR,
+        '%s/sb_posts/templates/' % PROJECT_DIR,
+        '%s/sb_privileges/templates/' % PROJECT_DIR,
+        '%s/sb_public_official/templates/' % PROJECT_DIR,
+        '%s/sb_questions/templates/' % PROJECT_DIR,
+        '%s/sb_registration/templates/' % PROJECT_DIR,
+        '%s/sb_requirements/templates/' % PROJECT_DIR,
+        '%s/sb_search/templates/' % PROJECT_DIR,
+        '%s/sb_tags/templates/' % PROJECT_DIR,
+        '%s/sb_uploads/templates/' % PROJECT_DIR
+    ),
     'OPTIONS': {
         'loaders': [
             ('django.template.loaders.cached.Loader', [

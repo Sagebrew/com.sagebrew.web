@@ -86,12 +86,9 @@ def get_page_image(url, soup, content_type='html/text'):
         except AttributeError:
             images = soup.find_all('img')
             for test_url in images:
-                try:
-                    if is_absolute(test_url['src']):
-                        image = test_url['src']
-                        break
-                except KeyError:
-                    pass
+                if is_absolute(test_url['src']):
+                    image = test_url['src']
+                    break
     else:
         image = url
     if 'image' in content_type or image:

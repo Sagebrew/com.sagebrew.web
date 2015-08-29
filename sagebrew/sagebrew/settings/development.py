@@ -14,6 +14,53 @@ INTERNAL_IPS = ('192.168.56.1',
                 '192.168.33.15', ''
 )
 
+TEMPLATES = [{
+    'BACKEND': 'django.template.backends.django.DjangoTemplates',
+    'DIRS': (
+        # Put strings here, like "/home/html/django_templates"
+        # or "C:/www/django/templates".
+        # Always use forward slashes, even on Windows.
+        # Don't forget to use absolute paths, not relative paths.
+        '%s/help_center/templates/' % PROJECT_DIR,
+        '%s/plebs/templates/' % PROJECT_DIR,
+        '%s/sagebrew/templates/' % PROJECT_DIR,
+        '%s/sb_solutions/templates/' % PROJECT_DIR,
+        '%s/sb_badges/templates/' % PROJECT_DIR,
+        '%s/sb_campaigns/templates/' % PROJECT_DIR,
+        '%s/sb_comments/templates/' % PROJECT_DIR,
+        '%s/sb_council/templates' % PROJECT_DIR,
+        '%s/sb_flag/templates/' % PROJECT_DIR,
+        '%s/sb_notifications/templates/' % PROJECT_DIR,
+        '%s/sb_posts/templates/' % PROJECT_DIR,
+        '%s/sb_privileges/templates/' % PROJECT_DIR,
+        '%s/sb_public_official/templates/' % PROJECT_DIR,
+        '%s/sb_questions/templates/' % PROJECT_DIR,
+        '%s/sb_registration/templates/' % PROJECT_DIR,
+        '%s/sb_requirements/templates/' % PROJECT_DIR,
+        '%s/sb_search/templates/' % PROJECT_DIR,
+        '%s/sb_tags/templates/' % PROJECT_DIR,
+        '%s/sb_uploads/templates/' % PROJECT_DIR
+    ),
+    'OPTIONS': {
+        'loaders': [
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader',
+        ],
+        'context_processors': [
+            "django.contrib.auth.context_processors.auth",
+            "django.core.context_processors.request",
+            "django.core.context_processors.debug",
+            "django.core.context_processors.i18n",
+            "django.core.context_processors.media",
+            "django.core.context_processors.static",
+            "django.core.context_processors.tz",
+            "django.contrib.messages.context_processors.messages",
+            "plebs.context_processors.request_profile",
+        ],
+        'allowed_include_roots': [HELP_DOCS_PATH,]
+    },
+}]
+
 envips = environ.get("INTERNAL_IP", None)
 if envips is not None:
     envips = envips.split("|")

@@ -378,7 +378,9 @@ a {
 .sb_border_question{
   &:extend(.sb_border);
   border-color: @sb_grey;
-
+  .active{
+    color: @sb_green;
+  }
 }
 .sb_border_categories{
   &:extend(.sb_border);
@@ -389,7 +391,7 @@ a {
 
 // Links
 .sb_tab_question{
-  color: @sb_green;
+  color: @sb_grey;
   background-color: transparent;
   &:hover{
     color: @sb_green;

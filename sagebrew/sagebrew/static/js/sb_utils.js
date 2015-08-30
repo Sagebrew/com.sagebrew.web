@@ -1,4 +1,4 @@
-/*global $, jQuery, enableSinglePostFunctionality, errorDisplay, lightbox*/
+/*global $, jQuery, enableSinglePostFunctionality, errorDisplay, lightbox, Autolinker*/
 /**
  * csrftoken support for django
  */
@@ -477,8 +477,8 @@ function editObject(editArea, url, objectUuid, dataArea) {
             success: function (data) {
                 $(editButton).removeAttr("disabled");
                 var contentContainer = $("#sb_content_" + objectUuid);
-                contentContainer.text(data.content);
-                if (data.uploaded_objects) {
+                contentContainer.html(Autolinker.link(data.content).replace(/\n/g, "<br/>"));
+                if (data.uploaded_objects.length > 0) {
                     contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
                     var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
                     $.each(data.uploaded_objects, function(index, value){

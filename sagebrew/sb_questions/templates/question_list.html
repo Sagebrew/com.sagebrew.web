@@ -72,5 +72,7 @@
     <script src="{% static 'js/query_questions.js' %}"></script>
     <script src="{% static 'js/question_ui.js' %}"></script>
     <script src="{% static 'js/toggle_filters.js' %}"></script>
-    <script src="{% static 'js/event_conversation_intercom.js' %}"></script>
+    {% if "intercom" in request_profile.actions and "/registration/" not in request.path %}
+        <script src="{% static 'js/event_conversation_intercom.js' %}"></script>
+    {% endif %}
 {% endblock scripts %}

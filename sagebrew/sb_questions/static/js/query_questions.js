@@ -17,7 +17,7 @@ $(document).ready(function () {
             }
         });
     }
-    loadQuestionSummaries("/v1/questions/render/?ordering=most_recent&page_size=5&expand=true&expedite=true");
+    loadQuestionSummaries("/v1/questions/render/?ordering=-created&page_size=5&expand=true&expedite=true");
     $("a.query_questions-action").click(function (event) {
         $(".query_questions-action").each(function (index, value) {
             $(value).removeClass("active");

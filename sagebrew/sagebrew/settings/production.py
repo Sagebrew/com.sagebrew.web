@@ -2,7 +2,6 @@ from base import *
 from os import environ
 
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['www.sagebrew.com', ]
 
 VERIFY_SECURE = True

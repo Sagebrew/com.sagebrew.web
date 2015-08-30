@@ -2,7 +2,6 @@ import requests
 from base import *
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = ['*']
 TEST_RUNNER = 'sagebrew.test_runner.SBTestRunner'
 

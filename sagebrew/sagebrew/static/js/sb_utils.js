@@ -272,7 +272,7 @@ function loadQuestion() {
             dataType: "json",
             success: function (data) {
                 var questionContainer = $('#single_question_wrapper');
-                questionContainer.append(data.html);
+                questionContainer.append(Autolinker.link(data.html));
                 loadSolutionCount();
                 enableQuestionFunctionality(data.ids);
                 populateComments(data.ids, "questions");
@@ -317,7 +317,10 @@ function loadSolutions(url) {
         dataType: "json",
         success: function (data) {
             var solutionContainer = $('#solution_container');
-            solutionContainer.append(data.results.html);
+            for (var i = 0; i < data.results.html.length; i += 1) {
+                solutionContainer.append(Autolinker.link(data.results.html[i]));
+            }
+
             // TODO Went with this approach as the scrolling approach resulted
             // in the posts getting out of order. It also had some interesting
             // functionality that wasn't intuitive. Hopefully transitioning to

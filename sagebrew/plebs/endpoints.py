@@ -768,8 +768,10 @@ class FriendRequestList(mixins.ListModelMixin, viewsets.GenericViewSet):
             }, status=status.HTTP_404_NOT_FOUND)
         to_pleb = Pleb.inflate(res.one.from_pleb)
         from_pleb = Pleb.inflate(res.one.to_pleb)
-        to_pleb.friends.connect(from_pleb)
-        from_pleb.friends.connect(to_pleb)
+        if from_pleb not in to_pleb.friends:
+            to_pleb.friends.connect(from_pleb)
+        if to_pleb not in from_pleb.friends:
+            from_pleb.friends.connect(to_pleb)
         FriendRequest.inflate(res.one.friend_request).delete()
         return Response({
             'detail': 'Successfully accepted friend request.',

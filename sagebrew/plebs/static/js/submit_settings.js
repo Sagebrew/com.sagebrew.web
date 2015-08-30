@@ -52,6 +52,12 @@ $(document).ready(function(){
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if(XMLHttpRequest.responseJSON.email[0] !== undefined){
+                    $.notify({message: XMLHttpRequest.responseJSON.email[0]}, {type: 'danger'});
+                }
+
             }
         });
         if (congressional_district === "AL") {

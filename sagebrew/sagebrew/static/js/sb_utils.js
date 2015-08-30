@@ -272,7 +272,7 @@ function loadQuestion() {
             dataType: "json",
             success: function (data) {
                 var questionContainer = $('#single_question_wrapper');
-                questionContainer.append(data.html);
+                questionContainer.append(Autolinker.link(data.html));
                 loadSolutionCount();
                 enableQuestionFunctionality(data.ids);
                 populateComments(data.ids, "questions");

@@ -1859,7 +1859,8 @@ class AddressEndpointTests(APITestCase):
         }
         response = self.client.put(url, data=data, format='json')
         settings.CELERY_ALWAYS_EAGER = False
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        address = Address.nodes.get(object_uuid=response.data['id'])
+        self.assertIn(district, address.encompassed_by)
 
 
 class ReputationMethodEndpointTests(APITestCase):

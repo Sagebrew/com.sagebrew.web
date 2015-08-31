@@ -1,4 +1,4 @@
-/*global $, jQuery, loadPosts, errorDisplay, enableContentFunctionality, populateComments*/
+/*global $, jQuery, loadPosts, errorDisplay, enableContentFunctionality, populateComments, Autolinker*/
 $(document).ready(function () {
     "use strict";
     function newsfeed(url) {
@@ -16,7 +16,7 @@ $(document).ready(function () {
                 } else {
 
                     for (var i = 0; i < data.results.length; i++) {
-                        wallContainer.append(data.results[i].html);
+                        wallContainer.append(Autolinker.link(data.results[i].html));
                         enableContentFunctionality(data.results[i].id, data.results[i].type);
                         if(data.results[i].type !== "politicalcampaign"){
                             populateComments([data.results[i].id], data.results[i].type + "s");

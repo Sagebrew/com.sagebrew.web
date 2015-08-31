@@ -101,15 +101,16 @@ def update_address_location(object_uuid):
         state = us.states.lookup(address.state)
         district = address.congressional_district
         query = 'MATCH (a:Address {object_uuid:"%s"})-[r:ENCOMPASSED_BY]->' \
-                '(l:Location) DELETE r' % (object_uuid)
+                '(l:Location) DELETE r' % object_uuid
         res, _ = db.cypher_query(query)
         query = 'MATCH (s:Location {name:"%s"})-[:ENCOMPASSES]->' \
                 '(d:Location {name:"%s"}) RETURN d' % \
                 (state, district)
         res, _ = db.cypher_query(query)
-        district = Location.inflate(res[0][0])
-        district.addresses.connect(address)
-        address.encompassed_by.connect(district)
+        if res.one is not None:
+            district = Location.inflate(res.one)
+            district.addresses.connect(address)
+            address.encompassed_by.connect(district)
     except (CypherException, IOError, ClientError) as e:
         raise update_address_location.retry(exc=e, countdown=3,
                                             max_retries=None)

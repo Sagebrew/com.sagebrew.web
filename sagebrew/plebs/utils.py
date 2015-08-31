@@ -26,9 +26,9 @@ def create_friend_request_util(from_username, to_username, object_uuid):
 
         query = 'match (p:Pleb) where p.username="%s" ' \
                 'with p ' \
-                'match (p)-[:SENT_A_REQUEST]-(r:FriendRequest) ' \
+                'match (p)-[:SENT_A_REQUEST]->(r:FriendRequest) ' \
                 'with p, r ' \
-                'match (r)-[:REQUEST_TO]-(p2:Pleb) where p2.username="%s" ' \
+                'match (r)-[:REQUEST_TO]->(p2:Pleb) where p2.username="%s" ' \
                 'return p2' % (from_username, to_username)
         pleb2, meta = execute_cypher_query(query)
         if isinstance(pleb2, Exception):

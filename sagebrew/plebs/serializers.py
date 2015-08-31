@@ -246,8 +246,8 @@ class AddressSerializer(SBSerializer):
                                                 instance.longitude)
         instance.save()
         cache.delete('%s_possible_house_representatives' %
-                     (request.user.username))
-        cache.delete('%s_possible_senators' % (request.user.username))
+                     request.user.username)
+        cache.delete('%s_possible_senators' % request.user.username)
         spawn_task(task_func=determine_pleb_reps, task_param={
             "username": self.context['request'].user.username,
         })

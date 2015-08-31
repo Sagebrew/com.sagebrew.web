@@ -102,7 +102,7 @@ def update_address_location(object_uuid):
         district = address.congressional_district
         query = 'MATCH (a:Address {object_uuid:"%s"})-[r:ENCOMPASSED_BY]->' \
                 '(l:Location) DELETE r' % object_uuid
-        res, _ = db.cypher_query(query)
+        db.cypher_query(query)
         query = 'MATCH (s:Location {name:"%s"})-[:ENCOMPASSES]->' \
                 '(d:Location {name:"%s"}) RETURN d' % \
                 (state, district)

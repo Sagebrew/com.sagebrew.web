@@ -183,7 +183,7 @@ def post_renderer(request, username=None):
     html_array = []
     id_array = []
     posts = WallPostsListCreate.as_view()(request, username=username)
-    for post in posts.data['results']:
+    for post in posts.data.get('results', []):
         post['last_edited_on'] = parser.parse(post['last_edited_on'])
         html_array.append(render_to_string(
             'post.html', RequestContext(request, post)))

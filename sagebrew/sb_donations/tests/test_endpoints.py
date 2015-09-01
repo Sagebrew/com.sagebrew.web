@@ -207,6 +207,19 @@ class DonationEndpointTests(APITestCase):
         self.assertEqual(response.status_code,
                          status.HTTP_204_NO_CONTENT)
 
+    def test_delete_not_owner(self):
+        self.email2 = "bounce@simulator.amazonses.com"
+        res = create_user_util_test(self.email2)
+        self.assertNotEqual(res, False)
+        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.user2 = User.objects.get(email=self.email2)
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.delete(url, data={}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
 
 class TestSagebrewDonation(APITestCase):
     def setUp(self):

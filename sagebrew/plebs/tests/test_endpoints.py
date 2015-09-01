@@ -24,6 +24,7 @@ from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
 from sb_posts.neo_models import Post
 from sb_solutions.neo_models import Solution
+from sb_donations.neo_models import Donation
 
 
 class MeEndpointTests(APITestCase):
@@ -227,6 +228,27 @@ class MeEndpointTests(APITestCase):
         }
         res = self.client.put(url, data)
 
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_donations(self):
+        donation = Donation().save()
+        self.pleb.donations.connect(donation)
+        donation.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-donations')
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_donations_html(self):
+        campaign = PoliticalCampaign().save()
+        donation = Donation().save()
+        self.pleb.donations.connect(donation)
+        donation.owned_by.connect(self.pleb)
+        donation.campaign.connect(campaign)
+        campaign.donations.connect(donation)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-donations') + "?html=true"
+        res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
 

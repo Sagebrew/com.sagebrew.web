@@ -58,7 +58,7 @@ class DonationViewSet(viewsets.ReadOnlyModelViewSet, mixins.DestroyModelMixin):
                                  "status_code": status.HTTP_403_FORBIDDEN},
                                 status=status.HTTP_403_FORBIDDEN)
             return super(DonationViewSet, self).destroy(request, *args,
-                                                         **kwargs)
+                                                        **kwargs)
         return Response({"detail": "Sorry only the owner of a donation is "
                                    "allowed to delete it.",
                          "status_code": status.HTTP_403_FORBIDDEN},

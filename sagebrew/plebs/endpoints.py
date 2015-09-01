@@ -236,7 +236,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         # method. But maybe we make both available.
         query = 'MATCH (a:Pleb {username: "%s"})-' \
                 '[:FRIENDS_WITH {currently_friends: true}]->' \
-                '(b:Pleb) RETURN b' % username
+                '(b:Pleb) RETURN DISTINCT b' % username
         res, col = db.cypher_query(query)
         queryset = [Pleb.inflate(row[0]) for row in res]
         html = self.request.query_params.get('html', 'false')

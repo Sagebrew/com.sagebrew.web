@@ -231,16 +231,19 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_donations(self):
+        campaign = PoliticalCampaign(username=str(uuid1())).save()
         donation = Donation().save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
+        donation.campaign.connect(campaign)
+        campaign.donations.connect(donation)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-donations')
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_donations_html(self):
-        campaign = PoliticalCampaign(username='this is a test useranem').save()
+        campaign = PoliticalCampaign(username=str(uuid1())).save()
         donation = Donation().save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)

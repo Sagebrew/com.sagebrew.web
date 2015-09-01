@@ -240,7 +240,7 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_donations_html(self):
-        campaign = PoliticalCampaign().save()
+        campaign = PoliticalCampaign(username=str(uuid1())).save()
         donation = Donation().save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)

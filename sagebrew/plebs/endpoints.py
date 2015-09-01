@@ -236,7 +236,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         # method. But maybe we make both available.
         query = 'MATCH (a:Pleb {username: "%s"})-' \
                 '[:FRIENDS_WITH {currently_friends: true}]->' \
-                '(b:Pleb) RETURN b' % username
+                '(b:Pleb) RETURN DISTINCT b' % username
         res, col = db.cypher_query(query)
         queryset = [Pleb.inflate(row[0]) for row in res]
         html = self.request.query_params.get('html', 'false')
@@ -768,8 +768,10 @@ class FriendRequestList(mixins.ListModelMixin, viewsets.GenericViewSet):
             }, status=status.HTTP_404_NOT_FOUND)
         to_pleb = Pleb.inflate(res.one.from_pleb)
         from_pleb = Pleb.inflate(res.one.to_pleb)
-        to_pleb.friends.connect(from_pleb)
-        from_pleb.friends.connect(to_pleb)
+        if from_pleb not in to_pleb.friends:
+            to_pleb.friends.connect(from_pleb)
+        if to_pleb not in from_pleb.friends:
+            from_pleb.friends.connect(to_pleb)
         FriendRequest.inflate(res.one.friend_request).delete()
         return Response({
             'detail': 'Successfully accepted friend request.',

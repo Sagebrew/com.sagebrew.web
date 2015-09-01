@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.templatetags import static
+from django.conf import settings
 
 from neomodel import db
 
@@ -1819,6 +1820,47 @@ class AddressEndpointTests(APITestCase):
         response = self.client.put(url, data=data, format='json')
         self.assertEqual(response.status_code,
                          status.HTTP_200_OK)
+
+    def test_update_no_matching_location(self):
+        settings.CELERY_ALWAYS_EAGER = True
+        self.client.force_authenticate(user=self.user)
+        url = reverse('address-detail', kwargs={
+            'object_uuid': self.address.object_uuid})
+        data = {
+            'city': "Walled Lake",
+            'longitude': -83.48016,
+            'state': "MI",
+            'street': "300 Eagle Pond Dr.",
+            'postal_code': "48390-3071",
+            'congressional_district': "100",
+            'latitude': 42.54083
+        }
+        response = self.client.put(url, data=data, format='json')
+        settings.CELERY_ALWAYS_EAGER = False
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_with_matching_location(self):
+        settings.CELERY_ALWAYS_EAGER = True
+        self.client.force_authenticate(user=self.user)
+        url = reverse('address-detail', kwargs={
+            'object_uuid': self.address.object_uuid})
+        state = Location(name="Michigan").save()
+        district = Location(name="10").save()
+        state.encompasses.connect(district)
+        district.encompassed_by.connect(state)
+        data = {
+            'city': "Walled Lake",
+            'longitude': -83.48016,
+            'state': "MI",
+            'street': "300 Eagle Pond Dr.",
+            'postal_code': "48390-3071",
+            'congressional_district': "10",
+            'latitude': 42.54083
+        }
+        response = self.client.put(url, data=data, format='json')
+        settings.CELERY_ALWAYS_EAGER = False
+        address = Address.nodes.get(object_uuid=response.data['id'])
+        self.assertIn(district, address.encompassed_by)
 
 
 class ReputationMethodEndpointTests(APITestCase):

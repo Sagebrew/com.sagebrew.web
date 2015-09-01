@@ -114,9 +114,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
         single_object = QuestionSerializerNeo(
             queryset, context={'request': request}).data
         if self.request.query_params.get('html', 'false').lower() == "true":
-            spawn_task(update_view_count_task,
-                       {'object_uuid': queryset.object_uuid,
-                        'username': request.user.username})
+            if request.user.is_authenticated():
+                spawn_task(update_view_count_task,
+                           {'object_uuid': queryset.object_uuid,
+                            'username': request.user.username})
             single_object["last_edited_on"] = parser.parse(
                 single_object['last_edited_on'])
             # This will be moved to JS Framework but don't need intermediate

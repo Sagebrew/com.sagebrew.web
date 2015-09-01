@@ -11,7 +11,6 @@ PROJECT_DIR = Path(__file__).ancestor(3)
 REPO_DIR = Path(__file__).ancestor(4)
 
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     ('Devon Bleibtrey', 'devon@sagebrew.com'),
@@ -157,7 +156,7 @@ TEMPLATES = [{
             "django.contrib.messages.context_processors.messages",
             "plebs.context_processors.request_profile",
         ],
-        'allowed_include_roots': [HELP_DOCS_PATH,]
+        'allowed_include_roots': [HELP_DOCS_PATH,],
     },
 }]
 

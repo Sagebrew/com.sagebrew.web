@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 from rest_framework.reverse import reverse
 
 from neomodel import db
@@ -56,7 +57,11 @@ class UserSerializer(SBSerializer):
     last_name = serializers.CharField(required=True)
     # We can probably add something to the retrieve that if a friend wants
     # to request viewing this the user can allow them to.
-    email = serializers.EmailField(required=True, write_only=True)
+    email = serializers.EmailField(required=True, write_only=True,
+                                   validators=[UniqueValidator(
+                                       queryset=User.objects.all(),
+                                       message="Sorry looks like that email is "
+                                               "already taken.")],)
     password = serializers.CharField(max_length=128, required=True,
                                      write_only=True,
                                      style={'input_type': 'password'})
@@ -241,8 +246,8 @@ class AddressSerializer(SBSerializer):
                                                 instance.longitude)
         instance.save()
         cache.delete('%s_possible_house_representatives' %
-                     (request.user.username))
-        cache.delete('%s_possible_senators' % (request.user.username))
+                     request.user.username)
+        cache.delete('%s_possible_senators' % request.user.username)
         spawn_task(task_func=determine_pleb_reps, task_param={
             "username": self.context['request'].user.username,
         })

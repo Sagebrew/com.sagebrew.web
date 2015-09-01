@@ -29,7 +29,7 @@ gunicorn==19.3.0
 kombu==3.0.24
 mdx-cite==1.0
 meld3==1.0.2
-newrelic==2.44.0.36
+newrelic==2.54.0.41
 nltk==3.0.3
 oauthlib==1.0.0
 opbeat>=3.0,<4.0

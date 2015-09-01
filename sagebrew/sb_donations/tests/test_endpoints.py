@@ -205,7 +205,7 @@ class DonationEndpointTests(APITestCase):
         response = self.client.delete(url, data={}, format='json')
 
         self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
+                         status.HTTP_204_NO_CONTENT)
 
 
 class TestSagebrewDonation(APITestCase):

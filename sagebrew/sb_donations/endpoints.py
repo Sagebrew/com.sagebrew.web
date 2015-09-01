@@ -1,7 +1,7 @@
 from logging import getLogger
 
 from rest_framework.response import Response
-from rest_framework import status, viewsets, generics
+from rest_framework import status, viewsets, generics, mixins
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 
@@ -15,7 +15,7 @@ from .serializers import DonationSerializer, SBDonationSerializer
 logger = getLogger('loggly_logs')
 
 
-class DonationViewSet(viewsets.ReadOnlyModelViewSet):
+class DonationViewSet(viewsets.ReadOnlyModelViewSet, mixins.DestroyModelMixin):
     serializer_class = DonationSerializer
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticated,)
@@ -45,6 +45,22 @@ class DonationViewSet(viewsets.ReadOnlyModelViewSet):
                                                          **kwargs)
         return Response({"detail": "Sorry only the owner of a donation is "
                                    "allowed to see its detail page.",
+                         "status_code": status.HTTP_403_FORBIDDEN},
+                        status=status.HTTP_403_FORBIDDEN)
+
+    def destroy(self, request, *args, **kwargs):
+        if (request.user.username ==
+                Donation.get_owner(self.kwargs[self.lookup_field])):
+            if self.get_object().completed:
+                return Response({"detail": "Sorry, you cannot delete a pledge "
+                                           "which has already been "
+                                           "processed.",
+                                 "status_code": status.HTTP_403_FORBIDDEN},
+                                status=status.HTTP_403_FORBIDDEN)
+            return super(DonationViewSet, self).destroy(request, *args,
+                                                         **kwargs)
+        return Response({"detail": "Sorry only the owner of a donation is "
+                                   "allowed to delete it.",
                          "status_code": status.HTTP_403_FORBIDDEN},
                         status=status.HTTP_403_FORBIDDEN)
 

@@ -646,10 +646,8 @@ class MeViewSet(mixins.UpdateModelMixin,
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True,
                                          context={'request': request})
-        logger.info(serializer.data)
         if html == 'true':
             html_array = []
-            logger.info('here')
             for item in serializer.data:
                 context = RequestContext(request, item)
                 html_array.append(render_to_string("single_donation.html",

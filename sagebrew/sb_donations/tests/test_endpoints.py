@@ -220,6 +220,17 @@ class DonationEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+    def test_delete_completed(self):
+        self.client.force_authenticate(user=self.user)
+        self.donation.completed = True
+        self.donation.save()
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.delete(url, data={}, format='json')
+
+        self.assertEqual(response.status_code,
+                         status.HTTP_403_FORBIDDEN)
+
 
 class TestSagebrewDonation(APITestCase):
     def setUp(self):

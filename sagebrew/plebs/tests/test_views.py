@@ -99,7 +99,8 @@ class ProfilePageTest(TestCase):
         my_comment.delete()
 
     def test_post_with_comments_from_friend(self):
-        test_user = Pleb(email=str(uuid1()) + '@gmail.com')
+        test_user = Pleb(email=str(uuid1()) + '@gmail.com',
+                         username=str(uuid1())[:32])
         test_user.save()
         test_post = Post(content='test', object_uuid=str(uuid1()),
                          owner_username=self.pleb.username,
@@ -176,7 +177,8 @@ class ProfilePageTest(TestCase):
         pleb_array = []
         post_array = []
         for item in range(0, 2):
-            test_pleb = Pleb(email=str(uuid1())[:32])
+            test_pleb = Pleb(email=str(uuid1())[:32],
+                             username=str(uuid1())[:32])
             test_pleb.save()
             pleb_array.append(test_pleb)
             for number in range(0, 10):
@@ -218,7 +220,8 @@ class ProfilePageTest(TestCase):
         post_array = []
         comment_array = []
         for item in range(0, 2):
-            test_pleb = Pleb(email=str(uuid1())[:32])
+            test_pleb = Pleb(email=str(uuid1())[:32],
+                             username=str(uuid1())[:32])
             test_pleb.save()
             pleb_array.append(test_pleb)
             for number in range(0, 10):

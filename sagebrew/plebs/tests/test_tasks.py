@@ -210,7 +210,8 @@ class TestSendEmailTask(TestCase):
         self.fake_user.save()
         self.fake_pleb = Pleb(email=self.fake_user.email,
                               first_name=self.fake_user.first_name,
-                              last_name=self.fake_user.last_name).save()
+                              last_name=self.fake_user.last_name,
+                              username='thisisafakeusername').save()
 
     def tearDown(self):
         self.fake_pleb.delete()

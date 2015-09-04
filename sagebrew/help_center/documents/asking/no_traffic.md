@@ -30,5 +30,5 @@ Questions" filter in the Conversation Area search, giving your Question
 another chance to be discovered.
 
 
-[1]: /help/questions/good_question/
+[1]: /help/questions/formatting/
 [2]: /help/questions/context/

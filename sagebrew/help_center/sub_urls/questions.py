@@ -13,7 +13,7 @@ urlpatterns = patterns(
                            "gain a better understanding of the scope of the"
                            "Question and provide more accurate Solutions",
             "content_path":
-                "%scontext_to_a_question.html" % (settings.HELP_DOCS_PATH),
+                "%scontext_to_a_question.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
         },
         name="context_to_a_question"),
@@ -26,11 +26,11 @@ urlpatterns = patterns(
                            " informed where the core conversation is"
                            " happening.",
             "content_path":
-                "%sduplicates.html" % (settings.HELP_DOCS_PATH),
+                "%sduplicates.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
         },
         name="duplicates"),
-    url(r'^good_question/$', TemplateView.as_view(
+    url(r'^formatting/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How do I create a good question?",
@@ -38,7 +38,7 @@ urlpatterns = patterns(
                            "expected from community members when they are"
                            "asking a question.",
             "content_path":
-                "%sgood_question.html" % (settings.HELP_DOCS_PATH),
+                "%sgood_question.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
         },
         name="good_question"),
@@ -50,7 +50,7 @@ urlpatterns = patterns(
                            "traffic. This can be caused by a multitude of "
                            "reasons but some common ones are described here.",
             "content_path":
-                "%sno_traffic.html" % (settings.HELP_DOCS_PATH),
+                "%sno_traffic.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
         },
         name="no_traffic"),
@@ -65,7 +65,7 @@ urlpatterns = patterns(
                            "Community and notifications to users about "
                            "breaking the quality standards.",
             "content_path":
-                "%squality_standards_message.html" % (settings.HELP_DOCS_PATH),
+                "%squality_standards_message.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
         },
         name="quality_standards"),
@@ -77,7 +77,7 @@ urlpatterns = patterns(
                            "solved through a Google search; these are not "
                            "meant for Sagebrew.",
             "content_path":
-                "%squestions_avoid_asking.html" % (settings.HELP_DOCS_PATH),
+                "%squestions_avoid_asking.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
         },
         name="questions_avoid_asking"),
@@ -105,7 +105,7 @@ urlpatterns = patterns(
                            " for what to do when someone provides one to your"
                            " Question.",
             "content_path":
-                "%ssolution_to_question.html" % (settings.HELP_DOCS_PATH),
+                "%ssolution_to_question.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
         },
         name="solution_to_question"),
@@ -117,7 +117,7 @@ urlpatterns = patterns(
                            "including improved search results and better "
                            "suggestions.",
             "content_path":
-                "%stags_and_how_to_use_them.html" % (settings.HELP_DOCS_PATH),
+                "%stags_and_how_to_use_them.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
         },
         name="tags_and_how_to_use_them"),
@@ -129,7 +129,7 @@ urlpatterns = patterns(
                            "here are some of the topics the Community likes "
                            "to discuss.",
             "content_path":
-                "%stopics_to_ask_about.html" % (settings.HELP_DOCS_PATH),
+                "%stopics_to_ask_about.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
         },
         name="topics_to_ask_about"),
@@ -143,7 +143,7 @@ urlpatterns = patterns(
                            " seeing traffic on your Question but no Solutions "
                            "being proposed, try some of these ideas.",
             "content_path":
-                "%straffic_no_solutions.html" % (settings.HELP_DOCS_PATH),
+                "%straffic_no_solutions.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
         },
         name="traffic_no_solutions"),
@@ -162,7 +162,7 @@ if settings.DEBUG is True:
                            " to disagree with your case and keep the content "
                            "closed.",
             "content_path":
-                "%sclosure_of_a_question.html" % (settings.HELP_DOCS_PATH),
+                "%sclosure_of_a_question.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
         },
         name="closure_of_a_question"),

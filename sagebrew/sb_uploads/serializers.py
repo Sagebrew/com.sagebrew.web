@@ -151,8 +151,12 @@ class URLContentSerializer(SBSerializer):
                 response = requests.get("https://www." + validated_data['url'],
                                         headers={"content-type": "html/text"})
                 logger.info(response)
-            except requests.ConnectionError:
+            except Exception as e:
+                logger.info(e)
+            except requests.ConnectionError as e:
+                logger.info(e)
                 return URLContent(url=new_url).save()
+        logger.info(response.status_code)
         if response.status_code != status.HTTP_200_OK:
             return URLContent(url=new_url).save()
         soupified = BeautifulSoup(response.text, 'html.parser')
@@ -160,6 +164,9 @@ class URLContentSerializer(SBSerializer):
             parse_page_html(
                 soupified, validated_data['url'],
                 response.headers.get('Content-Type', 'html/text'))
+        logger.info(title)
+        logger.info(description)
+        logger.info(image)
         try:
             url_content = URLContent(selected_image=image, title=title,
                                      description=description,

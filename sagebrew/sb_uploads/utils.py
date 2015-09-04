@@ -85,14 +85,24 @@ def get_page_image(url, soup, content_type='html/text'):
                            bleach.clean(image.get('content')))
         except AttributeError:
             images = soup.find_all('img')
+            logger.info(images)
             for test_url in images:
                 if is_absolute(test_url['src']):
                     image = test_url['src']
                     break
+            try:
+                if image[:2] == "//":
+                    image = image[2:]
+                    if "http" not in image:
+                        image = "http://" + image
+            except (TypeError, AttributeError):
+                return image, height, width
     else:
         image = url
     if 'image' in content_type or image:
+        logger.info(image)
         temp_file = cStringIO.StringIO(urllib.urlopen(image).read())
+        logger.info(temp_file)
         im = Image.open(temp_file)
         width, height = im.size
     return image, height, width
@@ -141,6 +151,9 @@ def get_page_description(soup):
 
 def parse_page_html(soupified, url, content_type='html/text'):
     image, height, width = get_page_image(url, soupified, content_type)
+    logger.info(image)
     description = get_page_description(soupified)
+    logger.info(description)
     title = get_page_title(soupified)
+    logger.info(title)
     return title, description, image, width, height

@@ -5,7 +5,7 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^good_solution/$', TemplateView.as_view(
+    url(r'^formatting/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How do I write a good solution?",
@@ -14,7 +14,7 @@ urlpatterns = patterns(
                            "appear overnight. Here are some tips on what to "
                            "keep in mind when crafting a Solution.",
             "content_path":
-                "%sgood_solution.html" % (settings.HELP_DOCS_PATH),
+                "%sgood_solution.html" % settings.HELP_DOCS_PATH,
             "category": "solutions"
         },
         name="good_solution"),
@@ -24,7 +24,7 @@ urlpatterns = patterns(
             "title": "Can I give a Solution to my own Question?",
             "description": "Yes you can give a Solution to your own Question.",
             "content_path":
-                "%ssolution_to_own_question.html" % (settings.HELP_DOCS_PATH),
+                "%ssolution_to_own_question.html" % settings.HELP_DOCS_PATH,
             "category": "solutions"
         },
         name="solution_to_own_question"),
@@ -62,7 +62,7 @@ urlpatterns = patterns(
             "description": "Explanation on why and how solutions are removed "
                            "from the Conversation area.",
             "content_path":
-                "%swhy_solutions_removed.html" % (settings.HELP_DOCS_PATH),
+                "%swhy_solutions_removed.html" % settings.HELP_DOCS_PATH,
             "category": "solutions",
             "static_files": True,
         },

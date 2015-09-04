@@ -56,7 +56,7 @@ your [Reputation][3] and unlock new privileges such as [Upvoting][4], [Downvotin
 and [Flagging][6]. Happy Brewing!
 
 
-[1]: /help/questions/good_question/
+[1]: /help/questions/formatting/
 [2]: /help/conversation/research/
 [3]: /help/reputation/
 [4]: /help/privileges/upvoting/

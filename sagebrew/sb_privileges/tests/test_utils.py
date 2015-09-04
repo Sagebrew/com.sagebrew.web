@@ -41,7 +41,7 @@ class TestCreatePrivilege(TestCase):
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.privilege = Privilege().save()
+        self.privilege = Privilege(name=str(uuid1())).save()
         self.requirement = Requirement(name=str(uuid1()),
                                        url=settings.WEB_ADDRESS +
                                        "/v1/profiles/"

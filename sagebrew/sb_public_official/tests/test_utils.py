@@ -1,3 +1,4 @@
+from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
@@ -15,9 +16,12 @@ class TestPublicOfficialUtils(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.save()
-        self.president = PublicOfficial(title='President').save()
-        self.senator = PublicOfficial(state="MI", district=0).save()
-        self.house_rep = PublicOfficial(state="MI", district=11).save()
+        self.president = PublicOfficial(title='President',
+                                        bioguideid=str(uuid1())).save()
+        self.senator = PublicOfficial(state="MI", district=0,
+                                      bioguideid=str(uuid1())).save()
+        self.house_rep = PublicOfficial(state="MI", district=11,
+                                        bioguideid=str(uuid1())).save()
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",

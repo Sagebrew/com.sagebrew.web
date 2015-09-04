@@ -1,12 +1,12 @@
 # How do I write a good solution? #
-Writing a good solution is an art. A good solution must be well thought out, 
+Here at Sagebrew we believe a "good solution" must be well thought out, 
 logically sound, [evidence][2] based and insightful. A good solution should provide 
 reasonable, achievable goals, and should operate in a realistic fashion 
 (i.e. creating a shrink ray and shrinking everyone on the planet is not a 
 viable solution to the problem of overpopulation, unless you have an operational
 shrink ray). 
 
-A good solution will:
+Solutions should:
 
 - Take into consideration every aspect of the problem
 - Be financially reasonable

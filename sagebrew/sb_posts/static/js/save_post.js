@@ -26,7 +26,8 @@ $(document).ready(function () {
                         postButton.spin(false);
                     },
                     error: function (XMLHttpRequest) {
-                        $("#sb_btn_post").removeAttr("disabled");
+                        postButton.removeAttr('disabled');
+                        postButton.spin(false);
                     }
                 });
             });

@@ -132,7 +132,7 @@ class URLContentSerializer(SBSerializer):
         validated_data['owner_username'] = owner.username
         new_url = validated_data['url']
         if 'http' not in validated_data['url']:
-            new_url = 'https://' + validated_data['url']
+            new_url = "https://" + validated_data['url']
         try:
             return URLContent.nodes.get(url=validated_data['url'])
         except (URLContent.DoesNotExist, DoesNotExist):
@@ -140,13 +140,15 @@ class URLContentSerializer(SBSerializer):
         if any(validated_data['url'] in s for s in settings.EXPLICIT_STIES):
             validated_data['is_explicit'] = True
         try:
-            response = requests.get(new_url,
+            logger.info('here')
+            response = requests.get((new_url).strip(),
                                     headers={'content-type': 'html/text'})
+            logger.info(response)
+        except Exception as e:
+            logger.info(e)
         except requests.ConnectionError:
-            return URLContent(url=new_url).save()
-        if response.status_code == status.HTTP_404_NOT_FOUND:
             try:
-                response = requests.get("https://www." + validated_data['url'],
+                response = requests.get(("https://www." + validated_data['url']).strip(),
                                         headers={"content-type": "html/text"})
             except requests.ConnectionError:
                 return URLContent(url=new_url).save()

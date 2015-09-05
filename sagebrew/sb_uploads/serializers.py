@@ -132,26 +132,30 @@ class URLContentSerializer(SBSerializer):
         validated_data['owner_username'] = owner.username
         new_url = validated_data['url']
         if 'http' not in validated_data['url']:
-            new_url = "https://" + validated_data['url']
+            new_url = "http://" + validated_data['url']
         try:
             return URLContent.nodes.get(url=validated_data['url'])
         except (URLContent.DoesNotExist, DoesNotExist):
-            pass
+            try:
+                logger.info('here')
+                return URLContent.nodes.get(url=new_url)
+            except (URLContent.DoesNotExist, DoesNotExist):
+                pass
         if any(validated_data['url'] in s for s in settings.EXPLICIT_STIES):
             validated_data['is_explicit'] = True
         try:
-            logger.info('here')
-            response = requests.get((new_url).strip(),
-                                    headers={'content-type': 'html/text'})
-            logger.info(response)
-        except Exception as e:
-            logger.info(e)
+            response = requests.get(new_url,
+                                    headers={'content-type': 'html/text'},
+                                    timeout=5)
         except requests.ConnectionError:
             try:
-                response = requests.get(("https://www." + validated_data['url']).strip(),
-                                        headers={"content-type": "html/text"})
+                response = requests.get("http://www." + validated_data['url'],
+                                        headers={"content-type": "html/text"},
+                                        timeout=5)
             except requests.ConnectionError:
                 return URLContent(url=new_url).save()
+        except requests.Timeout:
+            return URLContent(url=new_url).save()
         if response.status_code != status.HTTP_200_OK:
             return URLContent(url=new_url).save()
         soupified = BeautifulSoup(response.text, 'html.parser')

@@ -19,7 +19,7 @@ class Wall(StructuredNode):
         :return:
         '''
         query = "MATCH (a:Wall {wall_id:'%s'})-" \
-                "[:IS_OWNED_BY]->(b:Pleb) RETURN b" % (self.wall_id)
+                "[:IS_OWNED_BY]->(b:Pleb) RETURN b" % self.wall_id
         res, col = db.cypher_query(query)
         try:
             return Pleb.inflate(res[0][0])

@@ -55,21 +55,6 @@
             </small>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-2 hidden-xs hidden-sm col-lg-offset-1">
-            {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges and not is_closed %}
-            {% else %}
-                <div><small>
-                    <span class="sb_comment_disabled" data-toggle="tooltip"
-                          data-placement="top"
-                          data-title="Requirement: 20+ Rep"
-                          id="post_comment_on_{{ object_uuid }}">
-                        comment
-                    </span>
-                </small></div>
-            {% endif %}
-        </div>
-    </div>
 
     <div id="sb_comments_container_{{ object_uuid }}">
         {% comment %}

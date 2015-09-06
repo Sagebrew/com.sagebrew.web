@@ -150,8 +150,11 @@ class DonationSerializer(SBSerializer):
         return obj.owner_username
 
     def get_campaign(self, obj):
-        request, _, _, relation, _ = gather_request_data(self.context)
+        from sb_campaigns.neo_models import PoliticalCampaign
+        request, expand, _, relation, _ = gather_request_data(self.context)
         campaign = Donation.get_campaign(obj.object_uuid)
+        if expand == 'true':
+            return PoliticalCampaign.get(campaign)
         if relation == "hyperlink" and campaign is not None:
             return reverse('campaign-detail',
                            kwargs={"object_uuid": campaign},

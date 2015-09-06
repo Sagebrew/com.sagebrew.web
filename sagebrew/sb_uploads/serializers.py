@@ -138,8 +138,10 @@ class URLContentSerializer(SBSerializer):
         except (URLContent.DoesNotExist, DoesNotExist):
             try:
                 logger.info('here')
+                logger.info(new_url)
                 return URLContent.nodes.get(url=new_url)
             except (URLContent.DoesNotExist, DoesNotExist):
+                logger.info('there')
                 pass
         if any(validated_data['url'] in s for s in settings.EXPLICIT_STIES):
             validated_data['is_explicit'] = True
@@ -153,10 +155,16 @@ class URLContentSerializer(SBSerializer):
                                         headers={"content-type": "html/text"},
                                         timeout=5)
             except requests.ConnectionError:
+                logger.info("HERE")
+                logger.info(new_url)
                 return URLContent(url=new_url).save()
         except requests.Timeout:
+            logger.info("THERE")
+            logger.info(new_url)
             return URLContent(url=new_url).save()
         if response.status_code != status.HTTP_200_OK:
+            logger.info("EVERYWHERE")
+            logger.info(new_url)
             return URLContent(url=new_url).save()
         soupified = BeautifulSoup(response.text, 'html.parser')
         title, description, image, width, height = \

@@ -44,10 +44,8 @@ $(document).ready(function () {
             submitURLForExpansion(regExp);
         }
     });
-    window.setInterval(function () {
-        submitURLForExpansion(regExp);
-    }, 10000);
     postInput.on("paste", function () {
+        console.log('here');
         setTimeout(function () {
             submitURLForExpansion(regExp);
         }, 100);

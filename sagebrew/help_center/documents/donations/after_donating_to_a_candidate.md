@@ -4,12 +4,12 @@ stating that you will donate the amount you specified to the candidate you selec
 upon them reaching their [Goal][1]. 
 
 You will not be charged and your donation will not be provided to the Quest 
-until their Donation Goal has been reached. When the goal is reached you will be
+until their Donation Goal has been reached. When the Goal is reached you will be
 billed and you will receive a second email with a notification that confirms your 
 donation. The candidate you donated to will also receive notice that you 
 have donated to their Quest.
 
-In the instance that a candidate does not reach their Donation Goal, you will 
+In the instance that a candidate does not reach their Goal, you will 
 not be charged.
 
 

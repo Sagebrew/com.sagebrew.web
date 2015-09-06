@@ -1,7 +1,7 @@
 # How do I create a good question? #
 In order to create a "good question," we 
 need to know what a "good question" is. Here at Sagebrew we believe a 
-good question as a question that contains most, if not all, of the following 
+good question contains most, if not all, of the following 
 criteria:
 
 ## Open Ended ##

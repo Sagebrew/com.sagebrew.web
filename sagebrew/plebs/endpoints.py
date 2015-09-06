@@ -524,6 +524,16 @@ class MeViewSet(mixins.UpdateModelMixin,
             'posts.created AS created, NULL AS s_question,' \
             'NULL AS campaigns UNION ' \
             '' \
+            '// Retrieve all the posts on the current users wall that are \n' \
+            '// not owned by the current user \n' \
+            'MATCH (a:Pleb {username: "%s"})-[:OWNS_WALL]->(w:Wall)' \
+            '-[:HAS_POST]->(posts:Post) ' \
+            'WHERE NOT (posts)<-[:OWNS_POST]-(a) AND ' \
+            'posts.to_be_deleted = False AND posts.created > %s ' \
+            'RETURN posts, NULL as questions, NULL as solutions, ' \
+            'posts.created AS created, NULL AS s_question,' \
+            'NULL AS campaigns UNION ' \
+            '' \
             '// Retrieve the campaigns affecting the given user\n' \
             'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->(:Address)-' \
             '[:ENCOMPASSED_BY*..]->' \
@@ -535,7 +545,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'NULL AS s_question UNION ' \
             '' \
             "// Retrieve all the current user's friends posts on their \n" \
-            '// own wall\n' \
+            '// walls\n' \
             'MATCH (a:Pleb {username: "%s"})-' \
             '[r:FRIENDS_WITH {currently_friends: True}]->(p:Pleb)-' \
             '[:OWNS_POST]->(posts:Post) ' \
@@ -568,6 +578,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             ' RETURN solutions, NULL AS posts, NULL AS questions, ' \
             'solutions.created AS created, s_question AS s_question,' \
             'NULL AS campaigns' % (
+                request.user.username, then,
                 request.user.username, then, request.user.username,
                 then, request.user.username, then,
                 request.user.username, then,

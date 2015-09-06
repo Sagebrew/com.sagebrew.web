@@ -127,9 +127,24 @@ Your Solution will be grayed out. What this means for you:
 
 ### Question Linking ###
 
-If you have a question about a specific detail in another Question, it may be best to pose an entirely new Question. In this case, it would be beneficial both to you and to the author of the original Question if you provided a link in your context to the other authors Question. For example:
+If you have a question about a specific detail in another Question, it may be 
+best to pose an entirely new Question. In this case, it would be beneficial 
+both to you and to the author of the original Question if you provided a link 
+in your context to the other authors Question. For example:
 
- - Somebody asks the Question "How can we reform the institution of higher learning in the U.S.?" The problem of student debt is raised, but you think it's an entirely new Question waiting to happen. You decide to ask the Question "How can we reduce the enormous amount of accrued student debt in the U.S.?" In the context of your question, you provide a link to the original Question (How can we reform the institution of higher learning in the U.S.?) and by linking to that Question you're acknowledging that that Question exists, is worth looking into, and relates to your Question. 
+Somebody asks the Question 
+
+> "How can we reform the institution of higher learning in the U.S.?" 
+
+The problem of student debt is raised, but you think it's an entirely new 
+Question waiting to happen. You decide to ask the Question 
+
+> "How can we reduce the enormous amount of accrued student debt in the U.S.?" 
+
+In the context of your question, you provide a link to the original 
+Question (How can we reform the institution of higher learning in the U.S.?)
+and by linking to that Question you're acknowledging that that Question exists, 
+is worth looking into, and relates to your Question. 
  
 Question linking can be a great way to reach a broader audience and support other authors' Questions by diving deeper.  
 

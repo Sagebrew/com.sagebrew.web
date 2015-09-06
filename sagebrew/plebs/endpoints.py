@@ -534,11 +534,13 @@ class MeViewSet(mixins.UpdateModelMixin,
             'NULL AS questions, campaigns.created AS created, ' \
             'NULL AS s_question UNION ' \
             '' \
-            '// Retrieve all the current users friends posts\n' \
+            "// Retrieve all the current user's friends posts on their \n" \
+            '// own wall\n' \
             'MATCH (a:Pleb {username: "%s"})-' \
-            '[r:FRIENDS_WITH {currently_friends: True}]->(:Pleb)-' \
+            '[r:FRIENDS_WITH {currently_friends: True}]->(p:Pleb)-' \
             '[:OWNS_POST]->(posts:Post) ' \
-            'WHERE HAS(r.currently_friends) AND posts.to_be_deleted = False ' \
+            'WHERE (posts)-[:POSTED_ON]->(:Wall)<-[:OWNS_WALL]-(p) AND ' \
+            'HAS(r.currently_friends) AND posts.to_be_deleted = False ' \
             'AND posts.created > %s ' \
             'RETURN posts, NULL AS questions, NULL AS solutions, ' \
             'posts.created AS created, NULL AS s_question,' \

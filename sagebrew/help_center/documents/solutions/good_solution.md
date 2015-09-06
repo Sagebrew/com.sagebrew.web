@@ -15,8 +15,8 @@ Solutions should:
 - Benefit those affected in the greatest possible way
 
 Writing a good solution takes time, dedication, and a lot of thought. 
-A good solution doesn't appear overnight. A good solution is the result of 
-hard mental labor and iterative revision assisted by feedback from the 
+A good solution doesn't appear overnight. A good solution is the result of
+iterative revision assisted by feedback from the 
 community in the form of [Comments][1] and alternative Solutions.
 
 [1]: /help/privileges/comment/

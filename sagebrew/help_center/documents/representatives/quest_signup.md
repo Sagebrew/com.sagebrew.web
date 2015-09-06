@@ -18,9 +18,9 @@ What a heap of benefits!
 Now, there are a few things to consider during the preparation for your 
 Quest, and quite a few amazing features that we think you'll find very handy.
 
-### Donation Goals and Rounds ###
-The ability to set Donation Goals will be one of your greatest tools on your
-Quest. Donation Goals allow you
+### Goals and Rounds ###
+The ability to set Goals will be one of your greatest tools on your
+Quest. Goals allow you
 to organize your fundraising and campaign expenditures
 while providing your constituents easy access to
 your campaign plans and a simple way to contribute.
@@ -32,20 +32,20 @@ Here's how they work:
   the option for setting a number of pledged votes for the first
   Donation Goal so you can judge support from the start)
 - Then, you set up the rest of your first Round. Think of Rounds like
-  segments of your campaign. You can set as many Donation Goals per
+  segments of your campaign. You can set as many Goals per
   Round as you'd like, and as many Rounds as you'd like.
 - Once you've set your first Round, you can go Live, at which point
-  you cannot change any of the Donation Goals in that Round.
+  you cannot change any of the Goals in that Round.
 - Spend more time running and organizing your campaign, and less time
   in the calling booth.
 
-#### Setting Smart Donation Goals and Rounds ####
+#### Setting Goals and Rounds ####
 With such an efficient and easy system, it's hard not to raise funding
-on Sagebrew. However, it is important to set smart Donation Goals to make the
+on Sagebrew. However, it is important to set Goals to make the
 most out of Sagebrew's contribution system.
 
 To begin your campaign we'd advise that
-you set short, attainable Donation Goals that
+you set short, attainable Goals that
 will help get your campaign rolling. You will not actually
 receive any of the funding raised until you reach your Donation
 Goals. For example, if you set your first Donation Goal at
@@ -73,7 +73,7 @@ people like you?
 
 ### Efficient Campaigning ###
 With Sagebrew's Quest system campaigning has never been more
-efficient. Our system of Donation Goals and Rounds allows you
+efficient. Our system of Goals and Rounds allows you
 to spend more time and resources on your campaign itself, rather
 than worrying about how to collect funding. On your Quest you'll
 be able to display your views and agenda, as well as your credentials

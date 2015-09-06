@@ -1,7 +1,7 @@
 # What happens when I donate to a Quest? #
 After you've indicated you'd like to donate to a Quest you will receive an email 
 stating that you will donate the amount you specified to the candidate you selected 
-upon them reaching their [Donation Goal][1]. 
+upon them reaching their [Goal][1]. 
 
 You will not be charged and your donation will not be provided to the Quest 
 until their Donation Goal has been reached. When the goal is reached you will be
@@ -13,4 +13,4 @@ In the instance that a candidate does not reach their Donation Goal, you will
 not be charged.
 
 
-[1]: /help/donating/donation_goals/
+[1]: /help/donating/goals/

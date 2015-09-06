@@ -1,4 +1,4 @@
-/*global $, jQuery*/
+/*global $*/
 $("#friend_request_div").on("mouseenter", "a", function () {
     'use strict';
     $(".respond_friend_request-accept-action").click(function (event) {

@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, getUrlParameter, errorDisplay*/
+/*global $, ajaxSecurity, getUrlParameter, errorDisplay*/
 $(document).ready(function () {
     "use strict";
     var submitArea = $("#submit_login");

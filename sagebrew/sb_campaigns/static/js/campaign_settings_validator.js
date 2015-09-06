@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, errorDisplay*/
+/*global $, ajaxSecurity, errorDisplay*/
 $(document).ready(function () {
     $("#socialForm").formValidation({
         framework: 'bootstrap',

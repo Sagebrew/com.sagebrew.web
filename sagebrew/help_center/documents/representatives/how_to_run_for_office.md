@@ -90,7 +90,7 @@ campaign plan, Mona will outline:
 A campaign plan will help to set a pragmatic goal for the campaign and will 
 provide a reference to check progress during the campaign.  
 
-With Sagebrew's donation system, Mona will be able to set up her [Donation Goals][3] 
+With Sagebrew's donation system, Mona will be able to set up her [Goals][3] 
 and keep better track of her fundraising and campaign activity. This is just 
 one way that Sagebrew can assist Mona with her campaign.
 
@@ -149,5 +149,5 @@ the FEC has this [campaign guideline][2].
 
 [1]: http://www.fec.gov/ans/answers_general.shtml
 [2]: http://www.fec.gov/pdf/candgui.pdf
-[3]: /help/quest/donation_goals/
+[3]: /help/quest/goals/
 [4]: /help/quest/principal_campaign_committee/

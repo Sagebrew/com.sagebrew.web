@@ -27,19 +27,19 @@ urlpatterns = patterns(
                            "been easier but you still need to do your research."
                            "If you have any questions please reach out to us.",
             "content_path":
-                "%sdonating_to_a_candidate.html" % (settings.HELP_DOCS_PATH),
+                "%sdonating_to_a_candidate.html" % settings.HELP_DOCS_PATH,
             "category": "citizens"
         },
         name="donating_to_a_candidate"),
-    url(r'^donation_goals/$', TemplateView.as_view(
+    url(r'^goals/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "What are Donation Goals?",
-            "description": "Donation Goals are a way for a candidate running"
+            "title": "What are Goals?",
+            "description": "Goals are a way for a candidate running"
                            " for office to fundraise and organize their "
                            "campaign goals.",
             "content_path":
-                "%sdonation_goals_citizen.html" % (settings.HELP_DOCS_PATH),
+                "%sdonation_goals_citizen.html" % settings.HELP_DOCS_PATH,
             "category": "citizens"
         },
         name="donation_goals_citizen"),
@@ -54,7 +54,7 @@ urlpatterns = patterns(
                            "candidate you give your vote to is who you will "
                            "actually vote for.",
             "content_path":
-                "%spledging_votes.html" % (settings.HELP_DOCS_PATH),
+                "%spledging_votes.html" % settings.HELP_DOCS_PATH,
             "category": "citizens"
         },
         name="pledging_votes"),

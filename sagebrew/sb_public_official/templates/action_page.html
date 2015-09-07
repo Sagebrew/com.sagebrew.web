@@ -93,5 +93,9 @@
         {% if "updates" not in request.path and "statistics" not in request.path and "moderators" not in request.path %}
             <script src="{% static 'js/event_quest_intercom.js' %}"></script>
         {% endif %}
+    {% else %}
+        {% if not request.user.is_anonymous %}
+            <script src="{% static 'js/event_visit_quest_intercom.js' %}"></script>
+        {% endif %}
     {% endif %}
 {% endblock scripts %}

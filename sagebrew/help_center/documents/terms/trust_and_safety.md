@@ -41,7 +41,7 @@ make Sagebrew a great experience for everyone.
 
 ## A few things for candidates and sitting representatives ##
 - It's best to be as clear and concise as possible when laying
-  out your [Donation Goals][4] and Rounds. You'll want to make sure
+  out your [Goals][4] and Rounds. You'll want to make sure
   your contributors know that their money is being used as they'd
   hoped. This also creates a meaningful relationship between
   you and your contributors and encourages others to get involved.
@@ -78,5 +78,5 @@ this uncharted territory together and make some real change! **
 [1]: /help/privileges/flagging/
 [2]: /help/conversation/deletions/
 [3]: /help/conversation/closed/
-[4]: /help/quest/donation_goals/
+[4]: /help/quest/goals/
 [5]: /help/reputation/admin_council/

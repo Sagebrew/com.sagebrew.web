@@ -5,23 +5,23 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^donation_goals/$', TemplateView.as_view(
+    url(r'^goals/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "What are donation goals and how should I set them?",
-            "description": "Donation Goals give Representatives and Candidates "
+            "title": "What are Goals and how should I set them?",
+            "description": "Goals give Representatives and Candidates "
                            "a pragmatic way of interacting with their "
                            "constituents. Gaining donations in turn for "
                            "updates on how the funds are being used.",
             "content_path":
-                "%sdonation_goals.html" % (settings.HELP_DOCS_PATH),
+                "%sdonation_goals.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
         },
         name="donation_goals"),
     url(r'^funding_not_in_account/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "I've reached my Donation Goal but there are no funds in"
+            "title": "I've reached my Goal but there are no funds in"
                      " my bank account",
             "description": "Sometimes there are issues with releasing funds."
                            " Have you provided an update for your last Goal?"
@@ -29,7 +29,7 @@ urlpatterns = patterns(
                            "information. Contact us and we'll help figure it "
                            "out.",
             "content_path":
-                "%sfunding_not_in_account.html" % (settings.HELP_DOCS_PATH),
+                "%sfunding_not_in_account.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
         },
         name="funding_not_in_account"),
@@ -41,7 +41,7 @@ urlpatterns = patterns(
                            " the information associated with the the "
                            "contributions they've received.",
             "content_path":
-                "%show_export_contributions.html" % (settings.HELP_DOCS_PATH),
+                "%show_export_contributions.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
         },
         name="how_to_export_contributions"),
@@ -52,7 +52,7 @@ urlpatterns = patterns(
             "description": "Brief explanation on how a candidate goes about "
                            "getting their name on the ballot.",
             "content_path":
-                "%show_to_get_name_on_ballot.html" % (settings.HELP_DOCS_PATH),
+                "%show_to_get_name_on_ballot.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
         },
         name="how_to_get_on_the_ballot"),
@@ -63,7 +63,7 @@ urlpatterns = patterns(
             "description": "Information on what you need to know if you want to "
                            "run for public office.",
             "content_path":
-                "%show_to_run_for_office.html" % (settings.HELP_DOCS_PATH),
+                "%show_to_run_for_office.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
         },
         name="how_to_run"),
@@ -76,7 +76,7 @@ urlpatterns = patterns(
                            "their name on the ballot to run for office. This "
                            "article provides an solution to that question.",
             "content_path":
-                "%sname_on_ballot_to_run.html" % (settings.HELP_DOCS_PATH),
+                "%sname_on_ballot_to_run.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
         },
         name="name_on_ballot_to_run"),
@@ -111,7 +111,7 @@ urlpatterns = patterns(
                            "office. We know running a campaign is hard work"
                            " and we're here to help you along your journey!",
             "content_path":
-                "%squest_signup.html" % (settings.HELP_DOCS_PATH),
+                "%squest_signup.html" % settings.HELP_DOCS_PATH,
             "category": "quest",
             "static_files": True
         },

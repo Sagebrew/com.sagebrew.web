@@ -38,7 +38,7 @@
 
 
 
-## Contributions and Donation Goals ##
+## Contributions and Goals ##
 1.  You may collect up to $2,700 in contributions from any individual through the 
     Sagebrew service. You are responsible for refunding and managing any 
     excessive donations that could cause legal ramifications to be taken against 
@@ -61,7 +61,7 @@
     the Quest Subscriber on another web service. The responsibility to ensure the 
     legality of funds and contributions falls solely on the Quest Subscriber and 
     their selected Moderators. 
-6.  You are responsible for upholding any written Donation Goals that are 
+6.  You are responsible for upholding any written Goals that are 
     fulfilled in your Quest.
 7.  You will extend your “best effort” to fulfill a Donation Goal. Under the 
     extreme circumstances you cannot complete a Donation Goal, you may do something 

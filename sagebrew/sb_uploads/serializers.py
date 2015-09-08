@@ -146,7 +146,7 @@ class URLContentSerializer(SBSerializer):
             response = requests.get(new_url,
                                     headers={'content-type': 'html/text'},
                                     timeout=5)
-        except (requests.Timeout):
+        except requests.Timeout:
             return URLContent(url=new_url).save()
         except requests.ConnectionError:
             try:

@@ -552,6 +552,16 @@ class PostListCreateTest(APITestCase):
         self.assertEqual(response.data['url_content'][0]['id'],
                          url_content.object_uuid)
 
+    def test_create_with_url_does_not_exist(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('post-list')
+        data = {
+            "content": "hey I made a post!",
+            "included_urls": ["www.example.com"]
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_create_on_friends_wall(self):
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"

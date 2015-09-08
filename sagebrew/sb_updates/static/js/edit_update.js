@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, Bloodhound*/
+/*global $, ajaxSecurity, Bloodhound*/
 $(document).ready(function () {
     $("#edit-update").click(function (event) {
         event.preventDefault();

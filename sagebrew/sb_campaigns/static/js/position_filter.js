@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, Bloodhound, errorDisplay*/
+/*global $, ajaxSecurity, Bloodhound, errorDisplay*/
 $(document).ready(function () {
     var engine = new Bloodhound({
         local: [

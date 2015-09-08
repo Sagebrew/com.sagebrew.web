@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, guid, Croppic*/
+/*global $, ajaxSecurity, guid, Croppic*/
 $(document).ready(function () {
     /*
     Can manipulate converter hooks by doing the following:

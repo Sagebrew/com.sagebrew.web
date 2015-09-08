@@ -1,4 +1,4 @@
-/*global $, jQuery*/
+/*global $*/
 $(document).ready(function () {
     "use strict";
     // Retrieves all the friend requests for a given user and gathers how

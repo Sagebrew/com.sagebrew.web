@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity*/
+/*global $, ajaxSecurity*/
 $(document).ready(function () {
     "use strict";
     function removeFriend() {

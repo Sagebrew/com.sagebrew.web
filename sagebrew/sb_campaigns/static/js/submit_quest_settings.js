@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, errorDisplay, Stripe, StripeCheckout*/
+/*global $, ajaxSecurity, errorDisplay, Stripe, StripeCheckout*/
 $(document).ready(function () {
     Stripe.setPublishableKey($("#stripe_key").data('key'));
     var handler = StripeCheckout.configure({

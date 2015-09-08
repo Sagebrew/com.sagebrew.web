@@ -1,4 +1,4 @@
-/*global $, jQuery, guid, Croppic, alert, highcharts*/
+/*global $, guid, Croppic, alert, highcharts*/
 function prepareDonationData(donationData) {
     var parsedData = [],
         lifetimeTotalData = [],

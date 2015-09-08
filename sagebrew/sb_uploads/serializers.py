@@ -147,7 +147,6 @@ class URLContentSerializer(SBSerializer):
                                     headers={'content-type': 'html/text'},
                                     timeout=5)
         except (requests.Timeout):
-            logger.info('here')
             return URLContent(url=new_url).save()
         except requests.ConnectionError:
             try:

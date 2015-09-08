@@ -100,8 +100,11 @@ def get_page_image(url, soup, content_type='html/text'):
         image = url
     if 'image' in content_type or image:
         temp_file = cStringIO.StringIO(urllib.urlopen(image).read())
-        im = Image.open(temp_file)
-        width, height = im.size
+        try:
+            im = Image.open(temp_file)
+            width, height = im.size
+        except IOError:
+            pass
     return image, height, width
 
 

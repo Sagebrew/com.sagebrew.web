@@ -89,12 +89,22 @@ def get_page_image(url, soup, content_type='html/text'):
                 if is_absolute(test_url['src']):
                     image = test_url['src']
                     break
+            try:
+                if image[:2] == "//":
+                    image = image[2:]
+                    if "http" not in image:
+                        image = "http://" + image
+            except (TypeError, AttributeError):
+                return image, height, width
     else:
         image = url
     if 'image' in content_type or image:
         temp_file = cStringIO.StringIO(urllib.urlopen(image).read())
-        im = Image.open(temp_file)
-        width, height = im.size
+        try:
+            im = Image.open(temp_file)
+            width, height = im.size
+        except IOError:
+            pass
     return image, height, width
 
 

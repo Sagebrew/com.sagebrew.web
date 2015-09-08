@@ -347,3 +347,30 @@ class URLContentEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['results'], [])
+
+    def test_create_url_timeout(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-list')
+        data = {
+            "url": "http://10.255.255.1"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_image_with_double_slash(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-list')
+        data = {
+            "url": "https://www.reddit.com/"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_create_connection_error(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('urlcontent-list')
+        data = {
+            "url": "https://sagebrew.com/"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, errorDisplay, Stripe, StripeCheckout, Intercom*/
+/*global $, ajaxSecurity, errorDisplay, Stripe, StripeCheckout, Intercom*/
 $(document).ready(function () {
     'use strict';
     var donationAmount = 0,

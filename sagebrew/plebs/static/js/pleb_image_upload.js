@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, guid, errorDisplay, enableExpandPostImage*/
+/*global $, ajaxSecurity, guid, errorDisplay, enableExpandPostImage*/
 function getStyle(width, height) {
     var style;
     if (width > height) {

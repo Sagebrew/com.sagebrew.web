@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity*/
+/*global $, ajaxSecurity*/
 $(document).ready(function () {
     "use strict";
     $("button.send_friend_request-action").click(function (event) {

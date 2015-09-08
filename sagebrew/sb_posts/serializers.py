@@ -5,6 +5,8 @@ from datetime import datetime
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from neomodel import DoesNotExist
+
 from api.utils import gather_request_data
 from sb_base.serializers import ContentSerializer
 from plebs.serializers import PlebSerializerNeo
@@ -46,8 +48,11 @@ class PostSerializerNeo(ContentSerializer):
         wall.posts.connect(post)
         [post.uploaded_objects.connect(
             UploadedObject.nodes.get(object_uuid=image)) for image in images]
-        [post.url_content.connect(URLContent.nodes.get(url=url))
-         for url in included_urls]
+        for url in included_urls:
+            try:
+                post.url_content.connect(URLContent.nodes.get(url=url))
+            except (DoesNotExist, URLContent.DoesNotExist):
+                pass
         return post
 
     def update(self, instance, validated_data):

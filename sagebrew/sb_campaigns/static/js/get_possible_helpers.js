@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, errorDisplay*/
+/*global $, ajaxSecurity, errorDisplay*/
 function enablePromotion(campaignId, ids) {
     $.each(ids, function (index, value) {
         $(".js-add_accountant_" + value).click(function (event) {

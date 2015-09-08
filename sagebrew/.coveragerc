@@ -15,7 +15,6 @@ omit =
     */management/commands/populatenginx.py
     */management/commands/populatesupervisor.py
     */api/alchemyapi.py
-    */management/commands/populateschools.py
     */management/commands/populatetopiccats.py
     */management/commands/populateenvconfig.py
     */management/commands/populatehistoricaldata.py

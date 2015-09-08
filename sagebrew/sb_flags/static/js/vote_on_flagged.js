@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity*/
+/*global $, ajaxSecurity*/
 function activateVoting() {
     $('[data-toggle="tooltip"]').tooltip();
     $(".expand").click(function (event) {

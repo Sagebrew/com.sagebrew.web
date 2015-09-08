@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, errorDisplay*/
+/*global $, ajaxSecurity, errorDisplay*/
 $(document).ready(function () {
     $("#submit_goal").click(function (event) {
         var $this = $(this);

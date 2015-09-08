@@ -1,4 +1,4 @@
-/*global $, jQuery*/
+/*global $*/
 $(document).ready(function () {
     "use strict";
     function sendFriendRequest(requestArea, username) {

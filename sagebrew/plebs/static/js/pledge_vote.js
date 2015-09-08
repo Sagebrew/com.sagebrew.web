@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, errorDisplay*/
+/*global $, ajaxSecurity, errorDisplay*/
 $(document).ready(function () {
     $("#create_vote").click(function (event) {
         $(this).attr("disabled", "disabled");

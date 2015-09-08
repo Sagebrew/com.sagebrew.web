@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity*/
+/*global $, ajaxSecurity*/
 $(document).ready(function () {
     $("#js-get_donation_csv").click(function (event) {
         event.preventDefault();

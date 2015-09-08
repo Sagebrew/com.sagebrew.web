@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 
 from rest_framework import serializers, status
 
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, UniqueProperty
 
 from api.serializers import SBSerializer
 from sb_registration.utils import upload_image
@@ -132,15 +132,29 @@ class URLContentSerializer(SBSerializer):
         validated_data['owner_username'] = owner.username
         new_url = validated_data['url']
         if 'http' not in validated_data['url']:
-            new_url = 'https://' + validated_data['url']
+            new_url = "http://" + validated_data['url']
         try:
             return URLContent.nodes.get(url=validated_data['url'])
         except (URLContent.DoesNotExist, DoesNotExist):
-            pass
+            try:
+                return URLContent.nodes.get(url=new_url)
+            except (URLContent.DoesNotExist, DoesNotExist):
+                pass
         if any(validated_data['url'] in s for s in settings.EXPLICIT_STIES):
             validated_data['is_explicit'] = True
-        response = requests.get(new_url,
-                                headers={'content-type': 'html/text'})
+        try:
+            response = requests.get(new_url,
+                                    headers={'content-type': 'html/text'},
+                                    timeout=5)
+        except requests.Timeout:
+            return URLContent(url=new_url).save()
+        except requests.ConnectionError:
+            try:
+                response = requests.get("http://www." + validated_data['url'],
+                                        headers={"content-type": "html/text"},
+                                        timeout=5)
+            except requests.ConnectionError:
+                return URLContent(url=new_url).save()
         if response.status_code != status.HTTP_200_OK:
             return URLContent(url=new_url).save()
         soupified = BeautifulSoup(response.text, 'html.parser')
@@ -148,9 +162,13 @@ class URLContentSerializer(SBSerializer):
             parse_page_html(
                 soupified, validated_data['url'],
                 response.headers.get('Content-Type', 'html/text'))
-        url_content = URLContent(selected_image=image, title=title,
-                                 description=description, image_width=width,
-                                 image_height=height, **validated_data).save()
+        try:
+            url_content = URLContent(selected_image=image, title=title,
+                                     description=description,
+                                     image_width=width, image_height=height,
+                                     **validated_data).save()
+        except UniqueProperty:
+            return URLContent.nodes.get(url=validated_data['url'])
         url_content.owned_by.connect(owner)
         owner.url_content.connect(url_content)
         return url_content

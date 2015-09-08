@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, errorDisplay, Sortable*/
+/*global $, ajaxSecurity, errorDisplay, Sortable*/
 Number.prototype.format = function (n, x) {
     /*
     This function will format any given integer into a comma separated string,

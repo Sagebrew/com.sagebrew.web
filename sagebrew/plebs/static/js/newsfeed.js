@@ -1,4 +1,4 @@
-/*global $, jQuery, loadPosts, errorDisplay, enableContentFunctionality, populateComments, Autolinker*/
+/*global $, loadPosts, errorDisplay, enableContentFunctionality, populateComments, Autolinker*/
 $(document).ready(function () {
     "use strict";
     function newsfeed(url) {

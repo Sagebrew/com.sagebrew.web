@@ -1,4 +1,4 @@
-/*global $, jQuery, ajaxSecurity, errorDisplay*/
+/*global $, ajaxSecurity, errorDisplay*/
 $(document).ready(function () {
     var campaignId = $("#campaign_id").data('object_uuid');
     $("#show_edit_bio").click(function (event) {

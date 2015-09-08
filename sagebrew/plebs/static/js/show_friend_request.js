@@ -1,4 +1,4 @@
-/*global $, jQuery*/
+/*global $*/
 $(document).ready(function () {
     "use strict";
     $(".show_friend_request-action").click(function () {

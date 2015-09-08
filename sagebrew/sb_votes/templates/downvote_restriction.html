@@ -1,7 +1,17 @@
-<div class="col-lg-12 sb_down_vote_wrapper">
-    <button class="btn sb_btn sb_btn_vote vote_down">
-                <span class="fa fa-chevron-down sb_restricted upvote_restriction"
-                   id="downvote_{{ object_uuid }}" data-toggle="tooltip" data-placement="top"
-                   data-title="Requirement: 100+ Rep"></span>
-    </button>
-</div>
+{% if 'newsfeed' in request.path and type == 'solution' %}
+    <div class="col-lg-12 sb_down_vote_wrapper">
+        <button class="btn sb_btn sb_btn_vote vote_down">
+                    <span class="fa fa-chevron-down sb_restricted upvote_restriction"
+                       id="downvote_{{ object_uuid }}" data-toggle="tooltip" data-placement="top"
+                       data-title="Read the Conversation"></span>
+        </button>
+    </div>
+{% else %}
+    <div class="col-lg-12 sb_down_vote_wrapper">
+        <button class="btn sb_btn sb_btn_vote vote_down">
+                    <span class="fa fa-chevron-down sb_restricted upvote_restriction"
+                       id="downvote_{{ object_uuid }}" data-toggle="tooltip" data-placement="top"
+                       data-title="Requirement: 100+ Rep"></span>
+        </button>
+    </div>
+{% endif %}

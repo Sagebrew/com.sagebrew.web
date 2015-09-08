@@ -8,6 +8,15 @@
            data-title="Signup to vote!">
             <span class="fa fa-chevron-up sb_restricted upvote_restriction"></span>
         </button>
+    {% elif type == 'solution' and 'newsfeed' in request.path %}
+        <button class="btn sb_btn sb_btn_vote vote_up"
+           id="upvote_{{ object_uuid }}"
+           data-vote_type=true
+           data-toggle="tooltip"
+           data-placement="top"
+           data-title="Read the Conversation">
+            <span class="fa fa-chevron-up sb_restricted upvote_restriction"></span>
+        </button>
     {% elif not vote_type or vote_type == None %}
         <button class="btn sb_btn vote_up sb_btn_vote vote_object-action vote_{{ object_uuid }}"
            data-object_uuid="{{ object_uuid }}"

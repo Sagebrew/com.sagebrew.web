@@ -146,6 +146,9 @@ class URLContentSerializer(SBSerializer):
             response = requests.get(new_url,
                                     headers={'content-type': 'html/text'},
                                     timeout=5)
+        except (requests.Timeout):
+            logger.info('here')
+            return URLContent(url=new_url).save()
         except requests.ConnectionError:
             try:
                 response = requests.get("http://www." + validated_data['url'],
@@ -153,8 +156,6 @@ class URLContentSerializer(SBSerializer):
                                         timeout=5)
             except requests.ConnectionError:
                 return URLContent(url=new_url).save()
-        except requests.Timeout:
-            return URLContent(url=new_url).save()
         if response.status_code != status.HTTP_200_OK:
             return URLContent(url=new_url).save()
         soupified = BeautifulSoup(response.text, 'html.parser')

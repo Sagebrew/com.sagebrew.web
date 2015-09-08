@@ -481,13 +481,16 @@ function editObject(editArea, url, objectUuid, dataArea) {
                 $(editButton).removeAttr("disabled");
                 var contentContainer = $("#sb_content_" + objectUuid);
                 contentContainer.html(Autolinker.link(data.content).replace(/\n/g, "<br/>"));
-                if (data.uploaded_objects.length > 0) {
-                    contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
-                    var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
-                    $.each(data.uploaded_objects, function(index, value){
-                        uploadContainer.append(value.html);
-                    });
+                if (data.uploaded_obects) {
+                    if (data.uploaded_objects.length > 0) {
+                        contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
+                        var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
+                        $.each(data.uploaded_objects, function(index, value){
+                            uploadContainer.append(value.html);
+                        });
+                    }
                 }
+
                 $("#edit_container_" + objectUuid).hide();
                 contentContainer.show();
             },

@@ -26,7 +26,7 @@ board and ask yourself a few questions.
 After you've addressed these issues, and maybe some others that are more 
 specific to your Question, go ahead and Upgrade your Question. Upgraded 
 Questions will make their way to the top of the "Most Recently Edited 
-Questions" filter in the Conversation Area search, giving your Question 
+Questions" filter in the Conversation Cloud search, giving your Question 
 another chance to be discovered.
 
 

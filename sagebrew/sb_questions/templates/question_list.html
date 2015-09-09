@@ -1,7 +1,16 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load staticfiles %}
-
+{% block title %}Conversation Cloud{% endblock title %}
+{% block description %}
+    <meta name="description" content="Sagebrew's Conversation Cloud is a
+    place where people can ask Questions that don't have a single answer.
+    People can provide, collaborate, and vote on different Solutions as
+    the Community works towards the most encompassing one.">
+{% endblock description %}
+{% block keywords %}
+    <meta name="keywords" content="debate, community, nonpartisan, questions, problem solving, solutions">
+{% endblock keywords %}
 {% block content %}
 <div class="row-fluid sb_page">
     <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12" style="margin-bottom: 35px; ">

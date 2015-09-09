@@ -9,6 +9,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
+from api.utils import smart_truncate
 from sb_registration.utils import verify_completed_registration
 from sb_questions.neo_models import Question
 
@@ -60,8 +61,14 @@ def question_detail_page(request, question_uuid=None):
     # TODO is this uuid1 creation necessary?
     if question_uuid is None:
         question_uuid = str(uuid1())
-    post_data = {'sort_by': 'uuid', 'uuid': question_uuid,
-                 'is_closed': Question.get(question_uuid).is_closed}
+    question = Question.get(question_uuid)
+    post_data = {
+        'sort_by': 'uuid', 'uuid': question_uuid,
+        'is_closed': question.is_closed,
+        'title': question.title,
+        'description': smart_truncate(question.content, length=150),
+        'keywords': question.get_tags_string()
+    }
     return render(request, 'conversation.html', post_data)
 
 

@@ -3,6 +3,7 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from plebs.neo_models import Pleb
+from sb_tags.neo_models import Tag
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 
@@ -23,3 +24,27 @@ class TestQuestionNeoModel(TestCase):
         res = self.question.add_auto_tags(auto_tags)
 
         self.assertIsInstance(res, list)
+
+    def test_empty_get_tags_string(self):
+        res = self.question.get_tags_string()
+
+        self.assertEqual(res, "")
+
+    def test_empty_get_one_tag_string(self):
+        tag = Tag(name=str(uuid1())).save()
+        self.question.tags.connect(tag)
+        res = self.question.get_tags_string()
+        self.question.tags.disconnect(tag)
+        self.assertEqual(res, "%s" % tag.name)
+
+    def test_empty_get_multiple_tag_string(self):
+        tag = Tag(name=str(uuid1())).save()
+        tag2 = Tag(name=str(uuid1())).save()
+        self.question.tags.connect(tag)
+        self.question.tags.connect(tag2)
+        res = self.question.get_tags_string()
+        self.question.tags.disconnect(tag)
+        self.question.tags.disconnect(tag2)
+        self.assertContains(res, tag.name)
+        self.assertContains(res, tag2.name)
+        self.assertContains(res, ',')

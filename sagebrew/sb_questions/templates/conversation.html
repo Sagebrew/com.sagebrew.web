@@ -4,6 +4,13 @@
     from one of the views. We can fix this by not having this html
     extend html that includes 'js/query_questions.js' -->
 {% load staticfiles %}
+{% block title %}{{ title }}{% endblock title %}
+{% block description %}
+    <meta name="description" content="{{ description }}">
+{% endblock description %}
+{% block keywords %}
+    <meta name="keywords" content="{{ keywords }}">
+{% endblock keywords %}
 {% block content %}
 <div class="action" style="display: none" data-action="write_question"></div>
 <div class="action" style="display: none" data-action="write_comment"></div>

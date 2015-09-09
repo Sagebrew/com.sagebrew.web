@@ -49,7 +49,7 @@ def question_page(request, sort_by="most_recent"):
                   {"base_tags": tag_array})
 
 
-def question_detail_page(request, question_uuid=None):
+def question_detail_page(request, question_uuid):
     """
     This is the view that displays a single question with all solutions,
     comments,
@@ -58,9 +58,6 @@ def question_detail_page(request, question_uuid=None):
     :param request:
     :return:
     """
-    # TODO is this uuid1 creation necessary?
-    if question_uuid is None:
-        question_uuid = str(uuid1())
     question = Question.get(question_uuid)
     post_data = {
         'sort_by': 'uuid', 'uuid': question_uuid,

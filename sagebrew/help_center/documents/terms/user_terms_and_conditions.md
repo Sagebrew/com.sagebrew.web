@@ -322,7 +322,7 @@ if additional information is required.
 ## Other Websites ##
 
 1.  Sagebrew may contain links to other websites. (For instance, the 
-    Conversation area, user profiles, and comments may link to other sites.) 
+    Conversation Cloud, user profiles, and comments may link to other sites.) 
     When you access third-party websites, you do so at your own risk. Sagebrew 
     does not control or endorse those sites.
 2.  Sagebrew utilizes [Stripe API][8] for payment processing. When you create 
@@ -420,10 +420,10 @@ effective upon receipt, when sent by confirmed e-mail to [support@sagebrew.com][
 
 ## Definitions ##
 
-*   Conversation area: Publicly accessible portion of the Service that can be 
+*   Conversation Cloud: Publicly accessible portion of the Service that can be 
     found at [https://www.sagebrew.com/conversations/][9].
 *   [Reputation][1]: Reputation is Sagebrew's system of credibility. Reputation 
-    is gained by participating in the Conversation Area.
+    is gained by participating in the Conversation Cloud.
 *   Flag: A flag is used to alert the Admin Council that there is something 
     wrong with a piece of Public Content or Sagebrew Staff that something is 
     wrong with a piece of Private Content.

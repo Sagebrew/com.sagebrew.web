@@ -60,7 +60,7 @@ urlpatterns = patterns(
         kwargs={
             "title": "Why and how are some solutions removed?",
             "description": "Explanation on why and how solutions are removed "
-                           "from the Conversation area.",
+                           "from the Conversation Cloud.",
             "content_path":
                 "%swhy_solutions_removed.html" % settings.HELP_DOCS_PATH,
             "category": "solutions",

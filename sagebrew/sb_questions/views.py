@@ -1,5 +1,3 @@
-from uuid import uuid1
-
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -9,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
+from api.utils import smart_truncate
 from sb_registration.utils import verify_completed_registration
 from sb_questions.neo_models import Question
 
@@ -48,7 +47,7 @@ def question_page(request, sort_by="most_recent"):
                   {"base_tags": tag_array})
 
 
-def question_detail_page(request, question_uuid=None):
+def question_detail_page(request, question_uuid):
     """
     This is the view that displays a single question with all solutions,
     comments,
@@ -57,11 +56,14 @@ def question_detail_page(request, question_uuid=None):
     :param request:
     :return:
     """
-    # TODO is this uuid1 creation necessary?
-    if question_uuid is None:
-        question_uuid = str(uuid1())
-    post_data = {'sort_by': 'uuid', 'uuid': question_uuid,
-                 'is_closed': Question.get(question_uuid).is_closed}
+    question = Question.get(question_uuid)
+    post_data = {
+        'sort_by': 'uuid', 'uuid': question_uuid,
+        'is_closed': question.is_closed,
+        'title': question.title,
+        'description': smart_truncate(question.content, length=150),
+        'keywords': question.get_tags_string()
+    }
     return render(request, 'conversation.html', post_data)
 
 

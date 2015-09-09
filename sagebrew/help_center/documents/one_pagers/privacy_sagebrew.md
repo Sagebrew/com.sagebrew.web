@@ -4,7 +4,7 @@ Sagebrew values your privacy. Unlike other social websites we aren't selling you
 
 ### Personal Privacy ###
 
-Posts that you make outside of the Conversation Area are private and only your friends will be able to view them. Only friends may view posts that you make to your own page, as well as any images or video that you share. Posts made on friends walls will enable their friends to see the post but that's where it ends.
+Posts that you make outside of the Conversation Cloud are private and only your friends will be able to view them. Only friends may view posts that you make to your own page, as well as any images or video that you share. Posts made on friends walls will enable their friends to see the post but that's where it ends.
 
 ### The Public Conversation ###
 

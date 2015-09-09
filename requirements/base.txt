@@ -31,7 +31,7 @@ mdx-cite==1.0
 meld3==1.0.2
 newrelic==2.54.0.41
 nltk==3.0.3
-oauthlib==1.0.0
+oauthlib==1.0.1
 opbeat>=3.0,<4.0
 psycopg2==2.6.1
 py2neo==2.0.7

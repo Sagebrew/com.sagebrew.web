@@ -2,12 +2,12 @@ from django.core.cache import cache
 
 from rest_framework.reverse import reverse
 
+from py2neo.cypher.error.transaction import CouldNotCommit, ClientError
 from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo, BooleanProperty, FloatProperty,
-                      db, DoesNotExist)
+                      db, DoesNotExist, CypherException)
 
 from sb_base.neo_models import TitledContent
-from sb_tags.neo_models import Tag
 
 from sb_solutions.neo_models import Solution
 
@@ -53,10 +53,15 @@ class Question(TitledContent):
 
     def get_tags(self):
         query = "MATCH (a:Question {object_uuid:'%s'})-[:TAGGED_AS]->" \
-                "(b:Tag) RETURN b" % self.object_uuid
-        res, col = db.cypher_query(query)
-        queryset = [Tag.inflate(row[0]).name for row in res]
-        return queryset
+                "(b:Tag) RETURN b.name" % self.object_uuid
+        res, _ = db.cypher_query(query)
+        return [row[0] for row in res]
+
+    def get_tags_string(self):
+        try:
+            return ",".join(self.get_tags())
+        except (CypherException, IOError, CouldNotCommit, ClientError):
+            return ""
 
     def get_solutions(self):
         query = 'MATCH (a:Question {object_uuid: "%s"})-' \

@@ -60,7 +60,7 @@ urlpatterns = patterns(
         template_name="help_page.html"),
         kwargs={
             "title": "Downvote",
-            "description": "Downvoting in the Public Conversation area allows "
+            "description": "Downvoting in the Conversation Cloud allows "
                            "you to privately disclose negative feelings towards"
                            " a given Question, Solution, or Comment.",
             "content_path":

@@ -1,7 +1,7 @@
 # Add Explicit Content #
 *Reputation needed: 250*
 ## Description ##
-You’ve become familiar with the Conversation Area and you’ve proven that you 
+You’ve become familiar with the Conversation Cloud and you’ve proven that you 
 can create quality Questions, Solutions, and Comments. Now you can add Explicit 
 Content to one of your posts per week. This includes graphic photos or videos 
 that enhance the severity of your posed issue. These will appear 

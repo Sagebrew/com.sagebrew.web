@@ -2,7 +2,7 @@
 You cannot convert a private conversation to a public conversation. When you 
 start a private conversation you adopt the promise that all proposed solutions 
 and comments will remain private to protect the users involved. If you have a 
-private conversation that you'd like to move to the public conversation area 
+private conversation that you'd like to move to the Conversation Cloud 
 you will need to resubmit the question in the public forum and begin the 
 process again. 
 

@@ -1,6 +1,15 @@
 {% extends "sb_plebs_base/profile_page.html" %}
 {% load staticfiles %}
-{% block title %}{{ page_user.first_name }}'s Feed{% endblock title %}
+{% block title %}{{ page_user.first_name }}'s Newsfeed{% endblock title %}
+{% block description %}
+    <meta name="description" content="Sagebrew's newsfeed is the center for
+    everything going on relating to you. Any private conversations you're
+    having with friends or public conversations going on in the Conversation
+    Cloud that relate to you will show up here.">
+{% endblock description %}
+{% block keywords %}
+    <meta name="keywords" content="news, community, nonpartisan, questions, solutions, privacy">
+{% endblock keywords %}
 {%  block midsection %}
 <div class="col-md-4 hidden-sm hidden-xs">
    {% include "sb_home_section/sb_profile_rep_stats.html" %}

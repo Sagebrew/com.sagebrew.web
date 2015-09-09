@@ -10,6 +10,7 @@ Disallow: /vote/
 Disallow: /edit/
 Disallow: /delete/
 Disallow: /registration/
+Disallow: /search/
 Disallow: /v1/
 
 User-agent: Bingbot
@@ -24,6 +25,7 @@ Disallow: /vote/
 Disallow: /edit/
 Disallow: /delete/
 Disallow: /registration/
+Disallow: /search/
 Disallow: /v1/
 
 User-agent: YahooSeeker
@@ -38,6 +40,7 @@ Disallow: /vote/
 Disallow: /edit/
 Disallow: /delete/
 Disallow: /registration/
+Disallow: /search/
 Disallow: /v1/
 
 User-agent: *

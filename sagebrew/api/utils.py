@@ -227,14 +227,6 @@ def execute_cypher_query(query):
         return e
 
 
-def get_node(object_uuid):
-    query = 'MATCH n WHERE ' \
-            'n.object_uuid="%s" RETURN n' % object_uuid
-    res, col = db.cypher_query(query)
-
-    return res
-
-
 def gather_request_data(context, expedite_param=None, expand_param=None):
     try:
         request = context['request']

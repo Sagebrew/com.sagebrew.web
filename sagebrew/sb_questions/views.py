@@ -61,8 +61,8 @@ def question_detail_page(request, question_uuid):
     """
     question = Question.get(question_uuid)
     single_object = QuestionSerializerNeo(
-        question, context={'request': request, 'expedite': True,
-                           'expand': True}).data
+        question, context={'request': request, 'expedite_param': True,
+                           'expand_param': True}).data
     single_object['uuid'] = question.object_uuid
     single_object['sort_by'] = 'uuid'
     single_object['last_edited_on'] = parser.parse(

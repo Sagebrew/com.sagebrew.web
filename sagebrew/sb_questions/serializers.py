@@ -176,8 +176,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
 
     def get_solutions(self, obj):
         request, expand, _, relations, expedite = gather_request_data(
-            self.context, self.context.get('expedite', None),
-            self.context.get('expand', None))
+            self.context,
+            expedite_param=self.context.get('expedite_param', None),
+            expand_param=self.context.get('expand_param', None))
         if expedite == "true":
             return []
         solutions = obj.get_solution_ids()
@@ -201,8 +202,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(
-            self.context, self.context.get('expedite', None),
-            self.context.get('expand', None))
+            self.context,
+            expedite_param=self.context.get('expedite_param', None),
+            expand_param=self.context.get('expand_param', None))
         return reverse(
             'question-detail', kwargs={'object_uuid': obj.object_uuid},
             request=request)

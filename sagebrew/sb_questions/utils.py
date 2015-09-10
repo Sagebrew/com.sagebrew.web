@@ -46,8 +46,8 @@ def prepare_question_search_html(question_uuid):
 def question_html_snapshot(request, question, question_uuid, keywords,
                            description):
     single_object = QuestionSerializerNeo(
-            question, context={'request': request,
-                               'expand_param': True}).data
+        question, context={'request': request,
+                           'expand_param': True}).data
     query = 'MATCH (q:Question {object_uuid: "%s"})-' \
             '[:HAS_A]->(c:Comment) RETURN c' % question_uuid
     res, _ = db.cypher_query(query)

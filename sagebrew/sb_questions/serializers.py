@@ -10,7 +10,7 @@ from rest_framework.reverse import reverse
 
 from neomodel import db, DoesNotExist
 
-from api.utils import spawn_task, get_node, gather_request_data
+from api.utils import spawn_task, gather_request_data
 from sb_base.serializers import TitledContentSerializer
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag

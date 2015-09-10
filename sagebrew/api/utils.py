@@ -235,7 +235,7 @@ def get_node(object_uuid):
     return res
 
 
-def gather_request_data(context):
+def gather_request_data(context, expedite=None, expand=None):
     try:
         request = context['request']
         try:
@@ -260,7 +260,10 @@ def gather_request_data(context):
         relations = "false"
         request = None
         expand_array = []
-
+    if expedite is not None:
+        expedite = 'true'
+    if expand is not None:
+        expand = 'true'
     return request, expand, expand_array, relations, expedite
 
 

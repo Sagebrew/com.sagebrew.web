@@ -1,3 +1,5 @@
+from dateutil import parser
+
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -10,6 +12,7 @@ from rest_framework import status
 from api.utils import smart_truncate
 from sb_registration.utils import verify_completed_registration
 from sb_questions.neo_models import Question
+from sb_questions.serializers import QuestionSerializerNeo
 
 from .utils import prepare_question_search_html
 
@@ -57,14 +60,16 @@ def question_detail_page(request, question_uuid):
     :return:
     """
     question = Question.get(question_uuid)
-    post_data = {
-        'sort_by': 'uuid', 'uuid': question_uuid,
-        'is_closed': question.is_closed,
-        'title': question.title,
-        'description': smart_truncate(question.content, length=150),
-        'keywords': question.get_tags_string()
-    }
-    return render(request, 'conversation.html', post_data)
+    single_object = QuestionSerializerNeo(
+        question, context={'request': request, 'expedite': True,
+                           'expand': True}).data
+    single_object['uuid'] = question.object_uuid
+    single_object['sort_by'] = 'uuid'
+    single_object['last_edited_on'] = parser.parse(
+        single_object['last_edited_on'])
+    single_object['description'] = smart_truncate(question.content, length=150)
+    single_object['keywords'] = question.get_tags_string()
+    return render(request, 'conversation.html', single_object)
 
 
 @api_view(['GET'])

@@ -33,7 +33,9 @@ class VotableContentSerializer(SBSerializer):
     url = serializers.SerializerMethodField()
 
     def get_profile(self, obj):
-        request, expand, _, relation, _ = gather_request_data(self.context)
+        request, expand, _, relation, _ = gather_request_data(
+            self.context, self.context.get('expedite', None),
+            self.context.get('expand', None))
         owner_username = obj.owner_username
         if expand == "true":
             owner = Pleb.get(username=owner_username)

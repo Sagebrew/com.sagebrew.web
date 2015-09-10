@@ -48,7 +48,10 @@
             <div class="sb_question_body" id="sb_question_{{ object_uuid }}">
                 <div class="sb_markdown{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                     {% autoescape off %}
-                        {{ html_content }}
+                        <div id="js-question-container">
+                            {{ html_content }}
+                        </div>
+
                     {% endautoescape %}
                 </div>
             </div>

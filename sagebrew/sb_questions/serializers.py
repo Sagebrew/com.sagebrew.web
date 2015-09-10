@@ -185,9 +185,14 @@ class QuestionSerializerNeo(TitledContentSerializer):
         solution_urls = []
         if expand == "true":
             for solution_uuid in solutions:
+                query = 'MATCH (s:Solution {object_uuid: "%s"}) RETURN s' % (
+                    solution_uuid)
+                res, _ = db.cypher_query(query)
                 solution_urls.append(SolutionSerializerNeo(
-                    Solution.inflate(get_node(solution_uuid)[0][0]),
-                    context={"request": request}).data)
+                    Solution.inflate(res.one),
+                    context={"request": request,
+                             "expand_param": self.context.get('expand_param',
+                                                              None)}).data)
         else:
             if relations == "hyperlinked":
                 for solution_uuid in solutions:

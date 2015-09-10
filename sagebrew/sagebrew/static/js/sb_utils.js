@@ -271,13 +271,12 @@ function loadQuestion() {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                var questiongUUID = $('.div_data_hidden').data('question_uuid');
-                var questionContainer = document.getElementById('js-question-container');
-                questionContainer.innerHTML = Autolinker.link( questionContainer.innerHTML );
+                var questionContainer = $('#single_question_wrapper');
+                questionContainer.append(Autolinker.link(data.html));
                 loadSolutionCount();
                 enableQuestionFunctionality(data.ids);
                 populateComments(data.ids, "questions");
-                loadSolutions("/v1/questions/" + questiongUUID + "/solutions/render/?page_size=10&expand=true");
+                loadSolutions("/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?page_size=10&expand=true");
             },
             error: function (XMLHttpRequest) {
                 timeOutId = setTimeout(ajaxFn, 1000);

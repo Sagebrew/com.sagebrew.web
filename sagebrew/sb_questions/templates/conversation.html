@@ -6,6 +6,7 @@
 {% load staticfiles %}
 {% block title %}{{ title }}{% endblock title %}
 {% block description %}
+    <meta name="fragment" content="!">
     <meta name="description" content="{{ description }}">
 {% endblock description %}
 {% block keywords %}
@@ -40,12 +41,20 @@
                     </div>
                 {% else %}
                     <div class="row">
-                        {% include "question.html" %}
+                        {% if html_snapshot %}
+                            {% include "question.html" %}
+                        {% else %}
+                            <div id="single_question_wrapper">
+                            </div>
+                        {% endif %}
                     </div>
-
                     <div class="row sb_tertiary_nav">
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                            <h3><span id="solution_count">--</span> Solution<span id="solution_plural"></span></h3>
+                            {% if html_snapshot %}
+                                <h3><span id="solution_count">{{ solution_count }}</span> Solution<span id="solution_plural"></span></h3>
+                            {% else %}
+                                <h3><span id="solution_count">--</span> Solution<span id="solution_plural"></span></h3>
+                            {% endif %}
                         </div>
                       {% if debug %}
                         <div class="col-lg-9 col-md-9 col-sm-9 hidden-xs" align="right">
@@ -57,11 +66,18 @@
                       {% endif %}
                     </div>
                     <div class="row">
-                        <div class="col-lg-12" id="solution_container">
-
-                        </div>
+                        {% if html_snapshot %}
+                            {% for solution in solutions %}
+                                {% with profile=solution.profile %}
+                                    {% include "solution_include.html" %}
+                                {% endwith %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-lg-12" id="solution_container">
+                            </div>
+                        {% endif %}
                     </div>
-                    {% if not is_closed and not request.user.is_anonymous %}
+                    {% if not is_closed and not request.user.is_anonymous and not html_snapshot%}
                         <div class="row" style="padding-left: 15px; padding-right: 15px;">
                             <div class="block sb_markdown sb_solution sb_provide_solution">
                                 <form id="solutionSubmitForm">
@@ -104,11 +120,13 @@
 {% endblock content %}
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'js/query_single_question.js' %}"></script>
-    <script src="{% static 'js/edit_question.js' %}"></script>
-    <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
-    <script src="{% static 'js/flag_modal.js' %}"></script>
-    <script src="{% static 'js/create_markdown.js' %}"></script>
-    <script src="{% static 'js/solution_validator.js' %}"></script>
+    {% if not html_snapshot %}
+        <script src="{% static 'js/query_single_question.js' %}"></script>
+        <script src="{% static 'js/edit_question.js' %}"></script>
+        <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
+        <script src="{% static 'js/flag_modal.js' %}"></script>
+        <script src="{% static 'js/create_markdown.js' %}"></script>
+        <script src="{% static 'js/solution_validator.js' %}"></script>
+    {% endif %}
 
 {% endblock scripts %}

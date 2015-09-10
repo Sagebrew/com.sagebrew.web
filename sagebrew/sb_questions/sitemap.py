@@ -6,7 +6,7 @@ from .neo_models import Question
 
 class QuestionSitemap(Sitemap):
     changefreq = "daily"
-    priority = 0.8
+    priority = 0.9
     protocol = 'https'
 
     def items(self):

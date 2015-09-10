@@ -11,7 +11,6 @@ from sb_registration.views import (login_view, logout_view, signup_view,
                                    quest_signup)
 from sb_registration.forms import CustomPasswordResetForm
 from sb_questions.sitemap import QuestionSitemap
-from sb_solutions.sitemap import SolutionSitemap
 from sagebrew.sitemap import StaticViewSitemap, SignupSitemap
 
 
@@ -63,7 +62,6 @@ urlpatterns = patterns(
     url(r'^sitemap\.xml$', sitemap,
         {'sitemaps': {
             'questions': QuestionSitemap,
-            'solutions': SolutionSitemap,
             'static_pages': StaticViewSitemap,
             'sign_up': SignupSitemap,
         }},

@@ -79,6 +79,7 @@ urlpatterns = patterns(
 
 if settings.DEBUG is True:
     urlpatterns += patterns(
+        '',
         (r'^robots.txt$', TemplateView.as_view(
             template_name='robots_staging.txt', content_type='text/plain')),
         (r'^loaderio-98182a198e035e1a9649f683fb42d23e/$', TemplateView.as_view(
@@ -93,6 +94,7 @@ if settings.DEBUG is True:
     )
 elif environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:
     urlpatterns += patterns(
+        '',
         (r'^robots.txt$', TemplateView.as_view(
             template_name='robots_staging.txt', content_type='text/plain')),
         (r'^loaderio-98182a198e035e1a9649f683fb42d23e/$', TemplateView.as_view(
@@ -107,6 +109,7 @@ elif environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:
     )
 else:
     urlpatterns += patterns(
+        '',
         (r'^robots.txt$', TemplateView.as_view(template_name='robots.txt',
                                                content_type='text/plain')),
         (r'^d667e6bf-d0fe-4aef-8efe-1e50c18b2aec/', include(admin.site.urls)),

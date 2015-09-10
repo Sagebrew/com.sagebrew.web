@@ -3,8 +3,7 @@ import time
 from django.core import signing
 from django.test import TestCase
 from django.contrib.auth.models import User
-from rest_framework import status
-from rest_framework.test import APIRequestFactory, APITestCase
+from rest_framework.test import APIRequestFactory
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
@@ -108,7 +107,7 @@ class TestGatherRequestData(TestCase):
         self.assertEqual('false', expand)
         self.assertEqual(len(expand_array), 0)
         self.assertEqual('primarykey', relations)
-        self.assertEqual('false',expedite)
+        self.assertEqual('false', expedite)
 
     def test_explicit_expand(self):
         request = self.factory.get('/conversations/%s/' %

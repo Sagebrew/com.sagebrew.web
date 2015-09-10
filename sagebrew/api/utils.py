@@ -248,8 +248,6 @@ def gather_request_data(context, expedite_param=None, expand_param=None):
             if html == 'true':
                 expand = 'true'
         except AttributeError:
-            # TODO probably want to check request.GET.get(param, None) here
-            # since a WSGIRequest can cause this exception
             expand = request.GET.get('expand', 'false').lower()
             expedite = request.GET.get('expedite', 'false').lower()
             relations = request.GET.get('relations', 'primaryKey').lower()

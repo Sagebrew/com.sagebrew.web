@@ -227,15 +227,7 @@ def execute_cypher_query(query):
         return e
 
 
-def get_node(object_uuid):
-    query = 'MATCH n WHERE ' \
-            'n.object_uuid="%s" RETURN n' % object_uuid
-    res, col = db.cypher_query(query)
-
-    return res
-
-
-def gather_request_data(context):
+def gather_request_data(context, expedite_param=None, expand_param=None):
     try:
         request = context['request']
         try:
@@ -248,18 +240,21 @@ def gather_request_data(context):
             if html == 'true':
                 expand = 'true'
         except AttributeError:
-            # TODO probably want to check request.GET.get(param, None) here
-            # since a WSGIRequest can cause this exception
-            expedite = "false"
-            expand = "false"
-            relations = "false"
+            expand = request.GET.get('expand', 'false').lower()
+            expedite = request.GET.get('expedite', 'false').lower()
+            relations = request.GET.get('relations', 'primaryKey').lower()
             expand_array = []
-    except(KeyError):
-        expedite = "false"
-        expand = "false"
-        relations = "false"
+    except KeyError:
+        expand = 'false'
+        expedite = 'false'
+        relations = "primaryKey"
         request = None
         expand_array = []
+
+    if expedite_param is not None:
+        expedite = 'true'
+    if expand_param is not None:
+        expand = 'true'
 
     return request, expand, expand_array, relations, expedite
 

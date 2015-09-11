@@ -5,15 +5,25 @@ from django.conf import settings
 from django.contrib import admin
 from django.views.generic.base import TemplateView, RedirectView
 from django.conf.urls import patterns, url
+from django.contrib.sitemaps.views import sitemap
 
 from sb_registration.views import (login_view, logout_view, signup_view,
                                    quest_signup)
 from sb_registration.forms import CustomPasswordResetForm
+from sb_questions.sitemap import QuestionSitemap, ConversationSitemap
+from sagebrew.sitemap import (StaticViewSitemap, SignupSitemap)
+from help_center.sitemap import (AccountHelpSitemap, ConversationHelpSitemap,
+                                 DonationsHelpSitemap, PoliciesHelpSitemap,
+                                 PrivilegeHelpSitemap, QuestHelpSitemap,
+                                 QuestionHelpSitemap,
+                                 ReputationModerationHelpSitemap,
+                                 SecurityHelpSitemap, SolutionsHelpSitemap,
+                                 TermsHelpSitemap)
 
 
 urlpatterns = patterns(
     '',
-    (r'^favicon.ico$', RedirectView.as_view(url="%sfavicon.ico" % (
+    (r'^favicon\.ico$', RedirectView.as_view(url="%sfavicon.ico" % (
         settings.STATIC_URL), permanent=True)),
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
@@ -43,7 +53,8 @@ urlpatterns = patterns(
         name="404_Error"),
     url(r'^500/$', TemplateView.as_view(template_name="500.html"),
         name="500_Error"),
-    (r'^contact_us/$', TemplateView.as_view(template_name="contact_us.html")),
+    url(r'^contact_us/$', TemplateView.as_view(template_name="contact_us.html"),
+        name="contact_us"),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     (r'^registration/', include('sb_registration.urls')),
     (r'^help/', include('help_center.urls')),
@@ -55,6 +66,25 @@ urlpatterns = patterns(
     (r'^quests/', include('sb_public_official.urls')),
     (r'^council/', include('sb_council.urls')),
     (r'^updates/', include('sb_updates.urls')),
+    url(r'^sitemap\.xml$', sitemap,
+        {'sitemaps': {
+            'questions': QuestionSitemap,
+            'conversation_cloud': ConversationSitemap,
+            'static_pages': StaticViewSitemap,
+            'sign_up': SignupSitemap,
+            'account_help': AccountHelpSitemap,
+            'conversation_help': ConversationHelpSitemap,
+            'donation_help': DonationsHelpSitemap,
+            'policy_help': PoliciesHelpSitemap,
+            'privilege_help': PrivilegeHelpSitemap,
+            'quest_help': QuestHelpSitemap,
+            'question_help': QuestionHelpSitemap,
+            'reputation_moderation_help': ReputationModerationHelpSitemap,
+            'security_help': SecurityHelpSitemap,
+            'solutions_help': SolutionsHelpSitemap,
+            'terms_help': TermsHelpSitemap
+        }},
+        name='django.contrib.sitemaps.views.sitemap'),
     url(r'^quest/$', quest_signup, name='quest_info'),
     (r'^v1/', include('sb_questions.apis.v1')),
     (r'^v1/', include('sb_solutions.apis.v1')),
@@ -79,7 +109,8 @@ urlpatterns = patterns(
 
 if settings.DEBUG is True:
     urlpatterns += patterns(
-        (r'^robots.txt$', TemplateView.as_view(
+        '',
+        (r'^robots\.txt$', TemplateView.as_view(
             template_name='robots_staging.txt', content_type='text/plain')),
         (r'^loaderio-98182a198e035e1a9649f683fb42d23e/$', TemplateView.as_view(
             template_name='external_tests/loaderio.txt',
@@ -93,7 +124,8 @@ if settings.DEBUG is True:
     )
 elif environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:
     urlpatterns += patterns(
-        (r'^robots.txt$', TemplateView.as_view(
+        '',
+        (r'^robots\.txt$', TemplateView.as_view(
             template_name='robots_staging.txt', content_type='text/plain')),
         (r'^loaderio-98182a198e035e1a9649f683fb42d23e/$', TemplateView.as_view(
             template_name='external_tests/loaderio.txt',
@@ -107,7 +139,8 @@ elif environ.get("CIRCLE_BRANCH", "") == "staging" and settings.DEBUG is False:
     )
 else:
     urlpatterns += patterns(
-        (r'^robots.txt$', TemplateView.as_view(template_name='robots.txt',
-                                               content_type='text/plain')),
+        '',
+        (r'^robots\.txt$', TemplateView.as_view(template_name='robots.txt',
+                                                content_type='text/plain')),
         (r'^d667e6bf-d0fe-4aef-8efe-1e50c18b2aec/', include(admin.site.urls)),
     )

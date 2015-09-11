@@ -60,8 +60,8 @@ urlpatterns = patterns(
         template_name="help_page.html"),
         kwargs={
             "title": "How to run for office",
-            "description": "Information on what you need to know if you want to "
-                           "run for public office.",
+            "description": "Information on what you need to know if you "
+                           "want to run for public office.",
             "content_path":
                 "%show_to_run_for_office.html" % settings.HELP_DOCS_PATH,
             "category": "quest"

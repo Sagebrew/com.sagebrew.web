@@ -172,6 +172,7 @@ INSTALLED_APPS = (
     'djangosecure',
     'django_admin_bootstrapped',
     'django.contrib.admin',
+    'django.contrib.sitemaps',
     'django_ses',
     'rest_framework',
     'rest_framework.authtoken',

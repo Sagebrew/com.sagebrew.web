@@ -2388,7 +2388,7 @@ class NewsfeedTests(APITestCase):
     def test_get_question_content(self):
         content = "This is the content for my question."
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content=content,
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -2401,7 +2401,7 @@ class NewsfeedTests(APITestCase):
 
     def test_get_question_title(self):
         content = "This is the content for my question."
-        title = "Hello there world"
+        title = str(uuid1())
         question = Question(
             title=title,
             content=content,
@@ -2416,7 +2416,7 @@ class NewsfeedTests(APITestCase):
 
     def test_get_question_profile(self):
         content = "This is the content for my question."
-        title = "Hello there world"
+        title = str(uuid1())
         question = Question(
             title=title,
             content=content,
@@ -2439,9 +2439,9 @@ class NewsfeedTests(APITestCase):
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
-
+        title2 = "Hello there world2"
         question_two = Question(
-            title=title,
+            title=title2,
             content=content,
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question_two)

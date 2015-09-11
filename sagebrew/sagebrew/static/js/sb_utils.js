@@ -851,7 +851,13 @@ function errorDisplay(XMLHttpRequest) {
                 notification = JSON.parse(notification.detail);
             }
             catch(e) {
-                $.notify({message: notification.detail}, {type: 'danger'});
+                if(notification.detail !== undefined) {
+                    $.notify({message: notification.detail}, {type: 'danger'});
+                } else{
+                    for (var key in notification) {
+                      $.notify({message: notification[key][0]}, {type: 'danger'});
+                    }
+                }
                 notification = [];
             }
         }

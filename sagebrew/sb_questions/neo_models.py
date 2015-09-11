@@ -30,6 +30,7 @@ class Question(TitledContent):
     title_polarity = FloatProperty()
     title_subjectivity = FloatProperty()
     tags_added = BooleanProperty(default=False)
+    title = StringProperty(unique_index=True)
 
     # relationships
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')

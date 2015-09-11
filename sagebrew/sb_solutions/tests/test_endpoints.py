@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from neomodel.exception import DoesNotExist
+from neomodel.exception import DoesNotExist, db
 
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
@@ -17,6 +17,8 @@ from sb_registration.utils import create_user_util_test
 
 class SolutionEndpointTests(APITestCase):
     def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)

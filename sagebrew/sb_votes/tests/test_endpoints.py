@@ -5,6 +5,8 @@ from django.core.cache import cache
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from neomodel import db
+
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
@@ -12,6 +14,8 @@ from sb_questions.neo_models import Question
 
 class VoteEndpointTests(APITestCase):
     def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         cache.clear()
         self.unit_under_test_name = 'goal'
         self.email = "success@simulator.amazonses.com"

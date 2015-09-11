@@ -2,6 +2,8 @@ from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
+from neomodel import db
+
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_posts.neo_models import Post
@@ -71,6 +73,8 @@ class TestVotableContentNeoModel(TestCase):
 
 class TestTaggableContent(TestCase):
     def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
@@ -78,7 +82,8 @@ class TestTaggableContent(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question = Question(content='test', object_uuid=str(uuid1()),
                                  owner_username=self.pleb.username,
-                                 wall_owner_username=self.pleb.username).save()
+                                 wall_owner_username=self.pleb.username,
+                                 title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
         self.tag = Tag(name="test_tag", base=True).save()
 
@@ -90,6 +95,8 @@ class TestTaggableContent(TestCase):
 
 class TestVersionedContent(TestCase):
     def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
@@ -97,7 +104,8 @@ class TestVersionedContent(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question = Question(content='test',
                                  owner_username=self.pleb.username,
-                                 wall_owner_username=self.pleb.username).save()
+                                 wall_owner_username=self.pleb.username,
+                                 title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
         self.tag = Tag(name=str(uuid1())).save()
 
@@ -115,6 +123,8 @@ class TestVersionedContent(TestCase):
 
 class TestGetParentVotableContent(TestCase):
     def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
@@ -122,7 +132,8 @@ class TestGetParentVotableContent(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question = Question(content='test',
                                  owner_username=self.pleb.username,
-                                 wall_owner_username=self.pleb.username).save()
+                                 wall_owner_username=self.pleb.username,
+                                 title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
 
     def test_get_parent_votable_content(self):

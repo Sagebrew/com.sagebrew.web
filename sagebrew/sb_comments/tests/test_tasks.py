@@ -21,7 +21,7 @@ class TestSpawnCommentNotifications(TestCase):
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = Question().save()
+        self.question = Question(title=str(uuid1())).save()
         self.comment = Comment().save()
         settings.CELERY_ALWAYS_EAGER = True
 

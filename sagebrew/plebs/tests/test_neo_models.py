@@ -49,7 +49,8 @@ class TestPleb(TestCase):
         self.assertTrue(self.pleb.relate_comment(comment))
 
     def test_update_weight_relationship(self):
-        sb_object = Question().save()
+        sb_object = Question(title="Hello I'm testing weights on my "
+                                   "question!").save()
         rel = self.pleb.object_weight.connect(sb_object)
         rel.weight = 0
         rel.save()

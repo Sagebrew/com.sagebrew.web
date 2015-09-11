@@ -700,6 +700,8 @@ class ProfileEndpointTests(APITestCase):
 
 class ProfileContentMethodTests(APITestCase):
     def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -1981,6 +1983,8 @@ class ReputationMethodEndpointTests(APITestCase):
 
 class BetaUserMethodEndpointTests(APITestCase):
     def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'is_beta_user'
         self.email = "success@simulator.amazonses.com"
         try:

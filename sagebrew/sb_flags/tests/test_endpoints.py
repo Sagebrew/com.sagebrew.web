@@ -5,6 +5,8 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from neomodel import db
+
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
@@ -14,6 +16,8 @@ from sb_questions.neo_models import Question
 
 class FlagEndpointTest(APITestCase):
     def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'flag'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)

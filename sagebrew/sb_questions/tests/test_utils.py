@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 
 from rest_framework.test import APIRequestFactory
 
+from neomodel import db
+
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
@@ -13,6 +15,8 @@ from sb_questions.neo_models import Question
 
 class TestPrepareQuestionSearchHTML(TestCase):
     def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)

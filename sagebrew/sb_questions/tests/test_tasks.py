@@ -5,6 +5,8 @@ from django.test import TestCase
 from django.conf import settings
 from django.contrib.auth.models import User
 
+from neomodel import db
+
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
@@ -16,13 +18,16 @@ from sb_questions.tasks import (add_auto_tags_to_question_task,
 
 class TestAddQuestionToIndicesTask(TestCase):
     def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = Question(object_uuid=str(uuid1())).save()
+        self.question = Question(object_uuid=str(uuid1()),
+                                 title=str(uuid1())).save()
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -58,6 +63,8 @@ class TestAddQuestionToIndicesTask(TestCase):
 
 class TestAddAutoTagsToQuestionTask(TestCase):
     def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
@@ -66,7 +73,8 @@ class TestAddAutoTagsToQuestionTask(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question = Question(object_uuid=str(uuid1()),
                                  content="This is some test content "
-                                         "that I just created.").save()
+                                         "that I just created.",
+                                 title=str(uuid1())).save()
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -92,6 +100,8 @@ class TestAddAutoTagsToQuestionTask(TestCase):
 
 class TestUpdateSearchIndex(TestCase):
     def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)

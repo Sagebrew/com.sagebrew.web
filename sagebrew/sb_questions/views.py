@@ -1,6 +1,8 @@
+
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
+
 
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
@@ -11,7 +13,7 @@ from api.utils import smart_truncate
 from sb_registration.utils import verify_completed_registration
 from sb_questions.neo_models import Question
 
-from .utils import prepare_question_search_html
+from .utils import prepare_question_search_html, question_html_snapshot
 
 
 @login_required()
@@ -57,14 +59,17 @@ def question_detail_page(request, question_uuid):
     :return:
     """
     question = Question.get(question_uuid)
-    post_data = {
-        'sort_by': 'uuid', 'uuid': question_uuid,
-        'is_closed': question.is_closed,
-        'title': question.title,
-        'description': smart_truncate(question.content, length=150),
-        'keywords': question.get_tags_string()
-    }
-    return render(request, 'conversation.html', post_data)
+    description = smart_truncate(question.content, length=150)
+    keywords = question.get_tags_string()
+    if '_escaped_fragment_' in request.GET:
+        return render(request, 'conversation.html', question_html_snapshot(
+            request, question, question_uuid, keywords, description))
+    return render(request, 'conversation.html', {
+        'uuid': question.object_uuid,
+        'sort_by': 'uuid',
+        'description': description,
+        'keywords': keywords
+    })
 
 
 @api_view(['GET'])

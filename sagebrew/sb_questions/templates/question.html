@@ -48,7 +48,10 @@
             <div class="sb_question_body" id="sb_question_{{ object_uuid }}">
                 <div class="sb_markdown{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                     {% autoescape off %}
-                        {{ html_content }}
+                        <div id="js-question-container">
+                            {{ html_content }}
+                        </div>
+
                     {% endautoescape %}
                 </div>
             </div>
@@ -112,25 +115,33 @@
             </small>
         </div>
     </div>
+    {% if html_snapshot %}
+        {% for comment in comments %}
+            {% include "comment_include.html" %}
+        {% endfor %}
+    {% else %}
+        <div id="sb_comments_container_{{ object_uuid }}">
+            {% comment %}
+                Dynamically populated by JS to show existing comments.
+            {% endcomment %}
+        </div>
+    {% endif %}
 
-    <div id="sb_comments_container_{{ object_uuid }}">
-        {% comment %}
-            Dynamically populated by JS to show existing comments.
-        {% endcomment %}
-    </div>
     <div class="row">
-        {% if "comment" in request_profile.privileges and not is_closed and not request.user.is_anonymous or "beta_user" in request_profile.privileges and not is_closed and not request.user.is_anonymous %}
-            <form id="commentSubmitForm">
-            <div class="input-group sb_comment">
-                    <textarea class="input-group form-control sb_comment_input"
-                              id="post_comment_on_{{ object_uuid }}"
-                              rows="2"
-                              name="comment_content"
-                              placeholder="Write your comment..."></textarea>
-                    <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
-                       data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
-                </div>
-            </form>
+        {% if not html_snapshot %}
+            {% if "comment" in request_profile.privileges and not is_closed and not request.user.is_anonymous or "beta_user" in request_profile.privileges and not is_closed and not request.user.is_anonymous %}
+                <form id="commentSubmitForm">
+                <div class="input-group sb_comment">
+                        <textarea class="input-group form-control sb_comment_input"
+                                  id="post_comment_on_{{ object_uuid }}"
+                                  rows="2"
+                                  name="comment_content"
+                                  placeholder="Write your comment..."></textarea>
+                        <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
+                           data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
+                    </div>
+                </form>
+            {% endif %}
         {% endif %}
     </div>
 </div>

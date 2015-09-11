@@ -10,7 +10,7 @@ from rest_framework.reverse import reverse
 
 from neomodel import db, DoesNotExist
 
-from api.utils import spawn_task, get_node, gather_request_data
+from api.utils import spawn_task, gather_request_data
 from sb_base.serializers import TitledContentSerializer
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
@@ -176,16 +176,23 @@ class QuestionSerializerNeo(TitledContentSerializer):
 
     def get_solutions(self, obj):
         request, expand, _, relations, expedite = gather_request_data(
-            self.context)
+            self.context,
+            expedite_param=self.context.get('expedite_param', None),
+            expand_param=self.context.get('expand_param', None))
         if expedite == "true":
             return []
         solutions = obj.get_solution_ids()
         solution_urls = []
         if expand == "true":
             for solution_uuid in solutions:
+                query = 'MATCH (s:Solution {object_uuid: "%s"}) RETURN s' % (
+                    solution_uuid)
+                res, _ = db.cypher_query(query)
                 solution_urls.append(SolutionSerializerNeo(
-                    Solution.inflate(get_node(solution_uuid)[0][0]),
-                    context={"request": request}).data)
+                    Solution.inflate(res.one),
+                    context={"request": request,
+                             "expand_param": self.context.get('expand_param',
+                                                              None)}).data)
         else:
             if relations == "hyperlinked":
                 for solution_uuid in solutions:
@@ -199,7 +206,10 @@ class QuestionSerializerNeo(TitledContentSerializer):
         return solution_urls
 
     def get_href(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
+        request, _, _, _, _ = gather_request_data(
+            self.context,
+            expedite_param=self.context.get('expedite_param', None),
+            expand_param=self.context.get('expand_param', None))
         return reverse(
             'question-detail', kwargs={'object_uuid': obj.object_uuid},
             request=request)

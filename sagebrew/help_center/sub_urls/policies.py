@@ -15,7 +15,7 @@ urlpatterns = patterns(
                            " on our users and not those trying to exploit "
                            "them.",
             "content_path":
-                "%sadvertising.html" % (settings.HELP_DOCS_PATH),
+                "%sadvertising.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
         },
         name="advertising"),
@@ -27,7 +27,7 @@ urlpatterns = patterns(
                            "to do that we need the community to give us a "
                            "helping hand.",
             "content_path":
-                "%sbe_nice.html" % (settings.HELP_DOCS_PATH),
+                "%sbe_nice.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
         },
         name="be_nice"),
@@ -38,7 +38,7 @@ urlpatterns = patterns(
             "description": "Some notes on what we consider a spammer and how "
                            "you can avoid being branded as one.",
             "content_path":
-                "%sdont_spam.html" % (settings.HELP_DOCS_PATH),
+                "%sdont_spam.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
         },
         name="do_not_spam"),
@@ -49,7 +49,7 @@ urlpatterns = patterns(
             "description": "We love receiving feedback from our users. Whether "
                            "it be positive or negative, it helps us to grow.",
             "content_path":
-                "%sfeedback.html" % (settings.HELP_DOCS_PATH),
+                "%sfeedback.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
         },
         name="feedback"),
@@ -63,7 +63,7 @@ urlpatterns = patterns(
                            "use of tags we've attempted to improve your ability"
                            " to find topics you're interested in.",
             "content_path":
-                "%sfinding_topics_of_interest.html" % (settings.HELP_DOCS_PATH),
+                "%sfinding_topics_of_interest.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
         },
         name="finding_topics_of_interest"),
@@ -72,10 +72,10 @@ urlpatterns = patterns(
         kwargs={
             "title": "How do I search?",
             "description": "With all the information around on Sagebrew it's "
-                           "important to know how we handle search. This article"
-                           " outlines that process.",
+                           "important to know how we handle search. This "
+                           "article outlines that process.",
             "content_path":
-                "%show_to_search.html" % (settings.HELP_DOCS_PATH),
+                "%show_to_search.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
         },
         name="how_to_search"),
@@ -87,7 +87,7 @@ urlpatterns = patterns(
                            " content in a clean and organized way utilizing an "
                            "open standard called Markdown.",
             "content_path":
-                "%smarkdown_formatting.html" % (settings.HELP_DOCS_PATH),
+                "%smarkdown_formatting.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
         },
         name="markdown_formatting"),
@@ -98,7 +98,7 @@ urlpatterns = patterns(
             "description": "We strive to have awesome customer service and try"
                            " to be as much help to our members as possible.",
             "content_path":
-                "%smore_help.html" % (settings.HELP_DOCS_PATH),
+                "%smore_help.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
         },
         name="support"),
@@ -124,7 +124,7 @@ urlpatterns = patterns(
                            "themselves in a mature and respectful manner, "
                            "fostering a safe and open environment.",
             "content_path":
-                "%suser_behavior.html" % (settings.HELP_DOCS_PATH),
+                "%suser_behavior.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
         },
         name="user_behavior"),
@@ -135,7 +135,7 @@ urlpatterns = patterns(
             "description": "Markdown is just an easy way for us to enable "
                            "users to structure their thoughts cleanly.",
             "content_path":
-                "%swhat_is_markdown.html" % (settings.HELP_DOCS_PATH),
+                "%swhat_is_markdown.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
         },
         name="what_is_markdown"),

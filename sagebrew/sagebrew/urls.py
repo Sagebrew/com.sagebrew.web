@@ -10,8 +10,15 @@ from django.contrib.sitemaps.views import sitemap
 from sb_registration.views import (login_view, logout_view, signup_view,
                                    quest_signup)
 from sb_registration.forms import CustomPasswordResetForm
-from sb_questions.sitemap import QuestionSitemap
-from sagebrew.sitemap import StaticViewSitemap, SignupSitemap
+from sb_questions.sitemap import QuestionSitemap, ConversationSitemap
+from sagebrew.sitemap import (StaticViewSitemap, SignupSitemap)
+from help_center.sitemap import (AccountHelpSitemap, ConversationHelpSitemap,
+                                 DonationsHelpSitemap, PoliciesHelpSitemap,
+                                 PrivilegeHelpSitemap, QuestHelpSitemap,
+                                 QuestionHelpSitemap,
+                                 ReputationModerationHelpSitemap,
+                                 SecurityHelpSitemap, SolutionsHelpSitemap,
+                                 TermsHelpSitemap)
 
 
 urlpatterns = patterns(
@@ -62,8 +69,20 @@ urlpatterns = patterns(
     url(r'^sitemap\.xml$', sitemap,
         {'sitemaps': {
             'questions': QuestionSitemap,
+            'conversation_cloud': ConversationSitemap,
             'static_pages': StaticViewSitemap,
             'sign_up': SignupSitemap,
+            'account_help': AccountHelpSitemap,
+            'conversation_help': ConversationHelpSitemap,
+            'donation_help': DonationsHelpSitemap,
+            'policy_help': PoliciesHelpSitemap,
+            'privilege_help': PrivilegeHelpSitemap,
+            'quest_help': QuestHelpSitemap,
+            'question_help': QuestionHelpSitemap,
+            'reputation_moderation_help': ReputationModerationHelpSitemap,
+            'security_help': SecurityHelpSitemap,
+            'solutions_help': SolutionsHelpSitemap,
+            'terms_help': TermsHelpSitemap
         }},
         name='django.contrib.sitemaps.views.sitemap'),
     url(r'^quest/$', quest_signup, name='quest_info'),

@@ -47,10 +47,13 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-sm-offset-10 hidden-xs">
-            <small>
-                {{ last_edited_on|naturaltime }}
-            </small>
+            {% if created != last_edited_on %}
+                <div class="col-sm-offset-8 hidden-xs">
+                <small>{{ created|naturaltime }}* <small>(last edited {{ last_edited_on|naturaltime }})</small></small>
+            {% else %}
+                <div class="col-sm-offset-10 hidden-xs">
+                <small>{{ created|naturaltime }}</small>
+            {% endif %}
         </div>
     </div>
     <div id="sb_comments_container_{{ object_uuid }}">

@@ -82,7 +82,9 @@ class ObjectCommentsListCreate(ListCreateAPIView):
             })
             if request.query_params.get('html', 'false').lower() == "true":
                 serializer_data['last_edited_on'] = parser.parse(
-                    serializer_data['last_edited_on'])
+                    serializer_data['last_edited_on']).replace(microsecond=0)
+                serializer_data['created'] = parser.parse(
+                    serializer_data['created']).replace(microsecond=0)
                 return Response(
                     {
                         "html": [render_to_string(
@@ -115,7 +117,10 @@ def comment_renderer(request, object_uuid=None):
     # make the ordering of comments work properly after reaching 3 and
     # needing to populate the more comments button.
     for comment in comments.data['results'][::-1]:
-        comment['last_edited_on'] = parser.parse(comment['last_edited_on'])
+        comment['last_edited_on'] = parser.parse(
+            comment['last_edited_on']).replace(microsecond=0)
+        comment['created'] = parser.parse(
+            comment['created']).replace(microsecond=0)
         html_array.append(render_to_string(
             'comment.html', RequestContext(request, comment)))
         id_array.append(comment["object_uuid"])

@@ -603,7 +603,9 @@ class MeViewSet(mixins.UpdateModelMixin,
                     context={'request': request}).data
                 if html == "true":
                     news_article['last_edited_on'] = parser.parse(
-                        news_article['last_edited_on'])
+                        news_article['last_edited_on']).replace(microsecond=0)
+                    news_article['created'] = parser.parse(
+                        news_article['created']).replace(microsecond=0)
                     article_html = render_to_string(
                         'question_news.html', RequestContext(
                             request, news_article))
@@ -616,7 +618,9 @@ class MeViewSet(mixins.UpdateModelMixin,
                 news_article['question'] = question_data
                 if html == "true":
                     news_article['last_edited_on'] = parser.parse(
-                        news_article['last_edited_on'])
+                        news_article['last_edited_on']).replace(microsecond=0)
+                    news_article['created'] = parser.parse(
+                        news_article['created']).replace(microsecond=0)
                     article_html = render_to_string(
                         'solution_news.html', RequestContext(
                             request, news_article))
@@ -626,7 +630,9 @@ class MeViewSet(mixins.UpdateModelMixin,
                     context={'request': request, 'force_expand': True}).data
                 if html == "true":
                     news_article['last_edited_on'] = parser.parse(
-                        news_article['last_edited_on'])
+                        news_article['last_edited_on']).replace(microsecond=0)
+                    news_article['created'] = parser.parse(
+                        news_article['created']).replace(microsecond=0)
                     article_html = render_to_string(
                         'post_news.html', RequestContext(request, news_article))
             elif row.campaigns is not None:

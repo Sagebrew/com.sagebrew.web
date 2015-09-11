@@ -17,19 +17,23 @@
                 </div>
             </div>
             <div class="col-sm-11 col-xs-12 clearfix">
-               <div class="sb_post_header_info pull-left" style="margin-top: -8px;">
-                   <div style="margin-bottom: -10px;">
-                       <a href="{{ profile.url }}">
-                           {{ profile.first_name }} {{ profile.last_name }}
-                       </a>
-                   </div>
-                    <small>{{ last_edited_on|naturaltime }}</small>
+                <div class="sb_post_header_info pull-left" style="margin-top: -8px;">
+                    <div style="margin-bottom: -10px;">
+                        <a href="{{ profile.url }}">
+                            {{ profile.first_name }} {{ profile.last_name }}
+                        </a>
+                    </div>
+                    {% if created != last_edited_on %}
+                        <small>{{ created|naturaltime }}* <small>(last edited {{ last_edited_on|naturaltime }})</small></small>
+                    {% else %}
+                        <small>{{ created|naturaltime }}</small>
+                    {% endif %}
                     {% comment %}
                         date/time/location(or disctrict)
                     {%  endcomment %}
-               </div>
-               <div class="post-cog pull-right">
-                   {% if profile.username == request.user.username %}
+                </div>
+                <div class="post-cog pull-right">
+                {% if profile.username == request.user.username %}
                     <button class="btn dropdown-toggle sb_btn_icon" type="button"
                         data-toggle="dropdown">
                     <span class="fa fa-cog sb_btn_icon_green_hover"></span>
@@ -54,7 +58,7 @@
                 {% else %}
                     {% include "flag.html" %}
                 {% endif %}
-               </div>
+                </div>
             </div>
         </div>
         <div class="row">

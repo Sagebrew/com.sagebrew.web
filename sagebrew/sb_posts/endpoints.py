@@ -161,7 +161,9 @@ class WallPostsListCreate(ListCreateAPIView):
             })
             if request.query_params.get('html', 'false').lower() == "true":
                 serializer['last_edited_on'] = parser.parse(
-                    serializer['last_edited_on'])
+                    serializer['last_edited_on']).replace(microsecond=0)
+                serializer['created'] = parser.parse(
+                    serializer['created']).replace(microsecond=0)
                 return Response(
                     {
                         "html": [render_to_string(
@@ -184,7 +186,9 @@ def post_renderer(request, username=None):
     id_array = []
     posts = WallPostsListCreate.as_view()(request, username=username)
     for post in posts.data.get('results', []):
-        post['last_edited_on'] = parser.parse(post['last_edited_on'])
+        post['last_edited_on'] = parser.parse(
+            post['last_edited_on']).replace(microsecond=0)
+        post['created'] = parser.parse(post['created']).replace(microsecond=0)
         html_array.append(render_to_string(
             'post.html', RequestContext(request, post)))
         id_array.append(post["object_uuid"])

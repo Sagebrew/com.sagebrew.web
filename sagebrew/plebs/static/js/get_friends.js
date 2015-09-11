@@ -47,5 +47,5 @@ $(document).ready(function () {
         });
     }
     var username = $("#user_info").data("page_user_username");
-    getFriends("/v1/profiles/" + username + "/friends/?html=true&limit=1");
+    getFriends("/v1/profiles/" + username + "/friends/?html=true&limit=5");
 });

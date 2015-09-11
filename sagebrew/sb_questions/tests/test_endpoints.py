@@ -1,6 +1,8 @@
 import time
 from dateutil import parser
 
+from neomodel import db
+
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -19,6 +21,8 @@ from sb_registration.utils import create_user_util_test
 
 class QuestionEndpointTests(APITestCase):
     def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
@@ -105,6 +109,27 @@ class QuestionEndpointTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_duplicate_title(self):
+        self.client.force_authenticate(user=self.user)
+        content = "This is the content to my question, it's a pretty good " \
+                  "question."
+        title = "This is a question that must be asked. What is blue?"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        response_duplicate = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response_duplicate.status_code,
+                         status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response_duplicate.data['title'][0],
+                         'Sorry looks like a Question with that '
+                         'Title already exists.')
 
     def test_create_rendered(self):
         self.client.force_authenticate(user=self.user)

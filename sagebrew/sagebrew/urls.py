@@ -122,6 +122,6 @@ else:
     urlpatterns += patterns(
         '',
         (r'^robots\.txt$', TemplateView.as_view(template_name='robots.txt',
-                                               content_type='text/plain')),
+                                                content_type='text/plain')),
         (r'^d667e6bf-d0fe-4aef-8efe-1e50c18b2aec/', include(admin.site.urls)),
     )

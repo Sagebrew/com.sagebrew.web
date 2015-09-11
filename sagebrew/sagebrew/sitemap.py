@@ -3,11 +3,12 @@ from django.core.urlresolvers import reverse
 
 
 class StaticViewSitemap(sitemaps.Sitemap):
-    priority = 0.5
-    changefreq = 'daily'
+    priority = 0.4
+    changefreq = 'never'
+    protocol = 'https'
 
     def items(self):
-        return ['contact_us', 'terms_redirect']
+        return ['contact_us', 'reset_password_page', 'login', 'logout']
 
     def location(self, item):
         return reverse(item)
@@ -15,7 +16,8 @@ class StaticViewSitemap(sitemaps.Sitemap):
 
 class SignupSitemap(sitemaps.Sitemap):
     priority = 1.0
-    changefreq = 'daily'
+    changefreq = 'yearly'
+    protocol = 'https'
 
     def items(self):
         return ['signup']

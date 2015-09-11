@@ -2,8 +2,6 @@ from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from neomodel import db
-
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_posts.neo_models import Post
@@ -73,8 +71,6 @@ class TestVotableContentNeoModel(TestCase):
 
 class TestTaggableContent(TestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
@@ -95,8 +91,6 @@ class TestTaggableContent(TestCase):
 
 class TestVersionedContent(TestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)
@@ -123,8 +117,6 @@ class TestVersionedContent(TestCase):
 
 class TestGetParentVotableContent(TestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.assertNotEqual(res, False)

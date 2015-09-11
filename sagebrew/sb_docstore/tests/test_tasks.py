@@ -1,3 +1,4 @@
+from uuid import uuid1
 import time
 import pytz
 from datetime import datetime
@@ -5,8 +6,6 @@ from datetime import datetime
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
-
-from neomodel import db
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
@@ -18,16 +17,13 @@ from sb_docstore.tasks import spawn_user_updates, add_object_to_table_task
 
 class TestSpawnUserUpdates(TestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = Question(title="testing spawn user updates with "
-                                       "questions?").save()
+        self.question = Question(title=str(uuid1())).save()
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
@@ -73,7 +69,7 @@ class TestAddObjectToTableTask(TestCase):
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = Question().save()
+        self.question = Question(title=str(uuid1())).save()
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):

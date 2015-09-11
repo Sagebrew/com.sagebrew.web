@@ -1,3 +1,4 @@
+from uuid import uuid1
 import time
 from dateutil import parser
 
@@ -7,8 +8,6 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from neomodel import db
-
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
@@ -17,8 +16,6 @@ from sb_flags.neo_models import Flag
 
 class CouncilEndpointTests(APITestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'sbcontent'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -27,8 +24,7 @@ class CouncilEndpointTests(APITestCase):
         self.url = "http://testserver"
         self.flag = Flag().save()
         self.question = Question(owner_username=self.pleb.username,
-                                 title="Hello world this is fun isn't "
-                                       "it?").save()
+                                 title=str(uuid1())).save()
         self.question.flags.connect(self.flag)
         self.question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(self.question)

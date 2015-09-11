@@ -1,3 +1,4 @@
+from uuid import uuid1
 import time
 
 from django.core.urlresolvers import reverse
@@ -6,7 +7,7 @@ from django.contrib.auth.models import User
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from neomodel.exception import DoesNotExist, db
+from neomodel.exception import DoesNotExist
 
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
@@ -17,15 +18,13 @@ from sb_registration.utils import create_user_util_test
 
 class SolutionEndpointTests(APITestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)
-        self.title = "test question title"
+        self.title = str(uuid1())
         self.question = Question(content="Hey I'm a question",
                                  title=self.title,
                                  owner_username=self.pleb.username).save()

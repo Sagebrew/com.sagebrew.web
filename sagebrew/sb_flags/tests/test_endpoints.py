@@ -1,11 +1,10 @@
+from uuid import uuid1
 from django.contrib.auth.models import User
 from django.core.cache import cache
 
 from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-
-from neomodel import db
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
@@ -16,15 +15,14 @@ from sb_questions.neo_models import Question
 
 class FlagEndpointTest(APITestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'flag'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
-        self.question = Question(owner_username=self.pleb).save()
+        self.question = Question(owner_username=self.pleb,
+                                 title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
         self.flag = Flag(flag_type="spam").save()
         self.question.flags.connect(self.flag)

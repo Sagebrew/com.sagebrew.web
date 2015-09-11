@@ -8,8 +8,6 @@ from rest_framework.reverse import reverse
 from rest_framework.test import APITestCase
 from rest_framework import status
 
-from neomodel import db
-
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_solutions.neo_models import Solution
@@ -21,8 +19,6 @@ from sb_questions.views import question_detail_page
 
 class TestGetQuestionSearchView(APITestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -34,7 +30,7 @@ class TestGetQuestionSearchView(APITestCase):
     def test_get_question_search_view_success(self):
         self.client.force_authenticate(user=self.user)
         question = Question(object_uuid=str(uuid1()), content='test',
-                            title='test title',
+                            title=str(uuid1()),
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
 
@@ -45,8 +41,6 @@ class TestGetQuestionSearchView(APITestCase):
 
 class TestGetQuestionView(APITestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         while not res['task_id'].ready():
@@ -60,7 +54,7 @@ class TestGetQuestionView(APITestCase):
     def test_get_question_view_success(self):
         self.client.force_authenticate(user=self.user)
         question = Question(object_uuid=str(uuid1()), content='test',
-                            title='test title',
+                            title=str(uuid1()),
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
 
@@ -71,7 +65,7 @@ class TestGetQuestionView(APITestCase):
     def test_get_question_view_html_snapshot_single_success(self):
         self.client.force_authenticate(user=self.user)
         question = Question(object_uuid=str(uuid1()), content='test',
-                            title='test title',
+                            title=str(uuid1()),
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
 
@@ -84,7 +78,7 @@ class TestGetQuestionView(APITestCase):
         factory = RequestFactory()
 
         question = Question(object_uuid=str(uuid1()), content='test',
-                            title='test title',
+                            title=str(uuid1()),
                             owner_username=self.pleb.username).save()
         parent_url = reverse(
             '%s-detail' % question.get_child_label().lower(),

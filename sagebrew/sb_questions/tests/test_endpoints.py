@@ -1,7 +1,6 @@
+from uuid import uuid1
 import time
 from dateutil import parser
-
-from neomodel import db
 
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
@@ -21,15 +20,13 @@ from sb_registration.utils import create_user_util_test
 
 class QuestionEndpointTests(APITestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)
-        self.title = "test question title"
+        self.title = str(uuid1())
         self.question = Question(content="Hey I'm a question",
                                  title=self.title,
                                  owner_username=self.pleb.username).save()
@@ -114,7 +111,7 @@ class QuestionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         content = "This is the content to my question, it's a pretty good " \
                   "question."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         tags = ['taxes', 'environment']
         url = reverse('question-list')
         data = {
@@ -135,7 +132,7 @@ class QuestionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         content = "This is the content to my question, it's a pretty good " \
                   "question."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         tags = ['taxes', 'environment']
         url = "%s?html=true" % reverse('question-list')
         data = {
@@ -154,7 +151,7 @@ class QuestionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         content = "This is the content to my question, it's a pretty good " \
                   "question."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         tags = ['taxes', 'environment']
         url = reverse('question-list')
         data = {
@@ -169,7 +166,7 @@ class QuestionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         content = "This is the content to my question, it's a pretty good " \
                   "question."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         tags = ['taxes', 'environment']
         url = reverse('question-list')
         data = {
@@ -184,7 +181,7 @@ class QuestionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         content = "This is the content to my question, it's a pretty good " \
                   "question."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         tags = ['taxes', 'environment']
         url = reverse('question-list')
         data = {
@@ -201,7 +198,7 @@ class QuestionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         content = "This is the content to my question, it's a pretty good " \
                   "question."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         tags = ['taxes', 'environment']
         url = reverse('question-list')
         data = {
@@ -216,7 +213,7 @@ class QuestionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         content = "This is the content to my question, it's a pretty good " \
                   "question."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         tags = ['taxes', 'environment']
         url = reverse('question-list')
         data = {
@@ -245,7 +242,7 @@ class QuestionEndpointTests(APITestCase):
 
     def test_create_no_content(self):
         self.client.force_authenticate(user=self.user)
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         tags = ['taxes', 'environment']
         url = reverse('question-list')
         data = {
@@ -262,7 +259,7 @@ class QuestionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         content = "This is the content to my question, it's a pretty good " \
                   "question."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         url = reverse('question-list')
         data = {
             "content": content,
@@ -275,7 +272,7 @@ class QuestionEndpointTests(APITestCase):
     def test_content_too_short(self):
         self.client.force_authenticate(user=self.user)
         content = "Short content."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         tags = ['taxes', 'environment']
         url = reverse('question-list')
         data = {
@@ -331,7 +328,7 @@ class QuestionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         content = "This is the content to my question, it's a pretty good " \
                   "question."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         Tag(name='pension').save()
         Tag(name='income').save()
         Tag(name='foreign_policy').save()
@@ -359,7 +356,7 @@ class QuestionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         content = "This is the content to my question, it's a pretty good " \
                   "question."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         tags = ['hello_world_this_is_fake']
         url = reverse('question-list')
         data = {
@@ -421,7 +418,7 @@ class QuestionEndpointTests(APITestCase):
 
     def test_update_title(self):
         self.client.force_authenticate(user=self.user)
-        title = "This is a question that must be asked. What is blue change?"
+        title = str(uuid1())
         url = reverse('question-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
         data = {
@@ -449,7 +446,7 @@ class QuestionEndpointTests(APITestCase):
 
     def test_update_title_with_solution(self):
         self.client.force_authenticate(user=self.user)
-        title = "This is a question that must be asked. What is blue change?"
+        title = str(uuid1())
         url = reverse('question-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
         data = {
@@ -642,7 +639,7 @@ class QuestionEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.question.object_uuid})
         response = self.client.get(url, format='json')
         self.assertEqual("http://testserver/conversations/%s/" %
-                         (self.question.object_uuid), response.data['url'])
+                         self.question.object_uuid, response.data['url'])
 
     def test_get_vote_count(self):
         self.client.force_authenticate(user=self.user)
@@ -664,7 +661,7 @@ class QuestionEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.question.object_uuid})
         response = self.client.get(url, format='json')
         self.assertEqual("http://testserver/v1/questions/%s/" %
-                         (self.question.object_uuid), response.data['href'])
+                         self.question.object_uuid, response.data['href'])
 
     def test_get_type(self):
         self.client.force_authenticate(user=self.user)
@@ -676,7 +673,7 @@ class QuestionEndpointTests(APITestCase):
     def test_get_list(self):
         for question in Question.nodes.all():
             question.delete()
-        question = Question(title='test_title', content='test_content',
+        question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
@@ -691,7 +688,7 @@ class QuestionEndpointTests(APITestCase):
         for question in Question.nodes.all():
             question.delete()
         tag = Tag.nodes.get(name='fiscal')
-        question = Question(title='test_title', content='test_content',
+        question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
@@ -707,7 +704,7 @@ class QuestionEndpointTests(APITestCase):
         for question in Question.nodes.all():
             question.delete()
         tag = Tag.nodes.get(name='taxes')
-        question = Question(title='test_title', content='test_content',
+        question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
@@ -723,7 +720,7 @@ class QuestionEndpointTests(APITestCase):
         for question in Question.nodes.all():
             question.delete()
         self.client.force_authenticate(user=self.user)
-        question = Question(title='test_title', content='test_content',
+        question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)
@@ -737,7 +734,7 @@ class QuestionEndpointTests(APITestCase):
         for question in Question.nodes.all():
             question.delete()
         self.client.force_authenticate(user=self.user)
-        question = Question(title='test_title', content='test_content',
+        question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(question)

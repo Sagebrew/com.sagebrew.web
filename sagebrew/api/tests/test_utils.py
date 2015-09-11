@@ -1,11 +1,10 @@
+from uuid import uuid1
 import time
 
 from django.core import signing
 from django.test import TestCase
 from django.contrib.auth.models import User
 from rest_framework.test import APIRequestFactory
-
-from neomodel import db
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
@@ -86,8 +85,6 @@ class TestSmartTruncate(TestCase):
 
 class TestGatherRequestData(TestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         self.factory = APIRequestFactory()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -95,8 +92,8 @@ class TestGatherRequestData(TestCase):
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)
-        self.title = "test question title"
-        self.question = Question(content="Hey I'm a question",
+        self.title = str(uuid1())
+        self.question = Question(content=str(uuid1()),
                                  title=self.title,
                                  owner_username=self.pleb.username).save()
         self.question.owned_by.connect(self.pleb)

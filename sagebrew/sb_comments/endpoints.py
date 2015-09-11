@@ -40,11 +40,19 @@ class ObjectCommentsListCreate(ListCreateAPIView):
     lookup_field = "object_uuid"
 
     def get_queryset(self):
-        query = "MATCH (a:SBContent {object_uuid:'%s'})-[:HAS_A]->" \
-                "(b:Comment) WHERE b.to_be_deleted=false" \
-                " RETURN b ORDER BY b.created DESC" % (
-                    self.kwargs[self.lookup_field])
-        res, col = db.cypher_query(query)
+        if self.request.user.is_authenticated():
+            query = "MATCH (a:SBContent {object_uuid:'%s'})-[:HAS_A]->" \
+                    "(b:Comment) WHERE b.to_be_deleted=false" \
+                    " RETURN b ORDER BY b.created DESC" % (
+                        self.kwargs[self.lookup_field])
+            res, _ = db.cypher_query(query)
+        else:
+            query = "MATCH (a:SBContent {object_uuid:'%s'})-[:HAS_A]->" \
+                    "(b:Comment) WHERE a.visibility='public' AND" \
+                    " b.to_be_deleted=false" \
+                    " RETURN b ORDER BY b.created DESC" % (
+                        self.kwargs[self.lookup_field])
+            res, _ = db.cypher_query(query)
         return res
 
     def list(self, request, *args, **kwargs):

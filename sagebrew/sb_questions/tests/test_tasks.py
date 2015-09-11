@@ -5,8 +5,6 @@ from django.test import TestCase
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from neomodel import db
-
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
@@ -18,8 +16,6 @@ from sb_questions.tasks import (add_auto_tags_to_question_task,
 
 class TestAddQuestionToIndicesTask(TestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
@@ -63,8 +59,6 @@ class TestAddQuestionToIndicesTask(TestCase):
 
 class TestAddAutoTagsToQuestionTask(TestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
@@ -100,8 +94,6 @@ class TestAddAutoTagsToQuestionTask(TestCase):
 
 class TestUpdateSearchIndex(TestCase):
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email)
@@ -112,7 +104,7 @@ class TestUpdateSearchIndex(TestCase):
                                  content="This is some test content "
                                          "that I just created.",
                                  owner_username=self.pleb.username,
-                                 title="This is a test title").save()
+                                 title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(self.question)
 

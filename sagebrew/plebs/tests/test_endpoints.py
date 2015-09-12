@@ -3,10 +3,10 @@ from uuid import uuid1
 import shortuuid
 from collections import OrderedDict
 
+from django.templatetags.static import static
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.templatetags import static
 from django.conf import settings
 
 from neomodel import db
@@ -132,14 +132,14 @@ class MeEndpointTests(APITestCase):
         url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['profile_pic'],
-                         static.static("images/sage_coffee_grey-01.png"))
+                         static("images/sage_coffee_grey-01.png"))
 
     def test_get_wallpaper_pic(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-list')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['wallpaper_pic'],
-                         static.static("images/wallpaper_western.jpg"))
+                         static("images/wallpaper_western.jpg"))
 
     def test_get_url(self):
         self.client.force_authenticate(user=self.user)
@@ -445,7 +445,8 @@ class FriendManagerEndpointTests(APITestCase):
         url = reverse('friend-detail',
                       kwargs={"friend_username": self.pleb2.username})
         response = self.client.get(url)
-        self.assertIsNone(response.data['profile_pic'])
+        self.assertEqual(response.data['profile_pic'],
+                         static('images/sage_coffee_grey-01.png'))
 
     def test_get_friend_request_first_name(self):
         self.client.force_authenticate(user=self.user)
@@ -466,7 +467,8 @@ class FriendManagerEndpointTests(APITestCase):
         url = reverse('friend-detail',
                       kwargs={"friend_username": self.pleb2.username})
         response = self.client.get(url)
-        self.assertIsNone(response.data['wallpaper_pic'])
+        self.assertEqual(response.data['wallpaper_pic'],
+                         static('images/wallpaper_western.jpg'))
 
     def test_get_friend_request_url(self):
         self.client.force_authenticate(user=self.user)
@@ -621,14 +623,16 @@ class ProfileEndpointTests(APITestCase):
         url = reverse('profile-detail', kwargs={
             'username': self.pleb.username})
         response = self.client.get(url, format='json')
-        self.assertIsNone(response.data['profile_pic'])
+        self.assertEqual(response.data['profile_pic'],
+                         static('images/sage_coffee_grey-01.png'))
 
     def test_get_wallpaper_pic(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-detail', kwargs={
             'username': self.pleb.username})
         response = self.client.get(url, format='json')
-        self.assertIsNone(response.data['profile_pic'])
+        self.assertEqual(response.data['profile_pic'],
+                         static('images/sage_coffee_grey-01.png'))
 
     def test_get_url(self):
         self.client.force_authenticate(user=self.user)

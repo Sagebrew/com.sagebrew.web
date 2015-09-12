@@ -109,6 +109,8 @@ class QuestionSerializerNeo(TitledContentSerializer):
     solution_count = serializers.SerializerMethodField()
 
     def validate_title(self, value):
+        # We need to escape quotes prior to passing the title to the query.
+        # Otherwise the query will fail due to the string being terminated.
         temp_value = value
         temp_value = temp_value.replace('"', '\\"')
         temp_value = temp_value.replace("'", "\\'")

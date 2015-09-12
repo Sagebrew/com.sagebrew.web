@@ -1,3 +1,4 @@
+from uuid import uuid1
 import time
 
 from django.conf import settings
@@ -19,7 +20,7 @@ class TestUpdateViewCountTask(TestCase):
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = Question().save()
+        self.question = Question(title=str(uuid1())).save()
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):

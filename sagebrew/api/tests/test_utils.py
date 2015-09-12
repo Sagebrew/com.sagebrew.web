@@ -1,3 +1,4 @@
+from uuid import uuid1
 import time
 
 from django.core import signing
@@ -91,8 +92,8 @@ class TestGatherRequestData(TestCase):
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)
-        self.title = "test question title"
-        self.question = Question(content="Hey I'm a question",
+        self.title = str(uuid1())
+        self.question = Question(content=str(uuid1()),
                                  title=self.title,
                                  owner_username=self.pleb.username).save()
         self.question.owned_by.connect(self.pleb)

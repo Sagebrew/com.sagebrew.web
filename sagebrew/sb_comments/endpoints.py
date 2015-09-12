@@ -40,25 +40,27 @@ class ObjectCommentsListCreate(ListCreateAPIView):
     lookup_field = "object_uuid"
 
     def get_queryset(self):
-        query = "MATCH (a:SBContent {object_uuid:'%s'})-[:HAS_A]->" \
-                "(b:Comment) WHERE b.to_be_deleted=false" \
-                " RETURN b ORDER BY b.created DESC" % (
-                    self.kwargs[self.lookup_field])
-        res, col = db.cypher_query(query)
+        if self.request.user.is_authenticated():
+            query = "MATCH (a:SBContent {object_uuid:'%s'})-[:HAS_A]->" \
+                    "(b:Comment) WHERE b.to_be_deleted=false" \
+                    " RETURN b ORDER BY b.created DESC" % (
+                        self.kwargs[self.lookup_field])
+            res, _ = db.cypher_query(query)
+        else:
+            query = "MATCH (a:SBContent {object_uuid:'%s'})-[:HAS_A]->" \
+                    "(b:Comment) WHERE a.visibility='public' AND" \
+                    " b.to_be_deleted=false" \
+                    " RETURN b ORDER BY b.created DESC" % (
+                        self.kwargs[self.lookup_field])
+            res, _ = db.cypher_query(query)
         return res
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-
-        if page is not None:
-            page = [Comment.inflate(row[0]) for row in page]
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        queryset = [Comment.inflate(row[0]) for row in queryset]
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        page = [Comment.inflate(row[0]) for row in
+                self.paginate_queryset(queryset)]
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

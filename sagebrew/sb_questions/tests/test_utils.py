@@ -18,7 +18,7 @@ class TestPrepareQuestionSearchHTML(TestCase):
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question_info_dict = {'title': "Test question",
+        self.question_info_dict = {'title': str(uuid1()),
                                    'content': 'test post',
                                    'object_uuid': str(uuid1())}
         self.pleb.first_name = "Tyler"

@@ -30,7 +30,7 @@ class TestGetQuestionSearchView(APITestCase):
     def test_get_question_search_view_success(self):
         self.client.force_authenticate(user=self.user)
         question = Question(object_uuid=str(uuid1()), content='test',
-                            title='test title',
+                            title=str(uuid1()),
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
 
@@ -54,7 +54,7 @@ class TestGetQuestionView(APITestCase):
     def test_get_question_view_success(self):
         self.client.force_authenticate(user=self.user)
         question = Question(object_uuid=str(uuid1()), content='test',
-                            title='test title',
+                            title=str(uuid1()),
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
 
@@ -65,7 +65,7 @@ class TestGetQuestionView(APITestCase):
     def test_get_question_view_html_snapshot_single_success(self):
         self.client.force_authenticate(user=self.user)
         question = Question(object_uuid=str(uuid1()), content='test',
-                            title='test title',
+                            title=str(uuid1()),
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
 
@@ -78,7 +78,7 @@ class TestGetQuestionView(APITestCase):
         factory = RequestFactory()
 
         question = Question(object_uuid=str(uuid1()), content='test',
-                            title='test title',
+                            title=str(uuid1()),
                             owner_username=self.pleb.username).save()
         parent_url = reverse(
             '%s-detail' % question.get_child_label().lower(),

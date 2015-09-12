@@ -474,7 +474,7 @@ class SBPublicContent(SBVersioned):
 
 
 class TitledContent(SBPublicContent):
-    title = StringProperty()
+    title = StringProperty(index=True)
 
 
 class SBPrivateContent(TaggableContent):

@@ -46,13 +46,16 @@ def help_area(request):
     category_dict = {}
     urlpatterns = populate_urls()
     for item in urlpatterns:
-        category = item.default_args["category"]
-        category = category.replace("_", " ")
         try:
-            category_dict[category].append(
-                {"title": item.default_args["title"], "name": item.name})
+            category = item.default_args["category"]
+            category = category.replace("_", " ")
+            try:
+                category_dict[category].append(
+                    {"title": item.default_args["title"], "name": item.name})
+            except KeyError:
+                category_dict[category] = [{"title": item.default_args["title"],
+                                            "name": item.name}]
         except KeyError:
-            category_dict[category] = [{"title": item.default_args["title"],
-                                        "name": item.name}]
+            continue
 
     return render(request, 'help_center.html', {"categories": category_dict})

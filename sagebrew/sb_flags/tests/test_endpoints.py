@@ -1,3 +1,4 @@
+from uuid import uuid1
 from django.contrib.auth.models import User
 from django.core.cache import cache
 
@@ -20,7 +21,8 @@ class FlagEndpointTest(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
-        self.question = Question(owner_username=self.pleb).save()
+        self.question = Question(owner_username=self.pleb,
+                                 title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
         self.flag = Flag(flag_type="spam").save()
         self.question.flags.connect(self.flag)

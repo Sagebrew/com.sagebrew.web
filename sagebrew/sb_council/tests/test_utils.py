@@ -1,3 +1,4 @@
+from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
@@ -18,7 +19,8 @@ class TestUpdateClosed(TestCase):
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         self.flag = Flag().save()
-        self.question = Question(owner_username=self.pleb.username).save()
+        self.question = Question(owner_username=self.pleb.username,
+                                 title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(self.question)
         self.question.flags.connect(self.flag)
@@ -65,7 +67,8 @@ class TestCheckClosedReputationChanges(TestCase):
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         self.flag = Flag().save()
-        self.question = Question(owner_username=self.pleb.username).save()
+        self.question = Question(owner_username=self.pleb.username,
+                                 title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(self.question)
         self.question.flags.connect(self.flag)

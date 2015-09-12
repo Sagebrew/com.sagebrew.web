@@ -708,7 +708,7 @@ class ProfileContentMethodTests(APITestCase):
 
     def test_get_pleb_questions(self):
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -725,7 +725,7 @@ class ProfileContentMethodTests(APITestCase):
         for item in Question.nodes.all():
             item.delete()
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -741,7 +741,7 @@ class ProfileContentMethodTests(APITestCase):
         for item in Question.nodes.all():
             item.delete()
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -757,7 +757,7 @@ class ProfileContentMethodTests(APITestCase):
         for item in Question.nodes.all():
             item.delete()
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -773,7 +773,7 @@ class ProfileContentMethodTests(APITestCase):
         for item in Question.nodes.all():
             item.delete()
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -789,7 +789,7 @@ class ProfileContentMethodTests(APITestCase):
         for item in Question.nodes.all():
             item.delete()
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -805,7 +805,7 @@ class ProfileContentMethodTests(APITestCase):
         for item in Question.nodes.all():
             item.delete()
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -821,8 +821,9 @@ class ProfileContentMethodTests(APITestCase):
     def test_get_pleb_question_title(self):
         for item in Question.nodes.all():
             item.delete()
+        title = str(uuid1())
         question = Question(
-            title="Hello there world",
+            title=title,
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -831,8 +832,7 @@ class ProfileContentMethodTests(APITestCase):
         url = reverse('profile-questions', kwargs={
             'username': self.pleb.username})
         response = self.client.get(url, format='json')
-        self.assertEqual(response.data['results'][0]['title'],
-                         "Hello there world")
+        self.assertEqual(response.data['results'][0]['title'], title)
 
     def test_get_pleb_question_invalid_query(self):
         self.client.force_authenticate(user=self.user)
@@ -843,6 +843,12 @@ class ProfileContentMethodTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_pleb_question_public_content(self):
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        self.pleb.questions.connect(question)
+        question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-public-content', kwargs={
             'username': self.pleb.username})
@@ -859,10 +865,11 @@ class ProfileContentMethodTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_get_pleb_public_content_id(self):
-        for item in Question.nodes.all():
-            item.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -2081,8 +2088,6 @@ class BetaUserMethodEndpointTests(APITestCase):
 
 class NewsfeedTests(APITestCase):
     def setUp(self):
-        query = "match (n)-[r]-() delete n,r"
-        db.cypher_query(query)
         cache.clear()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -2173,6 +2178,8 @@ class NewsfeedTests(APITestCase):
                          'Method "DELETE" not allowed.')
 
     def test_get_count(self):
+        query = "match (n)-[r]-() delete n,r"
+        db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
@@ -2185,6 +2192,9 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_posts(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         post = Post(content="Hey I'm a post",
                     owner_username=self.pleb.username,
                     wall_owner_username=self.pleb.username).save()
@@ -2384,7 +2394,7 @@ class NewsfeedTests(APITestCase):
     def test_get_question_content(self):
         content = "This is the content for my question."
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content=content,
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -2397,7 +2407,7 @@ class NewsfeedTests(APITestCase):
 
     def test_get_question_title(self):
         content = "This is the content for my question."
-        title = "Hello there world"
+        title = str(uuid1())
         question = Question(
             title=title,
             content=content,
@@ -2412,7 +2422,7 @@ class NewsfeedTests(APITestCase):
 
     def test_get_question_profile(self):
         content = "This is the content for my question."
-        title = "Hello there world"
+        title = str(uuid1())
         question = Question(
             title=title,
             content=content,
@@ -2427,17 +2437,20 @@ class NewsfeedTests(APITestCase):
                          self.pleb.username)
 
     def test_get_question_multiple(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         content = "This is the content for my question."
-        title = "Hello there world"
+        title = str(uuid1())
         question = Question(
             title=title,
             content=content,
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
-
+        title2 = "Hello there world2"
         question_two = Question(
-            title=title,
+            title=title2,
             content=content,
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question_two)
@@ -2450,7 +2463,7 @@ class NewsfeedTests(APITestCase):
 
     def test_get_question_rendered(self):
         content = "This is the content for my question."
-        title = "Hello there world"
+        title = str(uuid1())
         question = Question(
             title=title,
             content=content,
@@ -2465,7 +2478,7 @@ class NewsfeedTests(APITestCase):
 
     def test_get_question_rendered_expedite(self):
         content = "This is the content for my question."
-        title = "Hello there world"
+        title = str(uuid1())
         question = Question(
             title=title,
             content=content,
@@ -2481,7 +2494,7 @@ class NewsfeedTests(APITestCase):
     def test_get_solution_content(self):
         content = 'this is fake content'
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -2502,7 +2515,7 @@ class NewsfeedTests(APITestCase):
     def test_get_solution_profile(self):
         content = 'this is fake content'
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -2522,9 +2535,12 @@ class NewsfeedTests(APITestCase):
                          self.pleb.username)
 
     def test_get_solution_multiple(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         content = 'this is fake content'
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -2550,7 +2566,7 @@ class NewsfeedTests(APITestCase):
     def test_get_solution_rendered(self):
         content = 'this is fake content'
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -2571,7 +2587,7 @@ class NewsfeedTests(APITestCase):
     def test_get_solution_rendered_expedite(self):
         content = 'this is fake content'
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -2600,7 +2616,7 @@ class NewsfeedTests(APITestCase):
         post.owned_by.connect(self.pleb)
 
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)
@@ -2628,7 +2644,7 @@ class NewsfeedTests(APITestCase):
         post.owned_by.connect(self.pleb)
 
         question = Question(
-            title="Hello there world",
+            title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
         self.pleb.questions.connect(question)

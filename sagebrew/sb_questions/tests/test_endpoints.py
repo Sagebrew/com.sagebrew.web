@@ -143,7 +143,7 @@ class QuestionEndpointTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['title'][0], title)
+        self.assertEqual(response.data['title'], title)
 
     def test_create_title_with_apostrophes(self):
         self.client.force_authenticate(user=self.user)
@@ -160,7 +160,7 @@ class QuestionEndpointTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['title'][0], title)
+        self.assertEqual(response.data['title'], title)
 
     def test_create_rendered(self):
         self.client.force_authenticate(user=self.user)

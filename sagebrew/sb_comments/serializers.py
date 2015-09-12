@@ -1,5 +1,6 @@
 import bleach
 import pytz
+from uuid import uuid1
 from datetime import datetime
 
 from django.conf import settings
@@ -23,6 +24,7 @@ class CommentSerializer(ContentSerializer):
     comment_on = serializers.SerializerMethodField()
 
     def create(self, validated_data):
+        request = self.context["request"]
         owner = validated_data.pop('owner', None)
         parent_object = validated_data.pop('parent_object', None)
         validated_data['content'] = bleach.clean(
@@ -31,7 +33,23 @@ class CommentSerializer(ContentSerializer):
         # we use get_child_label() here because the parent_object is an
         # instance of SBContent and not the required Post, Solution,
         # Question this gets us the proper label of the node
+        uuid = str(uuid1())
+        req_url = reverse('%s-detail' % parent_object.get_child_label().lower(),
+                      kwargs={'object_uuid': parent_object.object_uuid},
+                      request=request)
+        if request is not None:
+            response = request_to_api(req_url, request.user.username,
+                                      req_method="GET")
+        else:
+            parent_url = "%s%s" % (settings.WEB_ADDRESS, req_url)
+            response = request_to_api(parent_url,
+                                      owner.username,
+                                      req_method="GET")
+        href = reverse("comment-detail", kwargs={'object_uuid': uuid},
+                       request=request)
+        url = response.json()['url']
         comment = Comment(parent_type=parent_object.get_child_label().lower(),
+                          url=url, href=href, object_uuid=uuid,
                           **validated_data).save()
         comment.owned_by.connect(owner)
         owner.comments.connect(comment)

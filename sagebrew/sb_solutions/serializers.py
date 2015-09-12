@@ -1,6 +1,7 @@
 import bleach
 import pytz
 
+from uuid import uuid1
 from datetime import datetime
 
 from rest_framework import serializers
@@ -25,7 +26,14 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         validated_data['content'] = bleach.clean(validated_data.get(
             'content', ""))
         validated_data['owner_username'] = owner.username
-        solution = Solution(**validated_data).save()
+        uuid = str(uuid1())
+        url = reverse('question_detail_page',
+                      kwargs={'question_uuid': question.object_uuid},
+                      request=request)
+        href = reverse('solution-detail', kwargs={"object_uuid": uuid},
+                       request=request)
+        solution = Solution(url=url, href=href, object_uuid=uuid,
+                            **validated_data).save()
         solution.owned_by.connect(owner)
         owner.solutions.connect(solution)
         if question is not None:

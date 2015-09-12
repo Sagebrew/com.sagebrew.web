@@ -1,5 +1,6 @@
 import bleach
 import pytz
+from uuid import uuid1
 from datetime import datetime
 
 from django.conf import settings
@@ -117,7 +118,12 @@ class QuestionSerializerNeo(TitledContentSerializer):
         validated_data['content'] = bleach.clean(validated_data.get(
             'content', ""))
         validated_data['owner_username'] = owner.username
-        question = Question(**validated_data).save()
+        uuid = str(uuid1())
+        url = reverse('question_detail_page', kwargs={'question_uuid': uuid},
+                      request=request)
+        href = reverse('question-detail', kwargs={'object_uuid': uuid},
+                       request=request)
+        question = Question(url=url, href=href, **validated_data).save()
         question.owned_by.connect(owner)
         owner.questions.connect(question)
         for tag in tags:

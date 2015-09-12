@@ -42,7 +42,7 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
                 about=sb_object.__class__.__name__.lower(),
                 url=url,
                 action_name=action_name).save()
-
+        logger.info(notification.action_name)
         notification.notification_from.connect(from_pleb)
         for pleb in to_plebs:
             notification.notification_to.connect(pleb)

@@ -351,9 +351,11 @@ class SBContent(VotableContent):
 
 
 class TaggableContent(SBContent):
+    url = StringProperty() # non api location
+    href = StringProperty() # api location
+    added_to_search_index = BooleanProperty(default=False)
     # relationships
     tags = RelationshipTo('sb_tags.neo_models.Tag', 'TAGGED_AS')
-    added_to_search_index = BooleanProperty(default=False)
 
     # methods
     @apply_defense

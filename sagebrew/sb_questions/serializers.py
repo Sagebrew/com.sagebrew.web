@@ -109,7 +109,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
     solution_count = serializers.SerializerMethodField()
 
     def validate_title(self, value):
-        temp_value = bleach.clean(value)
+        temp_value = value
         temp_value = temp_value.replace('"', '\\"')
         temp_value = temp_value.replace("'", "\\'")
         query = 'MATCH (q:Question {title: "%s"}) RETURN q' % temp_value

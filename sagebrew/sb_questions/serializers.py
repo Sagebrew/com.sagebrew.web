@@ -109,7 +109,10 @@ class QuestionSerializerNeo(TitledContentSerializer):
     solution_count = serializers.SerializerMethodField()
 
     def validate_title(self, value):
-        query = 'MATCH (q:Question {title: "%s"}) RETURN q' % value
+        temp_value = bleach.clean(value)
+        temp_value = temp_value.replace('"', '\\"')
+        temp_value = temp_value.replace("'", "\\'")
+        query = 'MATCH (q:Question {title: "%s"}) RETURN q' % temp_value
         res, _ = db.cypher_query(query)
         if res.one is not None:
             raise serializers.ValidationError("Sorry looks like a Question "

@@ -128,6 +128,40 @@ class QuestionEndpointTests(APITestCase):
                          'Sorry looks like a Question with that '
                          'Title already exists.')
 
+    def test_create_title_with_quotes(self):
+        self.client.force_authenticate(user=self.user)
+        content = "This is the content to my question, it's a pretty good " \
+                  "question."
+        title = '"images/wallpaper_western.jpg""images/wallpaper_western.jpg' \
+                '""images/wallpaper_western.jpg"'
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['title'][0], title)
+
+    def test_create_title_with_apostrophes(self):
+        self.client.force_authenticate(user=self.user)
+        content = "This is the content to my question, it's a pretty good " \
+                  "question."
+        title = "'images/wallpaper_western.jpg''images/wallpaper_western.jpg'" \
+                "''images/wallpaper_western.jpg'"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['title'][0], title)
+
     def test_create_rendered(self):
         self.client.force_authenticate(user=self.user)
         content = "This is the content to my question, it's a pretty good " \

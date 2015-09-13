@@ -131,7 +131,7 @@ class VotableContent(NotificationCapable):
                 'where r.vote_type=true and r.active=true return r' % (
                     self.object_uuid)
         try:
-            res, col = self.cypher(query)
+            res, col = db.cypher_query(query)
             return len(res)
         except(CypherException, IOError, ClientError) as e:
             logger.exception("Cypher Error: ")
@@ -149,7 +149,7 @@ class VotableContent(NotificationCapable):
                 'where r.vote_type=false and r.active=true return r' % (
                     self.object_uuid)
         try:
-            res, col = self.cypher(query)
+            res, col = db.cypher_query(query)
             return len(res)
         except (CypherException, IOError, ClientError) as e:
             logger.exception("Cypher Error: ")

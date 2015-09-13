@@ -12,6 +12,7 @@ from sb_notifications.tasks import spawn_notifications
 from logging import getLogger
 logger = getLogger("loggly_logs")
 
+
 @shared_task()
 def vote_object_task(vote_type, current_pleb, object_uuid):
     """

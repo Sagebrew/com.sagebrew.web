@@ -46,6 +46,77 @@ class TestObjectVoteNotifications(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.question = Question(owner_username=self.pleb.username).save()
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
+
+    def test_initial_vote_create(self):
+        data = {
+            "object_uuid": self.question.object_uuid,
+            "previous_vote_type": None,
+            "new_vote_type": 1,
+            "voting_pleb": self.pleb.username
+        }
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        self.assertNotIsInstance(res.result, Exception)
+
+    def test_change_vote_down_to_up(self):
+        data = {
+            "object_uuid": self.question.object_uuid,
+            "previous_vote_type": 0,
+            "new_vote_type": 1,
+            "voting_pleb": self.pleb.username
+        }
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        self.assertNotIsInstance(res.result, Exception)
+
+    def test_change_vote_up_to_down(self):
+        data = {
+            "object_uuid": self.question.object_uuid,
+            "previous_vote_type": 1,
+            "new_vote_type": 0,
+            "voting_pleb": self.pleb.username
+        }
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        self.assertNotIsInstance(res.result, Exception)
+
+    def test_pos_rep_change(self):
+        data = {
+            "object_uuid": self.question.object_uuid,
+            "previous_vote_type": 0,
+            "new_vote_type": 1,
+            "voting_pleb": self.pleb.username
+        }
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        self.assertNotIsInstance(res.result, Exception)
+
+    def test_neg_rep_change(self):
+        data = {
+            "object_uuid": self.question.object_uuid,
+            "previous_vote_type": 1,
+            "new_vote_type": 0,
+            "voting_pleb": self.pleb.username
+        }
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        self.assertNotIsInstance(res.result, Exception)

@@ -35,8 +35,8 @@ class CommentSerializer(ContentSerializer):
         # Question this gets us the proper label of the node
         uuid = str(uuid1())
         req_url = reverse('%s-detail' % parent_object.get_child_label().lower(),
-                      kwargs={'object_uuid': parent_object.object_uuid},
-                      request=request)
+                          kwargs={'object_uuid': parent_object.object_uuid},
+                          request=request)
         if request is not None:
             response = request_to_api(req_url, request.user.username,
                                       req_method="GET")

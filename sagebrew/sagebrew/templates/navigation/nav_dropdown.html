@@ -1,7 +1,10 @@
 {% load staticfiles %}
 <div class="btn-group sb_dropdown">
     <div class="btn-group">
-        <button class="btn dropdown-toggle sb_btn_nav show_friend_request-action"
+        {% if not request_profile.reputation_update_seen %}
+            <span class="navbar-new sb_reputation_notifier" id="js-sb_friend_request_notifier"></span>
+        {% endif %}
+        <button class="btn dropdown-toggle sb_btn_nav show_friend_request-action show-reputation-action"
                 type="button"
                 id="sb_friend"
                 data-toggle="dropdown"

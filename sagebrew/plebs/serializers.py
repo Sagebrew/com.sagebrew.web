@@ -139,6 +139,8 @@ class PlebSerializerNeo(SBSerializer):
     last_name = serializers.CharField(read_only=True)
     username = serializers.CharField(read_only=True)
     completed_profile_info = serializers.BooleanField(read_only=True)
+    # determine whether to show a notification about reputation change
+    reputation_update_seen = serializers.BooleanField(required=False)
     href = serializers.SerializerMethodField()
 
     # These are read only because we force users to use a different endpoint
@@ -175,6 +177,8 @@ class PlebSerializerNeo(SBSerializer):
                                                   instance.profile_pic)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
+        instance.reputation_update_seen = validated_data.get(
+            'reputation_update_seen', instance.reputation_update_seen)
         instance.save()
         instance.refresh()
         cache.set(instance.username, instance)

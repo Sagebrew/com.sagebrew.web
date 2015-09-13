@@ -31,13 +31,13 @@ class Command(BaseCommand):
             parent_object = get_parent_object(comment.object_uuid)
             req_url = reverse('%s-detail' %
                               parent_object.get_child_label().lower(),
-                          kwargs={'object_uuid': parent_object.object_uuid})
+                              kwargs={'object_uuid': parent_object.object_uuid})
             parent_url = "%s%s" % (settings.WEB_ADDRESS, req_url)
             response = request_to_api(parent_url,
                                       comment.owner_username,
                                       req_method="GET")
-            href = reverse("comment-detail", kwargs={'object_uuid':
-                                                         comment.object_uuid})
+            href = reverse("comment-detail",
+                           kwargs={'object_uuid': comment.object_uuid})
             url = response.json()['url']
             comment.url = "%s%s" % (settings.WEB_ADDRESS, url)
             comment.href = "%s%s" % (settings.WEB_ADDRESS, href)

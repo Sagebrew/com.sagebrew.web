@@ -73,8 +73,8 @@ class VotableContent(NotificationCapable):
     # count stored in it but that may change in the future as we transition
     # to a more discernible metrics approach.
     reputation_loss = IntegerProperty(default=0)
-    url = StringProperty() # non api location
-    href = StringProperty() # api location
+    url = StringProperty()  # non api location
+    href = StringProperty()  # api location
     up_vote_adjustment = IntegerProperty(default=0)
     down_vote_adjustment = IntegerProperty(default=0)
     down_vote_cost = IntegerProperty(default=0)

@@ -11,8 +11,6 @@ from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
 
 from django.conf import settings
 
-from sb_base.decorators import apply_defense
-
 logger = getLogger('loggly_logs')
 
 
@@ -90,7 +88,6 @@ def add_object_to_table(table_name, object_data):
     return True
 
 
-@apply_defense
 def update_vote(object_uuid, user, vote_type, time):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
@@ -105,7 +102,7 @@ def update_vote(object_uuid, user, vote_type, time):
             parent_object=object_uuid,
             user=user
         )
-    except ItemNotFound as e:
+    except(ItemNotFound, ProvisionedThroughputExceededException) as e:
         return e
     if vote['status'] == vote_type:
         vote['status'] = 2
@@ -116,7 +113,6 @@ def update_vote(object_uuid, user, vote_type, time):
     return vote
 
 
-@apply_defense
 def get_vote_count(object_uuid, vote_type):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
@@ -129,14 +125,19 @@ def get_vote_count(object_uuid, vote_type):
     # We do it that way because we fall back to cypher and the query currently
     # depends on up/down vote in a different way than dynamo handles it. If we
     # where to do it here it would cause the function to become unwieldy and
-    # create too large of a scope for the fxn.
+    # create too much of a scope for the fxn to handle.
+    # NOTE: It has not yet been determined how to handle
+    # ProvisionedThroughputExceptions. Boto does not handle exceptions
+    # pythonicly nor any easily determined way. Therefore we are currenlty
+    # monitoring the provisioned throughput level and need to investigate
+    # additional means to mitigate these risks.
+
     votes = votes_table.query_2(parent_object__eq=object_uuid,
                                 status__eq=vote_type,
                                 index="VoteStatusIndex")
     return len(list(votes))
 
 
-@apply_defense
 def get_user_updates(username, object_uuid, table_name):
     conn = connect_to_dynamo()
     if isinstance(conn, IOError):
@@ -170,7 +171,6 @@ def get_dynamo_table(table_name):
     return table
 
 
-@apply_defense
 def get_vote(object_uuid, user):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
@@ -191,5 +191,3 @@ def get_vote(object_uuid, user):
     except (ItemNotFound, JSONResponseError, ValidationException):
         # TODO implement fall back on neo
         return None
-    except ProvisionedThroughputExceededException as e:
-        return e

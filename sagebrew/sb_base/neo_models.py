@@ -4,7 +4,8 @@ from logging import getLogger
 from json import dumps
 from datetime import datetime
 
-from py2neo.cypher.error.statement import ConstraintViolation
+from boto.dynamodb2.exceptions import ProvisionedThroughputExceededException
+from py2neo.cypher.error.statement import ConstraintViolation, ClientError
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
@@ -121,7 +122,9 @@ class VotableContent(NotificationCapable):
     def get_upvote_count(self):
         try:
             return int(doc_vote_count(self.object_uuid, 1))
-        except(TypeError, IOError):
+        except(TypeError, IOError, ProvisionedThroughputExceededException):
+            # We log this off because if we're receiving this error we may
+            # want to increase the provisional count on DynamoDB
             logger.exception("DynamoDB Error: ")
 
         query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
@@ -129,9 +132,9 @@ class VotableContent(NotificationCapable):
                 'where r.vote_type=true and r.active=true return r' % (
                     self.object_uuid)
         try:
-            res, col = self.cypher(query)
+            res, col = db.cypher_query(query)
             return len(res)
-        except(CypherException, IOError) as e:
+        except(CypherException, IOError, ClientError) as e:
             logger.exception("Cypher Error: ")
             return e
 
@@ -139,7 +142,9 @@ class VotableContent(NotificationCapable):
     def get_downvote_count(self):
         try:
             return int(doc_vote_count(self.object_uuid, 0))
-        except(TypeError, IOError):
+        except(TypeError, IOError, ProvisionedThroughputExceededException):
+            # We log this off because if we're receiving this error we may
+            # want to increase the provisional count on DynamoDB
             logger.exception("DynamoDB Error: ")
 
         query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
@@ -147,9 +152,9 @@ class VotableContent(NotificationCapable):
                 'where r.vote_type=false and r.active=true return r' % (
                     self.object_uuid)
         try:
-            res, col = self.cypher(query)
+            res, col = db.cypher_query(query)
             return len(res)
-        except (CypherException, IOError) as e:
+        except (CypherException, IOError, ClientError) as e:
             logger.exception("Cypher Error: ")
             return e
 
@@ -161,8 +166,13 @@ class VotableContent(NotificationCapable):
     def get_vote_type(self, username):
         from plebs.neo_models import Pleb
         try:
-            return determine_vote_type(self.object_uuid, username)
-        except(TypeError, IOError):
+            vote_type = determine_vote_type(self.object_uuid, username)
+            if not isinstance(vote_type,
+                              ProvisionedThroughputExceededException):
+                return vote_type
+        except(TypeError, IOError, ProvisionedThroughputExceededException):
+            # We log this off because if we're receiving this error we may
+            # want to increase the provisional count on DynamoDB
             logger.exception("DynamoDB Error: ")
         try:
             pleb = Pleb.get(username=username)
@@ -170,7 +180,7 @@ class VotableContent(NotificationCapable):
                 rel = self.votes.relationship(pleb)
             else:
                 return None
-        except(CypherException, IOError) as e:
+        except(CypherException, IOError, ClientError) as e:
             logger.exception("Cypher Error: ")
             return e
         if rel.active is False:

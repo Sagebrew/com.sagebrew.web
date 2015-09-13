@@ -6,7 +6,8 @@ from boto.dynamodb2.table import Table
 from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
                                        ConditionalCheckFailedException,
                                        ValidationException,
-                                       ResourceNotFoundException)
+                                       ResourceNotFoundException,
+                                       ProvisionedThroughputExceededException)
 
 from django.conf import settings
 
@@ -124,6 +125,11 @@ def get_vote_count(object_uuid, vote_type):
         votes_table = Table(table_name=get_table_name('votes'), connection=conn)
     except JSONResponseError as e:
         return e
+    # Handle ProvisionedThroughputExceededException in calling function.
+    # We do it that way because we fall back to cypher and the query currently
+    # depends on up/down vote in a different way than dynamo handles it. If we
+    # where to do it here it would cause the function to become unwieldy and
+    # create too large of a scope for the fxn.
     votes = votes_table.query_2(parent_object__eq=object_uuid,
                                 status__eq=vote_type,
                                 index="VoteStatusIndex")
@@ -185,3 +191,5 @@ def get_vote(object_uuid, user):
     except (ItemNotFound, JSONResponseError, ValidationException):
         # TODO implement fall back on neo
         return None
+    except ProvisionedThroughputExceededException as e:
+        return e

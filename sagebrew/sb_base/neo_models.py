@@ -4,7 +4,9 @@ from logging import getLogger
 from json import dumps
 from datetime import datetime
 
+from boto.dynamodb2.exceptions import ProvisionedThroughputExceededException
 from py2neo.cypher.error.statement import ConstraintViolation
+from py2neo.exceptions import ClientError
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
@@ -121,7 +123,7 @@ class VotableContent(NotificationCapable):
     def get_upvote_count(self):
         try:
             return int(doc_vote_count(self.object_uuid, 1))
-        except(TypeError, IOError):
+        except(TypeError, IOError, ProvisionedThroughputExceededException):
             logger.exception("DynamoDB Error: ")
 
         query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
@@ -131,7 +133,7 @@ class VotableContent(NotificationCapable):
         try:
             res, col = self.cypher(query)
             return len(res)
-        except(CypherException, IOError) as e:
+        except(CypherException, IOError, ClientError) as e:
             logger.exception("Cypher Error: ")
             return e
 
@@ -139,7 +141,7 @@ class VotableContent(NotificationCapable):
     def get_downvote_count(self):
         try:
             return int(doc_vote_count(self.object_uuid, 0))
-        except(TypeError, IOError):
+        except(TypeError, IOError, ProvisionedThroughputExceededException):
             logger.exception("DynamoDB Error: ")
 
         query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
@@ -149,7 +151,7 @@ class VotableContent(NotificationCapable):
         try:
             res, col = self.cypher(query)
             return len(res)
-        except (CypherException, IOError) as e:
+        except (CypherException, IOError, ClientError) as e:
             logger.exception("Cypher Error: ")
             return e
 
@@ -162,7 +164,7 @@ class VotableContent(NotificationCapable):
         from plebs.neo_models import Pleb
         try:
             return determine_vote_type(self.object_uuid, username)
-        except(TypeError, IOError):
+        except(TypeError, IOError, ProvisionedThroughputExceededException):
             logger.exception("DynamoDB Error: ")
         try:
             pleb = Pleb.get(username=username)
@@ -170,7 +172,7 @@ class VotableContent(NotificationCapable):
                 rel = self.votes.relationship(pleb)
             else:
                 return None
-        except(CypherException, IOError) as e:
+        except(CypherException, IOError, ClientError) as e:
             logger.exception("Cypher Error: ")
             return e
         if rel.active is False:

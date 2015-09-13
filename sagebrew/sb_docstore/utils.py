@@ -124,6 +124,11 @@ def get_vote_count(object_uuid, vote_type):
         votes_table = Table(table_name=get_table_name('votes'), connection=conn)
     except JSONResponseError as e:
         return e
+    # Handle ProvisionedThroughputExceededException in calling function.
+    # We do it that way because we fall back to cypher and the query currently
+    # depends on up/down vote in a different way than dynamo handles it. If we
+    # where to do it here it would cause the function to become unwieldy and
+    # create too much of a scope for the fxn to handle.
     votes = votes_table.query_2(parent_object__eq=object_uuid,
                                 status__eq=vote_type,
                                 index="VoteStatusIndex")

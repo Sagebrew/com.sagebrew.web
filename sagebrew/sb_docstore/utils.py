@@ -6,7 +6,8 @@ from boto.dynamodb2.table import Table
 from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
                                        ConditionalCheckFailedException,
                                        ValidationException,
-                                       ResourceNotFoundException)
+                                       ResourceNotFoundException,
+                                       ProvisionedThroughputExceededException)
 
 from django.conf import settings
 
@@ -190,3 +191,5 @@ def get_vote(object_uuid, user):
     except (ItemNotFound, JSONResponseError, ValidationException):
         # TODO implement fall back on neo
         return None
+    except ProvisionedThroughputExceededException as e:
+        return e

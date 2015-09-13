@@ -124,6 +124,8 @@ class VotableContent(NotificationCapable):
         try:
             return int(doc_vote_count(self.object_uuid, 1))
         except(TypeError, IOError, ProvisionedThroughputExceededException):
+            # We log this off because if we're receiving this error we may
+            # want to increase the provisional count on DynamoDB
             logger.exception("DynamoDB Error: ")
 
         query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
@@ -142,6 +144,8 @@ class VotableContent(NotificationCapable):
         try:
             return int(doc_vote_count(self.object_uuid, 0))
         except(TypeError, IOError, ProvisionedThroughputExceededException):
+            # We log this off because if we're receiving this error we may
+            # want to increase the provisional count on DynamoDB
             logger.exception("DynamoDB Error: ")
 
         query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
@@ -163,8 +167,13 @@ class VotableContent(NotificationCapable):
     def get_vote_type(self, username):
         from plebs.neo_models import Pleb
         try:
-            return determine_vote_type(self.object_uuid, username)
+            vote_type = determine_vote_type(self.object_uuid, username)
+            if not isinstance(vote_type,
+                              ProvisionedThroughputExceededException):
+                return vote_type
         except(TypeError, IOError, ProvisionedThroughputExceededException):
+            # We log this off because if we're receiving this error we may
+            # want to increase the provisional count on DynamoDB
             logger.exception("DynamoDB Error: ")
         try:
             pleb = Pleb.get(username=username)

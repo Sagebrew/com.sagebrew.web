@@ -5,8 +5,7 @@ from json import dumps
 from datetime import datetime
 
 from boto.dynamodb2.exceptions import ProvisionedThroughputExceededException
-from py2neo.cypher.error.statement import ConstraintViolation
-from py2neo.exceptions import ClientError
+from py2neo.cypher.error.statement import ConstraintViolation, ClientError
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,

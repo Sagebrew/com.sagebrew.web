@@ -68,7 +68,8 @@ def question_detail_page(request, question_uuid):
         'uuid': question.object_uuid,
         'sort_by': 'uuid',
         'description': description,
-        'keywords': keywords
+        'keywords': keywords,
+        'title': question.title
     })
 
 

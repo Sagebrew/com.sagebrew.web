@@ -53,7 +53,7 @@ class TestDocstoreUtils(TestCase):
         res = add_object_to_table('votes', vote_data)
         self.assertTrue(res)
 
-        res = update_vote(uuid, self.pleb.username, 0, now)
+        res, _ = update_vote(uuid, self.pleb.username, 0, now)
         self.assertNotEqual(res, False)
         self.assertFalse(isinstance(res, Exception))
 

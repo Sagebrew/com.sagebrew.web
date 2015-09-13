@@ -13,7 +13,7 @@
         </div>
         <div class="col-lg-10 col-md-10">
            <p><a style="color: #34495e" href="{{ url }}" class="notification">
-               {{ notification_from.first_name }} {{ notification_from.last_name }} {{ action_name }}</a>
+               {{ notification_from.first_name }} {{ notification_from.last_name }} {{ action_name|safe }}</a>
             </p>
            {% comment %}
             title will either comment, solution. priveledge attained, or post

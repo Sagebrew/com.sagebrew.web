@@ -120,3 +120,16 @@ class TestObjectVoteNotifications(TestCase):
 
         self.assertTrue(res.result)
         self.assertNotIsInstance(res.result, Exception)
+
+    def test_pleb_does_not_exist(self):
+        data = {
+            "object_uuid": self.question.object_uuid,
+            "previous_vote_type": 1,
+            "new_vote_type": 0,
+            "voting_pleb": str(uuid1())
+        }
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertIsInstance(res.result, Exception)

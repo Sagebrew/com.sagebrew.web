@@ -21,6 +21,9 @@ class Notification(SBObject):
     sent = BooleanProperty(default=False)
     url = StringProperty()
     action_name = StringProperty()
+    # public_notification used to determine if real names should be used in
+    # vote notifications
+    public_notification = BooleanProperty(default=False)
 
     # relationships
     notification_from = RelationshipTo('plebs.neo_models.Pleb',

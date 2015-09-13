@@ -503,6 +503,20 @@ def get_parent_content(object_uuid, relation, child_object):
         return None
 
 
+def get_parent_titled_content(object_uuid):
+    try:
+        query = 'MATCH (a:TitledContent {object_uuid:"%s"}) return a' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        try:
+            content = TitledContent.inflate(res[0][0])
+        except ValueError:
+            content = TitledContent.inflate(res[0][0])
+        return content
+    except (CypherException, IOError, IndexError) as e:
+        return e
+
+
 def get_parent_votable_content(object_uuid):
     try:
         query = 'MATCH (a:VotableContent {object_uuid:"%s"}) RETURN a' % (

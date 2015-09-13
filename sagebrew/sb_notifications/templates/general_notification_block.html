@@ -12,8 +12,12 @@
             {% endcomment %}
         </div>
         <div class="col-lg-10 col-md-10">
-           <p><a style="color: #34495e" href="{{ url }}" class="notification">
-               {{ notification_from.first_name }} {{ notification_from.last_name }} {{ action_name|safe }}</a>
+            <p><a style="color: #34495e" href="{{ url }}" class="notification">
+                {% if not public_notification %}
+                    {{ notification_from.first_name }} {{ notification_from.last_name }} {{ action_name|safe }}</a>
+                {% else %}
+                    {{ action_name|safe }}
+                {% endif %}
             </p>
            {% comment %}
             title will either comment, solution. priveledge attained, or post

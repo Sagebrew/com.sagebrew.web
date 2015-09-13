@@ -8,7 +8,7 @@ from plebs.neo_models import Pleb
 
 from sb_base.neo_models import VotableContent
 from sb_registration.utils import create_user_util_test
-from sb_votes.tasks import vote_object_task
+from sb_votes.tasks import vote_object_task, object_vote_notifications
 
 from sb_questions.neo_models import Question
 
@@ -37,3 +37,15 @@ class TestVoteObjectTask(TestCase):
             time.sleep(1)
 
         self.assertIsInstance(res.result, VotableContent)
+
+
+class TestObjectVoteNotifications(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False

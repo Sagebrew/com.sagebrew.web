@@ -1,8 +1,10 @@
+from dateutil import parser
 
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 
+from neomodel import db
 
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
@@ -13,6 +15,7 @@ from api.utils import smart_truncate
 from sb_registration.utils import verify_completed_registration
 from sb_questions.neo_models import Question
 
+from .serializers import QuestionSerializerNeo
 from .utils import prepare_question_search_html, question_html_snapshot
 
 
@@ -45,6 +48,21 @@ def question_page(request, sort_by="most_recent"):
     tag_array = []
     for tag in settings.BASE_TAGS:
         tag_array.append({'default': tag, 'display': tag.replace('_', ' ')})
+    if '_escaped_fragment_' in request.GET:
+        query = "MATCH (n:Question) WHERE n.to_be_deleted=false RETURN n " \
+                "ORDER BY n.created DESC"
+        res, _ = db.cypher_query(query)
+        queryset = []
+        for row in res:
+            question = QuestionSerializerNeo(Question.inflate(row[0]),
+                                             context={'expand_param': True,
+                                                      'request': request}).data
+            question['last_edited_on'] = parser.parse(
+                    question['last_edited_on'])
+            queryset.append(question)
+        return render(request, 'question_list.html',
+                      {"base_tags": tag_array, 'questions': queryset,
+                       'html_snapshot': True})
     return render(request, 'question_list.html',
                   {"base_tags": tag_array})
 

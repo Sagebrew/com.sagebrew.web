@@ -7,7 +7,7 @@
         {% elif "Senator" in name.full_name %}
             <img class="sb_thumbnail_sm" src="{% static 'images/senator_badge.png' %}">
         {% else %}
-            <img class="sb_thumbnail_sm" src="{{ request_profile.profile_pic|default_if_none:default_profile }}">
+            <img class="sb_thumbnail_sm" src="{% static 'images/local_badge.png' %}">
         {% endif %}
 
     </div>

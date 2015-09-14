@@ -21,6 +21,7 @@ from plebs.neo_models import Pleb
 from sb_goals.neo_models import Round, Goal
 from sb_public_official.serializers import PublicOfficialSerializer
 from sb_privileges.tasks import check_privileges
+from sb_locations.neo_models import Location
 
 from .neo_models import (Campaign, PoliticalCampaign, Position)
 
@@ -541,3 +542,32 @@ class PositionSerializer(SBSerializer):
 
     def get_full_name(self, obj):
         return Position.get_full_name(obj.object_uuid)
+
+
+class PositionManagerSerializer(SBSerializer):
+    name = serializers.CharField()
+
+    location_name = serializers.CharField(
+        allow_blank=True)
+    location_uuid = serializers.CharField(
+        allow_blank=True)
+
+    def create(self, validated_data):
+        location = None
+        location_name = validated_data.pop('location_name', '')
+        location_id = validated_data.pop('location_uuid', '')
+        try:
+            location = Location.nodes.get(name=location_name)
+        except(Location.DoesNotExist, DoesNotExist):
+            pass
+        if location is None:
+            try:
+                location = Location.nodes.get(object_uuid=location_id)
+            except(Location.DoesNotExist, DoesNotExist):
+                pass
+        position = Position(**validated_data).save()
+        if location is not None:
+            location.positions.connect(position)
+            position.location.connect(location)
+
+        return position

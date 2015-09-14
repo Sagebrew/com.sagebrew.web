@@ -175,3 +175,36 @@ class TestGetQuestionView(APITestCase):
         comment.delete()
         comment2.delete()
         self.assertTrue(response.status_code, status.HTTP_200_OK)
+
+
+class TestGetQuestionListView(APITestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.pleb.first_name = 'Tyler'
+        self.pleb.last_name = 'Wiersing'
+        self.pleb.save()
+
+    def test_get_question_view_success(self):
+        self.client.force_authenticate(user=self.user)
+        question = Question(object_uuid=str(uuid1()), content='test',
+                            title=str(uuid1()),
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+
+        res = self.client.get('/conversations/')
+        self.assertTrue(res.status_code, status.HTTP_200_OK)
+
+    def test_get_question_view_html_snapshot_single_success(self):
+        self.client.force_authenticate(user=self.user)
+        question = Question(object_uuid=str(uuid1()), content='test',
+                            title=str(uuid1()),
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+
+        res = self.client.get('/conversations/?_escaped_fragment_=')
+        self.assertTrue(res.status_code, status.HTTP_200_OK)

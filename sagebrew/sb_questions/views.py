@@ -45,9 +45,8 @@ def question_page(request, sort_by="most_recent"):
 
     :return:
     """
-    tag_array = []
-    for tag in settings.BASE_TAGS:
-        tag_array.append({'default': tag, 'display': tag.replace('_', ' ')})
+    tag_array = [{'default': tag, 'display': tag.replace('_', ' ')}
+                 for tag in settings.BASE_TAGS]
     if '_escaped_fragment_' in request.GET:
         query = "MATCH (n:Question) WHERE n.to_be_deleted=false RETURN n " \
                 "ORDER BY n.created DESC"

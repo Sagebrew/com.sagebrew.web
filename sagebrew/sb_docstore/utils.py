@@ -11,6 +11,8 @@ from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
 
 from django.conf import settings
 
+from sb_base.decorators import apply_defense
+
 logger = getLogger('loggly_logs')
 
 
@@ -88,6 +90,7 @@ def add_object_to_table(table_name, object_data):
     return True
 
 
+@apply_defense
 def update_vote(object_uuid, user, vote_type, time):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
@@ -113,6 +116,7 @@ def update_vote(object_uuid, user, vote_type, time):
     return vote
 
 
+@apply_defense
 def get_vote_count(object_uuid, vote_type):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):
@@ -138,6 +142,7 @@ def get_vote_count(object_uuid, vote_type):
     return len(list(votes))
 
 
+@apply_defense
 def get_user_updates(username, object_uuid, table_name):
     conn = connect_to_dynamo()
     if isinstance(conn, IOError):
@@ -171,6 +176,7 @@ def get_dynamo_table(table_name):
     return table
 
 
+@apply_defense
 def get_vote(object_uuid, user):
     conn = connect_to_dynamo()
     if isinstance(conn, Exception):

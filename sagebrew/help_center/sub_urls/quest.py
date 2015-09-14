@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
@@ -116,6 +116,8 @@ urlpatterns = patterns(
             "static_files": True
         },
         name="quest_signup"),
+    url(r'^donation_goals/$', RedirectView.as_view(
+        url='/help/quest/goals/', permanent=True), name='goals_redirect'),
 
 )
 

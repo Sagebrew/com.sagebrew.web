@@ -14,7 +14,7 @@ urlpatterns = patterns(
                            "your account if you want to. This article will"
                            " walk you through the steps.",
             "content_path":
-                "%sdelete_account.html" % (settings.HELP_DOCS_PATH),
+                "%sdelete_account.html" % settings.HELP_DOCS_PATH,
             "category": "account"
         },
         name="delete_account"),
@@ -26,7 +26,7 @@ urlpatterns = patterns(
                            "This article will help walk you through resetting "
                            "yours.",
             "content_path":
-                "%sreset_password.html" % (settings.HELP_DOCS_PATH),
+                "%sreset_password.html" % settings.HELP_DOCS_PATH,
             "category": "account"
             },
         name="reset_password"),
@@ -38,7 +38,7 @@ urlpatterns = patterns(
                            " create a Sagebrew account. We've laid out some of"
                            " the most important reasons in this article.",
             "content_path":
-                "%screate_an_account.html" % (settings.HELP_DOCS_PATH),
+                "%screate_an_account.html" % settings.HELP_DOCS_PATH,
             "category": "account"
         },
         name="create_an_account"),
@@ -51,7 +51,7 @@ urlpatterns = patterns(
                            "to contribute anymore today. These reasons are laid"
                            " out in this article.",
             "content_path":
-                "%srestriction_on_asking.html" % (settings.HELP_DOCS_PATH),
+                "%srestriction_on_asking.html" % settings.HELP_DOCS_PATH,
             "category": "account"
         },
         name="restriction_on_asking"),
@@ -67,7 +67,7 @@ if settings.DEBUG is True:
                                "your password. This article will guide you "
                                "through the process.",
                 "content_path":
-                    "%schange_password.html" % (settings.HELP_DOCS_PATH),
+                    "%schange_password.html" % settings.HELP_DOCS_PATH,
                 "category": "account"
             },
             name="change_password"),

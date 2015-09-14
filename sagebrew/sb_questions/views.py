@@ -57,7 +57,7 @@ def question_page(request, sort_by="most_recent"):
                                              context={'expand_param': True,
                                                       'request': request}).data
             question['last_edited_on'] = parser.parse(
-                    question['last_edited_on'])
+                question['last_edited_on'])
             queryset.append(question)
         return render(request, 'question_list.html',
                       {"base_tags": tag_array, 'questions': queryset,

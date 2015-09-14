@@ -22,7 +22,8 @@ class TestAddQuestionToIndicesTask(TestCase):
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = Question(object_uuid=str(uuid1())).save()
+        self.question = Question(object_uuid=str(uuid1()),
+                                 title=str(uuid1())).save()
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -66,7 +67,8 @@ class TestAddAutoTagsToQuestionTask(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question = Question(object_uuid=str(uuid1()),
                                  content="This is some test content "
-                                         "that I just created.").save()
+                                         "that I just created.",
+                                 title=str(uuid1())).save()
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -102,7 +104,7 @@ class TestUpdateSearchIndex(TestCase):
                                  content="This is some test content "
                                          "that I just created.",
                                  owner_username=self.pleb.username,
-                                 title="This is a test title").save()
+                                 title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(self.question)
 

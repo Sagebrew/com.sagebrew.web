@@ -1,3 +1,4 @@
+from uuid import uuid1
 import time
 
 from django.core.urlresolvers import reverse
@@ -23,7 +24,7 @@ class SolutionEndpointTests(APITestCase):
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)
-        self.title = "test question title"
+        self.title = str(uuid1())
         self.question = Question(content="Hey I'm a question",
                                  title=self.title,
                                  owner_username=self.pleb.username).save()

@@ -22,7 +22,7 @@ class TestDocstoreUtils(TestCase):
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = Question().save()
+        self.question = Question(title=str(uuid1())).save()
 
     def test_get_vote(self):
         uuid = str(uuid1())

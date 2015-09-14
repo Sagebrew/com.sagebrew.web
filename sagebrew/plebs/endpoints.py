@@ -5,7 +5,6 @@ from operator import attrgetter
 from elasticsearch import Elasticsearch, NotFoundError
 
 from django.template.loader import render_to_string
-from django.templatetags.static import static
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.core.cache import cache
@@ -455,12 +454,6 @@ class MeViewSet(mixins.UpdateModelMixin,
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         serializer_data = dict(serializer.data)
-        if serializer_data['wallpaper_pic'] is None:
-            serializer_data['wallpaper_pic'] = static(
-                'images/wallpaper_western.jpg')
-        if serializer_data['profile_pic'] is None:
-            serializer_data['profile_pic'] = static(
-                'images/sage_coffee_grey-01.png')
         return Response(serializer_data, status=status.HTTP_200_OK)
 
     @list_route(methods=['get'], permission_classes=(IsAuthenticated,))

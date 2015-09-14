@@ -78,7 +78,8 @@ class TestTaggableContent(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question = Question(content='test', object_uuid=str(uuid1()),
                                  owner_username=self.pleb.username,
-                                 wall_owner_username=self.pleb.username).save()
+                                 wall_owner_username=self.pleb.username,
+                                 title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
         self.tag = Tag(name="test_tag", base=True).save()
 
@@ -97,7 +98,8 @@ class TestVersionedContent(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question = Question(content='test',
                                  owner_username=self.pleb.username,
-                                 wall_owner_username=self.pleb.username).save()
+                                 wall_owner_username=self.pleb.username,
+                                 title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
         self.tag = Tag(name=str(uuid1())).save()
 
@@ -122,7 +124,8 @@ class TestGetParentVotableContent(TestCase):
         self.user = User.objects.get(email=self.email)
         self.question = Question(content='test',
                                  owner_username=self.pleb.username,
-                                 wall_owner_username=self.pleb.username).save()
+                                 wall_owner_username=self.pleb.username,
+                                 title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
 
     def test_get_parent_votable_content(self):

@@ -49,7 +49,8 @@ def question_html_snapshot(request, question, question_uuid, keywords,
         question, context={'request': request,
                            'expand_param': True}).data
     query = 'MATCH (q:Question {object_uuid: "%s"})-' \
-            '[:HAS_A]->(c:Comment) RETURN c' % question_uuid
+            '[:HAS_A]->(c:Comment) WHERE c.to_be_deleted=False ' \
+            'RETURN c' % question_uuid
     res, _ = db.cypher_query(query)
     queryset = [Comment.inflate(row[0]) for row in res]
     single_object['last_edited_on'] = parser.parse(

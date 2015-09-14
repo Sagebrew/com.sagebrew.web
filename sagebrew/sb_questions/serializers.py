@@ -108,6 +108,19 @@ class QuestionSerializerNeo(TitledContentSerializer):
     solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
 
+    def validate_title(self, value):
+        # We need to escape quotes prior to passing the title to the query.
+        # Otherwise the query will fail due to the string being terminated.
+        temp_value = value
+        temp_value = temp_value.replace('"', '\\"')
+        temp_value = temp_value.replace("'", "\\'")
+        query = 'MATCH (q:Question {title: "%s"}) RETURN q' % temp_value
+        res, _ = db.cypher_query(query)
+        if res.one is not None:
+            raise serializers.ValidationError("Sorry looks like a Question "
+                                              "with that Title already exists.")
+        return value
+
     def create(self, validated_data):
         request = self.context["request"]
         # Note that DRF requires us to use the source as the key here but

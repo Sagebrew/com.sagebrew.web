@@ -45,7 +45,7 @@ def request_to_api(url, username, data=None, headers=None, req_method=None,
     # into api.utils. It has the potential to cause a circular dependency
     if headers is None:
         headers = {"content-type": "application/json"}
-    if internal is True:
+    if internal is True and username is not None and username != '':
         token = Token.objects.get(user__username=username)
 
         headers['Authorization'] = "%s %s" % ('Token', token.key)

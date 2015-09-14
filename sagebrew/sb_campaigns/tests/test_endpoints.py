@@ -4,6 +4,7 @@ from uuid import uuid1
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.templatetags.static import static
 
 from rest_framework.reverse import reverse
 from rest_framework import status
@@ -251,7 +252,8 @@ class CampaignEndpointTests(APITestCase):
         }
         response = self.client.post(url, data=data, format='json')
         position.delete()
-        self.assertEqual(response.data['profile_pic'], None)
+        self.assertEqual(response.data['profile_pic'],
+                         static('images/sage_coffee_grey-01.png'))
 
     def test_create_wallpaper_pic(self):
         self.client.force_authenticate(user=self.user)

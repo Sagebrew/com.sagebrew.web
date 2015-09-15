@@ -14,6 +14,9 @@ from sb_campaigns.neo_models import PoliticalCampaign
 
 from .neo_models import Goal, Round
 
+from logging import getLogger
+logger = getLogger("loggly_logs")
+
 
 class GoalSerializer(CampaignAttributeSerializer):
     active = serializers.BooleanField(read_only=True)
@@ -156,8 +159,9 @@ class RoundSerializer(CampaignAttributeSerializer):
         instance.queued = validated_data.pop('queued', instance.queued)
         camp = PoliticalCampaign.nodes.get(
             object_uuid=Round.get_campaign(instance.object_uuid))
+        logger.info(camp.active)
         if camp.active and not PoliticalCampaign.get_active_round(
-                camp.object_uuid):
+                camp.object_uuid and instance.queued):
             instance.active = True
             instance.start_date = datetime.now(pytz.utc)
             camp.upcoming_round.disconnect(instance)

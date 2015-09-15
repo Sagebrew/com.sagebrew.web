@@ -15,9 +15,6 @@ from sb_campaigns.neo_models import Position
 from .serializers import LocationSerializer, LocationManagerSerializer
 from .neo_models import Location
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class LocationList(viewsets.ReadOnlyModelViewSet):
     serializer_class = LocationSerializer
@@ -34,7 +31,7 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
 
     @list_route(methods=['post'],
                 serializer_class=LocationManagerSerializer,
-                permission_classes=(IsAuthenticated,))
+                permission_classes=(IsAdminUser,))
     def add(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():

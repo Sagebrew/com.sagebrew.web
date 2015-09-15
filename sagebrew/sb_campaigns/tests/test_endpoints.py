@@ -591,6 +591,21 @@ class CampaignEndpointTests(APITestCase):
 
         self.assertEqual(response.data['biography'], data['biography'])
 
+    def test_update_biography_too_long(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-detail',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            "biography": "The first issues I encountered in my Quest was "
+                         "with the short bio. The instructions in the text "
+                         "box say there is a limit of 255 characters, but "
+                         "another error comes up when I press submit that "
+                         "says the limit is 150 characters. Just to text "
+                         "things, I shortened it, this is waaaaay too long"
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(response.status_code, 400)
+
     def test_update_facebook(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-detail',

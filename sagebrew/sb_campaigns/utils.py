@@ -68,7 +68,7 @@ def release_single_donation(donation_uuid):
         query = 'MATCH (d:Donation {object_uuid:"%s"}) return d' % \
                 donation_uuid
         res, _ = db.cypher_query(query)
-        donation = Donation.inflate(res[0][0])
+        donation = Donation.inflate(res.one)
         if donation.completed:
             return True
         try:

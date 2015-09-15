@@ -13,7 +13,7 @@ from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
 from plebs.serializers import PlebExportSerializer
 from sb_campaigns.neo_models import Campaign
-from sb_campaigns.tasks import release_funds_task, release_single_donation_task
+from sb_campaigns.tasks import release_single_donation_task
 from sb_goals.neo_models import Round
 from sb_goals.tasks import check_goal_completion_task
 from plebs.tasks import send_email_task

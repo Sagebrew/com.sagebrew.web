@@ -108,7 +108,8 @@ class CampaignSerializer(SBSerializer):
             account.external_accounts.create(external_account=stripe_token)
             account.legal_entity.additional_owners = []
             account.legal_entity.personal_id_number = ssn
-            account.legal_entity.business_tax_id = ein
+            if ein:
+                account.legal_entity.business_tax_id = ein
             account.legal_entity.first_name = owner.first_name
             account.legal_entity.last_name = owner.last_name
             account.legal_entity.type = "company"

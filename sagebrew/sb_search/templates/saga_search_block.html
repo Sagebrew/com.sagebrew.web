@@ -21,6 +21,8 @@
                     <p>Quest: Running for {{ position_name }} of the {{ location_name }}</p>
                 {% elif position_name == "House Representative" %}
                     <p>Quest: Running to be {{ position_formal_name }}</p>
+                {% else %}
+                    <p>Quest: Running for {{ position_name }} of {{ location_name }}</p>
                 {% endif %}
             {% endif %}
             {% comment %}

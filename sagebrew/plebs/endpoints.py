@@ -370,6 +370,31 @@ class ProfileViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def possible_local_representatives(self, request, username=None):
+        query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
+                '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
+                '[:ENCOMPASSES]->(local:Location)-' \
+                '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
+                '->(c:Campaign) WHERE c.active=true RETURN c LIMIT 5' % \
+                username
+        res, _ = db.cypher_query(query)
+        possible_reps = [PoliticalCampaign.inflate(row[0]) for row in res]
+        html = self.request.query_params.get('html', 'false').lower()
+        if html == 'true':
+            if not possible_reps:
+                return Response("<small>Currently No Registered Campaigning "
+                                "Local Representatives In Your Area</small>",
+                                status=status.HTTP_200_OK)
+            possible_rep_html = [
+                render_to_string('sb_home_section/sb_potential_rep.html',
+                                 possible_rep) for possible_rep in
+                PoliticalCampaignSerializer(possible_reps, many=True).data]
+            return Response(possible_rep_html, status=status.HTTP_200_OK)
+        return Response(PoliticalCampaignSerializer(possible_reps,
+                                                    many=True).data,
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def possible_senators(self, request, username=None):
         possible_senators = cache.get('%s_possible_senators' % username)
         if possible_senators is None:

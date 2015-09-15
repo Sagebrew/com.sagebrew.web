@@ -307,6 +307,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
     vote_type = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
     constituents = serializers.SerializerMethodField()
+    paid_account = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -426,6 +427,15 @@ class PoliticalCampaignSerializer(CampaignSerializer):
                 'RETURN r.active' % (obj.object_uuid, request.user.username)
         res, _ = db.cypher_query(query)
         return res.one
+
+    def get_paid_account(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        if request.user.username == obj.object_uuid:
+            if obj.application_fee == 0.021:
+                return True
+            return False
 
 
 class PoliticalVoteSerializer(serializers.Serializer):

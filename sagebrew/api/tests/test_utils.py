@@ -11,7 +11,7 @@ from sb_registration.utils import create_user_util_test
 
 from api.utils import (add_failure_to_queue,
                        encrypt, decrypt, generate_short_token,
-                       generate_long_token, create_auto_tags, smart_truncate,
+                       generate_long_token, smart_truncate,
                        gather_request_data)
 from sb_questions.neo_models import Question
 
@@ -51,7 +51,7 @@ class TestEncryptAndDecrypt(TestCase):
         res = generate_long_token()
         self.assertIsNotNone(res)
 
-
+'''
 class TestCreateAutoTags(TestCase):
     def test_create_auto_tags(self):
         res = create_auto_tags("This is some test content")
@@ -59,6 +59,7 @@ class TestCreateAutoTags(TestCase):
         self.assertEqual(res['status'], 'OK')
         self.assertEqual(res['keywords'], [{'relevance': '0.965652',
                                             'text': 'test content'}])
+'''
 
 
 class TestSmartTruncate(TestCase):

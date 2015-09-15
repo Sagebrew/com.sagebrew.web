@@ -157,7 +157,7 @@ class RoundSerializer(CampaignAttributeSerializer):
         camp = PoliticalCampaign.nodes.get(
             object_uuid=Round.get_campaign(instance.object_uuid))
         if camp.active and not PoliticalCampaign.get_active_round(
-                camp.object_uuid):
+                camp.object_uuid and instance.queued):
             instance.active = True
             instance.start_date = datetime.now(pytz.utc)
             camp.upcoming_round.disconnect(instance)

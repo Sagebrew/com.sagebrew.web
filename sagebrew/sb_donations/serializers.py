@@ -13,6 +13,7 @@ from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
 from plebs.serializers import PlebExportSerializer
 from sb_campaigns.neo_models import Campaign
+from sb_campaigns.tasks import release_single_donation_task
 from sb_goals.neo_models import Round
 from sb_goals.tasks import check_goal_completion_task
 from plebs.tasks import send_email_task
@@ -106,10 +107,15 @@ class DonationSerializer(SBSerializer):
                 % (Campaign.get_active_round(campaign.object_uuid),
                    donation.object_uuid)
         db.cypher_query(query)
+        position_level = Campaign.get_position_level(campaign.object_uuid)
         campaign.donations.connect(donation)
         donation.campaign.connect(campaign)
         donor.donations.connect(donation)
         donation.owned_by.connect(donor)
+        if position_level == "local":
+            spawn_task(task_func=release_single_donation_task,
+                       task_param={"donation_uuid": donation.object_uuid})
+            return donation
         email_data = {
             "source": "support@sagebrew.com",
             "to": donor.email,
@@ -117,6 +123,7 @@ class DonationSerializer(SBSerializer):
             "html_content": render_to_string(
                 "email_templates/email_quest_donation_pledge.html")
         }
+
         spawn_task(task_func=send_email_task,
                    task_param=email_data)
         spawn_task(task_func=check_goal_completion_task,

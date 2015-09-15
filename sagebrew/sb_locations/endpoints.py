@@ -34,7 +34,7 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
 
     @list_route(methods=['post'],
                 serializer_class=LocationManagerSerializer,
-                permission_classes=(IsAdminUser,))
+                permission_classes=(IsAuthenticated,))
     def add(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
@@ -58,9 +58,13 @@ def get_positions(request, name=None):
             'p2.object_uuid as object_uuid2, ' \
             'p3.object_uuid as object_uuid3' % name
     res, _ = db.cypher_query(query)
+    local = []
+    for row in res:
+        if row.object_uuid3 is not None:
+            local.append(row.object_uuid3)
     return Response({"senator": res[0].object_uuid1,
                      "house_reps": [row.object_uuid2 for row in res],
-                     "local": [row.object_uuid3 for row in res]},
+                     "local": local},
                     status=status.HTTP_200_OK)
 
 
@@ -69,12 +73,16 @@ def get_positions(request, name=None):
 def render_positions(request, name=None):
     positions = get_positions(request, name).data
     senator = Position.get_full_name(positions['senator'])
-    house_reps = [Position.get_full_name(row)
-                  for row in positions['house_reps']]
-    house_reps.append(senator)
+    representatives = []
+    for representative in positions['house_reps']:
+        representatives.append(Position.get_full_name(representative))
+    for representative in positions['local']:
+        representatives.append(Position.get_full_name(representative))
+
+    representatives.append(senator)
     position_html = [render_to_string('position_selector.html',
                                       {'name': rep_name,
                                        "state_name": "".join(name.split())},
                                       context_instance=RequestContext(request))
-                     for rep_name in house_reps]
+                     for rep_name in representatives]
     return Response(position_html, status=status.HTTP_200_OK)

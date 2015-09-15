@@ -70,6 +70,8 @@ class CampaignSerializer(SBSerializer):
         raise NotImplementedError
 
     def update(self, instance, validated_data):
+        logger.critical(validated_data)
+        logger.critical(CampaignSerializer(instance).data)
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe_token = validated_data.pop('stripe_token', None)
         customer_token = validated_data.pop('customer_token', None)
@@ -160,7 +162,7 @@ class CampaignSerializer(SBSerializer):
                     temp_goal.active = True
                     temp_goal.save()
                 cache.set("%s_active_round" % instance.object_uuid,
-                          instance.object_uuid)
+                          upcoming_round.object_uuid)
                 new_upcoming = Round().save()
                 instance.upcoming_round.connect(new_upcoming)
                 new_upcoming.campaign.connect(instance)
@@ -311,9 +313,12 @@ class PoliticalCampaignSerializer(CampaignSerializer):
     constituents = serializers.SerializerMethodField()
 
     def create(self, validated_data):
+        logger.critical(validated_data)
         stripe.api_key = settings.STRIPE_SECRET_KEY
         request = self.context.get('request', None)
+        logger.critical(request.data)
         position = validated_data.pop('position', None)
+        logger.critical(PositionSerializer(position).data)
         account_type = request.session.get('account_type', None)
         owner = Pleb.get(username=request.user.username)
         if account_type == 'paid':

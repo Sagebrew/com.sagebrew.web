@@ -3,7 +3,6 @@ from datetime import datetime
 import time
 import stripe
 import markdown
-from logging import getLogger
 
 from django.conf import settings
 from django.core.cache import cache
@@ -24,8 +23,6 @@ from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
 
 from .neo_models import (Campaign, PoliticalCampaign, Position)
-
-logger = getLogger('loggly_logs')
 
 
 class CampaignSerializer(SBSerializer):
@@ -70,8 +67,6 @@ class CampaignSerializer(SBSerializer):
         raise NotImplementedError
 
     def update(self, instance, validated_data):
-        logger.critical(validated_data)
-        logger.critical(CampaignSerializer(instance).data)
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe_token = validated_data.pop('stripe_token', None)
         customer_token = validated_data.pop('customer_token', None)
@@ -313,12 +308,9 @@ class PoliticalCampaignSerializer(CampaignSerializer):
     constituents = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        logger.critical(validated_data)
         stripe.api_key = settings.STRIPE_SECRET_KEY
         request = self.context.get('request', None)
-        logger.critical(request.data)
         position = validated_data.pop('position', None)
-        logger.critical(PositionSerializer(position).data)
         account_type = request.session.get('account_type', None)
         owner = Pleb.get(username=request.user.username)
         if account_type == 'paid':

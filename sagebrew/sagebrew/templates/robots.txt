@@ -11,7 +11,6 @@ Disallow: /edit/
 Disallow: /delete/
 Disallow: /registration/
 Disallow: /search/
-Disallow: /v1/
 
 User-agent: Bingbot
 Disallow: /oauth2/
@@ -26,7 +25,6 @@ Disallow: /edit/
 Disallow: /delete/
 Disallow: /registration/
 Disallow: /search/
-Disallow: /v1/
 
 User-agent: YahooSeeker
 Disallow: /oauth2/
@@ -41,7 +39,6 @@ Disallow: /edit/
 Disallow: /delete/
 Disallow: /registration/
 Disallow: /search/
-Disallow: /v1/
 
 User-agent: *
 Disallow: /

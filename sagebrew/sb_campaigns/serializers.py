@@ -27,7 +27,7 @@ from .neo_models import (Campaign, PoliticalCampaign, Position)
 
 class CampaignSerializer(SBSerializer):
     active = serializers.BooleanField(required=False, read_only=True)
-    biography = serializers.CharField(required=False, max_length=150)
+    biography = serializers.CharField(required=False, max_length=255)
     epic = serializers.CharField(required=False, allow_blank=True)
     facebook = serializers.CharField(required=False, allow_blank=True)
     linkedin = serializers.CharField(required=False, allow_blank=True)

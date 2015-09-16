@@ -327,6 +327,20 @@ class Campaign(Searchable):
         res, _ = db.cypher_query(query)
         return res.one
 
+    @classmethod
+    def get_position_level(cls, object_uuid):
+        level = cache.get("%s_position_level" % object_uuid)
+        if level is None:
+            query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:RUNNING_FOR]->" \
+                    "(p:`Position`) RETURN p.level" % object_uuid
+            res, col = db.cypher_query(query)
+            try:
+                level = res.one
+                cache.set("%s_position_level" % object_uuid, level)
+            except IndexError:
+                level = None
+        return level
+
 
 class PoliticalCampaign(Campaign):
     """
@@ -412,6 +426,7 @@ class PoliticalCampaign(Campaign):
 
 class Position(SBObject):
     name = StringProperty()
+    level = StringProperty(default="federal")
 
     location = RelationshipTo('sb_locations.neo_models.Location',
                               'AVAILABLE_WITHIN')

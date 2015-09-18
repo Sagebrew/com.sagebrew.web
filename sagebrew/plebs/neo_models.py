@@ -601,6 +601,16 @@ class Address(SBObject):
     encompassed_by = RelationshipTo('sb_locations.neo_models.Location',
                                     'ENCOMPASSED_BY')
 
+    def get_all_encompassed_by(self):
+        query = 'MATCH (a:Address {object_uuid:"%s"})-[:ENCOMPASSED_BY]->' \
+                '(l1:Location)-[:ENCOMPASSED_BY]->(l2:Location)-' \
+                '[:ENCOMPASSED_BY]->(l3:Location) RETURN l1.object_uuid, ' \
+                'l2.object_uuid, l3.object_uuid' % self.object_uuid
+        res, _ = db.cypher_query(query)
+        try:
+            return res[0]
+        except IndexError:
+            return []
 
 class FriendRequest(SBObject):
     seen = BooleanProperty(default=False)

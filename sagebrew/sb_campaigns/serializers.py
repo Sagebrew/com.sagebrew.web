@@ -24,6 +24,9 @@ from sb_locations.neo_models import Location
 
 from .neo_models import (Campaign, PoliticalCampaign, Position)
 
+from logging import getLogger
+logger = getLogger('loggly_logs')
+
 
 class CampaignSerializer(SBSerializer):
     active = serializers.BooleanField(required=False, read_only=True)
@@ -306,6 +309,7 @@ class CampaignSerializer(SBSerializer):
 class PoliticalCampaignSerializer(CampaignSerializer):
     vote_type = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
+    allow_vote = serializers.SerializerMethodField()
     constituents = serializers.SerializerMethodField()
     paid_account = serializers.SerializerMethodField()
 
@@ -436,6 +440,20 @@ class PoliticalCampaignSerializer(CampaignSerializer):
             if obj.application_fee == 0.021:
                 return True
             return False
+
+    def get_allow_vote(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        pleb = Pleb.get(request.user.username)
+        address = pleb.get_address()
+        address_encompassed_by = address.get_all_encompassed_by()
+        encompassed_by = PoliticalCampaign.get_position_location(
+            obj.object_uuid)
+        logger.info(address_encompassed_by)
+        logger.info(encompassed_by)
+        if encompassed_by in address_encompassed_by:
+            return True
+        return False
+
 
 
 class PoliticalVoteSerializer(serializers.Serializer):

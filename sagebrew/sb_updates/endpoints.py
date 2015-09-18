@@ -80,7 +80,7 @@ def update_renderer(request, object_uuid=None):
     for update in updates.data['results']:
         update['last_edited_on'] = parser.parse(update['last_edited_on'])
         update['vote_count'] = str(update['vote_count'])
-        update['goals'] = ", ".join([Goal.get(goal).title
+        update['goals'] = ", ".join([Goal.nodes.get(object_uuid=goal).title
                                     for goal in update['goals']])
 
         context = RequestContext(request, update)

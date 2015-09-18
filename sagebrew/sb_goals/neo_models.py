@@ -75,12 +75,6 @@ class Goal(SBObject):
                               'ASSOCIATED_WITH')
 
     @classmethod
-    def get(cls, object_uuid):
-        query = 'MATCH (g:`Goal` {object_uuid: "%s"}) return g' % object_uuid
-        res, _ = db.cypher_query(query)
-        return Goal.inflate(res.one)
-
-    @classmethod
     def get_updates(cls, object_uuid):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:UPDATE_FOR]->' \
                 '(u:`Update`) return u.object_uuid' % object_uuid

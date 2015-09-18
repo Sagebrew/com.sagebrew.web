@@ -2,8 +2,6 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
 
-from neomodel import db
-
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -213,6 +211,26 @@ class LocationEndpointTests(APITestCase):
         self.assertEqual(response.data['geo_data'], False)
         self.assertIn(self.location.object_uuid,
                       response.data['encompassed_by'])
+
+    def test_add_already_exists(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add')
+        post_info = {
+            "name": "City of Wixom2",
+            "geo_data": None,
+            "encompassed_by_name": "",
+            "encompassed_by_uuid": self.location.object_uuid
+        }
+        self.client.post(url, post_info, format='json')
+        response = self.client.post(url, post_info, format='json')
+        self.user.is_staff = False
+        self.user.save()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['name'],
+                         [u'Sorry looks like a Location with that Name '
+                          u'already Exists'])
 
     def test_add_invalid_serializer(self):
         self.user.is_staff = True

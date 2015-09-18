@@ -683,6 +683,20 @@ class CampaignEndpointTests(APITestCase):
 
         self.assertEqual(response.data['profile_pic'], data['profile_pic'])
 
+    def test_update_swap_round(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-detail',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            "activate": True
+        }
+        response = self.client.put(url, data=data, format='json')
+
+        self.assertEqual(response.data['active_round'], self.round.object_uuid)
+        self.assertTrue(response.data['upcoming_round'])
+        self.assertNotEqual(response.data['upcoming_round'],
+                            self.round.object_uuid)
+
     def test_accountants(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-accountants',

@@ -443,13 +443,14 @@ class PoliticalCampaignSerializer(CampaignSerializer):
 
     def get_allow_vote(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
-        pleb = Pleb.get(request.user.username)
+        try:
+            pleb = Pleb.get(request.user.username)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return False
         address = pleb.get_address()
         address_encompassed_by = address.get_all_encompassed_by()
         encompassed_by = PoliticalCampaign.get_position_location(
             obj.object_uuid)
-        logger.info(address_encompassed_by)
-        logger.info(encompassed_by)
         if encompassed_by in address_encompassed_by:
             return True
         return False

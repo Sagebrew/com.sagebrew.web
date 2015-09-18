@@ -13,6 +13,7 @@ from neomodel import db
 
 from sb_base.views import ObjectRetrieveUpdateDestroy
 from sb_campaigns.neo_models import Campaign
+from sb_goals.neo_models import Goal
 
 from .serializers import UpdateSerializer
 from .neo_models import Update
@@ -25,7 +26,8 @@ class UpdateListCreate(generics.ListCreateAPIView):
 
     def get_queryset(self):
         query = 'MATCH (c:`Campaign` {object_uuid:"%s"})-' \
-                '[:HAS_UPDATE]->(u:`Update`) return u' % \
+                '[:HAS_UPDATE]->(u:`Update`) return u ' \
+                'ORDER BY u.created DESC' % \
                 (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return [Update.inflate(row[0]) for row in res]
@@ -78,6 +80,9 @@ def update_renderer(request, object_uuid=None):
     for update in updates.data['results']:
         update['last_edited_on'] = parser.parse(update['last_edited_on'])
         update['vote_count'] = str(update['vote_count'])
+        update['goals'] = ", ".join([Goal.nodes.get(object_uuid=goal).title
+                                    for goal in update['goals']])
+
         context = RequestContext(request, update)
         html_array.append(render_to_string('update.html', context))
         id_array.append(update['object_uuid'])

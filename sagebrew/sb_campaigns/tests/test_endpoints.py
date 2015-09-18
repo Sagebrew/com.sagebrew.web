@@ -1280,7 +1280,7 @@ class PositionEndpointTests(APITestCase):
         self.user.save()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['name'], 'Mayor')
-        self.assertEqual(response.data['location'], 'Michigan')
+        self.assertEqual(response.data['location'], self.location.object_uuid)
 
     def test_add_get(self):
         self.user.is_staff = True

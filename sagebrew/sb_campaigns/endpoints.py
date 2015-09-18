@@ -258,13 +258,16 @@ class CampaignViewSet(viewsets.ModelViewSet):
         donation_info = [DonationExportSerializer(
             Donation.inflate(donation)).data for donation in
             Campaign.get_donations(object_uuid)]
+        campaign = self.get_object()
         # this loop merges the 'owned_by' and 'address' dictionaries into
         # the top level dictionary, allows for simple writing to csv
-
         try:
             for donation in donation_info:
                 donation.update(donation.pop('owned_by', {}))
                 donation.update(donation.pop('address', {}))
+                application_fee = donation['amount'] * (
+                    campaign.application_fee + .021) + .3
+                donation['amount'] -= application_fee
             keys = donation_info[0].keys()
             # use of named temporary file here is to handle deletion of file
             # after we return the file, after the new file object is evicted

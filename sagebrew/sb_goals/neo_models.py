@@ -75,24 +75,30 @@ class Goal(SBObject):
                               'ASSOCIATED_WITH')
 
     @classmethod
+    def get(cls, object_uuid):
+        query = 'MATCH (g:`Goal` {object_uuid: "%s"}) return g' % object_uuid
+        res, _ = db.cypher_query(query)
+        return Goal.inflate(res.one)
+
+    @classmethod
     def get_updates(cls, object_uuid):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:UPDATE_FOR]->' \
-                '(u:`Update`) return u.object_uuid' % (object_uuid)
-        res, col = db.cypher_query(query)
+                '(u:`Update`) return u.object_uuid' % object_uuid
+        res, _ = db.cypher_query(query)
         return [row[0] for row in res]
 
     @classmethod
     def get_donations(cls, object_uuid):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:RECEIVED]->' \
-                '(u:`Donation`) return u.object_uuid' % (object_uuid)
-        res, col = db.cypher_query(query)
+                '(u:`Donation`) return u.object_uuid' % object_uuid
+        res, _ = db.cypher_query(query)
         return [row[0] for row in res]
 
     @classmethod
     def get_associated_round(cls, object_uuid):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:PART_OF]->' \
-                '(u:`Round`) return u.object_uuid' % (object_uuid)
-        res, col = db.cypher_query(query)
+                '(u:`Round`) return u.object_uuid' % object_uuid
+        res, _ = db.cypher_query(query)
         try:
             return res[0][0]
         except IndexError:
@@ -101,8 +107,8 @@ class Goal(SBObject):
     @classmethod
     def get_previous_goal(cls, object_uuid):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:PREVIOUS]->' \
-                '(u:`Goal`) return u.object_uuid' % (object_uuid)
-        res, col = db.cypher_query(query)
+                '(u:`Goal`) return u.object_uuid' % object_uuid
+        res, _ = db.cypher_query(query)
         try:
             return res[0][0]
         except IndexError:
@@ -111,8 +117,8 @@ class Goal(SBObject):
     @classmethod
     def get_next_goal(cls, object_uuid):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:NEXT]->' \
-                '(u:`Goal`) return u.object_uuid' % (object_uuid)
-        res, col = db.cypher_query(query)
+                '(u:`Goal`) return u.object_uuid' % object_uuid
+        res, _ = db.cypher_query(query)
         try:
             return res[0][0]
         except IndexError:
@@ -121,8 +127,8 @@ class Goal(SBObject):
     @classmethod
     def get_campaign(cls, object_uuid):
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:ASSOCIATED_WITH]-' \
-                '(c:`Campaign`) RETURN c.object_uuid' % (object_uuid)
-        res, col = db.cypher_query(query)
+                '(c:`Campaign`) RETURN c.object_uuid' % object_uuid
+        res, _ = db.cypher_query(query)
         try:
             return res[0][0]
         except IndexError:
@@ -200,15 +206,15 @@ class Round(SBObject):
     @classmethod
     def get_goals(cls, object_uuid):
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:STRIVING_FOR]->' \
-                '(g:`Goal`) RETURN g.object_uuid' % (object_uuid)
-        res, col = db.cypher_query(query)
+                '(g:`Goal`) RETURN g.object_uuid' % object_uuid
+        res, _ = db.cypher_query(query)
         return [row[0] for row in res]
 
     @classmethod
     def get_previous_round(cls, object_uuid):
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:PREVIOUS]->' \
-                '(g:`Round`) RETURN g.object_uuid' % (object_uuid)
-        res, col = db.cypher_query(query)
+                '(g:`Round`) RETURN g.object_uuid' % object_uuid
+        res, _ = db.cypher_query(query)
         try:
             return res[0][0]
         except IndexError:
@@ -217,8 +223,8 @@ class Round(SBObject):
     @classmethod
     def get_next_round(cls, object_uuid):
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:NEXT]->' \
-                '(g:`Round`) RETURN g.object_uuid' % (object_uuid)
-        res, col = db.cypher_query(query)
+                '(g:`Round`) RETURN g.object_uuid' % object_uuid
+        res, _ = db.cypher_query(query)
         try:
             return res[0][0]
         except IndexError:
@@ -227,7 +233,7 @@ class Round(SBObject):
     @classmethod
     def get_campaign(cls, object_uuid):
         query = 'MATCH (r:Round {object_uuid:"%s"})-[:ASSOCIATED_WITH]->' \
-                '(c:Campaign) RETURN c.object_uuid' % (object_uuid)
+                '(c:Campaign) RETURN c.object_uuid' % object_uuid
         res, _ = db.cypher_query(query)
         try:
             return res[0][0]
@@ -255,7 +261,7 @@ class Round(SBObject):
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:STRIVING_FOR]->' \
                 '(g:`Goal`) WITH r, g MATCH ' \
                 '(r)-[:ASSOCIATED_WITH]->(c:Campaign) ' \
-                'RETURN g, c.object_uuid' % (self.object_uuid)
+                'RETURN g, c.object_uuid' % self.object_uuid
         res, _ = db.cypher_query(query)
         total_donations = Round.get_total_donation_amount(self.object_uuid)
         try:

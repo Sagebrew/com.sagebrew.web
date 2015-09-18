@@ -19,6 +19,8 @@ class LocationEndpointTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
+        for item in Location.nodes.all():
+            item.delete()
         self.location = Location(name="Michigan").save()
         cache.clear()
 

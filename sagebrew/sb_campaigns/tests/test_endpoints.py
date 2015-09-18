@@ -1108,8 +1108,9 @@ class PositionEndpointTests(APITestCase):
         self.pleb.campaign_editor.connect(self.campaign)
         self.position = Position(name="Senator").save()
         self.position.campaigns.connect(self.campaign)
+        for item in Location.nodes.all():
+            item.delete()
         self.location = Location(name="Michigan").save()
-
         for camp in self.pleb.campaign.all():
             camp.delete()
         cache.clear()

@@ -297,7 +297,7 @@ function loadSolutionCount() {
         success: function (data) {
             $('#solution_count').html("");
             $('#solution_count').append(data.solution_count);
-            if (data.solution_count !== '1') {
+            if (data.solution_count !== 1) {
                 $('#solution_plural').append('s');
             }
         },

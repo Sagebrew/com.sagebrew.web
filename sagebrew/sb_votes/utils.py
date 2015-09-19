@@ -1,9 +1,6 @@
 from api.utils import spawn_task
 from sb_docstore.utils import get_vote, add_object_to_table, update_vote
 
-from logging import getLogger
-logger = getLogger("loggly_logs")
-
 
 def determine_update_values(prev_status, update_status, upvote_value,
                             downvote_value):

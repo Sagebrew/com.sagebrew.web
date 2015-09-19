@@ -11,7 +11,6 @@ $(document).ready(function () {
                 "reputation_update_seen": true
             }),
             success: function (data) {
-                console.log(data);
             }
         });
     });

@@ -136,7 +136,8 @@ class QuestionSerializerNeo(TitledContentSerializer):
                       request=request)
         href = reverse('question-detail', kwargs={'object_uuid': uuid},
                        request=request)
-        question = Question(url=url, href=href, **validated_data).save()
+        question = Question(url=url, href=href, object_uuid=uuid,
+                            **validated_data).save()
         question.owned_by.connect(owner)
         owner.questions.connect(question)
         for tag in tags:

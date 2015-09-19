@@ -34,20 +34,9 @@ class CommentSerializer(ContentSerializer):
         # instance of SBContent and not the required Post, Solution,
         # Question this gets us the proper label of the node
         uuid = str(uuid1())
-        req_url = reverse('%s-detail' % parent_object.get_child_label().lower(),
-                          kwargs={'object_uuid': parent_object.object_uuid},
-                          request=request)
-        if request is not None:
-            response = request_to_api(req_url, request.user.username,
-                                      req_method="GET")
-        else:
-            parent_url = "%s%s" % (settings.WEB_ADDRESS, req_url)
-            response = request_to_api(parent_url,
-                                      owner.username,
-                                      req_method="GET")
         href = reverse("comment-detail", kwargs={'object_uuid': uuid},
                        request=request)
-        url = response.json()['url']
+        url = parent_object.url
         comment = Comment(parent_type=parent_object.get_child_label().lower(),
                           url=url, href=href, object_uuid=uuid,
                           **validated_data).save()
@@ -77,6 +66,8 @@ class CommentSerializer(ContentSerializer):
         request, _, _, _, expedite = gather_request_data(self.context)
         # If expedite is true it is assumed the calling function handles this
         # functionality
+        if obj.url is not None:
+            return obj.url
         if expedite != "true":
             parent_object = get_parent_object(obj.object_uuid)
             parent_url = reverse(

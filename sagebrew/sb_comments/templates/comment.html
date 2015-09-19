@@ -21,7 +21,7 @@
                                </div>
                                <div class="row-fluid">
                                     {% if created != last_edited_on %}
-                                        <small>{{ created|naturaltime }}* <small>(last edited {{ last_edited_on|naturaltime }})</small></small>
+                                        <small>{{ last_edited_on|naturaltime }} · Edited</small>
                                     {% else %}
                                         <small>{{ created|naturaltime }}</small>
                                     {% endif %}

@@ -515,9 +515,9 @@ def get_parent_titled_content(object_uuid):
                 % object_uuid
         res, _ = db.cypher_query(query)
         try:
-            content = TitledContent.inflate(res[0][0])
+            content = TitledContent.inflate(res.one)
         except ValueError:
-            content = TitledContent.inflate(res[0][0])
+            content = TitledContent.inflate(res.one)
         return content
     except (CypherException, IOError, IndexError) as e:
         return e
@@ -539,5 +539,5 @@ def get_parent_votable_content(object_uuid):
             # the serializers ensure this singleness prior to removing this.
             content = VotableContent.inflate(res[0][0][0])
         return content
-    except(CypherException, IOError, IndexError) as e:
+    except(CypherException, ClientError, IOError, IndexError) as e:
         return e

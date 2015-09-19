@@ -1,7 +1,10 @@
 from uuid import uuid1
 from celery import shared_task
 
+from django.template.loader import render_to_string
+
 from neomodel import CypherException, DoesNotExist
+from py2neo.cypher.error.statement import ClientError
 
 from api.utils import spawn_task, smart_truncate
 from plebs.tasks import update_reputation
@@ -9,9 +12,6 @@ from plebs.neo_models import Pleb
 from sb_base.neo_models import (get_parent_votable_content,
                                 get_parent_titled_content)
 from sb_notifications.tasks import spawn_notifications
-
-from logging import getLogger
-logger = getLogger("loggly_logs")
 
 
 @shared_task()
@@ -54,7 +54,8 @@ def object_vote_notifications(object_uuid, previous_vote_type, new_vote_type,
     sb_object = get_parent_votable_content(object_uuid)
     try:
         current_pleb = Pleb.get(username=voting_pleb)
-    except (DoesNotExist, Pleb.DoesNoteExist, CypherException, IOError) as e:
+    except (DoesNotExist, Pleb.DoesNoteExist, CypherException, ClientError,
+            IOError) as e:
         raise object_vote_notifications.retry(exc=e, countdown=10,
                                               max_retries=None)
     if new_vote_type != 2 and previous_vote_type != new_vote_type:
@@ -67,11 +68,13 @@ def object_vote_notifications(object_uuid, previous_vote_type, new_vote_type,
         if reputation_change:
             # using b tag here because a div or p will break the rendering of
             # the notification html due to them not being allowed in a tags
-            color = "#e74c3c"
+            color = "sb_reputation_notification_change_red"
             if reputation_change > 0:
-                color = "#397a69"
-            reputation_message = '<b style="color:%s">%+d</b>' % \
-                                 (color, reputation_change)
+                color = "sb_reputation_notification_change_green"
+            reputation_message = render_to_string(
+                'notification_message.html',
+                {'color': color, 'reputation_change':
+                    "%+d" % reputation_change})
             if sb_object.visibility != "public":
                 reputation_message = ""
         public = False

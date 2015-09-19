@@ -19,6 +19,8 @@ class LocationEndpointTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
+        for item in Location.nodes.all():
+            item.delete()
         self.location = Location(name="Michigan").save()
         cache.clear()
 
@@ -139,3 +141,108 @@ class LocationEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_add_non_admin(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add')
+        response = self.client.post(url, {
+            "name": "Wixom",
+            "geo_data": None,
+            "encompassed_by_name": "Michigan",
+            "encompassed_by_uuid": ""
+        }, format='json')
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_add_anon(self):
+        url = reverse('location-add')
+        response = self.client.post(url, {
+            "name": "Wixom",
+            "geo_data": None,
+            "encompassed_by_name": "Michigan",
+            "encompassed_by_uuid": ""
+        }, format='json')
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_add_admin(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add')
+        response = self.client.post(url, {
+            "name": "Wixom",
+            "geo_data": None,
+            "encompassed_by_name": self.location.name,
+            "encompassed_by_uuid": ""
+        }, format='json')
+        self.user.is_staff = False
+        self.user.save()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'Wixom')
+        self.assertEqual(response.data['geo_data'], False)
+        self.assertIn(self.location.object_uuid,
+                      response.data['encompassed_by'])
+
+    def test_add_get(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add')
+        response = self.client.get(url)
+        self.user.is_staff = False
+        self.user.save()
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_add_uuid(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add')
+        response = self.client.post(url, {
+            "name": "City of Wixom",
+            "geo_data": None,
+            "encompassed_by_name": "",
+            "encompassed_by_uuid": self.location.object_uuid
+        }, format='json')
+        self.user.is_staff = False
+        self.user.save()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'City of Wixom')
+        self.assertEqual(response.data['geo_data'], False)
+        self.assertIn(self.location.object_uuid,
+                      response.data['encompassed_by'])
+
+    def test_add_already_exists(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add')
+        post_info = {
+            "name": "City of Wixom2",
+            "geo_data": None,
+            "encompassed_by_name": "",
+            "encompassed_by_uuid": self.location.object_uuid
+        }
+        self.client.post(url, post_info, format='json')
+        response = self.client.post(url, post_info, format='json')
+        self.user.is_staff = False
+        self.user.save()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['name'],
+                         [u'Sorry looks like a Location with that Name '
+                          u'already Exists'])
+
+    def test_add_invalid_serializer(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add')
+        response = self.client.post(url, {
+            "name": "Wixom City",
+            "encompassed_by_uuid": self.location.object_uuid
+        }, format='json')
+        self.user.is_staff = False
+        self.user.save()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

@@ -15,7 +15,6 @@ RUN apt-get remove --auto-remove -y git
 WORKDIR /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/
 CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py logglypopulation && \
-    python manage.py release_single_donation_command && \
     chown root /etc/rsyslog.d/ && service rsyslog restart && \
     python manage.py migrate oauth2_provider --fake && \
     python manage.py migrate --noinput && \

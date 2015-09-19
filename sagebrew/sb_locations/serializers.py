@@ -60,10 +60,12 @@ class LocationManagerSerializer(SBSerializer):
     geo_data = serializers.CharField(allow_null=True)
     encompassed_by_name = serializers.CharField(
         allow_blank=True, help_text="Enter the name of the encompassing area. "
-                                    "This or uuid can be used but not both!")
+                                    "This or uuid can be used but not both!",
+        required=False)
     encompassed_by_uuid = serializers.CharField(
         allow_blank=True, help_text="Enter the UUID of the encompassing area. "
-                                    "This or name can be used but not both!")
+                                    "This or name can be used but not both!",
+        required=False)
 
     def validate_name(self, value):
         # We need to escape quotes prior to passing the title to the query.

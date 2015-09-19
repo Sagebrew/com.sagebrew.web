@@ -66,6 +66,7 @@ STATICFILES_DIRS = (
     '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_campaigns/static/' % PROJECT_DIR,
+    '%s/sb_goals/static/' % PROJECT_DIR,
     '%s/sb_solutions/static/' % PROJECT_DIR,
     '%s/sb_notifications/static/' % PROJECT_DIR,
     '%s/sb_privileges/static/' % PROJECT_DIR,
@@ -127,6 +128,7 @@ TEMPLATES = [{
         '%s/sb_comments/templates/' % PROJECT_DIR,
         '%s/sb_council/templates' % PROJECT_DIR,
         '%s/sb_flag/templates/' % PROJECT_DIR,
+        '%s/sb_goals/templates/' % PROJECT_DIR,
         '%s/sb_notifications/templates/' % PROJECT_DIR,
         '%s/sb_posts/templates/' % PROJECT_DIR,
         '%s/sb_privileges/templates/' % PROJECT_DIR,
@@ -136,7 +138,8 @@ TEMPLATES = [{
         '%s/sb_requirements/templates/' % PROJECT_DIR,
         '%s/sb_search/templates/' % PROJECT_DIR,
         '%s/sb_tags/templates/' % PROJECT_DIR,
-        '%s/sb_uploads/templates/' % PROJECT_DIR
+        '%s/sb_updates/templates/' % PROJECT_DIR,
+        '%s/sb_uploads/templates/' % PROJECT_DIR,
     ),
     'OPTIONS': {
         'loaders': [
@@ -195,6 +198,7 @@ INSTALLED_APPS = (
     'sb_docstore',
     'sb_donations',
     'sb_flags',
+    'sb_goals',
     'sb_locations',
     'sb_notifications',
     'sb_posts',
@@ -207,6 +211,7 @@ INSTALLED_APPS = (
     'sb_stats',
     'sb_tags',
     'sb_uploads',
+    'sb_updates',
     'sb_votes',
     'sb_wall',
     'sb_oauth',

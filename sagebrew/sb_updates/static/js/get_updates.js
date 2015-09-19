@@ -8,7 +8,12 @@ $(document).ready(function () {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            $("#update-container").append(data.results.html);
+            if(data.results.html.length !== 0){
+                $("#update-container").append(data.results.html);
+            } else {
+                $("#update-container").append("<h6>This Quest currently has no updates</h6>")
+            }
+
             $(".edit-update").click(function (event) {
                 event.preventDefault();
                 window.location.href = "/updates/" + $(this).data('object_uuid') + "/edit/";

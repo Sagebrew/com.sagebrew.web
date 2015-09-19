@@ -456,7 +456,6 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         return False
 
 
-
 class PoliticalVoteSerializer(serializers.Serializer):
     """
     The reason behind this serializer is to ensure that we can use the same

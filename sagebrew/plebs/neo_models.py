@@ -17,6 +17,9 @@ from api.neo_models import SBObject
 from sb_search.neo_models import Searchable, Impression
 from sb_base.neo_models import VoteRelationship, RelationshipWeight
 
+from logging import getLogger
+logger = getLogger('loggly_logs')
+
 
 def get_current_time():
     return datetime.now(pytz.utc)
@@ -603,14 +606,21 @@ class Address(SBObject):
 
     def get_all_encompassed_by(self):
         query = 'MATCH (a:Address {object_uuid:"%s"})-[:ENCOMPASSED_BY]->' \
-                '(l1:Location)-[:ENCOMPASSED_BY]->(l2:Location)-' \
-                '[:ENCOMPASSED_BY]->(l3:Location) RETURN l1.object_uuid, ' \
-                'l2.object_uuid, l3.object_uuid' % self.object_uuid
+                '(l:Location) WITH l OPTIONAL MATCH (l)-[:ENCOMPASSED_BY*1..3]->(l2:Location) RETURN ' \
+                'l.object_uuid, l2.object_uuid' % self.object_uuid
         res, _ = db.cypher_query(query)
         try:
-            return res[0]
+            new_list = []
+            # loops here are required to ensure that the ResultSet with
+            # multiple nested lists is converted into a single list
+            for result_set in res:
+                for item in result_set:
+                    if item is not None:
+                        new_list.append(item)
+            return list(set(new_list))  # ensure list is unique
         except IndexError:
             return []
+
 
 class FriendRequest(SBObject):
     seen = BooleanProperty(default=False)

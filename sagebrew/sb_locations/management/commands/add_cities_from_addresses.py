@@ -9,12 +9,9 @@ class Command(BaseCommand):
 
     def add_cities_from_addresses(self):
         for address in Address.nodes.all():
-            city = address.city
-            location = Location(name=city).save()
+            location = Location(name=address.city).save()
             address.encompassed_by.connect(location)
-            location.encompasses.connect(address)
-
-
+            location.addresses.connect(address)
 
     def handle(self, *args, **options):
         self.add_cities_from_addresses()

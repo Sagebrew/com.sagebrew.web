@@ -16,29 +16,3 @@ $( document ).ready(function() {
         });
     });
 });
-
-$(document).ready(function(){
-    $(".submit_goal-action").click(function(event){
-        event.preventDefault();
-
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/reps/goals/",
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'rep_id': $("#rep_id").data('rep_id'),
-                'initial': $('#id_initial').val(),
-                'money_req': $('#id_money_req').val(),
-                'vote_req': $("#id_vote_req").val(),
-                'description': $('#id_description').val()
-            }),
-            dataType: "json",
-            success: function(data){
-                $('.add_goal').removeAttr('disabled');
-                $('.add_goal_wrapper').remove();
-                $("#goal_list").append(data['rendered']);
-            }
-        });
-    });
-});

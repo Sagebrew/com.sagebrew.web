@@ -1049,7 +1049,7 @@ class CampaignEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.campaign.object_uuid})
         data = {
             'content': 'Test Content for Update',
-            'title': 'too short'
+            'title': 'too'
         }
         response = self.client.post(url, data=data, format='json')
 

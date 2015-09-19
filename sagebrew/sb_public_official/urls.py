@@ -1,7 +1,7 @@
 from django.conf.urls import patterns, url
 
 from .views import (saga, updates, get_search_html, edit_epic, create_update,
-                    manage_goals, statistics, moderators)
+                    statistics, moderators)
 
 urlpatterns = patterns(
     'sb_public_official.views',
@@ -18,7 +18,5 @@ urlpatterns = patterns(
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/edit_epic/', edit_epic,
         name="quest_epic"),
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/create_update/',
-        create_update, name="create_update"),
-    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/manage_goals/',
-        manage_goals, name="manage_goals")
+        create_update, name="create_update")
 )

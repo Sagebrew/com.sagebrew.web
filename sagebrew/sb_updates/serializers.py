@@ -1,3 +1,5 @@
+from datetime import datetime
+import pytz
 import bleach
 
 from rest_framework import serializers
@@ -45,6 +47,7 @@ class UpdateSerializer(TitledContentSerializer):
     def update(self, instance, validated_data):
         instance.title = validated_data.pop('title', instance.title)
         instance.content = validated_data.pop('content', instance.content)
+        instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
         return instance
 

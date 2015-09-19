@@ -16,11 +16,10 @@ from .neo_models import Update
 
 
 class UpdateSerializer(TitledContentSerializer):
+    title = serializers.CharField(required=False,
+                                  min_length=5, max_length=140)
     goals = serializers.SerializerMethodField()
     campaign = serializers.SerializerMethodField()
-
-    def validate_title(self, value):
-        return value
 
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)

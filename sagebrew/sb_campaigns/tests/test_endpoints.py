@@ -4,6 +4,7 @@ from uuid import uuid1
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.templatetags.static import static
 
 from rest_framework.reverse import reverse
 from rest_framework import status
@@ -17,6 +18,7 @@ from sb_updates.neo_models import Update
 from sb_goals.neo_models import Goal, Round
 from sb_registration.utils import create_user_util_test
 from sb_donations.neo_models import Donation
+from sb_locations.neo_models import Location
 
 from sb_campaigns.neo_models import PoliticalCampaign, Position
 
@@ -251,7 +253,8 @@ class CampaignEndpointTests(APITestCase):
         }
         response = self.client.post(url, data=data, format='json')
         position.delete()
-        self.assertEqual(response.data['profile_pic'], None)
+        self.assertEqual(response.data['profile_pic'],
+                         static('images/sage_coffee_grey-01.png'))
 
     def test_create_wallpaper_pic(self):
         self.client.force_authenticate(user=self.user)
@@ -588,6 +591,21 @@ class CampaignEndpointTests(APITestCase):
         response = self.client.put(url, data=data, format='json')
 
         self.assertEqual(response.data['biography'], data['biography'])
+
+    def test_update_biography_too_long(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-detail',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            "biography": "The first issues I encountered in my Quest was "
+                         "with the short bio. The instructions in the text "
+                         "box say there is a limit of 255 characters, but "
+                         "another error comes up when I press submit that "
+                         "says the limit is 150 characters. Just to text "
+                         "things, I shortened it, this is waaaaay too long"
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(response.status_code, 400)
 
     def test_update_facebook(self):
         self.client.force_authenticate(user=self.user)
@@ -1090,8 +1108,12 @@ class PositionEndpointTests(APITestCase):
         self.pleb.campaign_editor.connect(self.campaign)
         self.position = Position(name="Senator").save()
         self.position.campaigns.connect(self.campaign)
+        for item in Location.nodes.all():
+            item.delete()
+        self.location = Location(name="Michigan").save()
         for camp in self.pleb.campaign.all():
             camp.delete()
+        cache.clear()
 
     def test_unauthorized(self):
         url = reverse('position-list')
@@ -1223,3 +1245,79 @@ class PositionEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_add_non_admin(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('position-add')
+        response = self.client.post(url, {
+            "name": "Council Member",
+            "location_name": "Michigan",
+            "location_uuid": ""
+        }, format='json')
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_add_anon(self):
+        url = reverse('position-add')
+        response = self.client.post(url, {
+            "name": "Council Member",
+            "location_name": "Michigan",
+            "location_uuid": ""
+        }, format='json')
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_add_admin(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('position-add')
+        response = self.client.post(url, {
+            "name": "Mayor",
+            "location_name": self.location.name,
+            "location_uuid": ""
+        }, format='json')
+        self.user.is_staff = False
+        self.user.save()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'Mayor')
+        self.assertEqual(response.data['location'], self.location.object_uuid)
+
+    def test_add_get(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('position-add')
+        response = self.client.get(url)
+        self.user.is_staff = False
+        self.user.save()
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_add_uuid(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('position-add')
+        response = self.client.post(url, {
+            "name": "Governor",
+            "location_name": "",
+            "location_uuid": self.location.object_uuid
+        }, format='json')
+        self.user.is_staff = False
+        self.user.save()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'Governor')
+
+    def test_add_invalid_serializer(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('position-add')
+        response = self.client.post(url, {
+            "name": "Delegate",
+            "location_uuid": self.location.object_uuid
+        }, format='json')
+        self.user.is_staff = False
+        self.user.save()
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

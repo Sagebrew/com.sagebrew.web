@@ -1,0 +1,55 @@
+{% load staticfiles %}
+{% load humanize %}
+<div class="row sb_question_summary">
+    <div class="js-page-object" data-object_uuid="{{ question.object_uuid }}" style="display: None"></div>
+    <div class="row">
+        <div class="vote_count_large">
+            <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper_solution"  style="position: absolute;">
+                {% with vote_count=question.vote_count object_uuid=question.object_uuid %}
+                    {% include "vote.html" %}
+                {% endwith %}
+            </div>
+        </div>
+    </div>
+    <div class="row" style="min-height: 65px;">
+        <div class="sb_markdown">
+            <div class="col-lg-10 col-md-10 col-xs-12 col-lg-offset-1" style="margin-top: -20px;">
+                <a href="{{ question.url }}">
+                  <h4>
+                    {{ question.title }}
+                  </h4>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-2 col-md-2 hidden-sm hidden-xs col-lg-offset-1">
+            <small>Solutions: {{ question.solution_count|default_if_none:"0" }}</small>
+        </div>
+        <div class="col-lg-1 col-md-1 hidden-sm hidden-xs col-lg-offset-6 col-md-offset-6"
+             style="padding-right:0; margin-right: -10px">
+            <div class="sb_thumbnail_xs thumbnail">
+                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
+                <img src="{{ question.profile.profile_pic|default_if_none:default_profile }}"/>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-2 hidden-sm hidden-xs" style="padding-left:10px; margin-top:-10px;">
+            <div>
+                <small>
+                    <a href="{{ question.profile.url }}">{{ question.profile.first_name }} {{ question.profile.last_name }}</a>
+                </small>
+            </div>
+            <div style="margin-top:-10px;">
+                <small>
+                    {{ question.last_edited_on|naturaltime }}
+                </small>
+            </div>
+        </div>
+        <div class="hidden-lg hidden-md col-sm-11 col-xs-11">
+            <small>
+                asked by <a href="{{ question.profile.url }}">{{ question.profile.first_name }} {{ question.profile.last_name }}</a> on {{ question.last_edited_on|date:"D d M Y" }}
+            </small>
+        </div>
+    </div>
+</div>

@@ -9,9 +9,9 @@ from django.template.loader import render_to_string
 from django.templatetags.static import static
 
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
-                                        IsAuthenticated)
+                                        IsAuthenticated, IsAdminUser)
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -28,11 +28,9 @@ from plebs.neo_models import Pleb
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, AccountantSerializer,
-                          PositionSerializer, PoliticalVoteSerializer)
+                          PositionSerializer, PoliticalVoteSerializer,
+                          PositionManagerSerializer)
 from .neo_models import Campaign, PoliticalCampaign, Position
-
-from logging import getLogger
-logger = getLogger('loggly_logs')
 
 
 class CampaignViewSet(viewsets.ModelViewSet):
@@ -418,3 +416,14 @@ class PositionViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_object(self):
         return Position.get(self.kwargs[self.lookup_field])
+
+    @list_route(methods=['post'],
+                serializer_class=PositionManagerSerializer,
+                permission_classes=(IsAdminUser,))
+    def add(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer = serializer.save()
+            return Response(PositionSerializer(serializer).data,
+                            status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

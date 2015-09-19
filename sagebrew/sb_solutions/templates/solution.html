@@ -8,7 +8,7 @@
                 {% include "vote.html" %}
             </div>
         </div>
-        <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 sb_question_body">
+        <div class="col-xs-11 col-lg-10 sb-solution-body">
             <div class="sb_solution_content">
                 <div class="sb_markdown{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                     {% autoescape off %}
@@ -17,7 +17,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs">
+        <div class="col-md-1 hidden-sm hidden-xs sb-solution-controls">
 
                 {% if request.user.username == profile.username %}
                     <button class="btn dropdown-toggle sb_btn_icon" type="button"

@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
@@ -88,4 +88,6 @@ urlpatterns = patterns(
             "category": "citizens"
         },
         name="quest_citizen"),
+    url(r'^donation_goals/$', RedirectView.as_view(
+        url='/help/donating/goals/', permanent=True), name='goals_redirect'),
 )

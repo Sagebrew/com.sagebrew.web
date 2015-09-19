@@ -84,6 +84,9 @@ class CommentSerializer(ContentSerializer):
                 kwargs={'object_uuid': parent_object.object_uuid},
                 request=request)
             if request is not None:
+                # Shouldn't need to check for anon because if user is anon
+                # comments will return an empty list for private content.
+                # It will return the proper information for public info.
                 response = request_to_api(parent_url, request.user.username,
                                           req_method="GET")
             else:
@@ -121,8 +124,8 @@ class CommentSerializer(ContentSerializer):
 def get_parent_object(object_uuid):
     try:
         query = "MATCH (a:Comment {object_uuid:'%s'})-[:COMMENT_ON]->" \
-                "(b:SBContent) RETURN b" % (object_uuid)
+                "(b:SBContent) RETURN b" % object_uuid
         res, col = db.cypher_query(query)
         return SBContent.inflate(res[0][0])
-    except(IndexError):
+    except IndexError:
         return None

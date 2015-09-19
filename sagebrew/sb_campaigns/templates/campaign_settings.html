@@ -35,8 +35,10 @@
                         <div id="stripe_key" data-key="{{ campaign.stripe_key }}" style="display: none"></div>
                         <div id="completed-stripe" data-completed_stripe="{{ campaign.completed_stripe }}"></div>
                         <div id="js-completed_customer" class="sb_hidden" data-completed_customer="{{ campaign.completed_customer }}"></div>
+                        <div id="js-paid_account" class="sb_hidden" data-paid_account="{{ campaign.paid_account }}"></div>
                         <div id="js-active" class="sb_hidden" data-active="{{ campaign.active }}"></div>
-                            {% if not campaign.completed_stripe %}
+                        <div id="js-taking_live" class="sb_hidden" data-taking_live=False></div>
+                            <div class="{% if campaign.completed_stripe %}sb_hidden{% endif %}" id="js-banking-block">
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <h5>Banking</h5>
@@ -59,7 +61,7 @@
                                             <input type="text"
                                                    id="ein"
                                                    name="employernumb"
-                                                   placeholder="EIN for political campaign committee (we do not store this)"
+                                                   placeholder="EIN for political campaign committee (we do not store this) (optional)"
                                                    class="form-control input-lg"
                                                    value="">
                                         </div>
@@ -85,7 +87,7 @@
                                         </div>
                                     </div>
                                 </form>
-                            {% endif %}
+                            </div>
                             <div class="row">
                                 <div class="col-lg-12 password1">
                                     <h5>Web and Social Media</h5>
@@ -184,7 +186,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
+                        <div class="row {% if campaign.active %}sb_hidden{% endif %}">
                             <div class="col-lg-12 hidden-sm hidden-xs">
                                 <h5>Take Quest Live</h5>
                                 <div class="block sb_success_block">
@@ -279,7 +281,7 @@
                                 </button>
                             </div>
                             <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                                <button class="btn btn-primary sb_btn sb_btn_fill">
+                                <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove">
                                     Cancel
                                 </button>
                             </div>

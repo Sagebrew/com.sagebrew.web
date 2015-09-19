@@ -25,7 +25,7 @@ urlpatterns = patterns(
             "description": "Upvoting allows you to showcase your support for "
                            "different pieces of the Conversation!",
             "content_path":
-                "%s10_upvote.html" % (settings.HELP_DOCS_PATH),
+                "%s10_upvote.html" % settings.HELP_DOCS_PATH,
             "category": "privileges",
             "static_files": True,
         },
@@ -40,7 +40,7 @@ urlpatterns = patterns(
                            " constantly evolve and move towards the best "
                            "result.",
             "content_path":
-                "%s20_comment.html" % (settings.HELP_DOCS_PATH),
+                "%s20_comment.html" % settings.HELP_DOCS_PATH,
             "category": "privileges"
         },
         name="comment"),
@@ -52,7 +52,7 @@ urlpatterns = patterns(
                            "clean and reduce the noise going into a"
                            " Conversation.",
             "content_path":
-                "%s50_flagging.html" % (settings.HELP_DOCS_PATH),
+                "%s50_flagging.html" % settings.HELP_DOCS_PATH,
             "category": "privileges"
         },
         name="flagging"),
@@ -60,11 +60,11 @@ urlpatterns = patterns(
         template_name="help_page.html"),
         kwargs={
             "title": "Downvote",
-            "description": "Downvoting in the Public Conversation area allows "
+            "description": "Downvoting in the Conversation Cloud allows "
                            "you to privately disclose negative feelings towards"
                            " a given Question, Solution, or Comment.",
             "content_path":
-                "%s100_downvote.html" % (settings.HELP_DOCS_PATH),
+                "%s100_downvote.html" % settings.HELP_DOCS_PATH,
             "category": "privileges"
         },
         name="downvote"),
@@ -88,7 +88,7 @@ urlpatterns = patterns(
             "description": "Barista is the first rank you can reach! With it "
                            "come some additional privileges.",
             "content_path":
-                "%s1000_barista.html" % (settings.HELP_DOCS_PATH),
+                "%s1000_barista.html" % settings.HELP_DOCS_PATH,
             "category": "privileges",
             "static_files": True,
         },
@@ -101,7 +101,7 @@ urlpatterns = patterns(
                            "members can use to further define "
                            "Conversations.",
             "content_path":
-                "%s1250_tagging.html" % (settings.HELP_DOCS_PATH),
+                "%s1250_tagging.html" % settings.HELP_DOCS_PATH,
             "category": "privileges"
         },
         name="tagging"),
@@ -115,7 +115,7 @@ urlpatterns = patterns(
                            "changes you've enabled. We want to empower you to "
                            "do more for the community.",
             "content_path":
-                "%s10000_brewmaster.html" % (settings.HELP_DOCS_PATH),
+                "%s10000_brewmaster.html" % settings.HELP_DOCS_PATH,
             "category": "privileges",
             "static_files": True,
         },
@@ -126,7 +126,7 @@ urlpatterns = patterns(
             "title": "Tribune",
             "description": "",
             "content_path":
-                "%s12500_tribune.html" % (settings.HELP_DOCS_PATH),
+                "%s12500_tribune.html" % settings.HELP_DOCS_PATH,
             "category": "privileges",
             "static_files": True,
         },

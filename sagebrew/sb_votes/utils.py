@@ -26,6 +26,8 @@ def determine_update_values(prev_status, update_status, upvote_value,
 
 def determine_vote_type(object_uuid, username):
     vote_type = get_vote(object_uuid, username)
+    if isinstance(vote_type, Exception):
+        return vote_type
     if vote_type is not None:
         if vote_type['status'] == 2:
             vote_type = None

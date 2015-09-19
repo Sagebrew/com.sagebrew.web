@@ -104,3 +104,18 @@ class TestCommentsRetrieveUpdateDestroy(APITestCase):
                          "We do not allow users to query all the comments on "
                          "the site.")
         self.assertEqual(response.status_code, status.HTTP_501_NOT_IMPLEMENTED)
+
+    def test_private_content_with_comment_unauthorized(self):
+        post = Post(content='test_content',
+                    owner_username=self.pleb.username).save()
+        post.owned_by.connect(self.pleb)
+        self.pleb.posts.connect(post)
+        comment = Comment(content="This is my new comment").save()
+        post.comments.connect(comment)
+        comment.comment_on.connect(post)
+        url = "%scomments/?expand=true" % reverse(
+            'post-detail',
+            kwargs={"object_uuid": post.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 0)

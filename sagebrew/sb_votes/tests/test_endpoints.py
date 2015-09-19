@@ -1,3 +1,5 @@
+from uuid import uuid1
+
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -19,7 +21,7 @@ class VoteEndpointTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
-        self.question = Question().save()
+        self.question = Question(title=str(uuid1())).save()
 
     def test_vote_get(self):
         self.client.force_authenticate(user=self.user)

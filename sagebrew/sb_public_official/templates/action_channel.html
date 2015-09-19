@@ -24,7 +24,7 @@
                 </div>
            {% endif %}
     </div>
-    <div class="col-lg-6 col-md-6 col-sm-12 cl-xs-12">
+    <div class="col-md-6 cl-xs-12">
         <div class="block sb_bio_block">
             <h2>{{ first_name }} {{ last_name }}</h2>
             <p id="bio_wrapper">{{ biography|default_if_none:"This Quest has no Biography" }}{% if is_editor or is_accountant %}
@@ -38,7 +38,7 @@
             {% endif %}
         </div>
     </div>
-    <div class="col-xs-5">
+    <div class="col-lg-5 col-md-4 col-sm-12">
         <div align="right">
             {% if request.user.is_anonymous %}
                 <button class="btn sb_restricted sb_btn_disabled"

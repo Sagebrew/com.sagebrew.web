@@ -1,0 +1,126 @@
+{% load staticfiles %}
+{% load humanize %}
+<div class="block sb_solution block_{{ solution.object_uuid }}">
+    <div class="js-page-object" data-object_uuid="{{ solution.object_uuid }}" style="display: None"></div>
+    <div class="row">
+        <div class="vote_count_large">
+            <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper_solution">
+                {% include "vote.html" %}
+            </div>
+        </div>
+        <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 sb_question_body">
+            <div class="sb_solution_content">
+                <div class="sb_markdown{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ solution.object_uuid }}">
+                    {% autoescape off %}
+                        {{ solution.html_content }}
+                    {% endautoescape %}
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs">
+
+                {% if request.user.username == profile.username %}
+                    <button class="btn dropdown-toggle sb_btn_icon" type="button"
+                        data-toggle="dropdown">
+                        <span class="fa fa-cog sb_btn_icon_green_hover"></span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
+                        role="menu" aria-labelledby="dropdown-menu">
+                        <li role="presentation">
+                            <a class="sb_post_dropdown_menu show_edit_solution-action"
+                                       data-object_uuid="{{ solution.object_uuid }}"
+                                       data-parent_object="{{ solution.parent_object }}"
+                                       type="submit">Edit</a>
+                        </li>
+                        <li role="presentation" class="sb_divider"></li>
+                        <li role="presentation">
+                            <a class='sb_post_dropdown_menu delete_object-action delete_{{ solution.object_uuid }}'>
+                                Delete
+                            </a>
+                        </li>
+                    </ul>
+                {% else %}
+                    {% if "flag" in request_profile.privileges %}
+                        {% include "flag.html" %}
+                    {% else %}
+                        {% include "flag_restriction.html" %}
+                    {% endif %}
+                {% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-4 col-md-4 hidden-sm hidden-xs col-md-offset-8 col-lg-offset-9">
+            <small>
+                written by
+            </small>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-2 hidden-xs hidden-sm col-lg-offset-1">
+            {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
+            {% else %}
+                <div><small>
+                    <span class="sb_comment_disabled" data-toggle="tooltip"
+                          data-placement="top"
+                          data-title="Requirement: 20+ Rep"
+                          id="post_comment_on_{{ solution.object_uuid }}">
+                        comment
+                    </span>
+                </small></div>
+            {% endif %}
+        </div>
+        <div class="col-md-1 hidden-sm hidden-xs col-md-offset-6"
+             style="padding-right:0; margin-right: -10px">
+            <div class="sb_thumbnail_xs thumbnail">
+                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
+                <img src="{{ solution.profile.profile_pic|default_if_none:default_profile }}"/>
+            </div>
+        </div>
+        <div class="col-md-2 hidden-sm hidden-xs" style="padding-left:0; margin-top:-10px; margin-left: 2px">
+            <div>
+                <small>
+                    <a href="{{ solution.profile.url }}">{{ solution.profile.first_name }} {{ solution.profile.last_name }}</a>
+                </small>
+            </div>
+            <div style="margin-top:-10px;">
+                <small>
+                    {{ solution.last_edited_on|naturaltime }}
+                </small>
+            </div>
+        </div>
+        <div class="hidden-lg hidden-md col-xs-11">
+            <small>
+                written by <a href="{{ solution.profile.url }}">{{ solution.profile.first_name }} {{ solution.profile.last_name }}</a> on {{ solution.last_edited_on|date:"D d M Y" }}
+            </small>
+        </div>
+    </div>
+    {% if html_snapshot %}
+        {% for comment in solution.comments %}
+            {% include "comment_include.html" %}
+        {% endfor %}
+    {% else %}
+        <div id="sb_comments_container_{{ solution.object_uuid }}">
+            {% comment %}
+                This area is for inputing a new comment. The include is needed for population of existing comments.
+            {% endcomment %}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        {% if not html_snapshot %}
+            {% if "comment" in request_profile.privileges and not is_closed or "beta_user" in request_profile.privileges and not is_closed %}
+                <form id="commentSubmitForm">
+                <div class="input-group sb_comment">
+                    <textarea class="input-group form-control sb_comment_input"
+                              id="post_comment_on_{{ solution.object_uuid }}"
+                              rows="2"
+                              name="comment_content"
+                              placeholder="Write your comment..."></textarea>
+                    <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ solution.object_uuid }}"
+                       data-object_uuid="{{ solution.object_uuid }}"><span class="fa fa-plus"></span></a>
+                </div>
+                </form>
+            {% endif %}
+        {% endif %}
+    </div>
+</div>

@@ -95,6 +95,11 @@ $(document).ready(function () {
         event.preventDefault();
         var campaignId = $(this).data('object_uuid'),
             goals = $("#goal-selector").val().split(", ");
+        for(var i = 0; i < goals.length; i++) {
+            if(goals[i] === ""){
+                goals.splice(i, 1);
+            }
+        }
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "POST",

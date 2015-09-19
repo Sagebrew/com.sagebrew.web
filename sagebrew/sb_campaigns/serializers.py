@@ -3,7 +3,6 @@ from datetime import datetime
 import time
 import stripe
 import markdown
-from logging import getLogger
 
 from django.conf import settings
 from django.core.cache import cache
@@ -21,15 +20,14 @@ from plebs.neo_models import Pleb
 from sb_goals.neo_models import Round, Goal
 from sb_public_official.serializers import PublicOfficialSerializer
 from sb_privileges.tasks import check_privileges
+from sb_locations.neo_models import Location
 
 from .neo_models import (Campaign, PoliticalCampaign, Position)
-
-logger = getLogger('loggly_logs')
 
 
 class CampaignSerializer(SBSerializer):
     active = serializers.BooleanField(required=False, read_only=True)
-    biography = serializers.CharField(required=False, max_length=150)
+    biography = serializers.CharField(required=False, max_length=255)
     epic = serializers.CharField(required=False, allow_blank=True)
     facebook = serializers.CharField(required=False, allow_blank=True)
     linkedin = serializers.CharField(required=False, allow_blank=True)
@@ -110,7 +108,8 @@ class CampaignSerializer(SBSerializer):
             account.external_accounts.create(external_account=stripe_token)
             account.legal_entity.additional_owners = []
             account.legal_entity.personal_id_number = ssn
-            account.legal_entity.business_tax_id = ein
+            if ein:
+                account.legal_entity.business_tax_id = ein
             account.legal_entity.first_name = owner.first_name
             account.legal_entity.last_name = owner.last_name
             account.legal_entity.type = "company"
@@ -159,7 +158,7 @@ class CampaignSerializer(SBSerializer):
                     temp_goal.active = True
                     temp_goal.save()
                 cache.set("%s_active_round" % instance.object_uuid,
-                          instance.object_uuid)
+                          upcoming_round.object_uuid)
                 new_upcoming = Round().save()
                 instance.upcoming_round.connect(new_upcoming)
                 new_upcoming.campaign.connect(instance)
@@ -308,6 +307,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
     vote_type = serializers.SerializerMethodField()
     vote_count = serializers.SerializerMethodField()
     constituents = serializers.SerializerMethodField()
+    paid_account = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -428,6 +428,15 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         res, _ = db.cypher_query(query)
         return res.one
 
+    def get_paid_account(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        if request.user.username == obj.object_uuid:
+            if obj.application_fee == 0.021:
+                return True
+            return False
+
 
 class PoliticalVoteSerializer(serializers.Serializer):
     """
@@ -541,3 +550,32 @@ class PositionSerializer(SBSerializer):
 
     def get_full_name(self, obj):
         return Position.get_full_name(obj.object_uuid)
+
+
+class PositionManagerSerializer(SBSerializer):
+    name = serializers.CharField()
+
+    location_name = serializers.CharField(
+        allow_blank=True)
+    location_uuid = serializers.CharField(
+        allow_blank=True)
+
+    def create(self, validated_data):
+        location = None
+        location_name = validated_data.pop('location_name', '')
+        location_id = validated_data.pop('location_uuid', '')
+        try:
+            location = Location.nodes.get(name=location_name)
+        except(Location.DoesNotExist, DoesNotExist):
+            pass
+        if location is None:
+            try:
+                location = Location.nodes.get(object_uuid=location_id)
+            except(Location.DoesNotExist, DoesNotExist):
+                pass
+        position = Position(**validated_data).save()
+        if location is not None:
+            location.positions.connect(position)
+            position.location.connect(location)
+
+        return position

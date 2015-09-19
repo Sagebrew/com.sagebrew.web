@@ -2,7 +2,7 @@
 {% load static %}
 <div class="sb_question_header">
     <div class="row">
-        <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 ">
+        <div class="col-xs-11 col-sm-10 col-lg-11">
             <h1 style="font-size:32px;">
                 {{ title|linebreaksbr }}
             </h1>
@@ -23,6 +23,14 @@
                     </ul>
                 {% endif %}
 
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-5 col-sm-3">
+            <small><i class="fa fa-calendar"></i> {{ last_edited_on|naturaltime }}</small>
+        </div>
+        <div class="col-xs-7 col-sm-9">
+            {% if goals %}<small> <i class="fa fa-bullseye"></i> {{ goals }} </small>{% endif %}
         </div>
     </div>
     <div class="row">

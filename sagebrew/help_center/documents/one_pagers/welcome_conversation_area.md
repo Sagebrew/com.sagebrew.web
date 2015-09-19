@@ -1,5 +1,5 @@
 # Welcome to the Conversation! #
-This is the Conversation Area. Conversations here are public
+This is the Conversation Cloud. Conversations here are public
 and accessible by all users. How does it work?
 
 ### Ask Questions ###

@@ -25,7 +25,8 @@ class TestVoteObjectTask(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_vote_object_task_success(self):
-        question = Question(object_uuid=str(uuid1())).save()
+        question = Question(object_uuid=str(uuid1()),
+                            title=str(uuid1())).save()
         question.owned_by.connect(self.pleb)
         task_data = {
             'object_uuid': question.object_uuid,

@@ -1,7 +1,17 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load staticfiles %}
-
+{% block title %}Conversation Cloud{% endblock title %}
+{% block description %}
+    <meta name="description" content="Sagebrew's Conversation Cloud is a
+    place where people can ask Questions that don't have a single answer.
+    People can provide, collaborate, and vote on different Solutions as
+    the Community works towards the most encompassing one.">
+    <meta name="fragment" content="!">
+{% endblock description %}
+{% block keywords %}
+    <meta name="keywords" content="debate, community, nonpartisan, questions, problem solving, solutions">
+{% endblock keywords %}
 {% block content %}
 <div class="row-fluid sb_page">
     <div class="col-lg-9 col-md-12 col-sm-12 col-xs-12" style="margin-bottom: 35px; ">
@@ -53,12 +63,14 @@
                              Start a Conversation</a>
                     </div>
                 </div>
-                <div id="question_wrapper">
-
-                    {% comment %}
-                        Loaded from JS
-                    {% endcomment %}
-                </div>
+                {% if html_snapshot %}
+                    {% for question in questions %}
+                        {% include "question_summary_include.html" %}
+                    {% endfor %}
+                {% else %}
+                    <div id="question_wrapper">
+                    </div>
+                {% endif %}
                 <div class="col-md-offset-3" id="js-no_result" style="display: none"><h3>Sorry! There seems to be nothing here!</h3></div>
             </div>
         </div>
@@ -69,10 +81,12 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'js/query_questions.js' %}"></script>
+    {% if not html_snapshot %}
+        <script src="{% static 'js/query_questions.js' %}"></script>
+        {% if not request.user.is_anonymous %}
+            <script src="{% static 'js/event_conversation_intercom.js' %}"></script>
+        {% endif %}
+    {% endif %}
     <script src="{% static 'js/question_ui.js' %}"></script>
     <script src="{% static 'js/toggle_filters.js' %}"></script>
-    {% if not request.user.is_anonymous %}
-        <script src="{% static 'js/event_conversation_intercom.js' %}"></script>
-    {% endif %}
 {% endblock scripts %}

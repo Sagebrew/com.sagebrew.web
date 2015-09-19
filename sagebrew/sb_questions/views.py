@@ -1,18 +1,22 @@
-from uuid import uuid1
+from dateutil import parser
 
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
+
+from neomodel import db
 
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 
+from api.utils import smart_truncate
 from sb_registration.utils import verify_completed_registration
 from sb_questions.neo_models import Question
 
-from .utils import prepare_question_search_html
+from .serializers import QuestionSerializerNeo
+from .utils import prepare_question_search_html, question_html_snapshot
 
 
 @login_required()
@@ -41,14 +45,28 @@ def question_page(request, sort_by="most_recent"):
 
     :return:
     """
-    tag_array = []
-    for tag in settings.BASE_TAGS:
-        tag_array.append({'default': tag, 'display': tag.replace('_', ' ')})
+    tag_array = [{'default': tag, 'display': tag.replace('_', ' ')}
+                 for tag in settings.BASE_TAGS]
+    if '_escaped_fragment_' in request.GET:
+        query = "MATCH (n:Question) WHERE n.to_be_deleted=false RETURN n " \
+                "ORDER BY n.created DESC"
+        res, _ = db.cypher_query(query)
+        queryset = []
+        for row in res:
+            question = QuestionSerializerNeo(Question.inflate(row[0]),
+                                             context={'expand_param': True,
+                                                      'request': request}).data
+            question['last_edited_on'] = parser.parse(
+                question['last_edited_on'])
+            queryset.append(question)
+        return render(request, 'question_list.html',
+                      {"base_tags": tag_array, 'questions': queryset,
+                       'html_snapshot': True})
     return render(request, 'question_list.html',
                   {"base_tags": tag_array})
 
 
-def question_detail_page(request, question_uuid=None):
+def question_detail_page(request, question_uuid):
     """
     This is the view that displays a single question with all solutions,
     comments,
@@ -57,12 +75,19 @@ def question_detail_page(request, question_uuid=None):
     :param request:
     :return:
     """
-    # TODO is this uuid1 creation necessary?
-    if question_uuid is None:
-        question_uuid = str(uuid1())
-    post_data = {'sort_by': 'uuid', 'uuid': question_uuid,
-                 'is_closed': Question.get(question_uuid).is_closed}
-    return render(request, 'conversation.html', post_data)
+    question = Question.get(question_uuid)
+    description = smart_truncate(question.content, length=150)
+    keywords = question.get_tags_string()
+    if '_escaped_fragment_' in request.GET:
+        return render(request, 'conversation.html', question_html_snapshot(
+            request, question, question_uuid, keywords, description))
+    return render(request, 'conversation.html', {
+        'uuid': question.object_uuid,
+        'sort_by': 'uuid',
+        'description': description,
+        'keywords': keywords,
+        'title': question.title
+    })
 
 
 @api_view(['GET'])

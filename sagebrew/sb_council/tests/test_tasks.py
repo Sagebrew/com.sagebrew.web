@@ -1,3 +1,4 @@
+from uuid import uuid1
 import time
 from django.conf import settings
 from django.test import TestCase
@@ -21,7 +22,7 @@ class TestUpdateClosedTask(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.flag = Flag().save()
-        self.question = Question().save()
+        self.question = Question(title=str(uuid1())).save()
         self.question.flags.connect(self.flag)
         self.vote_rel = self.question.council_votes.connect(self.pleb)
         self.vote_rel.active = True
@@ -52,7 +53,7 @@ class TestCheckClosedReputationChangesTask(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.flag = Flag().save()
-        self.question = Question().save()
+        self.question = Question(title=str(uuid1())).save()
         self.question.flags.connect(self.flag)
         self.vote_rel = self.question.council_votes.connect(self.pleb)
         self.vote_rel.active = True

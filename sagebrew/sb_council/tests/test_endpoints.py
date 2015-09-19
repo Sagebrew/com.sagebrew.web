@@ -1,3 +1,4 @@
+from uuid import uuid1
 import time
 from dateutil import parser
 
@@ -22,7 +23,8 @@ class CouncilEndpointTests(APITestCase):
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         self.flag = Flag().save()
-        self.question = Question(owner_username=self.pleb.username).save()
+        self.question = Question(owner_username=self.pleb.username,
+                                 title=str(uuid1())).save()
         self.question.flags.connect(self.flag)
         self.question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(self.question)

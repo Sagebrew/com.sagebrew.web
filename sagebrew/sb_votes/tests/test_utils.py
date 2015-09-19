@@ -1,3 +1,4 @@
+from uuid import uuid1
 import pytz
 import datetime
 
@@ -77,7 +78,7 @@ class TestDetermineVoteType(TestCase):
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = Question().save()
+        self.question = Question(title=str(uuid1())).save()
 
     def test_handle_vote_without_vote(self):
         res = determine_vote_type(self.question.object_uuid,
@@ -116,7 +117,7 @@ class TestHandleVote(TestCase):
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = Question().save()
+        self.question = Question(title=str(uuid1())).save()
 
     def test_handle_vote_no_vote(self):
         res = handle_vote(self.question.object_uuid, 1, self.user.username,

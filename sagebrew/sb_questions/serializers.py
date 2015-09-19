@@ -11,7 +11,7 @@ from rest_framework.reverse import reverse
 
 from neomodel import db, DoesNotExist
 
-from api.utils import spawn_task, get_node, gather_request_data
+from api.utils import spawn_task, gather_request_data
 from sb_base.serializers import TitledContentSerializer
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
@@ -109,6 +109,19 @@ class QuestionSerializerNeo(TitledContentSerializer):
     solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
 
+    def validate_title(self, value):
+        # We need to escape quotes prior to passing the title to the query.
+        # Otherwise the query will fail due to the string being terminated.
+        temp_value = value
+        temp_value = temp_value.replace('"', '\\"')
+        temp_value = temp_value.replace("'", "\\'")
+        query = 'MATCH (q:Question {title: "%s"}) RETURN q' % temp_value
+        res, _ = db.cypher_query(query)
+        if res.one is not None:
+            raise serializers.ValidationError("Sorry looks like a Question "
+                                              "with that Title already exists.")
+        return value
+
     def create(self, validated_data):
         request = self.context["request"]
         # Note that DRF requires us to use the source as the key here but
@@ -182,16 +195,23 @@ class QuestionSerializerNeo(TitledContentSerializer):
 
     def get_solutions(self, obj):
         request, expand, _, relations, expedite = gather_request_data(
-            self.context)
+            self.context,
+            expedite_param=self.context.get('expedite_param', None),
+            expand_param=self.context.get('expand_param', None))
         if expedite == "true":
             return []
         solutions = obj.get_solution_ids()
         solution_urls = []
         if expand == "true":
             for solution_uuid in solutions:
+                query = 'MATCH (s:Solution {object_uuid: "%s"}) RETURN s' % (
+                    solution_uuid)
+                res, _ = db.cypher_query(query)
                 solution_urls.append(SolutionSerializerNeo(
-                    Solution.inflate(get_node(solution_uuid)[0][0]),
-                    context={"request": request}).data)
+                    Solution.inflate(res.one),
+                    context={"request": request,
+                             "expand_param": self.context.get('expand_param',
+                                                              None)}).data)
         else:
             if relations == "hyperlinked":
                 for solution_uuid in solutions:
@@ -205,7 +225,10 @@ class QuestionSerializerNeo(TitledContentSerializer):
         return solution_urls
 
     def get_href(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
+        request, _, _, _, _ = gather_request_data(
+            self.context,
+            expedite_param=self.context.get('expedite_param', None),
+            expand_param=self.context.get('expand_param', None))
         return reverse(
             'question-detail', kwargs={'object_uuid': obj.object_uuid},
             request=request)

@@ -5,6 +5,7 @@ from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
 from django.core.cache import cache
+from django.templatetags.static import static
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
@@ -19,6 +20,14 @@ from sb_base.neo_models import VoteRelationship, RelationshipWeight
 
 def get_current_time():
     return datetime.now(pytz.utc)
+
+
+def get_default_profile_pic():
+    return static('images/sage_coffee_grey-01.png')
+
+
+def get_default_wallpaper_pic():
+    return static('images/wallpaper_western.jpg')
 
 
 def get_friend_requests_sent(current_username, friend_username):
@@ -40,7 +49,7 @@ class FriendRelationship(StructuredRel):
     since = DateTimeProperty(default=get_current_time)
     friend_type = StringProperty(default="friends")
     currently_friends = BooleanProperty(default=True)
-    time_unfriended = DateTimeProperty(default=None)
+    time_unfriended = DateTimeProperty()
     who_unfriended = StringProperty()
     # who_unfriended = RelationshipTo("Pleb", "")
 
@@ -139,8 +148,8 @@ class Pleb(Searchable):
     date_of_birth = DateTimeProperty()
     primary_phone = StringProperty()
     secondary_phone = StringProperty()
-    profile_pic = StringProperty()
-    wallpaper_pic = StringProperty()
+    profile_pic = StringProperty(default=get_default_profile_pic)
+    wallpaper_pic = StringProperty(default=get_default_wallpaper_pic)
     completed_profile_info = BooleanProperty(default=False)
     reputation = IntegerProperty(default=0)
     is_rep = BooleanProperty(default=False)
@@ -597,7 +606,7 @@ class Address(SBObject):
 class FriendRequest(SBObject):
     seen = BooleanProperty(default=False)
     time_sent = DateTimeProperty(default=get_current_time)
-    time_seen = DateTimeProperty(default=None)
+    time_seen = DateTimeProperty()
     response = StringProperty(default=None)
 
     # relationships
@@ -613,6 +622,6 @@ class FriendRequest(SBObject):
         """
         query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A_REQUEST]->' \
             '(n:FriendRequest) WHERE n.seen=False ' \
-            'RETURN count(n)' % (username)
+            'RETURN count(n)' % username
         res, col = db.cypher_query(query)
         return res[0][0]

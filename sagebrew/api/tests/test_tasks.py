@@ -17,7 +17,8 @@ class TestAddObjectToSearchIndex(TestCase):
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.question = Question(object_uuid=str(uuid1()))
+        self.question = Question(object_uuid=str(uuid1()),
+                                 title=str(uuid1()))
         self.question.save()
         settings.CELERY_ALWAYS_EAGER = True
 

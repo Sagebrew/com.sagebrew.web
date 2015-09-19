@@ -206,56 +206,56 @@ class Campaign(Searchable):
 
     @classmethod
     def get_active_round(cls, object_uuid):
-        active_round = cache.get("%s_active_round" % (object_uuid))
+        active_round = cache.get("%s_active_round" % object_uuid)
         if active_round is None:
             query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
                     "[:CURRENT_ROUND]->(r:`Round`) RETURN r.object_uuid" % \
-                    (object_uuid)
+                    object_uuid
             res, col = db.cypher_query(query)
             try:
                 active_round = res[0][0]
-                cache.set("%s_active_round" % (object_uuid), active_round)
+                cache.set("%s_active_round" % object_uuid, active_round)
             except IndexError:
                 active_round = None
         return active_round
 
     @classmethod
     def get_upcoming_round(cls, object_uuid):
-        upcoming_round = cache.get("%s_upcoming_round" % (object_uuid))
+        upcoming_round = cache.get("%s_upcoming_round" % object_uuid)
         if upcoming_round is None:
             query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
                     "[:UPCOMING_ROUND]->(r:`Round`) RETURN r.object_uuid" % \
-                    (object_uuid)
+                    object_uuid
             res, col = db.cypher_query(query)
             try:
                 upcoming_round = res[0][0]
-                cache.set("%s_upcoming_round" % (object_uuid), upcoming_round)
+                cache.set("%s_upcoming_round" % object_uuid, upcoming_round)
             except IndexError:
                 upcoming_round = None
         return upcoming_round
 
     @classmethod
     def get_updates(cls, object_uuid):
-        updates = cache.get("%s_updates" % (object_uuid))
+        updates = cache.get("%s_updates" % object_uuid)
         if updates is None:
             query = 'MATCH (c:`Campaign` {object_uuid:"%s"})-[:HAS_UPDATE]->' \
                     '(u:`Update`) WHERE u.to_be_deleted=false ' \
-                    'RETURN u.object_uuid' % (object_uuid)
+                    'RETURN u.object_uuid' % object_uuid
             res, col = db.cypher_query(query)
             updates = [row[0] for row in res]
-            cache.set("%s_updates" % (object_uuid), updates)
+            cache.set("%s_updates" % object_uuid, updates)
         return updates
 
     @classmethod
     def get_position(cls, object_uuid):
-        position = cache.get("%s_position" % (object_uuid))
+        position = cache.get("%s_position" % object_uuid)
         if position is None:
             query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:RUNNING_FOR]->" \
-                    "(p:`Position`) RETURN p.object_uuid" % (object_uuid)
+                    "(p:`Position`) RETURN p.object_uuid" % object_uuid
             res, col = db.cypher_query(query)
             try:
                 position = res[0][0]
-                cache.set("%s_position" % (object_uuid), position)
+                cache.set("%s_position" % object_uuid, position)
             except IndexError:
                 position = None
         return position
@@ -263,15 +263,15 @@ class Campaign(Searchable):
     @classmethod
     def get_public_official(cls, object_uuid):
         from sb_public_official.neo_models import PublicOfficial
-        public_official = cache.get("%s_public_official" % (object_uuid))
+        public_official = cache.get("%s_public_official" % object_uuid)
         if public_official is None:
             query = "MATCH (r:`Campaign` {object_uuid:'%s'})-" \
                     "[:HAS_PUBLIC_OFFICIAL]->(p:`PublicOfficial`) RETURN p" \
-                    % (object_uuid)
+                    % object_uuid
             res, _ = db.cypher_query(query)
             try:
                 public_official = PublicOfficial.inflate(res[0][0])
-                cache.set("%s_public_official" % (object_uuid), public_official)
+                cache.set("%s_public_official" % object_uuid, public_official)
             except IndexError:
                 public_official = None
         return public_official
@@ -326,6 +326,20 @@ class Campaign(Searchable):
                 'RETURN g.pledged_vote_requirement' % object_uuid
         res, _ = db.cypher_query(query)
         return res.one
+
+    @classmethod
+    def get_position_level(cls, object_uuid):
+        level = cache.get("%s_position_level" % object_uuid)
+        if level is None:
+            query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:RUNNING_FOR]->" \
+                    "(p:`Position`) RETURN p.level" % object_uuid
+            res, col = db.cypher_query(query)
+            try:
+                level = res.one
+                cache.set("%s_position_level" % object_uuid, level)
+            except IndexError:
+                level = None
+        return level
 
 
 class PoliticalCampaign(Campaign):
@@ -412,6 +426,7 @@ class PoliticalCampaign(Campaign):
 
 class Position(SBObject):
     name = StringProperty()
+    level = StringProperty(default="federal")
 
     location = RelationshipTo('sb_locations.neo_models.Location',
                               'AVAILABLE_WITHIN')
@@ -429,7 +444,7 @@ class Position(SBObject):
         position = cache.get(object_uuid)
         if position is None:
             query = 'MATCH (p:`Position` {object_uuid:"%s"}) RETURN p' % \
-                    (object_uuid)
+                    object_uuid
             res, col = db.cypher_query(query)
             try:
                 position = Position.inflate(res[0][0])

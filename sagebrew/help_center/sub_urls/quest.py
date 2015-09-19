@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
@@ -60,8 +60,8 @@ urlpatterns = patterns(
         template_name="help_page.html"),
         kwargs={
             "title": "How to run for office",
-            "description": "Information on what you need to know if you want to "
-                           "run for public office.",
+            "description": "Information on what you need to know if you "
+                           "want to run for public office.",
             "content_path":
                 "%show_to_run_for_office.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
@@ -116,6 +116,8 @@ urlpatterns = patterns(
             "static_files": True
         },
         name="quest_signup"),
+    url(r'^donation_goals/$', RedirectView.as_view(
+        url='/help/quest/goals/', permanent=True), name='goals_redirect'),
 
 )
 

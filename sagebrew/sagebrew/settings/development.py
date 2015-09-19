@@ -79,7 +79,7 @@ if not VERIFY_SECURE:
 
 MEDIA_ROOT = PROJECT_DIR.child("media")
 STATIC_ROOT = PROJECT_DIR.child("static")
-STATIC_URL = '/static/'
+STATIC_URL = 'https://sagebrew.local.dev/static/'
 MEDIA_URL = '/media/'
 
 DATABASES = {

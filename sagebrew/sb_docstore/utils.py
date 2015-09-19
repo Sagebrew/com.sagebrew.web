@@ -6,7 +6,8 @@ from boto.dynamodb2.table import Table
 from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
                                        ConditionalCheckFailedException,
                                        ValidationException,
-                                       ResourceNotFoundException)
+                                       ResourceNotFoundException,
+                                       ProvisionedThroughputExceededException)
 
 from django.conf import settings
 
@@ -104,7 +105,7 @@ def update_vote(object_uuid, user, vote_type, time):
             parent_object=object_uuid,
             user=user
         )
-    except ItemNotFound as e:
+    except(ItemNotFound, ProvisionedThroughputExceededException) as e:
         return e
     previous = vote['status']
     if vote['status'] == vote_type:
@@ -125,6 +126,17 @@ def get_vote_count(object_uuid, vote_type):
         votes_table = Table(table_name=get_table_name('votes'), connection=conn)
     except JSONResponseError as e:
         return e
+    # Handle ProvisionedThroughputExceededException in calling function.
+    # We do it that way because we fall back to cypher and the query currently
+    # depends on up/down vote in a different way than dynamo handles it. If we
+    # where to do it here it would cause the function to become unwieldy and
+    # create too much of a scope for the fxn to handle.
+    # NOTE: It has not yet been determined how to handle
+    # ProvisionedThroughputExceptions. Boto does not handle exceptions
+    # pythonicly nor any easily determined way. Therefore we are currenlty
+    # monitoring the provisioned throughput level and need to investigate
+    # additional means to mitigate these risks.
+
     votes = votes_table.query_2(parent_object__eq=object_uuid,
                                 status__eq=vote_type,
                                 index="VoteStatusIndex")

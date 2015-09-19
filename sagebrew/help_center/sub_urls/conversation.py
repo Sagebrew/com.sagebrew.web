@@ -12,19 +12,20 @@ urlpatterns = patterns(
             "description": "Something that is closed can no longer be "
                            "interacted with.",
             "content_path":
-                "%sclosed.html" % (settings.HELP_DOCS_PATH),
+                "%sclosed.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
         },
         name="closed"),
     url(r'^conversation_area/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "What is the Conversation Area?",
-            "description": "The Conversation Area is the place where knowledge "
+            "title": "What is the Conversation Cloud?",
+            "description": "The Conversation Cloud is the place where "
+                           "knowledge "
                            "is shared and Solutions are provided to "
                            "leading Questions.",
             "content_path":
-                "%sconversation_area.html" % (settings.HELP_DOCS_PATH),
+                "%sconversation_area.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
         },
         name="conversation_area"),
@@ -36,7 +37,7 @@ urlpatterns = patterns(
                            "deleted. This article details what those reasons"
                            " are.",
             "content_path":
-                "%sdeletions.html" % (settings.HELP_DOCS_PATH),
+                "%sdeletions.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
         },
         name="deletions"),
@@ -48,7 +49,7 @@ urlpatterns = patterns(
                            "question per week, this article will help you "
                            "understand why.",
             "content_path":
-                "%sone_question_per_week.html" % (settings.HELP_DOCS_PATH),
+                "%sone_question_per_week.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
         },
         name="one_question_per_week"),
@@ -60,7 +61,7 @@ urlpatterns = patterns(
                            " providing context to your Question or backing your"
                            " Solution.",
             "content_path":
-                "%sresearch.html" % (settings.HELP_DOCS_PATH),
+                "%sresearch.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
         },
         name="research"),
@@ -73,7 +74,8 @@ urlpatterns = patterns(
                            "to look around first and make sure there isn't "
                            "already one brewing.",
             "content_path":
-                "%sstarting_a_public_conversation.html" % (settings.HELP_DOCS_PATH),
+                "%sstarting_a_public_conversation.html" % (
+                    settings.HELP_DOCS_PATH),
             "category": "conversation",
             "static_files": True
         },
@@ -89,7 +91,7 @@ urlpatterns = patterns(
                            "on valid Questions that attract a lot of attention "
                            "but bolster too much noise.",
             "content_path":
-                "%sprotected.html" % (settings.HELP_DOCS_PATH),
+                "%sprotected.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
         },
         name="protected"),
@@ -101,7 +103,7 @@ urlpatterns = patterns(
                            "where many users have agreed on a Solution. If "
                            "this occurs a Conversation becomes Seasoned.",
             "content_path":
-                "%sseasoned.html" % (settings.HELP_DOCS_PATH),
+                "%sseasoned.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
         },
         name="seasoned"),
@@ -113,7 +115,7 @@ urlpatterns = patterns(
                            "contribution looks like spam and the "
                            "Admin Council has agreed with them.",
             "content_path":
-                "%scontribution_spam_block.html" % (settings.HELP_DOCS_PATH),
+                "%scontribution_spam_block.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
         },
         name="spam"),
@@ -145,7 +147,8 @@ urlpatterns = patterns(
     url(r'^public_vs_private/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "What's the difference between a public and private conversation?",
+            "title": "What's the difference between a public and private
+            conversation?",
             "description": "Sagebrew offers both private and public "
                            "Conversations. There are two key differences. One "
                            "is that Public Conversations can be viewed by "

@@ -57,7 +57,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
                     "ELSE vote_count END) as reduction " \
                     "ORDER BY reduction DESC" % tagged_as
 
-        res, col = db.cypher_query(query)
+        res, _ = db.cypher_query(query)
         # Quick cache implementation to reduce load of refresh clickers
         # Under load neo takes about 15-30 seconds to store off the
         # updates of a vote anyways so this can be added when necessary

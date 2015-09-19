@@ -3,6 +3,10 @@ from json import loads
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from neomodel.exception import DoesNotExist
+
+from neomodel import db
+
 from api.utils import gather_request_data
 from api.serializers import SBSerializer
 
@@ -49,3 +53,49 @@ class LocationSerializer(SBSerializer):
         if expand == 'true':
             return loads(obj.geo_data)
         return True
+
+
+class LocationManagerSerializer(SBSerializer):
+    name = serializers.CharField()
+    geo_data = serializers.CharField(allow_null=True)
+    encompassed_by_name = serializers.CharField(
+        allow_blank=True, help_text="Enter the name of the encompassing area. "
+                                    "This or uuid can be used but not both!",
+        required=False)
+    encompassed_by_uuid = serializers.CharField(
+        allow_blank=True, help_text="Enter the UUID of the encompassing area. "
+                                    "This or name can be used but not both!",
+        required=False)
+
+    def validate_name(self, value):
+        # We need to escape quotes prior to passing the title to the query.
+        # Otherwise the query will fail due to the string being terminated.
+        temp_value = value
+        temp_value = temp_value.replace('"', '\\"')
+        temp_value = temp_value.replace("'", "\\'")
+        query = 'MATCH (l:Location {name: "%s"}) RETURN l' % temp_value
+        res, _ = db.cypher_query(query)
+        if res.one is not None:
+            raise serializers.ValidationError("Sorry looks like a Location"
+                                              " with that Name already Exists")
+        return value
+
+    def create(self, validated_data):
+        encompassed_by = None
+        location_name = validated_data.pop('encompassed_by_name', '')
+        location_id = validated_data.pop('encompassed_by_uuid', '')
+        try:
+            encompassed_by = Location.nodes.get(name=location_name)
+        except(Location.DoesNotExist, DoesNotExist):
+            pass
+        if encompassed_by is None:
+            try:
+                encompassed_by = Location.nodes.get(object_uuid=location_id)
+            except(Location.DoesNotExist, DoesNotExist):
+                pass
+        location = Location(**validated_data).save()
+        if encompassed_by is not None:
+            location.encompassed_by.connect(encompassed_by)
+            encompassed_by.encompasses.connect(location)
+
+        return location

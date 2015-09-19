@@ -25,7 +25,7 @@ an inability to spark Questions.
       of your privileges, including sparking Questions,
       will be temporarily suspended.
 
-Any suspensions in the Public Conversation area are allocated by the Community
+Any suspensions in the Conversation Cloud are allocated by the Community
 by [Flagging][1] content and the [Admin Council][2] voting in a two-thirds 
 agreement. Sagebrew staff does not have the power to reinstate privileges 
 prior to the completion of a suspension. 

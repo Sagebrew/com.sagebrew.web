@@ -21,7 +21,7 @@ make Sagebrew a great experience for everyone.
   that they cannot answer your concerns for a week or two. Sagebrew
   cannot force either party to respond to their constituents.
 
-- The public Conversation area is a great tool for talking
+- The Conversation Cloud is a great tool for talking
   about and instigating change, but only if we collaborate
   and respect each other's ideas and insights. If you see
   inappropriate or offensive activity, don't be afraid to [Flag][1]

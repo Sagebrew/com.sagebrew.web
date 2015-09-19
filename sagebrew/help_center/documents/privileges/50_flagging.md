@@ -6,7 +6,7 @@ By now you should be familiar with the Conversation system and proper etiquette
 for discussion. With this power invested in you, this ability to Flag content, 
 you’ll be able to Flag Questions, Solutions, and Comments that clearly disregard 
 proper discussion etiquette. We're counting on you, the Sagebrew Community, to 
-assist us in keeping the Conversation Area clean and meaningful. 
+assist us in keeping the Conversation Cloud clean and meaningful. 
 
 ## When should you Flag content? ##
 When a Question, Solution, or Comment clearly disregards etiquette or steers 

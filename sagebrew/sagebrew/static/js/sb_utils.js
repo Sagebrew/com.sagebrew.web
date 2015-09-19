@@ -297,7 +297,7 @@ function loadSolutionCount() {
         success: function (data) {
             $('#solution_count').html("");
             $('#solution_count').append(data.solution_count);
-            if (data.solution_count !== '1') {
+            if (data.solution_count !== 1) {
                 $('#solution_plural').append('s');
             }
         },
@@ -854,7 +854,13 @@ function errorDisplay(XMLHttpRequest) {
                 notification = JSON.parse(notification.detail);
             }
             catch(e) {
-                $.notify({message: notification.detail}, {type: 'danger'});
+                if(notification.detail !== undefined) {
+                    $.notify({message: notification.detail}, {type: 'danger'});
+                } else{
+                    for (var key in notification) {
+                      $.notify({message: notification[key][0]}, {type: 'danger'});
+                    }
+                }
                 notification = [];
             }
         }

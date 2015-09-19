@@ -14,7 +14,7 @@ urlpatterns = patterns(
                            "their responsibilities and what it takes to join "
                            "its ranks.",
             "content_path":
-                "%sadmin_council.html" % (settings.HELP_DOCS_PATH),
+                "%sadmin_council.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
         },
         name="admin_council"),
@@ -28,7 +28,7 @@ urlpatterns = patterns(
                            "elders of the Sagebrew community who are tasked "
                            "with keeping Sagebrew running fluidly.",
             "content_path":
-                "%smoderators.html" % (settings.HELP_DOCS_PATH),
+                "%smoderators.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
         },
         name="moderators"),
@@ -58,7 +58,7 @@ urlpatterns = patterns(
                            "system while trying to limit the impact it has on "
                            "our members.",
             "content_path":
-                "%sserial_voting_change.html" % (settings.HELP_DOCS_PATH),
+                "%sserial_voting_change.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
         },
         name="serial_voting_change"),
@@ -74,7 +74,7 @@ urlpatterns = patterns(
                            "system while trying to limit the impact it has on "
                            "our members.",
             "content_path":
-                "%suser_removed_change.html" % (settings.HELP_DOCS_PATH),
+                "%suser_removed_change.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
         },
         name="user_removed_change"),
@@ -87,7 +87,7 @@ urlpatterns = patterns(
                            "community at large to see which ideas are the "
                            "most popular and the most encompassing",
             "content_path":
-                "%svoting_importance.html" % (settings.HELP_DOCS_PATH),
+                "%svoting_importance.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
         },
         name="voting_importance"),
@@ -98,7 +98,7 @@ urlpatterns = patterns(
             "description": "Reputation is one of the ways the community can "
                            "gauge the knowledge and wit of a fellow member.",
             "content_path":
-                "%sreputation.html" % (settings.HELP_DOCS_PATH),
+                "%sreputation.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
         },
         name="reputation"),
@@ -115,7 +115,7 @@ if settings.DEBUG is True:
                            "people. Conceding allows for the community to "
                            "focus in on the top solutions.",
             "content_path":
-                "%sconceding.html" % (settings.HELP_DOCS_PATH),
+                "%sconceding.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
         },
         name="conceding"),
@@ -127,7 +127,7 @@ if settings.DEBUG is True:
                            "need to advance in Sagebrew. Badges are another "
                            "key component of distinguishing yourself.",
             "content_path":
-                "%swhat_are_badges.html" % (settings.HELP_DOCS_PATH),
+                "%swhat_are_badges.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
         },
         name="what_are_badges"),

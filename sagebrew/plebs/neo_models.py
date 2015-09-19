@@ -1,4 +1,5 @@
 import pytz
+import itertools
 from datetime import datetime
 
 from django.conf import settings
@@ -606,18 +607,16 @@ class Address(SBObject):
 
     def get_all_encompassed_by(self):
         query = 'MATCH (a:Address {object_uuid:"%s"})-[:ENCOMPASSED_BY]->' \
-                '(l:Location) WITH l OPTIONAL MATCH (l)-[:ENCOMPASSED_BY*1..3]->(l2:Location) RETURN ' \
-                'l.object_uuid, l2.object_uuid' % self.object_uuid
+                '(l:Location) WITH l OPTIONAL MATCH (l)-' \
+                '[:ENCOMPASSED_BY*1..3]->(l2:Location) RETURN ' \
+                'distinct l.object_uuid, collect(distinct(l2.object_uuid))'\
+                % self.object_uuid
         res, _ = db.cypher_query(query)
         try:
-            new_list = []
-            # loops here are required to ensure that the ResultSet with
-            # multiple nested lists is converted into a single list
-            for result_set in res:
-                for item in result_set:
-                    if item is not None:
-                        new_list.append(item)
-            return list(set(new_list))  # ensure list is unique
+            logger.info(res)
+            logger.info([item for sublist in res for item in sublist])
+            logger.info(list(itertools.chain(*res)))
+            return [item for sublist in res[0] for item in sublist]  # flatten
         except IndexError:
             return []
 

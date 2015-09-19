@@ -47,7 +47,8 @@ class TestObjectVoteNotifications(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
-        self.question = Question(owner_username=self.pleb.username).save()
+        self.question = Question(owner_username=self.pleb.username,
+                                 title=str(uuid1())).save()
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False

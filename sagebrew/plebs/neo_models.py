@@ -14,6 +14,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DoesNotExist)
 from neomodel import db
 
+from api.utils import flatten_lists
 from api.neo_models import SBObject
 from sb_search.neo_models import Searchable, Impression
 from sb_base.neo_models import VoteRelationship, RelationshipWeight
@@ -587,7 +588,6 @@ class Pleb(Searchable):
         return True
     """
 
-
 class Address(SBObject):
     street = StringProperty()
     street_additional = StringProperty()
@@ -613,10 +613,7 @@ class Address(SBObject):
                 % self.object_uuid
         res, _ = db.cypher_query(query)
         try:
-            logger.info(res)
-            logger.info([item for sublist in res for item in sublist])
-            logger.info(list(itertools.chain(*res)))
-            return [item for sublist in res[0] for item in sublist]  # flatten
+            return flatten_lists(res)  # flatten
         except IndexError:
             return []
 

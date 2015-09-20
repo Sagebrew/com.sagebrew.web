@@ -5,6 +5,7 @@ import boto.sqs
 import requests
 import hashlib
 import shortuuid
+import collections
 from uuid import uuid1
 from json import dumps
 from datetime import datetime
@@ -263,3 +264,12 @@ def smart_truncate(content, length=100, suffix='...'):
     if len(content) <= length:
         return content
     return content[:length].rsplit(' ', 1)[0] + suffix
+
+
+def flatten_lists(unflattened_list):
+    for element in unflattened_list:
+        if isinstance(element, collections.Iterable) and not isinstance(element, basestring):
+            for sub in flatten_lists(element):
+                yield sub
+        else:
+            yield element

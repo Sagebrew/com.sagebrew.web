@@ -322,7 +322,7 @@ class CampaignSerializer(SBSerializer):
 
 class PoliticalCampaignSerializer(CampaignSerializer):
     vote_type = serializers.SerializerMethodField(
-        validators=AllowVoteValidator())
+        validators=[AllowVoteValidator()])
     vote_count = serializers.SerializerMethodField()
     allow_vote = serializers.SerializerMethodField()
     constituents = serializers.SerializerMethodField()

@@ -51,6 +51,7 @@
             <div class="sb-nav-collapse collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li {% if "/login/" in request.path %}class="active"{% endif %}><a href="{% url 'login'%}">Login</a></li>
+                    <li {% if "/conversations/" in request.path %}class="active"{% endif %}><a href="{% url 'question_page' %}">Conversation Cloud</a></li>
                     <li {% if "/help/" in request.path %}class="active"{% endif %}><a href="{% url 'help_center' %}">Help</a></li>
                     <li><a href="http://shop.sagebrew.com">Shop</a></li>
                     <li><a href="http://blog.sagebrew.com">Blog</a></li>

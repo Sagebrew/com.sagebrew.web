@@ -14,12 +14,12 @@
                 {% include "vote.html" %}
             </div>
         </div>
-        <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 ">
+        <div class="col-lg-10 col-sm-11 col-xs-12 ">
             <h1 style="font-size:32px;">
                 {{ title|linebreaksbr }}
             </h1>
         </div>
-        <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs col-lg-offset-0 col-md-offset-0 col-sm-offset-0">
+        <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs">
 
                 {% if request.user.username == profile.username %}
                     <button class="btn dropdown-toggle sb_btn_icon" type="button"
@@ -44,7 +44,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 col-lg-offset-1 sb_post_wrapper">
+        <div class="col-xs-11 col-lg-10 col-lg-offset-1 sb_post_wrapper">
             <div class="sb_question_body" id="sb_question_{{ object_uuid }}">
                 <div class="sb_markdown{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                     {% autoescape off %}
@@ -59,7 +59,7 @@
 
     </div>
     <div class="row">
-        <div class="col-lg-4 col-md-4 hidden-sm hidden-xs col-md-offset-8 col-lg-offset-9">
+        <div class="col-md-4 hidden-sm hidden-xs col-md-offset-8 col-lg-offset-9">
             <small>
                 asked by
             </small>
@@ -90,14 +90,14 @@
             {% endif %}
         </div>
 
-        <div class="col-lg-1 col-md-1 hidden-sm hidden-xs col-md-offset-6"
+        <div class="col-md-1 hidden-sm hidden-xs col-md-offset-6"
              style="padding-right:0; margin-right: -10px">
             <div class="sb_thumbnail_xs thumbnail">
                 {% static 'images/sage_coffee_grey-01.png' as default_profile %}
                 <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>
             </div>
         </div>
-        <div class="col-lg-2 col-md-2 hidden-sm hidden-xs" style="padding-left:0; margin-top:-10px; margin-left: 2px">
+        <div class="col-md-2 hidden-sm hidden-xs" style="padding-left:0; margin-top:-10px; margin-left: 2px">
             <div>
                 <small>
                     <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>

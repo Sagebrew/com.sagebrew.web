@@ -57,7 +57,7 @@ a {
 }
 
 .container-fluid.container-main {
-  margin-top:60px;
+  margin-top: 70px;
   padding-left:5%;
   padding-right:5%;
 }
@@ -220,6 +220,12 @@ a {
   h1{
     margin-bottom: 15px;
   }
+}
+.nav-toggle-button{
+  &:before{
+    color: white;
+  }
+
 }
 #nav-logo{
   width: 40px;
@@ -611,6 +617,12 @@ a {
     display: inline-block;
   }
 }
+.sb-nav-mobile{
+  background-color: @sb_green;
+}
+.sb-nav-collapse{
+  border-color: @sb_green !important;
+}
 .sb_primary_nav{
   &:extend(.sb_nav);
   background-color: @sb_green;
@@ -737,6 +749,7 @@ a {
 .sb_search{
   display: inline-block;
   float: right;
+  margin-top: 5px;
   form{
     padding-top: 5px;
   }
@@ -745,10 +758,14 @@ a {
     border-radius: 5px 0 0 5px;
   }
 }
+.navbar-header{
+  margin-top: 2px;
+}
 .sb_login{
   &:extend(.sb_search);
   input{
     line-height: 25px;
+    margin-right: 10px;
   }
   ul{
     margin-bottom: 14px;
@@ -760,7 +777,11 @@ a {
     // Firefox fix for button being placed differently in navbar
     padding-top: 0;
     padding-bottom: 5px;
+    margin-top: 6px;
   }
+}
+.nav-logged-in{
+  margin-top: 5px;
 }
 
 //this is for disabling certain dropdowns when editing an object
@@ -784,7 +805,7 @@ a {
     border-radius: 0 0 2px 2px;
     border-width: 2px;
     border-top: solid @sb_green_impressed;
-    margin-top: -4px;
+    margin-top: -1px;
   }
   li{
     display: block;
@@ -900,7 +921,7 @@ a {
   float: left;
   width: 100%;
 
-  margin-top: -15px;
+  margin-top: -20px;
   padding-left: 0;
 }
 .sb_signup_headline_containter{
@@ -1226,7 +1247,6 @@ textarea.sb_comment_input{
   background-repeat: no-repeat;
   padding-top: 5px;
   padding-bottom: 0;
-  margin-left: 30px;
   padding-right: 25px;
 }
 .grid-sizer{

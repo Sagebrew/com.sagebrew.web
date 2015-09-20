@@ -1,8 +1,9 @@
 /*global $, ajaxSecurity, Bloodhound*/
 $(document).ready(function () {
+    var campaignId = $(this).data('object_uuid');
     $("#edit-update").click(function (event) {
         event.preventDefault();
-        var campaignId = $(this).data('object_uuid');
+        $(this).attr("disabled", "disabled");
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "PATCH",
@@ -17,8 +18,13 @@ $(document).ready(function () {
                 window.location.href = "/quests/" + data.campaign + "/updates/";
             },
             error: function (XMLHttpRequest) {
+                $("#edit-update").removeAttr("disabled");
                 errorDisplay(XMLHttpRequest);
             }
         });
+    });
+    $(".cancel_update-action").click(function (event) {
+        event.preventDefault();
+        window.location.href = "/quests/" + campaignId + "/updates/";
     });
 });

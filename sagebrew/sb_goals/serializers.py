@@ -73,7 +73,7 @@ class GoalSerializer(CampaignAttributeSerializer):
         prev_goal = validated_data.pop('prev_goal', None)
         if prev_goal is not None:
             query = 'MATCH (g:Goal {object_uuid:"%s"})-[:PREVIOUS]->' \
-                    '(pg:Goal) RETURN pg' % (instance.object_uuid)
+                    '(pg:Goal) RETURN pg' % instance.object_uuid
             res, _ = db.cypher_query(query)
             if res.one:
                 temp_goal = Goal.inflate(res.one)

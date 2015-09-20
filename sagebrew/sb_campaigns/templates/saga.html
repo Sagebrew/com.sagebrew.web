@@ -1,8 +1,12 @@
 <h5>Epic{% if is_editor or is_accountant %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green toggle_create_goal" id="edit_epic"><span class="fa fa-edit"></span></button>{% endif %}</h5>
 <div class="block sb_action_content_block ">
-    <div id="epic-container" class="sb_markdown epic-area">
-    {% autoescape off %}
-        {{ rendered_epic|default:"This user has not setup their Epic yet." }}
-    {% endautoescape %}
-    </div>
+    {% if rendered_epic %}
+        <div id="epic-container" class="sb_markdown epic-area">
+        {% autoescape off %}
+            {{ rendered_epic }}
+        {% endautoescape %}
+        </div>
+    {% else %}
+        <h6>This user has not setup their Epic</h6>
+    {% endif %}
 </div>

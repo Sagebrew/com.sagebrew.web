@@ -1,6 +1,3 @@
-/**
- * Created by tylerwiersing on 7/2/15.
- */
 $(document).ready(function () {
     $("#updateForm").formValidation({
         framework: 'bootstrap',
@@ -23,8 +20,9 @@ $(document).ready(function () {
                         message: "Title is required"
                     },
                     stringLength: {
-                        min: 15,
-                        message: "Title must be at least 15 Characters long"
+                        min: 5,
+                        max: 140,
+                        message: "Title must be between 5 and 140 characters long"
                     }
                 }
             },

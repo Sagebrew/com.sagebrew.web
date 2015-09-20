@@ -14,6 +14,10 @@ $(document).ready(function(){
             }
         });
     });
+    $("#js-cancel-button").click(function(event){
+        event.preventDefault();
+        window.location.href = "/";
+    });
     var settings_area = "#submit_settings";
     $(settings_area).click(function (event) {
         $(settings_area).attr("disabled", "disabled");

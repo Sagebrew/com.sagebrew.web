@@ -516,8 +516,6 @@ def get_parent_titled_content(object_uuid):
         res, _ = db.cypher_query(query)
         try:
             content = TitledContent.inflate(res.one)
-        except ValueError:
-            content = TitledContent.inflate(res.one)
         except AttributeError as e:
             return e
         return content

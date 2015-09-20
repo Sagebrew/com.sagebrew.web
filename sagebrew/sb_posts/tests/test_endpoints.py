@@ -452,6 +452,15 @@ class WallPostListCreateTest(APITestCase):
         response = self.client.get(url, format='json')
         self.assertGreater(len(response.data['results']['html']), 0)
 
+    def test_create(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-wall',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.post(
+            url, data={'content': 'this is a test content thing'},
+            format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
 class PostListCreateTest(APITestCase):
     def setUp(self):

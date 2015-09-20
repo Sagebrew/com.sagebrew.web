@@ -146,13 +146,13 @@ class TestCommentListCreate(APITestCase):
     def test_create(self, m):
         self.client.force_authenticate(user=self.user)
         m.get("%s/posts/%s/" % (self.api_endpoint, self.post.object_uuid),
-              json={"url":
-                        "http://www.sagebrew.com/v1/posts/%s/" %
-                        self.post.object_uuid},
+              json={
+                  "url": "http://www.sagebrew.com/v1/posts/%s/" %
+                         self.post.object_uuid},
               status_code=status.HTTP_200_OK)
-        url = reverse(
-            'post-detail', kwargs={"object_uuid": self.post.object_uuid}) + \
-              "comments/"
+        url = reverse('post-detail',
+                      kwargs={"object_uuid":
+                              self.post.object_uuid}) + "comments/"
         response = self.client.post(
             url, data={'content': "this is my test comment content"},
             format='json')
@@ -164,12 +164,12 @@ class TestCommentListCreate(APITestCase):
         self.client.force_authenticate(user=self.user)
         m.get("%s/posts/%s/" % (self.api_endpoint, self.post.object_uuid),
               json={"url":
-                        "http://www.sagebrew.com/v1/posts/%s/" %
-                        self.post.object_uuid},
+                    "http://www.sagebrew.com/v1/posts/%s/" %
+                    self.post.object_uuid},
               status_code=status.HTTP_200_OK)
         url = reverse(
             'post-detail', kwargs={"object_uuid": self.post.object_uuid}) + \
-              "comments/?html=true"
+            "comments/?html=true"
         response = self.client.post(
             url, data={'content': "this is my test comment content"},
             format='json')

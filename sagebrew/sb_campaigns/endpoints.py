@@ -266,7 +266,8 @@ class CampaignViewSet(viewsets.ModelViewSet):
                 donation.update(donation.pop('owned_by', {}))
                 donation.update(donation.pop('address', {}))
                 application_fee = donation['amount'] * (
-                    campaign.application_fee + .021) + .3
+                    campaign.application_fee +
+                    settings.STRIPE_TRANSACTION_PERCENT) + .3
                 donation['amount'] -= application_fee
             keys = donation_info[0].keys()
             # use of named temporary file here is to handle deletion of file

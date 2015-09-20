@@ -24,9 +24,6 @@ from sb_locations.neo_models import Location
 
 from .neo_models import (Campaign, PoliticalCampaign, Position)
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class CampaignSerializer(SBSerializer):
     active = serializers.BooleanField(required=False, read_only=True)

@@ -343,10 +343,7 @@ class Campaign(Searchable):
 
     @classmethod
     def get_position_location(cls, object_uuid):
-        try:
-            return Position.get_location(cls.get_position(object_uuid))
-        except AttributeError:
-            return None
+        return Position.get_location(cls.get_position(object_uuid))
 
 
 class PoliticalCampaign(Campaign):

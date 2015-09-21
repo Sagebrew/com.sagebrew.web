@@ -95,7 +95,7 @@ urlpatterns = patterns(
             "category": "questions"
         },
         name="questions_no_longer_accepted"),
-    url(r'^solution_to_question/$', TemplateView.as_view(
+    url(r'^solution-to-question/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What should I do when someone provides a solution to my"
@@ -159,6 +159,9 @@ urlpatterns = patterns(
     url(r'^questions_no_longer_accepted/$', RedirectView.as_view(
         url='/help/questions/questions-no-longer-accepted/', permanent=True),
         name='questions_no_longer_accepted_redirect'),
+    url(r'^solution_to_question/$', RedirectView.as_view(
+        url='/help/questions/solution-to-question/', permanent=True),
+        name='solution_to_question_redirect'),
     url(r'^topics_to_ask_about/$', RedirectView.as_view(
         url='/help/questions/topics-to-ask-about/', permanent=True),
         name='topics_to_ask_about_redirect'),

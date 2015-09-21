@@ -16,7 +16,7 @@ urlpatterns = patterns(
             "category": "conversation"
         },
         name="closed"),
-    url(r'^conversation_area/$', TemplateView.as_view(
+    url(r'^conversation-area/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What is the Conversation Cloud?",
@@ -41,7 +41,7 @@ urlpatterns = patterns(
             "category": "conversation"
         },
         name="deletions"),
-    url(r'^one_question_per_week/$', TemplateView.as_view(
+    url(r'^one-question-per-week/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Why have I been limited to one question per week?",
@@ -52,7 +52,7 @@ urlpatterns = patterns(
                 "%sone_question_per_week.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
         },
-        name="one_question_per_week"),
+        name="one-question-per-week"),
     url(r'^research/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -65,7 +65,7 @@ urlpatterns = patterns(
             "category": "conversation"
         },
         name="research"),
-    url(r'^starting_a_public_conversation/$', TemplateView.as_view(
+    url(r'^starting-a-public-conversation/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How do I start a public conversation?",
@@ -79,7 +79,7 @@ urlpatterns = patterns(
             "category": "conversation",
             "static_files": True
         },
-        name="starting_a_public_conversation"),
+        name="starting-a-public-conversation"),
     url(r'^protected/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={

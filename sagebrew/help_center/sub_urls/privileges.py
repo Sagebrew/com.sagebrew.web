@@ -5,7 +5,7 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^participate_in_the_conversation/$', TemplateView.as_view(
+    url(r'^participate-in-the-conversation/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Participate in the Conversation",

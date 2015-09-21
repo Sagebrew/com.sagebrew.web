@@ -5,7 +5,7 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^admin_council/$', TemplateView.as_view(
+    url(r'^admin-council/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What's the Admin Council and how do I get on it?",
@@ -32,7 +32,7 @@ urlpatterns = patterns(
             "category": "Reputation and Moderation"
         },
         name="moderators"),
-    url(r'^reputation_changed_user_removed/$', TemplateView.as_view(
+    url(r'^reputation-changed-user-removed/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": 'Why do I have a reputation change on my reputation page '
@@ -46,7 +46,7 @@ urlpatterns = patterns(
             "category": "Reputation and Moderation"
         },
         name="reputation_changed_user_removed"),
-    url(r'^serial_voting_change/$', TemplateView.as_view(
+    url(r'^serial-voting-change/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": 'Why do I have a reputation change on my reputation '
@@ -62,7 +62,7 @@ urlpatterns = patterns(
             "category": "Reputation and Moderation"
         },
         name="serial_voting_change"),
-    url(r'^user_removed_change/$', TemplateView.as_view(
+    url(r'^user-removed-change/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": 'Why do I have a reputation change on my reputation page '
@@ -78,7 +78,7 @@ urlpatterns = patterns(
             "category": "Reputation and Moderation"
         },
         name="user_removed_change"),
-    url(r'^voting_importance/$', TemplateView.as_view(
+    url(r'^voting-importance/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": 'Why is voting on Questions, Solutions, and Comments '

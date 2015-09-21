@@ -5,7 +5,7 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^delete_account/$', TemplateView.as_view(
+    url(r'^delete-account/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How do I delete my account?",
@@ -18,7 +18,7 @@ urlpatterns = patterns(
             "category": "account"
         },
         name="delete_account"),
-    url(r'^reset_password/$', TemplateView.as_view(
+    url(r'^reset-password/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How do I reset my password?",
@@ -30,7 +30,7 @@ urlpatterns = patterns(
             "category": "account"
             },
         name="reset_password"),
-    url(r'^why_join/$', TemplateView.as_view(
+    url(r'^why-join/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Why should I create an account?",
@@ -42,7 +42,7 @@ urlpatterns = patterns(
             "category": "account"
         },
         name="create_an_account"),
-    url(r'^restriction_on_asking/$', TemplateView.as_view(
+    url(r'^restriction-on-asking/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Why is the system asking me to wait a day or more before "
@@ -59,7 +59,7 @@ urlpatterns = patterns(
 
 if settings.DEBUG is True:
     urlpatterns += patterns(
-        url(r'^change_password/$', TemplateView.as_view(
+        url(r'^change-password/$', TemplateView.as_view(
             template_name="help_page.html"),
             kwargs={
                 "title": "How do I change my password?",

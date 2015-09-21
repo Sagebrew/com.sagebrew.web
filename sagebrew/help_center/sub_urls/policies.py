@@ -19,7 +19,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="advertising"),
-    url(r'^be_nice/$', TemplateView.as_view(
+    url(r'^be-nice/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Be Nice",
@@ -31,7 +31,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="be_nice"),
-    url(r'^do_not_spam/$', TemplateView.as_view(
+    url(r'^do-not-spam/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How to not be a Spammer",
@@ -53,7 +53,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="feedback"),
-    url(r'^finding_topics_of_interest/$', TemplateView.as_view(
+    url(r'^finding-topics-of-interest/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How do I find topics I'm interested in?",
@@ -79,7 +79,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="how_to_search"),
-    url(r'^markdown_formatting/$', TemplateView.as_view(
+    url(r'^markdown-formatting/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Markdown Formatting",
@@ -102,7 +102,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="support"),
-    url(r'^reporting_suspicious_behavior/$', TemplateView.as_view(
+    url(r'^reporting-suspicious-behavior/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What if I see someone doing something bad?",
@@ -116,7 +116,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="reporting_suspicious_behavior"),
-    url(r'^user_behavior/$', TemplateView.as_view(
+    url(r'^user-behavior/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What kind of behavior is expected of users?",
@@ -128,7 +128,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="user_behavior"),
-    url(r'^what_is_markdown/$', TemplateView.as_view(
+    url(r'^what-is-markdown/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What is Markdown?",

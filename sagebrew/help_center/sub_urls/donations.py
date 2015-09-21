@@ -5,7 +5,7 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^after_donating_to_a_candidate/$', TemplateView.as_view(
+    url(r'^after-donating-to-a-candidate/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What happens when I donate to a Candidate?",
@@ -18,7 +18,7 @@ urlpatterns = patterns(
             "category": "citizens"
         },
         name="after_donating_to_a_candidate"),
-    url(r'^donating_to_a_candidate/$', TemplateView.as_view(
+    url(r'^donating-to-a-candidate/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "I want to contribute to a candidate running for "
@@ -43,7 +43,7 @@ urlpatterns = patterns(
             "category": "citizens"
         },
         name="donation_goals_citizen"),
-    url(r'^pledging_votes/$', TemplateView.as_view(
+    url(r'^pledging-votes/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Why we think you should pledge a vote for your "
@@ -74,7 +74,7 @@ urlpatterns = patterns(
                     settings.HELP_DOCS_PATH),
             "category": "citizens"
         },
-        name="campaign_contribution_rules"),
+        name="campaign-contribution-rules"),
     url(r'^quest/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={

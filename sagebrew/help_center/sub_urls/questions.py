@@ -42,7 +42,7 @@ urlpatterns = patterns(
             "category": "questions"
         },
         name="good_question"),
-    url(r'^no_traffic/$', TemplateView.as_view(
+    url(r'^no-traffic/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What should I do if my Question gets no traffic?",
@@ -54,7 +54,7 @@ urlpatterns = patterns(
             "category": "questions"
         },
         name="no_traffic"),
-    url(r'^quality_standards/$', TemplateView.as_view(
+    url(r'^quality-standards/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Why do I see a message that says my question does not "
@@ -69,7 +69,7 @@ urlpatterns = patterns(
             "category": "questions"
         },
         name="quality_standards"),
-    url(r'^questions_avoid_asking/$', TemplateView.as_view(
+    url(r'^questions-avoid-asking/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What types of Questions should I avoid asking?",
@@ -81,7 +81,7 @@ urlpatterns = patterns(
             "category": "questions"
         },
         name="questions_avoid_asking"),
-    url(r'^questions_no_longer_accepted/$', TemplateView.as_view(
+    url(r'^questions-no-longer-accepted/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Why are Questions no longer being accepted by my "
@@ -94,7 +94,7 @@ urlpatterns = patterns(
                     settings.HELP_DOCS_PATH),
             "category": "questions"
         },
-        name="questions_no_longer_accepted"),
+        name="questions-no-longer-accepted"),
     url(r'^solution_to_question/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -121,7 +121,7 @@ urlpatterns = patterns(
             "category": "questions"
         },
         name="tags_and_how_to_use_them"),
-    url(r'^topics_to_ask_about/$', TemplateView.as_view(
+    url(r'^topics-to-ask-about/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What topics can I ask about here?",
@@ -133,7 +133,7 @@ urlpatterns = patterns(
             "category": "questions"
         },
         name="topics_to_ask_about"),
-    url(r'^traffic_no_solutions/$', TemplateView.as_view(
+    url(r'^traffic-no-solutions/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What should I do if no one provides a Solution to my "

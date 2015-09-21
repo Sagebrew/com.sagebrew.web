@@ -1,9 +1,7 @@
 /*global $, jQuery, ajaxSecurity, wistiaJQuery*/
 $(document).ready(function () {
     "use strict";
-    var vid = document.getElementById("bgvid"),
-        pauseButton = document.getElementById("intro-video");
-    console.log(pauseButton);
+    var vid = document.getElementById("bgvid");
     function vidFade() {
         vid.classList.add("stopfade");
     }

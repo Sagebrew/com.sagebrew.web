@@ -66,7 +66,7 @@ def question_page(request, sort_by="most_recent"):
                   {"base_tags": tag_array})
 
 
-def question_detail_page(request, question_uuid):
+def question_detail_page(request, question_uuid, title=None):
     """
     This is the view that displays a single question with all solutions,
     comments,

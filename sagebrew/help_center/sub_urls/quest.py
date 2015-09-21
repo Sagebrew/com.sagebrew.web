@@ -18,7 +18,7 @@ urlpatterns = patterns(
             "category": "quest"
         },
         name="donation_goals"),
-    url(r'^funding_not_in_account/$', TemplateView.as_view(
+    url(r'^funding-not-in-account/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "I've reached my Goal but there are no funds in"
@@ -33,7 +33,7 @@ urlpatterns = patterns(
             "category": "quest"
         },
         name="funding_not_in_account"),
-    url(r'^how_to_export_contributions/$', TemplateView.as_view(
+    url(r'^how-to-export-contributions/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "I need to file the contributions to my campaign",
@@ -45,7 +45,7 @@ urlpatterns = patterns(
             "category": "quest"
         },
         name="how_to_export_contributions"),
-    url(r'^how_to_get_on_the_ballot/$', TemplateView.as_view(
+    url(r'^how-to-get-on-the-ballot/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How do I get my name on the ballot?",
@@ -56,7 +56,7 @@ urlpatterns = patterns(
             "category": "quest"
         },
         name="how_to_get_on_the_ballot"),
-    url(r'^how_to_run/$', TemplateView.as_view(
+    url(r'^how-to-run/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How to run for office",
@@ -67,7 +67,7 @@ urlpatterns = patterns(
             "category": "quest"
         },
         name="how_to_run"),
-    url(r'^name_on_ballot_to_run/$', TemplateView.as_view(
+    url(r'^name-on-ballot-to-run/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Do I have to have my name on the ballot to run for "
@@ -80,7 +80,7 @@ urlpatterns = patterns(
             "category": "quest"
         },
         name="name_on_ballot_to_run"),
-    url(r'^need_more_help_public_official/$', TemplateView.as_view(
+    url(r'^need-more-help-public-official/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What if I need more help",
@@ -92,7 +92,7 @@ urlpatterns = patterns(
             "category": "quest"
         },
         name="need_more_help_repsagetribune"),
-    url(r'^principal_campaign_committee/$', TemplateView.as_view(
+    url(r'^principal-campaign-committee/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What is a principal campaign committee?",
@@ -102,7 +102,7 @@ urlpatterns = patterns(
                     settings.HELP_DOCS_PATH),
             "category": "quest"
         },
-        name="principle_campaign_committee"),
+        name="principle-campaign-committee"),
     url(r'^quest/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -115,7 +115,7 @@ urlpatterns = patterns(
             "category": "quest",
             "static_files": True
         },
-        name="quest_signup"),
+        name="quest-signup"),
     url(r'^donation_goals/$', RedirectView.as_view(
         url='/help/quest/goals/', permanent=True), name='goals_redirect'),
 

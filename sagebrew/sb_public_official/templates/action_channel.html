@@ -4,10 +4,10 @@
     {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
     {% if is_editor or is_accountant %}
         <div id="cropQuestWallpaperPictureEyecandy">
-            <img id="wallpaper_pic"  alt="wallpaper image" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+            <img id="wallpaper_pic" alt="wallpaper image" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
         </div>
     {% else %}
-            <img id="wallpaper_pic"  alt="wallpaper image" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+            <img id="wallpaper_pic" alt="wallpaper image" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
     {% endif %}
     <div id="stripe_img" style="display: none;" data-stripe_image="{% static 'images/icon_sage.png' %}"></div>
 </div>
@@ -16,11 +16,11 @@
 
            {% if is_editor or is_accountant %}
                 <div id="cropQuestProfilePictureEyecandy" class="thumbnail sb_thumbnail_md">
-                    <img  alt="quest profile picture" id="quest_profile_pic" src="{{ profile_pic }}">
+                    <img alt="quest profile picture" id="quest_profile_pic" src="{{ profile_pic }}">
                 </div>
            {% else %}
                 <div class="thumbnail sb_thumbnail_md">
-                    <img  alt="quest profile picture" src="{{ profile_pic }}">
+                    <img alt="quest profile picture" src="{{ profile_pic }}">
                 </div>
            {% endif %}
     </div>

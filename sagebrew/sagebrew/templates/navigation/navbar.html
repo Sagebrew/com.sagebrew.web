@@ -8,7 +8,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <h1>{% if request_profile.completed_profile_info or user.is_anonymous %}<a href="{% url 'root_profile_page' %}">{% endif %}<img id="nav-logo" src="{% static 'images/icon_sage.png' %}"/>Sagebrew{% if request_profile.completed_profile_info or user.is_anonymous %}</a>{% endif %}</h1>
+            <h1>{% if request_profile.completed_profile_info or user.is_anonymous %}<a href="{% url 'root_profile_page' %}">{% endif %}<img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/>Sagebrew{% if request_profile.completed_profile_info or user.is_anonymous %}</a>{% endif %}</h1>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             {% if user.is_authenticated %}

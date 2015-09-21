@@ -1,11 +1,11 @@
 from django.conf.urls import patterns, url
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^participate_in_the_conversation/$', TemplateView.as_view(
+    url(r'^participate-in-the-conversation/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Participate in the Conversation",
@@ -131,4 +131,7 @@ urlpatterns = patterns(
             "static_files": True,
         },
         name="tribune"),
+    url(r'^participate_in_the_conversation/$', RedirectView.as_view(
+        url='/help/privileges/participate-in-the-conversation/', permanent=True),
+        name='participate_in_the_conversation_redirect'),
 )

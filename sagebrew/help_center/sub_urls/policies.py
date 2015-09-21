@@ -67,7 +67,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="finding_topics_of_interest"),
-    url(r'^how_to_search/$', TemplateView.as_view(
+    url(r'^how-to-search/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How do I search?",
@@ -148,6 +148,9 @@ urlpatterns = patterns(
     url(r'^finding_topics_of_interest/$', RedirectView.as_view(
         url='/help/policies/finding-topics-of-interest/', permanent=True),
         name='finding_topics_of_interest_redirect'),
+    url(r'^how_to_search/$', RedirectView.as_view(
+        url='/help/policies/how-to-search/', permanent=True),
+        name='how_to_search_redirect'),
     url(r'^markdown_formatting/$', RedirectView.as_view(
         url='/help/policies/markdown-formatting/', permanent=True),
         name='markdown_formatting_redirect'),

@@ -1,9 +1,62 @@
 {% load staticfiles %}
-<div class="navbar-fixed-top sb_nav sb_primary_nav">
-    <h1>{% if request_profile.completed_profile_info or user.is_anonymous %}<a href="{% url 'root_profile_page' %}">{% endif %}<img id="nav-logo" src="{% static 'images/icon_sage.png' %}"/>Sagebrew{% if request_profile.completed_profile_info or user.is_anonymous %}</a>{% endif %}</h1>
-    {% if user.is_authenticated %}
-        {% include "navigation/post_login_nav_content.html" %}
-    {% elif user.is_anonymous %}
-        {% include "navigation/pre_login_nav_content.html" %}
-    {% endif %}
-</div>
+<nav class="navbar navbar-static-top navbar-fixed-top sb_nav sb_primary_nav hidden-xs">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <h1>{% if request_profile.completed_profile_info or user.is_anonymous %}<a href="{% url 'root_profile_page' %}">{% endif %}<img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/>Sagebrew{% if request_profile.completed_profile_info or user.is_anonymous %}</a>{% endif %}</h1>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            {% if user.is_authenticated %}
+                <div>
+                    {% include "navigation/post_login_nav_content.html" %}
+                </div>
+            {% elif user.is_anonymous %}
+                {% include "navigation/pre_login_nav_content.html" %}
+            {% endif %}
+        </div>
+    </div>
+</nav>
+<nav class="navbar navbar-inverse navbar-static-top navbar-fixed-top hidden-sm hidden-md hidden-lg sb-nav-mobile">
+    <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            {% if request_profile.completed_profile_info or user.is_anonymous %}<a class="navbar-brand" href="{% url 'root_profile_page' %}">{% else %}<a class="navbar-brand" href="#">{% endif %}Sagebrew</a>
+        </div>
+
+        {% if user.is_authenticated %}
+            <div class="sb-nav-collapse collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li {% if "/newsfeed/" in request.path %}class="active"{% endif %}><a href="{% url 'newsfeed' %}">Newsfeed</a></li>
+                    <li {% if "/user/" in request.path and "/settings/" not in request.path and "/newsfeed/" not in request.path %}class="active"{% endif %}><a href="{% url 'profile_page' request.user.username %}">Profile</a></li>
+                    <li {% if "/conversations/" in request.path %}class="active"{% endif %}><a href="{% url 'question_page' %}">Conversation Cloud</a></li>
+                    <li {% if "/help/" in request.path %}class="active"{% endif %}><a href="{% url 'help_center' %}">Help</a></li>
+                    <li {% if "/settings/" in request.path %}class="active"{% endif %}><a href="{% url 'general_settings' %}">Settings</a></li>
+                    <li><a href="http://shop.sagebrew.com">Shop</a></li>
+                    <li><a href="http://blog.sagebrew.com">Blog</a></li>
+                    <li><a href="{% url 'logout'%}">Logout</a></li>
+                </ul>
+            </div>
+        {% elif user.is_anonymous %}
+            <div class="sb-nav-collapse collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li {% if "/login/" in request.path %}class="active"{% endif %}><a href="{% url 'login'%}">Login</a></li>
+                    <li {% if "/conversations/" in request.path %}class="active"{% endif %}><a href="{% url 'question_page' %}">Conversation Cloud</a></li>
+                    <li {% if "/help/" in request.path %}class="active"{% endif %}><a href="{% url 'help_center' %}">Help</a></li>
+                    <li><a href="http://shop.sagebrew.com">Shop</a></li>
+                    <li><a href="http://blog.sagebrew.com">Blog</a></li>
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+</nav>

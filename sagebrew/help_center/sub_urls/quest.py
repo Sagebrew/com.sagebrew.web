@@ -102,7 +102,7 @@ urlpatterns = patterns(
                     settings.HELP_DOCS_PATH),
             "category": "quest"
         },
-        name="principle-campaign-committee"),
+        name="principle_campaign_committee"),
     url(r'^quest/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -115,10 +115,30 @@ urlpatterns = patterns(
             "category": "quest",
             "static_files": True
         },
-        name="quest-signup"),
+        name="quest_signup"),
     url(r'^donation_goals/$', RedirectView.as_view(
         url='/help/quest/goals/', permanent=True), name='goals_redirect'),
-
+    url(r'^funding_not_in_account/$', RedirectView.as_view(
+        url='/help/quest/funding-not-in-account/', permanent=True),
+        name='funding_not_in_account_redirect'),
+    url(r'^how_to_export_contributions/$', RedirectView.as_view(
+        url='/help/quest/how-to-export-contributions/', permanent=True),
+        name='how_to_export_contributions_redirect'),
+    url(r'^how_to_get_on_the_ballot/$', RedirectView.as_view(
+        url='/help/quest/how-to-get-on-the-ballot/', permanent=True),
+        name='how_to_get_on_the_ballot_redirect'),
+    url(r'^how_to_run/$', RedirectView.as_view(
+        url='/help/quest/how-to-run/', permanent=True),
+        name='how_to_run_redirect'),
+    url(r'^name_on_ballot_to_run/$', RedirectView.as_view(
+        url='/help/quest/name-on-ballot-to-run/', permanent=True),
+        name='name_on_ballot_to_run_redirect'),
+    url(r'^need_more_help_public_official/$', RedirectView.as_view(
+        url='/help/quest/need-more-help-public-official/', permanent=True),
+        name='need_more_help_public_official_redirect'),
+    url(r'^principal_campaign_committee/$', RedirectView.as_view(
+        url='/help/quest/principal-campaign-committee/', permanent=True),
+        name='principal_campaign_committee_redirect'),
 )
 
 '''

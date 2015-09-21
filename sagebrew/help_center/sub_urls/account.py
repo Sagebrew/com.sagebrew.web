@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
@@ -55,6 +55,18 @@ urlpatterns = patterns(
             "category": "account"
         },
         name="restriction_on_asking"),
+    url(r'^delete_account/$', RedirectView.as_view(
+        url='/help/accounts/delete-account/', permanent=True),
+        name='delete_account_redirect'),
+    url(r'^reset_password/$', RedirectView.as_view(
+        url='/help/accounts/reset-password/', permanent=True),
+        name='reset_password_redirect'),
+    url(r'^why_join/$', RedirectView.as_view(
+        url='/help/accounts/why-join/', permanent=True),
+        name='why_join_redirect'),
+    url(r'^restriction_on_asking/$', RedirectView.as_view(
+        url='/help/accounts/restriction-on-asking/', permanent=True),
+        name='restriction_on_asking_redirect')
 )
 
 if settings.DEBUG is True:

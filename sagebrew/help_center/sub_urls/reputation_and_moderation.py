@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
@@ -102,6 +102,21 @@ urlpatterns = patterns(
             "category": "Reputation and Moderation"
         },
         name="reputation"),
+    url(r'^admin_council/$', RedirectView.as_view(
+        url='/help/reputation/admin-council/', permanent=True),
+        name='admin_council_redirect'),
+    url(r'^reputation_changed_user_removed/$', RedirectView.as_view(
+        url='/help/reputation/reputation-changed-user-removed/', permanent=True),
+        name='reputation_changed_user_removed_redirect'),
+    url(r'^serial_voting_change/$', RedirectView.as_view(
+        url='/help/reputation/serial-voting-change/', permanent=True),
+        name='serial_voting_change_redirect'),
+    url(r'^user_removed_change/$', RedirectView.as_view(
+        url='/help/reputation/user-removed-change/', permanent=True),
+        name='user_removed_change_redirect'),
+    url(r'^voting_importance/$', RedirectView.as_view(
+        url='/help/reputation/voting-importance/', permanent=True),
+        name='voting_importance_redirect'),
 )
 
 

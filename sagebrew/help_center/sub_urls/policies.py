@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
@@ -139,4 +139,25 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="what_is_markdown"),
+    url(r'^be_nice/$', RedirectView.as_view(
+        url='/help/policies/be-nice/', permanent=True),
+        name='be_nice_redirect'),
+    url(r'^do_not_spam/$', RedirectView.as_view(
+        url='/help/policies/do-not-spam/', permanent=True),
+        name='do_not_spam_redirect'),
+    url(r'^finding_topics_of_interest/$', RedirectView.as_view(
+        url='/help/policies/finding-topics-of-interest/', permanent=True),
+        name='finding_topics_of_interest_redirect'),
+    url(r'^markdown_formatting/$', RedirectView.as_view(
+        url='/help/policies/markdown-formatting/', permanent=True),
+        name='markdown_formatting_redirect'),
+    url(r'^reporting_suspicious_behavior/$', RedirectView.as_view(
+        url='/help/policies/reporting-suspicious-behavior/', permanent=True),
+        name='reporting_suspicious_behavior_redirect'),
+    url(r'^user_behavior/$', RedirectView.as_view(
+        url='/help/policies/user-behavior/', permanent=True),
+        name='user_behavior_redirect'),
+    url(r'^what_is_markdown/$', RedirectView.as_view(
+        url='/help/policies/what-is-markdown/', permanent=True),
+        name='what_is_markdown_redirect'),
 )

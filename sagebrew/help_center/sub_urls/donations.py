@@ -61,8 +61,7 @@ urlpatterns = patterns(
     url(r'^contributions/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "Why we think you should pledge a vote for your "
-                     "Representative",
+            "title": "Campaign Contributions",
             "description": "There are rules and regulations in place when it "
                            "comes to donating money to a political campaign. "
                            "These rules and regulations are set in an effort to"
@@ -74,7 +73,7 @@ urlpatterns = patterns(
                     settings.HELP_DOCS_PATH),
             "category": "citizens"
         },
-        name="campaign-contribution-rules"),
+        name="campaign_contribution_rules"),
     url(r'^quest/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -90,4 +89,13 @@ urlpatterns = patterns(
         name="quest_citizen"),
     url(r'^donation_goals/$', RedirectView.as_view(
         url='/help/donating/goals/', permanent=True), name='goals_redirect'),
+    url(r'^after_donating_to_a_candidate/$', RedirectView.as_view(
+        url='/help/donating/after-donating-to-a-candidate/', permanent=True),
+        name='after_donating_to_a_candidate_redirect'),
+    url(r'^donating_to_a_candidate/$', RedirectView.as_view(
+        url='/help/donating/donating-to-a-candidate/', permanent=True),
+        name='donating_to_a_candidate_redirect'),
+    url(r'^pledging_votes/$', RedirectView.as_view(
+        url='/help/donating/pledging-votes/', permanent=True),
+        name='pledging_votes_redirect'),
 )

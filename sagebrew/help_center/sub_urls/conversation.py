@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
@@ -16,7 +16,7 @@ urlpatterns = patterns(
             "category": "conversation"
         },
         name="closed"),
-    url(r'^conversation-area/$', TemplateView.as_view(
+    url(r'^conversation-cloud/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What is the Conversation Cloud?",
@@ -52,7 +52,7 @@ urlpatterns = patterns(
                 "%sone_question_per_week.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
         },
-        name="one-question-per-week"),
+        name="one_question_per_week"),
     url(r'^research/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -79,7 +79,7 @@ urlpatterns = patterns(
             "category": "conversation",
             "static_files": True
         },
-        name="starting-a-public-conversation"),
+        name="starting_a_public_conversation"),
     url(r'^protected/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -119,6 +119,15 @@ urlpatterns = patterns(
             "category": "conversation"
         },
         name="spam"),
+    url(r'^conversation_area/$', RedirectView.as_view(
+        url='/help/conversation/conversation-cloud/', permanent=True),
+        name='conversation_area_redirect'),
+    url(r'^one_question_per_week/$', RedirectView.as_view(
+        url='/help/conversation/one-question-per-week/', permanent=True),
+        name='one_question_per_week_redirect'),
+    url(r'^starting_a_public_conversation/$', RedirectView.as_view(
+        url='/help/conversation/starting-a-public-conversation/', permanent=True),
+        name='starting_a_public_conversation_redirect'),
 )
 
 '''

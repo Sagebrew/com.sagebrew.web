@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
@@ -42,4 +42,10 @@ urlpatterns = patterns(
             "static_files": True
         },
         name="quest_terms_and_conditions"),
+    url(r'^trust_and_safety/$', RedirectView.as_view(
+        url='/help/terms/trust-and-safety/', permanent=True),
+        name='trust_and_safety_redirect'),
+    url(r'^quest_terms/$', RedirectView.as_view(
+        url='/help/terms/quest-terms/', permanent=True),
+        name='quest_terms_redirect'),
 )

@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
@@ -94,7 +94,7 @@ urlpatterns = patterns(
                     settings.HELP_DOCS_PATH),
             "category": "questions"
         },
-        name="questions-no-longer-accepted"),
+        name="questions_no_longer_accepted"),
     url(r'^solution_to_question/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -147,6 +147,24 @@ urlpatterns = patterns(
             "category": "questions"
         },
         name="traffic_no_solutions"),
+    url(r'^no_traffic/$', RedirectView.as_view(
+        url='/help/questions/no-traffic/', permanent=True),
+        name='no_traffic_redirect'),
+    url(r'^quality_standards/$', RedirectView.as_view(
+        url='/help/questions/quality-standards/', permanent=True),
+        name='quality_standards_redirect'),
+    url(r'^questions_avoid_asking/$', RedirectView.as_view(
+        url='/help/questions/questions-avoid-asking/', permanent=True),
+        name='questions_avoid_asking_redirect'),
+    url(r'^questions_no_longer_accepted/$', RedirectView.as_view(
+        url='/help/questions/questions-no-longer-accepted/', permanent=True),
+        name='questions_no_longer_accepted_redirect'),
+    url(r'^topics_to_ask_about/$', RedirectView.as_view(
+        url='/help/questions/topics-to-ask-about/', permanent=True),
+        name='topics_to_ask_about_redirect'),
+    url(r'^traffic_no_solutions/$', RedirectView.as_view(
+        url='/help/questions/traffic-no-solutions/', permanent=True),
+        name='traffic_no_solutions_redirect'),
 )
 
 

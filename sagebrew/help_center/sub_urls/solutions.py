@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
@@ -67,4 +67,16 @@ urlpatterns = patterns(
             "static_files": True,
         },
         name="why_are_solutions_removed"),
+    url(r'^solution_to_own_question/$', RedirectView.as_view(
+        url='/help/solutions/solution-to-own-question/', permanent=True),
+        name='solution_to_own_question_redirect'),
+    url(r'^solutions_no_longer_accepted/$', RedirectView.as_view(
+        url='/help/solutions/solutions-no-longer-accepted/', permanent=True),
+        name='solutions_no_longer_accepted_redirect'),
+    url(r'^when_to_edit_solutions/$', RedirectView.as_view(
+        url='/help/solutions/when-to-edit-solutions/', permanent=True),
+        name='when_to_edit_solutions_redirect'),
+    url(r'^why_are_solutions_removed/$', RedirectView.as_view(
+        url='/help/solutions/why-are-solutions-removed/', permanent=True),
+        name='why_are_solutions_removed_redirect'),
 )

@@ -820,7 +820,8 @@ class ProfileContentMethodTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['url'],
                          "http://testserver/conversations/"
-                         "%s/%s/" % question.object_uuid, question.object_uuid)
+                         "%s/%s/" % (question.object_uuid,
+                                     question.object_uuid))
 
     def test_get_pleb_question_title(self):
         for item in Question.nodes.all():

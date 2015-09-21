@@ -1,11 +1,11 @@
 from django.conf.urls import patterns, url
-from django.views.generic.base import TemplateView, RedirectView
+from django.views.generic import TemplateView
 from django.conf import settings
 
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^delete-account/$', TemplateView.as_view(
+    url(r'^delete_account/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How do I delete my account?",
@@ -18,7 +18,7 @@ urlpatterns = patterns(
             "category": "account"
         },
         name="delete_account"),
-    url(r'^reset-password/$', TemplateView.as_view(
+    url(r'^reset_password/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How do I reset my password?",
@@ -30,7 +30,7 @@ urlpatterns = patterns(
             "category": "account"
             },
         name="reset_password"),
-    url(r'^why-join/$', TemplateView.as_view(
+    url(r'^why_join/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Why should I create an account?",
@@ -42,7 +42,7 @@ urlpatterns = patterns(
             "category": "account"
         },
         name="create_an_account"),
-    url(r'^restriction-on-asking/$', TemplateView.as_view(
+    url(r'^restriction_on_asking/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Why is the system asking me to wait a day or more before "
@@ -55,23 +55,11 @@ urlpatterns = patterns(
             "category": "account"
         },
         name="restriction_on_asking"),
-    url(r'^delete_account/$', RedirectView.as_view(
-        url='/help/accounts/delete-account/', permanent=True),
-        name='delete_account_redirect'),
-    url(r'^reset_password/$', RedirectView.as_view(
-        url='/help/accounts/reset-password/', permanent=True),
-        name='reset_password_redirect'),
-    url(r'^why_join/$', RedirectView.as_view(
-        url='/help/accounts/why-join/', permanent=True),
-        name='why_join_redirect'),
-    url(r'^restriction_on_asking/$', RedirectView.as_view(
-        url='/help/accounts/restriction-on-asking/', permanent=True),
-        name='restriction_on_asking_redirect')
 )
 
 if settings.DEBUG is True:
     urlpatterns += patterns(
-        url(r'^change-password/$', TemplateView.as_view(
+        url(r'^change_password/$', TemplateView.as_view(
             template_name="help_page.html"),
             kwargs={
                 "title": "How do I change my password?",

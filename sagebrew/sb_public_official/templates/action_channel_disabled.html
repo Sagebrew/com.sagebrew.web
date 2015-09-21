@@ -4,10 +4,10 @@
     {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
     {% if is_editor or is_accountant %}
         <div id="cropQuestWallpaperPictureEyecandy">
-            <img alt="wallpaper image" id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+            <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
         </div>
     {% else %}
-        <img alt="wallpaper image" id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+        <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
     {% endif %}
     <div id="stripe_img" style="display: none;" data-stripe_image="{% static 'images/icon_sage.png' %}"></div>
 </div>
@@ -17,10 +17,10 @@
            {% static 'images/sage_coffee_grey-01.png' as default_profile %}
            {% if is_editor or is_accountant %}
             <div id="cropQuestProfilePictureEyecandy">
-                <img alt="quest profile picture" id="quest_profile_pic" src="{{ profile_pic|default_if_none:default_profile }}">
+                <img id="quest_profile_pic" src="{{ profile_pic|default_if_none:default_profile }}">
             </div>
            {% else %}
-            <img alt="quest profile picture" id="quest_profile_pic" src="{{ profile_pic|default_if_none:default_profile }}">
+            <img id="quest_profile_pic" src="{{ profile_pic|default_if_none:default_profile }}">
            {% endif %}
        </div>
     </div>

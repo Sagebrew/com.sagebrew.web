@@ -1,11 +1,11 @@
 from django.conf.urls import patterns, url
-from django.views.generic.base import TemplateView, RedirectView
+from django.views.generic import TemplateView
 from django.conf import settings
 
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^trust-and-safety/$', TemplateView.as_view(
+    url(r'^trust_and_safety/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Trust and Safety",
@@ -30,7 +30,7 @@ urlpatterns = patterns(
             "static_files": True
         },
         name="terms_and_conditions"),
-    url(r'^quest-terms/$', TemplateView.as_view(
+    url(r'^quest_terms/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Sagebrew Quest Terms and Conditions",
@@ -42,10 +42,4 @@ urlpatterns = patterns(
             "static_files": True
         },
         name="quest_terms_and_conditions"),
-    url(r'^trust_and_safety/$', RedirectView.as_view(
-        url='/help/terms/trust-and-safety/', permanent=True),
-        name='trust_and_safety_redirect'),
-    url(r'^quest_terms/$', RedirectView.as_view(
-        url='/help/terms/quest-terms/', permanent=True),
-        name='quest_terms_redirect'),
 )

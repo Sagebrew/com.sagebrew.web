@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.views.generic.base import TemplateView, RedirectView
+from django.views.generic import TemplateView
 from django.conf import settings
 
 
@@ -18,7 +18,7 @@ urlpatterns = patterns(
             "category": "solutions"
         },
         name="good_solution"),
-    url(r'^solution-to-own-question/$', TemplateView.as_view(
+    url(r'^solution_to_own_question/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Can I give a Solution to my own Question?",
@@ -28,7 +28,7 @@ urlpatterns = patterns(
             "category": "solutions"
         },
         name="solution_to_own_question"),
-    url(r'^solutions-no-longer-accepted/$', TemplateView.as_view(
+    url(r'^solutions_no_longer_accepted/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Why are Solutions no longer being accepted from my "
@@ -42,7 +42,7 @@ urlpatterns = patterns(
             "category": "solutions"
         },
         name="solutions_no_longer_accepted"),
-    url(r'^when-to-edit-solutions/$', TemplateView.as_view(
+    url(r'^when_to_edit_solutions/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "When should I edit my Solution?",
@@ -55,7 +55,7 @@ urlpatterns = patterns(
             "category": "solutions"
         },
         name="when_to_edit_solutions"),
-    url(r'^why-are-solutions-removed/$', TemplateView.as_view(
+    url(r'^why_are_solutions_removed/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Why and how are some solutions removed?",
@@ -67,16 +67,4 @@ urlpatterns = patterns(
             "static_files": True,
         },
         name="why_are_solutions_removed"),
-    url(r'^solution_to_own_question/$', RedirectView.as_view(
-        url='/help/solutions/solution-to-own-question/', permanent=True),
-        name='solution_to_own_question_redirect'),
-    url(r'^solutions_no_longer_accepted/$', RedirectView.as_view(
-        url='/help/solutions/solutions-no-longer-accepted/', permanent=True),
-        name='solutions_no_longer_accepted_redirect'),
-    url(r'^when_to_edit_solutions/$', RedirectView.as_view(
-        url='/help/solutions/when-to-edit-solutions/', permanent=True),
-        name='when_to_edit_solutions_redirect'),
-    url(r'^why_are_solutions_removed/$', RedirectView.as_view(
-        url='/help/solutions/why-are-solutions-removed/', permanent=True),
-        name='why_are_solutions_removed_redirect'),
 )

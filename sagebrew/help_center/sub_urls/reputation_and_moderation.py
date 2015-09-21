@@ -1,11 +1,11 @@
 from django.conf.urls import patterns, url
-from django.views.generic.base import TemplateView, RedirectView
+from django.views.generic import TemplateView
 from django.conf import settings
 
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^admin-council/$', TemplateView.as_view(
+    url(r'^admin_council/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What's the Admin Council and how do I get on it?",
@@ -32,7 +32,7 @@ urlpatterns = patterns(
             "category": "Reputation and Moderation"
         },
         name="moderators"),
-    url(r'^reputation-changed-user-removed/$', TemplateView.as_view(
+    url(r'^reputation_changed_user_removed/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": 'Why do I have a reputation change on my reputation page '
@@ -46,7 +46,7 @@ urlpatterns = patterns(
             "category": "Reputation and Moderation"
         },
         name="reputation_changed_user_removed"),
-    url(r'^serial-voting-change/$', TemplateView.as_view(
+    url(r'^serial_voting_change/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": 'Why do I have a reputation change on my reputation '
@@ -62,7 +62,7 @@ urlpatterns = patterns(
             "category": "Reputation and Moderation"
         },
         name="serial_voting_change"),
-    url(r'^user-removed-change/$', TemplateView.as_view(
+    url(r'^user_removed_change/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": 'Why do I have a reputation change on my reputation page '
@@ -78,7 +78,7 @@ urlpatterns = patterns(
             "category": "Reputation and Moderation"
         },
         name="user_removed_change"),
-    url(r'^voting-importance/$', TemplateView.as_view(
+    url(r'^voting_importance/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": 'Why is voting on Questions, Solutions, and Comments '
@@ -102,21 +102,6 @@ urlpatterns = patterns(
             "category": "Reputation and Moderation"
         },
         name="reputation"),
-    url(r'^admin_council/$', RedirectView.as_view(
-        url='/help/reputation/admin-council/', permanent=True),
-        name='admin_council_redirect'),
-    url(r'^reputation_changed_user_removed/$', RedirectView.as_view(
-        url='/help/reputation/reputation-changed-user-removed/', permanent=True),
-        name='reputation_changed_user_removed_redirect'),
-    url(r'^serial_voting_change/$', RedirectView.as_view(
-        url='/help/reputation/serial-voting-change/', permanent=True),
-        name='serial_voting_change_redirect'),
-    url(r'^user_removed_change/$', RedirectView.as_view(
-        url='/help/reputation/user-removed-change/', permanent=True),
-        name='user_removed_change_redirect'),
-    url(r'^voting_importance/$', RedirectView.as_view(
-        url='/help/reputation/voting-importance/', permanent=True),
-        name='voting_importance_redirect'),
 )
 
 

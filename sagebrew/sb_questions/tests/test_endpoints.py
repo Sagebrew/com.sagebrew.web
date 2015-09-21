@@ -2,7 +2,6 @@ from uuid import uuid1
 import time
 from dateutil import parser
 
-from django.utils.text import slugify
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -673,10 +672,8 @@ class QuestionEndpointTests(APITestCase):
         url = reverse('question-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
         response = self.client.get(url, format='json')
-        self.assertEqual("http://testserver/conversations/%s/%s/" %
-                         (self.question.object_uuid,
-                          slugify(self.question.title)),
-                         response.data['url'])
+        self.assertEqual("http://testserver/conversations/%s/" %
+                         self.question.object_uuid, response.data['url'])
 
     def test_get_vote_count(self):
         self.client.force_authenticate(user=self.user)

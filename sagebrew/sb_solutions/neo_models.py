@@ -1,4 +1,3 @@
-from django.utils.text import slugify
 from rest_framework.reverse import reverse
 
 from neomodel import (RelationshipTo, StringProperty, IntegerProperty)
@@ -24,6 +23,5 @@ class Solution(SBPublicContent):
         except IndexError:
             return None
         return reverse('question_detail_page',
-                       kwargs={'question_uuid': question.object_uuid,
-                               'slug': slugify(question.title)},
+                       kwargs={'question_uuid': question.object_uuid},
                        request=request)

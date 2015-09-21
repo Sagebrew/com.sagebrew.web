@@ -3,7 +3,7 @@
     <div class="row">
         <div class="col-lg-2 col-md-2">
             {% static 'images/sage_coffee_grey-01.png' as default_profile %}
-            <div class="thumbnail sb_thumbnail_sm"><img alt="friend request profile picture" src="{{ from_user.profile_pic|default_if_none:default_profile }}"></div>
+            <div class="thumbnail sb_thumbnail_sm"><img src="{{ from_user.profile_pic|default_if_none:default_profile }}"></div>
         </div>
         <div class="col-lg-4 col-md-4">
            <p>{{ from_user.first_name }} {{ from_user.last_name }}</p>

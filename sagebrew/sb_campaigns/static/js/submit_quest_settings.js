@@ -240,8 +240,4 @@ $(document).ready(function () {
         }
 
     });
-    $("#js-cancel-button").click(function(event){
-        event.preventDefault();
-        window.location.href = "/";
-    });
 });

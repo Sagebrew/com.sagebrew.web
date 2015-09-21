@@ -1,11 +1,11 @@
 {% if "/registration/" not in request.path %}
-    <ul class="nav-logged-in navbar-right">
-        <li>
-            <a href="{% url 'profile_page' request.user.username %}">
-                {{ request.user.first_name }} {{ request.user.last_name }}
-            </a>
+    <ul>
+        <li class="hidden-xs">
+            {% include 'navigation/profile_nav_info.html' %}
         </li>
-        {% include 'navigation/nav_dropdown.html' %}
+        <li class="hidden-xs">
+            {% include 'navigation/nav_dropdown.html' %}
+        </li>
     </ul>
     <div class="hidden-md hidden-sm hidden-xs sb_search">
         {% include 'navigation/search_input.html' %}

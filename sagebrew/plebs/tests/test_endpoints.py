@@ -3,7 +3,6 @@ from uuid import uuid1
 import shortuuid
 from collections import OrderedDict
 
-from django.utils.text import slugify
 from django.templatetags.static import static
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -821,8 +820,7 @@ class ProfileContentMethodTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['url'],
                          "http://testserver/conversations/"
-                         "%s/%s/" % (question.object_uuid,
-                                     slugify(question.title)))
+                         "%s/" % question.object_uuid)
 
     def test_get_pleb_question_title(self):
         for item in Question.nodes.all():

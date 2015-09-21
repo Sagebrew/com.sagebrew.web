@@ -4,7 +4,7 @@
         <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
             <div class="thumbnail sb_thumbnail_lg">
                 {% static 'images/sage_coffee_grey-01.png' as default_profile %}
-                <a href="{{ url }}"><img alt="editor profile picture" src="{{ profile_pic|default_if_none:default_profile }}"></a>
+                <a href="{{ url }}"><img src="{{ profile_pic|default_if_none:default_profile }}"></a>
             </div>
         </div>
       <div class="col-md-7">

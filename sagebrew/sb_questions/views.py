@@ -1,8 +1,7 @@
 from dateutil import parser
 
 from django.conf import settings
-from django.shortcuts import render, redirect
-from django.utils.text import slugify
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 from neomodel import db
@@ -67,23 +66,7 @@ def question_page(request, sort_by="most_recent"):
                   {"base_tags": tag_array})
 
 
-def question_redirect_page(request, question_uuid):
-    """
-    This is the view that displays a single question with all solutions,
-    comments,
-    references and tags.
-
-    :param request:
-    :return:
-    """
-
-    return redirect(
-        "question_detail_page", question_uuid=question_uuid,
-        slug=slugify(Question.get(object_uuid=question_uuid).title),
-        permanent=True)
-
-
-def question_detail_page(request, question_uuid, slug=None):
+def question_detail_page(request, question_uuid):
     """
     This is the view that displays a single question with all solutions,
     comments,

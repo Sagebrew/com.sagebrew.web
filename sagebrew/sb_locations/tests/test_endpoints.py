@@ -168,6 +168,13 @@ class LocationEndpointTests(APITestCase):
         self.assertIn(self.school.object_uuid, response.data)
         self.assertEqual(len(response.data), 3)
 
+    def test_render_positions(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('render_positions', kwargs={'name': 'Michigan'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
+
     def test_add_non_admin(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('location-add')

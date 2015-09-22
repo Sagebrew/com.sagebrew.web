@@ -612,6 +612,13 @@ class ProfileEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual('test', response.data['first_name'])
 
+    def test_get_is_verified(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-detail', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual('test', response.data['is_verified'])
+
     def test_get_last_name(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-detail', kwargs={

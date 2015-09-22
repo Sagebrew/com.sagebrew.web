@@ -42,16 +42,22 @@
         <div align="right">
             {% if request.user.is_anonymous %}
                 <button class="btn sb_restricted sb_btn_disabled"
-                    data-target="#donationModal"
                     data-toggle="tooltip"
                     data-placement="top"
                     data-title="Signup to donate!">Donate</button>
-                <button id="create_vote"
-                        data-object_uuid="{{ id }}"
-                        class="btn sb_restricted sb_btn_disabled"
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        data-title="Signup to vote!">Pledge Vote</button>
+                <button class="btn sb_restricted sb_btn_disabled"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    data-title="Signup to vote!">Pledge Vote</button>
+            {% elif not request_profile.is_verified %}
+                <button class="btn sb_restricted sb_btn_disabled"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    data-title="Please verify your account">Donate</button>
+                <button class="btn sb_restricted sb_btn_disabled"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    data-title="Please verify your account">Pledge Vote</button>
             {% else %}
                 <button class="btn btn-primary sb_btn"
                     data-toggle="modal"

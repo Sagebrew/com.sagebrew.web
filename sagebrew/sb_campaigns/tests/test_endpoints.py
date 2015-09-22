@@ -822,6 +822,7 @@ class CampaignEndpointTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['detail'])
+        address.delete()
         location.delete()
         position.delete()
 
@@ -844,6 +845,7 @@ class CampaignEndpointTests(APITestCase):
         }
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        address.delete()
         location.delete()
         location2.delete()
         position.delete()

@@ -19,9 +19,6 @@ from api.neo_models import SBObject
 from sb_search.neo_models import Searchable, Impression
 from sb_base.neo_models import VoteRelationship, RelationshipWeight
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 def get_current_time():
     return datetime.now(pytz.utc)

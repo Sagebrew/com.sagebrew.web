@@ -9,6 +9,7 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_locations.neo_models import Location
+from sb_campaigns.neo_models import Position
 
 
 class LocationEndpointTests(APITestCase):
@@ -19,9 +20,23 @@ class LocationEndpointTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
+        for item in Position.nodes.all():
+            item.delete()
         for item in Location.nodes.all():
             item.delete()
         self.location = Location(name="Michigan").save()
+        self.city = Location(name="Walled Lake").save()
+        self.senator = Position(name="Senator").save()
+        self.house_rep = Position(name="House Rep").save()
+        self.school = Position(name="School Board", level="local").save()
+        self.location.encompasses.connect(self.city)
+        self.city.encompassed_by.connect(self.location)
+        self.location.positions.connect(self.senator)
+        self.senator.location.connect(self.location)
+        self.location.positions.connect(self.house_rep)
+        self.house_rep.location.connect(self.location)
+        self.city.positions.connect(self.school)
+        self.school.location.connect(self.city)
         cache.clear()
 
     def test_unauthorized(self):
@@ -93,7 +108,7 @@ class LocationEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.location.object_uuid})
         response = self.client.get(url)
 
-        self.assertEqual(response.data['encompasses'], [])
+        self.assertEqual(response.data['encompasses'], [self.city.object_uuid])
 
     def test_detail_encompassed_by(self):
         self.client.force_authenticate(user=self.user)
@@ -117,7 +132,8 @@ class LocationEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.location.object_uuid})
         response = self.client.get(url)
 
-        self.assertEqual(response.data['positions'], [])
+        self.assertIn(self.house_rep.object_uuid, response.data['positions'])
+        self.assertIn(self.senator.object_uuid, response.data['positions'])
 
     def test_detail_id(self):
         self.client.force_authenticate(user=self.user)
@@ -141,6 +157,23 @@ class LocationEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_positions(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('get_positions', kwargs={'name': 'Michigan'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(self.house_rep.object_uuid, response.data)
+        self.assertIn(self.senator.object_uuid, response.data)
+        self.assertIn(self.school.object_uuid, response.data)
+        self.assertEqual(len(response.data), 3)
+
+    def test_render_positions(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('render_positions', kwargs={'name': 'Michigan'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 3)
 
     def test_add_non_admin(self):
         self.client.force_authenticate(user=self.user)

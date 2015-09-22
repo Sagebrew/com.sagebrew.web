@@ -268,7 +268,8 @@ def smart_truncate(content, length=100, suffix='...'):
 
 def flatten_lists(unflattened_list):
     for element in unflattened_list:
-        if isinstance(element, collections.Iterable) and not isinstance(element, basestring):
+        if isinstance(element, collections.Iterable) and not isinstance(
+                element, basestring):
             for sub in flatten_lists(element):
                 yield sub
         else:

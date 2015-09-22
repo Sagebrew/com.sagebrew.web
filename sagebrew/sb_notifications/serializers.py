@@ -15,6 +15,7 @@ class NotificationSerializer(SBSerializer):
     sent = serializers.BooleanField(read_only=True)
     url = serializers.CharField(read_only=True)
     action_name = serializers.CharField(read_only=True)
+    public_notification = serializers.BooleanField(read_only=True)
     notification_from = serializers.SerializerMethodField()
 
     def create(self, validated_data):

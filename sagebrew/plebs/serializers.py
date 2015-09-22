@@ -16,6 +16,9 @@ from .neo_models import Address, Pleb
 from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
                     update_address_location)
 
+from logging import getLogger
+logger = getLogger("loggly_logs")
+
 
 def generate_username(first_name, last_name):
     # NOTE the other implementation of this is still in use and should be
@@ -43,6 +46,24 @@ def generate_username(first_name, last_name):
         # Handles cases where the username is already in unicode format
         username = unidecode(username)
     return username
+
+
+class ReputationNotificationValidator:
+    """
+    This class will attempt to get the parent instance of the serializer and
+    set self.object_uuid to it, this allows it to validate that there are no
+    solutions to a question when attempting to update the tile of a question,
+    but also allows creation of the question by setting self.object_uuid to
+    None if there is not an instance in the serializer.
+    """
+    def __init__(self):
+        pass
+
+    def __call__(self, value):
+        if not value or value is None:
+            message = 'Cannot change reputation_update_seen to false.'
+            raise serializers.ValidationError(message)
+        return value
 
 
 class BetaUserSerializer(serializers.Serializer):
@@ -138,7 +159,11 @@ class PlebSerializerNeo(SBSerializer):
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
     username = serializers.CharField(read_only=True)
+    is_verified = serializers.BooleanField(read_only=True)
     completed_profile_info = serializers.BooleanField(read_only=True)
+    # determine whether to show a notification about reputation change
+    reputation_update_seen = serializers.BooleanField(
+        required=False, validators=[ReputationNotificationValidator()])
     href = serializers.SerializerMethodField()
 
     # These are read only because we force users to use a different endpoint
@@ -175,6 +200,8 @@ class PlebSerializerNeo(SBSerializer):
                                                   instance.profile_pic)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
+        instance.reputation_update_seen = validated_data.get(
+            'reputation_update_seen', instance.reputation_update_seen)
         instance.save()
         instance.refresh()
         cache.set(instance.username, instance)

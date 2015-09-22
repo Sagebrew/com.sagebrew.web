@@ -369,6 +369,24 @@
     <script src="{% static 'js/vendor/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/vendor/formValidation.min.js' %}"></script>
     <script src="{% static 'js/vendor/framework/bootstrap.min.js' %}"></script>
+    {% if user.is_authenticated %}
+        <script>
+          window.intercomSettings = {
+            name: "{{ request.user.first_name }} {{ request.user.last_name }}",
+            email: "{{ request.user.email }}",
+            user_id: "{{ request.user.username }}",
+            created_at: {{ request.user.date_joined|date:"U" }},
+            reputation: {{ request_profile.reputation }},
+            {% if debug %}
+                app_id: "jmz4pnau"
+            {% else %}
+                app_id: "jig8myiv"
+            {% endif %}
+          };
+        </script>
+        <script>(function(){var w=window;var ic=w.Intercom;if(typeof ic==="function"){ic('reattach_activator');ic('update',intercomSettings);}else{var d=document;var i=function(){i.c(arguments)};i.q=[];i.c=function(args){i.q.push(args)};w.Intercom=i;function l(){var s=d.createElement('script');s.type='text/javascript';s.async=true;s.src='https://widget.intercom.io/widget/jig8myiv';var x=d.getElementsByTagName('script')[0];x.parentNode.insertBefore(s,x);}if(w.attachEvent){w.attachEvent('onload',l);}else{w.addEventListener('load',l,false);}}})()</script>
+    <script src="{% static 'js/event_quest_details.js' %}"></script>
+    {% endif %}
     {% include "google_analytics.html" %}
 </body>
 </html>

@@ -1,3 +1,5 @@
+import requests_mock
+
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 
@@ -119,3 +121,68 @@ class TestCommentsRetrieveUpdateDestroy(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 0)
+
+    def test_get_url(self):
+        self.client.force_authenticate(user=self.user)
+        comment = Comment(url='this is a url',
+                          content='this is content').save()
+        parent = Post(content='some content').save()
+        comment.comment_on.connect(parent)
+        url = reverse("comment-detail",
+                      kwargs={'comment_uuid': comment.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TestCommentListCreate(APITestCase):
+    def setUp(self):
+        self.unit_under_test_name = 'comment'
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.url = "http://testserver"
+        self.post = Post(content='test content',
+                         owner_username=self.pleb.username,
+                         wall_owner_username=self.pleb.username).save()
+        self.post.owned_by.connect(self.pleb)
+        self.comment = Comment(content="test comment",
+                               owner_username=self.pleb.username).save()
+        self.comment.owned_by.connect(self.pleb)
+        self.comment.comment_on.connect(self.post)
+        self.post.comments.connect(self.comment)
+        self.api_endpoint = "http://testserver/v1"
+
+    @requests_mock.mock()
+    def test_create(self, m):
+        self.client.force_authenticate(user=self.user)
+        m.get("%s/posts/%s/" % (self.api_endpoint, self.post.object_uuid),
+              json={
+                  "url": "http://www.sagebrew.com/v1/posts/%s/" %
+                         self.post.object_uuid},
+              status_code=status.HTTP_200_OK)
+        url = reverse('post-detail',
+                      kwargs={"object_uuid":
+                              self.post.object_uuid}) + "comments/"
+        response = self.client.post(
+            url, data={'content': "this is my test comment content"},
+            format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @requests_mock.mock()
+    def test_create_html(self, m):
+        self.client.force_authenticate(user=self.user)
+        m.get("%s/posts/%s/" % (self.api_endpoint, self.post.object_uuid),
+              json={"url":
+                    "http://www.sagebrew.com/v1/posts/%s/" %
+                    self.post.object_uuid},
+              status_code=status.HTTP_200_OK)
+        url = reverse(
+            'post-detail', kwargs={"object_uuid": self.post.object_uuid}) + \
+            "comments/?html=true"
+        response = self.client.post(
+            url, data={'content': "this is my test comment content"},
+            format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -137,3 +137,44 @@ class SolutionEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.solution.object_uuid})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+
+
+class TestSolutionRenderer(APITestCase):
+    def setUp(self):
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.title = str(uuid1())
+        self.question = Question(content="Hey I'm a question",
+                                 title=self.title,
+                                 owner_username=self.pleb.username).save()
+        self.solution = Solution(content="This is a test solution",
+                                 owner_username=self.pleb.username).save()
+        self.solution.owned_by.connect(self.pleb)
+        self.pleb.solutions.connect(self.solution)
+        self.question.owned_by.connect(self.pleb)
+        self.pleb.questions.connect(self.question)
+        self.question.solutions.connect(self.solution)
+        self.user = User.objects.get(email=self.email)
+        try:
+            Tag.nodes.get(name='taxes')
+        except DoesNotExist:
+            Tag(name='taxes').save()
+        try:
+            Tag.nodes.get(name='fiscal')
+        except DoesNotExist:
+            Tag(name='fiscal').save()
+        try:
+            Tag.nodes.get(name='environment')
+        except DoesNotExist:
+            Tag(name='environment').save()
+
+    def test_get(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('question-solution-html',
+                      kwargs={"object_uuid": self.question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

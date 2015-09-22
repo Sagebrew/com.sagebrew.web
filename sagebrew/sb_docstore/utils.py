@@ -107,13 +107,14 @@ def update_vote(object_uuid, user, vote_type, time):
         )
     except(ItemNotFound, ProvisionedThroughputExceededException) as e:
         return e
+    previous = vote['status']
     if vote['status'] == vote_type:
         vote['status'] = 2
     else:
         vote['status'] = vote_type
     vote['time'] = time
     vote.partial_save()
-    return vote
+    return vote, previous
 
 
 @apply_defense

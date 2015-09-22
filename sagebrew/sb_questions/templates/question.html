@@ -104,9 +104,11 @@
                 </small>
             </div>
             <div style="margin-top:-10px;">
-                <small>
-                    {{ last_edited_on|naturaltime }}
-                </small>
+                {% if created != last_edited_on %}
+                    <small>{{ last_edited_on|naturaltime }} · Edited</small>
+                {% else %}
+                    <small>{{ created|naturaltime }}</small>
+                {% endif %}
             </div>
         </div>
         <div class="hidden-lg hidden-md col-sm-11 col-xs-11">

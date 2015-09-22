@@ -1,5 +1,6 @@
 import bleach
 import pytz
+from uuid import uuid1
 from datetime import datetime
 
 from rest_framework import serializers
@@ -37,9 +38,15 @@ class PostSerializerNeo(ContentSerializer):
         content = validated_data.pop('content')
         images = validated_data.pop('images', [])
         included_urls = validated_data.pop('included_urls', [])
+        uuid = str(uuid1())
+        url = reverse('profile_page', kwargs={
+            'pleb_username': request.user.username}, request=request)
+        href = reverse('post-detail', kwargs={'object_uuid': uuid},
+                       request=request)
         post = Post(owner_username=owner.username,
                     content=bleach.clean(content),
                     wall_owner_username=wall_owner.username,
+                    object_uuid=uuid, url=url, href=href,
                     **validated_data).save()
         post.owned_by.connect(owner)
         owner.posts.connect(post)

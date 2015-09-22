@@ -1,7 +1,7 @@
 /*global $, jQuery, ajaxSecurity*/
 $(document).ready(function () {
     "use strict";
-    $(window).unload(function () {
+    window.onbeforeunload = function () {
         var objectList = [];
         $(".js-page-object").each(function () {
             objectList.push($(this).data('object_uuid'));
@@ -22,5 +22,5 @@ $(document).ready(function () {
                 }
             }
         });
-    });
+    };
 });

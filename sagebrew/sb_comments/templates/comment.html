@@ -20,7 +20,11 @@
                                    </a>
                                </div>
                                <div class="row-fluid">
-                                    <small>{{ last_edited_on|naturaltime }}</small>
+                                    {% if created != last_edited_on %}
+                                        <small>{{ last_edited_on|naturaltime }} · Edited</small>
+                                    {% else %}
+                                        <small>{{ created|naturaltime }}</small>
+                                    {% endif %}
                                     {% comment %}
                                         date/time/location(or disctrict)
                                     {%  endcomment %}

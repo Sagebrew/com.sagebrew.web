@@ -97,7 +97,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
             html = request.query_params.get('html', 'false').lower()
             if html == "true":
                 serializer['last_edited_on'] = parser.parse(
-                    serializer['last_edited_on'])
+                    serializer['last_edited_on']).replace(microsecond=0)
+                serializer['created'] = parser.parse(
+                    serializer['created']).replace(microsecond=0)
                 context = RequestContext(request, serializer)
                 return Response(
                     {
@@ -118,8 +120,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
                 spawn_task(update_view_count_task,
                            {'object_uuid': queryset.object_uuid,
                             'username': request.user.username})
-            single_object["last_edited_on"] = parser.parse(
-                single_object['last_edited_on'])
+            single_object['last_edited_on'] = parser.parse(
+                single_object['last_edited_on']).replace(microsecond=0)
+            single_object['created'] = parser.parse(
+                single_object['created']).replace(microsecond=0)
             # This will be moved to JS Framework but don't need intermediate
             # step at the time being as this doesn't require pagination
             return Response(
@@ -159,7 +163,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
         questions = self.list(request)
         for question in questions.data['results']:
             question['last_edited_on'] = parser.parse(
-                question['last_edited_on'])
+                question['last_edited_on']).replace(microsecond=0)
+            question['created'] = parser.parse(
+                question['created']).replace(microsecond=0)
             html_array.append(render_to_string(
                 'question_summary.html', RequestContext(request, question)))
             id_array.append(question["object_uuid"])

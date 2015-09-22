@@ -1,6 +1,6 @@
 import bleach
 import string
-import urllib
+import urllib2
 import urlparse
 import cStringIO
 import HTMLParser
@@ -99,7 +99,11 @@ def get_page_image(url, soup, content_type='html/text'):
     else:
         image = url
     if 'image' in content_type or image:
-        temp_file = cStringIO.StringIO(urllib.urlopen(image).read())
+        req = urllib2.Request(image, None, {'User-Agent': 'Mozilla/5.0'})
+        try:
+            temp_file = cStringIO.StringIO(urllib2.urlopen(req).read())
+        except IOError:
+            return "", height, width
         try:
             im = Image.open(temp_file)
             width, height = im.size

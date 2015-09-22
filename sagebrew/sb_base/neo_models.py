@@ -73,7 +73,8 @@ class VotableContent(NotificationCapable):
     # count stored in it but that may change in the future as we transition
     # to a more discernible metrics approach.
     reputation_loss = IntegerProperty(default=0)
-
+    url = StringProperty()  # non api location
+    href = StringProperty()  # api location
     up_vote_adjustment = IntegerProperty(default=0)
     down_vote_adjustment = IntegerProperty(default=0)
     down_vote_cost = IntegerProperty(default=0)
@@ -357,9 +358,9 @@ class SBContent(VotableContent):
 
 
 class TaggableContent(SBContent):
+    added_to_search_index = BooleanProperty(default=False)
     # relationships
     tags = RelationshipTo('sb_tags.neo_models.Tag', 'TAGGED_AS')
-    added_to_search_index = BooleanProperty(default=False)
 
     # methods
     @apply_defense
@@ -508,6 +509,20 @@ def get_parent_content(object_uuid, relation, child_object):
         return None
 
 
+def get_parent_titled_content(object_uuid):
+    try:
+        query = 'MATCH (a:TitledContent {object_uuid:"%s"}) return a' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        try:
+            content = TitledContent.inflate(res.one)
+        except AttributeError as e:
+            return e
+        return content
+    except (CypherException, ClientError, IOError, IndexError) as e:
+        return e
+
+
 def get_parent_votable_content(object_uuid):
     try:
         query = 'MATCH (a:VotableContent {object_uuid:"%s"}) RETURN a' % (
@@ -524,5 +539,5 @@ def get_parent_votable_content(object_uuid):
             # the serializers ensure this singleness prior to removing this.
             content = VotableContent.inflate(res[0][0][0])
         return content
-    except(CypherException, IOError, IndexError) as e:
+    except(CypherException, ClientError, IOError, IndexError) as e:
         return e

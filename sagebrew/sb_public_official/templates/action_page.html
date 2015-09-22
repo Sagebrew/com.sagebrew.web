@@ -62,7 +62,7 @@
     {{ block.super }}
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
-    {% if request.user.is_anonymous %}
+    {% if request.user.is_anonymous or not request_profile.is_verified %}
         <script src="{% static 'js/activate_tooltips.js' %}"></script>
     {% endif %}
     {% if active or request.user.username == id %}

@@ -822,6 +822,8 @@ class CampaignEndpointTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['detail'])
+        location.delete()
+        position.delete()
 
     def test_vote_outside_area(self):
         location = Location(name="Test Location").save()
@@ -842,6 +844,9 @@ class CampaignEndpointTests(APITestCase):
         }
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        location.delete()
+        location2.delete()
+        position.delete()
 
     def test_rounds(self):
         self.client.force_authenticate(user=self.user)

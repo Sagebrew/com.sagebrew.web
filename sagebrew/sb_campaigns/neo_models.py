@@ -427,6 +427,30 @@ class PoliticalCampaign(Campaign):
         res, _ = db.cypher_query(query)
         return [VoteRelationship.inflate(row[0]) for row in res]
 
+    def get_allow_vote(self):
+        from plebs.neo_models import Pleb
+        try:
+            pleb = Pleb.get(request.user.username)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return False
+        address = pleb.get_address()
+        position = PoliticalCampaign.get_position(obj.object_uuid)
+        if position is None or address is None:
+            return False
+        res, _ = db.cypher_query('MATCH (p:`Position` {object_uuid: '
+                                 '"%s"})-[:AVAILABLE_WITHIN]->(l1:Location) '
+                                 'WITH l1 OPTIONAL MATCH (l1)-[:ENCOMPASSED_'
+                                 'BY*..3]->(l2:Location) WITH [x in collect'
+                                 '(l1)+collect(l2)|id(x)] as collected MATCH '
+                                 '(new_location) WHERE id(new_location) in '
+                                 'collected OPTIONAL MATCH (new_location)<-'
+                                 '[t:ENCOMPASSED_BY]-(a:Address {object_uuid:'
+                                 '"%s"}) RETURN t' % (position,
+                                                      address.object_uuid))
+        if res.one:
+            return True
+        return False
+
 
 class Position(SBObject):
     name = StringProperty()

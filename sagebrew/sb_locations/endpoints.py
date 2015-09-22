@@ -59,11 +59,10 @@ def get_positions(request, name=None):
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def render_positions(request, name=None):
-    positions = get_positions(request, name).data
-    position_html = [render_to_string(
+    return Response([render_to_string(
         'position_selector.html', {
             'name': Position.get_full_name(representative),
             "state_name": "".join(name.split())
         }, context_instance=RequestContext(request))
-        for representative in positions]
-    return Response(position_html, status=status.HTTP_200_OK)
+        for representative in get_positions(request, name).data],
+        status=status.HTTP_200_OK)

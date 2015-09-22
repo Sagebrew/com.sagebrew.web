@@ -144,6 +144,7 @@ class TestObjectVoteNotifications(TestCase):
             "new_vote_type": 1,
             "voting_pleb": self.pleb.username
         }
+
         res = object_vote_notifications.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)

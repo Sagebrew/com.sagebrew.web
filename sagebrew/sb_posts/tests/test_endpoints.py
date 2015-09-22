@@ -455,7 +455,7 @@ class WallPostListCreateTest(APITestCase):
     def test_create(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-wall',
-                      kwargs={'username': self.pleb.username})
+                      kwargs={'username': self.pleb.username}) + "?html=true"
         response = self.client.post(
             url, data={'content': 'this is a test content thing'},
             format='json')

@@ -157,6 +157,7 @@ class TestSolutionRenderer(APITestCase):
         self.pleb.solutions.connect(self.solution)
         self.question.owned_by.connect(self.pleb)
         self.pleb.questions.connect(self.question)
+        self.question.solutions.connect(self.solution)
         self.user = User.objects.get(email=self.email)
         try:
             Tag.nodes.get(name='taxes')
@@ -172,6 +173,7 @@ class TestSolutionRenderer(APITestCase):
             Tag(name='environment').save()
 
     def test_get(self):
+        self.client.force_authenticate(user=self.user)
         url = reverse('question-solution-html',
                       kwargs={"object_uuid": self.question.object_uuid})
         response = self.client.get(url, format='json')

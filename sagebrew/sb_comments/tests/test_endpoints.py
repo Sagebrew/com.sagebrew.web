@@ -122,6 +122,17 @@ class TestCommentsRetrieveUpdateDestroy(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 0)
 
+    def test_get_url(self):
+        self.client.force_authenticate(user=self.user)
+        comment = Comment(url='this is a url',
+                          content='this is content').save()
+        parent = Post(content='some content').save()
+        comment.comment_on.connect(parent)
+        url = reverse("comment-detail",
+                      kwargs={'comment_uuid': comment.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
 class TestCommentListCreate(APITestCase):
     def setUp(self):

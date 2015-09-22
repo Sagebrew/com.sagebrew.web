@@ -5,6 +5,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.core.cache import cache
+from django.utils.text import slugify
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -133,8 +134,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
         validated_data['owner_username'] = owner.username
         uuid = str(uuid1())
         url = reverse('question_detail_page', kwargs={'question_uuid': uuid,
-                                                      "slug": validated_data[
-                                                          'title']},
+                                                      "slug": slugify(
+                                                          validated_data[
+                                                              'title'])},
                       request=request)
         href = reverse('question-detail', kwargs={'object_uuid': uuid},
                        request=request)

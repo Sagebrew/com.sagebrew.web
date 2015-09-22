@@ -155,6 +155,7 @@ class Pleb(Searchable):
     is_rep = BooleanProperty(default=False)
     is_admin = BooleanProperty(default=False)
     is_sage = BooleanProperty(default=False)
+    is_verified = BooleanProperty(default=True)
     search_index = StringProperty()
     # base_index_id is the plebs id in the base elasticsearch index
     base_index_id = StringProperty()

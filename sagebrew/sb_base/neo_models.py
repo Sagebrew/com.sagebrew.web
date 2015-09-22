@@ -519,7 +519,7 @@ def get_parent_titled_content(object_uuid):
         except AttributeError as e:
             return e
         return content
-    except (CypherException, IOError, IndexError) as e:
+    except (CypherException, ClientError, IOError, IndexError) as e:
         return e
 
 

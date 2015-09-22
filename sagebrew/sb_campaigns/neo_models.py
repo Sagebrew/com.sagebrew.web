@@ -4,7 +4,7 @@ from django.core.cache import cache
 from rest_framework.reverse import reverse
 
 from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
-                      FloatProperty)
+                      FloatProperty, DoesNotExist)
 
 from sb_base.neo_models import (VoteRelationship)
 from sb_search.neo_models import Searchable, SBObject
@@ -419,22 +419,15 @@ class PoliticalCampaign(Campaign):
         rel.save()
         return rel.active
 
-    def get_pledged_votes(self):
-        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
-                '[r:RECEIVED_PLEDGED_VOTE]->(:Pleb) RETURN r ' \
-                'ORDER BY r.created' \
-                % self.object_uuid
-        res, _ = db.cypher_query(query)
-        return [VoteRelationship.inflate(row[0]) for row in res]
-
-    def get_allow_vote(self):
+    @classmethod
+    def get_allow_vote(cls, object_uuid, username):
         from plebs.neo_models import Pleb
         try:
-            pleb = Pleb.get(request.user.username)
+            pleb = Pleb.get(username)
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
         address = pleb.get_address()
-        position = PoliticalCampaign.get_position(obj.object_uuid)
+        position = PoliticalCampaign.get_position(object_uuid)
         if position is None or address is None:
             return False
         res, _ = db.cypher_query('MATCH (p:`Position` {object_uuid: '
@@ -450,6 +443,14 @@ class PoliticalCampaign(Campaign):
         if res.one:
             return True
         return False
+
+    def get_pledged_votes(self):
+        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
+                '[r:RECEIVED_PLEDGED_VOTE]->(:Pleb) RETURN r ' \
+                'ORDER BY r.created' \
+                % self.object_uuid
+        res, _ = db.cypher_query(query)
+        return [VoteRelationship.inflate(row[0]) for row in res]
 
 
 class Position(SBObject):

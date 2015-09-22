@@ -13,7 +13,7 @@ from rest_framework.test import APITestCase
 from neomodel import db
 
 from sb_privileges.neo_models import SBAction, Privilege
-from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb, Address
 from sb_updates.neo_models import Update
 from sb_goals.neo_models import Goal, Round
 from sb_registration.utils import create_user_util_test
@@ -803,7 +803,16 @@ class CampaignEndpointTests(APITestCase):
                                                   'specified users '
                                                   'to your campaign.')
 
-    def test_vote(self):
+    def test_vote_inside_area(self):
+        location = Location(name="Test Location").save()
+        position = Position(name="Test Position").save()
+        position.location.connect(location)
+        location.positions.connect(position)
+        address = Address().save()
+        self.pleb.address.connect(address)
+        self.campaign.position.connect(position)
+        address.encompassed_by.connect(location)
+        location.addresses.connect(address)
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-vote',
                       kwargs={'object_uuid': self.campaign.object_uuid})
@@ -813,6 +822,26 @@ class CampaignEndpointTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['detail'])
+
+    def test_vote_outside_area(self):
+        location = Location(name="Test Location").save()
+        location2 = Location(name="Test Location 2").save()
+        position = Position(name="Test Position").save()
+        position.location.connect(location)
+        location.positions.connect(position)
+        address = Address().save()
+        self.pleb.address.connect(address)
+        self.campaign.position.connect(position)
+        address.encompassed_by.connect(location2)
+        location2.addresses.connect(address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-vote',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'vote_type': 1
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_rounds(self):
         self.client.force_authenticate(user=self.user)

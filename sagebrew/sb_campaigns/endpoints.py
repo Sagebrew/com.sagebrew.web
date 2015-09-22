@@ -349,6 +349,13 @@ class PoliticalCampaignViewSet(CampaignViewSet):
         if serializer.is_valid():
             cache.delete("%s_vote_count" % (object_uuid))
             parent_object_uuid = self.kwargs[self.lookup_field]
+            if not PoliticalCampaign.get_allow_vote(parent_object_uuid,
+                                                    request.user .username):
+                return Response({"detail": "Cannot pledge vote to quest "
+                                           "outside your area",
+                                 "status": status.HTTP_403_FORBIDDEN,
+                                 "developer_message": None},
+                                status=status.HTTP_403_FORBIDDEN)
             res = PoliticalCampaign.vote_campaign(parent_object_uuid,
                                                   request.user.username)
             if res:

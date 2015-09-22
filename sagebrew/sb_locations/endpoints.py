@@ -65,5 +65,5 @@ def render_positions(request, name=None):
             'name': Position.get_full_name(representative),
             "state_name": "".join(name.split())
         }, context_instance=RequestContext(request))
-                     for representative in positions]
+        for representative in positions]
     return Response(position_html, status=status.HTTP_200_OK)

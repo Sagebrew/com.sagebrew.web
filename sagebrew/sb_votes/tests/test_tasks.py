@@ -6,6 +6,7 @@ from django.conf import settings
 
 from plebs.neo_models import Pleb
 from sb_posts.neo_models import Post
+from sb_comments.neo_models import Comment
 from sb_base.neo_models import VotableContent
 from sb_registration.utils import create_user_util_test
 from sb_votes.tasks import vote_object_task, object_vote_notifications
@@ -145,6 +146,21 @@ class TestObjectVoteNotifications(TestCase):
             "voting_pleb": self.pleb.username
         }
 
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        self.assertNotIsInstance(res.result, Exception)
+
+    def test_initial_vote_create_private_comment(self):
+        comment = Comment(content='test content', visibility="private").save()
+        data = {
+            "object_uuid": comment.object_uuid,
+            "previous_vote_type": None,
+            "new_vote_type": 1,
+            "voting_pleb": self.pleb.username
+        }
         res = object_vote_notifications.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)

@@ -75,6 +75,8 @@ def object_vote_notifications(object_uuid, previous_vote_type, new_vote_type,
                 'notification_message.html',
                 {'color': color, 'reputation_change':
                     "%+d" % reputation_change})
+            if sb_object.visibility != "public":
+                reputation_message = ""
         public = False
         action_name = " %s %s %s " % ("%s your" % modifier,
                                       sb_object.get_child_label(),

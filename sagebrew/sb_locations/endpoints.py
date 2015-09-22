@@ -51,7 +51,7 @@ def get_positions(request, name=None):
             'l, p1 OPTIONAL MATCH (l2)-[:ENCOMPASSES]->(l3:Location)' \
             '-[:POSITIONS_AVAILABLE]->(p3:Position) ' \
             'RETURN collect(p1.object_uuid) + collect(p2.object_uuid) + ' \
-            'collect(p3.object_uuid) as posts' % name
+            'collect(p3.object_uuid) as positions' % name
     res, _ = db.cypher_query(query)
     return Response(set(res.one), status=status.HTTP_200_OK)
 
@@ -60,11 +60,10 @@ def get_positions(request, name=None):
 @permission_classes((IsAuthenticated,))
 def render_positions(request, name=None):
     positions = get_positions(request, name).data
-    representatives = [Position.get_full_name(representative)
-                       for representative in positions]
-    position_html = [render_to_string('position_selector.html',
-                                      {'name': rep_name,
-                                       "state_name": "".join(name.split())},
-                                      context_instance=RequestContext(request))
-                     for rep_name in representatives]
+    position_html = [render_to_string(
+        'position_selector.html', {
+            'name': Position.get_full_name(representative),
+            "state_name": "".join(name.split())
+        }, context_instance=RequestContext(request))
+                     for representative in positions]
     return Response(position_html, status=status.HTTP_200_OK)

@@ -67,6 +67,13 @@ class PostSerializerNeo(ContentSerializer):
             'content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
+        included_urls = validated_data.pop('included_urls', [])
+        for url in included_urls:
+            url_object = URLContent.nodes.get(url=url)
+            try:
+                instance.url_content.connect(URLContent.nodes.get(url=url))
+            except (DoesNotExist, URLContent.DoesNotExist):
+                pass
         return instance
 
     def get_url(self, obj):

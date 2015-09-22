@@ -517,6 +517,7 @@ function editObject(editArea, url, objectUuid, dataArea) {
             } else {
                 finalURLs = [];
             }
+            console.log(finalURLs);
             $(editButton).attr("disabled", "disabled");
             $.ajax({
                 xhrFields: {withCredentials: true},

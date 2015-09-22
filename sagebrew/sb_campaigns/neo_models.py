@@ -430,6 +430,10 @@ class PoliticalCampaign(Campaign):
         position = PoliticalCampaign.get_position(object_uuid)
         if position is None or address is None:
             return False
+        # This query attempts to match a given position and address via
+        # location connections, the end result is ensuring that someone
+        # who does not live in a location that a quest is running in may
+        # not pledge a vote for them.
         res, _ = db.cypher_query('MATCH (p:`Position` {object_uuid: '
                                  '"%s"})-[:AVAILABLE_WITHIN]->(l1:Location) '
                                  'WITH l1 OPTIONAL MATCH (l1)-[:ENCOMPASSED_'

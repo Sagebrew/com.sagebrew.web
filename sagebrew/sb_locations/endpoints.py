@@ -53,7 +53,7 @@ def get_positions(request, name=None):
             'RETURN collect(p1.object_uuid) + collect(p2.object_uuid) + ' \
             'collect(p3.object_uuid) as posts' % name
     res, _ = db.cypher_query(query)
-    return Response(set(res), status=status.HTTP_200_OK)
+    return Response(set(res.one), status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])

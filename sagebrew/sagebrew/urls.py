@@ -53,8 +53,12 @@ urlpatterns = patterns(
         name="404_Error"),
     url(r'^500/$', TemplateView.as_view(template_name="500.html"),
         name="500_Error"),
-    url(r'^contact_us/$', TemplateView.as_view(template_name="contact_us.html"),
-        name="contact_us"),
+    url(r'^contact-us/$', RedirectView.as_view(
+        url='/help/policies/support/', permanent=False),
+        name='contact_us'),
+    url(r'^contact_us/$', RedirectView.as_view(
+        url='/contact-us/', permanent=True),
+        name='contact_us_redirect'),
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     (r'^registration/', include('sb_registration.urls')),
     (r'^help/', include('help_center.urls')),
@@ -64,6 +68,7 @@ urlpatterns = patterns(
     (r'^search/', include('sb_search.urls')),
     (r'^docstore/', include('sb_docstore.urls')),
     (r'^quests/', include('sb_public_official.urls')),
+    (r'^quests/', include('sb_goals.urls')),
     (r'^council/', include('sb_council.urls')),
     (r'^updates/', include('sb_updates.urls')),
     url(r'^sitemap\.xml$', sitemap,

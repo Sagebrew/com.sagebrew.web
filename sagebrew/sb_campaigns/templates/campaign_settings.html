@@ -193,10 +193,17 @@
                                     <p>
                                         Here you may take your Sagebrew Quest live for the world to see.
                                     </p>
-                                    <button class="btn btn-primary sb_btn"
-                                            type="button"
-                                            data-toggle="modal"
-                                            data-target="#liveModal">Take Quest Live</button>
+                                    {% if not request_profile.is_verified %}
+                                        <button class="btn sb_restricted sb_btn_disabled"
+                                            data-toggle="tooltip"
+                                            data-placement="top"
+                                            data-title="Please verify your account">Take Quest Live</button>
+                                    {% else %}
+                                        <button class="btn btn-primary sb_btn"
+                                                type="button"
+                                                data-toggle="modal"
+                                                data-target="#liveModal">Take Quest Live</button>
+                                    {% endif %}
                                 </div>
 
                                 <!-- Modal -->
@@ -281,7 +288,7 @@
                                 </button>
                             </div>
                             <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                                <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove">
+                                <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove" id="js-cancel-button">
                                     Cancel
                                 </button>
                             </div>
@@ -313,4 +320,7 @@
     <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
     <script src="{% static 'js/submit_quest_settings.js' %}"></script>
     <script src="{% static 'js/campaign_settings_validator.js' %}"></script>
+    {% if not request_profile.is_verified %}
+        <script src="{% static 'js/activate_tooltips.js' %}"></script>
+    {% endif %}
 {% endblock scripts %}

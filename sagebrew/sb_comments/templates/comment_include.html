@@ -9,7 +9,7 @@
                         <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs">
                             <div class="sb_thumbnail_xs thumbnail">
                                 {% static 'images/sage_coffee_grey-01.png' as default_profile %}
-                                <img src="{{ comment.profile.profile_pic|default_if_none:default_profile }}"/>
+                                <img alt="comment author picture" src="{{ comment.profile.profile_pic|default_if_none:default_profile }}"/>
                             </div>
                         </div>
                         <div class="col-lg-5 col-md-5 col-sm-4 col-xs-7">

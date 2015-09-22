@@ -1,3 +1,5 @@
+from datetime import datetime
+import pytz
 import bleach
 
 from rest_framework import serializers
@@ -14,11 +16,10 @@ from .neo_models import Update
 
 
 class UpdateSerializer(TitledContentSerializer):
+    title = serializers.CharField(required=False,
+                                  min_length=5, max_length=140)
     goals = serializers.SerializerMethodField()
     campaign = serializers.SerializerMethodField()
-
-    def validate_title(self, value):
-        return value
 
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
@@ -45,6 +46,7 @@ class UpdateSerializer(TitledContentSerializer):
     def update(self, instance, validated_data):
         instance.title = validated_data.pop('title', instance.title)
         instance.content = validated_data.pop('content', instance.content)
+        instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
         return instance
 

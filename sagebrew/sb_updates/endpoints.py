@@ -1,8 +1,10 @@
+from uuid import uuid1
 from dateutil import parser
 
 from django.template.loader import render_to_string
 from django.template import RequestContext
 
+from rest_framework.reverse import reverse
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import (IsAuthenticated)
 from rest_framework.response import Response
@@ -38,9 +40,16 @@ class UpdateListCreate(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         # updates can only be attached to any of the currently active goals,
         # completed or not
+        object_uuid = str(uuid1())
         serializer.save(
             campaign=Campaign.get(object_uuid=self.kwargs[self.lookup_field]),
-            associated_goals=self.request.data.get('goals', []))
+            associated_goals=self.request.data.get('goals', []),
+            url=reverse('quest_updates', kwargs={
+                'username': self.request.user.username}, request=self.request),
+            object_uuid=object_uuid,
+            href=reverse('update-detail', kwargs={'object_uuid': object_uuid},
+                         request=self.request)
+        )
 
     def create(self, request, *args, **kwargs):
         if not (request.user.username in
@@ -78,7 +87,10 @@ def update_renderer(request, object_uuid=None):
     kwargs = {"object_uuid": object_uuid}
     updates = UpdateListCreate.as_view()(request, *args, **kwargs)
     for update in updates.data['results']:
-        update['last_edited_on'] = parser.parse(update['last_edited_on'])
+        update['last_edited_on'] = parser.parse(
+            update['last_edited_on']).replace(microsecond=0)
+        update['created'] = parser.parse(
+            update['created']).replace(microsecond=0)
         update['vote_count'] = str(update['vote_count'])
         update['goals'] = ", ".join([Goal.nodes.get(object_uuid=goal).title
                                     for goal in update['goals']])

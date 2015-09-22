@@ -2,9 +2,9 @@
 <a class="expanded-url-content-wrapper" href="{{ first_url_content.url }}" target="_blank">
     <div class="row sb-post-image-wrapper">
         {% if first_url_content.image_height > first_url_content.image_width %}
-            <img class="sb-post-image sb-post-image-tall" src="{{ first_url_content.selected_image }}">
+            <img alt="expanded content image" class="sb-post-image sb-post-image-tall" src="{{ first_url_content.selected_image }}">
         {% else %}
-            <img class="sb-post-image" src="{{ first_url_content.selected_image }}">
+            <img alt="expanded selected image" class="sb-post-image" src="{{ first_url_content.selected_image }}">
         {% endif %}
     </div>
     <div class="row expanded-url-content-text">

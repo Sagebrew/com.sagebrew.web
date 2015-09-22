@@ -4,10 +4,10 @@
     {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
     {% if is_editor or is_accountant %}
         <div id="cropQuestWallpaperPictureEyecandy">
-            <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+            <img id="wallpaper_pic" alt="wallpaper image" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
         </div>
     {% else %}
-            <img id="wallpaper_pic" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+            <img id="wallpaper_pic" alt="wallpaper image" class="sb_wallpaper_action" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
     {% endif %}
     <div id="stripe_img" style="display: none;" data-stripe_image="{% static 'images/icon_sage.png' %}"></div>
 </div>
@@ -16,11 +16,11 @@
 
            {% if is_editor or is_accountant %}
                 <div id="cropQuestProfilePictureEyecandy" class="thumbnail sb_thumbnail_md">
-                    <img id="quest_profile_pic" src="{{ profile_pic }}">
+                    <img alt="quest profile picture" id="quest_profile_pic" src="{{ profile_pic }}">
                 </div>
            {% else %}
                 <div class="thumbnail sb_thumbnail_md">
-                    <img  src="{{ profile_pic }}">
+                    <img alt="quest profile picture" src="{{ profile_pic }}">
                 </div>
            {% endif %}
     </div>
@@ -42,16 +42,22 @@
         <div align="right">
             {% if request.user.is_anonymous %}
                 <button class="btn sb_restricted sb_btn_disabled"
-                    data-target="#donationModal"
                     data-toggle="tooltip"
                     data-placement="top"
                     data-title="Signup to donate!">Donate</button>
-                <button id="create_vote"
-                        data-object_uuid="{{ id }}"
-                        class="btn sb_restricted sb_btn_disabled"
-                        data-toggle="tooltip"
-                        data-placement="top"
-                        data-title="Signup to vote!">Pledge Vote</button>
+                <button class="btn sb_restricted sb_btn_disabled"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    data-title="Signup to vote!">Pledge Vote</button>
+            {% elif not request_profile.is_verified %}
+                <button class="btn sb_restricted sb_btn_disabled"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    data-title="Please verify your account">Donate</button>
+                <button class="btn sb_restricted sb_btn_disabled"
+                    data-toggle="tooltip"
+                    data-placement="top"
+                    data-title="Please verify your account">Pledge Vote</button>
             {% else %}
                 <button class="btn btn-primary sb_btn"
                     data-toggle="modal"

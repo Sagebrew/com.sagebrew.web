@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, url
-from django.views.generic import TemplateView
+from django.views.generic.base import TemplateView, RedirectView
 from django.conf import settings
 
 
@@ -19,7 +19,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="advertising"),
-    url(r'^be_nice/$', TemplateView.as_view(
+    url(r'^be-nice/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Be Nice",
@@ -31,7 +31,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="be_nice"),
-    url(r'^do_not_spam/$', TemplateView.as_view(
+    url(r'^do-not-spam/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How to not be a Spammer",
@@ -53,7 +53,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="feedback"),
-    url(r'^finding_topics_of_interest/$', TemplateView.as_view(
+    url(r'^finding-topics-of-interest/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How do I find topics I'm interested in?",
@@ -67,7 +67,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="finding_topics_of_interest"),
-    url(r'^how_to_search/$', TemplateView.as_view(
+    url(r'^how-to-search/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "How do I search?",
@@ -79,7 +79,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="how_to_search"),
-    url(r'^markdown_formatting/$', TemplateView.as_view(
+    url(r'^markdown-formatting/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "Markdown Formatting",
@@ -102,7 +102,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="support"),
-    url(r'^reporting_suspicious_behavior/$', TemplateView.as_view(
+    url(r'^reporting-suspicious-behavior/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What if I see someone doing something bad?",
@@ -116,7 +116,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="reporting_suspicious_behavior"),
-    url(r'^user_behavior/$', TemplateView.as_view(
+    url(r'^user-behavior/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What kind of behavior is expected of users?",
@@ -128,7 +128,7 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="user_behavior"),
-    url(r'^what_is_markdown/$', TemplateView.as_view(
+    url(r'^what-is-markdown/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
             "title": "What is Markdown?",
@@ -139,4 +139,28 @@ urlpatterns = patterns(
             "category": "policies"
         },
         name="what_is_markdown"),
+    url(r'^be_nice/$', RedirectView.as_view(
+        url='/help/policies/be-nice/', permanent=True),
+        name='be_nice_redirect'),
+    url(r'^do_not_spam/$', RedirectView.as_view(
+        url='/help/policies/do-not-spam/', permanent=True),
+        name='do_not_spam_redirect'),
+    url(r'^finding_topics_of_interest/$', RedirectView.as_view(
+        url='/help/policies/finding-topics-of-interest/', permanent=True),
+        name='finding_topics_of_interest_redirect'),
+    url(r'^how_to_search/$', RedirectView.as_view(
+        url='/help/policies/how-to-search/', permanent=True),
+        name='how_to_search_redirect'),
+    url(r'^markdown_formatting/$', RedirectView.as_view(
+        url='/help/policies/markdown-formatting/', permanent=True),
+        name='markdown_formatting_redirect'),
+    url(r'^reporting_suspicious_behavior/$', RedirectView.as_view(
+        url='/help/policies/reporting-suspicious-behavior/', permanent=True),
+        name='reporting_suspicious_behavior_redirect'),
+    url(r'^user_behavior/$', RedirectView.as_view(
+        url='/help/policies/user-behavior/', permanent=True),
+        name='user_behavior_redirect'),
+    url(r'^what_is_markdown/$', RedirectView.as_view(
+        url='/help/policies/what-is-markdown/', permanent=True),
+        name='what_is_markdown_redirect'),
 )

@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.utils.text import slugify
 
 from rest_framework.reverse import reverse
 
@@ -83,5 +84,6 @@ class Question(TitledContent):
 
     def get_url(self, request=None):
         return reverse('question_detail_page',
-                       kwargs={'question_uuid': self.object_uuid},
+                       kwargs={'question_uuid': self.object_uuid,
+                               'slug': slugify(self.title)},
                        request=request)

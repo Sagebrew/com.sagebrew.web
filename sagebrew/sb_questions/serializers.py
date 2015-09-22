@@ -132,7 +132,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
             'content', ""))
         validated_data['owner_username'] = owner.username
         uuid = str(uuid1())
-        url = reverse('question_detail_page', kwargs={'question_uuid': uuid},
+        url = reverse('question_detail_page', kwargs={'question_uuid': uuid,
+                                                      "slug": validated_data[
+                                                          'title']},
                       request=request)
         href = reverse('question-detail', kwargs={'object_uuid': uuid},
                        request=request)

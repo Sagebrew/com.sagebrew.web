@@ -55,7 +55,7 @@ urlpatterns = patterns(
         name="500_Error"),
     url(r'^contact-us/$', RedirectView.as_view(
         url='/help/policies/support/', permanent=False),
-        name='contact_us_policy_redirect'),
+        name='contact_us'),
     url(r'^contact_us/$', RedirectView.as_view(
         url='/contact-us/', permanent=True),
         name='contact_us_redirect'),

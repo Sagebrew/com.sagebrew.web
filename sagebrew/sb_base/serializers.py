@@ -51,8 +51,9 @@ class VotableContentSerializer(SBSerializer):
         return profile_dict
 
     def get_url(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
         if obj.url is None:
-            return obj.get_url()
+            return obj.get_url(request)
         else:
             return obj.url
 

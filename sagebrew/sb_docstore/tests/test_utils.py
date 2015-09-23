@@ -12,8 +12,8 @@ from sb_registration.utils import create_user_util_test
 
 from sb_docstore.utils import (add_object_to_table,
                                get_vote, update_vote, get_vote_count,
-                               get_user_updates, get_dynamo_table,
-                               connect_to_dynamo, get_table_name)
+                               get_user_updates, connect_to_dynamo,
+                               get_table_name)
 
 
 class TestDocstoreUtils(TestCase):
@@ -77,9 +77,3 @@ class TestDocstoreUtils(TestCase):
         res = get_user_updates(self.pleb.username, str(uuid1()), 'votes')
 
         self.assertIsInstance(res, dict)
-
-    def test_get_dynamo_table(self):
-        conn = connect_to_dynamo()
-        table = Table(table_name=get_table_name("votes"), connection=conn)
-        res = get_dynamo_table("votes")
-        self.assertEqual(table.table_name, res.table_name)

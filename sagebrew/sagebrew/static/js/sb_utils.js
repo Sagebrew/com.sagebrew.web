@@ -342,6 +342,7 @@ function loadSolutions(url) {
 
 function voteObject(voteArea, resource) {
     $(voteArea).click(function (event) {
+        var voteBackup;
         var objectUuid = $(this).data('object_uuid');
         var id = $(this).parents('div.vote_wrapper').attr('id').split('_')[1];
         var voteType = $(this).hasClass('vote_up') ? true : false;
@@ -359,24 +360,30 @@ function voteObject(voteArea, resource) {
             voteDown.removeClass('vote_down_active');
             voteUp.addClass('vote_up_active');
             upvoteCount += 2;
+            voteBackup = 2;
         } else if (voteDown.hasClass('vote_down_active') && voteType === false) {
             voteDown.removeClass('vote_down_active');
             upvoteCount += 1;
+            voteBackup = 1;
         } else if (voteUp.hasClass('vote_up_active') && voteType === true) {
             voteUp.removeClass('vote_up_active');
             upvoteCount -= 1;
+            voteBackup = -1;
         } else if (voteUp.hasClass('vote_up_active') && voteType === false) {
             voteDown.addClass('vote_down_active');
             voteUp.removeClass('vote_up_active');
             upvoteCount -= 2;
+            voteBackup = -2;
         } else {
             if (voteType === true) {
                 $(this).addClass('vote_up_active');
                 upvoteCount += 1;
+                voteBackup = 3;
             }
             else {
                 $(this).addClass('vote_down_active');
                 upvoteCount -= 1;
+                voteBackup = -3;
             }
         }
 
@@ -397,6 +404,18 @@ function voteObject(voteArea, resource) {
             error: function (XMLHttpRequest) {
                 $(voteArea).removeAttr("disabled");
                 errorDisplay(XMLHttpRequest);
+                console.log(voteBackup)
+                if(voteBackup === 2 || voteBackup === 1){
+                    voteDown.addClass('vote_down_active');
+                    voteUp.removeClass('vote_up_active');
+                } else if(voteBackup === -1 || voteBackup === -2){
+                    voteUp.addClass('vote_up_active');
+                    voteDown.removeClass('vote_down_active');
+                } else if(voteBackup === 3) {
+                    voteUp.removeClass('vote_up_active');
+                } else if(voteBackup === -3) {
+                    voteDown.removeClass('vote_down_active');
+                }
             }
         });
     });

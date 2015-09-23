@@ -3,7 +3,8 @@ import pytz
 from logging import getLogger
 from json import dumps
 from datetime import datetime
-
+from boto.exception import BotoClientError, BotoServerError, AWSConnectionError
+from boto.dynamodb2.exceptions import ProvisionedThroughputExceededException
 from py2neo.cypher.error.statement import ConstraintViolation, ClientError
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
@@ -118,14 +119,15 @@ class VotableContent(NotificationCapable):
         except (CypherException, IOError) as e:
             return e
 
-    @apply_defense
     def get_upvote_count(self):
         try:
             return int(doc_vote_count(self.object_uuid, 1))
-        except(TypeError, IOError):
+        except(TypeError, IOError, BotoClientError, BotoServerError,
+               AWSConnectionError, ProvisionedThroughputExceededException,
+               Exception):
             # We log this off because if we're receiving this error we may
             # want to increase the provisional count on DynamoDB
-            logger.critical("DynamoDB Provision Throughput Reached!")
+            logger.critical("DynamoDB Provision Throughput Reached or Down!")
 
         query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
                 '-[r:PLEB_VOTES]-(p:Pleb) ' \
@@ -138,14 +140,15 @@ class VotableContent(NotificationCapable):
             logger.exception("Cypher Error: ")
             return e
 
-    @apply_defense
     def get_downvote_count(self):
         try:
             return int(doc_vote_count(self.object_uuid, 0))
-        except(TypeError, IOError):
+        except(TypeError, IOError, BotoClientError, BotoServerError,
+               AWSConnectionError, ProvisionedThroughputExceededException,
+               Exception):
             # We log this off because if we're receiving this error we may
             # want to increase the provisional count on DynamoDB
-            logger.critical("DynamoDB Provision Throughput Reached!")
+            logger.critical("DynamoDB Provision Throughput Reached or Down!")
 
         query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
                 '-[r:PLEB_VOTES]-(p:Pleb) ' \
@@ -158,16 +161,16 @@ class VotableContent(NotificationCapable):
             logger.exception("Cypher Error: ")
             return e
 
-    @apply_defense
     def get_vote_count(self):
         return int(self.get_upvote_count() - self.get_downvote_count())
 
-    @apply_defense
     def get_vote_type(self, username):
         from plebs.neo_models import Pleb
         try:
             return determine_vote_type(self.object_uuid, username)
-        except(TypeError, IOError):
+        except(TypeError, IOError, BotoClientError, BotoServerError,
+               AWSConnectionError, ProvisionedThroughputExceededException,
+               Exception):
             # We log this off because if we're receiving this error we may
             # want to increase the provisional count on DynamoDB
             logger.critical("DynamoDB Provision Throughput Reached!")

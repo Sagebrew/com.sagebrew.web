@@ -111,6 +111,18 @@ def update_address_location(object_uuid):
             district = Location.inflate(res.one)
             district.addresses.connect(address)
             address.encompassed_by.connect(district)
+        try:
+            encompassed_by = Location.nodes.get(name=address.city)
+            if Location.get_encompassed_by(encompassed_by.object_uuid).name != \
+                    address.state:
+                # if a location node exists with an incorrect encompassing state
+                raise DoesNotExist
+        except (Location.DoesNotExist, DoesNotExist):
+            encompassed_by = Location(name=address.city).save()
+            city_encompassed = Location.nodes.get(name=address.state)
+            encompassed_by.encompassed_by.connect(city_encompassed)
+        address.encompassed_by.connect(encompassed_by)
+        encompassed_by.addresses.connect(address)
     except (CypherException, IOError, ClientError) as e:
         raise update_address_location.retry(exc=e, countdown=3,
                                             max_retries=None)

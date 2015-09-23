@@ -611,10 +611,7 @@ class Address(SBObject):
                 'distinct l.object_uuid, collect(distinct(l2.object_uuid))'\
                 % self.object_uuid
         res, _ = db.cypher_query(query)
-        try:
-            return flatten_lists(res)  # flatten
-        except IndexError:
-            return []
+        return flatten_lists(res)  # flatten
 
 
 class FriendRequest(SBObject):

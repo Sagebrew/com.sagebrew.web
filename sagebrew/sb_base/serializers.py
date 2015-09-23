@@ -51,9 +51,11 @@ class VotableContentSerializer(SBSerializer):
         return profile_dict
 
     def get_url(self, obj):
-        # TODO should change this to raise NotImplementedError and implement
-        # get_url down the line
-        return None
+        request, _, _, _, _ = gather_request_data(self.context)
+        if obj.url is None:
+            return obj.get_url(request)
+        else:
+            return obj.url
 
     def get_vote_count(self, obj):
         return obj.get_vote_count()

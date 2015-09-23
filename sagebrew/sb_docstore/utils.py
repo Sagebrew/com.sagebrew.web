@@ -11,8 +11,6 @@ from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
 
 from django.conf import settings
 
-from sb_base.decorators import apply_defense
-
 logger = getLogger('loggly_logs')
 
 

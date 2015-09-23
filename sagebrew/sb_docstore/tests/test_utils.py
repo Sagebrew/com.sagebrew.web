@@ -4,16 +4,13 @@ from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from boto.dynamodb2.table import Table
-
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
 
 from sb_docstore.utils import (add_object_to_table,
                                get_vote, update_vote, get_vote_count,
-                               get_user_updates, connect_to_dynamo,
-                               get_table_name)
+                               get_user_updates)
 
 
 class TestDocstoreUtils(TestCase):

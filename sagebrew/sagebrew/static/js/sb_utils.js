@@ -404,7 +404,6 @@ function voteObject(voteArea, resource) {
             error: function (XMLHttpRequest) {
                 $(voteArea).removeAttr("disabled");
                 errorDisplay(XMLHttpRequest);
-                console.log(voteBackup)
                 if(voteBackup === 2 || voteBackup === 1){
                     voteDown.addClass('vote_down_active');
                     voteUp.removeClass('vote_up_active');

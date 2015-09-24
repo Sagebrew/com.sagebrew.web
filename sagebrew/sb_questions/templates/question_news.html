@@ -38,7 +38,7 @@
         </div>
         <div class="col-xs-11">
             <small>
-                <b>Topic{{ tags|length|pluralize }}:</b>{% for tag in tags %}  {% if forloop.last %} {{ tag|title }} {% else %} {{ tag|title }}, {% endif %} {% empty %} No Tags Set on Conversation{% endfor %}
+                <b>Topic{{ tags|length|pluralize }}:</b> {{ tags|join:", "|title|default:" No Tags Set on Conversation"}}
             </small>
         </div>
     </div>

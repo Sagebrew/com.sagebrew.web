@@ -49,15 +49,15 @@
             </div>
         </div>
         <div class="col-xs-11">
-            <h5 class="sb_header_news">
+            <h4 class="sb-header-news">
                 <a href="{{ url }}">{{ title|linebreaksbr }}</a>
-            </h5>
+            </h4>
         </div>
     </div>
     <div class="row">
         <div class="col-xs-12 col-lg-11 col-lg-offset-1">
-            <div class="sb_content_body_news">
-                <div class="sb_markdown block_vertical_news{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
+            <div class="sb-content-body-news">
+                <div class="sb_markdown block-vertical-news{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                         {% autoescape off %}
                             {{ html_content }}
                         {% endautoescape %}

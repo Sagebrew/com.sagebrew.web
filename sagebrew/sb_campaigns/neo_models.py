@@ -163,10 +163,6 @@ class Campaign(Searchable):
         except IndexError:
             return None
 
-    def get_url(self, request=None):
-        return reverse('quest_saga', kwargs={"username": self.owner_username},
-                       request=request)
-
     @classmethod
     def get_rounds(cls, object_uuid):
         rounds = cache.get("%s_rounds" % object_uuid)

@@ -18,7 +18,7 @@ class QuestEpicSitemap(Sitemap):
         return [PoliticalCampaign.inflate(row[0]) for row in res]
 
     def location(self, obj):
-        return obj.get_url()
+        return reverse('quest_saga', kwargs={"username": obj.owner_username})
 
 
 class QuestUpdateSitemap(Sitemap):
@@ -32,21 +32,6 @@ class QuestUpdateSitemap(Sitemap):
         res, _ = db.cypher_query(query)
         return [PoliticalCampaign.inflate(row[0]) for row in res]
 
-    def location(self, item):
-        return reverse('quest_updates',
-                       kwargs={"username": item.owner_username})
-
-
-class PublicOfficialSitemap(Sitemap):
-    changefreq = "daily"
-    priority = 0.9
-    protocol = 'https'
-
-    def items(self):
-        query = "MATCH (n:PoliticalCampaign) WHERE n.active=true " \
-                "RETURN n"
-        res, _ = db.cypher_query(query)
-        return [PoliticalCampaign.inflate(row[0]) for row in res]
-
     def location(self, obj):
-        return obj.get_url()
+        return reverse('quest_updates',
+                       kwargs={"username": obj.owner_username})

@@ -29,17 +29,18 @@ class Command(BaseCommand):
             post.save()
         for comment in Comment.nodes.all():
             parent_object = get_parent_object(comment.object_uuid)
-            req_url = reverse('%s-detail' %
-                              parent_object.get_child_label().lower(),
-                              kwargs={'object_uuid': parent_object.object_uuid})
-            parent_url = "%s%s" % (settings.WEB_ADDRESS, req_url)
-            response = request_to_api(parent_url,
-                                      comment.owner_username,
-                                      req_method="GET")
+            if parent_object is not None:
+                req_url = reverse('%s-detail' %
+                                  parent_object.get_child_label().lower(),
+                                  kwargs=
+                                  {'object_uuid': parent_object.object_uuid})
+                parent_url = "%s%s" % (settings.WEB_ADDRESS, req_url)
+                response = request_to_api(parent_url, comment.owner_username,
+                                          req_method="GET")
+                url = response.json()['url']
+                comment.url = "%s%s" % (settings.WEB_ADDRESS, url)
             href = reverse("comment-detail",
                            kwargs={'object_uuid': comment.object_uuid})
-            url = response.json()['url']
-            comment.url = "%s%s" % (settings.WEB_ADDRESS, url)
             comment.href = "%s%s" % (settings.WEB_ADDRESS, href)
             comment.save()
         for question in Question.nodes.all():

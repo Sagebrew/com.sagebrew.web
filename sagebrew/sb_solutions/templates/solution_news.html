@@ -11,17 +11,27 @@
         </div>
         <div class="col-xs-9" style="margin-top:-6px;  margin-bottom: -10px">
             <small>
-                <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> proposed a Solution to
+                <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> proposed a Solution
+            {% if created != last_edited_on %}
+                {{ last_edited_on|naturaltime }} · Edited
+            {% else %}
+                {{ created|naturaltime }}
+            {% endif %}
             </small>
         </div>
-        <div class="col-xs-2" style="margin-top:-6px;  margin-bottom: -10px; padding-left:0;">
+        <div class="col-sm-2 hidden-xs" style="margin-top:-6px;  margin-bottom: -10px;">
             <small>
-                <i class="fa fa-users" style="padding-right: 5px;"></i>Public
+               <i class="fa fa-users" style="margin-right: 10px;"></i>Public
+            </small>
+        </div>
+        <div class="col-xs-2 col-xs-offset-1 hidden-sm hidden-md hidden-lg" style="margin-top:-6px;  margin-bottom: -10px;">
+            <small>
+               <i class="fa fa-users"></i>
             </small>
         </div>
         <div class="col-xs-11">
             <small>
-                <a href="{{ question.url }}">{{ question.title|truncatechars:110 }}</a>
+                <b>Conversation:</b> <a href="{{ question.url }}">{{ question.title|truncatechars:110 }}</a>
             </small>
         </div>
     </div>
@@ -32,28 +42,20 @@
             </div>
         </div>
         <div class="col-xs-11">
-            <h4>
+            <h4 class="sb_header_news">
                 Solution
             </h4>
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-10 col-xs-offset-1 sb_content_body">
-            <div class="sb_markdown block_vertical{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
-                {% autoescape off %}
-                    {{ html_content }}
-                {% endautoescape %}
+        <div class="col-xs-12 col-lg-11 col-lg-offset-1">
+            <div class="sb_content_body_news">
+                <div class="sb_markdown block_vertical_news{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
+                    {% autoescape off %}
+                        {{ html_content }}
+                    {% endautoescape %}
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="row">
-            {% if created != last_edited_on %}
-                <div class="col-sm-offset-8 hidden-xs">
-                <small>{{ last_edited_on|naturaltime }} · Edited</small>
-            {% else %}
-                <div class="col-sm-offset-10 hidden-xs">
-                <small>{{ created|naturaltime }}</small>
-            {% endif %}
         </div>
     </div>
     <div id="sb_comments_container_{{ object_uuid }}">

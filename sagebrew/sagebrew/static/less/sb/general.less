@@ -1061,6 +1061,9 @@ a {
 .block_vertical{
   margin-top: 15px;
 }
+.block_vertical_news{
+  margin: 15px 15px auto 15px;
+}
 .sb_divider{
   color: @sb_green;
   margin-top: 0;
@@ -1097,7 +1100,7 @@ a {
 }
 .sb_post_wrapper{
   padding-left: 0;
-  padding-right: 0;
+  padding-right: 10px;
 }
 .sb_content_body{
   font-size: 12pt;
@@ -1107,6 +1110,19 @@ a {
   background-color: @sb_off_white;
   border: 1px solid @sb_green_light;
   word-wrap: break-word;
+}
+.sb_content_body_news{
+  &:extend(.sb_content_body);
+  margin-bottom: 15px;
+}
+.sb_header_news{
+  margin-left: 5px;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+.sb_header_news_conversation{
+  &:extend(.sb_header_news);
+  margin-top: 0;
 }
 .sb_post_body{
   margin-left: @sb_common_margin_positive;
@@ -1121,15 +1137,19 @@ a {
   word-wrap: break-word;
   overflow: hidden;
 }
+.sb_post_body_news{
+  &:extend(.sb_post_body);
+  margin-left: 15px;
+}
 .sb_question_body{
   &:extend(.sb_post_body);
   margin-left: 12px;
-  margin-right: -7px;
+
 }
 .sb-solution-body{
   &:extend(.sb_question_body);
   margin-left: 12px;
-  margin-right: -15px;
+  margin-right: -5px;
 }
 .sb-solution-controls{
   padding-left: 20px;
@@ -1165,10 +1185,7 @@ a {
       background-color: @sb_green_impressed;
     }
 }
-.sb_comment_wrapper{
-  padding-right: 0;
 
-}
 .sb_comments_container{
   font-size: @sb_body_text;
   padding: 15px 0 3px 0;
@@ -1180,7 +1197,6 @@ a {
 }
 .sb_comment_header{
   width: auto;
-  margin-top: -8px;
 }
 .sb_comment_body{
   font-size: 10pt;

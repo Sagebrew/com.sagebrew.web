@@ -67,7 +67,7 @@
                     {% include "vote.html" %}
                 </div>
             </div>
-            <div class="col-lg-10 col-md-11 col-sm-11 col-xs-11 sb_post_wrapper">
+            <div class="col-xs-12 col-lg-11 sb_post_wrapper">
                 <div class="sb_post_body{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                     {{ content|urlize|linebreaksbr }}
                     {% if uploaded_objects %}

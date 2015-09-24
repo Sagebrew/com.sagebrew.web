@@ -117,6 +117,6 @@ def get_parent_object(object_uuid):
         query = "MATCH (a:Comment {object_uuid:'%s'})-[:COMMENT_ON]->" \
                 "(b:SBContent) RETURN b" % object_uuid
         res, col = db.cypher_query(query)
-        return SBContent.inflate(res.one)
+        return SBContent.inflate(res[0][0])
     except IndexError:
         return None

@@ -17,51 +17,54 @@ class Command(BaseCommand):
     args = 'None.'
 
     def add_url_and_href(self):
-        for post in Post.nodes.all():
-            try:
-                url = post.get_url()
-            except DoesNotExist:
-                url = ""
-            href = reverse('post-detail',
-                           kwargs={'object_uuid': post.object_uuid})
-            post.url = "%s%s" % (settings.WEB_ADDRESS, url)
-            post.href = "%s%s" % (settings.WEB_ADDRESS, href)
-            post.save()
-        for comment in Comment.nodes.all():
-            parent_object = get_parent_object(comment.object_uuid)
-            if parent_object is not None:
-                req_url = reverse(
-                    '%s-detail' % parent_object.get_child_label().lower(),
-                    kwargs={
-                        'object_uuid': parent_object.object_uuid
-                    })
-                parent_url = "%s%s" % (settings.WEB_ADDRESS, req_url)
-                response = request_to_api(parent_url, comment.owner_username,
-                                          req_method="GET")
+        try:
+            for post in Post.nodes.all():
                 try:
-                    url = response.json()['url']
-                    comment.url = "%s%s" % (settings.WEB_ADDRESS, url)
-                except ValueError:
-                    pass
-            href = reverse("comment-detail",
-                           kwargs={'object_uuid': comment.object_uuid})
-            comment.href = "%s%s" % (settings.WEB_ADDRESS, href)
-            comment.save()
-        for question in Question.nodes.all():
-            url = question.get_url()
-            href = reverse('question-detail',
-                           kwargs={'object_uuid': question.object_uuid})
-            question.url = "%s%s" % (settings.WEB_ADDRESS, url)
-            question.href = "%s%s" % (settings.WEB_ADDRESS, href)
-            question.save()
-        for solution in Solution.nodes.all():
-            url = solution.get_url()
-            href = reverse('solution-detail',
-                           kwargs={"object_uuid": solution.object_uuid})
-            solution.url = "%s%s" % (settings.WEB_ADDRESS, url)
-            solution.href = "%s%s" % (settings.WEB_ADDRESS, href)
-            solution.save()
-        return
+                    url = post.get_url()
+                except DoesNotExist:
+                    url = ""
+                href = reverse('post-detail',
+                               kwargs={'object_uuid': post.object_uuid})
+                post.url = "%s%s" % (settings.WEB_ADDRESS, url)
+                post.href = "%s%s" % (settings.WEB_ADDRESS, href)
+                post.save()
+            for comment in Comment.nodes.all():
+                parent_object = get_parent_object(comment.object_uuid)
+                if parent_object is not None:
+                    req_url = reverse(
+                        '%s-detail' % parent_object.get_child_label().lower(),
+                        kwargs={
+                            'object_uuid': parent_object.object_uuid
+                        })
+                    parent_url = "%s%s" % (settings.WEB_ADDRESS, req_url)
+                    response = request_to_api(parent_url, comment.owner_username,
+                                              req_method="GET")
+                    try:
+                        url = response.json()['url']
+                        comment.url = "%s%s" % (settings.WEB_ADDRESS, url)
+                    except ValueError:
+                        pass
+                href = reverse("comment-detail",
+                               kwargs={'object_uuid': comment.object_uuid})
+                comment.href = "%s%s" % (settings.WEB_ADDRESS, href)
+                comment.save()
+            for question in Question.nodes.all():
+                url = question.get_url()
+                href = reverse('question-detail',
+                               kwargs={'object_uuid': question.object_uuid})
+                question.url = "%s%s" % (settings.WEB_ADDRESS, url)
+                question.href = "%s%s" % (settings.WEB_ADDRESS, href)
+                question.save()
+            for solution in Solution.nodes.all():
+                url = solution.get_url()
+                href = reverse('solution-detail',
+                               kwargs={"object_uuid": solution.object_uuid})
+                solution.url = "%s%s" % (settings.WEB_ADDRESS, url)
+                solution.href = "%s%s" % (settings.WEB_ADDRESS, href)
+                solution.save()
+            return
+        except Exception:
+            pass
 
     def handle(self, *args, **options):
         self.add_url_and_href()

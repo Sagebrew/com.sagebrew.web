@@ -155,13 +155,17 @@ class Campaign(Searchable):
     def get_url(cls, object_uuid, request):
         query = 'MATCH (c:`Campaign` {object_uuid:"%s"})-' \
                 '[:WAGED_BY]->(p:`Pleb`) return p.username' % object_uuid
-        res, col = db.cypher_query(query)
+        res, _ = db.cypher_query(query)
         try:
             return reverse('quest_saga',
-                           kwargs={"username": res[0][0]},
+                           kwargs={"username": res.one},
                            request=request)
         except IndexError:
             return None
+
+    def get_url(self, request=None):
+        return reverse('quest_saga', kwargs={"username": self.owner_username},
+                       request=request)
 
     @classmethod
     def get_rounds(cls, object_uuid):

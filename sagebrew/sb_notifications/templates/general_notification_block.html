@@ -4,7 +4,11 @@
         <div class="col-lg-2 col-md-2">
             <div class="thumbnail sb_thumbnail_sm">
                 {% static 'images/sage_coffee_grey-01.png' as default_profile %}
-                <a style="color: #34495e" href="{{ url }}" class="notification"><img src="{{ notification_from.profile_pic|default_if_none:default_profile }}"></a>
+                {% if not public_notification %}
+                    <a href="{{ url }}" class="notification sb_notification_link"><img src="{{ notification_from.profile_pic|default_if_none:default_profile }}"></a>
+                {% else %}
+                    <a href="{{ url }}" class="notification sb_notification_link"><img src="{{ default_profile }}"></a>
+                {% endif %}
             </div>
             {% comment %}
             If this is a comment, solution, or post, this will be the profile picture of whoever made it.
@@ -12,8 +16,12 @@
             {% endcomment %}
         </div>
         <div class="col-lg-10 col-md-10">
-           <p><a style="color: #34495e" href="{{ url }}" class="notification">
-               {{ notification_from.first_name }} {{ notification_from.last_name }} {{ action_name }}</a>
+            <p class="sb_notification_link"><a href="{{ url }}" class="notification">
+                {% if not public_notification %}
+                    {{ notification_from.first_name }} {{ notification_from.last_name }} {{ action_name|safe }}</a>
+                {% else %}
+                    {{ action_name|safe }}
+                {% endif %}
             </p>
            {% comment %}
             title will either comment, solution. priveledge attained, or post

@@ -11,7 +11,7 @@ logger = logging.getLogger('loggly_logs')
 
 @shared_task()
 def spawn_notifications(sb_object, from_pleb, to_plebs, notification_id, url,
-                        action_name):
+                        action_name, public=False):
     '''
     This function will take an object(post,comment,solution,etc.), the type of
     the object, from_pleb and a to_pleb. To pleb can be a list of people or
@@ -38,7 +38,8 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, notification_id, url,
         except(CypherException, Pleb.DoesNotExist, DoesNotExist, IOError) as e:
             raise spawn_notifications.retry(exc=e, countdown=3, max_retries=100)
     response = create_notification_util(sb_object, from_pleb, plebeians,
-                                        notification_id, url, action_name)
+                                        notification_id, url, action_name,
+                                        public)
 
     if isinstance(response, Exception) is True:
         raise spawn_notifications.retry(exc=response, countdown=3,

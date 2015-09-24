@@ -28,12 +28,10 @@
         <span class="vote_count" id="vote_count_{{ object_uuid }}">{{ vote_count|default_if_none:"0" }}</span>
     </div>
         {% if type == "question" or type == "solution" or parent_type == "question" or parent_type == "solution" %}
-            {% if "downvote" in request_profile.privileges %}
-                {% if profile.username == request.user.username %}
-                    {% include "vote_own_down.html" %}
-                {% else %}
-                    {% include "downvote.html" %}
-                {% endif %}
+            {% if profile.username == request.user.username %}
+                {% include "vote_own_down.html" %}
+            {% elif "downvote" in request_profile.privileges %}
+                {% include "downvote.html" %}
             {% elif request.user.is_anonymous %}
                 {% include "downvote.html" %}
             {% else %}

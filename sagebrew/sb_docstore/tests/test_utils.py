@@ -4,16 +4,13 @@ from datetime import datetime
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from boto.dynamodb2.table import Table
-
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
 
 from sb_docstore.utils import (add_object_to_table,
                                get_vote, update_vote, get_vote_count,
-                               get_user_updates, get_dynamo_table,
-                               connect_to_dynamo, get_table_name)
+                               get_user_updates)
 
 
 class TestDocstoreUtils(TestCase):
@@ -53,7 +50,7 @@ class TestDocstoreUtils(TestCase):
         res = add_object_to_table('votes', vote_data)
         self.assertTrue(res)
 
-        res = update_vote(uuid, self.pleb.username, 0, now)
+        res, _ = update_vote(uuid, self.pleb.username, 0, now)
         self.assertNotEqual(res, False)
         self.assertFalse(isinstance(res, Exception))
 
@@ -77,9 +74,3 @@ class TestDocstoreUtils(TestCase):
         res = get_user_updates(self.pleb.username, str(uuid1()), 'votes')
 
         self.assertIsInstance(res, dict)
-
-    def test_get_dynamo_table(self):
-        conn = connect_to_dynamo()
-        table = Table(table_name=get_table_name("votes"), connection=conn)
-        res = get_dynamo_table("votes")
-        self.assertEqual(table.table_name, res.table_name)

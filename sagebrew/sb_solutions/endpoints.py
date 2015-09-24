@@ -131,7 +131,9 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
             #            task_param={"solution": serializer})
             if request.query_params.get('html', 'false').lower() == "true":
                 serializer['last_edited_on'] = parser.parse(
-                    serializer['last_edited_on'])
+                    serializer['last_edited_on']).replace(microsecond=0)
+                serializer['created'] = parser.parse(
+                    serializer['created']).replace(microsecond=0)
                 return Response(
                     {
                         "html": [render_to_string(
@@ -156,7 +158,10 @@ def solution_renderer(request, object_uuid=None):
     solutions = ObjectSolutionsListCreate.as_view()(
         request, object_uuid=object_uuid)
     for solution in solutions.data['results']:
-        solution['last_edited_on'] = parser.parse(solution['last_edited_on'])
+        solution['last_edited_on'] = parser.parse(
+            solution['last_edited_on']).replace(microsecond=0)
+        solution['created'] = parser.parse(
+            solution['created']).replace(microsecond=0)
         html_array.append(render_to_string(
             'solution.html', RequestContext(request, solution)))
         id_array.append(solution["object_uuid"])

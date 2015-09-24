@@ -1,4 +1,4 @@
-/*global $, ajaxSecurity*/
+/*global $, errorDisplay*/
 $(document).ready(function () {
     "use strict";
     function removeFriend() {
@@ -24,59 +24,28 @@ $(document).ready(function () {
             });
         });
     }
-    var username = $("#user_info").data("page_user_username"),
-        scrolled = false;
-
-    $.ajax({
-        xhrFields: {withCredentials: true},
-        type: "GET",
-        url: "/v1/profiles/" + username + "/friends/?html=true",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data) {
-            if (data.count === 0){
-                $("#friend_wrapper").append("<div><h3>Please use search to find your friends :)</h3></div>");
-            }
-            $.each(data.results, function (i, l) {
-                $("#friend_wrapper").append(l);
-            });
-            $("#next_url").data('url', data.next);
-            removeFriend();
-        },
-        error: function (XMLHttpRequest) {
-            if (XMLHttpRequest.status === 500) {
-                $("#server_error").show();
-            }
-        }
-    });
-    $(window).scroll(function () {
-        if (scrolled === false) {
-            if ($(window).scrollTop() + $(window).height() > ($(document).height() - $(document).height() * 0.5)) {
-                scrolled = true;
-                var next = $("#next_url").data('url');
-                if (next !== null) {
-                    $.ajax({
-                        xhrFields: {withCredentials: true},
-                        type: "GET",
-                        url: next,
-                        contentType: "application/json; charset=utf-8",
-                        dataType: "json",
-                        success: function (data) {
-                            scrolled = false;
-                            $.each(data.results, function (i, l) {
-                                $("#friend_wrapper").append(l);
-                            });
-                            $("#next_url").data('url', data.next);
-                            removeFriend();
-                        },
-                        error: function (XMLHttpRequest) {
-                            if (XMLHttpRequest.status === 500) {
-                                $("#server_error").show();
-                            }
-                        }
-                    });
+    function getFriends(url) {
+        $.ajax({
+            xhrFields: {withCredentials: true},
+            type: "GET",
+            url: url,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                if (data.count === 0){
+                    $("#friend_wrapper").append("<div><h3>Please use search to find your friends :)</h3></div>");
                 }
+                $.each(data.results, function (i, l) {
+                    $("#friend_wrapper").append(l);
+                });
+                removeFriend();
+                getFriends(data.next);
+            },
+            error: function (XMLHttpRequest) {
+                errorDisplay(XMLHttpRequest);
             }
-        }
-    });
+        });
+    }
+    var username = $("#user_info").data("page_user_username");
+    getFriends("/v1/profiles/" + username + "/friends/?html=true&limit=5");
 });

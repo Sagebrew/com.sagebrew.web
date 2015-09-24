@@ -291,6 +291,8 @@ def update_reputation(username):
     if isinstance(res, Exception):
         raise update_reputation.retry(exc=res, countdown=3, max_retries=None)
     if res['previous_rep'] != res['total_rep']:
+        pleb.reputation_update_seen = False
+        pleb.save()
         check_priv = spawn_task(task_func=check_privileges,
                                 task_param={"username": username})
         pleb.refresh()

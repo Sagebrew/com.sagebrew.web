@@ -5,10 +5,11 @@ from django.test import TestCase
 from django.conf import settings
 
 from plebs.neo_models import Pleb
-
+from sb_posts.neo_models import Post
+from sb_comments.neo_models import Comment
 from sb_base.neo_models import VotableContent
 from sb_registration.utils import create_user_util_test
-from sb_votes.tasks import vote_object_task
+from sb_votes.tasks import vote_object_task, object_vote_notifications
 
 from sb_questions.neo_models import Question
 
@@ -38,3 +39,131 @@ class TestVoteObjectTask(TestCase):
             time.sleep(1)
 
         self.assertIsInstance(res.result, VotableContent)
+
+
+class TestObjectVoteNotifications(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
+        self.question = Question(owner_username=self.pleb.username,
+                                 title=str(uuid1())).save()
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_initial_vote_create(self):
+        data = {
+            "object_uuid": self.question.object_uuid,
+            "previous_vote_type": None,
+            "new_vote_type": 1,
+            "voting_pleb": self.pleb.username
+        }
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        self.assertNotIsInstance(res.result, Exception)
+
+    def test_change_vote_down_to_up(self):
+        data = {
+            "object_uuid": self.question.object_uuid,
+            "previous_vote_type": 0,
+            "new_vote_type": 1,
+            "voting_pleb": self.pleb.username
+        }
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        self.assertNotIsInstance(res.result, Exception)
+
+    def test_change_vote_up_to_down(self):
+        data = {
+            "object_uuid": self.question.object_uuid,
+            "previous_vote_type": 1,
+            "new_vote_type": 0,
+            "voting_pleb": self.pleb.username
+        }
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        self.assertNotIsInstance(res.result, Exception)
+
+    def test_pos_rep_change(self):
+        data = {
+            "object_uuid": self.question.object_uuid,
+            "previous_vote_type": 0,
+            "new_vote_type": 1,
+            "voting_pleb": self.pleb.username
+        }
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        self.assertNotIsInstance(res.result, Exception)
+
+    def test_neg_rep_change(self):
+        data = {
+            "object_uuid": self.question.object_uuid,
+            "previous_vote_type": 1,
+            "new_vote_type": 0,
+            "voting_pleb": self.pleb.username
+        }
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        self.assertNotIsInstance(res.result, Exception)
+
+    def test_pleb_does_not_exist(self):
+        data = {
+            "object_uuid": self.question.object_uuid,
+            "previous_vote_type": 1,
+            "new_vote_type": 0,
+            "voting_pleb": str(uuid1())
+        }
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertIsInstance(res.result, Exception)
+
+    def test_initial_vote_create_private_content(self):
+        post = Post(content='test content').save()
+        data = {
+            "object_uuid": post.object_uuid,
+            "previous_vote_type": None,
+            "new_vote_type": 1,
+            "voting_pleb": self.pleb.username
+        }
+
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        self.assertNotIsInstance(res.result, Exception)
+
+    def test_initial_vote_create_private_comment(self):
+        comment = Comment(content='test content', visibility="private").save()
+        data = {
+            "object_uuid": comment.object_uuid,
+            "previous_vote_type": None,
+            "new_vote_type": 1,
+            "voting_pleb": self.pleb.username
+        }
+        res = object_vote_notifications.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        self.assertNotIsInstance(res.result, Exception)

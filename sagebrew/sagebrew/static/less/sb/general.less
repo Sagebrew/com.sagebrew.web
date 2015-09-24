@@ -1320,6 +1320,12 @@ textarea.sb_comment_input{
 .sb_notifier{
   background-color: @sb_dark_blue;
 }
+.sb_reputation_notifier{
+  &:extend(.sb_notifier);
+  margin: -6px 0;
+  height: 10px;
+  min-width: 10px;
+}
 
 .sb_dimmed{
   position: relative;
@@ -1982,4 +1988,27 @@ textarea.sb_comment_input{
 .expanded-url-content-text{
   margin-left: 0;
   margin-right: 0;
+}
+
+.reputation-gain-notification{
+  color: @sb_green;
+}
+
+.sb_notification_link{
+  font-size: 16px;
+  a{
+    color: @sb_dark_blue !important;
+  }
+}
+
+.sb_post_header_name{
+  margin-bottom: -10px;
+}
+
+.sb_reputation_notification_change_red{
+  color: @sb_red;
+}
+
+.sb_reputation_notification_change_green{
+  color: @sb_green
 }

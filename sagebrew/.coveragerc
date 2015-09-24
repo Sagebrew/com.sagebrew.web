@@ -43,6 +43,7 @@ omit =
     */management/commands/clear_neo_db.py
     */management/commands/create_dynamo_tables.py
     */management/commands/create_privileges.py
+    */management/commands/add_url_and_href.py
     */sagebrew/test_runner.py
 
 [report]

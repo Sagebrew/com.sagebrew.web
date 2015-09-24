@@ -37,8 +37,8 @@ class Command(BaseCommand):
                             'object_uuid': parent_object.object_uuid
                         })
                     parent_url = "%s%s" % (settings.WEB_ADDRESS, req_url)
-                    response = request_to_api(parent_url, comment.owner_username,
-                                              req_method="GET")
+                    response = request_to_api(
+                        parent_url, comment.owner_username, req_method="GET")
                     try:
                         url = response.json()['url']
                         comment.url = "%s%s" % (settings.WEB_ADDRESS, url)

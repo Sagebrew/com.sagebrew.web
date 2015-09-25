@@ -1,3 +1,5 @@
+import us
+
 from unidecode import unidecode
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
@@ -251,6 +253,7 @@ class AddressSerializer(SBSerializer):
     validated = serializers.BooleanField(required=False, read_only=True)
 
     def create(self, validated_data):
+        validated_data['state'] = us.states.lookup(validated_data['state']).name
         address = Address(**validated_data).save()
         address.set_encompassing()
         return address

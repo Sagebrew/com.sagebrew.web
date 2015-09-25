@@ -238,6 +238,8 @@ def email_verification(request, confirmation):
 @user_passes_test(verify_verified_email,
                   login_url='/registration/signup/confirm/')
 def profile_information(request):
+    from logging import getLogger
+    logger = getLogger('loggly_logs')
     """
     Creates both a AddressInfoForm which populates the
     fields with what the user enters. If this function gets a valid POST

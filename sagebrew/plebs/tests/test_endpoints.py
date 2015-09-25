@@ -1851,6 +1851,8 @@ class AddressEndpointTests(APITestCase):
                     response.data['object_uuid'])
         res, col = db.cypher_query(query)
         self.assertEqual(Pleb.inflate(res[0][0]).username, self.user.username)
+        temp_loc.delete()
+        state.delete()
 
     def test_update(self):
         self.client.force_authenticate(user=self.user)

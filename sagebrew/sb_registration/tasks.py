@@ -9,7 +9,6 @@ from api.utils import spawn_task
 from plebs.tasks import update_address_location
 from plebs.neo_models import Pleb, Address
 from sb_tags.neo_models import Tag
-from sb_locations.neo_models import Location
 
 
 @shared_task()

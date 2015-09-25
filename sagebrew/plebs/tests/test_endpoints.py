@@ -1833,8 +1833,8 @@ class AddressEndpointTests(APITestCase):
             'congressional_district': "11",
             'latitude': 42.54083
         }
-        temp_loc = Location.nodes.get(name=data['city'])
-        state = Location.nodes.get(name=data['state'])
+        temp_loc = Location(name=data['city']).save()
+        state = Location(name=data['state']).save()
         temp_loc.encompassed_by.connect(state)
         state.encompasses.connect(temp_loc)
         response = self.client.post(url, data=data, format='json')

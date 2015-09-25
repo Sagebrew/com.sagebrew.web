@@ -514,10 +514,10 @@ function editObject(editArea, url, objectUuid, dataArea) {
                 finalURLs = content.match(regExp);
             if (finalURLs) {
                 $.unique(finalURLs);
+                url += "?html=true";
             } else {
                 finalURLs = [];
             }
-            console.log(finalURLs);
             $(editButton).attr("disabled", "disabled");
             $.ajax({
                 xhrFields: {withCredentials: true},
@@ -533,6 +533,9 @@ function editObject(editArea, url, objectUuid, dataArea) {
                     $(editButton).removeAttr("disabled");
                     var contentContainer = $("#sb_content_" + objectUuid);
                     contentContainer.html(Autolinker.link(data.content).replace(/\n/g, "<br/>"));
+                    if (data.urlcontent_html) {
+                        contentContainer.append(data.urlcontent_html);
+                    }
                     if (data.uploaded_obects) {
                         if (data.uploaded_objects.length > 0) {
                             contentContainer.append('<div class="row sb-post-image-wrapper"><div>');

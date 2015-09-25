@@ -96,9 +96,12 @@ class PostsViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         html = request.query_params.get('html', 'false')
+        response = super(PostsViewSet, self).update(request, *args, **kwargs)
         if html == 'true':
-            pass
-        return super(PostsViewSet, self).update(request, *args, **kwargs)
+            response.data['urlcontent_html'] = \
+                render_to_string("expanded_url_content.html", response.data)
+            return Response(response.data, status=status.HTTP_200_OK)
+        return response
 
 
 class WallPostsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):

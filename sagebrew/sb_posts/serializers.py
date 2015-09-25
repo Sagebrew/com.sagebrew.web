@@ -71,7 +71,7 @@ class PostSerializerNeo(ContentSerializer):
         for url in included_urls:
             url_object = URLContent.nodes.get(url=url)
             try:
-                instance.url_content.connect(URLContent.nodes.get(url=url))
+                instance.url_content.connect(url_object)
             except (DoesNotExist, URLContent.DoesNotExist):
                 pass
         return instance

@@ -15,6 +15,7 @@ from neomodel import db
 
 from api.utils import flatten_lists
 from api.neo_models import SBObject
+from sb_locations.neo_models import Location
 from sb_search.neo_models import Searchable, Impression
 from sb_base.neo_models import VoteRelationship, RelationshipWeight
 
@@ -612,6 +613,20 @@ class Address(SBObject):
                 % self.object_uuid
         res, _ = db.cypher_query(query)
         return flatten_lists(res)  # flatten
+
+    def set_encompassing(self):
+        try:
+            encompassed_by = Location.nodes.get(name=self.city)
+            if Location.get_encompassed_by(encompassed_by.object_uuid).name != \
+                    self.state:
+                # if a location node exists with an incorrect encompassing state
+                raise DoesNotExist
+        except (Location.DoesNotExist, DoesNotExist):
+            encompassed_by = Location(name=self.city).save()
+            city_encompassed = Location.nodes.get(name=self.state)
+            encompassed_by.encompassed_by.connect(city_encompassed)
+        self.encompassed_by.connect(encompassed_by)
+        encompassed_by.addresses.connect(self)
 
 
 class FriendRequest(SBObject):

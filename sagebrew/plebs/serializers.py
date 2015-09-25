@@ -253,18 +253,7 @@ class AddressSerializer(SBSerializer):
 
     def create(self, validated_data):
         address = Address(**validated_data).save()
-        try:
-            encompassed_by = Location.nodes.get(name=address.city)
-            if Location.get_single_encompassed_by(encompassed_by.object_uuid)\
-                    .name != address.state:
-                # if a location node exists with an incorrect encompassing state
-                raise DoesNotExist
-        except (Location.DoesNotExist, DoesNotExist):
-            encompassed_by = Location(name=address.city).save()
-            city_encompassed = Location.nodes.get(name=address.state)
-            encompassed_by.encompassed_by.connect(city_encompassed)
-        address.encompassed_by.connect(encompassed_by)
-        encompassed_by.addresses.connect(address)
+        address.set_encompassing()
         return address
 
     def update(self, instance, validated_data):

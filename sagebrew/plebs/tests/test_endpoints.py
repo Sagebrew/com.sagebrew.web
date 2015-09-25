@@ -1827,14 +1827,17 @@ class AddressEndpointTests(APITestCase):
         data = {
             'city': "Walled Lake",
             'longitude': -83.48016,
-            'state': "MI",
+            'state': "Michigan",
             'street': "300 Eagle Pond Dr.",
             'postal_code': "48390-3071",
             'congressional_district': "11",
             'latitude': 42.54083
         }
+        temp_loc = Location.nodes.get(name=data['city'])
+        state = Location.nodes.get(name=data['state'])
+        temp_loc.encompassed_by.connect(state)
+        state.encompasses.connect(temp_loc)
         response = self.client.post(url, data=data, format='json')
-
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['congressional_district'], 11)
         query = 'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->' \

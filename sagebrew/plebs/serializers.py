@@ -255,8 +255,8 @@ class AddressSerializer(SBSerializer):
         address = Address(**validated_data).save()
         try:
             encompassed_by = Location.nodes.get(name=address.city)
-            if Location.get_encompassed_by(encompassed_by.object_uuid).name != \
-                    address.state:
+            if Location.get_single_encompassed_by(encompassed_by.object_uuid)\
+                    .name != address.state:
                 # if a location node exists with an incorrect encompassing state
                 raise DoesNotExist
         except (Location.DoesNotExist, DoesNotExist):

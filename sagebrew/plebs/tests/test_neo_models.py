@@ -98,7 +98,6 @@ class TestAddress(TestCase):
         except (Location.DoesNotExist, DoesNotExist):
             self.state = Location(name="Michigan").save()
 
-
     def test_set_encompassing_no_nodes(self):
         res = self.address.set_encompassing()
         city = Location.nodes.get(name="Wixom")

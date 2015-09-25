@@ -623,6 +623,8 @@ class MeViewSet(mixins.UpdateModelMixin,
                         news_article['last_edited_on']).replace(microsecond=0)
                     news_article['created'] = parser.parse(
                         news_article['created']).replace(microsecond=0)
+                    news_article['tags'] = [tag.replace('_', ' ')
+                                            for tag in news_article['tags']]
                     article_html = render_to_string(
                         'question_news.html', RequestContext(
                             request, news_article))

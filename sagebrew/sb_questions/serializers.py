@@ -113,6 +113,11 @@ class QuestionSerializerNeo(TitledContentSerializer):
     def validate_title(self, value):
         # We need to escape quotes prior to passing the title to the query.
         # Otherwise the query will fail due to the string being terminated.
+        try:
+            if self.instance.title == value:
+                return value
+        except DoesNotExist, Question.DoesNotExist:
+            pass
         temp_value = value
         temp_value = temp_value.replace('"', '\\"')
         temp_value = temp_value.replace("'", "\\'")
@@ -185,7 +190,8 @@ class QuestionSerializerNeo(TitledContentSerializer):
                                                            instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
-        cache.delete(instance.object_uuid)
+        instance.refresh()
+        cache.set(instance.object_uuid, instance)
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
         spawn_task(task_func=update_search_index, task_param={

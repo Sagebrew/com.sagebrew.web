@@ -7,11 +7,10 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.reverse import reverse
 
-from neomodel import db, DoesNotExist
+from neomodel import db
 
 from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data
-from sb_locations.neo_models import Location
 
 from .neo_models import Address, Pleb
 from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,

@@ -51,10 +51,10 @@ class Location(SBObject):
     @classmethod
     def get_single_encompassed_by(cls, object_uuid):
         query = 'MATCH (n:`Location` {object_uuid: "%s"})-' \
-                '[:ENCOMPASSED_BY]->(e:`Location`) RETURN e' % (
+                '[:ENCOMPASSED_BY]->(e:`Location`) RETURN e.name' % (
                     object_uuid)
         res, _ = db.cypher_query(query)
-        return Location.inflate(res.one)
+        return res.one
 
     @classmethod
     def get_positions(cls, object_uuid):

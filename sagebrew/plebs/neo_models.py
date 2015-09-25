@@ -618,14 +618,17 @@ class Address(SBObject):
     def set_encompassing(self):
         try:
             encompassed_by = Location.nodes.get(name=self.city)
-            if Location.get_single_encompassed_by(encompassed_by.object_uuid).name != \
+            if Location.get_single_encompassed_by(
+                    encompassed_by.object_uuid) != \
                     us.states.lookup(self.state).name:
                 # if a location node exists with an incorrect encompassing state
                 raise DoesNotExist("This Location does not exist")
         except (Location.DoesNotExist, DoesNotExist):
             encompassed_by = Location(name=self.city).save()
-            city_encompassed = Location.nodes.get(name=self.state)
+            city_encompassed = Location.nodes.get(
+                name=us.states.lookup(self.state).name)
             encompassed_by.encompassed_by.connect(city_encompassed)
+            city_encompassed.encompasses.connect(encompassed_by)
         except MultipleNodesReturned:
             query = 'MATCH (l1:Location {name:"%s"})-[:ENCOMPASSED_BY]->' \
                     '(l2:Location {name:"%s"}) RETURN l1' % \
@@ -634,6 +637,7 @@ class Address(SBObject):
             encompassed_by = Location.inflate(res.one)
         self.encompassed_by.connect(encompassed_by)
         encompassed_by.addresses.connect(self)
+        return self
 
 
 class FriendRequest(SBObject):

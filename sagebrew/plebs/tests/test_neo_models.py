@@ -1,11 +1,14 @@
 from django.test.testcases import TestCase
 from django.contrib.auth.models import User
 
+from neomodel import DoesNotExist, MultipleNodesReturned, db
+
 from sb_comments.neo_models import Comment
 from sb_questions.neo_models import Question
+from sb_locations.neo_models import Location
 from sb_registration.utils import create_user_util_test
 
-from plebs.neo_models import BetaUser, Pleb
+from plebs.neo_models import BetaUser, Pleb, Address
 
 
 class TestBetaUser(TestCase):
@@ -71,3 +74,41 @@ class TestPleb(TestCase):
 
     def test_get_friends(self):
         self.assertIsNotNone(self.pleb.get_friends())
+
+
+class TestAddress(TestCase):
+    def setUp(self):
+        self.address = Address(city="Wixom", state="MI").save()
+        try:
+            Location.nodes.get(name="Wixom").delete()
+        except (Location.DoesNotExist, DoesNotExist):
+            pass
+        except MultipleNodesReturned:
+            query = 'MATCH (a:Location {name:"Wixom"}) RETURN a'
+            res, _ = db.cypher_query(query)
+            for location in res[0]:
+                Location.inflate(location).delete()
+        try:
+            self.state = Location.nodes.get(name="Michigan")
+        except MultipleNodesReturned:
+            query = 'MATCH (a:Location {name:"Michigan"}) RETURN a'
+            res, _ = db.cypher_query(query)
+            for location in res[0]:
+                Location.inflate(location).delete()
+        except (Location.DoesNotExist, DoesNotExist):
+            self.state = Location(name="Michigan").save()
+
+
+    def test_set_encompassing_no_nodes(self):
+        res = self.address.set_encompassing()
+        city = Location.nodes.get(name="Wixom")
+        self.assertTrue(res.encompassed_by.is_connected(city))
+        city.delete()
+
+    def test_set_encompassing_city_exists(self):
+        city = Location(name="Wixom").save()
+        city.encompassed_by.connect(self.state)
+        self.state.encompasses.connect(city)
+        res = self.address.set_encompassing()
+        self.assertTrue(res.encompassed_by.is_connected(city))
+        city.delete()

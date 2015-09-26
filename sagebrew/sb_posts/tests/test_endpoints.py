@@ -287,6 +287,20 @@ class PostsEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_update(self):
+        self.client.force_authenticate(user=self.user)
+        post = Post(content='This is a test post').save()
+        url = reverse("post-detail",
+                      kwargs={"object_uuid": post.object_uuid})
+        res = self.client.put(
+            url, data={"content": "This is a test post reddit.com",
+                       "included_urls": ["reddit.com"]}, format='json')
+        for content in URLContent.nodes.all():
+            print content.url
+        url_content = URLContent.nodes.get(url="reddit.com")
+        self.assertTrue(post.url_content.is_connected(url_content))
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
 
 class WallPostListCreateTest(APITestCase):
     def setUp(self):

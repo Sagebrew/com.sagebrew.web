@@ -113,7 +113,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
     def validate_title(self, value):
         # We need to escape quotes prior to passing the title to the query.
         # Otherwise the query will fail due to the string being terminated.
-        if self.instance.title == value:
+        if self.instance is not None and self.instance.title == value:
             return value
         temp_value = value
         temp_value = temp_value.replace('"', '\\"')

@@ -60,6 +60,9 @@ class PostSerializerNeo(ContentSerializer):
                 post.url_content.connect(URLContent.nodes.get(url=url))
             except (DoesNotExist, URLContent.DoesNotExist):
                 pass
+        for url in post.url_content.all():
+            if url.url not in included_urls:
+                post.url_content.disconnect(url)
         return post
 
     def update(self, instance, validated_data):

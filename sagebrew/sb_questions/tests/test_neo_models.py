@@ -79,9 +79,11 @@ class TestQuestionNeoModel(TestCase):
         self.question.solutions.connect(solution)
         self.question.solutions.connect(solution2)
         authors = self.question.get_conversation_authors()
-        self.assertEqual("%s %s, %s %s" % (
-            self.pleb.first_name, self.pleb.last_name,
-            pleb.first_name, pleb.last_name), authors)
+        self.assertIn(self.pleb.first_name, authors)
+        self.assertIn(self.pleb.last_name, authors)
+        self.assertIn(pleb.first_name, authors)
+        self.assertIn(pleb.last_name, authors)
+        self.assertEqual(authors.count(','), 2)
 
     def test_three_solutions_different_authors(self):
         pleb = Pleb(email=str(uuid1()), first_name="test",

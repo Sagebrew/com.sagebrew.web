@@ -1,4 +1,4 @@
 -r base.txt
-coveralls
+coveralls==1.0b1
 flake8
 requests_mock

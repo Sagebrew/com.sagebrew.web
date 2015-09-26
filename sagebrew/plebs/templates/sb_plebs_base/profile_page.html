@@ -16,7 +16,10 @@
            <div class="thumbnail sb_profile_pic">
                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
                {% if request.user.username == page_user.username %}
-                   <div id="cropProfilePageEyecandy">
+                   <div class="hidden-xs" id="cropProfilePageEyecandy">
+                       <img id="profile_pic" src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
+                   </div>
+                    <div class="hidden-sm hidden-md hidden-lg">
                        <img id="profile_pic" src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
                    </div>
                {% else %}
@@ -26,8 +29,11 @@
            <div>
                {% static 'images/wallpaper_western.jpg' as default_wallpaper %}
                {% if request.user.username == page_user.username %}
-                   <div id="cropWallpaperPictureEyecandy">
-                   <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
+                   <div class="hidden-xs" id="cropWallpaperPictureEyecandy">
+                        <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
+                   </div>
+                    <div class="hidden-sm hidden-md hidden-lg">
+                        <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
                    </div>
                {% else %}
                    <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">

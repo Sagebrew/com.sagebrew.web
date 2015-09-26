@@ -24,6 +24,7 @@ class DonationViewSet(viewsets.ReadOnlyModelViewSet, mixins.DestroyModelMixin):
         query = 'MATCH (d:`Donation` {object_uuid: "%s"}) RETURN d' % \
                 (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
+        res[0][0].pull()
         return Donation.inflate(res[0][0])
 
     def list(self, request, *args, **kwargs):
@@ -81,7 +82,8 @@ class DonationListCreate(generics.ListCreateAPIView):
         query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
                 '[:RECEIVED_DONATION]->(d:`Donation`) RETURN d' % \
                 (self.kwargs[self.lookup_field])
-        res, col = db.cypher_query(query)
+        res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [Donation.inflate(row[0]) for row in res]
 
     def perform_create(self, serializer):

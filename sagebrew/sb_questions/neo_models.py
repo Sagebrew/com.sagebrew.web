@@ -46,6 +46,7 @@ class Question(TitledContent):
                 "MATCH (a:%s {object_uuid:'%s'}) RETURN a" % (
                     cls.__name__, object_uuid))
             try:
+                res[0][0].pull()
                 question = cls.inflate(res[0][0])
             except IndexError:
                 raise DoesNotExist('Question with id: %s '

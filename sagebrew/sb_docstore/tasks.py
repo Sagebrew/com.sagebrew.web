@@ -1,5 +1,6 @@
 from celery import shared_task
 from boto.dynamodb2.exceptions import (JSONResponseError)
+from boto.exception import BotoClientError, BotoServerError, AWSConnectionError
 
 from api.utils import spawn_task
 from sb_votes.tasks import vote_object_task
@@ -18,6 +19,10 @@ def spawn_user_updates(username, object_uuids):
         except JSONResponseError as e:
             raise spawn_user_updates.retry(exc=e, countdown=10,
                                            max_retries=None)
+        except(TypeError, IOError, BotoClientError,
+               BotoServerError, AWSConnectionError, Exception) as e:
+            raise spawn_user_updates.retry(exc=e, countdown=45,
+                                           max_retries=None)
     for item in vote_res:
         try:
             item['status'] = int(item['status'])
@@ -34,8 +39,10 @@ def spawn_user_updates(username, object_uuids):
 
 @shared_task()
 def add_object_to_table_task(object_data, table):
-    res = add_object_to_table(table_name=table, object_data=object_data)
-    if isinstance(res, Exception) is True:
-        raise add_object_to_table_task.retry(exc=res, countdown=3,
+    try:
+        add_object_to_table(table_name=table, object_data=object_data)
+    except(TypeError, IOError, BotoClientError,
+           BotoServerError, AWSConnectionError, Exception) as e:
+        raise add_object_to_table_task.retry(exc=e, countdown=3,
                                              max_retries=None)
     return True

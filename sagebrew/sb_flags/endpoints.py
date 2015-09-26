@@ -44,6 +44,7 @@ class ObjectFlagsListCreate(ListCreateAPIView):
                 " RETURN b ORDER BY b.created " \
                 "DESC" % (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [Flag.inflate(row[0]) for row in res]
 
     def create(self, request, *args, **kwargs):

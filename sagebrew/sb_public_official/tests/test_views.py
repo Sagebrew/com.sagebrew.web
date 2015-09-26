@@ -45,6 +45,24 @@ class PublicOfficialViews(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_quest_saga_with_biography(self):
+        self.campaign.biography = "This is my new biography"
+        self.campaign.save()
+        url = reverse("quest_saga",
+                      kwargs={'username': self.campaign.object_uuid})
+        response = self.client.get(url)
+        self.campaign.biography = None
+        self.campaign.save()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_quest_saga_no_biography(self):
+        self.campaign.biography = None
+        self.campaign.save()
+        url = reverse("quest_saga",
+                      kwargs={'username': self.campaign.object_uuid})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_quest_updates(self):
         url = reverse("quest_saga",
                       kwargs={'username': self.campaign.object_uuid})

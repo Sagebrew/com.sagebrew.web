@@ -93,7 +93,6 @@ class AddressViewSet(viewsets.ModelViewSet):
         pleb.address.connect(instance)
         pleb.refresh()
         cache.set(pleb.username, pleb)
-
         return instance
 
 

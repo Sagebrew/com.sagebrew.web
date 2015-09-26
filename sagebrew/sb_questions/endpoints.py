@@ -71,10 +71,11 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
         page = self.paginate_queryset(queryset)
         if page is not None:
+            [row[0].pull() for row in page]
             page = [Question.inflate(row[0]) for row in page]
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)
-
+        [row[0].pull() for row in queryset]
         queryset = [Question.inflate(row[0]) for row in queryset]
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)

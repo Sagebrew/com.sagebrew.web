@@ -14,6 +14,7 @@ class QuestionSitemap(Sitemap):
     def items(self):
         query = "MATCH (n:Question) WHERE n.to_be_deleted=false RETURN n"
         res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [Question.inflate(row[0]) for row in res]
 
     def lastmod(self, obj):

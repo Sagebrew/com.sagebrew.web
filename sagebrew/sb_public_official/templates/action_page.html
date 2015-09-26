@@ -5,6 +5,15 @@
     <link href="{% static 'css/vendor/croppic.css' %}" rel="stylesheet" type="text/css"/>
 {% endblock css %}
 {% block title %}{{ first_name }} {{ last_name }}'s Quest{% endblock title %}
+{% block description %}
+    <meta name="description" content="{{ description }}">
+{% endblock description %}
+{% block keywords %}
+    {% if keywords %}
+        <meta name="keywords" content="{{ keywords }}">
+        <meta name="author" content="{{ first_name }} {{ last_name }}">
+    {% endif %}
+{% endblock keywords %}
 {% block content %}
 <div id="campaign_id" style="display: none" data-object_uuid="{{ id }}"></div>
 <div id="stripe-publishable" data-stripe_key="{{ stripe_key }}"></div>

@@ -62,7 +62,7 @@ class Question(TitledContent):
 
     def get_tags_string(self):
         try:
-            return ",".join(self.get_tags())
+            return ", ".join(self.get_tags())
         except (CypherException, IOError, CouldNotCommit, ClientError):
             return ""
 

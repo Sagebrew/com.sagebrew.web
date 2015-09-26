@@ -36,6 +36,7 @@ $(document).ready(function () {
                         var takingLive = $("#js-taking_live");
                         if (takingLive.data("taking_live") === "True") {
                             var campaignId = $("#campaign_id").data('object_uuid');
+                            $('#sb-greyout-page').show();
                             $.ajax({
                                 xhrFields: {withCredentials: true},
                                 type: "PATCH",
@@ -49,7 +50,10 @@ $(document).ready(function () {
                                     if (data.active) {
                                         $("#js-active").attr("data-active", "True");
                                         $.notify("Quest taken active!", {type: "success"});
+                                        $('#sb-greyout-page').hide();
+                                        window.location.href = data.url;
                                     } else {
+                                        $('#sb-greyout-page').hide();
                                         $("#js-active").attr("data-active", "False");
                                     }
 
@@ -71,6 +75,8 @@ $(document).ready(function () {
         if (response.error) {
             if ($("#completed-stripe").data("completed_stripe") !== "True") {
                 $.notify(response.error.message, {type: 'danger'});
+                $('#sb-greyout-page').hide();
+                $('#sb-greyout-page').spin(false);
             }
         } else {
             var token = response.id,
@@ -96,6 +102,8 @@ $(document).ready(function () {
                     $("#completed-stripe").data("completed_stripe", data.completed_stripe);
                     if (data.completed_stripe) {
                         $("#js-banking-block").addClass("sb_hidden");
+                        $('#sb-greyout-page').hide();
+                        $('#sb-greyout-page').spin(false);
                         if (takingLive.data('taking_live') === "True" && data.paid_account && !data.completed_customer) {
                             handler.open({
                                 name: "Sagebrew LLC",
@@ -104,6 +112,7 @@ $(document).ready(function () {
                             });
                         } else if (takingLive.data('taking_live') === "True") {
                             var campaignId = $("#campaign_id").data('object_uuid');
+                            $('#sb-greyout-page').show();
                             $.ajax({
                                 xhrFields: {withCredentials: true},
                                 type: "PATCH",
@@ -117,8 +126,13 @@ $(document).ready(function () {
                                     if (data.active) {
                                         $("#js-active").attr("data-active", "True");
                                         $.notify("Quest taken active!", {type: "success"});
+                                        $('#sb-greyout-page').hide();
+                                        $('#sb-greyout-page').spin(false);
+                                        window.location.href = data.url;
                                     } else {
                                         $("#js-active").attr("data-active", "False");
+                                        $('#sb-greyout-page').hide();
+                                        $('#sb-greyout-page').spin(false);
                                     }
 
                                 },
@@ -139,12 +153,17 @@ $(document).ready(function () {
         event.preventDefault();
         var settingsData = getSettingsData(),
             campaignId = $("#campaign_id").data('object_uuid');
-        Stripe.bankAccount.createToken({
-            country: "US",
-            currency: "USD",
-            routing_number: settingsData.routing_number,
-            account_number: settingsData.account_number
-        }, stripeResponseHandler);
+        if (settingsData.ssn && settingsData.routing_number && settingsData.account_number) {
+            $('#sb-greyout-page').show();
+            $('#sb-greyout-page').spin('large');
+            Stripe.bankAccount.createToken({
+                country: "US",
+                currency: "USD",
+                routing_number: settingsData.routing_number,
+                account_number: settingsData.account_number
+            }, stripeResponseHandler);
+        }
+        delete settingsData.activate;
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "PATCH",
@@ -207,8 +226,14 @@ $(document).ready(function () {
             takingLive = $("#js-taking_live");
         takingLive.data("taking_live", "True");
         if (completedStripe === "False") {
-            $("html, body").animate({scrollTop: 0}, "slow");
-            $.notify("Please fill in the banking information portion of this page. You may only take your Quest active after that.", {type: "info"});
+            if (settingsData.ssn && settingsData.routing_number && settingsData.account_number) {
+                $('#sb-greyout-page').show();
+                $("#sb-greyout-page").spin('large');
+                $("#submit_settings").click();
+            } else {
+                $("html, body").animate({scrollTop: 0}, "slow");
+                $.notify("Please fill in the banking information portion of this page. You may only take your Quest active after that.", {type: "info"});
+            }
         } else if (completedCustomer === "False" && paidAccount === "True") {
             handler.open({
                 name: "Sagebrew LLC",
@@ -216,6 +241,7 @@ $(document).ready(function () {
                 panelLabel: "Subscribe"
             });
         } else {
+            $('#sb-greyout-page').show();
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "PATCH",
@@ -226,8 +252,10 @@ $(document).ready(function () {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
+                    $('#sb-greyout-page').hide();
                     if (data.active) {
                         $("#js-active").attr("data-active", "True");
+                        window.location.href = data.url;
                     } else {
                         $("#js-active").attr("data-active", "False");
                     }

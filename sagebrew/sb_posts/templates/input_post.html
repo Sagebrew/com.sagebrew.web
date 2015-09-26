@@ -11,15 +11,18 @@
         </div>
     </div>
     <div class="row" id="sb_post_menu" style="display: none">
-        <div class="col-xs-4">
+        <div class="col-sm-4 hidden-xs">
             <i class="fa fa-user-secret spark-box"></i>Private
         </div>
-        <div class="col-xs-1">
+        <div class="col-xs-4 hidden-sm hidden-md hidden-lg">
+            <i class="fa fa-user-secret spark-box"></i>
+        </div>
+        <div class="col-xs-2">
             <button class="btn btn-lg btn-primary sb_btn_fill sb-btn-file post-image-btn">
                 <span class="fa fa-camera fa-inverse post-image-span"></span><input id="upload_image" type="file" name="img">
             </button>
         </div>
-        <div class="col-xs-7">
+        <div class="col-xs-6">
             <button id="sb_btn_post"
                class='btn btn-lg btn-primary sb_btn_fill post-action'
                data-current_user="{{ request.user.username }}"

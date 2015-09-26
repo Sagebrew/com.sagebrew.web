@@ -35,6 +35,7 @@ class SolutionViewSet(viewsets.ModelViewSet):
         query = "MATCH (n:`Solution`) WHERE n.to_be_deleted=false RETURN " \
                 "n %s %s" % (sort_by, ordering)
         res, col = db.cypher_query(query)
+        [row[0].pull() for row in res]
         queryset = [Solution.inflate(row[0]) for row in res]
         if sort_by == "":
             queryset = sorted(queryset, key=lambda k: k.get_vote_count(),
@@ -96,6 +97,7 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
         page = self.paginate_queryset(queryset)
 
         if page is not None:
+            [row[0].pull() for row in page]
             page = [Solution.inflate(row[0]) for row in page]
             serializer = self.get_serializer(page, many=True)
             return self.get_paginated_response(serializer.data)

@@ -104,6 +104,7 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
         html = request.query_params.get('html', 'false').lower()
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
+        [row[0].pull() for row in page]
         for row in page:
             council_object = None
             if row.questions is not None:

@@ -76,6 +76,7 @@ class AddressViewSet(viewsets.ModelViewSet):
         query = 'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->' \
                 '(b:Address) RETURN b' % self.request.user.username
         res, col = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [Address.inflate(row[0]) for row in res]
 
     def get_object(self):
@@ -185,6 +186,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 '(b:Question) WHERE b.to_be_deleted=false' \
                 ' %s RETURN b' % (username, additional_params)
         res, col = db.cypher_query(query)
+        [row[0].pull() for row in res]
         queryset = [Question.inflate(row[0]) for row in res]
 
         page = self.paginate_queryset(queryset)
@@ -206,6 +208,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 ' %s RETURN b' % (username, additional_params)
 
         res, col = db.cypher_query(query)
+        [row[0].pull() for row in res]
         queryset = [SBContent.inflate(row[0]) for row in res]
 
         page = self.paginate_queryset(queryset)
@@ -239,6 +242,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 '[:FRIENDS_WITH {currently_friends: true}]->' \
                 '(b:Pleb) RETURN DISTINCT b' % username
         res, col = db.cypher_query(query)
+        [row[0].pull() for row in res]
         queryset = [Pleb.inflate(row[0]) for row in res]
         html = self.request.query_params.get('html', 'false')
         page = self.paginate_queryset(queryset)
@@ -267,6 +271,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             query = "MATCH (a:Pleb {username: '%s'})-[:HAS_SENATOR]->" \
                     "(s:PublicOfficial) RETURN s" % username
             res, col = db.cypher_query(query)
+            [row[0].pull() for row in res]
             senators = [PublicOfficial.inflate(row[0]) for row in res]
             cache.set("%s_senators" % username, senators)
         if len(senators) == 0:
@@ -378,6 +383,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 '->(c:Campaign) WHERE c.active=true RETURN c LIMIT 5' % \
                 username
         res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
         possible_reps = [PoliticalCampaign.inflate(row[0]) for row in res]
         html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
@@ -616,6 +622,7 @@ class MeViewSet(mixins.UpdateModelMixin,
         for row in page:
             news_article = None
             if row.questions is not None:
+                row.questions.pull()
                 news_article = QuestionSerializerNeo(
                     Question.inflate(row.questions),
                     context={'request': request}).data
@@ -630,6 +637,8 @@ class MeViewSet(mixins.UpdateModelMixin,
                         'question_news.html', RequestContext(
                             request, news_article))
             elif row.solutions is not None:
+                row.s_question.pull()
+                row.solutions.pull()
                 question_data = QuestionSerializerNeo(
                     Question.inflate(row.s_question)).data
                 news_article = SolutionSerializerNeo(
@@ -645,6 +654,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                         'solution_news.html', RequestContext(
                             request, news_article))
             elif row.posts is not None:
+                row.posts.pull()
                 news_article = PostSerializerNeo(
                     Post.inflate(row.posts),
                     context={'request': request, 'force_expand': True}).data
@@ -656,6 +666,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                     article_html = render_to_string(
                         'post_news.html', RequestContext(request, news_article))
             elif row.campaigns is not None:
+                row.campaigns.pull()
                 news_article = PoliticalCampaignSerializer(
                     PoliticalCampaign.inflate(row.campaigns),
                     context={'request': request}).data

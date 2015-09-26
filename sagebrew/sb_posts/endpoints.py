@@ -101,7 +101,7 @@ class PostsViewSet(viewsets.ModelViewSet):
             response.data['urlcontent_html'] = \
                 render_to_string("expanded_url_content.html", response.data)
             return Response(response.data, status=status.HTTP_200_OK)
-        return response
+        return Response(response.data, status=status.HTTP_200_OK)
 
 
 class WallPostsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):

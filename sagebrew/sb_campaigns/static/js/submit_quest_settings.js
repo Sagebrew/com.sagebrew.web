@@ -36,6 +36,7 @@ $(document).ready(function () {
                         var takingLive = $("#js-taking_live");
                         if (takingLive.data("taking_live") === "True") {
                             var campaignId = $("#campaign_id").data('object_uuid');
+                            $('#sb-greyout-page').show();
                             $.ajax({
                                 xhrFields: {withCredentials: true},
                                 type: "PATCH",
@@ -49,7 +50,10 @@ $(document).ready(function () {
                                     if (data.active) {
                                         $("#js-active").attr("data-active", "True");
                                         $.notify("Quest taken active!", {type: "success"});
+                                        $('#sb-greyout-page').hide();
+                                        window.location.href = data.url;
                                     } else {
+                                        $('#sb-greyout-page').hide();
                                         $("#js-active").attr("data-active", "False");
                                     }
 
@@ -104,6 +108,7 @@ $(document).ready(function () {
                             });
                         } else if (takingLive.data('taking_live') === "True") {
                             var campaignId = $("#campaign_id").data('object_uuid');
+                            $('#sb-greyout-page').show();
                             $.ajax({
                                 xhrFields: {withCredentials: true},
                                 type: "PATCH",
@@ -117,8 +122,11 @@ $(document).ready(function () {
                                     if (data.active) {
                                         $("#js-active").attr("data-active", "True");
                                         $.notify("Quest taken active!", {type: "success"});
+                                        $('#sb-greyout-page').hide();
+                                        window.location.href = data.url;
                                     } else {
                                         $("#js-active").attr("data-active", "False");
+                                        $('#sb-greyout-page').hide();
                                     }
 
                                 },
@@ -207,8 +215,15 @@ $(document).ready(function () {
             takingLive = $("#js-taking_live");
         takingLive.data("taking_live", "True");
         if (completedStripe === "False") {
-            $("html, body").animate({scrollTop: 0}, "slow");
-            $.notify("Please fill in the banking information portion of this page. You may only take your Quest active after that.", {type: "info"});
+
+            if (settingsData.ssn && settingsData.routing_number && settingsData.account_number) {
+                $('#sb-greyout-page').show();
+                $("#sb-greyout-page").spin('large');
+                $("#submit_settings").click();
+            } else {
+                $("html, body").animate({scrollTop: 0}, "slow");
+                $.notify("Please fill in the banking information portion of this page. You may only take your Quest active after that.", {type: "info"});
+            }
         } else if (completedCustomer === "False" && paidAccount === "True") {
             handler.open({
                 name: "Sagebrew LLC",

@@ -215,7 +215,6 @@ $(document).ready(function () {
             takingLive = $("#js-taking_live");
         takingLive.data("taking_live", "True");
         if (completedStripe === "False") {
-
             if (settingsData.ssn && settingsData.routing_number && settingsData.account_number) {
                 $('#sb-greyout-page').show();
                 $("#sb-greyout-page").spin('large');

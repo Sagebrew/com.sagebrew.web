@@ -25,6 +25,23 @@ from sb_locations.neo_models import Location
 from .neo_models import (Campaign, PoliticalCampaign, Position)
 
 
+class AllowVoteValidator:
+    def __init__(self):
+        pass
+
+    def __call__(self, value):
+        if not self.allow_vote:
+            message = 'Sorry you cannot vote on a quest not in your area.'
+            raise serializers.ValidationError(message)
+        return value
+
+    def set_context(self, serializer_field):
+        try:
+            self.allow_vote = serializer_field.parent.allow_vote
+        except AttributeError:
+            self.allow_vote = False
+
+
 class CampaignSerializer(SBSerializer):
     active = serializers.BooleanField(required=False, read_only=True)
     biography = serializers.CharField(required=False, max_length=255)
@@ -304,8 +321,10 @@ class CampaignSerializer(SBSerializer):
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):
-    vote_type = serializers.SerializerMethodField()
+    vote_type = serializers.SerializerMethodField(
+        validators=[AllowVoteValidator()])
     vote_count = serializers.SerializerMethodField()
+    allow_vote = serializers.SerializerMethodField()
     constituents = serializers.SerializerMethodField()
     paid_account = serializers.SerializerMethodField()
 
@@ -436,6 +455,11 @@ class PoliticalCampaignSerializer(CampaignSerializer):
             if obj.application_fee == 0.021:
                 return True
             return False
+
+    def get_allow_vote(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        return PoliticalCampaign.get_allow_vote(obj.object_uuid,
+                                                request.user.username)
 
 
 class PoliticalVoteSerializer(serializers.Serializer):

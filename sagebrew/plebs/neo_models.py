@@ -1,3 +1,4 @@
+import us
 import pytz
 from datetime import datetime
 
@@ -10,10 +11,12 @@ from django.templatetags.static import static
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
-                      DoesNotExist)
+                      DoesNotExist, MultipleNodesReturned)
 from neomodel import db
 
+from api.utils import flatten_lists
 from api.neo_models import SBObject
+from sb_locations.neo_models import Location
 from sb_search.neo_models import Searchable, Impression
 from sb_base.neo_models import VoteRelationship, RelationshipWeight
 
@@ -602,6 +605,39 @@ class Address(SBObject):
     owned_by = RelationshipTo("Pleb", 'LIVES_IN')
     encompassed_by = RelationshipTo('sb_locations.neo_models.Location',
                                     'ENCOMPASSED_BY')
+
+    def get_all_encompassed_by(self):
+        query = 'MATCH (a:Address {object_uuid:"%s"})-[:ENCOMPASSED_BY]->' \
+                '(l:Location) WITH l OPTIONAL MATCH (l)-' \
+                '[:ENCOMPASSED_BY*1..3]->(l2:Location) RETURN ' \
+                'distinct l.object_uuid, collect(distinct(l2.object_uuid))'\
+                % self.object_uuid
+        res, _ = db.cypher_query(query)
+        return flatten_lists(res)  # flatten
+
+    def set_encompassing(self):
+        try:
+            encompassed_by = Location.nodes.get(name=self.city)
+            if Location.get_single_encompassed_by(
+                    encompassed_by.object_uuid) != \
+                    us.states.lookup(self.state).name:
+                # if a location node exists with an incorrect encompassing state
+                raise DoesNotExist("This Location does not exist")
+        except (Location.DoesNotExist, DoesNotExist):
+            encompassed_by = Location(name=self.city).save()
+            city_encompassed = Location.nodes.get(
+                name=us.states.lookup(self.state).name)
+            encompassed_by.encompassed_by.connect(city_encompassed)
+            city_encompassed.encompasses.connect(encompassed_by)
+        except MultipleNodesReturned:
+            query = 'MATCH (l1:Location {name:"%s"})-[:ENCOMPASSED_BY]->' \
+                    '(l2:Location {name:"%s"}) RETURN l1' % \
+                    (self.city, self.state)
+            res, _ = db.cypher_query(query)
+            encompassed_by = Location.inflate(res.one)
+        self.encompassed_by.connect(encompassed_by)
+        encompassed_by.addresses.connect(self)
+        return self
 
 
 class FriendRequest(SBObject):

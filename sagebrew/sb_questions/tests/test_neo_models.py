@@ -6,6 +6,7 @@ from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
+from sb_solutions.neo_models import Solution
 
 
 class TestQuestionNeoModel(TestCase):
@@ -49,3 +50,59 @@ class TestQuestionNeoModel(TestCase):
         self.assertIn(tag.name, res)
         self.assertIn(tag2.name, res)
         self.assertIn(',', res)
+
+    def test_question_author(self):
+        authors = self.question.get_conversation_authors()
+        self.assertEqual("%s %s" % (self.pleb.first_name, self.pleb.last_name),
+                         authors)
+
+    def test_one_solution_by_same_author(self):
+        solution = Solution(content=uuid1(),
+                            owner_username=self.pleb.username).save()
+        solution.solution_to.connect(self.question)
+        self.question.solutions.connect(solution)
+        authors = self.question.get_conversation_authors()
+        self.assertEqual("%s %s" % (self.pleb.first_name, self.pleb.last_name),
+                         authors)
+
+    def test_two_solutions_different_authors(self):
+        email = "failure@simulator.amazonses.com"
+        create_user_util_test(email)
+        pleb = Pleb.nodes.get(email=email)
+        solution = Solution(content=uuid1(),
+                            owner_username=self.pleb.username).save()
+        solution2 = Solution(content=uuid1(),
+                             owner_username=pleb.username).save()
+        solution.solution_to.connect(self.question)
+        solution2.solution_to.connect(self.question)
+        self.question.solutions.connect(solution)
+        self.question.solutions.connect(solution2)
+        authors = self.question.get_conversation_authors()
+        self.assertEqual("%s %s, %s %s" % (
+            self.pleb.first_name, self.pleb.last_name,
+            pleb.first_name, pleb.last_name), authors)
+
+    def test_three_solutions_different_authors(self):
+        email = "failure@simulator.amazonses.com"
+        email2 = "fake@simulator.amazonses.com"
+        create_user_util_test(email)
+        create_user_util_test(email2)
+        pleb = Pleb.nodes.get(email=email)
+        pleb2 = Pleb.nodes.get(email=email2)
+        solution = Solution(content=uuid1(),
+                            owner_username=self.pleb.username).save()
+        solution2 = Solution(content=uuid1(),
+                             owner_username=pleb.username).save()
+        solution3 = Solution(content=uuid1(),
+                             owner_username=pleb2.username).save()
+        solution.solution_to.connect(self.question)
+        solution2.solution_to.connect(self.question)
+        solution3.solution_to.connect(self.question)
+        self.question.solutions.connect(solution)
+        self.question.solutions.connect(solution2)
+        self.question.solutions.connect(solution3)
+        authors = self.question.get_conversation_authors()
+        self.assertEqual("%s %s, %s %s, %s %s" % (
+            self.pleb.first_name, self.pleb.last_name,
+            pleb.first_name, pleb.last_name, pleb2.first_name,
+            pleb2.last_name), authors)

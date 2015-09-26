@@ -12,7 +12,7 @@ from sb_registration.utils import create_user_util_test
 from api.utils import (add_failure_to_queue,
                        encrypt, decrypt, generate_short_token,
                        generate_long_token, smart_truncate,
-                       gather_request_data)
+                       gather_request_data, flatten_lists)
 from sb_questions.neo_models import Question
 
 
@@ -144,3 +144,16 @@ class TestGatherRequestData(TestCase):
         self.assertEqual(len(expand_array), 0)
         self.assertEqual('primarykey', relations)
         self.assertEqual('true', expedite)
+
+
+class TestFlattenList(TestCase):
+    def test_flatten(self):
+        lists = [1, 1, 2, 3, [1, 2, 3], [1]]
+        res = flatten_lists(lists)
+        self.assertEqual(list(res), [1, 1, 2, 3, 1, 2, 3, 1])
+
+    def test_flatten_strings(self):
+        lists = ['this', 'is', 'a', ['test', ['list', 'thing']], 'test']
+        res = flatten_lists(lists)
+        self.assertEqual(list(res), ['this', 'is', 'a', 'test', 'list',
+                                     'thing', 'test'])

@@ -13,7 +13,7 @@ from rest_framework.test import APITestCase
 from neomodel import db
 
 from sb_privileges.neo_models import SBAction, Privilege
-from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb, Address
 from sb_updates.neo_models import Update
 from sb_goals.neo_models import Goal, Round
 from sb_registration.utils import create_user_util_test
@@ -683,6 +683,20 @@ class CampaignEndpointTests(APITestCase):
 
         self.assertEqual(response.data['profile_pic'], data['profile_pic'])
 
+    def test_update_swap_round(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-detail',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            "activate": True
+        }
+        response = self.client.put(url, data=data, format='json')
+
+        self.assertEqual(response.data['active_round'], self.round.object_uuid)
+        self.assertTrue(response.data['upcoming_round'])
+        self.assertNotEqual(response.data['upcoming_round'],
+                            self.round.object_uuid)
+
     def test_accountants(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-accountants',
@@ -789,7 +803,16 @@ class CampaignEndpointTests(APITestCase):
                                                   'specified users '
                                                   'to your campaign.')
 
-    def test_vote(self):
+    def test_vote_inside_area(self):
+        location = Location(name="Test Location").save()
+        position = Position(name="Test Position").save()
+        position.location.connect(location)
+        location.positions.connect(position)
+        address = Address().save()
+        self.pleb.address.connect(address)
+        self.campaign.position.connect(position)
+        address.encompassed_by.connect(location)
+        location.addresses.connect(address)
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-vote',
                       kwargs={'object_uuid': self.campaign.object_uuid})
@@ -799,6 +822,164 @@ class CampaignEndpointTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['detail'])
+        address.delete()
+        location.delete()
+        position.delete()
+
+    def test_vote_outside_area(self):
+        location = Location(name="Test Location").save()
+        location2 = Location(name="Test Location 2").save()
+        position = Position(name="Test Position").save()
+        position.location.connect(location)
+        location.positions.connect(position)
+        address = Address().save()
+        self.pleb.address.connect(address)
+        self.campaign.position.connect(position)
+        address.encompassed_by.connect(location2)
+        location2.addresses.connect(address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-vote',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'vote_type': 1
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        address.delete()
+        location.delete()
+        location2.delete()
+        position.delete()
+
+    def test_vote_two_locations_away(self):
+        location = Location(name="Test Location").save()
+        location2 = Location(name="Test Location 2").save()
+        position = Position(name="Test Position").save()
+        position.location.connect(location)
+        location.positions.connect(position)
+        location2.encompasses.connect(location)
+        location.encompassed_by.connect(location2)
+        address = Address().save()
+        self.pleb.address.connect(address)
+        self.campaign.position.connect(position)
+        address.encompassed_by.connect(location2)
+        location2.addresses.connect(address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-vote',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'vote_type': 1
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['detail'])
+        address.delete()
+        location.delete()
+        location2.delete()
+        position.delete()
+
+    def test_vote_three_locations_away(self):
+        location = Location(name="Test Location").save()
+        location2 = Location(name="Test Location 2").save()
+        location3 = Location(name="Test Location 3").save()
+        position = Position(name="Test Position").save()
+        position.location.connect(location)
+        location.positions.connect(position)
+        location2.encompasses.connect(location)
+        location.encompassed_by.connect(location2)
+        location3.encompasses.connect(location2)
+        location2.encompassed_by.connect(location3)
+        address = Address().save()
+        self.pleb.address.connect(address)
+        self.campaign.position.connect(position)
+        address.encompassed_by.connect(location3)
+        location3.addresses.connect(address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-vote',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'vote_type': 1
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['detail'])
+        address.delete()
+        location.delete()
+        location2.delete()
+        location3.delete()
+        position.delete()
+
+    def test_vote_four_locations_away(self):
+        location = Location(name="Test Location").save()
+        location2 = Location(name="Test Location 2").save()
+        location3 = Location(name="Test Location 3").save()
+        location4 = Location(name="Test Location 4").save()
+        position = Position(name="Test Position").save()
+        position.location.connect(location)
+        location.positions.connect(position)
+        location2.encompasses.connect(location)
+        location.encompassed_by.connect(location2)
+        location3.encompasses.connect(location2)
+        location2.encompassed_by.connect(location3)
+        location4.encompasses.connect(location3)
+        location3.encompassed_by.connect(location4)
+        address = Address().save()
+        self.pleb.address.connect(address)
+        self.campaign.position.connect(position)
+        address.encompassed_by.connect(location4)
+        location4.addresses.connect(address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-vote',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'vote_type': 1
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['detail'])
+        address.delete()
+        location.delete()
+        location2.delete()
+        location3.delete()
+        location4.delete()
+        position.delete()
+
+    def test_vote_five_locations_away(self):
+        location = Location(name="Test Location").save()
+        location2 = Location(name="Test Location 2").save()
+        location3 = Location(name="Test Location 3").save()
+        location4 = Location(name="Test Location 4").save()
+        location5 = Location(name="Test Location 5").save()
+        position = Position(name="Test Position").save()
+        position.location.connect(location)
+        location.positions.connect(position)
+        location2.encompasses.connect(location)
+        location.encompassed_by.connect(location2)
+        location3.encompasses.connect(location2)
+        location2.encompassed_by.connect(location3)
+        location4.encompasses.connect(location3)
+        location3.encompassed_by.connect(location4)
+        location5.encompasses.connect(location4)
+        location4.encompassed_by.connect(location5)
+        address = Address().save()
+        self.pleb.address.connect(address)
+        self.campaign.position.connect(position)
+        address.encompassed_by.connect(location5)
+        location5.addresses.connect(address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-vote',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'vote_type': 1
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        address.delete()
+        location.delete()
+        location2.delete()
+        location3.delete()
+        location4.delete()
+        location5.delete()
+        position.delete()
 
     def test_rounds(self):
         self.client.force_authenticate(user=self.user)

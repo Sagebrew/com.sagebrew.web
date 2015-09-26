@@ -1833,8 +1833,11 @@ class AddressEndpointTests(APITestCase):
             'congressional_district': "11",
             'latitude': 42.54083
         }
+        temp_loc = Location(name=data['city']).save()
+        state = Location(name="Michigan").save()
+        temp_loc.encompassed_by.connect(state)
+        state.encompasses.connect(temp_loc)
         response = self.client.post(url, data=data, format='json')
-
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['congressional_district'], 11)
         query = 'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->' \
@@ -1848,6 +1851,8 @@ class AddressEndpointTests(APITestCase):
                     response.data['object_uuid'])
         res, col = db.cypher_query(query)
         self.assertEqual(Pleb.inflate(res[0][0]).username, self.user.username)
+        temp_loc.delete()
+        state.delete()
 
     def test_update(self):
         self.client.force_authenticate(user=self.user)

@@ -15,6 +15,7 @@ class QuestEpicSitemap(Sitemap):
         query = "MATCH (n:PoliticalCampaign) WHERE n.active=true " \
                 "RETURN n"
         res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [PoliticalCampaign.inflate(row[0]) for row in res]
 
     def location(self, obj):
@@ -30,6 +31,7 @@ class QuestUpdateSitemap(Sitemap):
         query = "MATCH (n:PoliticalCampaign) WHERE n.active=true " \
                 "RETURN n"
         res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [PoliticalCampaign.inflate(row[0]) for row in res]
 
     def location(self, obj):

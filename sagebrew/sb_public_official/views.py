@@ -13,6 +13,7 @@ from sb_registration.utils import (verify_completed_registration)
 
 from .neo_models import PublicOfficial
 
+from api.utils import smart_truncate
 from sb_campaigns.neo_models import PoliticalCampaign
 from sb_campaigns.serializers import PoliticalCampaignSerializer
 
@@ -26,6 +27,17 @@ def saga(request, username):
     serializer_data = PoliticalCampaignSerializer(
         campaign, context={'request': request}).data
     serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
+    if serializer_data['biography'] is not None:
+        serializer_data['description'] = smart_truncate(
+            serializer_data['biography'], length=150)
+    else:
+        serializer_data['description'] = "%s %s's Policies, Agenda, " \
+                                         "and Platform." % (
+            serializer_data['first_name'], serializer_data['last_name'])
+    serializer_data['keywords'] = "Politics, Campaign, Quest, Candidate, " \
+                                  "Representative, %s, %s, %s" % (
+        serializer_data['position_formal_name'],
+        serializer_data['location_name'], serializer_data['position_name'])
     return render(request, 'action_page.html', serializer_data)
 
 
@@ -65,6 +77,12 @@ def updates(request, username):
         return redirect("404_Error")
     serializer_data = PoliticalCampaignSerializer(
         campaign, context={'request': request}).data
+    serializer_data['description'] = "Updates for %s %s's Quest" % (
+        serializer_data['first_name'], serializer_data['last_name'])
+    serializer_data['keywords'] = "Updates, Politics, Campaign, Quest, " \
+                                  "Candidate, Representative, %s, %s, %s" % (
+        serializer_data['position_formal_name'],
+        serializer_data['location_name'], serializer_data['position_name'])
     serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
     return render(request, 'action_page.html', serializer_data)
 

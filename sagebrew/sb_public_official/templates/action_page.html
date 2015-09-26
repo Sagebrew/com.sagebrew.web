@@ -11,8 +11,8 @@
 {% block keywords %}
     {% if keywords %}
         <meta name="keywords" content="{{ keywords }}">
-        <meta name="author" content="{{ first_name }} {{ last_name }}">
     {% endif %}
+    <meta name="author" content="{{ first_name }} {{ last_name }}">
 {% endblock keywords %}
 {% block content %}
 <div id="campaign_id" style="display: none" data-object_uuid="{{ id }}"></div>

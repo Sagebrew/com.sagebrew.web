@@ -83,6 +83,24 @@ class Question(TitledContent):
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 
+    def get_conversation_authors(self):
+        from plebs.neo_models import Pleb
+        query = 'MATCH (a:Question {object_uuid: "%s"}) WITH a ' \
+                'OPTIONAL MATCH (a)-[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
+                'WHERE solutions.to_be_deleted = false ' \
+                'RETURN collect(a.owner_username) + ' \
+                'collect(solutions.owner_username) as authors' % (
+                    self.object_uuid)
+        from logging import getLogger
+        log = getLogger('loggly_logs')
+        res, _ = db.cypher_query(query)
+        authors = list(set(res.one))
+        log.critical(authors)
+        authors = [Pleb.get(author) for author in authors]
+        log.critical(authors)
+        return ", ".join(["%s %s" % (author.first_name, author.last_name)
+                          for author in authors][::-1])
+
     def get_url(self, request=None):
         return reverse('question_detail_page',
                        kwargs={'question_uuid': self.object_uuid,

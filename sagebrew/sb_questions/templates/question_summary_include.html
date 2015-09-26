@@ -34,13 +34,13 @@
                 <img src="{{ question.profile.profile_pic|default_if_none:default_profile }}"/>
             </div>
         </div>
-        <div class="col-lg-2 col-md-2 hidden-sm hidden-xs" style="padding-left:10px; margin-top:-10px;">
+        <div class="col-lg-2 col-md-2 hidden-sm hidden-xs sb-content-edited">
             <div>
                 <small>
                     <a href="{{ question.profile.url }}">{{ question.profile.first_name }} {{ question.profile.last_name }}</a>
                 </small>
             </div>
-            <div style="margin-top:-10px;">
+            <div class="sb-content-edited">
                 <small>
                     {{ question.last_edited_on|naturaltime }}
                 </small>

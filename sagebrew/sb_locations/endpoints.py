@@ -24,6 +24,7 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         query = 'MATCH (l:`Location`) RETURN l'
         res, col = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [Location.inflate(row[0]) for row in res]
 
     def get_object(self):

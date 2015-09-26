@@ -42,6 +42,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
         query = "MATCH (c:`Campaign`) RETURN c"
         res, col = db.cypher_query(query)
         try:
+            [row[0].pull() for row in res]
             return [Campaign.inflate(row[0]) for row in res]
         except IndexError:
             return []
@@ -300,6 +301,7 @@ class PoliticalCampaignViewSet(CampaignViewSet):
         query = "MATCH (c:`PoliticalCampaign`) RETURN c"
         res, col = db.cypher_query(query)
         try:
+            [row[0].pull() for row in res]
             return [PoliticalCampaign.inflate(row[0]) for row in res]
         except IndexError:
             return []
@@ -412,6 +414,7 @@ class PositionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         query = 'MATCH (p:`Position`) RETURN p'
         res, col = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [Position.inflate(row[0]) for row in res]
 
     def get_object(self):

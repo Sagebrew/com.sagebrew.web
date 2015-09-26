@@ -21,4 +21,5 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py create_privileges && \
     python manage.py clear_cache && \
     python manage.py clearsessions && \
-    python manage.py collectstatic --noinput
+    python manage.py collectstatic --noinput && \
+    python manage.py add_url_and_href

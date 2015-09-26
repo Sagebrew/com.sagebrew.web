@@ -12,6 +12,7 @@ from sb_registration.views import (login_view, logout_view, signup_view,
 from sb_registration.forms import CustomPasswordResetForm
 from sb_questions.sitemap import QuestionSitemap, ConversationSitemap
 from sagebrew.sitemap import (StaticViewSitemap, SignupSitemap)
+from sb_campaigns.sitemap import QuestEpicSitemap, QuestUpdateSitemap
 from help_center.sitemap import (AccountHelpSitemap, ConversationHelpSitemap,
                                  DonationsHelpSitemap, PoliciesHelpSitemap,
                                  PrivilegeHelpSitemap, QuestHelpSitemap,
@@ -75,6 +76,8 @@ urlpatterns = patterns(
         {'sitemaps': {
             'questions': QuestionSitemap,
             'conversation_cloud': ConversationSitemap,
+            'quests': QuestEpicSitemap,
+            'updates': QuestUpdateSitemap,
             'static_pages': StaticViewSitemap,
             'sign_up': SignupSitemap,
             'account_help': AccountHelpSitemap,

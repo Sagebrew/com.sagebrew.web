@@ -65,6 +65,7 @@ class PostsViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
+        [row[0].pull() for row in page]
         page = [Post.inflate(row[0]) for row in page]
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
@@ -144,7 +145,7 @@ class WallPostsListCreate(ListCreateAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
-
+        [row[0].pull() for row in page]
         page = [Post.inflate(row[0]) for row in page]
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)

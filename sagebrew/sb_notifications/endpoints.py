@@ -49,8 +49,9 @@ class UserNotificationList(ListAPIView):
         if notifications is None:
             query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A]->' \
                 '(n:Notification) RETURN n ORDER ' \
-                'BY n.created DESC LIMIT 5' % (self.request.user.username)
+                'BY n.created DESC LIMIT 5' % self.request.user.username
             res, col = db.cypher_query(query)
+            [row[0].pull() for row in res]
             notifications = [Notification.inflate(row[0]) for row in res]
             cache.set("%s_notifications" % self.request.user.username,
                       notifications)

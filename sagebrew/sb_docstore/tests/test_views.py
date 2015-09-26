@@ -23,11 +23,6 @@ class TestGetUpdatesFromDynamo(TestCase):
     def test_get_updates_from_dynamo(self):
         post_id = str(uuid1())
         now = unicode(datetime.now(pytz.utc))
-
-        edit_data = {'parent_object': post_id, 'content': "s;dlkfja;skdjf",
-                     'created': now, 'user': self.email}
-        res = add_object_to_table('edits', edit_data)
-        self.assertTrue(res)
         vote_data = {'parent_object': post_id, 'user': self.email,
                      'status': 1, 'created': now}
         res = add_object_to_table('votes', vote_data)

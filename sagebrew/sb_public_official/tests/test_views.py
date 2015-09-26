@@ -52,7 +52,7 @@ class PublicOfficialViews(TestCase):
                       kwargs={'username': self.campaign.object_uuid})
         response = self.client.get(url)
         self.campaign.biography = None
-        self.campaign.sav()
+        self.campaign.save()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_quest_saga_no_biography(self):

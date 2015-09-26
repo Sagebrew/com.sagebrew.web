@@ -2,7 +2,6 @@ from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from sb_registration.utils import generate_username
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
 from sb_registration.utils import create_user_util_test
@@ -12,6 +11,8 @@ from sb_solutions.neo_models import Solution
 
 class TestQuestionNeoModel(TestCase):
     def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -67,9 +68,8 @@ class TestQuestionNeoModel(TestCase):
                          authors)
 
     def test_two_solutions_different_authors(self):
-        email = "failure@simulator.amazonses.com"
-        create_user_util_test(email)
-        pleb = Pleb.nodes.get(email=email)
+        pleb = Pleb(email=str(uuid1()), first_name="test",
+                    last_name="test", username=str(uuid1())).save()
         solution = Solution(content=uuid1(),
                             owner_username=self.pleb.username).save()
         solution2 = Solution(content=uuid1(),
@@ -84,14 +84,10 @@ class TestQuestionNeoModel(TestCase):
             pleb.first_name, pleb.last_name), authors)
 
     def test_three_solutions_different_authors(self):
-        email = "failure@simulator.amazonses.com"
-        email2 = "fake@simulator.amazonses.com"
-        create_user_util_test(email)
-        create_user_util_test(email2)
-        pleb = Pleb.nodes.get(email=email)
-        username = generate_username("test", "test")
-        pleb2 = Pleb(email=email2, first_name="test",
-                     last_name="test", username=username).save()
+        pleb = Pleb(email=str(uuid1()), first_name="test",
+                    last_name="test", username=str(uuid1())).save()
+        pleb2 = Pleb(email=str(uuid1()), first_name="test",
+                     last_name="test", username=str(uuid1())).save()
         solution = Solution(content=uuid1(),
                             owner_username=self.pleb.username).save()
         solution2 = Solution(content=uuid1(),

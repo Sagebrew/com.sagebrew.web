@@ -2,6 +2,7 @@ from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
+from sb_registration.utils import generate_username
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
 from sb_registration.utils import create_user_util_test
@@ -88,7 +89,9 @@ class TestQuestionNeoModel(TestCase):
         create_user_util_test(email)
         create_user_util_test(email2)
         pleb = Pleb.nodes.get(email=email)
-        pleb2 = Pleb.nodes.get(email=email2)
+        username = generate_username("test", "test")
+        pleb2 = Pleb(email=email2, first_name="test",
+                     last_name="test", username=username).save()
         solution = Solution(content=uuid1(),
                             owner_username=self.pleb.username).save()
         solution2 = Solution(content=uuid1(),

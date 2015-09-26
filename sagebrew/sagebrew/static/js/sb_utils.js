@@ -484,8 +484,6 @@ function showEditSolution() {
 function getOrCreateExpandedURLs(regExp, content, editButton) {
     var regexMatches = content.match(regExp),
         promises = [];
-    console.log(content);
-    console.log(regexMatches);
     if (regexMatches) {
         $.unique(regexMatches);
         $.each(regexMatches, function (key, value) {
@@ -524,7 +522,6 @@ function editObject(editArea, url, objectUuid, dataArea) {
     $(editArea).click(function (event) {
         var content = $(dataArea).val();
         promises = getOrCreateExpandedURLs(regExp, content, editArea);
-        console.log(promises);
         $.when.apply(null, promises).done(function () {
             event.preventDefault();
             var editButton = ".edit_" + objectUuid,

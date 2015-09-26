@@ -273,7 +273,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             res, col = db.cypher_query(query)
             [row[0].pull() for row in res]
             senators = [PublicOfficial.inflate(row[0]) for row in res]
-            cache.set("%s_senators" % username, senators)
+            cache.set("%s_senators" % username, senators, timeout=1800)
         if len(senators) == 0:
             return Response("<small>Sorry we could not find your "
                             "Senators. Please alert us to our error!"
@@ -301,7 +301,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
             res, col = db.cypher_query(query)
             try:
                 house_rep = PublicOfficial.inflate(res[0][0])
-                cache.set("%s_house_representative" % username, house_rep)
+                cache.set("%s_house_representative" % username, house_rep,
+                          timeout=1800)
             except IndexError:
                 return Response("<small>Sorry we could not find your "
                                 "House Representative. Please alert us to "
@@ -325,7 +326,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             res, _ = db.cypher_query(query)
             try:
                 president = PublicOfficial.inflate(res[0][0])
-                cache.set("%s_president" % username, president)
+                cache.set("%s_president" % username, president, timeout=1800)
             except IndexError:
                 return Response("<small>Sorry we could not find your "
                                 "President. Please alert us to our error"

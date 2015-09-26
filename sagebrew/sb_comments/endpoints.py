@@ -57,8 +57,9 @@ class ObjectCommentsListCreate(ListCreateAPIView):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-        page = [Comment.inflate(row[0]) for row in
-                self.paginate_queryset(queryset)]
+        page = self.paginate_queryset(queryset)
+        [row[0].pull() for row in page]
+        page = [Comment.inflate(row[0]) for row in page]
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 

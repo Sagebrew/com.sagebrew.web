@@ -91,15 +91,13 @@ class Question(TitledContent):
                 'RETURN collect(a.owner_username) + ' \
                 'collect(solutions.owner_username) as authors' % (
                     self.object_uuid)
-        from logging import getLogger
-        log = getLogger('loggly_logs')
         res, _ = db.cypher_query(query)
         authors = list(set(res.one))
-        log.critical(authors)
-        authors = [Pleb.get(author) for author in authors]
-        log.critical(authors)
-        return ", ".join(["%s %s" % (author.first_name, author.last_name)
-                          for author in authors][::-1])
+        author_list = []
+        for author in authors:
+            pleb = Pleb.get(author)
+            author_list.append("%s %s" % (pleb.first_name, pleb.last_name))
+        return ", ".join(author_list[::-1])
 
     def get_url(self, request=None):
         return reverse('question_detail_page',

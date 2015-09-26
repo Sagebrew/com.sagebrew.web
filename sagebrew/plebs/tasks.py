@@ -111,6 +111,7 @@ def update_address_location(object_uuid):
             district = Location.inflate(res.one)
             district.addresses.connect(address)
             address.encompassed_by.connect(district)
+        address.set_encompassing()
     except (CypherException, IOError, ClientError) as e:
         raise update_address_location.retry(exc=e, countdown=3,
                                             max_retries=None)

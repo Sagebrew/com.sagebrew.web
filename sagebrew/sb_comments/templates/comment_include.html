@@ -5,7 +5,7 @@
     <div class="col-xs-12 col-lg-11 col-lg-offset-1 sb_comment_wrapper">
         <div class="sb_post_comments">
             <div class="sb_comments_container">
-                <div class="row">
+                <div class="row sb-comment-rows">
                         <div class="col-lg-1 col-md-1 col-sm-1 hidden-xs">
                             <div class="sb_thumbnail_xs thumbnail">
                                 {% static 'images/sage_coffee_grey-01.png' as default_profile %}
@@ -58,7 +58,7 @@
                             {% endif %}
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row sb-comment-rows">
                         <div class="vote_small vote_count_small">
                             <div class="col-lg-1 hidden-md hidden-sm hidden-xs sb_vote_wrapper">
                                 {% include "vote.html" %}

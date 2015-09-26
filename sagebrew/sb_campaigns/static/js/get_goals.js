@@ -1,4 +1,4 @@
-/*global $, ajaxSecurity, errorDisplay*/
+/*global $, ajaxSecurity, errorDisplay, toolTipObject*/
 $(document).ready(function () {
     var roundId = $("#active_round").data('object_uuid');
     $.ajax({
@@ -9,6 +9,7 @@ $(document).ready(function () {
         dataType: "json",
         success: function (data) {
             $("#goal_wrapper").append(data);
+            toolTipObject(".sb_progress");
             //$.notify("Updated next goal set!", {type: 'success'});
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {

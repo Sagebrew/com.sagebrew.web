@@ -4,7 +4,7 @@ from django.core.cache import cache
 from rest_framework.reverse import reverse
 
 from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
-                      FloatProperty)
+                      FloatProperty, DoesNotExist)
 
 from sb_base.neo_models import (VoteRelationship)
 from sb_search.neo_models import Searchable, SBObject
@@ -341,6 +341,10 @@ class Campaign(Searchable):
                 level = None
         return level
 
+    @classmethod
+    def get_position_location(cls, object_uuid):
+        return Position.get_location(cls.get_position(object_uuid))
+
 
 class PoliticalCampaign(Campaign):
     """
@@ -414,6 +418,35 @@ class PoliticalCampaign(Campaign):
             rel.active = True
         rel.save()
         return rel.active
+
+    @classmethod
+    def get_allow_vote(cls, object_uuid, username):
+        from plebs.neo_models import Pleb
+        try:
+            pleb = Pleb.get(username)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            return False
+        address = pleb.get_address()
+        position = PoliticalCampaign.get_position(object_uuid)
+        if position is None or address is None:
+            return False
+        # This query attempts to match a given position and address via
+        # location connections, the end result is ensuring that someone
+        # who does not live in a location that a quest is running in may
+        # not pledge a vote for them.
+        res, _ = db.cypher_query('MATCH (p:`Position` {object_uuid: '
+                                 '"%s"})-[:AVAILABLE_WITHIN]->(l1:Location) '
+                                 'WITH l1 OPTIONAL MATCH (l1)-[:ENCOMPASSED_'
+                                 'BY*..3]->(l2:Location) WITH [x in collect'
+                                 '(l1)+collect(l2)|id(x)] as collected MATCH '
+                                 '(new_location) WHERE id(new_location) in '
+                                 'collected OPTIONAL MATCH (new_location)<-'
+                                 '[t:ENCOMPASSED_BY]-(a:Address {object_uuid:'
+                                 '"%s"}) RETURN t' % (position,
+                                                      address.object_uuid))
+        if res.one:
+            return True
+        return False
 
     def get_pledged_votes(self):
         query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \

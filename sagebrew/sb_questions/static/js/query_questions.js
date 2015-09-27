@@ -22,6 +22,7 @@ $(document).ready(function () {
         $(".query_questions-action").each(function (index, value) {
             $(value).removeClass("active");
         });
+        console.log($(this));
         $(this).addClass("active");
         event.preventDefault();
         var sortBy = $(this).data('sort_by'),

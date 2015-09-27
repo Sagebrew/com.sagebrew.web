@@ -887,7 +887,6 @@ function getUrlParameter(sParam) {
 }
 
 function foggyClosed(populatedIds) {
-    console.log(populatedIds);
     $.each(populatedIds, function(index, value) {
         var toBeFogged = $(".sb_blurred_content#sb_content_" + value);
         toBeFogged.foggy({

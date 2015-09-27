@@ -37,7 +37,8 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
         query = "MATCH (c:`Campaign` {object_uuid:'%s'})-[:HAS_ROUND]->" \
                 "(r:`Round`)-[:STRIVING_FOR]->(g:`Goal`) RETURN g " \
                 % (self.kwargs[self.lookup_field])
-        res, col = db.cypher_query(query)
+        res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [Goal.inflate(row[0]) for row in res]
 
     def perform_create(self, serializer):
@@ -133,6 +134,7 @@ class RoundListCreate(generics.ListCreateAPIView):
                 "[:HAS_ROUND]->(r:`Round`) RETURN r" % \
                 (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [Round.inflate(row[0]) for row in res]
 
 

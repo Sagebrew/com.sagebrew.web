@@ -46,6 +46,7 @@ class Question(TitledContent):
                 "MATCH (a:%s {object_uuid:'%s'}) RETURN a" % (
                     cls.__name__, object_uuid))
             try:
+                res[0][0].pull()
                 question = cls.inflate(res[0][0])
             except IndexError:
                 raise DoesNotExist('Question with id: %s '
@@ -61,7 +62,7 @@ class Question(TitledContent):
 
     def get_tags_string(self):
         try:
-            return ",".join(self.get_tags())
+            return ", ".join(self.get_tags())
         except (CypherException, IOError, CouldNotCommit, ClientError):
             return ""
 
@@ -81,6 +82,22 @@ class Question(TitledContent):
 
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
+
+    def get_conversation_authors(self):
+        from plebs.neo_models import Pleb
+        query = 'MATCH (a:Question {object_uuid: "%s"}) WITH a ' \
+                'OPTIONAL MATCH (a)-[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
+                'WHERE solutions.to_be_deleted = false ' \
+                'RETURN collect(a.owner_username) + ' \
+                'collect(solutions.owner_username) as authors' % (
+                    self.object_uuid)
+        res, _ = db.cypher_query(query)
+        authors = list(set(res.one))
+        author_list = []
+        for author in authors:
+            pleb = Pleb.get(author)
+            author_list.append("%s %s" % (pleb.first_name, pleb.last_name))
+        return ", ".join(author_list[::-1])
 
     def get_url(self, request=None):
         return reverse('question_detail_page',

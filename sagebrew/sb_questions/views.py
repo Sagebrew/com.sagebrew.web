@@ -103,6 +103,7 @@ def question_detail_page(request, question_uuid, slug=None):
         'sort_by': 'uuid',
         'description': description,
         'keywords': keywords,
+        'authors': question.get_conversation_authors(),
         'title': question.title
     })
 

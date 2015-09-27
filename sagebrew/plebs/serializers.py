@@ -1,3 +1,5 @@
+import us
+
 from unidecode import unidecode
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
@@ -15,9 +17,6 @@ from api.utils import spawn_task, gather_request_data
 from .neo_models import Address, Pleb
 from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
                     update_address_location)
-
-from logging import getLogger
-logger = getLogger("loggly_logs")
 
 
 def generate_username(first_name, last_name):
@@ -254,7 +253,10 @@ class AddressSerializer(SBSerializer):
     validated = serializers.BooleanField(required=False, read_only=True)
 
     def create(self, validated_data):
-        return Address(**validated_data).save()
+        validated_data['state'] = us.states.lookup(validated_data['state']).name
+        address = Address(**validated_data).save()
+        address.set_encompassing()
+        return address
 
     def update(self, instance, validated_data):
         request = self.context.get('request', None)

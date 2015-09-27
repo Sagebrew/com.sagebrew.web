@@ -42,6 +42,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
         query = "MATCH (c:`Campaign`) RETURN c"
         res, col = db.cypher_query(query)
         try:
+            [row[0].pull() for row in res]
             return [Campaign.inflate(row[0]) for row in res]
         except IndexError:
             return []
@@ -258,13 +259,17 @@ class CampaignViewSet(viewsets.ModelViewSet):
         donation_info = [DonationExportSerializer(
             Donation.inflate(donation)).data for donation in
             Campaign.get_donations(object_uuid)]
+        campaign = self.get_object()
         # this loop merges the 'owned_by' and 'address' dictionaries into
         # the top level dictionary, allows for simple writing to csv
-
         try:
             for donation in donation_info:
                 donation.update(donation.pop('owned_by', {}))
                 donation.update(donation.pop('address', {}))
+                application_fee = donation['amount'] * (
+                    campaign.application_fee +
+                    settings.STRIPE_TRANSACTION_PERCENT) + .3
+                donation['amount'] -= application_fee
             keys = donation_info[0].keys()
             # use of named temporary file here is to handle deletion of file
             # after we return the file, after the new file object is evicted
@@ -300,6 +305,7 @@ class PoliticalCampaignViewSet(CampaignViewSet):
         query = "MATCH (c:`PoliticalCampaign`) RETURN c"
         res, col = db.cypher_query(query)
         try:
+            [row[0].pull() for row in res]
             return [PoliticalCampaign.inflate(row[0]) for row in res]
         except IndexError:
             return []
@@ -345,6 +351,13 @@ class PoliticalCampaignViewSet(CampaignViewSet):
         if serializer.is_valid():
             cache.delete("%s_vote_count" % (object_uuid))
             parent_object_uuid = self.kwargs[self.lookup_field]
+            if not PoliticalCampaign.get_allow_vote(parent_object_uuid,
+                                                    request.user .username):
+                return Response({"detail": "Cannot pledge vote to quest "
+                                           "outside your area",
+                                 "status": status.HTTP_403_FORBIDDEN,
+                                 "developer_message": None},
+                                status=status.HTTP_403_FORBIDDEN)
             res = PoliticalCampaign.vote_campaign(parent_object_uuid,
                                                   request.user.username)
             if res:
@@ -412,6 +425,7 @@ class PositionViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         query = 'MATCH (p:`Position`) RETURN p'
         res, col = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [Position.inflate(row[0]) for row in res]
 
     def get_object(self):

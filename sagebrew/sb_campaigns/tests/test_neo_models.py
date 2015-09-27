@@ -7,7 +7,7 @@ from sb_registration.utils import create_user_util_test
 
 from sb_donations.neo_models import Donation
 from sb_goals.neo_models import Goal
-from sb_campaigns.neo_models import Campaign
+from sb_campaigns.neo_models import Campaign, PoliticalCampaign
 
 
 class TestCampaignNeoModel(TestCase):
@@ -32,3 +32,15 @@ class TestCampaignNeoModel(TestCase):
 
         campaign_query = Campaign.nodes.get(stripe_id=stripe_id)
         self.assertEqual(campaign_query.stripe_id, stripe_id)
+
+
+class TestPoliticalCampaignNeoModel(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.campaigner = Pleb.nodes.get(email=self.email)
+        self.donation = Donation(amount=5.0).save()
+
+    def test_get_allow_vote_user_does_not_exist(self):
+        res = PoliticalCampaign.get_allow_vote(str(uuid1()), str(uuid1()))
+        self.assertFalse(res)

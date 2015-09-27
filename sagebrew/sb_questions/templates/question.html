@@ -14,7 +14,7 @@
                 {% include "vote.html" %}
             </div>
         </div>
-        <div class="col-lg-10 col-sm-11 col-xs-12 ">
+        <div class="col-lg-10 col-sm-11 col-xs-12 sb-question-title">
             <h1 style="font-size:32px;">
                 {{ title|linebreaksbr }}
             </h1>
@@ -44,7 +44,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-12 col-lg-11 col-lg-offset-1 sb_post_wrapper">
+        <div class="col-xs-12 col-lg-11 col-lg-offset-1">
             <div class="sb_question_body" id="sb_question_{{ object_uuid }}">
                 <div class="sb_markdown{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                     {% autoescape off %}

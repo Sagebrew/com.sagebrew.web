@@ -312,7 +312,7 @@ class CampaignSerializer(SBSerializer):
         if request is None:
             return None
         return request.user.username in \
-            PoliticalCampaign.get_accountants(obj.object_uuid)
+            PoliticalCampaietn.get_accountants(obj.object_uuid)
 
     def get_completed_customer(self, obj):
         if obj.stripe_customer_id is None:

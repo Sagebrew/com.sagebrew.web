@@ -817,7 +817,7 @@ function enableObjectFunctionality(populatedIds) {
     readyFlags(populatedIds);
     readyVotes(populatedIds);
     readyComments(populatedIds);
-    foggyClosed();
+    foggyClosed(populatedIds);
 }
 
 
@@ -886,14 +886,18 @@ function getUrlParameter(sParam) {
     }
 }
 
-function foggyClosed() {
-    $(".sb_blurred_content").foggy({
-        blurRadius: 15,
-        opacity: 0.95
-    });
-    $(".sb_blurred_content").click(function (event) {
-        event.preventDefault();
-        $(this).foggy(false);
+function foggyClosed(populatedIds) {
+    console.log(populatedIds);
+    $.each(populatedIds, function(index, value) {
+        var toBeFogged = $(".sb_blurred_content#sb_content_" + value);
+        toBeFogged.foggy({
+            blurRadius: 15,
+            opacity: 0.95
+        });
+        toBeFogged.click(function (event) {
+            event.preventDefault();
+            $(this).foggy(false);
+        });
     });
 }
 

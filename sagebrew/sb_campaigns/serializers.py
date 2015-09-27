@@ -458,6 +458,8 @@ class PoliticalCampaignSerializer(CampaignSerializer):
 
     def get_allow_vote(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return False
         return PoliticalCampaign.get_allow_vote(obj.object_uuid,
                                                 request.user.username)
 

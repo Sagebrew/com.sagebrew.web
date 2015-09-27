@@ -1,4 +1,4 @@
-/*global $, jQuery, enableSinglePostFunctionality, errorDisplay, lightbox, Autolinker*/
+/*global $, jQuery, guid, enableSinglePostFunctionality, errorDisplay, lightbox, Autolinker*/
 /**
  * csrftoken support for django
  */
@@ -481,41 +481,92 @@ function showEditSolution() {
 }
 
 
-function editObject(editArea, url, objectUuid, dataArea) {
-    $(editArea).click(function (event) {
-        event.preventDefault();
-        var editButton = ".edit_" + objectUuid;
-        $(editButton).attr("disabled", "disabled");
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "PUT",
-            url: url,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({
-                'content': $(dataArea).val()
-            }),
-            dataType: "json",
-            success: function (data) {
-                $(editButton).removeAttr("disabled");
-                var contentContainer = $("#sb_content_" + objectUuid);
-                contentContainer.html(Autolinker.link(data.content).replace(/\n/g, "<br/>"));
-                if (data.uploaded_obects) {
-                    if (data.uploaded_objects.length > 0) {
-                        contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
-                        var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
-                        $.each(data.uploaded_objects, function(index, value){
-                            uploadContainer.append(value.html);
-                        });
-                    }
+function getOrCreateExpandedURLs(regExp, content, editButton) {
+    var regexMatches = content.match(regExp),
+        promises = [];
+    if (regexMatches) {
+        $.unique(regexMatches);
+        $.each(regexMatches, function (key, value) {
+            $(editButton).attr("disabled", "disabled");
+            $(editButton).spin('small');
+            var request = $.ajax({
+                xhrFields: {withCredentials: true},
+                type: "POST",
+                url: "/v1/urlcontent/",
+                data: JSON.stringify({
+                    'object_uuid': guid(),
+                    'url': value
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    $(editButton).removeAttr('disabled');
+                    $(editButton).spin(false);
+                },
+                error: function (XMLHttpRequest) {
+                    $(editButton).removeAttr('disabled');
+                    $(editButton).spin(false);
                 }
+            });
+            promises.push(request);
+        });
+        return promises;
+    }
+    return promises;
+}
 
-                $("#edit_container_" + objectUuid).hide();
-                contentContainer.show();
-            },
-            error: function (XMLHttpRequest) {
-                $(editButton).removeAttr("disabled");
-                errorDisplay(XMLHttpRequest);
+
+function editObject(editArea, url, objectUuid, dataArea) {
+    var regExp = /\b((?:https?:(?:|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw))(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b(?!@)))/gi,
+        promises;
+    $(editArea).click(function (event) {
+        var content = $(dataArea).val();
+        promises = getOrCreateExpandedURLs(regExp, content, editArea);
+        $.when.apply(null, promises).done(function () {
+            event.preventDefault();
+            var editButton = ".edit_" + objectUuid,
+                finalURLs = content.match(regExp);
+            if (finalURLs) {
+                $.unique(finalURLs);
+                url += "?html=true";
+            } else {
+                finalURLs = [];
             }
+            $(editButton).attr("disabled", "disabled");
+            $.ajax({
+                xhrFields: {withCredentials: true},
+                type: "PUT",
+                url: url,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    'content': content,
+                    'included_urls': finalURLs
+                }),
+                dataType: "json",
+                success: function (data) {
+                    $(editButton).removeAttr("disabled");
+                    var contentContainer = $("#sb_content_" + objectUuid);
+                    contentContainer.html(Autolinker.link(data.content).replace(/\n/g, "<br/>"));
+                    if (data.urlcontent_html) {
+                        contentContainer.append(data.urlcontent_html);
+                    }
+                    if (data.uploaded_obects) {
+                        if (data.uploaded_objects.length > 0) {
+                            contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
+                            var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
+                            $.each(data.uploaded_objects, function(index, value){
+                                uploadContainer.append(value.html);
+                            });
+                        }
+                    }
+                    $("#edit_container_" + objectUuid).hide();
+                    contentContainer.show();
+                },
+                error: function (XMLHttpRequest) {
+                    $(editButton).removeAttr("disabled");
+                    errorDisplay(XMLHttpRequest);
+                }
+            });
         });
     });
 }

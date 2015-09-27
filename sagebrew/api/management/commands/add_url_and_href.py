@@ -78,14 +78,14 @@ class Command(BaseCommand):
             question.save()
         for solution in Solution.nodes.all():
             url = solution.get_url()
-            if 'https://' not in url:
+            if url is not None and 'https://' not in url:
                 solution.url = "%s%s" % (settings.WEB_ADDRESS, url)
             else:
                 solution.url = url
 
             href = reverse('solution-detail',
                            kwargs={"object_uuid": solution.object_uuid})
-            if 'https://' not in href:
+            if href is not None and 'https://' not in href:
                 solution.href = "%s%s" % (settings.WEB_ADDRESS, href)
             else:
                 solution.href = href

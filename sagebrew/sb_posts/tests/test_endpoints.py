@@ -287,6 +287,30 @@ class PostsEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_update(self):
+        self.client.force_authenticate(user=self.user)
+        post = Post(content='This is a test post').save()
+        url = reverse("post-detail",
+                      kwargs={"object_uuid": post.object_uuid})
+        url_content = URLContent(url="http://reddit.com").save()
+        self.client.patch(
+            url, data={"content": "This is a test post reddit.com",
+                       "included_urls": ["http://reddit.com"]}, format='json')
+        self.assertTrue(post.url_content.is_connected(url_content))
+        url_content.delete()
+
+    def test_update_html(self):
+        self.client.force_authenticate(user=self.user)
+        post = Post(content='This is a test post').save()
+        url = reverse("post-detail",
+                      kwargs={"object_uuid": post.object_uuid}) + "?html=true"
+        url_content = URLContent(url="http://reddit.com").save()
+        self.client.patch(
+            url, data={"content": "This is a test post reddit.com",
+                       "included_urls": ["http://reddit.com"]}, format='json')
+        self.assertTrue(post.url_content.is_connected(url_content))
+        url_content.delete()
+
 
 class WallPostListCreateTest(APITestCase):
     def setUp(self):

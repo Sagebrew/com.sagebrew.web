@@ -826,6 +826,28 @@ class CampaignEndpointTests(APITestCase):
         location.delete()
         position.delete()
 
+    def test_vote_anonymous(self):
+        location = Location(name="Test Location").save()
+        position = Position(name="Test Position").save()
+        position.location.connect(location)
+        location.positions.connect(position)
+        address = Address().save()
+        self.pleb.address.connect(address)
+        self.campaign.position.connect(position)
+        address.encompassed_by.connect(location)
+        location.addresses.connect(address)
+        url = reverse('campaign-vote',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'vote_type': 1
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(response.data['detail'])
+        address.delete()
+        location.delete()
+        position.delete()
+
     def test_vote_outside_area(self):
         location = Location(name="Test Location").save()
         location2 = Location(name="Test Location 2").save()

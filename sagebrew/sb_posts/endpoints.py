@@ -95,6 +95,15 @@ class PostsViewSet(viewsets.ModelViewSet):
             return Response(serializer, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def update(self, request, *args, **kwargs):
+        html = request.query_params.get('html', 'false')
+        response = super(PostsViewSet, self).update(request, *args, **kwargs)
+        if html == 'true':
+            response.data['urlcontent_html'] = \
+                render_to_string("expanded_url_content.html", response.data)
+            return Response(response.data, status=status.HTTP_200_OK)
+        return Response(response.data, status=status.HTTP_200_OK)
+
 
 class WallPostsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     serializer_class = PostSerializerNeo

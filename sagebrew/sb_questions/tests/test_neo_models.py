@@ -11,6 +11,8 @@ from sb_solutions.neo_models import Solution
 
 class TestQuestionNeoModel(TestCase):
     def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -66,9 +68,8 @@ class TestQuestionNeoModel(TestCase):
                          authors)
 
     def test_two_solutions_different_authors(self):
-        email = "failure@simulator.amazonses.com"
-        create_user_util_test(email)
-        pleb = Pleb.nodes.get(email=email)
+        pleb = Pleb(email=str(uuid1()), first_name="test",
+                    last_name="test", username=str(uuid1())).save()
         solution = Solution(content=uuid1(),
                             owner_username=self.pleb.username).save()
         solution2 = Solution(content=uuid1(),
@@ -78,17 +79,17 @@ class TestQuestionNeoModel(TestCase):
         self.question.solutions.connect(solution)
         self.question.solutions.connect(solution2)
         authors = self.question.get_conversation_authors()
-        self.assertEqual("%s %s, %s %s" % (
-            self.pleb.first_name, self.pleb.last_name,
-            pleb.first_name, pleb.last_name), authors)
+        self.assertIn(self.pleb.first_name, authors)
+        self.assertIn(self.pleb.last_name, authors)
+        self.assertIn(pleb.first_name, authors)
+        self.assertIn(pleb.last_name, authors)
+        self.assertEqual(authors.count(','), 1)
 
     def test_three_solutions_different_authors(self):
-        email = "failure@simulator.amazonses.com"
-        email2 = "fake@simulator.amazonses.com"
-        create_user_util_test(email)
-        create_user_util_test(email2)
-        pleb = Pleb.nodes.get(email=email)
-        pleb2 = Pleb.nodes.get(email=email2)
+        pleb = Pleb(email=str(uuid1()), first_name="test",
+                    last_name="test", username=str(uuid1())).save()
+        pleb2 = Pleb(email=str(uuid1()), first_name="test",
+                     last_name="test", username=str(uuid1())).save()
         solution = Solution(content=uuid1(),
                             owner_username=self.pleb.username).save()
         solution2 = Solution(content=uuid1(),
@@ -102,7 +103,10 @@ class TestQuestionNeoModel(TestCase):
         self.question.solutions.connect(solution2)
         self.question.solutions.connect(solution3)
         authors = self.question.get_conversation_authors()
-        self.assertEqual("%s %s, %s %s, %s %s" % (
-            self.pleb.first_name, self.pleb.last_name,
-            pleb.first_name, pleb.last_name, pleb2.first_name,
-            pleb2.last_name), authors)
+        self.assertIn(self.pleb.first_name, authors)
+        self.assertIn(self.pleb.last_name, authors)
+        self.assertIn(pleb.first_name, authors)
+        self.assertIn(pleb.last_name, authors)
+        self.assertIn(pleb2.first_name, authors)
+        self.assertIn(pleb2.last_name, authors)
+        self.assertEqual(authors.count(','), 2)

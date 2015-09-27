@@ -297,6 +297,7 @@ class PostsEndpointTests(APITestCase):
             url, data={"content": "This is a test post reddit.com",
                        "included_urls": ["http://reddit.com"]}, format='json')
         self.assertTrue(post.url_content.is_connected(url_content))
+        url_content.delete()
 
     def test_update_html(self):
         self.client.force_authenticate(user=self.user)
@@ -308,6 +309,7 @@ class PostsEndpointTests(APITestCase):
             url, data={"content": "This is a test post reddit.com",
                        "included_urls": ["http://reddit.com"]}, format='json')
         self.assertTrue(post.url_content.is_connected(url_content))
+        url_content.delete()
 
 
 class WallPostListCreateTest(APITestCase):

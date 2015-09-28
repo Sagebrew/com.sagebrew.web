@@ -2,8 +2,8 @@ import requests_mock
 from uuid import uuid1
 
 from django.test import TestCase
-from django.conf import settings
 from django.contrib.auth.models import User
+from django.conf import settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -38,7 +38,7 @@ class TestManagePrivilegeRelation(APITestCase):
                                url="/v1/comments/").save()
         self.privilege.actions.connect(self.action)
         self.action.privilege.connect(self.privilege)
-        self.test_url = "https://sagebrew.local.dev"
+        self.test_url = settings.WEB_ADDRESS
         self.privilege.requirements.connect(self.requirement)
 
     def test_pleb_does_not_exist(self):

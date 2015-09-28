@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, include, url
+from django.views.generic.base import RedirectView
 from .views import related_articles, help_area
 '''
 content_path is used in sync with the ssi tag in help_page.html to include
@@ -19,6 +20,12 @@ urlpatterns = patterns(
     (r'^conversation/', include('help_center.sub_urls.conversation')),
     (r'^privileges/', include('help_center.sub_urls.privileges')),
     (r'^donating/', include('help_center.sub_urls.donations')),
+    url(r'^quests/quest/$', RedirectView.as_view(
+        url='/help/quest/quest/', permanent=True),
+        name='quest_redirect'),
+    url(r'^quests/funding_not_in_account/$', RedirectView.as_view(
+        url='/help/quest/funding-not-in-account/', permanent=True),
+        name='funding_not_in_account_direct_redirect'),
     (r'^quest/', include('help_center.sub_urls.quest')),
     (r'^reputation/', include(
         'help_center.sub_urls.reputation_and_moderation')),

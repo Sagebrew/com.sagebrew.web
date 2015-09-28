@@ -67,6 +67,9 @@ urlpatterns = patterns(
             "static_files": True,
         },
         name="why_are_solutions_removed"),
+    url(r'^good_solution/$', RedirectView.as_view(
+        url='/help/solutions/formatting/', permanent=True),
+        name='good_solution_redirect'),
     url(r'^solution_to_own_question/$', RedirectView.as_view(
         url='/help/solutions/solution-to-own-question/', permanent=True),
         name='solution_to_own_question_redirect'),

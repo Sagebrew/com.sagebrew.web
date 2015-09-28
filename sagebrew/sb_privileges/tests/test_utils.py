@@ -18,6 +18,12 @@ from sb_requirements.neo_models import Requirement
 
 class TestManagePrivilegeRelation(APITestCase):
     def setUp(self):
+        for privilege in Privilege.nodes.all():
+            for req in privilege.requirements.all():
+                req.delete()
+            for action in privilege.actions.all():
+                action.delete()
+            privilege.delete()
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
         res = create_user_util_test(self.email)

@@ -23,6 +23,9 @@ urlpatterns = patterns(
     url(r'^quests/quest/$', RedirectView.as_view(
         url='/help/quest/quest/', permanent=True),
         name='quest_redirect'),
+    url(r'^quests/funding_not_in_account/$', RedirectView.as_view(
+        url='/help/quest/funding-not-in-account/', permanent=True),
+        name='funding_not_in_account_direct_redirect'),
     (r'^quest/', include('help_center.sub_urls.quest')),
     (r'^reputation/', include(
         'help_center.sub_urls.reputation_and_moderation')),

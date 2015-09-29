@@ -10,6 +10,9 @@ from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import Question
+from sb_solutions.neo_models import Solution
+from sb_posts.neo_models import Post
+from sb_comments.neo_models import Comment
 from sb_registration.utils import create_user_util_test
 from sb_flags.neo_models import Flag
 
@@ -118,6 +121,45 @@ class CouncilEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list_with_object(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('council-list')
+
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_list_with_solution(self):
+        flag = Flag().save()
+        solution = Solution(owner_username=self.pleb.username,
+                            content=str(uuid1())).save()
+        solution.flags.connect(flag)
+        solution.owned_by.connect(self.pleb)
+        self.pleb.solutions.connect(solution)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('council-list')
+
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_list_with_post(self):
+        flag = Flag().save()
+        solution = Post(owner_username=self.pleb.username,
+                        content=str(uuid1())).save()
+        solution.flags.connect(flag)
+        solution.owned_by.connect(self.pleb)
+        self.pleb.solutions.connect(solution)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('council-list')
+
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_list_with_comment(self):
+        flag = Flag().save()
+        solution = Comment(owner_username=self.pleb.username,
+                           content=str(uuid1())).save()
+        solution.flags.connect(flag)
+        solution.owned_by.connect(self.pleb)
+        self.pleb.solutions.connect(solution)
         self.client.force_authenticate(user=self.user)
         url = reverse('council-list')
 

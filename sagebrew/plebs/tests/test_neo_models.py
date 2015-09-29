@@ -86,8 +86,7 @@ class TestPleb(TestCase):
         donation = Donation().save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
-        self.assertEqual(self.pleb.get_sagebrew_donations(),
-                         [donation.object_uuid])
+        self.assertTrue(self.pleb.get_sagebrew_donations())
 
 
 class TestAddress(TestCase):

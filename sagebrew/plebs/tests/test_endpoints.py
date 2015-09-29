@@ -267,6 +267,8 @@ class MeEndpointTests(APITestCase):
         self.assertTrue(res.data['sagebrew_donations'], [donation.object_uuid])
 
     def test_donations_with_only_sagebrew_donation(self):
+        for donation in Donation.nodes.all():
+            donation.delete()
         donation = Donation().save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
@@ -275,6 +277,7 @@ class MeEndpointTests(APITestCase):
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertFalse(res.data['results'])
+        donation.delete()
 
 
 class SentFriendRequestEndpointTests(APITestCase):

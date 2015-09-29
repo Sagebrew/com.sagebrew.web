@@ -642,9 +642,13 @@ class Address(SBObject):
                     '(l2:Location {name:"%s"}) RETURN l1' % \
                     (self.city, self.state)
             res, _ = db.cypher_query(query)
-            encompassed_by = Location.inflate(res.one)
-        self.encompassed_by.connect(encompassed_by)
-        encompassed_by.addresses.connect(self)
+            if res.one is not None:
+                encompassed_by = Location.inflate(res.one)
+            else:
+                encompassed_by = None
+        if encompassed_by is not None:
+            self.encompassed_by.connect(encompassed_by)
+            encompassed_by.addresses.connect(self)
         return self
 
 

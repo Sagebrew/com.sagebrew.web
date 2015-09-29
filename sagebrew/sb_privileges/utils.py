@@ -68,11 +68,13 @@ def manage_privilege_relation(username):
         elif not meets_reqs:
             continue
         elif meets_reqs:
-            rel = pleb.privileges.connect(privilege)
-            rel.save()
-            for action in privilege.actions.all():
-                rel = pleb.actions.connect(action)
+            if privilege not in pleb.privileges:
+                rel = pleb.privileges.connect(privilege)
                 rel.save()
+            for action in privilege.actions.all():
+                if action not in pleb.actions:
+                    rel = pleb.actions.connect(action)
+                    rel.save()
         # Adding short sleep so we don't DDoS ourselves
         # Because of this, this fxn should only ever be called from an async
         # task

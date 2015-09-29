@@ -177,6 +177,7 @@ class PlebSerializerNeo(SBSerializer):
     # show up in the list. @Tyler what do you think?
     privileges = serializers.SerializerMethodField()
     donations = serializers.SerializerMethodField()
+    sagebrew_donations = serializers.SerializerMethodField()
     actions = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
     campaign = serializers.SerializerMethodField()
@@ -232,6 +233,9 @@ class PlebSerializerNeo(SBSerializer):
 
     def get_donations(self, obj):
         return obj.get_donations()
+
+    def get_sagebrew_donations(self, obj):
+        return obj.get_sagebrew_donations()
 
     def get_campaign(self, obj):
         return obj.get_campaign()

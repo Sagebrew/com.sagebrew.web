@@ -78,6 +78,15 @@
     <div class="row">
         <div class="col-md-2 hidden-xs hidden-sm col-lg-offset-1">
             {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
+            {% elif request.user.is_anonymous %}
+                <div><small>
+                    <span class="sb_comment_disabled" data-toggle="tooltip"
+                          data-placement="top"
+                          data-title="Signup to Comment!"
+                          id="post_comment_on_{{ object_uuid }}">
+                        comment
+                    </span>
+                </small></div>
             {% else %}
                 <div><small>
                     <span class="sb_comment_disabled" data-toggle="tooltip"

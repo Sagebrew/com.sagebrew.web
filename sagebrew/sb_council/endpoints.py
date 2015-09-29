@@ -104,8 +104,10 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
         html = request.query_params.get('html', 'false').lower()
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
-        [row[0].pull() for row in page]
         for row in page:
+            if row[0] is not None:
+                row[0].pull()  # fix for None objects being returned
+                # from the query due to multiple column returns
             council_object = None
             if row.questions is not None:
                 council_object = QuestionSerializerNeo(

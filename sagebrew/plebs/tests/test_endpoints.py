@@ -266,6 +266,16 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertTrue(res.data['sagebrew_donations'], [donation.object_uuid])
 
+    def test_donations_with_only_sagebrew_donation(self):
+        donation = Donation().save()
+        self.pleb.donations.connect(donation)
+        donation.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-donations')
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertFalse(res.data['results'])
+
 
 class SentFriendRequestEndpointTests(APITestCase):
     def setUp(self):

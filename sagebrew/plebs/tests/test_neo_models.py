@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from neomodel import DoesNotExist, MultipleNodesReturned, db
 
 from sb_comments.neo_models import Comment
+from sb_donations.neo_models import Donation
 from sb_questions.neo_models import Question
 from sb_locations.neo_models import Location
 from sb_registration.utils import create_user_util_test
@@ -74,6 +75,19 @@ class TestPleb(TestCase):
 
     def test_get_friends(self):
         self.assertIsNotNone(self.pleb.get_friends())
+
+    def test_get_donations(self):
+        donation = Donation().save()
+        self.pleb.donations.connect(donation)
+        donation.owned_by.connect(self.pleb)
+        self.assertFalse(self.pleb.get_donations())
+
+    def test_get_sagebrew_donations(self):
+        donation = Donation().save()
+        self.pleb.donations.connect(donation)
+        donation.owned_by.connect(self.pleb)
+        self.assertEqual(self.pleb.get_sagebrew_donations(),
+                         [donation.object_uuid])
 
 
 class TestAddress(TestCase):

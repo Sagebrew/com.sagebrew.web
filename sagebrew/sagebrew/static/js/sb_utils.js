@@ -532,6 +532,9 @@ function editObject(editArea, url, objectUuid, dataArea) {
             } else {
                 finalURLs = [];
             }
+            if ($("[data-lightbox=" + objectUuid + "]") && url.indexOf("?html=") < 0) {
+                url += "?html=true";
+            }
             $(editButton).attr("disabled", "disabled");
             $.ajax({
                 xhrFields: {withCredentials: true},
@@ -550,14 +553,14 @@ function editObject(editArea, url, objectUuid, dataArea) {
                     if (data.urlcontent_html) {
                         contentContainer.append(data.urlcontent_html);
                     }
-                    if (data.uploaded_obects) {
-                        if (data.uploaded_objects.length > 0) {
-                            contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
-                            var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
-                            $.each(data.uploaded_objects, function(index, value){
-                                uploadContainer.append(value.html);
-                            });
-                        }
+                    console.log(data.uploaded_objects);
+                    if ("uploaded_objects" in data) {
+                        contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
+                        var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
+                        $.each(data.uploaded_objects, function(index, value){
+                            console.log(value);
+                            uploadContainer.append(value.html);
+                        });
                     }
                     $("#edit_container_" + objectUuid).hide();
                     contentContainer.show();

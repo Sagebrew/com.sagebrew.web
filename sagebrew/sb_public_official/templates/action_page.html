@@ -4,7 +4,13 @@
     {{ block.super }}
     <link href="{% static 'css/vendor/croppic.css' %}" rel="stylesheet" type="text/css"/>
 {% endblock css %}
-{% block title %}{{ first_name }} {{ last_name }}'s Quest{% endblock title %}
+{% block title %}
+    {% if "updates" not in request.path %}
+        {{ first_name }} {{ last_name }}'s Quest
+    {% elif "updates" in request.path %}
+        {{ first_name }} {{ last_name }}'s Quest Updates
+    {% endif %}
+{% endblock title %}
 {% block description %}
     <meta name="description" content="{{ description }}">
 {% endblock description %}

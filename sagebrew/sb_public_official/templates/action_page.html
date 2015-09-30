@@ -12,7 +12,12 @@
     {% endif %}
 {% endblock title %}
 {% block description %}
-    <meta name="description" content="{{ description }}">
+    {% if "updates" not in request.path %}
+        <meta name="description" content="{{ description }}">
+    {% elif "updates" in request.path %}
+        <meta name="description" content="Find all the latest updates on
+        events, campaign information, and more from {{ first_name }} {{ last_name }}'s Quest.">
+    {% endif %}
 {% endblock description %}
 {% block keywords %}
     {% if keywords %}

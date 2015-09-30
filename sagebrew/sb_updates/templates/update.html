@@ -26,7 +26,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-5 col-sm-3">
+        <div class="col-xs-5 col-sm-3 sb-update-timing">
             {% if created != last_edited_on %}
                 <small><i class="fa fa-calendar"></i> {{ last_edited_on|naturaltime }} · Edited</small>
             {% else %}
@@ -38,7 +38,7 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-xs-11 sb_post_wrapper">
+        <div class="col-xs-12 sb-update-wrapper">
             <div class="sb_question_body" id="sb_question_{{ object_uuid }}">
                 <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
                     {% autoescape off %}

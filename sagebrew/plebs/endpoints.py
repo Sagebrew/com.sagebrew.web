@@ -353,7 +353,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
                     '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
-                    '->(c:Campaign) WHERE c.active=true RETURN c LIMIT 5' % \
+                    '->(c:Campaign) WHERE c.active=true AND o.level="federal"' \
+                    ' RETURN c LIMIT 5' % \
                     username
             res, _ = db.cypher_query(query)
             possible_reps = [PoliticalCampaign.inflate(row[0]) for row in res]
@@ -378,9 +379,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def possible_local_representatives(self, request, username=None):
         query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                 '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
-                '[:ENCOMPASSES]->(local:Location)-' \
                 '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
-                '->(c:Campaign) WHERE c.active=true RETURN c LIMIT 5' % \
+                '->(c:Campaign) WHERE c.active=true AND NOT o.level="federal"' \
+                ' RETURN c LIMIT 5' % \
                 username
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
@@ -689,7 +690,8 @@ class MeViewSet(mixins.UpdateModelMixin,
                 permission_classes=(IsAuthenticated,))
     def donations(self, request):
         query = 'MATCH (a:Pleb {username:"%s"})-[:DONATIONS_GIVEN]->' \
-                '(d:Donation) RETURN d' % request.user.username
+                '(d:Donation) WHERE (d)-[:DONATED_TO]->(:Campaign) RETURN d' % \
+                request.user.username
         res, _ = db.cypher_query(query)
         queryset = [Donation.inflate(row[0]) for row in res]
         html = self.request.query_params.get('html', 'false')

@@ -2450,7 +2450,8 @@ class NewsfeedTests(APITestCase):
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
         update = Update(content="This is a new update",
-                        title="This is a title").save()
+                        title="This is a title",
+                        owner_username=self.pleb.username).save()
         campaign.owned_by.connect(self.pleb)
         update.campaign.connect(campaign)
         campaign.updates.connect(update)
@@ -2477,7 +2478,8 @@ class NewsfeedTests(APITestCase):
             profile_pic=self.pleb.profile_pic).save()
         content = "This is a new update"
         update = Update(content=content,
-                        title="This is a title").save()
+                        title="This is a title",
+                        owner_username=self.pleb.username).save()
         campaign.owned_by.connect(self.pleb)
         update.campaign.connect(campaign)
         campaign.updates.connect(update)
@@ -2503,7 +2505,8 @@ class NewsfeedTests(APITestCase):
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
         update = Update(content="This is a new update",
-                        title="This is a title").save()
+                        title="This is a title",
+                        owner_username=self.pleb.username).save()
         campaign.owned_by.connect(self.pleb)
         update.campaign.connect(campaign)
         campaign.updates.connect(update)
@@ -2530,7 +2533,8 @@ class NewsfeedTests(APITestCase):
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
         update = Update(content="This is a new update",
-                        title="This is a title").save()
+                        title="This is a title",
+                        owner_username=self.pleb.username).save()
         campaign.owned_by.connect(self.pleb)
         update.campaign.connect(campaign)
         campaign.updates.connect(update)
@@ -2545,7 +2549,6 @@ class NewsfeedTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
         response = self.client.get(url, format='json')
-        print response.data
         self.assertTrue('html' in response.data['results'][0])
         self.assertTrue('html' in response.data['results'][1])
 
@@ -2559,7 +2562,8 @@ class NewsfeedTests(APITestCase):
             profile_pic=self.pleb.profile_pic).save()
         title = "This is a title"
         update = Update(content="This is a new update",
-                        title=title).save()
+                        title=title,
+                        owner_username=self.pleb.username).save()
         campaign.owned_by.connect(self.pleb)
         update.campaign.connect(campaign)
         campaign.updates.connect(update)

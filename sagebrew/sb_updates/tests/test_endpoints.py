@@ -169,8 +169,8 @@ class UpdateEndpointsTest(APITestCase):
 
     def test_get_url(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('update-detail',
-                      kwargs={'object_uuid': self.update.object_uuid})
+        url = reverse('quest_updates',
+                      kwargs={'username': self.update.owner_username})
         response = self.client.get(url)
 
         self.assertEqual(response.data['url'], self.url + url)

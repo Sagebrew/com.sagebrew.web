@@ -1,0 +1,55 @@
+{% load humanize %}
+{% load static %}
+<div class="block sb_solution_news block_{{ object_uuid }}">
+    <div class="row">
+        <div class="col-sm-1 hidden-xs">
+            <div class="sb_thumbnail_sm thumbnail">
+                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
+                <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>
+            </div>
+        </div>
+        <div class="col-xs-9" style="margin-top:-6px;  margin-bottom: -10px">
+            <small>
+                <a href="{{ campaign.url }}">{{ profile.first_name }} {{ profile.last_name }}'s Quest</a> proposed a Solution
+            {% if created != last_edited_on %}
+                {{ last_edited_on|naturaltime }} · Edited
+            {% else %}
+                {{ created|naturaltime }}
+            {% endif %}
+            </small>
+        </div>
+        <div class="col-sm-2 hidden-xs" style="margin-top:-6px;  margin-bottom: -10px;">
+            <small>
+               <i class="fa fa-users" style="margin-right: 10px;"></i>Public
+            </small>
+        </div>
+        <div class="col-xs-2 col-xs-offset-1 hidden-sm hidden-md hidden-lg" style="margin-top:-6px;  margin-bottom: -10px;">
+            <small>
+               <i class="fa fa-users"></i>
+            </small>
+        </div>
+        <div class="col-xs-11">
+            <small>
+                <b>Quest</b>  for {{ campaign.position_formal_name }}
+            </small>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-11 col-lg-offset-1">
+            <h4 class="sb-header-update-news">
+                <a href="{{ url }}">{{ title|linebreaksbr }}</a>
+            </h4>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12 col-lg-11 col-lg-offset-1 sb-update-wrapper">
+            <div class="sb_question_body" id="sb_question_{{ object_uuid }}">
+                <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
+                    {% autoescape off %}
+                        {{ html_content }}
+                    {% endautoescape %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

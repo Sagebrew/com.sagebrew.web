@@ -18,7 +18,7 @@ $(document).ready(function () {
                     for (var i = 0; i < data.results.length; i++) {
                         wallContainer.append(Autolinker.link(data.results[i].html));
                         enableContentFunctionality(data.results[i].id, data.results[i].type);
-                        if(data.results[i].type !== "politicalcampaign"){
+                        if(data.results[i].type !== "politicalcampaign" && data.results[i].type !== "update"){
                             populateComments([data.results[i].id], data.results[i].type + "s");
                         }
 

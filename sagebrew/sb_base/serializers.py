@@ -61,7 +61,10 @@ class VotableContentSerializer(SBSerializer):
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
         if obj.href is None:
-            return obj.get_href(request)
+            try:
+                return obj.get_href(request)
+            except AttributeError:
+                return None
         else:
             return obj.href
 

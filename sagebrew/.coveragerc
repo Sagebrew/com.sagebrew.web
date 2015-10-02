@@ -44,6 +44,7 @@ omit =
     */management/commands/create_dynamo_tables.py
     */management/commands/create_privileges.py
     */management/commands/add_url_and_href.py
+    */management/commands/add_cities_from_addresses.py
     */sagebrew/test_runner.py
 
 [report]

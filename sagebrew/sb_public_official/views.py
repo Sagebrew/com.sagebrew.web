@@ -34,7 +34,8 @@ def saga(request, username):
         serializer_data['description'] = "%s %s's Policies, Agenda, " \
                                          "and Platform." % (
             serializer_data['first_name'], serializer_data['last_name'])
-    serializer_data['keywords'] = "Politics, Campaign, Quest, Candidate, " \
+    serializer_data['keywords'] = "Politics, Fundraising, Campaign, Quest," \
+                                  " Candidate, " \
                                   "Representative, %s, %s, %s" % (
         serializer_data['position_formal_name'],
         serializer_data['location_name'], serializer_data['position_name'])
@@ -79,7 +80,8 @@ def updates(request, username):
         campaign, context={'request': request}).data
     serializer_data['description'] = "Updates for %s %s's Quest" % (
         serializer_data['first_name'], serializer_data['last_name'])
-    serializer_data['keywords'] = "Updates, Politics, Campaign, Quest, " \
+    serializer_data['keywords'] = "Updates, Events, Fundraising, Volunteer, " \
+                                  "Politics, Campaign, Quest, " \
                                   "Candidate, Representative, %s, %s, %s" % (
         serializer_data['position_formal_name'],
         serializer_data['location_name'], serializer_data['position_name'])

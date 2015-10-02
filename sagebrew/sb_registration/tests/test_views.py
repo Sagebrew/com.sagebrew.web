@@ -1016,4 +1016,5 @@ class TestProfilePicture(TestCase):
         url = reverse("profile_picture")
         res = self.client.get(url)
 
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn(res.status_code, [status.HTTP_200_OK,
+                                        status.HTTP_302_FOUND])

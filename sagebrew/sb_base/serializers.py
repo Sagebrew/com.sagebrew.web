@@ -31,6 +31,7 @@ class VotableContentSerializer(SBSerializer):
     profile = serializers.SerializerMethodField()
 
     url = serializers.SerializerMethodField()
+    href = serializers.SerializerMethodField()
 
     def get_profile(self, obj):
         request, expand, _, relation, _ = gather_request_data(
@@ -51,11 +52,32 @@ class VotableContentSerializer(SBSerializer):
         return profile_dict
 
     def get_url(self, obj):
+        """
+        url provides a link to the human viewable page that the object appears
+        on. This is for user consumption and templates.
+        """
         request, _, _, _, _ = gather_request_data(self.context)
         if obj.url is None:
-            return obj.get_url(request)
+            try:
+                return obj.get_url(request)
+            except AttributeError:
+                return None
         else:
             return obj.url
+
+    def get_href(self, obj):
+        """
+        href provides a link to the objects API detail endpoint. This is for
+        programmatic access.
+        """
+        request, _, _, _, _ = gather_request_data(self.context)
+        if obj.href is None:
+            try:
+                return obj.get_href(request)
+            except AttributeError:
+                return None
+        else:
+            return obj.href
 
     def get_vote_count(self, obj):
         return obj.get_vote_count()

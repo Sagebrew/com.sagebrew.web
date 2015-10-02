@@ -82,6 +82,7 @@ class ObjectCommentsListCreate(ListCreateAPIView):
                 'parent_object_uuid': self.kwargs[self.lookup_field],
                 'object_uuid': instance.object_uuid,
                 'notification_id': notification_id,
+                'comment_on_comment_id': str(uuid1())
             })
             if request.query_params.get('html', 'false').lower() == "true":
                 serializer_data['last_edited_on'] = parser.parse(

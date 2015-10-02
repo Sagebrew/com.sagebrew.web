@@ -29,7 +29,6 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
         sb_object = NotificationCapable.nodes.get(object_uuid=sb_object)
     except (CypherException, IOError) as e:
         return e
-
     try:
         try:
             notification = Notification.nodes.get(

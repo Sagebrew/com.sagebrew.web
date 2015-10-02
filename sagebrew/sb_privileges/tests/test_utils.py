@@ -42,8 +42,10 @@ class TestManagePrivilegeRelation(APITestCase):
                                        condition=30).save()
         self.action = SBAction(resource=str(uuid1()),
                                url="/v1/comments/").save()
-        self.privilege.actions.connect(self.action)
-        self.action.privilege.connect(self.privilege)
+        if self.action not in self.privilege.actions:
+            self.privilege.actions.connect(self.action)
+        if self.privilege not in self.action.privilege:
+            self.action.privilege.connect(self.privilege)
         self.test_url = settings.WEB_ADDRESS
         self.privilege.requirements.connect(self.requirement)
 

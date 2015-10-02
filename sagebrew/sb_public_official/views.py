@@ -80,7 +80,7 @@ def updates(request, username):
         campaign, context={'request': request}).data
     serializer_data['description'] = "Updates for %s %s's Quest" % (
         serializer_data['first_name'], serializer_data['last_name'])
-    serializer_data['keywords'] = "Updates, Events, Fundraising, Volunteer," \
+    serializer_data['keywords'] = "Updates, Events, Fundraising, Volunteer, " \
                                   "Politics, Campaign, Quest, " \
                                   "Candidate, Representative, %s, %s, %s" % (
         serializer_data['position_formal_name'],

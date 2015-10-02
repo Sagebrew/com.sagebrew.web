@@ -142,11 +142,11 @@ class CouncilEndpointTests(APITestCase):
 
     def test_list_with_post(self):
         flag = Flag().save()
-        solution = Post(owner_username=self.pleb.username,
-                        content=str(uuid1())).save()
-        solution.flags.connect(flag)
-        solution.owned_by.connect(self.pleb)
-        self.pleb.solutions.connect(solution)
+        post = Post(owner_username=self.pleb.username,
+                    content=str(uuid1())).save()
+        post.flags.connect(flag)
+        post.owned_by.connect(self.pleb)
+        self.pleb.posts.connect(post)
         self.client.force_authenticate(user=self.user)
         url = reverse('council-list')
 
@@ -155,11 +155,11 @@ class CouncilEndpointTests(APITestCase):
 
     def test_list_with_comment(self):
         flag = Flag().save()
-        solution = Comment(owner_username=self.pleb.username,
+        comment = Comment(owner_username=self.pleb.username,
                            content=str(uuid1())).save()
-        solution.flags.connect(flag)
-        solution.owned_by.connect(self.pleb)
-        self.pleb.solutions.connect(solution)
+        comment.flags.connect(flag)
+        comment.owned_by.connect(self.pleb)
+        self.pleb.comments.connect(comment)
         self.client.force_authenticate(user=self.user)
         url = reverse('council-list')
 

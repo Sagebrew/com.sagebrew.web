@@ -48,6 +48,6 @@ def spawn_comment_notifications(object_uuid, parent_object_uuid,
             'notification_id': comment_on_comment_id,
             'url': comment_data['url'],
             'action_name':
-                "also commented on a %s you commented on!" % parent_object_type
+                "commented on a %s you commented on" % parent_object_type
         })
     return True

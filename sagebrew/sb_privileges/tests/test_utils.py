@@ -47,7 +47,8 @@ class TestManagePrivilegeRelation(APITestCase):
         if self.privilege not in self.action.privilege:
             self.action.privilege.connect(self.privilege)
         self.test_url = settings.WEB_ADDRESS
-        self.privilege.requirements.connect(self.requirement)
+        if self.requirement not in self.privilege.requirements:
+            self.privilege.requirements.connect(self.requirement)
 
     def test_pleb_does_not_exist(self):
         response = manage_privilege_relation(username=str(uuid1()))

@@ -58,7 +58,10 @@ class VotableContentSerializer(SBSerializer):
         """
         request, _, _, _, _ = gather_request_data(self.context)
         if obj.url is None:
-            return obj.get_url(request)
+            try:
+                return obj.get_url(request)
+            except AttributeError:
+                return None
         else:
             return obj.url
 

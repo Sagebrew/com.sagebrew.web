@@ -68,3 +68,12 @@ class UpdateSerializer(TitledContentSerializer):
         return reverse('quest_updates',
                        kwargs={'username': obj.owner_username},
                        request=request)
+
+    def get_href(self, obj):
+        request, _, _, _, _ = gather_request_data(
+            self.context,
+            expedite_param=self.context.get('expedite_param', None),
+            expand_param=self.context.get('expand_param', None))
+        return reverse(
+            'update-detail', kwargs={'object_uuid': obj.object_uuid},
+            request=request)

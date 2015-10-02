@@ -9,7 +9,7 @@ from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-
+from sb_campaigns.neo_models import PoliticalCampaign
 from sb_updates.neo_models import Update
 
 
@@ -22,9 +22,21 @@ class UpdateEndpointsTest(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
+        self.campaign = PoliticalCampaign(
+            active=True, biography="Hey there this is my campaign. "
+                                   "Feel free to drop me a line!",
+            facebook="dbleibtrey", youtube="devonbleibtrey",
+            website="www.sagebrew.com", owner_username=self.pleb.username,
+            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
+            profile_pic=self.pleb.profile_pic).save()
         self.update = Update(title="Test Title", content="Test Content",
                              html_content="HTML Content",
                              owner_username=self.pleb.username).save()
+        self.campaign.owned_by.connect(self.pleb)
+        self.update.campaign.connect(self.campaign)
+        self.campaign.updates.connect(self.update)
+        self.pleb.campaign.connect(self.campaign)
+
         self.update.owned_by.connect(self.pleb)
 
     def test_unauthorized(self):
@@ -169,11 +181,12 @@ class UpdateEndpointsTest(APITestCase):
 
     def test_get_url(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('quest_updates',
-                      kwargs={'username': self.update.owner_username})
+        url = reverse('update-detail',
+                      kwargs={'object_uuid': self.update.object_uuid})
         response = self.client.get(url)
 
-        self.assertEqual(response.data['url'], self.url + url)
+        self.assertEqual(response.data['url'], self.url +
+                         "/quests/%s/updates/" % self.pleb.username)
 
     def test_get_last_edited_on(self):
         self.client.force_authenticate(user=self.user)
@@ -222,7 +235,7 @@ class UpdateEndpointsTest(APITestCase):
                       kwargs={'object_uuid': self.update.object_uuid})
         response = self.client.get(url)
 
-        self.assertIsNone(response.data['campaign'])
+        self.assertEqual(response.data['campaign'], self.campaign.object_uuid)
 
     def test_put(self):
         self.client.force_authenticate(user=self.user)

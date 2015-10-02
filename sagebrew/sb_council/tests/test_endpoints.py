@@ -156,7 +156,7 @@ class CouncilEndpointTests(APITestCase):
     def test_list_with_comment(self):
         flag = Flag().save()
         comment = Comment(owner_username=self.pleb.username,
-                           content=str(uuid1())).save()
+                          content=str(uuid1())).save()
         comment.flags.connect(flag)
         comment.owned_by.connect(self.pleb)
         self.pleb.comments.connect(comment)

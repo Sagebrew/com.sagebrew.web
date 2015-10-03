@@ -78,10 +78,11 @@
                 <img class="sb-profile-not-friend-element-image" src="{% static "images/cloud_green.ai.png" %}">
             </div>
             <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
-                <button class="btn btn-primary sb_btn"
-                        data-from_username="{{ request.user.username }}"
-                        data-to_username="{{ page_user.username }}">Follow User
+                <button class="btn btn-primary sb_btn disabled sb_restricted">Follow User
                 </button>
+            </div>
+            <div class="sb_coming_soon">
+                <h3>Coming Soon!</h3>
             </div>
         </div>
     </div>

@@ -2073,6 +2073,8 @@ textarea.sb_comment_input{
   border-radius: 5px 5px 5px 5px;
   padding: @sb_common_padding_positive @sb_common_padding_positive @sb_common_padding_positive;
   margin-top: 15px;
+  overflow: hidden;
+  position: relative;
 }
 
 .sb-profile-not-friend-header{
@@ -2089,4 +2091,26 @@ textarea.sb_comment_input{
   width: 80%;
   height: 80%;
   margin-bottom: 15px;
+}
+
+.sb_coming_soon{
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  height: 100%;
+  width: 100%;
+  background-color: @sb_grey;
+  opacity: 0.75;
+  border-radius: 5px;
+  h3{
+    margin-top: 50%;
+    vertical-align: middle;
+    line-height: normal;
+    text-align: center;
+    color: #000000;
+    opacity: 1;
+    z-index: 101;
+  }
 }

@@ -65,9 +65,15 @@
                 <img class="sb-profile-not-friend-element-image" src="{% static "images/quest_logo_flat_color.png" %}">
             </div>
             <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
-                <form action="{% url "quest_saga" page_profile.campaign %}">
-                    <input class="btn btn-primary sb_btn" type="submit" value="View Quest">
-                </form>
+                {% if page_profile.campaign %}
+                    <form action="{% url "quest_saga" page_profile.campaign %}">
+                        <input class="btn btn-primary sb_btn" type="submit" value="View Quest">
+                    </form>
+                {% else %}
+                    <form action="">
+                        <input class="btn btn-primary sb_btn disabled sb_restricted" type="submit" value="View Quest">
+                    </form>
+                {% endif %}
             </div>
             {% if not page_profile.campaign %}
                 <div class="sb_coming_soon">

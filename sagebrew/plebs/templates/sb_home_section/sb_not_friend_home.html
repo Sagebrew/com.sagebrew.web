@@ -69,6 +69,11 @@
                     <input class="btn btn-primary sb_btn" type="submit" value="View Quest">
                 </form>
             </div>
+            {% if not page_profile.campaign %}
+                <div class="sb_coming_soon">
+                    <h3>This user has not embarked on their Quest yet!</h3>
+                </div>
+            {% endif %}
         </div>
     </div>
     <div class="col-xs-4">

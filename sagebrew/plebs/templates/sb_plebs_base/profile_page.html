@@ -55,6 +55,8 @@
             {% block midsection %}
                 {% include "sb_home_section/sb_home.html" %}
             {%  endblock %}
+        {% elif not is_friend %}
+            {% include "sb_home_section/sb_not_friend_home.html" %}
         {% endif %}
     </div>
     {% include "flag_modal.html" %}

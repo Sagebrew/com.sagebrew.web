@@ -21,6 +21,7 @@ from sb_public_official.neo_models import PublicOfficial
 from plebs.neo_models import Pleb, FriendRequest, Address, BetaUser
 from sb_privileges.neo_models import Privilege, SBAction
 from sb_campaigns.neo_models import Position, PoliticalCampaign
+from sb_updates.neo_models import Update
 from sb_locations.neo_models import Location
 from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
@@ -2321,6 +2322,10 @@ class NewsfeedTests(APITestCase):
                          self.pleb.username)
 
     def test_get_campaigns(self):
+        for update in Update.nodes.all():
+            update.delete()
+        for quest in PoliticalCampaign.nodes.all():
+            quest.delete()
         campaign = PoliticalCampaign(
             active=True, biography="Hey there this is my campaign. "
                                    "Feel free to drop me a line!",
@@ -2431,6 +2436,149 @@ class NewsfeedTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['owner_username'],
                          self.pleb.username)
+
+    def test_get_campaign_updates(self):
+        for update in Update.nodes.all():
+            update.delete()
+        for quest in PoliticalCampaign.nodes.all():
+            quest.delete()
+        campaign = PoliticalCampaign(
+            active=True, biography="Hey there this is my campaign. "
+                                   "Feel free to drop me a line!",
+            facebook="dbleibtrey", youtube="devonbleibtrey",
+            website="www.sagebrew.com", owner_username=self.pleb.username,
+            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
+            profile_pic=self.pleb.profile_pic).save()
+        update = Update(content="This is a new update",
+                        title="This is a title",
+                        owner_username=self.pleb.username).save()
+        campaign.owned_by.connect(self.pleb)
+        update.campaign.connect(campaign)
+        campaign.updates.connect(update)
+        self.pleb.campaign.connect(campaign)
+        usa = Location(name="United States of America").save()
+        pres = Position(name="President").save()
+        usa.positions.connect(pres)
+        pres.location.connect(usa)
+        campaign.position.connect(pres)
+        pres.campaigns.connect(campaign)
+        self.address.encompassed_by.connect(usa)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 2)
+
+    def test_get_campaign_update_content(self):
+        campaign = PoliticalCampaign(
+            active=True, biography="Hey there this is my campaign. "
+                                   "Feel free to drop me a line!",
+            facebook="dbleibtrey", youtube="devonbleibtrey",
+            website="www.sagebrew.com", owner_username=self.pleb.username,
+            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
+            profile_pic=self.pleb.profile_pic).save()
+        content = "This is a new update"
+        update = Update(content=content,
+                        title="This is a title",
+                        owner_username=self.pleb.username).save()
+        campaign.owned_by.connect(self.pleb)
+        update.campaign.connect(campaign)
+        campaign.updates.connect(update)
+        self.pleb.campaign.connect(campaign)
+        usa = Location(name="United States of America").save()
+        pres = Position(name="President").save()
+        usa.positions.connect(pres)
+        pres.location.connect(usa)
+        campaign.position.connect(pres)
+        pres.campaigns.connect(campaign)
+        self.address.encompassed_by.connect(usa)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['content'], content)
+
+    def test_get_campaign_updates_rendered(self):
+        campaign = PoliticalCampaign(
+            active=True, biography="Hey there this is my campaign. "
+                                   "Feel free to drop me a line!",
+            facebook="dbleibtrey", youtube="devonbleibtrey",
+            website="www.sagebrew.com", owner_username=self.pleb.username,
+            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
+            profile_pic=self.pleb.profile_pic).save()
+        update = Update(content="This is a new update",
+                        title="This is a title",
+                        owner_username=self.pleb.username).save()
+        campaign.owned_by.connect(self.pleb)
+        update.campaign.connect(campaign)
+        campaign.updates.connect(update)
+        self.pleb.campaign.connect(campaign)
+        usa = Location(name="United States of America").save()
+        pres = Position(name="President").save()
+        usa.positions.connect(pres)
+        pres.location.connect(usa)
+        campaign.position.connect(pres)
+        pres.campaigns.connect(campaign)
+        self.address.encompassed_by.connect(usa)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertTrue('html' in response.data['results'][0])
+        self.assertTrue('html' in response.data['results'][1])
+
+    def test_get_campaign_updates_rendered_expedite(self):
+        campaign = PoliticalCampaign(
+            active=True, biography="Hey there this is my campaign. "
+                                   "Feel free to drop me a line!",
+            facebook="dbleibtrey", youtube="devonbleibtrey",
+            website="www.sagebrew.com", owner_username=self.pleb.username,
+            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
+            profile_pic=self.pleb.profile_pic).save()
+        update = Update(content="This is a new update",
+                        title="This is a title",
+                        owner_username=self.pleb.username).save()
+        campaign.owned_by.connect(self.pleb)
+        update.campaign.connect(campaign)
+        campaign.updates.connect(update)
+        self.pleb.campaign.connect(campaign)
+        usa = Location(name="United States of America").save()
+        pres = Position(name="President").save()
+        usa.positions.connect(pres)
+        pres.location.connect(usa)
+        campaign.position.connect(pres)
+        pres.campaigns.connect(campaign)
+        self.address.encompassed_by.connect(usa)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertTrue('html' in response.data['results'][0])
+        self.assertTrue('html' in response.data['results'][1])
+
+    def test_get_update_title(self):
+        campaign = PoliticalCampaign(
+            active=True, biography="Hey there this is my campaign. "
+                                   "Feel free to drop me a line!",
+            facebook="dbleibtrey", youtube="devonbleibtrey",
+            website="www.sagebrew.com", owner_username=self.pleb.username,
+            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
+            profile_pic=self.pleb.profile_pic).save()
+        title = "This is a title"
+        update = Update(content="This is a new update",
+                        title=title,
+                        owner_username=self.pleb.username).save()
+        campaign.owned_by.connect(self.pleb)
+        update.campaign.connect(campaign)
+        campaign.updates.connect(update)
+        self.pleb.campaign.connect(campaign)
+        usa = Location(name="United States of America").save()
+        pres = Position(name="President").save()
+        usa.positions.connect(pres)
+        pres.location.connect(usa)
+        campaign.position.connect(pres)
+        pres.campaigns.connect(campaign)
+        self.address.encompassed_by.connect(usa)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['title'], title)
 
     def test_get_question_content(self):
         content = "This is the content for my question."

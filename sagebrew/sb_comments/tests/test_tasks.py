@@ -5,12 +5,9 @@ from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from neomodel import DoesNotExist
-
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
-from sb_notifications.neo_models import Notification
 
 from sb_comments.neo_models import Comment
 from sb_comments.tasks import spawn_comment_notifications

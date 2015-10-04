@@ -1,3 +1,5 @@
+from uuid import uuid1
+
 from api.utils import spawn_task
 from sb_docstore.utils import get_vote, add_object_to_table, update_vote
 
@@ -34,7 +36,7 @@ def determine_vote_type(object_uuid, username):
 
 
 def handle_vote(parent_object_uuid, status, username, now):
-    from sb_votes.tasks import object_vote_notifications
+    from sb_votes.tasks import (object_vote_notifications, create_vote_node)
     vote_data = {
         "parent_object": parent_object_uuid,
         "user": username,
@@ -61,5 +63,12 @@ def handle_vote(parent_object_uuid, status, username, now):
                    "previous_vote_type": previous_vote,
                    "new_vote_type": new_vote,
                    "voting_pleb": username
+               })
+    spawn_task(task_func=create_vote_node,
+               task_param={
+                   "node_id": str(uuid1()),
+                   "vote_type": new_vote,
+                   "voter": username,
+                   "parent_object": parent_object_uuid
                })
     return True

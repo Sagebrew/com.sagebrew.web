@@ -13,6 +13,8 @@ from sb_base.neo_models import (get_parent_votable_content,
                                 get_parent_titled_content)
 from sb_notifications.tasks import spawn_notifications
 
+from .neo_models import Vote
+
 
 @shared_task()
 def vote_object_task(vote_type, current_pleb, object_uuid):
@@ -103,4 +105,36 @@ def object_vote_notifications(object_uuid, previous_vote_type, new_vote_type,
         if isinstance(res, Exception):
             raise object_vote_notifications.retry(exc=res, countdown=10,
                                                   max_retries=None)
+    return True
+
+
+@shared_task()
+def create_vote_node(node_id, vote_type, voter, parent_object):
+    '''
+    Creates a vote node that we can use to track reputation changes over time
+    for users.
+    This node is hooked up to the object that has been voted on and the
+    user that voted. The node is created every time someone votes and does not
+    get updated when someone changes their vote, it just makes a new one, this
+    may not be the final functionality but this is the current implementation.
+
+    :param node_id:
+    :param vote_type:
+    :param voter:
+    :param parent_object:
+    :return:
+    '''
+    sb_object = get_parent_votable_content(parent_object)
+    try:
+        current_pleb = Pleb.get(username=voter)
+    except (DoesNotExist, Pleb.DoesNoteExist, CypherException, ClientError,
+            IOError) as e:
+        raise object_vote_notifications.retry(exc=e, countdown=10,
+                                              max_retries=None)
+    try:
+        vote_node = Vote.nodes.get(object_uuid=node_id)
+    except (Vote.DoesNotExist, DoesNotExist):
+        vote_node = Vote(vote_type=vote_type, object_uuid=node_id).save()
+    vote_node.vote_on.connect(sb_object)
+    vote_node.owned_by.connect(current_pleb)
     return True

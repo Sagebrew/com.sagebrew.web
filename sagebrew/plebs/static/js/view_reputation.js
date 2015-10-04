@@ -8,7 +8,8 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             data: JSON.stringify({
-                "reputation_update_seen": true
+                "reputation_update_seen": true,
+                "update_time": true
             }),
             success: function (data) {
             }

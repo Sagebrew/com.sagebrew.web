@@ -168,6 +168,7 @@ class Pleb(Searchable):
     initial_verification_email_sent = BooleanProperty(default=False)
     stripe_account = StringProperty()
     stripe_customer_id = StringProperty()
+    last_checked_reputation = DateTimeProperty(default=get_current_time)
 
     # Relationships
     privileges = RelationshipTo('sb_privileges.neo_models.Privilege', 'HAS',
@@ -563,6 +564,21 @@ class Pleb(Searchable):
             except IndexError:
                 official = None
         return official
+
+    def get_reputation_change_over_time(self):
+        date = self.last_checked_reputation
+        query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(' \
+                'b:VotableContent)<-[:VOTE_ON]-(v:Vote)-[:SENT_ON]->' \
+                '(s:Second)<-[:CHILD]-(c:Minute)<-[:CHILD]-(d:Hour)' \
+                '<-[:CHILD]-(e:Day)<-[:CHILD]-(f:Month)<-[:CHILD]-(g:Year) ' \
+                'WHERE b.visibility = "public" AND s.value>%d AND ' \
+                'c.value>=%d AND d.value>=%d AND e.value>=%d AND ' \
+                'f.value>=%d AND g.value>=%d RETURN sum(v.reputation_change)' \
+                % (self.username, date.second, date.minute, date.hour,
+                   date.day, date.month, date.year)
+        res, _ = db.cypher_query(query)
+        return res.one
+
 
     """
     def update_tag_rep(self, base_tags, tags):

@@ -1,4 +1,4 @@
-from neomodel import (BooleanProperty, RelationshipTo)
+from neomodel import (BooleanProperty, IntegerProperty, RelationshipTo)
 
 from api.neo_models import SBObject
 
@@ -21,8 +21,13 @@ class Vote(SBObject):
     # way we can track progression of votes based on changes to the content.
     vote_type = BooleanProperty()
 
+    # optimizations
+    reputation_change = IntegerProperty(default=0)
+    # reputation_change allows us to easily calculate the amount of rep you
+    # have gained or lost from an object over time
+
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'MADE_VOTE')
-    vote_on = RelationshipTo('sb_base.neo_models.SBContent', 'VOTE_ON')
+    vote_on = RelationshipTo('sb_base.neo_models.VotableContent', 'VOTE_ON')
 
     def change_type(self, vote_type):
         self.vote_type = vote_type

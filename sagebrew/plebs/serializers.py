@@ -14,7 +14,7 @@ from neomodel import db
 from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data
 
-from .neo_models import Address, Pleb
+from .neo_models import Address, Pleb, get_current_time
 from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
                     update_address_location)
 
@@ -163,7 +163,9 @@ class PlebSerializerNeo(SBSerializer):
     # determine whether to show a notification about reputation change
     reputation_update_seen = serializers.BooleanField(
         required=False, validators=[ReputationNotificationValidator()])
+    last_checked_reputation = serializers.DateTimeField(read_only=True)
     href = serializers.SerializerMethodField()
+
 
     # These are read only because we force users to use a different endpoint
     # to set them, as it requires us to manipulate the uploaded image
@@ -171,6 +173,7 @@ class PlebSerializerNeo(SBSerializer):
     wallpaper_pic = serializers.CharField(required=False)
 
     reputation = serializers.IntegerField(read_only=True)
+    reputation_change = serializers.SerializerMethodField()
 
     # Don't think we need restrictions as that logic should be done for the
     # front end and privileges/actions that are not allowed to be used shouldn't
@@ -196,12 +199,15 @@ class PlebSerializerNeo(SBSerializer):
         :param validated_data:
         :return:
         """
+        update_time = validated_data.get('update_time', False)
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
         instance.reputation_update_seen = validated_data.get(
             'reputation_update_seen', instance.reputation_update_seen)
+        if update_time:
+            instance.last_checked_reputation = get_current_time()
         instance.save()
         instance.refresh()
         cache.set(instance.username, instance)
@@ -239,6 +245,9 @@ class PlebSerializerNeo(SBSerializer):
 
     def get_campaign(self, obj):
         return obj.get_campaign()
+
+    def get_reputation_change(self, obj):
+        return obj.get_reputation_change_over_time()
 
 
 class AddressSerializer(SBSerializer):

@@ -579,7 +579,6 @@ class Pleb(Searchable):
         res, _ = db.cypher_query(query)
         return res.one
 
-
     """
     def update_tag_rep(self, base_tags, tags):
         from sb_tags.neo_models import Tag

@@ -306,8 +306,10 @@ def update_reputation(username):
 
 @shared_task()
 def calculate_reputation_change(username):
+    # TODO determine if this is needed
     try:
         pleb = Pleb.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         raise update_reputation.retry(exc=e, countdown=3, max_retries=None)
     res = pleb.get_reputation_change_over_time()
+    return res

@@ -166,7 +166,6 @@ class PlebSerializerNeo(SBSerializer):
     last_checked_reputation = serializers.DateTimeField(read_only=True)
     href = serializers.SerializerMethodField()
 
-
     # These are read only because we force users to use a different endpoint
     # to set them, as it requires us to manipulate the uploaded image
     profile_pic = serializers.CharField(required=False)

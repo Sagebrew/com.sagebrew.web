@@ -25,9 +25,7 @@ def spawn_comment_notifications(object_uuid, parent_object_uuid,
                                                 max_retries=None)
     comment_data = CommentSerializer(comment).data
     parent_object_type = parent_object.get_child_label().lower()
-    # have to do this list comprehension to make it into a JSON
-    # serializable object for spawning the task
-    spawn_task(task_func=spawn_notifications, task_param={
+    task_id = spawn_task(task_func=spawn_notifications, task_param={
         'from_pleb': from_pleb,
         'to_plebs': [parent_object.owner_username],
         'sb_object': comment.object_uuid,
@@ -36,12 +34,13 @@ def spawn_comment_notifications(object_uuid, parent_object_uuid,
         'action_name': "%s %s" % (comment.action_name,
                                   parent_object_type)
     })
-    if comment_on_comment_id is not None:
-        to_plebs = [username[0] for username in
-                    parent_object.get_participating_users()]
-        if parent_object.owner_username in to_plebs:
-            to_plebs.remove(parent_object.owner_username)
-        spawn_task(task_func=spawn_notifications, task_param={
+    to_plebs = parent_object.get_participating_users()
+    comment_on_comment_task = None
+    if parent_object.owner_username in to_plebs:
+        to_plebs.remove(parent_object.owner_username)
+    if to_plebs:
+        comment_on_comment_task = spawn_task(task_func=spawn_notifications,
+                                             task_param={
             'from_pleb': from_pleb,
             'to_plebs': to_plebs,
             'sb_object': comment.object_uuid,
@@ -50,4 +49,5 @@ def spawn_comment_notifications(object_uuid, parent_object_uuid,
             'action_name':
                 "commented on a %s you commented on" % parent_object_type
         })
-    return True
+    return {"comment_on_task": task_id,
+            "comment_on_comment_task": comment_on_comment_task}

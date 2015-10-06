@@ -370,7 +370,7 @@ class SBContent(VotableContent):
                 '(c:Comment) RETURN DISTINCT c.owner_username' \
                 % self.object_uuid
         res, _ = db.cypher_query(query)
-        return res
+        return [row[0] for row in res]
 
 
 class TaggableContent(SBContent):

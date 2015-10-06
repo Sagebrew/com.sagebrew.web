@@ -39,15 +39,13 @@ def spawn_comment_notifications(object_uuid, parent_object_uuid,
     if parent_object.owner_username in to_plebs:
         to_plebs.remove(parent_object.owner_username)
     if to_plebs:
-        comment_on_comment_task = spawn_task(task_func=spawn_notifications,
-                                             task_param={
-            'from_pleb': from_pleb,
-            'to_plebs': to_plebs,
-            'sb_object': comment.object_uuid,
-            'notification_id': comment_on_comment_id,
-            'url': comment_data['url'],
-            'action_name':
-                "commented on a %s you commented on" % parent_object_type
-        })
+        comment_on_comment_task = spawn_task(
+            task_func=spawn_notifications,
+            task_param={'from_pleb': from_pleb, 'to_plebs': to_plebs,
+                        'sb_object': comment.object_uuid,
+                        'notification_id': comment_on_comment_id,
+                        'url': comment_data['url'],
+                        'action_name': "commented on a %s you commented on"
+                                       % parent_object_type})
     return {"comment_on_task": task_id,
             "comment_on_comment_task": comment_on_comment_task}

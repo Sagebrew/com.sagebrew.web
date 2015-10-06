@@ -36,7 +36,6 @@ class TestSpawnCommentNotifications(TestCase):
         create_user_util_test(self.email2)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
 
-
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
 

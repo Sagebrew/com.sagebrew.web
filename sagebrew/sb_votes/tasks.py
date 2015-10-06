@@ -2,6 +2,7 @@ from uuid import uuid1
 from celery import shared_task
 
 from django.template.loader import render_to_string
+from django.core.cache import cache
 
 from neomodel import CypherException, DoesNotExist
 from py2neo.cypher.error.statement import ClientError
@@ -137,4 +138,5 @@ def create_vote_node(node_id, vote_type, voter, parent_object):
         vote_node = Vote(vote_type=vote_type, object_uuid=node_id).save()
     vote_node.vote_on.connect(sb_object)
     vote_node.owned_by.connect(current_pleb)
+    cache.delete("%s_reputation_change" % parent_object.owner_username)
     return True

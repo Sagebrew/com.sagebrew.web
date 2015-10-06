@@ -566,18 +566,22 @@ class Pleb(Searchable):
         return official
 
     def get_reputation_change_over_time(self):
-        date = self.last_checked_reputation
-        query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(' \
-                'b:VotableContent)<-[:VOTE_ON]-(v:Vote)-[:SENT_ON]->' \
-                '(s:Second)<-[:CHILD]-(c:Minute)<-[:CHILD]-(d:Hour)' \
-                '<-[:CHILD]-(e:Day)<-[:CHILD]-(f:Month)<-[:CHILD]-(g:Year) ' \
-                'WHERE b.visibility = "public" AND s.value>%d AND ' \
-                'c.value>=%d AND d.value>=%d AND e.value>=%d AND ' \
-                'f.value>=%d AND g.value>=%d RETURN sum(v.reputation_change)' \
-                % (self.username, date.second, date.minute, date.hour,
-                   date.day, date.month, date.year)
-        res, _ = db.cypher_query(query)
-        return res.one
+        reputation_change = cache.get("%s_reputation_change" % self.username)
+        if reputation_change is None:
+            date = self.last_checked_reputation
+            query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(' \
+                    'b:VotableContent)<-[:VOTE_ON]-(v:Vote)-[:SENT_ON]->' \
+                    '(s:Second)<-[:CHILD]-(c:Minute)<-[:CHILD]-(d:Hour)' \
+                    '<-[:CHILD]-(e:Day)<-[:CHILD]-(f:Month)<-[:CHILD]-(g:Year) ' \
+                    'WHERE b.visibility = "public" AND s.value>%d AND ' \
+                    'c.value>=%d AND d.value>=%d AND e.value>=%d AND ' \
+                    'f.value>=%d AND g.value>=%d RETURN sum(v.reputation_change)' \
+                    % (self.username, date.second, date.minute, date.hour,
+                       date.day, date.month, date.year)
+            res, _ = db.cypher_query(query)
+            reputation_change = res.one
+            cache.set("%s_reputation_change" % self.username)
+        return reputation_change
 
     """
     def update_tag_rep(self, base_tags, tags):

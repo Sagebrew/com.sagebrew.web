@@ -1,9 +1,9 @@
 /*global $, ajaxSecurity*/
 $(document).ready(function () {
     "use strict";
-    $("button.send_friend_request-action").click(function (event) {
+    $("button.js-send-friend-request").click(function (event) {
         event.preventDefault();
-        var sendRequest = $("button.send_friend_request-action");
+        var sendRequest = $("button.js-send-friend-request");
         sendRequest.attr("disabled", "disabled");
 
         $.ajax({
@@ -19,7 +19,7 @@ $(document).ready(function () {
             success: function (data) {
                 if (data.action === true) {
                     sendRequest.hide();
-                    var deleteFriend = $(".delete_friend_request-action");
+                    var deleteFriend = $(".js-delete-friend-request");
                     deleteFriend.data('uuid', data.friend_request_id);
                     deleteFriend.removeAttr("disabled");
                     deleteFriend.show();

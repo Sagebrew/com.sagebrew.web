@@ -3,30 +3,6 @@
     {% comment %}
         This is automatically replaced by sb_posts/static/js/get_posts.js
     {% endcomment %}
-    <div class="sb_friend_btn_wrapper sb_hidden">
-        {% comment %}
-            TODO add friend request sent logic into view
-        {% endcomment %}
-        {% if friend_request_sent == False %}
-            <button class="btn btn-primary sb_btn send_friend_request-action" style="margin-top: 3px"
-                    data-from_username="{{ request.user.username }}"
-                    data-to_username="{{ page_user.username }}">Friend Request
-            </button>
-            <button class="btn btn-primary sb_btn delete_friend_request-action" hidden style="margin-top: 3px; display: none;"
-                    data-uuid="{{ friend_request_sent }}">Delete Request
-            </button>
-        {% else %}
-            <button class="btn btn-primary sb_btn send_friend_request-action" style="margin-top: 3px; display: none"
-                    data-from_username="{{ request.user.username }}"
-                    data-to_username="{{ page_user.username }}">Friend Request
-            </button>
-            <button class="btn btn-primary sb_btn delete_friend_request-action"
-                    style="margin-top: 3px"
-                    data-uuid="{{ friend_request_sent }}">
-                Delete Request
-            </button>
-        {% endif %}
-    </div>
     <div class="col-xs-4">
         <div class="sb-profile-not-friend-element">
             <h4 class="sb-profile-not-friend-header">Friend Request</h4>
@@ -38,19 +14,19 @@
                     TODO add friend request sent logic into view
                 {% endcomment %}
                 {% if friend_request_sent == False %}
-                    <button class="btn btn-primary sb_btn send_friend_request-action"
+                    <button class="btn btn-primary sb_btn js-send-friend-request"
                             data-from_username="{{ request.user.username }}"
                             data-to_username="{{ page_user.username }}">Friend Request
                     </button>
-                    <button class="btn btn-primary sb_btn delete_friend_request-action sb_hidden"
+                    <button class="btn btn-primary sb_btn js-delete-friend-request sb_hidden"
                             data-uuid="{{ friend_request_sent }}">Delete Request
                     </button>
                 {% else %}
-                    <button class="btn btn-primary sb_btn send_friend_request-action sb_hidden"
+                    <button class="btn btn-primary sb_btn js-send-friend-request sb_hidden"
                             data-from_username="{{ request.user.username }}"
                             data-to_username="{{ page_user.username }}">Friend Request
                     </button>
-                    <button class="btn btn-primary sb_btn delete_friend_request-action"
+                    <button class="btn btn-primary sb_btn js-delete-friend-request"
                             data-uuid="{{ friend_request_sent }}">
                         Delete Request
                     </button>

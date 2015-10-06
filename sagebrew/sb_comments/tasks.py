@@ -9,9 +9,6 @@ from sb_base.neo_models import SBContent
 from .neo_models import Comment
 from .serializers import CommentSerializer
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 @shared_task()
 def spawn_comment_notifications(object_uuid, parent_object_uuid,

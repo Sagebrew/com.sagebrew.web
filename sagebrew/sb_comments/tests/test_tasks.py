@@ -71,26 +71,34 @@ class TestSpawnCommentNotifications(TestCase):
                   "url": "http://www.sagebrew.com/v1/questions/%s/" %
                          self.question.object_uuid},
               status_code=status.HTTP_200_OK)
-        self.question.owned_by.connect(self.pleb)
-        self.question.owner_username = self.pleb.username
-        self.question.save()
-        self.question.comments.connect(self.comment)
-        self.comment.comment_on.connect(self.question)
-        self.comment.owned_by.connect(self.pleb)
-        comment = Comment(owner_username=self.pleb2.username,
+        comment2 = Comment(owner_username=self.pleb2.username,
+                           url="%s/questions/%s/" %
+                               (self.api_endpoint,
+                                self.question.object_uuid)).save()
+        comment = Comment(owner_username=self.pleb.username,
                           url="%s/questions/%s/" %
                               (self.api_endpoint,
                                self.question.object_uuid)).save()
-        comment.owned_by.connect(self.pleb2)
+        self.question.owned_by.connect(self.pleb)
+        self.question.owner_username = self.pleb.username
+        self.question.save()
+
+        self.pleb.comments.connect(comment)
+        comment.owned_by.connect(self.pleb)
         self.question.comments.connect(comment)
         comment.comment_on.connect(self.question)
-        self.pleb2.comments.connect(comment)
+
+        self.pleb2.comments.connect(comment2)
+        comment2.owned_by.connect(self.pleb2)
+        self.question.comments.connect(comment2)
+        comment2.comment_on.connect(self.question)
+
         notification_id = str(uuid1())
         comment_on_comment_id = str(uuid1())
         data = {
-            "object_uuid": self.comment.object_uuid,
+            "object_uuid": comment.object_uuid,
             "parent_object_uuid": self.question.object_uuid,
-            "from_pleb": self.pleb2.username,
+            "from_pleb": self.pleb.username,
             "notification_id": notification_id,
             "comment_on_comment_id": comment_on_comment_id
         }
@@ -103,3 +111,4 @@ class TestSpawnCommentNotifications(TestCase):
         notification = Notification.nodes.get(object_uuid=comment_on_comment_id)
         self.assertEqual(notification.action_name, "commented on a question "
                                                    "you commented on")
+        self.assertTrue(self.pleb2.notifications.is_connected(notification))

@@ -439,7 +439,8 @@ class PoliticalCampaign(Campaign):
                                  '(l1)+collect(l2)|id(x)] as collected MATCH '
                                  '(new_location) WHERE id(new_location) in '
                                  'collected OPTIONAL MATCH (new_location)<-'
-                                 '[t:ENCOMPASSED_BY]-(a:Address {object_uuid:'
+                                 '[t:ENCOMPASSED_BY*..]-'
+                                 '(a:Address {object_uuid:'
                                  '"%s"}) RETURN t' % (position,
                                                       address.object_uuid))
         if res.one:

@@ -255,8 +255,6 @@ class CampaignViewSet(viewsets.ModelViewSet):
         :param object_uuid:
         :return:
         """
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
         self.check_object_permissions(request, object_uuid)
         donation_info = [DonationExportSerializer(
             Donation.inflate(donation)).data for donation in
@@ -276,7 +274,6 @@ class CampaignViewSet(viewsets.ModelViewSet):
             for key in donation_info[0].keys():
                 new_key = key.replace('_', ' ').title()
                 for donation in donation_info:
-                    logger.critical(new_key)
                     donation[new_key] = donation[key]
                     donation.pop(key, None)
                 keys.append(new_key)

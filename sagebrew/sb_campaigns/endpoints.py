@@ -355,7 +355,7 @@ class PoliticalCampaignViewSet(CampaignViewSet):
         serializer = self.get_serializer(data=request.data,
                                          context={"request": request})
         if serializer.is_valid():
-            cache.delete("%s_vote_count" % (object_uuid))
+            cache.delete("%s_vote_count" % object_uuid)
             parent_object_uuid = self.kwargs[self.lookup_field]
             if not PoliticalCampaign.get_allow_vote(parent_object_uuid,
                                                     request.user .username):

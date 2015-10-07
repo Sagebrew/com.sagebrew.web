@@ -40,7 +40,6 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, notification_id, url,
     response = create_notification_util(sb_object, from_pleb, plebeians,
                                         notification_id, url, action_name,
                                         public)
-
     if isinstance(response, Exception) is True:
         raise spawn_notifications.retry(exc=response, countdown=3,
                                         max_retries=100)

@@ -42,7 +42,7 @@ def release_funds(goal_uuid):
                 application_fee=int(
                     (donation_node.amount *
                      (campaign.application_fee +
-                      settings.STRIPE_TRANSACTION_PERCENT)) + .3)
+                      settings.STRIPE_TRANSACTION_PERCENT)) + 30)
             )
             donation_node.completed = True
             donation_node.save()
@@ -90,7 +90,7 @@ def release_single_donation(donation_uuid):
             application_fee=int(
                     (donation.amount *
                      (campaign.application_fee +
-                      settings.STRIPE_TRANSACTION_PERCENT)) + .3)
+                      settings.STRIPE_TRANSACTION_PERCENT)) + 30)
         )
         donation.completed = True
         donation.save()

@@ -432,16 +432,11 @@ class PoliticalCampaign(Campaign):
         # location connections, the end result is ensuring that someone
         # who does not live in a location that a quest is running in may
         # not pledge a vote for them.
-        res, _ = db.cypher_query('MATCH (p:`Position` {object_uuid: '
-                                 '"%s"})-[:AVAILABLE_WITHIN]->(l1:Location) '
-                                 'WITH l1 OPTIONAL MATCH (l1)-[:ENCOMPASSED_'
-                                 'BY*..3]->(l2:Location) WITH [x in collect'
-                                 '(l1)+collect(l2)|id(x)] as collected MATCH '
-                                 '(new_location) WHERE id(new_location) in '
-                                 'collected OPTIONAL MATCH (new_location)<-'
-                                 '[t:ENCOMPASSED_BY]-(a:Address {object_uuid:'
-                                 '"%s"}) RETURN t' % (position,
-                                                      address.object_uuid))
+        res, _ = db.cypher_query(
+            'MATCH (p:`Position` {object_uuid: "%s"})-'
+            '[:AVAILABLE_WITHIN]->(l1:Location)<-[t:ENCOMPASSED_BY*..]-'
+            '(a:Address {object_uuid:"%s"}) RETURN t' % (
+                position, address.object_uuid))
         if res.one:
             return True
         return False

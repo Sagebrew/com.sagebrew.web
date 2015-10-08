@@ -438,38 +438,40 @@ function saveSolution() {
             content = textArea.val();
         submitArea.attr("disabled", "disabled");
         if (!regexMatches) {
-            $.notify({message: "Please include at least 1 url linking to information to add context or support to your Solution"}, {type: "danger"});
+            $.notify({message: "Please include at least 1 link to information that supports or adds context to your Solution"}, {type: "danger"});
             submitArea.removeAttr("disabled");
-        }
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/v1/questions/" + $(this).data('object_uuid') + "/solutions/?html=true&expand=true",
-            data: JSON.stringify({
-                'content': content
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                $("#solution_container").append(data.html);
-                $('textarea.sb_solution_input_area').val("");
-                $("#wmd-preview-0").empty();
-                var solutionCountText = $("#solution_count").text();
-                if (solutionCountText !== "--") {
-                    // the reasoning for the addition of the 10 here is
-                    // http://solidlystated.com/scripting/missing-radix-parameter-jslint/
-                    var solutionCount = parseInt(solutionCountText, 10) + 1;
-                    $("#solution_count").text(solutionCount.toString());
+        } else {
+            $.ajax({
+                xhrFields: {withCredentials: true},
+                type: "POST",
+                url: "/v1/questions/" + $(this).data('object_uuid') + "/solutions/?html=true&expand=true",
+                data: JSON.stringify({
+                    'content': content
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    $("#solution_container").append(data.html);
+                    $('textarea.sb_solution_input_area').val("");
+                    $("#wmd-preview-0").empty();
+                    var solutionCountText = $("#solution_count").text();
+                    if (solutionCountText !== "--") {
+                        // the reasoning for the addition of the 10 here is
+                        // http://solidlystated.com/scripting/missing-radix-parameter-jslint/
+                        var solutionCount = parseInt(solutionCountText, 10) + 1;
+                        $("#solution_count").text(solutionCount.toString());
+                    }
+                    $('#wmd-preview-1').html("");
+                    $("#submit_solution").removeAttr("disabled");
+                    enableSolutionFunctionality(data.ids);
+                },
+                error: function (XMLHttpRequest) {
+                    $("#submit_solution").removeAttr("disabled");
+                    errorDisplay(XMLHttpRequest);
                 }
-                $('#wmd-preview-1').html("");
-                $("#submit_solution").removeAttr("disabled");
-                enableSolutionFunctionality(data.ids);
-            },
-            error: function (XMLHttpRequest) {
-                $("#submit_solution").removeAttr("disabled");
-                errorDisplay(XMLHttpRequest);
-            }
-        });
+            });
+        }
+
     });
 }
 

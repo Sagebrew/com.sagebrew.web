@@ -116,6 +116,12 @@
         {% endif %}
         {% if "updates" not in request.path and "statistics" not in request.path and "moderators" not in request.path %}
             <script src="{% static 'js/event_quest_intercom.js' %}"></script>
+        {% elif "updates" in request.path %}
+            <script src="{% static 'js/event_quest_update_list.js' %}"></script>
+        {% elif "statistics" in request.path %}
+            <script src="{% static 'js/event_quest_statistics.js' %}"></script>
+        {% elif "moderators" in request.path %}
+            <script src="{% static 'js/event_quest_moderators.js' %}"></script>
         {% endif %}
     {% else %}
         {% if not request.user.is_anonymous %}

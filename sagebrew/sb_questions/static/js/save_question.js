@@ -45,7 +45,7 @@ $(document).ready(function () {
                 if (data.privileges.indexOf("comment") > -1) {
                     sendQuestionRequest(url, title, content, tags, submitArea);
                 } else if (!regexMatches) {
-                    $.notify({message: "Please include at least 1 url linking to information to add context or support to your question!"}, {type: "danger"});
+                    $.notify({message: "Please include at least 1 url linking to information to add context or support to your question"}, {type: "danger"});
                     submitArea.removeAttr("disabled");
                 } else {
                     sendQuestionRequest(url, title, content, tags, submitArea);

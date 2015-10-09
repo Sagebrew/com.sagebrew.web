@@ -98,7 +98,7 @@ class Campaign(Searchable):
     editors = RelationshipTo('plebs.neo_models.Pleb', 'CAN_BE_EDITED_BY')
     accountants = RelationshipTo('plebs.neo_models.Pleb',
                                  'CAN_VIEW_MONETARY_DATA')
-    position = RelationshipTo('sb_campaigns.neo_models.Position',
+    position = RelationshipTo('sb_quests.neo_models.Position',
                               'RUNNING_FOR')
     active_round = RelationshipTo('sb_goals.neo_models.Round',
                                   "CURRENT_ROUND")
@@ -460,7 +460,7 @@ class Position(SBObject):
                                        'PublicOfficial', "CURRENTLY_HELD_BY")
     # the campaigns relationship will be linked to all the campaigns currently
     # running for this position
-    campaigns = RelationshipTo('sb_campaigns.neo_models.PoliticalCampaign',
+    campaigns = RelationshipTo('sb_quests.neo_models.PoliticalCampaign',
                                "CAMPAIGNS")
     restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
                                   'RESTRICTED_BY')

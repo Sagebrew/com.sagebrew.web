@@ -36,8 +36,8 @@ from sb_public_official.serializers import PublicOfficialSerializer
 from sb_public_official.neo_models import PublicOfficial
 from sb_donations.neo_models import Donation
 from sb_donations.serializers import DonationSerializer
-from sb_campaigns.neo_models import PoliticalCampaign
-from sb_campaigns.serializers import PoliticalCampaignSerializer
+from sb_quests.neo_models import PoliticalCampaign
+from sb_quests.serializers import PoliticalCampaignSerializer
 from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
@@ -688,7 +688,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                     news_article['created'] = parser.parse(
                         news_article['created'])
                     article_html = render_to_string(
-                        'campaign_news.html',
+                        'quest_news.html',
                         RequestContext(request, news_article))
             elif row.updates is not None:
                 row.updates.pull()

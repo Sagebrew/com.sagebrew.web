@@ -5,7 +5,7 @@ from neomodel import db
 
 from plebs.neo_models import Pleb
 
-from sb_campaigns.neo_models import PoliticalCampaign, Position
+from sb_quests.neo_models import PoliticalCampaign, Position
 from sb_donations.neo_models import PoliticalDonation
 from sb_goals.neo_models import Round, Goal
 

@@ -7,8 +7,8 @@ from sb_registration.utils import (verify_completed_registration)
 
 from sb_public_official.neo_models import PublicOfficial
 
-from sb_campaigns.neo_models import PoliticalCampaign
-from sb_campaigns.serializers import PoliticalCampaignSerializer
+from sb_quests.neo_models import PoliticalCampaign
+from sb_quests.serializers import PoliticalCampaignSerializer
 
 
 @login_required()

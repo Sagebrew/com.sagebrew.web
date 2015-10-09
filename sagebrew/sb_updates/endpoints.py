@@ -14,7 +14,7 @@ from rest_framework import status
 from neomodel import db
 
 from sb_base.views import ObjectRetrieveUpdateDestroy
-from sb_campaigns.neo_models import Campaign
+from sb_quests.neo_models import Campaign
 from sb_goals.neo_models import Goal
 
 from .serializers import UpdateSerializer
@@ -31,7 +31,8 @@ class UpdateListCreate(generics.ListCreateAPIView):
                 '[:HAS_UPDATE]->(u:`Update`) return u ' \
                 'ORDER BY u.created DESC' % \
                 (self.kwargs[self.lookup_field])
-        res, col = db.cypher_query(query)
+        res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [Update.inflate(row[0]) for row in res]
 
     def get_object(self):

@@ -11,7 +11,7 @@ from rest_framework import status, generics, viewsets
 from neomodel import db
 
 from api.permissions import IsGoalOwnerOrEditor
-from sb_campaigns.neo_models import Campaign
+from sb_quests.neo_models import Campaign
 
 from .serializers import (GoalSerializer, RoundSerializer)
 from .neo_models import Goal, Round

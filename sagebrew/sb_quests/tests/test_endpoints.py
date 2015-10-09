@@ -20,7 +20,7 @@ from sb_registration.utils import create_user_util_test
 from sb_donations.neo_models import Donation
 from sb_locations.neo_models import Location
 
-from sb_campaigns.neo_models import PoliticalCampaign, Position
+from sb_quests.neo_models import PoliticalCampaign, Position
 
 
 class CampaignEndpointTests(APITestCase):

@@ -8,7 +8,7 @@ from rest_framework import status
 from neomodel import DoesNotExist
 
 from plebs.neo_models import Pleb
-from sb_campaigns.neo_models import PoliticalCampaign
+from sb_quests.neo_models import PoliticalCampaign
 from sb_registration.utils import create_user_util_test
 
 

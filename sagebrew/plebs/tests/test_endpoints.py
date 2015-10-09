@@ -20,7 +20,7 @@ from sagebrew import errors
 from sb_public_official.neo_models import PublicOfficial
 from plebs.neo_models import Pleb, FriendRequest, Address, BetaUser
 from sb_privileges.neo_models import Privilege, SBAction
-from sb_campaigns.neo_models import Position, PoliticalCampaign
+from sb_quests.neo_models import Position, PoliticalCampaign
 from sb_updates.neo_models import Update
 from sb_locations.neo_models import Location
 from sb_questions.neo_models import Question

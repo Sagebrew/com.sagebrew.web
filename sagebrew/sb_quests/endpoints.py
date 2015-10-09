@@ -141,7 +141,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
             serializer.remove_profiles(queryset)
             if html == 'true':
                 return Response({"ids": serializer.data['profiles'], "html": [
-                    render_to_string("potential_campaign_helper.html",
+                    render_to_string("potential_quest_helper.html",
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
                     for pleb in serializer.data['profiles']]},
                     status=status.HTTP_200_OK)
@@ -208,7 +208,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
             serializer.remove_profiles(queryset)
             if html == 'true':
                 return Response({"ids": serializer.data['profiles'], "html": [
-                    render_to_string("potential_campaign_helper.html",
+                    render_to_string("potential_quest_helper.html",
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
                     for pleb in serializer.data['profiles']]},
                     status=status.HTTP_200_OK)
@@ -415,7 +415,7 @@ class PoliticalCampaignViewSet(CampaignViewSet):
             return Response({"ids": queryset,
                              "html": [
                                  render_to_string(
-                                     'potential_campaign_helper.html',
+                                     'potential_quest_helper.html',
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
                                  for pleb in queryset]},
                             status=status.HTTP_200_OK)

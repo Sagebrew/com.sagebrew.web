@@ -19,7 +19,7 @@ from neomodel import (DoesNotExist, CypherException)
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb
-from sb_campaigns.neo_models import Position
+from sb_quests.neo_models import Position
 
 from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,

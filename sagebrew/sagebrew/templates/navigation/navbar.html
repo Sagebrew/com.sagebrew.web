@@ -17,11 +17,13 @@
                     {% include "navigation/post_login_nav_content.html" %}
                 </div>
             {% elif user.is_anonymous %}
-                <ul class="nav navbar-nav navbar-left sb_login" style="margin-left: 15px;">
-                    <li>
-                        <button class="btn btn-block btn-primary" id="js-sign-up">Signup</button>
-                    </li>
-                </ul>
+                {% if request.path != "/" %}
+                    <ul class="nav navbar-nav navbar-left sb_login sb-signup-btn">
+                        <li>
+                            <button class="btn btn-block btn-primary" id="js-sign-up">Signup</button>
+                        </li>
+                    </ul>
+                {% endif %}
                 {% include "navigation/pre_login_nav_content.html" %}
             {% endif %}
         </div>

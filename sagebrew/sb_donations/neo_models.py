@@ -45,7 +45,7 @@ class Donation(SBObject):
     # Every donation must have a cause that it's donating to. We'll utilize
     # child donations to accomplish this but through using `cause` as the
     # naming convention we should be able to define all methods at this level
-    campaign = RelationshipTo('sb_campaigns.neo_models.Campaign', 'DONATED_TO')
+    campaign = RelationshipTo('sb_quests.neo_models.Campaign', 'DONATED_TO')
     associated_round = RelationshipTo('sb_goals.neo_models.Round',
                                       'ASSOCIATED_ROUND')
 

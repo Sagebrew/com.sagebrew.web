@@ -16,7 +16,7 @@ from .serializers import UpdateSerializer
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
-def edit_update(request, object_uuid=None):
+def edit_update(request, object_uuid=None, username=None):
     try:
         update = Update.nodes.get(object_uuid=object_uuid)
     except (Update.DoesNotExist, DoesNotExist):

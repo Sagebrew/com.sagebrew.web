@@ -21,6 +21,8 @@ def edit_update(request, object_uuid=None):
         update = Update.nodes.get(object_uuid=object_uuid)
     except (Update.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
+    except (CypherException, IOError):
+        return redirect("500_Error")
     return render(request, 'create_update.html', UpdateSerializer(update).data)
 
 
@@ -30,9 +32,10 @@ def edit_update(request, object_uuid=None):
 def create_update(request, username):
     try:
         campaign = PoliticalCampaign.get(object_uuid=username)
-    except (CypherException, IOError, PoliticalCampaign.DoesNotExist,
-            DoesNotExist):
+    except (PoliticalCampaign.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
+    except (CypherException, IOError):
+        return redirect("500_Error")
     return render(request, 'create_update.html',
                   PoliticalCampaignSerializer(
                       campaign, context={'request': request}).data)
@@ -41,9 +44,10 @@ def create_update(request, username):
 def updates(request, username):
     try:
         campaign = PoliticalCampaign.get(object_uuid=username)
-    except (CypherException, IOError, PoliticalCampaign.DoesNotExist,
-            DoesNotExist):
+    except (PoliticalCampaign.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
+    except (CypherException, IOError):
+        return redirect("500_Error")
     serializer_data = PoliticalCampaignSerializer(
         campaign, context={'request': request}).data
     serializer_data['description'] = "Updates for %s %s's Quest" % (

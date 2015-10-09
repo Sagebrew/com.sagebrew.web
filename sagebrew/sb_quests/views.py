@@ -66,8 +66,8 @@ def insights(request, username):
     serializer_data = PoliticalCampaignSerializer(
         campaign, context={'request': request}).data
     serializer_data['description'] = "Statistics and Insights for %s %s's " \
-                                     "Quest." % (
-            serializer_data['first_name'], serializer_data['last_name'])
+                                     "Quest." % (serializer_data['first_name'],
+                                                 serializer_data['last_name'])
     serializer_data['keywords'] = "Statistics, Insights, Quest"
     serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
     return render(request, 'insights.html', serializer_data)
@@ -89,8 +89,8 @@ def moderators(request, username):
         campaign, context={'request': request}).data
 
     serializer_data['description'] = "Moderation Management for %s %s's " \
-                                     "Quest." % (
-            serializer_data['first_name'], serializer_data['last_name'])
+                                     "Quest." % (serializer_data['first_name'],
+                                                 serializer_data['last_name'])
     serializer_data['keywords'] = "Moderators, Admins, Accountants, Editors," \
                                   " Quest"
     serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY

@@ -305,7 +305,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
 class PoliticalCampaignViewSet(CampaignViewSet):
     serializer_class = PoliticalCampaignSerializer
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         query = "MATCH (c:`PoliticalCampaign`) RETURN c"
@@ -426,7 +426,7 @@ class PoliticalCampaignViewSet(CampaignViewSet):
 class PositionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PositionSerializer
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         query = 'MATCH (p:`Position`) RETURN p'

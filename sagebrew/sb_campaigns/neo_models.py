@@ -343,6 +343,19 @@ class Campaign(Searchable):
     def get_position_location(cls, object_uuid):
         return Position.get_location(cls.get_position(object_uuid))
 
+    @classmethod
+    def get_total_donated(cls, object_uuid):
+        total = cache.get("%s_total_donated" % object_uuid)
+        if total is None:
+            query = 'MATCH (r:`Campaign` {object_uuid:"%s"})-' \
+                    '[:RECEIVED_DONATION]->(d:`Donation`) ' \
+                    'RETURN sum(d.amount)' % object_uuid
+            res, _ = db.cypher_query(query)
+            if res.one is not None:
+                total = res.one
+                cache.set("%s_total_donated" % object_uuid, total)
+        return total
+
 
 class PoliticalCampaign(Campaign):
     """

@@ -724,7 +724,9 @@ a {
   color: white;
   background-color: transparent;
   position: relative;
-
+}
+.sb-footer-links{
+  padding-right: 0 !important;
 }
 
 // Signup
@@ -768,14 +770,25 @@ a {
   ul{
     margin-bottom: 14px;
   }
+  a.sb-signup-btn{
+    &:extend(.sb_btn_submit);
+    background-color: @sb_off_white;
+    color: @sb_green;
+    // Firefox fix for button being placed differently in navbar
+    padding-top: 2px;
+    padding-bottom: 3px;
+    margin-top: 6px;
+    margin-right: 5px;
+  }
   button{
     &:extend(.sb_btn_submit);
     background-color: @sb_off_white;
     color: @sb_green;
     // Firefox fix for button being placed differently in navbar
-    padding-top: 0;
-    padding-bottom: 5px;
+    padding-top: 2px;
+    padding-bottom: 3px;
     margin-top: 6px;
+    margin-right: 5px;
   }
 }
 .nav-logged-in{

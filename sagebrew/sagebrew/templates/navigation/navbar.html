@@ -9,6 +9,7 @@
                 <span class="icon-bar"></span>
             </button>
             <h1>{% if request_profile.completed_profile_info or user.is_anonymous %}<a href="{% url 'root_profile_page' %}">{% endif %}<img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/>Sagebrew{% if request_profile.completed_profile_info or user.is_anonymous %}</a>{% endif %}</h1>
+
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             {% if user.is_authenticated %}
@@ -16,6 +17,11 @@
                     {% include "navigation/post_login_nav_content.html" %}
                 </div>
             {% elif user.is_anonymous %}
+                <ul class="nav navbar-nav navbar-left sb_login" style="margin-left: 15px;">
+                    <li>
+                        <button class="btn btn-block btn-primary" id="js-sign-up">Signup</button>
+                    </li>
+                </ul>
                 {% include "navigation/pre_login_nav_content.html" %}
             {% endif %}
         </div>
@@ -52,9 +58,11 @@
                 <ul class="nav navbar-nav">
                     <li {% if "/login/" in request.path %}class="active"{% endif %}><a href="{% url 'login'%}">Login</a></li>
                     <li {% if "/conversations/" in request.path %}class="active"{% endif %}><a href="{% url 'question_page' %}">Conversation Cloud</a></li>
-                    <li {% if "/help/" in request.path %}class="active"{% endif %}><a href="{% url 'help_center' %}">Help</a></li>
+                    <li><a href="http://about.sagebrew.com">About</a></li>
                     <li><a href="http://shop.sagebrew.com">Shop</a></li>
                     <li><a href="http://blog.sagebrew.com">Blog</a></li>
+                    <li {% if "/help/" in request.path %}class="active"{% endif %}><a href="{% url 'help_center' %}">Help</a></li>
+
                 </ul>
             </div>
         {% endif %}

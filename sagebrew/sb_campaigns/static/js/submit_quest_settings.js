@@ -54,11 +54,14 @@ $(document).ready(function () {
                                         window.location.href = data.url;
                                     } else {
                                         $('#sb-greyout-page').hide();
+                                        $('#sb-greyout-page').spin(false);
                                         $("#js-active").attr("data-active", "False");
                                     }
 
                                 },
                                 error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    $('#sb-greyout-page').hide();
+                                    $('#sb-greyout-page').spin(false);
                                     errorDisplay(XMLHttpRequest);
                                 }
                             });
@@ -66,6 +69,8 @@ $(document).ready(function () {
                     },
                     error: function (XMLHttpRequest, textStatus, errorThrown) {
                         $(this).removeAttr("disabled");
+                        $('#sb-greyout-page').hide();
+                        $('#sb-greyout-page').spin(false);
                         errorDisplay(XMLHttpRequest);
                     }
                 });
@@ -137,6 +142,8 @@ $(document).ready(function () {
 
                                 },
                                 error: function (XMLHttpRequest) {
+                                    $('#sb-greyout-page').hide();
+                                    $('#sb-greyout-page').spin(false);
                                     errorDisplay(XMLHttpRequest);
                                 }
                             });
@@ -144,6 +151,8 @@ $(document).ready(function () {
                     }
                 },
                 error: function (XMLHttpRequest) {
+                    $('#sb-greyout-page').hide();
+                    $('#sb-greyout-page').spin(false);
                     errorDisplay(XMLHttpRequest);
                 }
             });
@@ -175,6 +184,8 @@ $(document).ready(function () {
                 $.notify("Successfully updated Quest!", {type: 'success'});
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $('#sb-greyout-page').hide();
+                $('#sb-greyout-page').spin(false);
                 errorDisplay(XMLHttpRequest);
             }
         });
@@ -262,6 +273,8 @@ $(document).ready(function () {
 
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $('#sb-greyout-page').hide();
+                    $('#sb-greyout-page').spin(false);
                     errorDisplay(XMLHttpRequest);
                 }
             });

@@ -2,6 +2,7 @@ import stripe
 
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.core.cache import cache
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -70,8 +71,8 @@ class DonationSerializer(SBSerializer):
                 email=donor.email)
             donor.stripe_customer_id = customer['id']
             donor.save()
-        # TODO update this so that if current donation total is < 5000 we
-        # continue even if they don't have a round
+            cache.delete(donor.username)
+            donor.refresh()
         current_round = Round.nodes.get(
             object_uuid=Campaign.get_active_round(campaign.object_uuid))
         current_round.donations.connect(donation)
@@ -202,6 +203,8 @@ class SBDonationSerializer(DonationSerializer):
                 email=donor.email)
             donor.stripe_customer_id = customer['id']
             donor.save()
+            cache.delete(donor.username)
+            donor.refresh()
         donor.donations.connect(donation)
         donation.owned_by.connect(donor)
         stripe.Charge.create(

@@ -575,12 +575,13 @@ class Pleb(Searchable):
                     '<-[:CHILD]-(e:Day)<-[:CHILD]-(f:Month)<-[:CHILD]-(g:Year) ' \
                     'WHERE b.visibility = "public" AND s.value>%d AND ' \
                     'c.value>=%d AND d.value>=%d AND e.value>=%d AND ' \
-                    'f.value>=%d AND g.value>=%d RETURN sum(v.reputation_change)' \
+                    'f.value>=%d AND g.value>=%d RETURN ' \
+                    'sum(v.reputation_change)' \
                     % (self.username, date.second, date.minute, date.hour,
                        date.day, date.month, date.year)
             res, _ = db.cypher_query(query)
             reputation_change = res.one
-            cache.set("%s_reputation_change" % self.username)
+            cache.set("%s_reputation_change" % self.username, reputation_change)
         return reputation_change
 
     """

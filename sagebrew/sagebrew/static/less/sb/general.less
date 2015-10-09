@@ -2070,7 +2070,7 @@ textarea.sb_comment_input{
 }
 
 .sb-profile-not-friend-element{
-  height: 456px;
+  height: 475px;
   background-color: @sb_off_white;
   border-radius: 5px 5px 5px 5px;
   padding: @sb_common_padding_positive @sb_common_padding_positive @sb_common_padding_positive;
@@ -2115,4 +2115,24 @@ textarea.sb_comment_input{
     opacity: 1;
     z-index: 101;
   }
+}
+
+.sb-not-friend-divider-wrapper{
+  padding-left: 0;
+}
+
+.sb-not-friend-divider{
+  &:extend(.sb_divider);
+  width: 100%;
+}
+
+.sb-overlay{
+  background-color: rgba(202,206,209,.5);
+  display: none;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 110;
 }

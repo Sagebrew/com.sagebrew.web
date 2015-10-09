@@ -33,4 +33,12 @@ $(document).ready(function () {
             }
         });
     });
+    $(".sb-profile-not-friend-element-image").mouseenter(function () {
+        event.preventDefault();
+        $(".sb-overlay").fadeIn();
+    });
+    $(".sb-profile-not-friend-element-image").mouseleave(function () {
+        event.preventDefault();
+        $(".sb-overlay").fadeOut();
+    });
 });

@@ -70,6 +70,8 @@ class DonationSerializer(SBSerializer):
                 email=donor.email)
             donor.stripe_customer_id = customer['id']
             donor.save()
+        # TODO update this so that if current donation total is < 5000 we
+        # continue even if they don't have a round
         current_round = Round.nodes.get(
             object_uuid=Campaign.get_active_round(campaign.object_uuid))
         current_round.donations.connect(donation)

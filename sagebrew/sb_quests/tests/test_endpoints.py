@@ -744,7 +744,6 @@ class CampaignEndpointTests(APITestCase):
             "profiles": ['test_test', new_pleb.username]
         }
         response = self.client.post(url, data=data)
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], 'Successfully added '
                                                   'specified users to '
@@ -755,7 +754,6 @@ class CampaignEndpointTests(APITestCase):
         url = reverse('campaign-editors',
                       kwargs={'object_uuid': self.campaign.object_uuid})
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, ['test_test'])
 

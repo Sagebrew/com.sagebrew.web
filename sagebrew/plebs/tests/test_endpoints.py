@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.conf import settings
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -2109,7 +2109,10 @@ class BetaUserMethodEndpointTests(APITestCase):
 
     def test_get_is_beta_user_true(self):
         self.client.force_authenticate(user=self.user)
-        beta_user = BetaUser(email=self.email, invited=True).save()
+        try:
+            beta_user = BetaUser.nodes.get(email=self.email)
+        except(BetaUser.DoesNotExit, DoesNotExist):
+            beta_user = BetaUser(email=self.email, invited=True).save()
         self.pleb.beta_user.connect(beta_user)
         self.pleb.save()
         cache.clear()

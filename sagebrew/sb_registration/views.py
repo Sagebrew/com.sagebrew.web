@@ -51,7 +51,7 @@ def quest_signup(request):
 def signup_view_api(request):
     quest_registration = request.session.get('account_type', None)
     try:
-        signup_form = SignupForm(request.DATA)
+        signup_form = SignupForm(request.data)
         valid_form = signup_form.is_valid()
     except AttributeError:
         return Response({'detail': 'Form Error'},
@@ -171,7 +171,7 @@ def resend_email_verification(request):
 @api_view(['POST'])
 def login_view_api(request):
     try:
-        login_form = LoginForm(request.DATA)
+        login_form = LoginForm(request.data)
         valid_form = login_form.is_valid()
     except AttributeError:
         return Response(status=400)

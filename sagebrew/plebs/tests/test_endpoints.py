@@ -2111,7 +2111,7 @@ class BetaUserMethodEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         try:
             beta_user = BetaUser.nodes.get(email=self.email)
-        except(BetaUser.DoesNotExit, DoesNotExist):
+        except DoesNotExist:
             beta_user = BetaUser(email=self.email, invited=True).save()
         self.pleb.beta_user.connect(beta_user)
         self.pleb.save()

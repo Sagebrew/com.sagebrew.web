@@ -119,7 +119,7 @@ class Campaign(Searchable):
                 cache.set("%s_campaign" % object_uuid, campaign)
                 return campaign
             except IndexError:
-                campaign = None
+                raise DoesNotExist("Quest does not exist")
         return campaign
 
     @classmethod

@@ -912,7 +912,9 @@ function foggyClosed(populatedIds) {
     });
 }
 
-function errorDisplay(XMLHttpRequest) {
+function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
+    notifyFrom = typeof notifyFrom !== 'undefined' ? notifyFrom : "top";
+    notifyAlign = typeof notifyAlign !== 'undefined' ? notifyAlign : 'right';
     if (XMLHttpRequest.status === 500) {
         $.notify({message: "Sorry looks like we're having some server issues right now. "}, {type: "danger"});
     }
@@ -939,7 +941,7 @@ function errorDisplay(XMLHttpRequest) {
             }
             catch(e) {
                 if(notification.detail !== undefined) {
-                    $.notify({message: notification.detail}, {type: 'danger'});
+                    $.notify({message: notification.detail}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
                 } else{
                     for (var key in notification) {
                       $.notify({message: notification[key][0]}, {type: 'danger'});

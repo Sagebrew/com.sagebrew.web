@@ -28,7 +28,7 @@ $(document).ready(function () {
                 }
             },
             error: function (XMLHttpRequest) {
-                errorDisplay(XMLHttpRequest);
+                errorDisplay(XMLHttpRequest, "top", "left");
                 submitArea.removeAttr("disabled");
             }
         });

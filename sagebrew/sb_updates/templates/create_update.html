@@ -127,10 +127,13 @@
     <script src="{% static 'js/vendor/bootstrap-tokenfield.min.js' %}"></script>
     <script src="{% static 'js/vendor/typeahead.js' %}"></script>
     <script src="{% static 'js/update_bootstrap.js' %}"></script>
+
     {% if not 'edit' in request.path %}
         <script src="{% static 'js/update_create_validator.js' %}"></script>
         <script src="{% static 'js/create_update.js' %}"></script>
+        <script src="{% static 'js/event_create_update.js' %}"></script>
     {% else %}
+        <script src="{% static 'js/event_edit_update.js' %}"></script>
         <script src="{% static 'js/update_edit_validator.js' %}"></script>
         <script src="{% static 'js/edit_update.js' %}"></script>
     {% endif %}

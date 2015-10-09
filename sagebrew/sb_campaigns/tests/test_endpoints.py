@@ -1280,7 +1280,6 @@ class CampaignEndpointTests(APITestCase):
             'amount': 250000
         }
         response = self.client.post(url, data=data, format='json')
-        print response
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_update_create(self):

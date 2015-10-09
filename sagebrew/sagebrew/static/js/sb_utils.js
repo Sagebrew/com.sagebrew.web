@@ -959,7 +959,7 @@ function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
                 }
                 badItemCap = badItem.charAt(0).toUpperCase() + badItem.slice(1);
                 errorMessage = badItemCap + ": " + reportMsg;
-                $.notify({message: errorMessage.replace('_', " ")}, {type: 'danger'});
+                $.notify({message: errorMessage.replace('_', " ")}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
             }
         }
 

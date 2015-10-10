@@ -5,9 +5,18 @@
     {% endcomment %}
     <div class="col-xs-4">
         <div class="sb-profile-not-friend-element">
-            <h4 class="sb-profile-not-friend-header">Friend Request</h4>
-            <div class="row sb-profile-not-friend-image-wrapper">
-                <img class="sb-profile-not-friend-element-image" src="{% static "images/sb_logo_color_sage.png" %}">
+            <div class="js-hover-overlay-activate">
+                <h4 class="sb-profile-not-friend-header">Friend Request</h4>
+                <div class="row sb-profile-not-friend-image-wrapper">
+                    <img class="sb-profile-not-friend-element-image" src="{% static "images/sb_logo_color_sage.png" %}">
+                </div>
+                <div class="sb-overlay">
+                    <div class="sb-overlay-text">
+                        <div>
+                            By becoming friends with this person they will be able to see all the posts on your wall and you will be able to see theirs, also you can post on each others walls.
+                        </div>
+                    </div>
+                </div>
             </div>
             <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
             <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
@@ -37,9 +46,11 @@
     </div>
     <div class="col-xs-4">
         <div class="sb-profile-not-friend-element">
-            <h4 class="sb-profile-not-friend-header">Visit Quest Page</h4>
-            <div class="row sb-profile-not-friend-image-wrapper js-sb-flip">
-                <img class="sb-profile-not-friend-element-image" src="{% static "images/quest_logo_flat_color.png" %}">
+            <div class="js-hover-overlay-activate">
+                <h4 class="sb-profile-not-friend-header">Visit Quest Page</h4>
+                <div class="row sb-profile-not-friend-image-wrapper">
+                    <img class="sb-profile-not-friend-element-image" src="{% static "images/quest_logo_flat_color.png" %}">
+                </div>
             </div>
             <ul class="sb-not-friend-divider-wrapper"><li class="sb_divider"></li></ul>
             <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
@@ -54,7 +65,11 @@
                 {% endif %}
             </div>
             <div class="sb-overlay">
-                When a user signs up to run for office or to run an advocacy group they get a quest. This will take you to this user's quest.
+                <div class="sb-overlay-text">
+                    <div>
+                        When a user signs up to run for office or to run an advocacy group they get a quest. This will take you to this user's quest.
+                    </div>
+                </div>
             </div>
             {% if not page_profile.campaign %}
                 <div class="sb_coming_soon">
@@ -65,9 +80,11 @@
     </div>
     <div class="col-xs-4">
         <div class="sb-profile-not-friend-element">
-            <h4 class="sb-profile-not-friend-header">Follow Conversations</h4>
-            <div class="row sb-profile-not-friend-image-wrapper js-sb-flip">
-                <img class="sb-profile-not-friend-element-image" src="{% static "images/conversation_cloud_white-01.png" %}">
+            <div class="js-hover-overlay-activate">
+                <h4 class="sb-profile-not-friend-header">Follow Conversations</h4>
+                <div class="row sb-profile-not-friend-image-wrapper">
+                    <img class="sb-profile-not-friend-element-image" src="{% static "images/conversation_cloud_white-01.png" %}">
+                </div>
             </div>
             <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
             <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
@@ -76,6 +93,13 @@
             </div>
             <div class="sb_coming_soon">
                 <h3>Coming Soon!</h3>
+            </div>
+            <div class="sb-overlay">
+                <div class="sb-overlay-text">
+                    <div>
+                        When this feature is released it will allow you to get notified anytime that a user makes a question or solution in the public conversation.
+                    </div>
+                </div>
             </div>
         </div>
     </div>

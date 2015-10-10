@@ -33,12 +33,14 @@ $(document).ready(function () {
             }
         });
     });
-    $(".sb-profile-not-friend-element-image").mouseenter(function () {
-        event.preventDefault();
-        $(".sb-overlay").fadeIn();
+    $(".js-hover-overlay-activate").mouseenter(function () {
+        var $this = $(this),
+            overlay = $this.parent().parent().find(".sb-overlay");
+        overlay.height($this.height());
+        overlay.fadeIn('fast');
     });
-    $(".sb-profile-not-friend-element-image").mouseleave(function () {
-        event.preventDefault();
-        $(".sb-overlay").fadeOut();
+    $(".sb-overlay").mouseleave(function () {
+        $(this).fadeOut('fast');
+        $(".sb-profile-not-friend-element-image").removeClass("active");
     });
 });

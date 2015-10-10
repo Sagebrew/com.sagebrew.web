@@ -13,8 +13,8 @@ from api.utils import gather_request_data, spawn_task
 from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
 from plebs.serializers import PlebExportSerializer
-from sb_campaigns.neo_models import Campaign
-from sb_campaigns.tasks import release_single_donation_task
+from sb_quests.neo_models import Campaign
+from sb_quests.tasks import release_single_donation_task
 from sb_goals.neo_models import Round
 from sb_goals.tasks import check_goal_completion_task
 from plebs.tasks import send_email_task
@@ -163,7 +163,7 @@ class DonationSerializer(SBSerializer):
         return obj.owner_username
 
     def get_campaign(self, obj):
-        from sb_campaigns.neo_models import PoliticalCampaign
+        from sb_quests.neo_models import PoliticalCampaign
         request, expand, _, relation, _ = gather_request_data(self.context)
         campaign = Donation.get_campaign(obj.object_uuid)
         if expand == 'true':

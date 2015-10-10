@@ -1,4 +1,45 @@
-<h5>Blog{% if is_editor or is_accountant %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green toggle_create_goal" id="add_update"><span class="fa fa-plus"></span></button>{% endif %}</h5>
-<div id="update-container" class="block sb_action_content_block">
-
-</div>
+{% extends "quest_base.html" %}
+{% load staticfiles %}
+{% block title %}
+    {{ first_name }} {{ last_name }}'s Quest Updates
+{% endblock title %}
+{% block description %}
+    <meta name="description" content="Find all the latest updates on
+        events, campaign information, and more from {{ first_name }} {{ last_name }}'s Quest.">
+{% endblock description %}
+{% block keywords %}
+    {% if keywords %}
+        <meta name="keywords" content="{{ keywords }}">
+    {% endif %}
+    <meta name="author" content="{{ first_name }} {{ last_name }}">
+{% endblock keywords %}
+{% block quest_wall %}
+    <div class="col-xs-12 col-md-8">
+        <h5>Blog{% if is_editor or is_accountant %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green toggle_create_goal" id="add_update"><span class="fa fa-plus"></span></button>{% endif %}</h5>
+        <div id="update-container" class="block sb_action_content_block">
+        {% if not updates %}
+            <div id="epic-container" class="sb_markdown epic-area">
+                {% if is_editor or is_accountant %}
+                    <h1>Updates</h1>
+                    Updates are distributed to anyone that
+                    has donated to or pledged to vote for your
+                    Quest and will show up on their Newsfeed. We
+                    recommend using them to share:
+                    <ul style="font-size: 14pt; ">
+                        <li>Progress regarding your Quest and Goals</li>
+                        <li>Information you'd like to bring attention to</li>
+                        <li>Upcoming events related to your Quest</li>
+                    </ul>
+                {% else %}
+                    <h4>This Quest has no updates.</h4>
+                {% endif %}
+            </div>
+        {% endif %}
+        </div>
+    </div>
+{% endblock quest_wall %}
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/get_updates.js' %}"></script>
+    <script src="{% static 'js/event_quest_update_list.js' %}"></script>
+{% endblock scripts %}

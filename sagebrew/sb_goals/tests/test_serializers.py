@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from sb_campaigns.neo_models import PoliticalCampaign
+from sb_quests.neo_models import PoliticalCampaign
 
 from sb_goals.neo_models import Goal, Round
 from sb_goals.serializers import RoundSerializer

@@ -6,7 +6,7 @@ from elasticsearch.exceptions import NotFoundError
 
 from sb_public_official.neo_models import PublicOfficial
 
-from sb_campaigns.neo_models import PoliticalCampaign
+from sb_quests.neo_models import PoliticalCampaign
 
 
 class Command(BaseCommand):

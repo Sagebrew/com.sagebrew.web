@@ -8,7 +8,7 @@ from neomodel import (db, StringProperty, IntegerProperty, DoesNotExist,
 
 from api.neo_models import SBObject
 from api.utils import spawn_task
-from sb_campaigns.tasks import release_funds_task
+from sb_quests.tasks import release_funds_task
 
 
 class Goal(SBObject):
@@ -71,7 +71,7 @@ class Goal(SBObject):
     associated_round = RelationshipTo('sb_goals.neo_models.Round', "PART_OF")
     previous_goal = RelationshipTo('sb_goals.neo_models.Goal', "PREVIOUS")
     next_goal = RelationshipTo('sb_goals.neo_models.Goal', "NEXT")
-    campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
+    campaign = RelationshipTo('sb_quests.neo_models.Campaign',
                               'ASSOCIATED_WITH')
 
     @classmethod
@@ -194,7 +194,7 @@ class Round(SBObject):
                                "HAS_DONATIONS")
     previous_round = RelationshipTo('sb_goals.neo_models.Round', "PREVIOUS")
     next_round = RelationshipTo('sb_goals.neo_models.Round', "NEXT")
-    campaign = RelationshipTo('sb_campaigns.neo_models.Campaign',
+    campaign = RelationshipTo('sb_quests.neo_models.Campaign',
                               'ASSOCIATED_WITH')
 
     @classmethod
@@ -251,7 +251,7 @@ class Round(SBObject):
         round is completed.
         :return:
         """
-        from sb_campaigns.neo_models import PoliticalCampaign
+        from sb_quests.neo_models import PoliticalCampaign
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:STRIVING_FOR]->' \
                 '(g:`Goal`) WITH r, g MATCH ' \
                 '(r)-[:ASSOCIATED_WITH]->(c:Campaign) ' \
@@ -303,7 +303,7 @@ class Round(SBObject):
         to the currently active round relationship with the campaign.
         :return:
         """
-        from sb_campaigns.neo_models import PoliticalCampaign
+        from sb_quests.neo_models import PoliticalCampaign
         query = 'MATCH (r:Round {object_uuid:"%s"})-[:STRIVING_FOR]->' \
                 '(g:Goal) WITH r, g MATCH (r)-[ASSOCIATED_WITH]->' \
                 '(c:Campaign) RETURN g.completed, c.object_uuid ' \

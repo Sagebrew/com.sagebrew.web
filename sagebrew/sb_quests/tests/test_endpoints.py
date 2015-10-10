@@ -929,6 +929,7 @@ class CampaignEndpointTests(APITestCase):
         position.delete()
 
     def test_vote_four_locations_away(self):
+        from time import sleep
         location = Location(name="Test Location").save()
         location2 = Location(name="Test Location 2").save()
         location3 = Location(name="Test Location 3").save()
@@ -953,7 +954,9 @@ class CampaignEndpointTests(APITestCase):
         data = {
             'vote_type': 1
         }
+        sleep(5)
         response = self.client.post(url, data=data, format='json')
+        print response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['detail'])
         address.delete()

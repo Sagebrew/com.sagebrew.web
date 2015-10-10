@@ -40,7 +40,7 @@ var paths = {
         'js/vendor/croppic.min.js'
     ],
     scripts: [
-        'js/modules/*.js',
+        'js/modules/sagebrew.js',
         'js/sb_utils.js',
         'js/sign_up_btn.js'
     ],
@@ -80,14 +80,14 @@ gulp.task('lr-server', function() {
 //
 // JS
 gulp.task('scripts:app', function () {
-      // set up the browserify instance on a task basis
-        /*
-      var b = browserify({
-            entries: paths.scripts,
-            debug: true,
-            // defining transforms here will avoid crashing your stream
-            transform: [babelify]
-      });
+    var b = browserify({
+        entries: paths.scripts,
+        debug: true,
+        // defining transforms here will avoid crashing your stream
+        transform: [babelify]
+    });
+
+    b.add(require.resolve('babel/polyfill'));
 
     return b.bundle()
         .pipe(source('sagebrew.js'))
@@ -98,7 +98,8 @@ gulp.task('scripts:app', function () {
             .on('error', gutil.log)
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('dist/js/'));
-    */
+
+        /*
 
     return gulp.src(paths.scripts)
         .pipe(sourcemaps.init())
@@ -109,7 +110,7 @@ gulp.task('scripts:app', function () {
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('dist/js'))
         .pipe(refresh(server));
-
+    */
 
 });
 

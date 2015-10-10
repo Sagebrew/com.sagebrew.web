@@ -7,7 +7,7 @@ from django.core.cache import cache
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel import db, DoesNotExist
+from neomodel import db
 
 from api.utils import gather_request_data, spawn_task
 from api.serializers import SBSerializer
@@ -118,7 +118,7 @@ class DonationSerializer(SBSerializer):
         cache.delete("%s_total_donated" % campaign.object_uuid)
         if position_level == "local" \
                 and campaign.get_total_donated(campaign.object_uuid) \
-                        < settings.FREE_RELEASE_LIMIT:
+                < settings.FREE_RELEASE_LIMIT:
             spawn_task(task_func=release_single_donation_task,
                        task_param={"donation_uuid": donation.object_uuid})
             return donation

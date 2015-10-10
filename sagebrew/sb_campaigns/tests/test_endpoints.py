@@ -1,4 +1,3 @@
-import time
 import stripe
 from uuid import uuid1
 

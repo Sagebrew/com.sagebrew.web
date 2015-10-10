@@ -25,6 +25,8 @@ from sb_quests.neo_models import PoliticalCampaign, Position
 
 class CampaignEndpointTests(APITestCase):
     def setUp(self):
+        query = "match (n)-[r]-() delete n,r"
+        db.cypher_query(query)
         self.unit_under_test_name = 'campaign'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -929,7 +931,6 @@ class CampaignEndpointTests(APITestCase):
         position.delete()
 
     def test_vote_four_locations_away(self):
-        from time import sleep
         location = Location(name="Test Location").save()
         location2 = Location(name="Test Location 2").save()
         location3 = Location(name="Test Location 3").save()
@@ -954,7 +955,6 @@ class CampaignEndpointTests(APITestCase):
         data = {
             'vote_type': 1
         }
-        sleep(5)
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(response.data['detail'])

@@ -1,13 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block title %}{{ page_user.first_name}} {{ page_user.last_name }}{% endblock title %}
-{% block css %}
-    {{ block.super }}
-    <link href="{% static 'css/vendor/lightbox.css' %}" rel="stylesheet" type="text/css"/>
-    <link href="{% static 'css/vendor/croppic.css' %}" rel="stylesheet" type="text/css"/>
-{% endblock css %}
 {% block content %}
-
     <div id="user_info" style="display: none"
         data-current_user_username="{{ request.user.username }}"
         data-page_user_username="{{ page_user.username }}"></div>

@@ -2,7 +2,6 @@
  * @file
  * blah blah?
  */
-import $ from 'jquery';
 
 /**
  * Get cookie based by name.

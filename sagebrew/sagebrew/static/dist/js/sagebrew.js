@@ -2,25 +2,20 @@
  * @file
  * blah blah?
  */
-'use strict';
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
-
-var _jquery = require('jquery');
-
-var _jquery2 = _interopRequireDefault(_jquery);
 
 /**
  * Get cookie based by name.
  * @param name
  * @returns {*}
  */
+'use strict';
+
 function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== "") {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i += 1) {
-            var cookie = _jquery2['default'].trim(cookies[i]);
+            var cookie = $.trim(cookies[i]);
             // Does this cookie string begin with the name we want?
 
             if (cookie.substring(0, name.length + 1) === name + '=') {
@@ -47,7 +42,7 @@ function csrfSafeMethod(method) {
  * Ajax Setup
  * -- Automatically add CSRF cookie value to all ajax requests.
  */
-_jquery2['default'].ajaxSetup({
+$.ajaxSetup({
     beforeSend: function beforeSend(xhr, settings) {
         if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
             xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));

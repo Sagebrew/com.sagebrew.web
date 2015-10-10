@@ -25,6 +25,8 @@ from sb_quests.neo_models import PoliticalCampaign, Position
 
 class CampaignEndpointTests(APITestCase):
     def setUp(self):
+        query = "match (n)-[r]-() delete n,r"
+        db.cypher_query(query)
         self.unit_under_test_name = 'campaign'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -847,8 +849,6 @@ class CampaignEndpointTests(APITestCase):
         position.delete()
 
     def test_vote_outside_area(self):
-        query = "match (n)-[r]-() delete n,r"
-        db.cypher_query(query)
         location = Location(name="Test Location").save()
         location2 = Location(name="Test Location 2").save()
         position = Position(name="Test Position").save()
@@ -873,8 +873,6 @@ class CampaignEndpointTests(APITestCase):
         position.delete()
 
     def test_vote_two_locations_away(self):
-        query = "match (n)-[r]-() delete n,r"
-        db.cypher_query(query)
         location = Location(name="Test Location").save()
         location2 = Location(name="Test Location 2").save()
         position = Position(name="Test Position").save()
@@ -902,8 +900,6 @@ class CampaignEndpointTests(APITestCase):
         position.delete()
 
     def test_vote_three_locations_away(self):
-        query = "match (n)-[r]-() delete n,r"
-        db.cypher_query(query)
         location = Location(name="Test Location").save()
         location2 = Location(name="Test Location 2").save()
         location3 = Location(name="Test Location 3").save()
@@ -935,8 +931,6 @@ class CampaignEndpointTests(APITestCase):
         position.delete()
 
     def test_vote_four_locations_away(self):
-        query = "match (n)-[r]-() delete n,r"
-        db.cypher_query(query)
         location = Location(name="Test Location").save()
         location2 = Location(name="Test Location 2").save()
         location3 = Location(name="Test Location 3").save()

@@ -426,8 +426,7 @@ class PoliticalCampaign(Campaign):
             return False
         address = pleb.get_address()
         position = PoliticalCampaign.get_position(object_uuid)
-        logger.critical(address)
-        logger.critical(position)
+
         if position is None or address is None:
             return False
         # This query attempts to match a given position and address via
@@ -439,7 +438,7 @@ class PoliticalCampaign(Campaign):
             '[:AVAILABLE_WITHIN]->(l1:Location)<-[t:ENCOMPASSED_BY*..]-'
             '(a:Address {object_uuid:"%s"}) RETURN t' % (
                 position, address.object_uuid))
-        logger.critical(res)
+
         if res.one:
             return True
         return False

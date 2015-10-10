@@ -79,7 +79,7 @@ gulp.task('lr-server', function() {
 
 //
 // JS
-gulp.task('scripts:app', ['clean'], function () {
+gulp.task('scripts:app', function () {
       // set up the browserify instance on a task basis
         /*
       var b = browserify({
@@ -115,7 +115,7 @@ gulp.task('scripts:app', ['clean'], function () {
 
 //
 // JS
-gulp.task('scripts:vendor', ['clean'], function () {
+gulp.task('scripts:vendor', function () {
     return gulp.src(paths.vendor_scripts)
         .pipe(concat('vendor.js'))
         .pipe(gulp.dest('dist/js'))
@@ -128,7 +128,7 @@ gulp.task('scripts', ['scripts:app', 'scripts:vendor']);
 
 //
 // Styles
-gulp.task('styles', ['clean'], function () {
+gulp.task('styles', function () {
     return gulp.src(['less/styles.less'])
         .pipe(less())
         .pipe(minifycss())
@@ -139,7 +139,7 @@ gulp.task('styles', ['clean'], function () {
 
 //
 // Fonts
-gulp.task('fonts', ['clean'], function() {
+gulp.task('fonts', function() {
     return gulp.src(paths.fonts)
             .pipe(gulp.dest('dist/fonts/'));
 });
@@ -148,14 +148,14 @@ gulp.task('fonts', ['clean'], function() {
 //
 // Hotfix for lightbox images.
 // TODO: Fix.
-gulp.task('images:hotfix', ['clean'], function() {
+gulp.task('images:hotfix', function() {
     return gulp.src(['css/vendor/img/**'])
            .pipe(gulp.dest('dist/css/vendor/img/'));
 });
 
 //
 // Images
-gulp.task('images', ['clean', 'images:hotfix'], function() {
+gulp.task('images', ['images:hotfix'], function() {
     return gulp.src(paths.images)
             .pipe(gulp.dest('dist/imgs/'));
 });

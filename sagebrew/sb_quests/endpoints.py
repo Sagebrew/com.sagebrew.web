@@ -141,7 +141,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
             serializer.remove_profiles(queryset)
             if html == 'true':
                 return Response({"ids": serializer.data['profiles'], "html": [
-                    render_to_string("potential_campaign_helper.html",
+                    render_to_string("potential_quest_helper.html",
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
                     for pleb in serializer.data['profiles']]},
                     status=status.HTTP_200_OK)
@@ -208,7 +208,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
             serializer.remove_profiles(queryset)
             if html == 'true':
                 return Response({"ids": serializer.data['profiles'], "html": [
-                    render_to_string("potential_campaign_helper.html",
+                    render_to_string("potential_quest_helper.html",
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
                     for pleb in serializer.data['profiles']]},
                     status=status.HTTP_200_OK)
@@ -305,7 +305,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
 class PoliticalCampaignViewSet(CampaignViewSet):
     serializer_class = PoliticalCampaignSerializer
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         query = "MATCH (c:`PoliticalCampaign`) RETURN c"
@@ -358,7 +358,7 @@ class PoliticalCampaignViewSet(CampaignViewSet):
             cache.delete("%s_vote_count" % object_uuid)
             parent_object_uuid = self.kwargs[self.lookup_field]
             if not PoliticalCampaign.get_allow_vote(parent_object_uuid,
-                                                    request.user .username):
+                                                    request.user.username):
                 return Response({"detail": "Cannot pledge vote to quest "
                                            "outside your area",
                                  "status": status.HTTP_403_FORBIDDEN,
@@ -415,7 +415,7 @@ class PoliticalCampaignViewSet(CampaignViewSet):
             return Response({"ids": queryset,
                              "html": [
                                  render_to_string(
-                                     'potential_campaign_helper.html',
+                                     'potential_quest_helper.html',
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
                                  for pleb in queryset]},
                             status=status.HTTP_200_OK)
@@ -426,7 +426,7 @@ class PoliticalCampaignViewSet(CampaignViewSet):
 class PositionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PositionSerializer
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         query = 'MATCH (p:`Position`) RETURN p'

@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-from sb_campaigns.neo_models import PoliticalCampaign
+from sb_quests.neo_models import PoliticalCampaign
 
 from sb_goals.tasks import check_goal_completion_task
 from sb_goals.neo_models import Round, Goal

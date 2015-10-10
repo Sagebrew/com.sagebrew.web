@@ -9,8 +9,8 @@ from api.utils import spawn_task
 from api.tasks import add_object_to_search_index
 from govtrack.neo_models import GTRole
 from govtrack.utils import populate_term_data
-from sb_campaigns.neo_models import PoliticalCampaign
-from sb_campaigns.serializers import PoliticalCampaignSerializer
+from sb_quests.neo_models import PoliticalCampaign
+from sb_quests.serializers import PoliticalCampaignSerializer
 
 from sb_public_official.neo_models import PublicOfficial
 

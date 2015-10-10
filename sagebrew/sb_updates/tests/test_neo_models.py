@@ -2,7 +2,7 @@ from uuid import uuid1
 
 from django.test import TestCase
 
-from sb_campaigns.neo_models import Campaign
+from sb_quests.neo_models import Campaign
 from sb_goals.neo_models import Goal
 
 from sb_updates.neo_models import Update

@@ -13,7 +13,7 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_goals.neo_models import Goal, Round
-from sb_campaigns.neo_models import PoliticalCampaign
+from sb_quests.neo_models import PoliticalCampaign
 
 
 class GoalEndpointTests(APITestCase):

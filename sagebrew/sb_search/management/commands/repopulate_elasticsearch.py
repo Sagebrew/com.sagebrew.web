@@ -7,8 +7,8 @@ from plebs.neo_models import Pleb
 from plebs.serializers import PlebSerializerNeo
 from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
-from sb_campaigns.neo_models import PoliticalCampaign
-from sb_campaigns.serializers import PoliticalCampaignSerializer
+from sb_quests.neo_models import PoliticalCampaign
+from sb_quests.serializers import PoliticalCampaignSerializer
 
 
 class Command(BaseCommand):

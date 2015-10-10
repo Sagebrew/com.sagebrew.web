@@ -14,7 +14,7 @@ from sb_comments.neo_models import Comment
 from sb_posts.neo_models import Post
 from sb_registration.utils import create_user_util_test
 from api.utils import wait_util
-from sb_campaigns.neo_models import PoliticalCampaign
+from sb_quests.neo_models import PoliticalCampaign
 
 from plebs.neo_models import Pleb, FriendRequest
 from plebs.views import (ProfileView, create_friend_request)

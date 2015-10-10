@@ -14,7 +14,7 @@ from api.utils import spawn_task
 from plebs.tasks import create_pleb_task
 from plebs.neo_models import Pleb
 from sb_base.decorators import apply_defense
-from sb_campaigns.neo_models import Campaign
+from sb_quests.neo_models import Campaign
 
 
 def calc_age(birthday):

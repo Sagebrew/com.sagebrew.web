@@ -24,8 +24,8 @@ from api.utils import spawn_task
 from plebs.neo_models import (Pleb, BetaUser, Address,
                               get_friend_requests_sent)
 from sb_registration.utils import (verify_completed_registration)
-from sb_campaigns.neo_models import Campaign
-from sb_campaigns.serializers import CampaignSerializer
+from sb_quests.neo_models import Campaign
+from sb_quests.serializers import CampaignSerializer
 
 from .serializers import PlebSerializerNeo
 from .tasks import create_friend_request_task, send_email_task
@@ -149,7 +149,7 @@ def quest_settings(request):
         return redirect("500_Error")
     except IndexError:
         campaign = False
-    return render(request, 'campaign_settings.html',
+    return render(request, 'quest_settings.html',
                   {"campaign": campaign})
 
 

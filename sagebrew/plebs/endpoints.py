@@ -36,8 +36,8 @@ from sb_public_official.serializers import PublicOfficialSerializer
 from sb_public_official.neo_models import PublicOfficial
 from sb_donations.neo_models import Donation
 from sb_donations.serializers import DonationSerializer
-from sb_campaigns.neo_models import PoliticalCampaign
-from sb_campaigns.serializers import PoliticalCampaignSerializer
+from sb_quests.neo_models import PoliticalCampaign
+from sb_quests.serializers import PoliticalCampaignSerializer
 from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
@@ -308,7 +308,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                 "House Representative. Please alert us to "
                                 "our error!</small>",
                                 status=status.HTTP_200_OK)
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             house_rep_html = render_to_string(
                 'sb_home_section/sb_house_rep_block.html',
@@ -332,7 +332,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                 "President. Please alert us to our error"
                                 "!</small>",
                                 status=status.HTTP_200_OK)
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             return Response(
                 render_to_string('sb_home_section/sb_house_rep_block.html',
@@ -418,7 +418,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                  for row in res]
             cache.set('%s_possible_senators' % username,
                       possible_senators, timeout=1800)
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             if not possible_senators:
                 return Response("<small>Currently No Registered Campaigning "
@@ -443,7 +443,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             possible_presidents = [PoliticalCampaign.inflate(row[0])
                                    for row in res]
             cache.set("possible_presidents", possible_presidents, timeout=1800)
-        html = self.request.QUERY_PARAMS.get('html', 'false').lower()
+        html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             if not possible_presidents:
                 return Response("<small>Currently No Registered "
@@ -688,7 +688,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                     news_article['created'] = parser.parse(
                         news_article['created'])
                     article_html = render_to_string(
-                        'campaign_news.html',
+                        'quest_news.html',
                         RequestContext(request, news_article))
             elif row.updates is not None:
                 row.updates.pull()

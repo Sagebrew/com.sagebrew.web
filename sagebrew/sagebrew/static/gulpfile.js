@@ -1,5 +1,8 @@
 var gulp = require('gulp');
 var concat = require('gulp-concat');
+var browserify = require('browserify');
+var babelify = require("babelify");
+var babel = require('gulp-babel');
 var less = require('gulp-less');
 var jshint = require('gulp-jshint');
 var uglify = require('gulp-uglify');
@@ -14,6 +17,7 @@ var refresh = require('gulp-livereload');
 var lr = require('tiny-lr');
 var server = lr();
 var notify = require('gulp-notify');
+
 
 //
 // Path definitions.
@@ -32,9 +36,11 @@ var paths = {
         'js/vendor/spin.min.js',
         'js/vendor/jquery.spin.js',
         'js/vendor/foggy.min.js',
-        'js/vendor/Autolinker.min.js'
+        'js/vendor/Autolinker.min.js',
+        'js/vendor/croppic.min.js'
     ],
     scripts: [
+        'js/modules/*.js',
         'js/sb_utils.js',
         'js/sign_up_btn.js'
     ],
@@ -74,12 +80,36 @@ gulp.task('lr-server', function() {
 //
 // JS
 gulp.task('scripts:app', ['clean'], function () {
+      // set up the browserify instance on a task basis
+        /*
+      var b = browserify({
+            entries: paths.scripts,
+            debug: true,
+            // defining transforms here will avoid crashing your stream
+            transform: [babelify]
+      });
+
+    return b.bundle()
+        .pipe(source('sagebrew.js'))
+        .pipe(buffer())
+        .pipe(sourcemaps.init({loadMaps: true}))
+            // Add transformation tasks to the pipeline here.
+            .pipe(uglify())
+            .on('error', gutil.log)
+        .pipe(sourcemaps.write('./'))
+        .pipe(gulp.dest('dist/js/'));
+    */
+
     return gulp.src(paths.scripts)
+        .pipe(sourcemaps.init())
+        .pipe(babel())
         .pipe(jshint('.jshintrc'))
         .pipe(jshint.reporter('jshint-stylish'))
         .pipe(concat('sagebrew.js'))
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('dist/js'))
         .pipe(refresh(server));
+
 
 });
 
@@ -94,7 +124,7 @@ gulp.task('scripts:vendor', ['clean'], function () {
 
 //
 // JS
-gulp.task('scripts', ['scripts:vendor', 'scripts:app']);
+gulp.task('scripts', ['scripts:app', 'scripts:vendor']);
 
 //
 // Styles

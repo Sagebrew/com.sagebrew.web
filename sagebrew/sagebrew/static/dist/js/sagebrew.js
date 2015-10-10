@@ -1,16 +1,29 @@
-/*global $, jQuery, guid, enableSinglePostFunctionality, errorDisplay, lightbox, Autolinker*/
 /**
- * csrftoken support for django
+ * @file
+ * blah blah?
+ */
+'use strict';
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+var _jquery = require('jquery');
+
+var _jquery2 = _interopRequireDefault(_jquery);
+
+/**
+ * Get cookie based by name.
+ * @param name
+ * @returns {*}
  */
 function getCookie(name) {
     var cookieValue = null;
     if (document.cookie && document.cookie !== "") {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i += 1) {
-            var cookie = jQuery.trim(cookies[i]);
+            var cookie = _jquery2['default'].trim(cookies[i]);
             // Does this cookie string begin with the name we want?
 
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            if (cookie.substring(0, name.length + 1) === name + '=') {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
             }
@@ -19,25 +32,38 @@ function getCookie(name) {
     return cookieValue;
 }
 
+/**
+ * Check if HTTP method requires CSRF.
+ * @param method
+ * @returns {boolean}
+ */
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method)
+    );
 }
 
-$.ajaxSetup({
-    beforeSend: function (xhr, settings) {
+/**
+ * Ajax Setup
+ * -- Automatically add CSRF cookie value to all ajax requests.
+ */
+_jquery2['default'].ajaxSetup({
+    beforeSend: function beforeSend(xhr, settings) {
         if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
             xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
         }
     }
 });
+/*global $, jQuery, guid, enableSinglePostFunctionality, errorDisplay, lightbox, Autolinker*/
+
+"use strict";
 
 function saveComment(commentArea, url, objectUuid) {
     $(commentArea).click(function (event) {
         $(commentArea).attr("disabled", "disabled");
         event.preventDefault();
         $.ajax({
-            xhrFields: {withCredentials: true},
+            xhrFields: { withCredentials: true },
             type: "POST",
             url: url + "?html=true&expedite=true",
             data: JSON.stringify({
@@ -46,21 +72,20 @@ function saveComment(commentArea, url, objectUuid) {
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function (data) {
+            success: function success(data) {
                 var commentContainer = $("#sb_comments_container_" + objectUuid);
                 commentContainer.append(data.html);
                 $('textarea#post_comment_on_' + objectUuid).val("");
                 enableCommentFunctionality(data.ids);
                 $(commentArea).removeAttr("disabled");
             },
-            error: function (XMLHttpRequest) {
+            error: function error(XMLHttpRequest) {
                 $(commentArea).removeAttr("disabled");
                 errorDisplay(XMLHttpRequest);
             }
         });
     });
 }
-
 
 function enableExpandPostImage() {
     lightbox.option({
@@ -70,16 +95,13 @@ function enableExpandPostImage() {
     });
 }
 
-
 function saveComments(populatedIds, url) {
     if (typeof populatedIds !== 'undefined' && populatedIds.length > 0) {
         for (var i = 0; i < populatedIds.length; i += 1) {
-            saveComment(".comment_" + populatedIds[i],
-                    url + populatedIds[i] + "/comments/", populatedIds[i]);
+            saveComment(".comment_" + populatedIds[i], url + populatedIds[i] + "/comments/", populatedIds[i]);
         }
     }
 }
-
 
 function showEditPost(editArea) {
     $(editArea).click(function () {
@@ -101,7 +123,6 @@ function showEditPosts(populatedIds) {
     }
 }
 
-
 function showEditComment() {
     $("a.show_edit_comment_class").click(function () {
         var objectUuid = $(this).data('comment_uuid');
@@ -112,10 +133,9 @@ function showEditComment() {
     });
 }
 
-
 function populateComment(objectUuid, resource) {
     $.ajax({
-        xhrFields: {withCredentials: true},
+        xhrFields: { withCredentials: true },
         type: "GET",
         // TODO probably want to make a /v1/content/ endpoint so that it's more
         // explanitory that comments can be on any piece of content.
@@ -123,25 +143,20 @@ function populateComment(objectUuid, resource) {
         url: "/v1/" + resource + "/" + objectUuid + "/comments/render/?expedite=true&expand=true&html=true&page_size=3",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        success: function (data) {
+        success: function success(data) {
             var commentContainer = $('#sb_comments_container_' + objectUuid);
             commentContainer.append(data.results.html);
             if (data.count > 3) {
                 // TODO this may break in IE
-                commentContainer.prepend(
-                        '<div class="row">' +
-                        '<div class="col-lg-5 col-lg-offset-1">' +
-                        '<a href="javascript:;" class="additional_comments" id="additional_comments_' + objectUuid + '">More Comments ...</a>' +
-                        '</div>' +
-                        '</div>');
+                commentContainer.prepend('<div class="row">' + '<div class="col-lg-5 col-lg-offset-1">' + '<a href="javascript:;" class="additional_comments" id="additional_comments_' + objectUuid + '">More Comments ...</a>' + '</div>' + '</div>');
                 $('#additional_comments_' + objectUuid).click(function () {
                     $.ajax({
-                        xhrFields: {withCredentials: true},
+                        xhrFields: { withCredentials: true },
                         type: "GET",
                         url: "/v1/" + resource + "/" + objectUuid + "/comments/render/?expand=true&html=true&page_size=3&page=2",
                         contentType: "application/json; charset=utf-8",
                         dataType: "json",
-                        success: function (data) {
+                        success: function success(data) {
                             var commentContainer = $('#sb_comments_container_' + objectUuid);
                             $('#additional_comments_' + objectUuid).remove();
                             commentContainer.prepend(data.results.html);
@@ -150,16 +165,15 @@ function populateComment(objectUuid, resource) {
                             }
                             enableCommentFunctionality(data.results.ids);
                         },
-                        error: function (XMLHttpRequest) {
+                        error: function error(XMLHttpRequest) {
                             errorDisplay(XMLHttpRequest);
                         }
                     });
                 });
-
             }
             enableCommentFunctionality(data.results.ids);
         },
-        error: function (XMLHttpRequest) {
+        error: function error(XMLHttpRequest) {
             errorDisplay(XMLHttpRequest);
         }
     });
@@ -167,12 +181,12 @@ function populateComment(objectUuid, resource) {
 
 function queryComments(url, objectUuid) {
     $.ajax({
-        xhrFields: {withCredentials: true},
+        xhrFields: { withCredentials: true },
         type: "GET",
         url: url,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        success: function (data) {
+        success: function success(data) {
             if (data.next !== null) {
                 queryComments(data.next, objectUuid);
             }
@@ -180,7 +194,7 @@ function queryComments(url, objectUuid) {
             commentContainer.prepend(data.results.html);
             enableCommentFunctionality(data.results.ids);
         },
-        error: function (XMLHttpRequest) {
+        error: function error(XMLHttpRequest) {
             errorDisplay(XMLHttpRequest);
         }
     });
@@ -188,12 +202,11 @@ function queryComments(url, objectUuid) {
 
 function populateComments(objectUuids, resource) {
     if (typeof objectUuids !== 'undefined' && objectUuids.length > 0) {
-        for (var i = 0; i < objectUuids.length; i+=1) {
+        for (var i = 0; i < objectUuids.length; i += 1) {
             populateComment(objectUuids[i], resource);
         }
     }
 }
-
 
 function toolTipObject(toolObject) {
     $(toolObject).tooltip();
@@ -225,16 +238,15 @@ function readyFlags(objectUuids) {
     }
 }
 
-
 function loadPosts(url) {
-    $("#wall_app").spin({lines: 8, length: 4, width: 3, radius: 5});
+    $("#wall_app").spin({ lines: 8, length: 4, width: 3, radius: 5 });
     $.ajax({
-        xhrFields: {withCredentials: true},
+        xhrFields: { withCredentials: true },
         type: "GET",
         url: url,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        success: function (data) {
+        success: function success(data) {
             var wallContainer = $('#wall_app');
             if (data.count === 0) {
                 wallContainer.append('<div id="js-wall_temp_message"><h3>Add a Spark :)</h3></div>');
@@ -254,23 +266,22 @@ function loadPosts(url) {
             }
             wallContainer.spin(false);
         },
-        error: function (XMLHttpRequest) {
+        error: function error(XMLHttpRequest) {
             errorDisplay(XMLHttpRequest);
         }
     });
 }
 
-
 function loadQuestion() {
     var timeOutId = 0;
-    var ajaxFn = function () {
+    var ajaxFn = function ajaxFn() {
         $.ajax({
-            xhrFields: {withCredentials: true},
+            xhrFields: { withCredentials: true },
             type: "GET",
             url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/?html=true&expand=true&expedite=true",
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function (data) {
+            success: function success(data) {
                 var questionContainer = $('#single_question_wrapper');
                 questionContainer.append(Autolinker.link(data.html));
                 loadSolutionCount();
@@ -278,7 +289,7 @@ function loadQuestion() {
                 populateComments(data.ids, "questions");
                 loadSolutions("/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?page_size=10&expand=true");
             },
-            error: function (XMLHttpRequest) {
+            error: function error(XMLHttpRequest) {
                 timeOutId = setTimeout(ajaxFn, 1000);
                 errorDisplay(XMLHttpRequest);
             }
@@ -289,33 +300,32 @@ function loadQuestion() {
 
 function loadSolutionCount() {
     $.ajax({
-        xhrFields: {withCredentials: true},
+        xhrFields: { withCredentials: true },
         type: "GET",
         url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solution_count/",
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        success: function (data) {
+        success: function success(data) {
             $('#solution_count').html("");
             $('#solution_count').append(data.solution_count);
             if (data.solution_count !== 1) {
                 $('#solution_plural').append('s');
             }
         },
-        error: function (XMLHttpRequest) {
+        error: function error(XMLHttpRequest) {
             errorDisplay(XMLHttpRequest);
         }
     });
 }
 
-
 function loadSolutions(url) {
     $.ajax({
-        xhrFields: {withCredentials: true},
+        xhrFields: { withCredentials: true },
         type: "GET",
         url: url,
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        success: function (data) {
+        success: function success(data) {
             var solutionContainer = $('#solution_container');
             for (var i = 0; i < data.results.html.length; i += 1) {
                 solutionContainer.append(Autolinker.link(data.results.html[i]));
@@ -333,12 +343,11 @@ function loadSolutions(url) {
             // `comments/` to the end of it.
             populateComments(data.results.ids, "solutions");
         },
-        error: function (XMLHttpRequest) {
+        error: function error(XMLHttpRequest) {
             errorDisplay(XMLHttpRequest);
         }
     });
 }
-
 
 function voteObject(voteArea, resource) {
     $(voteArea).click(function (event) {
@@ -379,8 +388,7 @@ function voteObject(voteArea, resource) {
                 $(this).addClass('vote_up_active');
                 upvoteCount += 1;
                 voteBackup = 3;
-            }
-            else {
+            } else {
                 $(this).addClass('vote_down_active');
                 upvoteCount -= 1;
                 voteBackup = -3;
@@ -389,7 +397,7 @@ function voteObject(voteArea, resource) {
 
         event.preventDefault();
         $.ajax({
-            xhrFields: {withCredentials: true},
+            xhrFields: { withCredentials: true },
             type: "POST",
             url: "/v1/" + resource + "/" + objectUuid + "/votes/?expedite=true",
             data: JSON.stringify({
@@ -397,22 +405,22 @@ function voteObject(voteArea, resource) {
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function () {
+            success: function success() {
                 $('#vote_count_' + objectUuid).text(upvoteCount);
                 $(voteArea).removeAttr("disabled");
             },
-            error: function (XMLHttpRequest) {
+            error: function error(XMLHttpRequest) {
                 $(voteArea).removeAttr("disabled");
                 errorDisplay(XMLHttpRequest);
-                if(voteBackup === 2 || voteBackup === 1){
+                if (voteBackup === 2 || voteBackup === 1) {
                     voteDown.addClass('vote_down_active');
                     voteUp.removeClass('vote_up_active');
-                } else if(voteBackup === -1 || voteBackup === -2){
+                } else if (voteBackup === -1 || voteBackup === -2) {
                     voteUp.addClass('vote_up_active');
                     voteDown.removeClass('vote_down_active');
-                } else if(voteBackup === 3) {
+                } else if (voteBackup === 3) {
                     voteUp.removeClass('vote_up_active');
-                } else if(voteBackup === -3) {
+                } else if (voteBackup === -3) {
                     voteDown.removeClass('vote_down_active');
                 }
             }
@@ -432,17 +440,14 @@ function saveSolution() {
     $(".submit_solution-action").click(function (event) {
         event.preventDefault();
         var submitArea = $("#submit_solution");
-            textArea = $('textarea.sb_solution_input_area'),
-            regExp = /\b((?:https?:(?:|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw))(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b(?!@)))/gi,
-            regexMatches = textArea.val().match(regExp),
-            content = textArea.val();
+        textArea = $('textarea.sb_solution_input_area'), regExp = /\b((?:https?:(?:|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw))(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b(?!@)))/gi, regexMatches = textArea.val().match(regExp), content = textArea.val();
         submitArea.attr("disabled", "disabled");
         if (!regexMatches) {
-            $.notify({message: "Please include at least 1 link to information that supports or adds context to your Solution"}, {type: "danger"});
+            $.notify({ message: "Please include at least 1 link to information that supports or adds context to your Solution" }, { type: "danger" });
             submitArea.removeAttr("disabled");
         } else {
             $.ajax({
-                xhrFields: {withCredentials: true},
+                xhrFields: { withCredentials: true },
                 type: "POST",
                 url: "/v1/questions/" + $(this).data('object_uuid') + "/solutions/?html=true&expand=true",
                 data: JSON.stringify({
@@ -450,7 +455,7 @@ function saveSolution() {
                 }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function (data) {
+                success: function success(data) {
                     $("#solution_container").append(data.html);
                     $('textarea.sb_solution_input_area').val("");
                     $("#wmd-preview-0").empty();
@@ -465,16 +470,14 @@ function saveSolution() {
                     $("#submit_solution").removeAttr("disabled");
                     enableSolutionFunctionality(data.ids);
                 },
-                error: function (XMLHttpRequest) {
+                error: function error(XMLHttpRequest) {
                     $("#submit_solution").removeAttr("disabled");
                     errorDisplay(XMLHttpRequest);
                 }
             });
         }
-
     });
 }
-
 
 function showEditQuestion() {
     $("a.show_edit_question-action").click(function (event) {
@@ -491,7 +494,6 @@ function showEditSolution() {
     });
 }
 
-
 function getOrCreateExpandedURLs(regExp, content, editButton) {
     var regexMatches = content.match(regExp),
         promises = [];
@@ -501,7 +503,7 @@ function getOrCreateExpandedURLs(regExp, content, editButton) {
             $(editButton).attr("disabled", "disabled");
             $(editButton).spin('small');
             var request = $.ajax({
-                xhrFields: {withCredentials: true},
+                xhrFields: { withCredentials: true },
                 type: "POST",
                 url: "/v1/urlcontent/",
                 data: JSON.stringify({
@@ -510,11 +512,11 @@ function getOrCreateExpandedURLs(regExp, content, editButton) {
                 }),
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
-                success: function (data) {
+                success: function success(data) {
                     $(editButton).removeAttr('disabled');
                     $(editButton).spin(false);
                 },
-                error: function (XMLHttpRequest) {
+                error: function error(XMLHttpRequest) {
                     $(editButton).removeAttr('disabled');
                     $(editButton).spin(false);
                 }
@@ -525,7 +527,6 @@ function getOrCreateExpandedURLs(regExp, content, editButton) {
     }
     return promises;
 }
-
 
 function editObject(editArea, url, objectUuid, dataArea) {
     var regExp = /\b((?:https?:(?:|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw))(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b(?!@)))/gi,
@@ -548,7 +549,7 @@ function editObject(editArea, url, objectUuid, dataArea) {
             }
             $(editButton).attr("disabled", "disabled");
             $.ajax({
-                xhrFields: {withCredentials: true},
+                xhrFields: { withCredentials: true },
                 type: "PUT",
                 url: url,
                 contentType: "application/json; charset=utf-8",
@@ -557,7 +558,7 @@ function editObject(editArea, url, objectUuid, dataArea) {
                     'included_urls': finalURLs
                 }),
                 dataType: "json",
-                success: function (data) {
+                success: function success(data) {
                     $(editButton).removeAttr("disabled");
                     var contentContainer = $("#sb_content_" + objectUuid);
                     contentContainer.html(Autolinker.link(data.content).replace(/\n/g, "<br/>"));
@@ -567,14 +568,14 @@ function editObject(editArea, url, objectUuid, dataArea) {
                     if ("uploaded_objects" in data) {
                         contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
                         var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
-                        $.each(data.uploaded_objects, function(index, value){
+                        $.each(data.uploaded_objects, function (index, value) {
                             uploadContainer.append(value.html);
                         });
                     }
                     $("#edit_container_" + objectUuid).hide();
                     contentContainer.show();
                 },
-                error: function (XMLHttpRequest) {
+                error: function error(XMLHttpRequest) {
                     $(editButton).removeAttr("disabled");
                     errorDisplay(XMLHttpRequest);
                 }
@@ -583,23 +584,19 @@ function editObject(editArea, url, objectUuid, dataArea) {
     });
 }
 
-
 function editObjects(url, populatedIds) {
     if (typeof populatedIds !== 'undefined' && populatedIds.length > 0) {
         for (var i = 0; i < populatedIds.length; i += 1) {
             // Eventually we should just be able to get the href
-            editObject(".edit_" + populatedIds[i],
-                    url + populatedIds[i] + "/", populatedIds[i], "textarea#" + populatedIds[i]);
+            editObject(".edit_" + populatedIds[i], url + populatedIds[i] + "/", populatedIds[i], "textarea#" + populatedIds[i]);
         }
     }
 }
 
-
 function deleteObjects(url, populatedIds, objectType) {
     if (typeof populatedIds !== 'undefined' && populatedIds.length > 0) {
         for (var i = 0; i < populatedIds.length; i += 1) {
-            deleteObject(".delete_" + populatedIds[i],
-                    url + populatedIds[i] + "/", populatedIds[i], objectType);
+            deleteObject(".delete_" + populatedIds[i], url + populatedIds[i] + "/", populatedIds[i], objectType);
         }
     }
 }
@@ -608,12 +605,12 @@ function deleteObject(deleteArea, url, objectUuid, objectType) {
     $(deleteArea).click(function (event) {
         event.preventDefault();
         $.ajax({
-            xhrFields: {withCredentials: true},
+            xhrFields: { withCredentials: true },
             type: "DELETE",
             url: url,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function () {
+            success: function success() {
                 $(".block_" + objectUuid).remove();
                 if (objectType === 'solution') {
                     $('textarea.sb_solution_input_area').val("");
@@ -626,13 +623,12 @@ function deleteObject(deleteArea, url, objectUuid, objectType) {
                     }
                 }
             },
-            error: function (XMLHttpRequest) {
+            error: function error(XMLHttpRequest) {
                 errorDisplay(XMLHttpRequest);
             }
         });
     });
 }
-
 
 function cloneForm(selector, type) {
     var newElement = $(selector).clone(true);
@@ -640,7 +636,7 @@ function cloneForm(selector, type) {
     newElement.find(':input').each(function () {
         var name = $(this).attr('name').replace('-' + (total - 1) + '-', '-' + total + '-');
         var id = 'id_' + name;
-        $(this).attr({'name': name, 'id': id}).val('').removeAttr('checked');
+        $(this).attr({ 'name': name, 'id': id }).val('').removeAttr('checked');
     });
     newElement.find('label').each(function () {
         var newFor = $(this).attr('for').replace('-' + (total - 1) + '-', '-' + total + '-');
@@ -694,17 +690,17 @@ function submitAction() {
             }
         });
         $.ajax({
-            xhrFields: {withCredentials: true},
+            xhrFields: { withCredentials: true },
             type: "POST",
             url: "/privilege/create/action/",
             data: JSON.stringify(data),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function (data) {
+            success: function success(data) {
                 $(".action_form").remove();
                 $(".get_action_form").removeAttr('disabled');
             },
-            error: function (XMLHttpRequest) {
+            error: function error(XMLHttpRequest) {
                 errorDisplay(XMLHttpRequest);
             }
         });
@@ -727,17 +723,17 @@ function submitRequirement() {
             }
         });
         $.ajax({
-            xhrFields: {withCredentials: true},
+            xhrFields: { withCredentials: true },
             type: "POST",
             url: "/privilege/create/requirement/",
             data: JSON.stringify(data),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function () {
+            success: function success() {
                 $(".requirement_form").remove();
                 $(".get_requirement_form").removeAttr('disabled');
             },
-            error: function (XMLHttpRequest) {
+            error: function error(XMLHttpRequest) {
                 errorDisplay(XMLHttpRequest);
             }
         });
@@ -760,7 +756,7 @@ function respondFriendRequest() {
         event.preventDefault();
         var requestID = $(this).data('request_id');
         $.ajax({
-            xhrFields: {withCredentials: true},
+            xhrFields: { withCredentials: true },
             type: "POST",
             url: "/v1/me/friend_requests/" + requestID + "/accept/",
             data: JSON.stringify({
@@ -768,10 +764,10 @@ function respondFriendRequest() {
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function () {
+            success: function success() {
                 $('#friend_request_' + requestID).remove();
             },
-            error: function (XMLHttpRequest) {
+            error: function error(XMLHttpRequest) {
                 if (XMLHttpRequest.status === 500) {
                     $("#server_error").show();
                 }
@@ -782,7 +778,7 @@ function respondFriendRequest() {
         event.preventDefault();
         var requestID = $(this).data('request_id');
         $.ajax({
-            xhrFields: {withCredentials: true},
+            xhrFields: { withCredentials: true },
             type: "POST",
             url: "/v1/me/friend_requests/" + requestID + "/decline/",
             data: JSON.stringify({
@@ -790,10 +786,10 @@ function respondFriendRequest() {
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function () {
+            success: function success() {
                 $('#friend_request_' + requestID).remove();
             },
-            error: function (XMLHttpRequest) {
+            error: function error(XMLHttpRequest) {
                 if (XMLHttpRequest.status === 500) {
                     $("#server_error").show();
                 }
@@ -804,7 +800,7 @@ function respondFriendRequest() {
         event.preventDefault();
         var requestID = $(this).data('request_id');
         $.ajax({
-            xhrFields: {withCredentials: true},
+            xhrFields: { withCredentials: true },
             type: "POST",
             url: "/v1/me/friend_requests/" + requestID + "/block/",
             data: JSON.stringify({
@@ -812,10 +808,10 @@ function respondFriendRequest() {
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            success: function () {
+            success: function success() {
                 $('#friend_request_' + requestID).remove();
             },
-            error: function (XMLHttpRequest) {
+            error: function error(XMLHttpRequest) {
                 if (XMLHttpRequest.status === 500) {
                     $("#server_error").show();
                 }
@@ -824,14 +820,12 @@ function respondFriendRequest() {
     });
 }
 
-
 function enableObjectFunctionality(populatedIds) {
     readyFlags(populatedIds);
     readyVotes(populatedIds);
     readyComments(populatedIds);
     foggyClosed(populatedIds);
 }
-
 
 function enableFriendRequestFunctionality() {
     respondFriendRequest();
@@ -881,10 +875,10 @@ function enableSolutionFunctionality(populatedIds) {
 function enableContentFunctionality(populateId, type) {
     "use strict";
     enableObjectFunctionality([populateId]);
-    saveComments([populateId], '/v1/'+ type + 's/');
+    saveComments([populateId], '/v1/' + type + 's/');
     voteObjects([populateId], type + "s");
-    editObjects("/v1/"+ type + "s/", [populateId]);
-    deleteObjects("/v1/" + type +"s/", [populateId], type);
+    editObjects("/v1/" + type + "s/", [populateId]);
+    deleteObjects("/v1/" + type + "s/", [populateId], type);
 }
 
 function getUrlParameter(sParam) {
@@ -899,7 +893,7 @@ function getUrlParameter(sParam) {
 }
 
 function foggyClosed(populatedIds) {
-    $.each(populatedIds, function(index, value) {
+    $.each(populatedIds, function (index, value) {
         var toBeFogged = $(".sb_blurred_content#sb_content_" + value);
         toBeFogged.foggy({
             blurRadius: 15,
@@ -916,10 +910,10 @@ function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
     notifyFrom = typeof notifyFrom !== 'undefined' ? notifyFrom : "top";
     notifyAlign = typeof notifyAlign !== 'undefined' ? notifyAlign : 'right';
     if (XMLHttpRequest.status === 500) {
-        $.notify({message: "Sorry looks like we're having some server issues right now. "}, {type: "danger"});
+        $.notify({ message: "Sorry looks like we're having some server issues right now. " }, { type: "danger" });
     }
     if (XMLHttpRequest.status === 401) {
-        $.notify({message: "Sorry doesn't look like you're allowed to do that. "}, {type: "danger"});
+        $.notify({ message: "Sorry doesn't look like you're allowed to do that. " }, { type: "danger" });
     }
     if (XMLHttpRequest.status === 400) {
         var notification, badItemCap, errorMessage, reportMsg;
@@ -927,24 +921,22 @@ function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
         var notificationText = XMLHttpRequest.responseText;
         if (!(typeof notificationDetail === "undefined" || notificationDetail === null)) {
             notification = notificationDetail;
-        } else if( notificationText !== undefined) {
+        } else if (notificationText !== undefined) {
             notification = notificationText;
         } else {
-            $.notify({message: "Sorry looks like you didn't include all the necessary information."}, {type: 'danger'});
+            $.notify({ message: "Sorry looks like you didn't include all the necessary information." }, { type: 'danger' });
         }
-        if (typeof(notification) !== 'object'){
+        if (typeof notification !== 'object') {
             notification = JSON.parse(notification);
         } else {
-            try
-            {
+            try {
                 notification = JSON.parse(notification.detail);
-            }
-            catch(e) {
-                if(notification.detail !== undefined) {
-                    $.notify({message: notification.detail}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
-                } else{
+            } catch (e) {
+                if (notification.detail !== undefined) {
+                    $.notify({ message: notification.detail }, { type: 'danger', placement: { from: notifyFrom, align: notifyAlign } });
+                } else {
                     for (var key in notification) {
-                      $.notify({message: notification[key][0]}, {type: 'danger'});
+                        $.notify({ message: notification[key][0] }, { type: 'danger' });
                     }
                 }
                 notification = [];
@@ -952,24 +944,25 @@ function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
         }
         for (var badItem in notification) {
             for (var message in notification[badItem]) {
-                if (typeof(notification[badItem]) === 'object'){
+                if (typeof notification[badItem] === 'object') {
                     reportMsg = notification[badItem][message].message;
                 } else {
                     reportMsg = notification[badItem][message];
                 }
                 badItemCap = badItem.charAt(0).toUpperCase() + badItem.slice(1);
                 errorMessage = badItemCap + ": " + reportMsg;
-                $.notify({message: errorMessage.replace('_', " ")}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
+                $.notify({ message: errorMessage.replace('_', " ") }, { type: 'danger', placement: { from: notifyFrom, align: notifyAlign } });
             }
         }
-
     }
     if (XMLHttpRequest.status === 404) {
-        $.notify({message: "Sorry, we can't seem to find what you're looking for"}, {type: 'danger'});
+        $.notify({ message: "Sorry, we can't seem to find what you're looking for" }, { type: 'danger' });
     }
 }
+"use strict";
 
 $("#js-sign-up").click(function (event) {
     event.preventDefault();
-    window.location.href = "/"
+    window.location.href = "/";
 });
+//# sourceMappingURL=sagebrew.js.map

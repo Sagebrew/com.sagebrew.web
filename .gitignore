@@ -88,3 +88,5 @@ logs/*
 bower_components/
 node_modules/
 certs/key.pem
+
+*.map

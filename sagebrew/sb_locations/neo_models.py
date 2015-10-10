@@ -13,7 +13,7 @@ class Location(SBObject):
                                  'ENCOMPASSES')
     encompassed_by = RelationshipTo('sb_locations.neo_models.Location',
                                     'ENCOMPASSED_BY')
-    positions = RelationshipTo('sb_campaigns.neo_models.Position',
+    positions = RelationshipTo('sb_quests.neo_models.Position',
                                'POSITIONS_AVAILABLE')
     addresses = RelationshipTo('plebs.neo_models.Address',
                                'ENCOMPASSES_ADDRESS')

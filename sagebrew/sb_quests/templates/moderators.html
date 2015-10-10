@@ -1,5 +1,17 @@
+{% extends "quest_base.html" %}
 {% load staticfiles %}
-<div class="col-xs-12">
+{% block title %}
+    {{ first_name }} {{ last_name }}'s Quest Insights
+{% endblock title %}
+{% block description %}
+    <meta name="description" content="{{ description }}">
+{% endblock description %}
+{% block keywords %}
+    {% if keywords %}
+        <meta name="keywords" content="{{ keywords }}">
+    {% endif %}
+{% endblock keywords %}
+{% block quest_wall %}
     <div class="col-lg-12 sb_wall">
         <div class="row">
             <div id="js-campaign_id" class="sb_hidden" data-current_user="{{ request.user.username }}" data-object_uuid="{{ id }}"></div>
@@ -20,4 +32,9 @@
             </div>
         </div>
     </div>
-</div>
+{% endblock quest_wall %}
+{% block scripts %}
+    {{ block.super }}
+    <script src="{% static 'js/get_possible_helpers.js' %}"></script>
+    <script src="{% static 'js/event_quest_moderators.js' %}"></script>
+{% endblock scripts %}

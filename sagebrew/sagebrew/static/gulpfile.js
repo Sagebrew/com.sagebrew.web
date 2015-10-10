@@ -44,7 +44,9 @@ var paths = {
     ],
     images: [
         'css/vendor/img/**',
-        'images/**',
+        'images/*.png',
+        'images/*.gif',
+        'images/*.jpg',
         '!images/congress',
         'media/**'
     ]

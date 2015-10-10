@@ -20,11 +20,13 @@ from sb_registration.utils import create_user_util_test
 from sb_donations.neo_models import Donation
 from sb_locations.neo_models import Location
 
-from sb_campaigns.neo_models import PoliticalCampaign, Position
+from sb_quests.neo_models import PoliticalCampaign, Position
 
 
 class CampaignEndpointTests(APITestCase):
     def setUp(self):
+        query = "match (n)-[r]-() delete n,r"
+        db.cypher_query(query)
         self.unit_under_test_name = 'campaign'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -744,7 +746,6 @@ class CampaignEndpointTests(APITestCase):
             "profiles": ['test_test', new_pleb.username]
         }
         response = self.client.post(url, data=data)
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], 'Successfully added '
                                                   'specified users to '
@@ -755,7 +756,6 @@ class CampaignEndpointTests(APITestCase):
         url = reverse('campaign-editors',
                       kwargs={'object_uuid': self.campaign.object_uuid})
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, ['test_test'])
 
@@ -878,8 +878,8 @@ class CampaignEndpointTests(APITestCase):
         position = Position(name="Test Position").save()
         position.location.connect(location)
         location.positions.connect(position)
-        location2.encompasses.connect(location)
-        location.encompassed_by.connect(location2)
+        location2.encompassed_by.connect(location)
+        location.encompasses.connect(location2)
         address = Address().save()
         self.pleb.address.connect(address)
         self.campaign.position.connect(position)
@@ -906,10 +906,10 @@ class CampaignEndpointTests(APITestCase):
         position = Position(name="Test Position").save()
         position.location.connect(location)
         location.positions.connect(position)
-        location2.encompasses.connect(location)
-        location.encompassed_by.connect(location2)
-        location3.encompasses.connect(location2)
-        location2.encompassed_by.connect(location3)
+        location2.encompassed_by.connect(location)
+        location.encompasses.connect(location2)
+        location3.encompassed_by.connect(location2)
+        location2.encompasses.connect(location3)
         address = Address().save()
         self.pleb.address.connect(address)
         self.campaign.position.connect(position)
@@ -938,12 +938,12 @@ class CampaignEndpointTests(APITestCase):
         position = Position(name="Test Position").save()
         position.location.connect(location)
         location.positions.connect(position)
-        location2.encompasses.connect(location)
-        location.encompassed_by.connect(location2)
-        location3.encompasses.connect(location2)
-        location2.encompassed_by.connect(location3)
-        location4.encompasses.connect(location3)
-        location3.encompassed_by.connect(location4)
+        location2.encompassed_by.connect(location)
+        location.encompasses.connect(location2)
+        location3.encompassed_by.connect(location2)
+        location2.encompasses.connect(location3)
+        location4.encompassed_by.connect(location3)
+        location3.encompasses.connect(location4)
         address = Address().save()
         self.pleb.address.connect(address)
         self.campaign.position.connect(position)

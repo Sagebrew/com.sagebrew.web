@@ -10,7 +10,7 @@ from neomodel import db
 
 from sb_base.serializers import CampaignAttributeSerializer
 from api.utils import gather_request_data
-from sb_campaigns.neo_models import PoliticalCampaign
+from sb_quests.neo_models import PoliticalCampaign
 
 from .neo_models import Goal, Round
 

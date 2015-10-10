@@ -761,6 +761,9 @@ a {
 .navbar-header{
   margin-top: 2px;
 }
+.sb-signup-btn{
+  margin-left: 15px !important;
+}
 .sb_login{
   &:extend(.sb_search);
   input{
@@ -775,9 +778,10 @@ a {
     background-color: @sb_off_white;
     color: @sb_green;
     // Firefox fix for button being placed differently in navbar
-    padding-top: 0;
-    padding-bottom: 5px;
+    padding-top: 2px;
+    padding-bottom: 3px;
     margin-top: 6px;
+    margin-right: 5px;
   }
 }
 .nav-logged-in{
@@ -1043,7 +1047,15 @@ a {
   padding: @sb_common_padding_positive @sb_common_padding_positive 0;
   margin-bottom: 15px;
 }
-
+.sb-quest-block{
+  &:extend(.sb_post_header);
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.sb-quest-block-exists{
+  &:extend(.sb-quest-block);
+  padding-top: 0;
+}
 .sb_question_header{
   &:extend(.sb_post_header);
   margin-left: 15px;
@@ -1983,7 +1995,7 @@ textarea.sb_comment_input{
 
 #goal_wrapper {
   padding: 15px;
-  min-height: 615px;
+  min-height: 630px;
 }
 
 .goal-create-header {
@@ -1997,7 +2009,7 @@ textarea.sb_comment_input{
 }
 
 #epic-container {
-  min-height: 615px;
+  min-height: 600px;
 }
 
 .expanded-url-content-wrapper{

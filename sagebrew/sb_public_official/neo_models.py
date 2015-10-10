@@ -69,11 +69,11 @@ class PublicOfficial(Searchable):
     # access the term that the official is currently in
     term = RelationshipTo('govtrack.neo_models.Term', 'SERVED_TERM')
     current_term = RelationshipTo('govtrack.neo_models.Term', 'CURRENT_TERM')
-    campaign = RelationshipTo('sb_campaigns.neo_models.PoliticalCampaign',
+    campaign = RelationshipTo('sb_quests.neo_models.PoliticalCampaign',
                               'HAS_CAMPAIGN')
 
     def get_campaign(self):
-        from sb_campaigns.neo_models import PoliticalCampaign
+        from sb_quests.neo_models import PoliticalCampaign
         query = 'MATCH (o:PublicOfficial {object_uuid:"%s"})-' \
                 '[:HAS_CAMPAIGN]->(c:PoliticalCampaign) RETURN c' \
                 % self.object_uuid

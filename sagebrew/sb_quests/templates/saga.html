@@ -1,0 +1,50 @@
+{% extends "quest_base.html" %}
+{% load staticfiles %}
+{% block title %}
+    {{ first_name }} {{ last_name }}'s Quest
+{% endblock title %}
+{% block description %}
+    <meta name="description" content="{{ description }}">
+{% endblock description %}
+{% block keywords %}
+    {% if keywords %}
+        <meta name="keywords" content="{{ keywords }}">
+    {% endif %}
+    <meta name="author" content="{{ first_name }} {{ last_name }}">
+{% endblock keywords %}
+{% block quest_wall %}
+    <div class="col-xs-12 col-md-8">
+        <h5>Epic{% if is_editor or is_accountant %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green toggle_create_goal" id="edit_epic"><span class="fa fa-edit"></span></button>{% endif %}</h5>
+        <div class="block sb_action_content_block">
+            <div id="epic-container" class="sb_markdown epic-area">
+                {% if not rendered_epic and is_editor or is_accountant %}
+                    {% autoescape off %}
+                        {{ rendered_epic|default:'This is your Epic, we recommend using it to share your: <ul style="font-size: 14pt; "><li>Policies</li><li>Agenda</li><li>Vision</li></ul>' }}
+                    {% endautoescape %}
+                {% else %}
+                    {% if active == True %}
+                        {% if rendered_epic %}
+                            {% autoescape off %}
+                                {{ rendered_epic }}
+                            {% endautoescape %}
+                        {% else %}
+                            <h4>This Quest has not setup their Epic</h4>
+                        {% endif %}
+                    {% else %}
+                        {% if public_official %}
+                            <h4>This user has not yet embarked upon their Sagebrew Quest.</h4>
+                        {% else %}
+                            <h4>This user has not activated their Quest yet, check back soon!</h4>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock quest_wall %}
+{% block scripts %}
+    {{ block.super }}
+    {% if request.user.username == id %}
+        <script src="{% static 'js/event_quest_intercom.js' %}"></script>
+    {% endif %}
+{% endblock scripts %}

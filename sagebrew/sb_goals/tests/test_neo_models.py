@@ -3,7 +3,7 @@ import datetime
 
 from django.test import TestCase
 
-from sb_campaigns.neo_models import PoliticalCampaign
+from sb_quests.neo_models import PoliticalCampaign
 from sb_goals.neo_models import Goal, Round
 from sb_donations.neo_models import Donation
 from sb_updates.neo_models import Update

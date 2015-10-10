@@ -8,7 +8,7 @@ from rest_framework import status
 from neomodel import DoesNotExist
 
 from plebs.neo_models import Pleb
-from sb_campaigns.neo_models import PoliticalCampaign
+from sb_quests.neo_models import PoliticalCampaign
 from sb_registration.utils import create_user_util_test
 
 
@@ -97,7 +97,8 @@ class PublicOfficialViews(TestCase):
         url = reverse("create_update",
                       kwargs={'username': self.campaign.object_uuid})
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
 
     def test_quest_manage_goals(self):
         url = reverse("manage_goals",

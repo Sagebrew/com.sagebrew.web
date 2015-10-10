@@ -98,7 +98,7 @@ class Campaign(Searchable):
     editors = RelationshipTo('plebs.neo_models.Pleb', 'CAN_BE_EDITED_BY')
     accountants = RelationshipTo('plebs.neo_models.Pleb',
                                  'CAN_VIEW_MONETARY_DATA')
-    position = RelationshipTo('sb_campaigns.neo_models.Position',
+    position = RelationshipTo('sb_quests.neo_models.Position',
                               'RUNNING_FOR')
     active_round = RelationshipTo('sb_goals.neo_models.Round',
                                   "CURRENT_ROUND")
@@ -119,7 +119,7 @@ class Campaign(Searchable):
                 cache.set("%s_campaign" % object_uuid, campaign)
                 return campaign
             except IndexError:
-                campaign = None
+                raise DoesNotExist("Quest does not exist")
         return campaign
 
     @classmethod
@@ -334,11 +334,9 @@ class Campaign(Searchable):
             query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:RUNNING_FOR]->" \
                     "(p:`Position`) RETURN p.level" % object_uuid
             res, col = db.cypher_query(query)
-            try:
+            if res.one is not None:
                 level = res.one
                 cache.set("%s_position_level" % object_uuid, level)
-            except IndexError:
-                level = None
         return level
 
     @classmethod
@@ -428,22 +426,19 @@ class PoliticalCampaign(Campaign):
             return False
         address = pleb.get_address()
         position = PoliticalCampaign.get_position(object_uuid)
+
         if position is None or address is None:
             return False
         # This query attempts to match a given position and address via
         # location connections, the end result is ensuring that someone
         # who does not live in a location that a quest is running in may
         # not pledge a vote for them.
-        res, _ = db.cypher_query('MATCH (p:`Position` {object_uuid: '
-                                 '"%s"})-[:AVAILABLE_WITHIN]->(l1:Location) '
-                                 'WITH l1 OPTIONAL MATCH (l1)-[:ENCOMPASSED_'
-                                 'BY*..3]->(l2:Location) WITH [x in collect'
-                                 '(l1)+collect(l2)|id(x)] as collected MATCH '
-                                 '(new_location) WHERE id(new_location) in '
-                                 'collected OPTIONAL MATCH (new_location)<-'
-                                 '[t:ENCOMPASSED_BY]-(a:Address {object_uuid:'
-                                 '"%s"}) RETURN t' % (position,
-                                                      address.object_uuid))
+        res, _ = db.cypher_query(
+            'MATCH (p:`Position` {object_uuid: "%s"})-'
+            '[:AVAILABLE_WITHIN]->(l1:Location)<-[t:ENCOMPASSED_BY*..]-'
+            '(a:Address {object_uuid:"%s"}) RETURN t' % (
+                position, address.object_uuid))
+
         if res.one:
             return True
         return False
@@ -467,7 +462,7 @@ class Position(SBObject):
                                        'PublicOfficial', "CURRENTLY_HELD_BY")
     # the campaigns relationship will be linked to all the campaigns currently
     # running for this position
-    campaigns = RelationshipTo('sb_campaigns.neo_models.PoliticalCampaign',
+    campaigns = RelationshipTo('sb_quests.neo_models.PoliticalCampaign',
                                "CAMPAIGNS")
     restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
                                   'RESTRICTED_BY')

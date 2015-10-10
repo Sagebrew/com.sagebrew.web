@@ -7,7 +7,7 @@ from rest_framework.decorators import api_view, permission_classes
 
 from neomodel import db
 
-from sb_campaigns.neo_models import Campaign
+from sb_quests.neo_models import Campaign
 
 from .neo_models import Donation
 from .serializers import DonationSerializer, SBDonationSerializer

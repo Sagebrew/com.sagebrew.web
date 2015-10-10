@@ -141,7 +141,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
             serializer.remove_profiles(queryset)
             if html == 'true':
                 return Response({"ids": serializer.data['profiles'], "html": [
-                    render_to_string("potential_campaign_helper.html",
+                    render_to_string("potential_quest_helper.html",
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
                     for pleb in serializer.data['profiles']]},
                     status=status.HTTP_200_OK)
@@ -208,7 +208,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
             serializer.remove_profiles(queryset)
             if html == 'true':
                 return Response({"ids": serializer.data['profiles'], "html": [
-                    render_to_string("potential_campaign_helper.html",
+                    render_to_string("potential_quest_helper.html",
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
                     for pleb in serializer.data['profiles']]},
                     status=status.HTTP_200_OK)
@@ -270,13 +270,19 @@ class CampaignViewSet(viewsets.ModelViewSet):
                     campaign.application_fee +
                     settings.STRIPE_TRANSACTION_PERCENT) + .3
                 donation['amount'] -= application_fee
-            keys = donation_info[0].keys()
+            keys = []
+            for key in donation_info[0].keys():
+                new_key = key.replace('_', ' ').title()
+                for donation in donation_info:
+                    donation[new_key] = donation[key]
+                    donation.pop(key, None)
+                keys.append(new_key)
             # use of named temporary file here is to handle deletion of file
             # after we return the file, after the new file object is evicted
             # it gets deleted
             # http://stackoverflow.com/questions/3582414/removing-tmp-file-after-return-httpresponse-in-django
             newfile = NamedTemporaryFile(suffix='.csv', delete=False)
-            newfile.name = "%s_quest_donations.csv" % (object_uuid)
+            newfile.name = "%s_quest_donations.csv" % object_uuid
             dict_writer = csv.DictWriter(newfile, keys)
             dict_writer.writeheader()
             dict_writer.writerows(donation_info)
@@ -299,7 +305,7 @@ class CampaignViewSet(viewsets.ModelViewSet):
 class PoliticalCampaignViewSet(CampaignViewSet):
     serializer_class = PoliticalCampaignSerializer
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         query = "MATCH (c:`PoliticalCampaign`) RETURN c"
@@ -349,10 +355,10 @@ class PoliticalCampaignViewSet(CampaignViewSet):
         serializer = self.get_serializer(data=request.data,
                                          context={"request": request})
         if serializer.is_valid():
-            cache.delete("%s_vote_count" % (object_uuid))
+            cache.delete("%s_vote_count" % object_uuid)
             parent_object_uuid = self.kwargs[self.lookup_field]
             if not PoliticalCampaign.get_allow_vote(parent_object_uuid,
-                                                    request.user .username):
+                                                    request.user.username):
                 return Response({"detail": "Cannot pledge vote to quest "
                                            "outside your area",
                                  "status": status.HTTP_403_FORBIDDEN,
@@ -409,7 +415,7 @@ class PoliticalCampaignViewSet(CampaignViewSet):
             return Response({"ids": queryset,
                              "html": [
                                  render_to_string(
-                                     'potential_campaign_helper.html',
+                                     'potential_quest_helper.html',
                                      PlebSerializerNeo(Pleb.get(pleb)).data)
                                  for pleb in queryset]},
                             status=status.HTTP_200_OK)
@@ -420,7 +426,7 @@ class PoliticalCampaignViewSet(CampaignViewSet):
 class PositionViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = PositionSerializer
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         query = 'MATCH (p:`Position`) RETURN p'

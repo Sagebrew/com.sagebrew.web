@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from sb_campaigns.neo_models import Campaign
+from sb_quests.neo_models import Campaign
 from sb_goals.neo_models import Goal
 
 

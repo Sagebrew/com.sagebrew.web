@@ -13,7 +13,6 @@
 </div>
 <div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
-
            {% if is_editor or is_accountant %}
                 <div id="cropQuestProfilePictureEyecandy" class="thumbnail sb_thumbnail_md">
                     <img alt="quest profile picture" id="quest_profile_pic" src="{{ profile_pic }}">
@@ -26,10 +25,11 @@
     </div>
     <div class="col-md-6 cl-xs-12">
         <div class="block sb_bio_block">
-            <h2>{{ first_name }} {{ last_name }}</h2>
+            <h2 style="margin-bottom: -10px !important;">{{ first_name }} {{ last_name }}</h2>
+            <small>Running for {{ position_formal_name }}</small>
             <p id="bio_wrapper">{{ biography|default_if_none:"This Quest has no Biography" }}{% if is_editor or is_accountant %}
-            <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
-    {% endif %}</p>
+                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
+            {% endif %}</p>
             {% if is_editor or is_accountant %}
                 <div id="bio_edit" style="display: none">
                     <textarea class="form-control edit_bio_input" id="biography_input" rows="3" placeholder="Biography, limit 255 characters">{{ biography|default_if_none:"" }}</textarea>
@@ -186,21 +186,3 @@
     </div>
   </div>
 </div>
-
-{% comment %}
-  <div class="row hidden-md hidden-sm hidden-xs">
-        <div class="col-lg-4 col-md-12 col-lg-offset-4 col-md-offset-0">
-             <div align="right" class="block sb_channel_social">
-                <a href="#">300 Reputation</a>
-             </div>
-        </div>
-        <div  align="right" class="col-lg-4 col-md-12 col-lg-offset-0 col-md-offset-0">
-            <div class="block sb_channel_social">
-                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fui-facebook"></span></button>
-                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fui-linkedin"></span></button>
-                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fui-youtube"></span></button>
-                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fui-twitter"></span></button>
-             </div>
-         </div>
-    </div>
-{% endcomment %}

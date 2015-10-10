@@ -12,7 +12,7 @@ from sb_registration.views import (login_view, logout_view, signup_view,
 from sb_registration.forms import CustomPasswordResetForm
 from sb_questions.sitemap import QuestionSitemap, ConversationSitemap
 from sagebrew.sitemap import (StaticViewSitemap, SignupSitemap)
-from sb_campaigns.sitemap import QuestEpicSitemap, QuestUpdateSitemap
+from sb_quests.sitemap import QuestEpicSitemap, QuestUpdateSitemap
 from help_center.sitemap import (AccountHelpSitemap, ConversationHelpSitemap,
                                  DonationsHelpSitemap, PoliciesHelpSitemap,
                                  PrivilegeHelpSitemap, QuestHelpSitemap,
@@ -69,9 +69,10 @@ urlpatterns = patterns(
     (r'^search/', include('sb_search.urls')),
     (r'^docstore/', include('sb_docstore.urls')),
     (r'^quests/', include('sb_public_official.urls')),
+    (r'^quests/', include('sb_quests.urls')),
+    (r'^quests/', include('sb_updates.urls')),
     (r'^quests/', include('sb_goals.urls')),
     (r'^council/', include('sb_council.urls')),
-    (r'^updates/', include('sb_updates.urls')),
     url(r'^sitemap\.xml$', sitemap,
         {'sitemaps': {
             'questions': QuestionSitemap,
@@ -108,7 +109,7 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_tags.apis.v1')),
     (r'^v1/', include('sb_updates.apis.v1')),
     (r'^v1/', include('sb_uploads.apis.v1')),
-    (r'^v1/', include('sb_campaigns.apis.v1')),
+    (r'^v1/', include('sb_quests.apis.v1')),
     (r'^v1/', include('sb_donations.apis.v1')),
     (r'^v1/', include('sb_locations.apis.v1')),
     (r'^v1/', include('sb_council.apis.v1')),

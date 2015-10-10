@@ -2,6 +2,8 @@ from datetime import datetime
 import pytz
 import bleach
 
+from django.core.cache import cache
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -41,6 +43,7 @@ class UpdateSerializer(TitledContentSerializer):
             goal = Goal.inflate(res.one)
             update.goals.connect(goal)
             goal.updates.connect(update)
+        cache.delete("%s_updates" % campaign.object_uuid)
         return update
 
     def update(self, instance, validated_data):

@@ -9,7 +9,7 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_locations.neo_models import Location
-from sb_campaigns.neo_models import Position
+from sb_quests.neo_models import Position
 
 
 class LocationEndpointTests(APITestCase):

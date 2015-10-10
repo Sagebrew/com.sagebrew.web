@@ -10,9 +10,9 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_goals.neo_models import Goal
 from sb_donations.neo_models import Donation
-from sb_campaigns.neo_models import PoliticalCampaign, Position
+from sb_quests.neo_models import PoliticalCampaign, Position
 
-from sb_campaigns.tasks import release_funds_task, release_single_donation_task
+from sb_quests.tasks import release_funds_task, release_single_donation_task
 
 
 class TestReleaseFundsTask(TestCase):

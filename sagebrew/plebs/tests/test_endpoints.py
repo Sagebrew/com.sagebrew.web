@@ -725,6 +725,19 @@ class ProfileEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_get_pleb_campaign_expand(self):
+        for campaign in self.pleb.campaign.all():
+            campaign.delete()
+        cache.clear()
+        campaign = PoliticalCampaign(object_uuid=self.pleb.username).save()
+        campaign.owned_by.connect(self.pleb)
+        self.pleb.campaign.connect(campaign)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-detail', kwargs={
+            'username': self.pleb.username}) + "?expand=true"
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['campaign']['id'], self.user.username)
+
     def test_create_pleb(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-list')

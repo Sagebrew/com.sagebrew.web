@@ -12,8 +12,9 @@
  *
  */
 
-var globalInit = require('./components/init').globalInit;
-var test = require('./components/core').test;
+var globalInit = require('./components/init').globalInit,
+    test = require('./components/core').test,
+    resourceMethods = require('./components/common/resourcemethods');
 
 //
 // init page.
@@ -24,3 +25,10 @@ console.log(test());
 export function abcd() {
     return test();
 }
+
+/**
+ * Real generic wrapper around ajax requests.
+ * @param options
+ * @returns {*}
+ */
+export const resource = resourceMethods;

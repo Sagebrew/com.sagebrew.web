@@ -3,7 +3,7 @@
  * All the functionality for the navbar.
  * TODO: Reorganize.
  */
-
+var sagebrew = require('sagebrew');
 
 /**
  *  Scope - User Authed
@@ -15,20 +15,12 @@ function navbar() {
         // Notifications
         // Retrieves all the notifications for a given user and gathers how
         // many have been seen or unseen.
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "GET",
-            url: "/v1/me/notifications/render/",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                $('#notification_wrapper').append(data.results.html);
-                if (data.results.unseen > 0) {
-                    $('#js-notification_notifier_wrapper').append('<span class="navbar-new sb_notifier" id="js-sb_notifications_notifier">' + data.results.unseen + '</span>');
-                }
-            },
-            error: function (XMLHttpRequest) {
-                errorDisplay(XMLHttpRequest);
+        console.log("Navbar Start");
+
+        sagebrew.resource.get({url: "/v1/me/notifications/render/"}).then(function(data){
+            $('#notification_wrapper').append(data.results.html);
+            if (data.results.unseen > 0) {
+                $('#js-notification_notifier_wrapper').append('<span class="navbar-new sb_notifier" id="js-sb_notifications_notifier">' + data.results.unseen + '</span>');
             }
         });
 

@@ -17,6 +17,7 @@ function navbar() {
         // many have been seen or unseen.
         console.log("Navbar Start");
 
+        //Notification count in sidebar.
         sagebrew.resource.get({url: "/v1/me/notifications/render/"}).then(function(data){
             $('#notification_wrapper').append(data.results.html);
             if (data.results.unseen > 0) {
@@ -27,7 +28,9 @@ function navbar() {
         // Shows the notifications when the notification icon is clicked
         $(".show_notifications-action").click(function () {
             $("#notification_div").fadeToggle();
+
             if ($('#js-notification_notifier_wrapper').children().length > 0) {
+
                 $.ajax({
                     xhrFields: {withCredentials: true},
                     type: "GET",

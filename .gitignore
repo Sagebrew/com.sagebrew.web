@@ -90,3 +90,4 @@ node_modules/
 certs/key.pem
 
 *.map
+sagebrew/sagebrew/static/dist/*

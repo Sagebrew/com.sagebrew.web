@@ -570,7 +570,7 @@ class Pleb(Searchable):
         if reputation_change is None:
             date = self.last_checked_reputation
             query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(' \
-                    'b:VotableContent)<-[:VOTE_ON]-(v:Vote)-[:SENT_ON]->' \
+                    'b:VotableContent)<-[:VOTE_ON]-(v:Vote)-[:CREATED_ON]->' \
                     '(s:Second)<-[:CHILD]-(c:Minute)<-[:CHILD]-(d:Hour)' \
                     '<-[:CHILD]-(e:Day)<-[:CHILD]-(f:Month)<-[:CHILD]-(g:Year) ' \
                     'WHERE b.visibility = "public" AND s.value>%d AND ' \

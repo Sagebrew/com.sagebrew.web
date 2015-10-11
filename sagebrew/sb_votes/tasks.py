@@ -94,6 +94,7 @@ def object_vote_notifications(object_uuid, previous_vote_type, new_vote_type,
                                                     smart_truncate(
                                                         truncate_content))
             public = True
+        cache.delete("%s_reputation_change" % sb_object.owner_username)
         res = spawn_task(spawn_notifications, task_param={
             'from_pleb': current_pleb.username,
             'to_plebs': [sb_object.owner_username],

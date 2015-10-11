@@ -30,7 +30,7 @@ var paths = {
         'js/vendor/bootstrap.min.js',
         'js/vendor/bootstrap-notify.min.js',
         'js/vendor/formValidation.min.js',
-        'js/vendor/framework/bootstrap.min.js', // I think this is something to do with formvalidor and not actually the bootstrap js.
+        'js/vendor/framework/bootstrap.min.js', // I think this is something to do with validator and not actually the bootstrap js.
         'js/vendor/imagesloaded.pkgd.min.js',
         'js/vendor/packery.pkgd.min.js',
         'js/vendor/spin.min.js',
@@ -40,17 +40,18 @@ var paths = {
         'js/vendor/croppic.min.js',
         'js/vendor/lightbox.min.js',
         'js/vendor/jquery.mousewheel.min.js',
-        'js/vendor/jquery.pagedown-bootstrap.combined.min.js',
-        'js/uuid.js'
+        'js/vendor/jdquery.pagedown-bootstrap.combined.min.js',
+        'js/uuid.js',
+        'js/sb_utils.js', // These need to updated to support the new JS structure.
+                          // Considering them global vendor like scripts for now. to prevent the site from breaking.
+        'js/sign_up_btn.js'
     ],
     core_modules: [
         'js/src/sagebrew.js'
     ],
     modules: [
         'js/src/profile.js'
-        //'js/modules/sagebrew/auth.js'
-        //'js/sb_utils.js',
-        //'js/sign_up_btn.js'
+
     ],
     styles: [
         'styles/**/*.less'

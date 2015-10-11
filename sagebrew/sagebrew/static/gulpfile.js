@@ -1,31 +1,31 @@
-var gulp = require('gulp');
-var concat = require('gulp-concat');
-var browserify = require('browserify');
-var babelify = require("babelify");
-var babel = require('gulp-babel');
-var less = require('gulp-less');
-var jshint = require('gulp-jshint');
-var uglify = require('gulp-uglify');
-var source = require('vinyl-source-stream');
-var buffer = require('vinyl-buffer');
-var sourcemaps = require('gulp-sourcemaps');
-var gutil = require('gulp-util');
-var minifycss = require('gulp-minify-css');
-var embedlr = require('gulp-embedlr');
-var del = require('del');
-var refresh = require('gulp-livereload');
-var lr = require('tiny-lr');
-var server = lr();
-var notify = require('gulp-notify');
+var gulp = require('gulp'),
+    path = require('path'),
+    concat = require('gulp-concat'),
+    browserify = require('browserify'),
+    babelify = require("babelify"),
+    less = require('gulp-less'),
+    jshint = require('gulp-jshint'),
+    uglify = require('gulp-uglify'),
+    source = require('vinyl-source-stream'),
+    buffer = require('vinyl-buffer'),
+    sourcemaps = require('gulp-sourcemaps'),
+    rename     = require('gulp-rename'),
+    es    = require('event-stream'),
+    gutil = require('gulp-util'),
+    minifycss = require('gulp-minify-css'),
+    del = require('del'),
+    refresh = require('gulp-livereload'),
+    lr = require('tiny-lr'),
+    server = lr();
 
 
 //
 // Path definitions.
 // Most setups don't separate vendor scripts from app scripts. But we're going to do it anyway.
 // TODO: Cleanup file system so that we can use entire folders.
-// TOOO: Merge scripts, scripts-anon, scripts-auth into one.
+// TODO: Merge scripts, scripts-anon, scripts-auth into one.
 var paths = {
-    vendor_scripts: [
+    libraries: [
         'js/vendor/jquery-2.1.4.min.js',
         'js/vendor/bootstrap.min.js',
         'js/vendor/bootstrap-notify.min.js',
@@ -37,15 +37,23 @@ var paths = {
         'js/vendor/jquery.spin.js',
         'js/vendor/foggy.min.js',
         'js/vendor/Autolinker.min.js',
-        'js/vendor/croppic.min.js'
+        'js/vendor/croppic.min.js',
+        'js/vendor/lightbox.min.js',
+        'js/vendor/jquery.mousewheel.min.js',
+        'js/vendor/jquery.pagedown-bootstrap.combined.min.js',
+        'js/uuid.js'
     ],
-    scripts: [
-        'js/modules/sagebrew.js',
-        'js/sb_utils.js',
-        'js/sign_up_btn.js'
+    core_modules: [
+        'js/src/sagebrew.js'
+    ],
+    modules: [
+        'js/src/profile.js'
+        //'js/modules/sagebrew/auth.js'
+        //'js/sb_utils.js',
+        //'js/sign_up_btn.js'
     ],
     styles: [
-        'less/**/*.less'
+        'styles/**/*.less'
     ],
     fonts: [
         'css/vendor/font-awesome-4.3.0/fonts/*',
@@ -63,7 +71,7 @@ var paths = {
 
 
 //
-// Clean
+// Clean BAF again.
 gulp.task('clean', function() {
   return del(['dist']);
 });
@@ -79,13 +87,49 @@ gulp.task('lr-server', function() {
 
 //
 // JS
-gulp.task('scripts:app', function () {
+gulp.task('scripts:appcore', function () {
+    var tasks = paths.core_modules.map(function(entry) {
+
+        var source_name = path.basename(entry);
+        var module_name = path.basename(entry, '.js');
+
+        var bundler =  browserify({
+            entries: [__dirname + "/" + entry],
+            basedir: __dirname,
+            debug: true,
+            transform: [babelify]
+        });
+
+        return bundler
+            .require(__dirname + "/" + entry, { expose: module_name})
+            .bundle()
+            .on('error', function(err){
+                console.log(err.message);
+                this.emit("end");
+            })
+            .pipe(source(source_name))
+            // rename them to have "bundle as postfix"
+            //.pipe(rename({
+            //    extname: '.bundle.js'
+            //}))
+            .pipe(jshint('.jshintrc'))
+            .pipe(jshint.reporter('jshint-stylish'))
+            .on('error', gutil.log)
+            .pipe(gulp.dest('dist/js/'));
+        });
+
+    // create a merged stream
+    return es.merge.apply(null, tasks);
+
+    /*
     var b = browserify({
         entries: paths.scripts,
         debug: true,
         // defining transforms here will avoid crashing your stream
         transform: [babelify]
     });
+
+
 
     b.add(require.resolve('babel/polyfill'));
 
@@ -94,13 +138,16 @@ gulp.task('scripts:app', function () {
         .pipe(buffer())
         .pipe(sourcemaps.init({loadMaps: true}))
             // Add transformation tasks to the pipeline here.
-            .pipe(uglify())
+            //.pipe(uglify())
+             .pipe(jshint('.jshintrc'))
+             .pipe(jshint.reporter('jshint-stylish'))
             .on('error', gutil.log)
         .pipe(sourcemaps.write('./'))
         .pipe(gulp.dest('dist/js/'));
 
-        /*
+*/
 
+/*
     return gulp.src(paths.scripts)
         .pipe(sourcemaps.init())
         .pipe(babel())
@@ -110,22 +157,92 @@ gulp.task('scripts:app', function () {
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest('dist/js'))
         .pipe(refresh(server));
-    */
+        */
 
 });
+
+
+//
+// JS
+gulp.task('scripts:appmodules', function () {
+
+    var tasks = paths.modules.map(function(entry) {
+        var source_name = path.basename(entry);
+        return browserify({ entries: [entry], debug: true, transform: [babelify]})
+            .external('sagebrew')
+            .bundle()
+            .on('error', function(err){
+                  console.log(err.message);
+                  this.emit("end");
+            })
+            .pipe(source(source_name))
+            // rename them to have "bundle as postfix"
+            //.pipe(rename({
+            //    extname: '.bundle.js'
+            //}))
+            .pipe(jshint('.jshintrc'))
+            .pipe(jshint.reporter('jshint-stylish'))
+            .on('error', gutil.log)
+            .pipe(gulp.dest('dist/js/'));
+        });
+
+    // create a merged stream
+    return es.merge.apply(null, tasks);
+
+
+});
+
 
 //
 // JS
 gulp.task('scripts:vendor', function () {
-    return gulp.src(paths.vendor_scripts)
+    /*
+    var files = [];
+
+    for (var i = 0; i < paths.libraries.length; i++) {
+
+        files.push(paths.libraries[i].file);
+    }
+
+    console.log(files);
+
+    var b = browserify({
+        entries: files,
+        debug: true,
+        // defining transforms here will avoid crashing your stream
+        transform: [babelify]
+    });
+
+    for (var j = 0; j < paths.libraries.length; j++) {
+        if (paths.libraries[j].external) {
+            b.require(paths.libraries[j].file, {external: paths.libraries[j].external});
+        } else {
+            b.require(paths.libraries[j].file);
+        }
+
+    }
+
+
+    b.add(require.resolve('babel/polyfill'));
+    return b.bundle()
+        .pipe(source('vendor.js'))
+        .pipe(buffer())
+            // Add transformation tasks to the pipeline here.
+            //.pipe(uglify())
+            .on('error', gutil.log)
+        .pipe(gulp.dest('dist/js/'));
+    */
+
+    return gulp.src(paths.libraries)
         .pipe(concat('vendor.js'))
         .pipe(gulp.dest('dist/js'))
         .pipe(refresh(server));
+
 });
 
 //
 // JS
-gulp.task('scripts', ['scripts:app', 'scripts:vendor']);
+gulp.task('scripts', ['scripts:appcore', 'scripts:appmodules', 'scripts:vendor']);
 
 //
 // Styles
@@ -167,7 +284,7 @@ gulp.task('watch', function () {
     'use strict';
 
     gulp.watch(paths.styles, ['styles']);
-    gulp.watch(paths.scripts, ['scripts']);
+    gulp.watch(['js/src/**'], ['scripts']);
 
 });
 

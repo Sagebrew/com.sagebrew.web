@@ -46,3 +46,8 @@ $.ajaxSetup({
         }
     }
 });
+
+export function test() {
+    console.log("asdfasdf");
+    return 'asdfadf';
+}

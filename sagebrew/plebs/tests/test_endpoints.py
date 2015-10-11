@@ -726,6 +726,9 @@ class ProfileEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_pleb_campaign_expand(self):
+        for campaign in self.pleb.campaign.all():
+            campaign.delete()
+        cache.clear()
         campaign = PoliticalCampaign(object_uuid=self.pleb.username).save()
         campaign.owned_by.connect(self.pleb)
         self.pleb.campaign.connect(campaign)

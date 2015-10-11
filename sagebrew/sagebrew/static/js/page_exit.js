@@ -1,4 +1,10 @@
+/**
+ * @file
+ * NO LONGER IN USE!
+ * See components/init.js
+ */
 /*global $, jQuery, ajaxSecurity*/
+
 $(document).ready(function () {
     "use strict";
     window.onbeforeunload = function () {

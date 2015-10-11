@@ -1,4 +1,8 @@
+/**
+ * NO LONGER USED.
+ */
 /*global $*/
+
 $(document).ready(function () {
     $(".show-reputation-action").on("click", function () {
         $.ajax({

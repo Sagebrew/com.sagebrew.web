@@ -1,3 +1,7 @@
+/**
+ * @file
+ * NO LONGER USED.
+ */
 /*global $*/
 $(document).ready(function () {
     "use strict";
@@ -19,6 +23,7 @@ $(document).ready(function () {
             errorDisplay(XMLHttpRequest);
         }
     });
+
     // Shows the notifications when the notification icon is clicked
     $(".show_notifications-action").click(function () {
         $("#notification_div").fadeToggle();

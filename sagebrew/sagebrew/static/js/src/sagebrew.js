@@ -12,12 +12,12 @@
  *
  */
 
-var init = require('./components/init').init;
+var globalInit = require('./components/init').globalInit;
 var test = require('./components/core').test;
 
 //
 // init page.
-init();
+globalInit();
 
 console.log(test());
 

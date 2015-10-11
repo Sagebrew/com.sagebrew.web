@@ -23,7 +23,7 @@ var gulp = require('gulp'),
 // Path definitions.
 // Most setups don't separate vendor scripts from app scripts. But we're going to do it anyway.
 // TODO: Cleanup file system so that we can use entire folders.
-// TODO: Merge scripts, scripts-anon, scripts-auth into one.
+// TODO: Do this better.
 var paths = {
     libraries: [
         'js/vendor/jquery-2.1.4.min.js',
@@ -46,12 +46,15 @@ var paths = {
                           // Considering them global vendor like scripts for now. to prevent the site from breaking.
         'js/sign_up_btn.js'
     ],
-    core_modules: [
+    global_modules: [
         'js/src/sagebrew.js'
     ],
-    modules: [
-        'js/src/profile.js'
-
+    user_modules: [
+        'js/src/user-anoned.js',
+        'js/src/user-authed.js'
+    ],
+    section_modules: [
+        'js/src/section-profile.js'
     ],
     styles: [
         'styles/**/*.less'
@@ -87,9 +90,9 @@ gulp.task('lr-server', function() {
 });
 
 //
-// JS
-gulp.task('scripts:appcore', function () {
-    var tasks = paths.core_modules.map(function(entry) {
+// App Scripts - Global
+gulp.task('scripts:global', function () {
+    var tasks = paths.global_modules.map(function(entry) {
 
         var source_name = path.basename(entry);
         var module_name = path.basename(entry, '.js');
@@ -101,8 +104,9 @@ gulp.task('scripts:appcore', function () {
             transform: [babelify]
         });
 
+        bundler.require(__dirname + "/" + entry, { expose: module_name});
+
         return bundler
-            .require(__dirname + "/" + entry, { expose: module_name})
             .bundle()
             .on('error', function(err){
                 console.log(err.message);
@@ -121,56 +125,68 @@ gulp.task('scripts:appcore', function () {
 
     // create a merged stream
     return es.merge.apply(null, tasks);
-
-    /*
-    var b = browserify({
-        entries: paths.scripts,
-        debug: true,
-        // defining transforms here will avoid crashing your stream
-        transform: [babelify]
-    });
-
-
-
-    b.add(require.resolve('babel/polyfill'));
-
-    return b.bundle()
-        .pipe(source('sagebrew.js'))
-        .pipe(buffer())
-        .pipe(sourcemaps.init({loadMaps: true}))
-            // Add transformation tasks to the pipeline here.
-            //.pipe(uglify())
-             .pipe(jshint('.jshintrc'))
-             .pipe(jshint.reporter('jshint-stylish'))
-            .on('error', gutil.log)
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('dist/js/'));
-
-*/
-
-/*
-    return gulp.src(paths.scripts)
-        .pipe(sourcemaps.init())
-        .pipe(babel())
-        .pipe(jshint('.jshintrc'))
-        .pipe(jshint.reporter('jshint-stylish'))
-        .pipe(concat('sagebrew.js'))
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest('dist/js'))
-        .pipe(refresh(server));
-        */
-
 });
 
+//
+// App Scripts - User
+gulp.task('scripts:user', function () {
+    var tasks = paths.user_modules.map(function(entry) {
+
+        var source_name = path.basename(entry);
+        var module_name = path.basename(entry, '.js');
+
+        var bundler =  browserify({
+            entries: [__dirname + "/" + entry],
+            basedir: __dirname,
+            debug: true,
+            transform: [babelify]
+        });
+
+        bundler.external('sagebrew');
+        bundler.require(__dirname + "/" + entry, { expose: module_name});
+
+        return bundler
+            .bundle()
+            .on('error', function(err){
+                console.log(err.message);
+                this.emit("end");
+            })
+            .pipe(source(source_name))
+            // rename them to have "bundle as postfix"
+            //.pipe(rename({
+            //    extname: '.bundle.js'
+            //}))
+            .pipe(jshint('.jshintrc'))
+            .pipe(jshint.reporter('jshint-stylish'))
+            .on('error', gutil.log)
+            .pipe(gulp.dest('dist/js/'));
+        });
+
+    // create a merged stream
+    return es.merge.apply(null, tasks);
+});
 
 //
-// JS
-gulp.task('scripts:appmodules', function () {
+// App Scripts - Sections
+gulp.task('scripts:section', function () {
 
-    var tasks = paths.modules.map(function(entry) {
+    var tasks = paths.section_modules.map(function(entry) {
         var source_name = path.basename(entry);
-        return browserify({ entries: [entry], debug: true, transform: [babelify]})
-            .external('sagebrew')
+        var module_name = path.basename(entry, '.js');
+
+        var bundler =  browserify({
+            entries: [__dirname + "/" + entry],
+            basedir: __dirname,
+            debug: true,
+            transform: [babelify]
+        });
+
+        //TODO: -- Make this fancy.
+        bundler.external('sagebrew');
+        bundler.external('user-anoned');
+        bundler.external('user-authed');
+
+        return bundler
             .bundle()
             .on('error', function(err){
                   console.log(err.message);
@@ -193,47 +209,9 @@ gulp.task('scripts:appmodules', function () {
 
 });
 
-
 //
 // JS
 gulp.task('scripts:vendor', function () {
-    /*
-    var files = [];
-
-    for (var i = 0; i < paths.libraries.length; i++) {
-
-        files.push(paths.libraries[i].file);
-    }
-
-    console.log(files);
-
-    var b = browserify({
-        entries: files,
-        debug: true,
-        // defining transforms here will avoid crashing your stream
-        transform: [babelify]
-    });
-
-    for (var j = 0; j < paths.libraries.length; j++) {
-        if (paths.libraries[j].external) {
-            b.require(paths.libraries[j].file, {external: paths.libraries[j].external});
-        } else {
-            b.require(paths.libraries[j].file);
-        }
-
-    }
-
-
-    b.add(require.resolve('babel/polyfill'));
-    return b.bundle()
-        .pipe(source('vendor.js'))
-        .pipe(buffer())
-            // Add transformation tasks to the pipeline here.
-            //.pipe(uglify())
-            .on('error', gutil.log)
-        .pipe(gulp.dest('dist/js/'));
-    */
-
     return gulp.src(paths.libraries)
         .pipe(concat('vendor.js'))
         .pipe(gulp.dest('dist/js'))
@@ -243,7 +221,7 @@ gulp.task('scripts:vendor', function () {
 
 //
 // JS
-gulp.task('scripts', ['scripts:appcore', 'scripts:appmodules', 'scripts:vendor']);
+gulp.task('scripts', ['scripts:global', 'scripts:user', 'scripts:section', 'scripts:vendor']);
 
 //
 // Styles
@@ -255,14 +233,12 @@ gulp.task('styles', function () {
         .pipe(refresh(server));
 });
 
-
 //
 // Fonts
 gulp.task('fonts', function() {
     return gulp.src(paths.fonts)
             .pipe(gulp.dest('dist/fonts/'));
 });
-
 
 //
 // Hotfix for lightbox images.

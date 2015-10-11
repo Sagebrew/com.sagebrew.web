@@ -1,9 +1,12 @@
 /**
- * NOT IN USE
+ * @file
+ * handles the anon login form...
  */
-/*global $, ajaxSecurity, getUrlParameter, errorDisplay*/
-$(document).ready(function () {
-    "use strict";
+
+/**
+ * Init Login
+ */
+function loginform() {
     var submitArea = $("#submit_login");
     function loginFxn() {
         submitArea.attr("disabled", "disabled");
@@ -50,4 +53,8 @@ $(document).ready(function () {
             loginFxn();
         }
     });
-});
+}
+
+export function initLoginForm() {
+    loginform();
+}

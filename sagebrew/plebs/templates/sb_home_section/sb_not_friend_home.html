@@ -25,9 +25,6 @@
                 </div>
                 <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
                 <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
-                    {% comment %}
-                        TODO add friend request sent logic into view
-                    {% endcomment %}
                     {% if friend_request_sent == False %}
                         <button class="btn btn-primary sb_btn js-send-friend-request"
                                 data-from_username="{{ request.user.username }}"

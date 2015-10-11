@@ -566,20 +566,28 @@ class Pleb(Searchable):
         return official
 
     def get_reputation_change_over_time(self):
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
         reputation_change = cache.get("%s_reputation_change" % self.username)
         if reputation_change is None:
             date = self.last_checked_reputation
+            logger.info(self.last_checked_reputation)
+            logger.info(type(self.last_checked_reputation))
             query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(' \
                     'b:VotableContent)<-[:VOTE_ON]-(v:Vote)-[:CREATED_ON]->' \
                     '(s:Second)<-[:CHILD]-(c:Minute)<-[:CHILD]-(d:Hour)' \
                     '<-[:CHILD]-(e:Day)<-[:CHILD]-(f:Month)<-[:CHILD]-(g:Year) ' \
-                    'WHERE b.visibility = "public" AND s.value>%d AND ' \
+                    'WHERE b.visibility = "public" AND ' \
                     'c.value>=%d AND d.value>=%d AND e.value>=%d AND ' \
                     'f.value>=%d AND g.value>=%d RETURN ' \
                     'sum(v.reputation_change)' \
-                    % (self.username, date.second, date.minute, date.hour,
+                    % (self.username, date.minute, date.hour,
                        date.day, date.month, date.year)
+            logger.info(query)
             res, _ = db.cypher_query(query)
+            logger.info(res)
+            if not res.one:
+                return 0
             reputation_change = res.one
             cache.set("%s_reputation_change" % self.username, reputation_change)
         return reputation_change

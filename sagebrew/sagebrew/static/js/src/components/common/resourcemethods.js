@@ -8,7 +8,6 @@
 
 var helpers = require('./../helpers');
 
-
 /**
  * Handle api errors
  * @param XMLHttpRequest
@@ -97,7 +96,6 @@ export function get(options) {
     var defaultOptions = baseOptions();
     defaultOptions.type = "GET";
     var settings = $.extend({}, defaultOptions, options);
-    console.log("YAY");
     return $.ajax(settings);
 }
 
@@ -110,7 +108,6 @@ export function post(options) {
     var defaultOptions = baseOptions();
     defaultOptions.type = "POST";
     var settings = $.extend({}, defaultOptions, options);
-    console.log("YAY");
     return $.ajax(settings);
 }
 
@@ -123,7 +120,6 @@ export function put(options) {
     var defaultOptions = baseOptions();
     defaultOptions.type = "PUT";
     var settings = $.extend({}, defaultOptions, options);
-    console.log("YAY");
     return $.ajax(settings);
 }
 
@@ -138,6 +134,5 @@ export function remove(options) {
     var defaultOptions = baseOptions();
     defaultOptions.type = "DELETE";
     var settings = $.extend({}, defaultOptions, options);
-    console.log("YAY");
     return $.ajax(settings);
 }

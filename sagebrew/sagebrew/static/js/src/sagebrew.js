@@ -31,4 +31,4 @@ export function abcd() {
  * @param options
  * @returns {*}
  */
-export const resource = resourceMethods;
+export const request = resourceMethods;

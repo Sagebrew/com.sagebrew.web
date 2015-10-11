@@ -881,6 +881,12 @@ function foggyClosed(populatedIds) {
     });
 }
 
+/**
+ * Deprecated.
+ * @param XMLHttpRequest
+ * @param notifyFrom
+ * @param notifyAlign
+ */
 function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
     notifyFrom = typeof notifyFrom !== 'undefined' ? notifyFrom : "top";
     notifyAlign = typeof notifyAlign !== 'undefined' ? notifyAlign : 'right';

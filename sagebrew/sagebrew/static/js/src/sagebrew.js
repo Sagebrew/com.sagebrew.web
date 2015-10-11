@@ -20,12 +20,6 @@ var globalInit = require('./components/init').globalInit,
 // init page.
 globalInit();
 
-console.log(test());
-
-export function abcd() {
-    return test();
-}
-
 /**
  * Real generic wrapper around ajax requests.
  * @param options

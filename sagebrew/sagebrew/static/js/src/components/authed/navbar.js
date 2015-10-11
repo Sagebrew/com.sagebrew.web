@@ -15,8 +15,6 @@ function navbar() {
         // Notifications
         // Retrieves all the notifications for a given user and gathers how
         // many have been seen or unseen.
-        console.log("Navbar Start");
-
         //Notification count in sidebar.
         sagebrew.request.get({url: "/v1/me/notifications/render/"})
             .then(function(data){

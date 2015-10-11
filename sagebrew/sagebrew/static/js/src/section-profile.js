@@ -8,6 +8,5 @@ var sagebrew = require('sagebrew'),
 
 representatives.loadReps();
 
-sagebrew.abcd();
 
 

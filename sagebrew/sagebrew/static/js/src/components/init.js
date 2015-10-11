@@ -69,26 +69,21 @@ function collectAuthedActions() {
  * -- Better code readability?
  */
 export function globalInit() {
-    console.log("Global Init Start");
     ajaxSetup();
-    console.log("Global Init Stop");
 }
 
 /**
  * Auth Init.
  */
 export function userAuthedInit() {
-    console.log("userAuthedInit Start");
     collectAuthedActions();
-    console.log("userAuthedInit Stop");
 }
 
 /**
  * Anon Init.
  */
 export function userAnonInit() {
-    console.log("userAnonInit Start");
-    console.log("userAnonInit Stop");
+
 }
 
 

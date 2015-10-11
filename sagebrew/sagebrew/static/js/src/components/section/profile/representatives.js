@@ -13,12 +13,11 @@ function getUsername() {
 }
 
 /**
- * turn reps into some sort of tree structure so that we can get all the
+ * TODO:turn reps into some sort of tree structure so that we can get all the
  * info from one request.
  */
 export function loadReps() {
     $(document).ready(function () {
-
         var username = getUsername();
         var rcp = request.get({url: '/v1/profiles/' + username + '/president/?html=true'}),
             rcs = request.get({url: '/v1/profiles/' + username + '/senators/?html=true'}),
@@ -36,7 +35,6 @@ export function loadReps() {
             $("#potential_rep_wrapper").append(dphr[0]);
             $("#potential_president_wrapper").append(dpp[0]);
             $("#potential_local_wrapper").append(dplr[0]);
-
         });
     });
 }

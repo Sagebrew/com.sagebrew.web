@@ -13,6 +13,8 @@ from neomodel import db
 
 from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data
+from sb_quests.serializers import CampaignSerializer
+from sb_quests.neo_models import Campaign
 
 from .neo_models import Address, Pleb
 from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
@@ -238,7 +240,13 @@ class PlebSerializerNeo(SBSerializer):
         return obj.get_sagebrew_donations()
 
     def get_campaign(self, obj):
-        return obj.get_campaign()
+        request, expand, _, _, _ = gather_request_data(
+            self.context, expand_param=self.context.get('expand', None))
+        campaign = obj.get_campaign()
+        if expand == 'true' and campaign is not None:
+            return CampaignSerializer(
+                Campaign.get(campaign), context={'request': request}).data
+        return campaign
 
 
 class AddressSerializer(SBSerializer):

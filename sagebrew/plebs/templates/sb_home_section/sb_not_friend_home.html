@@ -1,103 +1,113 @@
 {% load staticfiles %}
 <div class="sb-profile-not-friend-container">
-    {% comment %}
-        This is automatically replaced by sb_posts/static/js/get_posts.js
-    {% endcomment %}
-    <div class="col-xs-4">
-        <div class="sb-profile-not-friend-element">
-            <div class="js-hover-overlay-activate">
-                <h4 class="sb-profile-not-friend-header">Friend Request</h4>
-                <div class="row sb-profile-not-friend-image-wrapper">
-                    <img class="sb-profile-not-friend-element-image" src="{% static "images/sb_logo_color_sage.png" %}">
+    <div class="row">
+        {% comment %}
+            This is automatically replaced by sb_posts/static/js/get_posts.js
+        {% endcomment %}
+        <div class="col-xs-12 col-md-4">
+            <div class="sb-profile-not-friend-element">
+                <div class="js-hover-overlay-activate">
+                    <h4 class="sb-profile-not-friend-header">Friend Request</h4>
+                    <div class="row sb-profile-not-friend-image-wrapper">
+                        <img class="sb-profile-not-friend-element-image" src="{% static "images/sb_logo_color_sage.png" %}">
+                    </div>
+                    <div class="sb-overlay">
+                        <div class="sb-overlay-text">
+                            <div>
+                                By befriending this person you can
+                                access each others private content,
+                                write on each other's walls, and
+                                view their Conversation Cloud endeavours
+                                in your newsfeed.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
+                <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
+                    {% comment %}
+                        TODO add friend request sent logic into view
+                    {% endcomment %}
+                    {% if friend_request_sent == False %}
+                        <button class="btn btn-primary sb_btn js-send-friend-request"
+                                data-from_username="{{ request.user.username }}"
+                                data-to_username="{{ page_user.username }}">Friend Request
+                        </button>
+                        <button class="btn btn-primary sb_btn js-delete-friend-request sb_hidden"
+                                data-uuid="{{ friend_request_sent }}">Delete Request
+                        </button>
+                    {% else %}
+                        <button class="btn btn-primary sb_btn js-send-friend-request sb_hidden"
+                                data-from_username="{{ request.user.username }}"
+                                data-to_username="{{ page_user.username }}">Friend Request
+                        </button>
+                        <button class="btn btn-primary sb_btn js-delete-friend-request"
+                                data-uuid="{{ friend_request_sent }}">
+                            Delete Request
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-4">
+            <div class="sb-profile-not-friend-element">
+                <div class="js-hover-overlay-activate">
+                    <h4 class="sb-profile-not-friend-header">Quest Page</h4>
+                    <div class="row sb-profile-not-friend-image-wrapper">
+                        <img class="sb-profile-not-friend-element-image" src="{% static "images/quest_logo_flat_color.png" %}">
+                    </div>
+                </div>
+                <ul class="sb-not-friend-divider-wrapper"><li class="sb_divider"></li></ul>
+                <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
+                    {% if page_profile.campaign %}
+                        <form action="{% url "quest_saga" page_profile.username %}">
+                            <input class="btn btn-primary sb_btn" type="submit" value="View Quest">
+                        </form>
+                    {% else %}
+                        <form action="">
+                            <input class="btn btn-primary sb_btn disabled sb_restricted" type="submit" value="View Quest">
+                        </form>
+                    {% endif %}
                 </div>
                 <div class="sb-overlay">
                     <div class="sb-overlay-text">
                         <div>
-                            By becoming friends with this person they will be able to see all the posts on your wall and you will be able to see theirs, also you can post on each others walls.
+                            When a user signs up to run for office or to run
+                            an advocacy group they get a Quest. This will
+                            take you to {{ page_profile.first_name }}
+                            {{ page_profile.last_name }}'s Quest for
+                            {{ page_profile.campaign.position_formal_name }}.
+
                         </div>
                     </div>
                 </div>
-            </div>
-            <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
-            <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
-                {% comment %}
-                    TODO add friend request sent logic into view
-                {% endcomment %}
-                {% if friend_request_sent == False %}
-                    <button class="btn btn-primary sb_btn js-send-friend-request"
-                            data-from_username="{{ request.user.username }}"
-                            data-to_username="{{ page_user.username }}">Friend Request
-                    </button>
-                    <button class="btn btn-primary sb_btn js-delete-friend-request sb_hidden"
-                            data-uuid="{{ friend_request_sent }}">Delete Request
-                    </button>
-                {% else %}
-                    <button class="btn btn-primary sb_btn js-send-friend-request sb_hidden"
-                            data-from_username="{{ request.user.username }}"
-                            data-to_username="{{ page_user.username }}">Friend Request
-                    </button>
-                    <button class="btn btn-primary sb_btn js-delete-friend-request"
-                            data-uuid="{{ friend_request_sent }}">
-                        Delete Request
-                    </button>
+                {% if not page_profile.campaign %}
+                    <div class="sb_coming_soon">
+                        <h3>This user has not embarked on a Quest yet!</h3>
+                    </div>
                 {% endif %}
             </div>
         </div>
-    </div>
-    <div class="col-xs-4">
-        <div class="sb-profile-not-friend-element">
-            <div class="js-hover-overlay-activate">
-                <h4 class="sb-profile-not-friend-header">Visit Quest Page</h4>
-                <div class="row sb-profile-not-friend-image-wrapper">
-                    <img class="sb-profile-not-friend-element-image" src="{% static "images/quest_logo_flat_color.png" %}">
-                </div>
-            </div>
-            <ul class="sb-not-friend-divider-wrapper"><li class="sb_divider"></li></ul>
-            <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
-                {% if page_profile.campaign %}
-                    <form action="{% url "quest_saga" page_profile.campaign %}">
-                        <input class="btn btn-primary sb_btn" type="submit" value="View Quest">
-                    </form>
-                {% else %}
-                    <form action="">
-                        <input class="btn btn-primary sb_btn disabled sb_restricted" type="submit" value="View Quest">
-                    </form>
-                {% endif %}
-            </div>
-            <div class="sb-overlay">
-                <div class="sb-overlay-text">
-                    <div>
-                        When a user signs up to run for office or to run an advocacy group they get a quest. This will take you to this user's quest.
+        <div class="col-xs-12 col-md-4">
+            <div class="sb-profile-not-friend-element">
+                <div class="js-hover-overlay-activate">
+                    <h4 class="sb-profile-not-friend-header">Follow Conversations</h4>
+                    <div class="row sb-profile-not-friend-image-wrapper">
+                        <img class="sb-profile-not-friend-element-image" src="{% static "images/conversation_cloud_white-01.png" %}">
                     </div>
                 </div>
-            </div>
-            {% if not page_profile.campaign %}
+                <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
+                <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
+                    <button class="btn btn-primary sb_btn disabled sb_restricted">Follow User
+                    </button>
+                </div>
                 <div class="sb_coming_soon">
-                    <h3>This user has not embarked on their Quest yet!</h3>
+                    <h3>Coming Soon!</h3>
                 </div>
-            {% endif %}
-        </div>
-    </div>
-    <div class="col-xs-4">
-        <div class="sb-profile-not-friend-element">
-            <div class="js-hover-overlay-activate">
-                <h4 class="sb-profile-not-friend-header">Follow Conversations</h4>
-                <div class="row sb-profile-not-friend-image-wrapper">
-                    <img class="sb-profile-not-friend-element-image" src="{% static "images/conversation_cloud_white-01.png" %}">
-                </div>
-            </div>
-            <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
-            <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
-                <button class="btn btn-primary sb_btn disabled sb_restricted">Follow User
-                </button>
-            </div>
-            <div class="sb_coming_soon">
-                <h3>Coming Soon!</h3>
-            </div>
-            <div class="sb-overlay">
-                <div class="sb-overlay-text">
-                    <div>
-                        When this feature is released it will allow you to get notified anytime that a user makes a question or solution in the public conversation.
+                <div class="sb-overlay">
+                    <div class="sb-overlay-text">
+                        <div>
+                        </div>
                     </div>
                 </div>
             </div>

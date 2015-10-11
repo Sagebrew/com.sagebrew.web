@@ -18,6 +18,9 @@ from .neo_models import Address, Pleb, get_current_time
 from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
                     update_address_location)
 
+from logging import getLogger
+logger = getLogger('loggly_logs')
+
 
 def generate_username(first_name, last_name):
     # NOTE the other implementation of this is still in use and should be
@@ -198,7 +201,8 @@ class PlebSerializerNeo(SBSerializer):
         :param validated_data:
         :return:
         """
-        update_time = validated_data.get('update_time', False)
+        request, _, _, _, _ = gather_request_data(self.context)
+        update_time = request.data.get('update_time', False)
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',

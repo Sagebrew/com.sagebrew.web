@@ -260,7 +260,13 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, ))
     def reputation(self, request, username=None):
-        return Response({"reputation": self.get_object().reputation},
+        user = self.get_object()
+        return Response({"reputation": user.reputation,
+                         "reputation_change":
+                             user.get_reputation_change_over_time(),
+                         "change_since": parser.parse(
+                             unicode(user.last_checked_reputation)).replace(
+                             microsecond=0)},
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, ))

@@ -293,7 +293,7 @@ a {
 }
 .sb_reputation_block{
   &:extend(.sb_notification_block);
-  height: 50px;
+  height: auto;
   width: 300px;
 }
 .sb_friend_block{
@@ -2059,4 +2059,16 @@ textarea.sb_comment_input{
 
 .sb-restricted-btn-wrapper{
   padding: 0 0 0 0;
+}
+.sb-reputation-divider-container{
+  padding-left: 0;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  width: 300px;
+}
+.sb-reputation-divider{
+  &:extend(.sb_divider);
+  background-color: @sb_grey_light;
+  width: 100%;
+  height: 2px;
 }

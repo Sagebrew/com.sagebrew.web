@@ -1,5 +1,6 @@
+{% load humanize %}
 <div class="block sb_notification_block sb_reputation_block">
-    <div class="row-fluid">
+    <div class="row">
         <div class="col-sm-8">
             <p>Current Reputation:</p>
         </div>
@@ -10,6 +11,15 @@
             {% endcomment %}
             <div id="reputation_total"
                     data-username="{{ request.user.username }}"></div>
+        </div>
+        <ol class="sb-reputation-divider-container"><li class="sb-reputation-divider"></li></ol>
+        <div class="js-reputation-change-wrapper">
+            <div class="col-sm-8">
+                <p>Reputation Change: </p>
+            </div>
+            <div class="col-sm-4">
+                <div id="js-reputation-change"></div>
+            </div>
         </div>
     </div>
 </div>

@@ -8,6 +8,70 @@
 
 var helpers = require('./../helpers');
 
+
+/**
+ * Handle api errors
+ * @param XMLHttpRequest
+ * @param notifyFrom
+ * @param notifyAlign
+ */
+function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
+    notifyFrom = typeof notifyFrom !== 'undefined' ? notifyFrom : "top";
+    notifyAlign = typeof notifyAlign !== 'undefined' ? notifyAlign : 'right';
+    switch (XMLHttpRequest.status) {
+        case 500:
+            $.notify({message: "Sorry looks like we're having some server issues right now. "}, {type: "danger"});
+        break;
+        case 401:
+            $.notify({message: "Sorry doesn't look like you're allowed to do that. "}, {type: "danger"});
+        break;
+        case 404:
+            $.notify({message: "Sorry, we can't seem to find what you're looking for"}, {type: 'danger'});
+        break;
+        case 400:
+            var notification, badItemCap, errorMessage, reportMsg;
+            var notificationDetail = XMLHttpRequest.responseJSON;
+            var notificationText = XMLHttpRequest.responseText;
+            if (!(typeof notificationDetail === "undefined" || notificationDetail === null)) {
+                notification = notificationDetail;
+            } else if( notificationText !== undefined) {
+                notification = notificationText;
+            } else {
+                $.notify({message: "Sorry looks like you didn't include all the necessary information."}, {type: 'danger'});
+            }
+            if (typeof(notification) !== 'object'){
+                notification = JSON.parse(notification);
+            } else {
+                try {
+                    notification = JSON.parse(notification.detail);
+                }
+                catch(e) {
+                    if(notification.detail !== undefined) {
+                        $.notify({message: notification.detail}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
+                    } else{
+                        for (var key in notification) {
+                          $.notify({message: notification[key][0]}, {type: 'danger'});
+                        }
+                    }
+                    notification = [];
+                }
+            }
+            for (var badItem in notification) {
+                for (var message in notification[badItem]) {
+                    if (typeof(notification[badItem]) === 'object'){
+                        reportMsg = notification[badItem][message].message;
+                    } else {
+                        reportMsg = notification[badItem][message];
+                    }
+                    badItemCap = badItem.charAt(0).toUpperCase() + badItem.slice(1);
+                    errorMessage = badItemCap + ": " + reportMsg;
+                    $.notify({message: errorMessage.replace('_', " ")}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
+                }
+            }
+        break;
+    }
+}
+
 function baseOptions() {
     return {
         xhrFields: {withCredentials: true},
@@ -19,9 +83,7 @@ function baseOptions() {
             }
         },
         error: function (XMLHttpRequest) {
-            if (XMLHttpRequest.status === 500) {
-                $("#server_error").show();
-            }
+          errorDisplay(XMLHttpRequest);
         }
     };
 }

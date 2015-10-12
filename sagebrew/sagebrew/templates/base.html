@@ -47,32 +47,14 @@
     <script src="{% static 'dist/js/vendor.js' %}"></script>
     <script src="{% static 'dist/js/sagebrew.js' %}"></script>
 
-    {% if user.is_authenticated %}
-    <script src="{% static 'dist/js/user-authed.js' %}"></script>
-    {% else %}
-    <script src="{% static 'dist/js/user-anoned.js' %}"></script>
-    {% endif %}
-
     {% if user.is_authenticated and "/registration/" not in request.path %}
-        {% comment %}
-        These are no longer in use. Their code is probably moved to init functions or something.
-        <script src="{% static 'js/page_exit.js' %}"></script>
-        <script src="{% static 'js/submit_search.js' %}"></script>
-        <script src="{% static 'js/view_reputation.js' %}"></script>
-        <script src="{% static 'js/friend_requests.js' %}"></script>
-        <script src="{% static 'js/query_reputation.js' %}"></script>
-        <script src="{% static 'js/notifications.js' %}"></script>
-        {% endcomment %}
-
-
+    <script src="{% static 'dist/js/user-authed.js' %}"></script>
     {% endif %}
 
     {% if not user.is_authenticated %}
-        {% comment %}
-            <script src="{% static 'js/login.js' %}"></script>
-        {% endcomment %}
-
+    <script src="{% static 'dist/js/user-anoned.js' %}"></script>
     {% endif %}
+
     {% include "partials/intercom.html" %}
 
 {% endblock scripts %}

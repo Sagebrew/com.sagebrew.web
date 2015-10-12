@@ -26,25 +26,25 @@ var gulp = require('gulp'),
 // TODO: Do this better.
 var paths = {
     libraries: [
-        'js/vendor/jquery-2.1.4.min.js',
-        'js/vendor/bootstrap.min.js',
-        'js/vendor/bootstrap-notify.min.js',
-        'js/vendor/formValidation.min.js',
-        'js/vendor/framework/bootstrap.min.js', // I think this is something to do with validator and not actually the bootstrap js.
-        'js/vendor/imagesloaded.pkgd.min.js',
-        'js/vendor/packery.pkgd.min.js',
-        'js/vendor/spin.min.js',
-        'js/vendor/jquery.spin.js',
-        'js/vendor/foggy.min.js',
-        'js/vendor/Autolinker.min.js',
-        'js/vendor/croppic.min.js',
-        'js/vendor/lightbox.min.js',
-        'js/vendor/jquery.mousewheel.min.js',
-        'js/vendor/jdquery.pagedown-bootstrap.combined.min.js',
-        'js/uuid.js',
-        'js/sb_utils.js', // These need to updated to support the new JS structure.
+        '../sagebrew/static/js/vendor/jquery-2.1.4.min.js',
+        '../sagebrew/static/js/vendor/bootstrap.min.js',
+        '../sagebrew/static/js/vendor/bootstrap-notify.min.js',
+        '../sagebrew/static/js/vendor/formValidation.min.js',
+        '../sagebrew/static/js/vendor/framework/bootstrap.min.js', // I think this is something to do with validator and not actually the bootstrap js.
+        '../sagebrew/static/js/vendor/imagesloaded.pkgd.min.js',
+        '../sagebrew/static/js/vendor/packery.pkgd.min.js',
+        '../sagebrew/static/js/vendor/spin.min.js',
+        '../sagebrew/static/js/vendor/jquery.spin.js',
+        '../sagebrew/static/js/vendor/foggy.min.js',
+        '../sagebrew/static/js/vendor/Autolinker.min.js',
+        '../sagebrew/static/js/vendor/croppic.min.js',
+        '../sagebrew/static/js/vendor/lightbox.min.js',
+        '../sagebrew/static/js/vendor/jquery.mousewheel.min.js',
+        '../sagebrew/static/js/vendor/jdquery.pagedown-bootstrap.combined.min.js',
+        '../sagebrew/static/js/uuid.js',
+        '../sagebrew/static/js/sb_utils.js', // These need to updated to support the new JS structure.
                           // Considering them global vendor like scripts for now. to prevent the site from breaking.
-        'js/sign_up_btn.js'
+        '../sagebrew/static/js/sign_up_btn.js'
     ],
     global_modules: [
         'js/src/sagebrew.js'
@@ -60,16 +60,16 @@ var paths = {
         'styles/**/*.less'
     ],
     fonts: [
-        'css/vendor/font-awesome-4.3.0/fonts/*',
+        'styles/contrib/misc/font-awesome-4.3.0/fonts/*',
         'fonts/*'
     ],
     images: [
-        'css/vendor/img/**',
-        'images/*.png',
-        'images/*.gif',
-        'images/*.jpg',
-        '!images/congress',
-        'media/**'
+        'styles/contrib/misc/css/vendor/img/**',
+        '../sagebrew/static/images/*.png',
+        '../sagebrew/static/images/*.gif',
+        '../sagebrew/static/images/*.jpg',
+        '!../sagebrew/static/images/congress',
+        '../sagebrew/static/media/**'
     ]
 };
 
@@ -120,7 +120,7 @@ gulp.task('scripts:global', function () {
             .pipe(jshint('.jshintrc'))
             .pipe(jshint.reporter('jshint-stylish'))
             .on('error', gutil.log)
-            .pipe(gulp.dest('dist/js/'));
+            .pipe(gulp.dest('../sagebrew/static/dist/js/'));
         });
 
     // create a merged stream
@@ -159,7 +159,7 @@ gulp.task('scripts:user', function () {
             .pipe(jshint('.jshintrc'))
             .pipe(jshint.reporter('jshint-stylish'))
             .on('error', gutil.log)
-            .pipe(gulp.dest('dist/js/'));
+            .pipe(gulp.dest('../sagebrew/static/dist/js/'));
         });
 
     // create a merged stream
@@ -200,7 +200,7 @@ gulp.task('scripts:section', function () {
             .pipe(jshint('.jshintrc'))
             .pipe(jshint.reporter('jshint-stylish'))
             .on('error', gutil.log)
-            .pipe(gulp.dest('dist/js/'));
+            .pipe(gulp.dest('../sagebrew/static/dist/js/'));
         });
 
     // create a merged stream
@@ -214,7 +214,7 @@ gulp.task('scripts:section', function () {
 gulp.task('scripts:vendor', function () {
     return gulp.src(paths.libraries)
         .pipe(concat('vendor.js'))
-        .pipe(gulp.dest('dist/js'))
+        .pipe(gulp.dest('../sagebrew/static/dist/js'))
         .pipe(refresh(server));
 
 });
@@ -229,7 +229,7 @@ gulp.task('styles', function () {
     return gulp.src(['less/styles.less'])
         .pipe(less())
         .pipe(minifycss())
-        .pipe(gulp.dest('dist/css'))
+        .pipe(gulp.dest('../sagebrew/static/dist/css'))
         .pipe(refresh(server));
 });
 
@@ -237,7 +237,7 @@ gulp.task('styles', function () {
 // Fonts
 gulp.task('fonts', function() {
     return gulp.src(paths.fonts)
-            .pipe(gulp.dest('dist/fonts/'));
+            .pipe(gulp.dest('../sagebrew/static/dist/fonts/'));
 });
 
 //
@@ -245,14 +245,14 @@ gulp.task('fonts', function() {
 // TODO: Fix.
 gulp.task('images:hotfix', function() {
     return gulp.src(['css/vendor/img/**'])
-           .pipe(gulp.dest('dist/css/vendor/img/'));
+           .pipe(gulp.dest('../sagebrew/static/dist/css/vendor/img/'));
 });
 
 //
 // Images
 gulp.task('images', ['images:hotfix'], function() {
     return gulp.src(paths.images)
-            .pipe(gulp.dest('dist/imgs/'));
+            .pipe(gulp.dest('../sagebrew/static/dist/imgs/'));
 });
 
 //

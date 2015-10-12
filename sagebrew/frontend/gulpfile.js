@@ -28,6 +28,7 @@ var paths = {
     libraries: [
         'bower_components/jquery/dist/jquery.js',
         'bower_components/bootstrap/dist/js/bootstrap.js',
+        'bower_components/lightbox2/dist/js/lightbox.js',
         '../sagebrew/static/js/vendor/bootstrap-notify.min.js',
         '../sagebrew/static/js/vendor/formValidation.min.js',
         '../sagebrew/static/js/vendor/framework/bootstrap.min.js', // I think this is something to do with validator and not actually the bootstrap js.
@@ -38,9 +39,8 @@ var paths = {
         '../sagebrew/static/js/vendor/foggy.min.js',
         '../sagebrew/static/js/vendor/Autolinker.min.js',
         '../sagebrew/static/js/vendor/croppic.min.js',
-        '../sagebrew/static/js/vendor/lightbox.min.js',
         '../sagebrew/static/js/vendor/jquery.mousewheel.min.js',
-        '../sagebrew/static/js/vendor/jdquery.pagedown-bootstrap.combined.min.js',
+        '../sagebrew/static/js/vendor/jquery.pagedown-bootstrap.combined.min.js',
         '../sagebrew/static/js/uuid.js',
         '../sagebrew/static/js/sb_utils.js', // These need to updated to support the new JS structure.
                           // Considering them global vendor like scripts for now. to prevent the site from breaking.
@@ -60,7 +60,7 @@ var paths = {
         'styles/**/*.less'
     ],
     fonts: [
-        'styles/contrib/misc/font-awesome-4.3.0/fonts/*',
+        'bower_components/fontawesome/fonts/*',
         'fonts/**'
     ],
     images: [
@@ -69,7 +69,8 @@ var paths = {
         '../sagebrew/static/images/*.gif',
         '../sagebrew/static/images/*.jpg',
         '!../sagebrew/static/images/congress',
-        '../sagebrew/static/media/**'
+        '../sagebrew/static/media/**',
+        'bower_components/lightbox2/dist/images/*'
     ]
 };
 
@@ -216,6 +217,7 @@ gulp.task('scripts:vendor', function () {
         .pipe(concat('vendor.js'))
         .pipe(uglify())
         .pipe(gulp.dest('../sagebrew/static/dist/js'))
+        .on('error', gutil.log)
         .pipe(refresh(server));
 
 });
@@ -231,6 +233,7 @@ gulp.task('styles', function () {
         .pipe(less())
         .pipe(minifycss())
         .pipe(gulp.dest('../sagebrew/static/dist/css'))
+        .on('error', gutil.log)
         .pipe(refresh(server));
 });
 

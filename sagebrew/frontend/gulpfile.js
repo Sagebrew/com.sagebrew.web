@@ -26,8 +26,8 @@ var gulp = require('gulp'),
 // TODO: Do this better.
 var paths = {
     libraries: [
-        '../sagebrew/static/js/vendor/jquery-2.1.4.min.js',
-        '../sagebrew/static/js/vendor/bootstrap.min.js',
+        'bower_components/jquery/dist/jquery.js',
+        'bower_components/bootstrap/dist/js/bootstrap.js',
         '../sagebrew/static/js/vendor/bootstrap-notify.min.js',
         '../sagebrew/static/js/vendor/formValidation.min.js',
         '../sagebrew/static/js/vendor/framework/bootstrap.min.js', // I think this is something to do with validator and not actually the bootstrap js.
@@ -61,7 +61,7 @@ var paths = {
     ],
     fonts: [
         'styles/contrib/misc/font-awesome-4.3.0/fonts/*',
-        'fonts/*'
+        'fonts/**'
     ],
     images: [
         'styles/contrib/misc/css/vendor/img/**',
@@ -214,6 +214,7 @@ gulp.task('scripts:section', function () {
 gulp.task('scripts:vendor', function () {
     return gulp.src(paths.libraries)
         .pipe(concat('vendor.js'))
+        .pipe(uglify())
         .pipe(gulp.dest('../sagebrew/static/dist/js'))
         .pipe(refresh(server));
 

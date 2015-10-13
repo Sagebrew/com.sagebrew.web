@@ -12,7 +12,6 @@ $(document).ready(function () {
                 "update_time": true
             }),
             success: function (data) {
-                console.log(data);
             }
         });
     });

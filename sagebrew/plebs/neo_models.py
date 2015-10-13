@@ -566,30 +566,29 @@ class Pleb(Searchable):
         return official
 
     def get_reputation_change_over_time(self):
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
+        # reputation_change = cache.get("%s_reputation_change" % self.username)
+        # if reputation_change is None:
         reputation_change = cache.get("%s_reputation_change" % self.username)
         if reputation_change is None:
             date = self.last_checked_reputation
-            logger.info(self.last_checked_reputation)
-            logger.info(type(self.last_checked_reputation))
-            query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(' \
-                    'b:VotableContent)<-[:VOTE_ON]-(v:Vote)-[:CREATED_ON]->' \
-                    '(s:Second)<-[:CHILD]-(c:Minute)<-[:CHILD]-(d:Hour)' \
-                    '<-[:CHILD]-(e:Day)<-[:CHILD]-(f:Month)<-[:CHILD]-(g:Year) ' \
-                    'WHERE b.visibility = "public" AND ' \
-                    'c.value>=%d AND d.value>=%d AND e.value>=%d AND ' \
-                    'f.value>=%d AND g.value>=%d RETURN ' \
-                    'sum(v.reputation_change)' \
-                    % (self.username, date.minute, date.hour,
-                       date.day, date.month, date.year)
-            logger.info(query)
+            '''
+            
+            '''
+            query = 'MATCH (:TimeTreeRoot)-[:CHILD]->(y:Year)-[:CHILD]->' \
+                    '(m:Month)-[:CHILD]->(d:Day)-[:CHILD]->(h:Hour)-' \
+                    '[:CHILD]->(min:Minute)-[:CHILD]->(s:Second) WHERE ' \
+                    'y.value>=%d AND m.value>=%d AND d.value>=%d AND ' \
+                    'h.value>=%d AND min.value>=%d AND s.value>=%d WITH s ' \
+                    'OPTIONAL MATCH (s)<-[:CREATED_ON]-(v:Vote)-[:VOTE_ON]->' \
+                    '(content:VotableContent)-[:OWNED_BY]->(p:Pleb ' \
+                    '{username:"%s"}) RETURN sum(v.reputation_change)' \
+                    % (date.year, date.month, date.day, date.hour, date.minute,
+                       date.second, self.username)
             res, _ = db.cypher_query(query)
-            logger.info(res)
+            reputation_change = res.one
             if not res.one:
                 return 0
-            reputation_change = res.one
-            cache.set("%s_reputation_change" % self.username, reputation_change)
+        cache.set("%s_reputation_change" % self.username, reputation_change)
         return reputation_change
 
     """

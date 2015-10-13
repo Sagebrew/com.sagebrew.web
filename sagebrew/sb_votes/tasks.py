@@ -94,7 +94,6 @@ def object_vote_notifications(object_uuid, previous_vote_type, new_vote_type,
                                                     smart_truncate(
                                                         truncate_content))
             public = True
-        cache.delete("%s_reputation_change" % sb_object.owner_username)
         res = spawn_task(spawn_notifications, task_param={
             'from_pleb': current_pleb.username,
             'to_plebs': [sb_object.owner_username],
@@ -133,10 +132,18 @@ def create_vote_node(node_id, vote_type, voter, parent_object):
             IOError) as e:
         raise object_vote_notifications.retry(exc=e, countdown=10,
                                               max_retries=None)
+    if sb_object.visibility == 'public':
+        if vote_type == 1:
+            reputation_change = sb_object.up_vote_adjustment
+        else:
+            reputation_change = sb_object.down_vote_adjustment
+    else:
+        reputation_change = 0
     try:
         vote_node = Vote.nodes.get(object_uuid=node_id)
     except (Vote.DoesNotExist, DoesNotExist):
-        vote_node = Vote(vote_type=vote_type, object_uuid=node_id).save()
+        vote_node = Vote(vote_type=vote_type, object_uuid=node_id,
+                         reputation_change=reputation_change).save()
     vote_node.vote_on.connect(sb_object)
     vote_node.owned_by.connect(current_pleb)
     cache.delete("%s_reputation_change" % parent_object.owner_username)

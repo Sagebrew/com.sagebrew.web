@@ -1218,6 +1218,69 @@ class CampaignEndpointTests(APITestCase):
         self.assertFalse(donation.applied_to.is_connected(next_goal2))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_donation_create_local_quest(self):
+        position = Position(level="local").save()
+        self.campaign.position.connect(position)
+        position.campaigns.connect(self.campaign)
+        self.client.force_authenticate(user=self.user)
+        active_round = Round(active=True).save()
+        target_goal = Goal(monetary_requirement=1000, target=True).save()
+        self.campaign.goals.connect(target_goal)
+        self.campaign.active_round.connect(active_round)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 1000
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_donation_connected_to_relevant_goals(self):
+        cache.clear()
+        goal = Goal(monetary_requirement=10000, total_required=1000).save()
+        active_round = Round(active=True).save()
+        self.campaign.active_round.connect(active_round)
+        active_round.campaign.connect(self.campaign)
+        active_round.goals.connect(goal)
+        goal.associated_round.connect(active_round)
+        self.campaign.goals.connect(goal)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 1000
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn(goal.object_uuid, response.data['applied_to'])
+
+    def test_donation_with_no_active_round(self):
+        self.client.force_authenticate(user=self.user)
+        self.assertFalse(
+            PoliticalCampaign.get_active_round(self.campaign.object_uuid))
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 1000
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_donation_greater_than_five_thousand(self):
+        donation = Donation(amount=400000).save()
+        self.campaign.donations.connect(donation)
+        donation.campaign.connect(self.campaign)
+        active_round = Round(active=True).save()
+        self.campaign.active_round.connect(active_round)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 250000
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def test_update_create(self):
         self.client.force_authenticate(user=self.user)
         active_round = Round(active=True).save()

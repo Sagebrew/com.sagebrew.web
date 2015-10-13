@@ -85,7 +85,9 @@ class ProfileView(LoginRequiredMixin):
             is_owner = True
             are_friends = False
         return render(request, self.template_name, {
-            'page_profile': PlebSerializerNeo(page_user_pleb).data,
+            'page_profile': PlebSerializerNeo(
+                page_user_pleb,
+                context={'expand': True, 'request': request}).data,
             'page_user': page_user,
             'is_owner': is_owner,
             'is_friend': are_friends,

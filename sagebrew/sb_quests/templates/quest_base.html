@@ -1,9 +1,5 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block css %}
-    {{ block.super }}
-    <link href="{% static 'css/vendor/croppic.css' %}" rel="stylesheet" type="text/css"/>
-{% endblock css %}
 {% block content %}
 <div id="campaign_id" style="display: none" data-object_uuid="{{ id }}"></div>
 <div id="stripe-publishable" data-stripe_key="{{ stripe_key }}"></div>

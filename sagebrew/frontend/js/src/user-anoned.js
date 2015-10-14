@@ -4,7 +4,7 @@
  */
 
 var userAnonInit = require('./components/init').userAnonInit;
-var loginform = require('./components/authed/navbar').initLoginForm;
+var loginform = require('./components/anoned/loginform').initLoginForm;
 
 //Init various things for anon user.
 userAnonInit();

@@ -1,4 +1,7 @@
 /*global $, ajaxSecurity*/
+/**
+ * NO LONGER USED
+ */
 $(document).ready(function () {
     "use strict";
     $(".delete_friend_request-action").click(function (event) {

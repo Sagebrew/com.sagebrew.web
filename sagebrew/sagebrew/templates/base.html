@@ -42,6 +42,7 @@
         {% endblock footer %}
     </div>
 
+    {% include "partials/intercom.html" %}
     {% block scripts %}
 
     <script src="{% static 'dist/js/vendor.js' %}"></script>
@@ -55,7 +56,6 @@
     <script src="{% static 'dist/js/user-anoned.js' %}"></script>
     {% endif %}
 
-    {% include "partials/intercom.html" %}
 
 {% endblock scripts %}
 {% block external_scripts %}

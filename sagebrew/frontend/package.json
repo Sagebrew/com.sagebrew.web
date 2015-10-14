@@ -14,7 +14,7 @@
     "gulp-babel": "^5.2.1",
     "gulp-concat": "^2.5.2",
     "gulp-embedlr": "^0.5.2",
-    "gulp-image": "^1.1.0",
+    "gulp-imagemin": "^2.3.0",
     "gulp-jshint": "^1.11.2",
     "gulp-less": "^3.0.3",
     "gulp-livereload": "^3.8.1",

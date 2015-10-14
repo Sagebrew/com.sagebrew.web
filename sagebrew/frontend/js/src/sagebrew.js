@@ -12,9 +12,7 @@
  *
  */
 
-var globalInit = require('./components/init').globalInit,
-    test = require('./components/core').test,
-    resourceMethods = require('./components/common/resourcemethods');
+var globalInit = require('./components/init').globalInit;
 
 //
 // init page.
@@ -25,4 +23,10 @@ globalInit();
  * @param options
  * @returns {*}
  */
-export const request = resourceMethods;
+export const request = require('./components/common/resourcemethods');
+
+/**
+ * Resource Loader
+ */
+export const resource = require('./components/api');
+

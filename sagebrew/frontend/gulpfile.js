@@ -4,6 +4,7 @@ var gulp = require('gulp'),
     browserify = require('browserify'),
     babelify = require("babelify"),
     less = require('gulp-less'),
+    imagemin = require('gulp-imagemin'),
     jshint = require('gulp-jshint'),
     uglify = require('gulp-uglify'),
     source = require('vinyl-source-stream'),
@@ -229,12 +230,12 @@ gulp.task('scripts', ['scripts:global', 'scripts:user', 'scripts:section', 'scri
 //
 // Styles
 gulp.task('styles', function () {
-    return gulp.src(['less/styles.less'])
+    return gulp.src(['styles/styles.less'])
         .pipe(less())
-        .pipe(minifycss())
-        .pipe(gulp.dest('../sagebrew/static/dist/css'))
         .on('error', gutil.log)
-        .pipe(refresh(server));
+        .pipe(minifycss())
+        .on('error', gutil.log)
+        .pipe(gulp.dest('../sagebrew/static/dist/css/'));
 });
 
 //
@@ -256,7 +257,11 @@ gulp.task('images:hotfix', function() {
 // Images
 gulp.task('images', ['images:hotfix'], function() {
     return gulp.src(paths.images)
-            .pipe(gulp.dest('../sagebrew/static/dist/imgs/'));
+            .pipe(imagemin({
+                progressive: true,
+                svgoPlugins: [{removeViewBox: false}]
+            }))
+            .pipe(gulp.dest('../sagebrew/static/dist/images/'));
 });
 
 //

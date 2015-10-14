@@ -53,15 +53,6 @@
     <script src="{% static 'dist/js/vendor.js' %}"></script>
     <script src="{% static 'dist/js/sagebrew.js' %}"></script>
 
-    {% if user.is_authenticated and "/registration/" not in request.path %}
-    <script src="{% static 'dist/js/user-authed.js' %}"></script>
-    {% endif %}
-
-    {% if not user.is_authenticated %}
-    <script src="{% static 'dist/js/user-anoned.js' %}"></script>
-    {% endif %}
-
-
 {% endblock scripts %}
 {% block external_scripts %}
 {% endblock external_scripts %}

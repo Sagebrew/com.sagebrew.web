@@ -23,7 +23,12 @@ var controller_map = [
         controller: "user-auth",
         match_method: "user",
         check: "auth"
-    }
+    },
+    {
+        controller: "section-profile",
+        match_method: "path",
+        check: "^user"
+    },
 ];
 
 console.log();
@@ -43,7 +48,8 @@ function matchController(match_method, check) {
             }
             return false;
         case 'path':
-            return path.match(check);
+            var match = path.match(check);
+            return match;
 
     }
 }

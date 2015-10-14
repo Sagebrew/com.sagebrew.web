@@ -4,7 +4,8 @@
  * TODO: Reorganize.
  * App: .app-navbar
  */
-var sagebrew = require('sagebrew');
+var request = require('./../../../api').request;
+
 
 /**
  *  Scope - User Authed
@@ -15,9 +16,9 @@ function navbar() {
 
     //
     // Load navbar count(s)
-    var notifications = sagebrew.request.get({url: "/v1/me/notifications/render/"}),
-        rep = sagebrew.request.get({url: "/v1/profiles/" + $("#reputation_total").data('username') + "/reputation/"}),
-        friends = sagebrew.request.get({url: "/v1/me/friend_requests/render/"});
+    var notifications = request.get({url: "/v1/me/notifications/render/"}),
+        rep = request.get({url: "/v1/profiles/" + $("#reputation_total").data('username') + "/reputation/"}),
+        friends = request.get({url: "/v1/me/friend_requests/render/"});
 
     $.when(notifications, rep, friends).done(function(notificationData, repData, friendsData) {
         //Notifications
@@ -45,7 +46,7 @@ function navbar() {
         .on('click', '.show_notifications-action', function(event) {
             $("#notification_div").fadeToggle();
             if ($('#js-notification_notifier_wrapper').children().length > 0) {
-                sagebrew.request.get({url:  "/v1/me/notifications/?seen=true"})
+                request.get({url:  "/v1/me/notifications/?seen=true"})
                     .then(function() {
                         $('#js-sb_notifications_notifier').remove();
                 });
@@ -56,7 +57,7 @@ function navbar() {
         // Show Rep
         .on('click', '.show-reputation-action', function(event) {
             if ($(".sb_reputation_block:visible").length) {
-                sagebrew.request.put({
+                request.put({
                     url: "/v1/me/",
                     data: JSON.stringify({
                         "reputation_update_seen": true
@@ -69,7 +70,7 @@ function navbar() {
         .on('click', '.show_friend_request-action', function(event) {
             $("#friend_request_div").fadeToggle();
             if ($('#js-sb_friend_request_notifier').length > 0) {
-                sagebrew.request.get({url: "/v1/me/friend_requests/?seen=true"})
+                request.get({url: "/v1/me/friend_requests/?seen=true"})
                 .then(function() {
                      $('#js-sb_friend_request_notifier').remove();
                 });
@@ -80,7 +81,7 @@ function navbar() {
         .on('click', '.respond_friend_request-accept-action', function(event) {
             event.preventDefault();
             var requestID = $(this).data('request_id');
-            sagebrew.request.post({
+            request.post({
                 url: "/v1/me/friend_requests/" + requestID + "/accept/",
                 data: JSON.stringify({
                     'request_id': requestID
@@ -94,7 +95,7 @@ function navbar() {
         .on('click', '.respond_friend_request-decline-action', function(event){
             event.preventDefault();
             var requestID = $(this).data('request_id');
-            sagebrew.request.post({
+            request.post({
                 url: "/v1/me/friend_requests/" + requestID + "/decline/",
                 data: JSON.stringify({
                     'request_id': requestID
@@ -108,7 +109,7 @@ function navbar() {
         .on('click', '.respond_friend_request-block-action', function(event) {
             event.preventDefault();
             var requestID = $(this).data('request_id');
-            sagebrew.request.post({
+            request.post({
                 url: "/v1/me/friend_requests/" + requestID + "/block/",
                 data: JSON.stringify({
                     'request_id': requestID

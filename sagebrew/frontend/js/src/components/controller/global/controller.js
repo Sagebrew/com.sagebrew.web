@@ -22,6 +22,5 @@ function ajaxSetup() {
 }
 
 export function init() {
-    console.log("Global Controller Loaded");
     ajaxSetup();
 }

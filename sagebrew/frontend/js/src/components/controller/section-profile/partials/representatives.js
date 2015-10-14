@@ -2,14 +2,15 @@
  * @file
  * Load reps onto page.
 */
-var request = require('sagebrew').request;
+var request = require('./../../../api').request,
+    settings = require('./../../../settings').settings;
 
 /**
  * Get the username of whoever owns the profile.
  * TODO: Come up with a better way to do this.
  */
 function getUsername() {
-    return $("#user_info").data("page_user_username");
+
 }
 
 /**
@@ -17,8 +18,8 @@ function getUsername() {
  * info from one request.
  */
 export function loadReps() {
-    $(document).ready(function () {
-        var username = getUsername();
+    var username = settings.user.username;
+    if ($("#president_wrapper").length) {
         var rcp = request.get({url: '/v1/profiles/' + username + '/president/?html=true'}),
             rcs = request.get({url: '/v1/profiles/' + username + '/senators/?html=true'}),
             rchr = request.get({url: '/v1/profiles/' + username + '/house_representative/?html=true'}),
@@ -36,5 +37,5 @@ export function loadReps() {
             $("#potential_president_wrapper").append(dpp[0]);
             $("#potential_local_wrapper").append(dplr[0]);
         });
-    });
+    }
 }

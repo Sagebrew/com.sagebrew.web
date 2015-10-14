@@ -28,16 +28,3 @@ if (ctrls.length) {
 
 
 export const settings = app_settings;
-
-/**
- * Real generic wrapper around ajax requests.
- * @param options
- * @returns {*}
- */
-export const request = require('./components/common/resourcemethods');
-
-/**
- * Resource Loader
- */
-export const resource = require('./components/api');
-

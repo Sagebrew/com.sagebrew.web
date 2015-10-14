@@ -135,47 +135,6 @@ gulp.task('scripts:global', function () {
 });
 
 //
-// App Scripts - Sections
-gulp.task('scripts:section', function () {
-
-    var tasks = paths.section_modules.map(function(entry) {
-        var source_name = path.basename(entry);
-        var module_name = path.basename(entry, '.js');
-
-        var bundler =  browserify({
-            entries: [__dirname + "/" + entry],
-            basedir: __dirname,
-            debug: true,
-            transform: [babelify]
-        });
-
-        //TODO: -- Make this fancy.
-        bundler.external('sagebrew');
-
-        return bundler
-            .bundle()
-            .on('error', function(err){
-                  console.log(err.message);
-                  this.emit("end");
-            })
-            .pipe(source(source_name))
-            // rename them to have "bundle as postfix"
-            //.pipe(rename({
-            //    extname: '.bundle.js'
-            //}))
-            .pipe(jshint('.jshintrc'))
-            .pipe(jshint.reporter('jshint-stylish'))
-            .on('error', gutil.log)
-            .pipe(gulp.dest('../sagebrew/static/dist/js/'));
-        });
-
-    // create a merged stream
-    return es.merge.apply(null, tasks);
-
-
-});
-
-//
 // JS
 gulp.task('scripts:vendor', function () {
     return gulp.src(paths.libraries)
@@ -189,7 +148,7 @@ gulp.task('scripts:vendor', function () {
 
 //
 // JS
-gulp.task('scripts', ['scripts:global', 'scripts:section', 'scripts:vendor']);
+gulp.task('scripts', ['scripts:global', 'scripts:vendor']);
 
 //
 // Styles

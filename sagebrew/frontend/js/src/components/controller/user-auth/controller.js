@@ -52,7 +52,6 @@ export function init() {
 
     $(document).ready(function() {
         navbar();
-        console.log("Hello");
     });
 
 }

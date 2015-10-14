@@ -6,7 +6,9 @@
  * use sagebrew.resource instead. see sagebrew.js
  */
 
-var helpers = require('./../helpers');
+var helpers = require('./helpers');
+
+
 
 /**
  * Handle api errors

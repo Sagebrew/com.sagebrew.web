@@ -2,6 +2,8 @@ var gulp = require('gulp'),
     path = require('path'),
     concat = require('gulp-concat'),
     browserify = require('browserify'),
+    bulkify = require('bulkify'),
+    globify = require('require-globify'),
     babelify = require("babelify"),
     less = require('gulp-less'),
     imagemin = require('gulp-imagemin'),
@@ -102,9 +104,12 @@ gulp.task('scripts:global', function () {
         var bundler =  browserify({
             entries: [__dirname + "/" + entry],
             basedir: __dirname,
-            debug: true,
-            transform: [babelify]
+            debug: true
+            //transform: [bulkify, babelify]
         });
+
+        bundler.transform(babelify);
+        bundler.transform(globify);
 
         bundler.require(__dirname + "/" + entry, { expose: module_name});
 
@@ -216,7 +221,7 @@ gulp.task('scripts:section', function () {
 gulp.task('scripts:vendor', function () {
     return gulp.src(paths.libraries)
         .pipe(concat('vendor.js'))
-        .pipe(uglify())
+        //.pipe(uglify())
         .pipe(gulp.dest('../sagebrew/static/dist/js'))
         .on('error', gutil.log)
         .pipe(refresh(server));

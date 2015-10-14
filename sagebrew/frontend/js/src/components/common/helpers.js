@@ -34,3 +34,34 @@ export function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
+
+
+/**
+ * Parse URL args.
+ * if no arg key is passed, return all the args.
+ */
+export function args(arg) {
+    var select;
+
+    if(typeof arg === 'undefined'){
+        select = false;
+    } else {
+        select = arg;
+    }
+
+    var elements = window.location.pathname.split("/");
+
+    for (var item in elements) {
+        if (!elements[item]) {
+            elements.splice(item, 1);
+        }
+    }
+
+    if (select && elements[select]) {
+        return elements[select];
+    }
+    else {
+        return elements;
+    }
+
+}

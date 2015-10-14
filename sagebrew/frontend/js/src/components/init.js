@@ -7,7 +7,7 @@
  * TODO: The individual init functions could be turned into arrays or objects and then
  * looped over.
  */
-var helpers = require('./helpers');
+var helpers = require('./common/helpers');
 
 /**
  * Scope - Global

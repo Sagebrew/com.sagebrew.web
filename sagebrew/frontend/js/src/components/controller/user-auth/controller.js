@@ -2,7 +2,8 @@
  * @file
  * Authed User Controller. Loaded on every page loaded by a logged in user.
  */
-var navbar = require('./partials/navbar').initNavbar;
+var navbar = require('./partials/navbar').initNavbar,
+    request = require('./../../api').request;
 
 
 
@@ -22,21 +23,12 @@ function collectAuthedActions() {
                 objectList.push($(this).data('object_uuid'));
             });
             if (objectList.length) {
-                $.ajax({
-                    xhrFields: {withCredentials: true},
-                    type: "POST",
+                request.post({
                     async: false,
                     url: "/docstore/update_neo_api/",
                     data: JSON.stringify({
                         'object_uuids': objectList
-                    }),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    error: function (XMLHttpRequest) {
-                        if (XMLHttpRequest.status === 500) {
-                            $("#server_error").show();
-                        }
-                    }
+                    })
                 });
             }
         };

@@ -4,25 +4,10 @@
  * globalInit - Runs on all pages.
  * UserAuthedInit - Runs on authed pages.
  * userAnonInit - Runs on anon pages.
- * TODO: The individual init functions could be turned into arrays or objects and then
  * looped over.
  */
 var helpers = require('./common/helpers');
 
-/**
- * Scope - Global
- * Ajax Setup
- * -- Automatically add CSRF cookie value to all ajax requests.
- */
-function ajaxSetup() {
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            if (!helpers.csrfSafeMethod(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", helpers.getCookie('csrftoken'));
-            }
-        }
-    });
-}
 
 /**
  *  Scope - User Authed
@@ -61,16 +46,6 @@ function collectAuthedActions() {
     });
 }
 
-
-
-/**
- * This function is called in sagebrew.js main file.
- * Each init task should be defined in it's own function for whatever reason.
- * -- Better code readability?
- */
-export function globalInit() {
-    ajaxSetup();
-}
 
 /**
  * Auth Init.

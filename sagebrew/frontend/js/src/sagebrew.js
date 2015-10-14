@@ -12,14 +12,8 @@
  *
  */
 
-var globalInit = require('./components/init').globalInit,
-    helpers = require('./components/common/helpers'),
+var helpers = require('./components/common/helpers'),
     router = require('./components/router');
-
-
-//
-// init page.
-globalInit();
 
 var ctrls = router.controllers();
 if (ctrls.length) {
@@ -30,9 +24,6 @@ if (ctrls.length) {
         }
     }
 }
-
-
-
 
 /**
  * Real generic wrapper around ajax requests.

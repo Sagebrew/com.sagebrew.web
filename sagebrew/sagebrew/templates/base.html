@@ -1,7 +1,7 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html>
 <head>
-    {% load staticfiles %}
     <title>{% block title %}Sagebrew{% endblock title %}</title>
     {% block description %}{% endblock description %}
     {% block keywords %}{% endblock keywords %}
@@ -19,9 +19,11 @@
     <![endif]-->
     {% endblock page-javascript %}
 
+
 </head>
 <body>
-
+    {{  request_hello }}
+    {{  request_hello.test }}
     {% block navigation %}
         {% include "navigation/navbar.html" %}
     {% endblock navigation %}

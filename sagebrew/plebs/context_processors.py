@@ -37,3 +37,11 @@ def request_profile(request):
         # Caused when there is no user in the request or the request is a
         # WSGIRequest object
         return default_response
+
+
+def request_hello(request):
+    return {
+        'test': {
+            'test': "Hello",
+        }
+    }

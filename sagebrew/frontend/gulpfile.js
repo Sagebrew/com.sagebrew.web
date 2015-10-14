@@ -124,8 +124,11 @@ gulp.task('scripts:global', function () {
             //.pipe(rename({
             //    extname: '.bundle.js'
             //}))
+
             .pipe(jshint('.jshintrc'))
             .pipe(jshint.reporter('jshint-stylish'))
+            //.pipe(buffer())
+            //.pipe(uglify()) // now gulp-uglify works
             .on('error', gutil.log)
             .pipe(gulp.dest('../sagebrew/static/dist/js/'));
         });
@@ -139,7 +142,7 @@ gulp.task('scripts:global', function () {
 gulp.task('scripts:vendor', function () {
     return gulp.src(paths.libraries)
         .pipe(concat('vendor.js'))
-        //.pipe(uglify())
+       // .pipe(uglify())
         .pipe(gulp.dest('../sagebrew/static/dist/js'))
         .on('error', gutil.log)
         .pipe(refresh(server));

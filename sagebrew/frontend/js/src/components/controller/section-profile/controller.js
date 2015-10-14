@@ -7,11 +7,13 @@
  * @file
  * -- Contains all functionality for the profile section.
  */
-var representatives = require('./partials/representatives');
+var representatives = require('./partials/representatives'),
+    friends = require('./partials/friends');
 
 export function init() {
     $(document).ready(function(){
-        representatives.loadReps();
+        representatives.init();
+        friends.init();
     });
 }
 

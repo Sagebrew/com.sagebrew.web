@@ -17,7 +17,7 @@ function getUsername() {
  * TODO:turn reps into some sort of tree structure so that we can get all the
  * info from one request.
  */
-export function loadReps() {
+export function init() {
     var username = settings.user.username;
     if ($("#president_wrapper").length) {
         var rcp = request.get({url: '/v1/profiles/' + username + '/president/?html=true'}),

@@ -1,6 +1,6 @@
 /*global $, ajaxSecurity*/
 /**
- * NO LONGER USED
+ * NO LONGER USED (for real this time)
  */
 $(document).ready(function () {
     "use strict";

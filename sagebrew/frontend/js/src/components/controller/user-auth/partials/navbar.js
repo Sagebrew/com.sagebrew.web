@@ -131,7 +131,6 @@ function navbar() {
             window.location.href = "/search/?q=" + search_param + "&page=1&filter=general";
         }
     });
-
 }
 
 export function initNavbar() {

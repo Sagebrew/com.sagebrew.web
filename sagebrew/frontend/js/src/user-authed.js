@@ -8,4 +8,7 @@ var navbar = require('./components/authed/navbar').initNavbar;
 
 // Init various things for authed user.
 userAuthedInit();
-navbar();
+
+$(document).ready(function() {
+    navbar();
+});

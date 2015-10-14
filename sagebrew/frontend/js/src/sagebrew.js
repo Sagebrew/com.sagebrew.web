@@ -13,6 +13,7 @@
  */
 
 var helpers = require('./components/common/helpers'),
+    app_settings = require('./components/settings').settings,
     router = require('./components/router');
 
 var ctrls = router.controllers();
@@ -24,6 +25,9 @@ if (ctrls.length) {
         }
     }
 }
+
+
+export const settings = app_settings;
 
 /**
  * Real generic wrapper around ajax requests.

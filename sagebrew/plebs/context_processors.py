@@ -39,9 +39,3 @@ def request_profile(request):
         return default_response
 
 
-def request_hello(request):
-    return {
-        'test': {
-            'test': "Hello",
-        }
-    }

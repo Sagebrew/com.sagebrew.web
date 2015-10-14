@@ -18,12 +18,13 @@
     <script src="{% static 'js/dist/vendor/respond.min.js' %}"></script>
     <![endif]-->
     {% endblock page-javascript %}
+    <script type="text/javascript">
+        {{ js_settings|safe }}
+    </script>
 
 
 </head>
 <body>
-    {{  request_hello }}
-    {{  request_hello.test }}
     {% block navigation %}
         {% include "navigation/navbar.html" %}
     {% endblock navigation %}

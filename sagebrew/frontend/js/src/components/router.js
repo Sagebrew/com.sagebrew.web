@@ -3,7 +3,8 @@
  * Dynamically load controllers and whatnot based on urls.
  */
 
-var helpers = require('./common/helpers');
+var helpers = require('./common/helpers'),
+    settings = require('./settings').settings;
 var ctrlHash = require('./controller/*/controller.js', {mode: 'hash'});
 //
 // Define all the controllers.
@@ -19,11 +20,13 @@ var controller_map = [
         check: "anon"
     },
     {
-        controller: "user-anon",
+        controller: "user-auth",
         match_method: "user",
         check: "auth"
     }
 ];
+
+console.log();
 
 /**
  * @param match_method
@@ -35,6 +38,9 @@ function matchController(match_method, check) {
         case true:
             return true;
         case 'user': //Need to output app settings in python for this.
+            if(settings.user.type && settings.user.type === check) {
+                return true;
+            }
             return false;
         case 'path':
             return path.match(check);

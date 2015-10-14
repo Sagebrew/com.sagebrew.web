@@ -158,7 +158,7 @@ TEMPLATES = [{
             "django.core.context_processors.tz",
             "django.contrib.messages.context_processors.messages",
             "plebs.context_processors.request_profile",
-            "plebs.context_processors.request_hello",
+            "sb_base.context_processors.js_settings",
         ],
         'allowed_include_roots': [HELP_DOCS_PATH,],
     },

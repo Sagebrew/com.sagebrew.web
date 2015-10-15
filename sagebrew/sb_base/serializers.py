@@ -121,7 +121,8 @@ class MarkdownContentSerializer(ContentSerializer):
 
     def get_html_content(self, obj):
         if obj.content is not None:
-            return markdown.markdown(obj.content.replace('&gt;', '>'))
+            return markdown.markdown(obj.content.replace(
+                '&gt;', '>')).replace('<a', '<a target="_blank"')
         else:
             return ""
 

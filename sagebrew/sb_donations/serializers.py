@@ -105,7 +105,7 @@ class DonationSerializer(SBSerializer):
                 '[:STRIVING_FOR]->(goals:Goal) WHERE goals.completed=false ' \
                 'AND goals.total_required - total_amount <= 0 ' \
                 'WITH goals, r, cd, total_amount FOREACH (goal IN [goals]|' \
-                'MERGE(cd)-[:APPLIED_TO]->(goal) MERGE (goal)-' \
+                'MERGE (cd)-[:APPLIED_TO]->(goal) MERGE (goal)-' \
                 '[:RECEIVED]->(cd))' \
                 % (Campaign.get_active_round(campaign.object_uuid),
                    donation.object_uuid)
@@ -115,7 +115,10 @@ class DonationSerializer(SBSerializer):
         donation.campaign.connect(campaign)
         donor.donations.connect(donation)
         donation.owned_by.connect(donor)
-        if position_level == "local":
+        cache.delete("%s_total_donated" % campaign.object_uuid)
+        if position_level == "local" \
+                and campaign.get_total_donated(campaign.object_uuid) \
+                < settings.FREE_RELEASE_LIMIT:
             spawn_task(task_func=release_single_donation_task,
                        task_param={"donation_uuid": donation.object_uuid})
             return donation

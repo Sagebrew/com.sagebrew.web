@@ -3,7 +3,6 @@
 </div>
 <div class="col-lg-8 col-md-8 hidden-sm hidden-xs">
     {% if page_user.username == request.user.username or is_friend == True %}
-
         <ul>
             {% if page_user.username == request.user.username %}
             <li>
@@ -45,33 +44,5 @@
                 </li>
             {% endif %}
         </ul>
-    {% elif not is_friend and page_user.username != request.user.username %}
-        <div class="sb_friend_btn_wrapper">
-           <div class="col-lg-3 col-md-3 col-lg-offset-9 col-md-offset-9">
-           {% comment %}
-                TODO add friend request sent logic into view
-           {% endcomment %}
-               {% if friend_request_sent == False %}
-                    <button class="btn btn-primary sb_btn send_friend_request-action" style="margin-top: 3px"
-                            data-from_username="{{ request.user.username }}"
-                            data-to_username="{{ page_user.username }}">Friend Request
-                    </button>
-                    <button class="btn btn-primary sb_btn delete_friend_request-action" hidden style="margin-top: 3px; display: none;"
-                            data-uuid="{{ friend_request_sent }}">Delete Request
-                    </button>
-               {% else %}
-                   <button class="btn btn-primary sb_btn send_friend_request-action" style="margin-top: 3px; display: none"
-                            data-from_username="{{ request.user.username }}"
-                            data-to_username="{{ page_user.username }}">Friend Request
-                   </button>
-                   <button class="btn btn-primary sb_btn delete_friend_request-action"
-                            style="margin-top: 3px"
-                            data-uuid="{{ friend_request_sent }}">
-                        Delete Request
-                   </button>
-               {% endif %}
-
-           </div>
-       </div>
     {% endif %}
 </div>

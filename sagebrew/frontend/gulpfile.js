@@ -32,6 +32,8 @@ var paths = {
         'bower_components/jquery/dist/jquery.js',
         'bower_components/bootstrap/dist/js/bootstrap.js',
         'bower_components/lightbox2/dist/js/lightbox.js',
+        'bower_components/waypoints/lib/jquery.waypoints.js',
+        'bower_components/waypoints/lib/shortcuts/infinite.js',
         '../sagebrew/static/js/vendor/bootstrap-notify.min.js',
         '../sagebrew/static/js/vendor/formValidation.min.js',
         '../sagebrew/static/js/vendor/framework/bootstrap.min.js', // I think this is something to do with validator and not actually the bootstrap js.

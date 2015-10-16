@@ -15,11 +15,11 @@ dependencies:
     - pip install awscli
     - sudo apt-get -y install libjpeg-dev
     - npm prune && npm install:
-        pwd: sagebrew/frontend
+        pwd: frontend
     - bower prune && bower install:
-        pwd: sagebrew/frontend
+        pwd: frontend
     - grunt build:
-        pwd: sagebrew/frontend
+        pwd: frontend
 
   post:
     - pip install -r ~/com.sagebrew.web/requirements/test.txt --exists-action=w

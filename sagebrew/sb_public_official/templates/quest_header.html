@@ -26,7 +26,11 @@
     <div class="col-md-6 cl-xs-12">
         <div class="block sb_bio_block">
             <h2 style="margin-bottom: -10px !important;">{{ first_name }} {{ last_name }}</h2>
-            {% if position_formal_name %}<small>Running for {{ position_formal_name }}</small>{% endif %}
+            {% if position_formal_name %}
+                <small>Running for {{ position_formal_name }}</small>
+            {% else %}
+                <div style="padding-bottom: 10px;"></div>
+            {% endif %}
             <p id="bio_wrapper">{{ biography|default_if_none:"This Quest has no Biography" }}{% if is_editor or is_accountant %}
                 <button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="show_edit_bio"><span class="fa fa-edit"></span></button>
             {% endif %}</p>

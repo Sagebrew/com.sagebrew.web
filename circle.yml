@@ -200,11 +200,13 @@ deployment:
   production:
     branch: master
     commands:
+      - CIRCLECI=false python ~/com.sagebrew.web/sagebrew/manage.py collectstatic --noinput
       - python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-web.json /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-worker.json
       - bash -x ~/com.sagebrew.web/deployment/master.sh $CIRCLE_SHA1
   staging:
     branch: staging
     commands:
+      - CIRCLECI=false python ~/com.sagebrew.web/sagebrew/manage.py collectstatic --noinput
       - python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-web.json /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-worker.json
       - bash -x ~/com.sagebrew.web/deployment/staging.sh $CIRCLE_SHA1
 

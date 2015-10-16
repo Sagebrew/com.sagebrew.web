@@ -1,0 +1,26 @@
+{
+  "name": "sagebrew",
+  "version": "0.0.1",
+  "homepage": "https://github.com/Sagebrew/com.sagebrew.web",
+  "authors": [
+    "Devon Bleibtrey <bleib1dj@gmail.com>"
+  ],
+  "description": "base sagebrew frontend dependencies",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "grunt",
+    "src"
+  ],
+  "dependencies": {
+    "bootstrap": "3.3.5",
+    "jquery": "2.1.4",
+    "fontawesome": "4.4.0",
+    "lightbox2": "2.8.1"
+  }
+}

@@ -1,3 +1,7 @@
+/**
+ * @file
+ * NO LONGER USED.
+ */
 $(document).ready(function () {
     $.ajax({
         xhrFields: {withCredentials: true},

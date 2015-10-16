@@ -1,4 +1,7 @@
 /*global $, errorDisplay*/
+/**
+ * No longer used.
+ */
 $(document).ready(function () {
     "use strict";
     function removeFriend() {

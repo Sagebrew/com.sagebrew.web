@@ -63,6 +63,7 @@ STATICFILES_DIRS = (
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
     '%s/help_center/static/' % PROJECT_DIR,
+    '%s/frontend/static/' % PROJECT_DIR,
     '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_goals/static/' % PROJECT_DIR,

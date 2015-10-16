@@ -6,7 +6,7 @@ var gulp = require('gulp'),
     globify = require('require-globify'),
     babelify = require("babelify"),
     less = require('gulp-less'),
-    imagemin = require('gulp-imagemin'),
+    //imagemin = require('gulp-imagemin'),
     jshint = require('gulp-jshint'),
     uglify = require('gulp-uglify'),
     source = require('vinyl-source-stream'),
@@ -184,10 +184,12 @@ gulp.task('images:hotfix', function() {
 // Images
 gulp.task('images', ['images:hotfix'], function() {
     return gulp.src(paths.images)
+           /*
             .pipe(imagemin({
                 progressive: true,
                 svgoPlugins: [{removeViewBox: false}]
             }))
+            */
             .pipe(gulp.dest('../sagebrew/static/dist/images/'));
 });
 
@@ -195,7 +197,6 @@ gulp.task('images', ['images:hotfix'], function() {
 // Default task.
 gulp.task('watch', function () {
     'use strict';
-
     gulp.watch(paths.styles, ['styles']);
     gulp.watch(['js/src/**'], ['scripts']);
 

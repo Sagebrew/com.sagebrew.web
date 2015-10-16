@@ -21,6 +21,16 @@ function ajaxSetup() {
     });
 }
 
+/**
+ * Init.
+ */
 export function init() {
     ajaxSetup();
+
+}
+/**
+ * Load
+ */
+export function load() {
+
 }

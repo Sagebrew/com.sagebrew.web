@@ -28,7 +28,7 @@ export function init() {
 
 
     });
-    
+
     //
     // Intercom Tracking
     Intercom('trackEvent', 'visited-profile-page');

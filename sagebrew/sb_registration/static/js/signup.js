@@ -1,4 +1,7 @@
 /*global $, ajaxSecurity, getUrlParameter, errorDisplay*/
+/**
+ * No longer used.
+ */
 $(document).ready(function () {
     var submitButton = $("#submit_signup");
     function signupFxn() {

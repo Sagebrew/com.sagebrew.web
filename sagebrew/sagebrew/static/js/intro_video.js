@@ -1,3 +1,6 @@
+/**
+ * Do not use.
+ */
 /*global $, jQuery, ajaxSecurity, wistiaJQuery*/
 $(document).ready(function () {
     "use strict";

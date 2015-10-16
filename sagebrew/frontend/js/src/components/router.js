@@ -2,10 +2,15 @@
  * @file
  * Dynamically load controllers and whatnot based on urls.
  */
-
 var helpers = require('./common/helpers'),
     settings = require('./settings').settings;
+
+/**
+ * Gather all the controllers into an array.
+ * This is some magical browserify plugin, you can't actually do this out of the box.
+ */
 var ctrlHash = require('./controller/*/controller.js', {mode: 'hash'});
+
 //
 // Define all the controllers.
 var controller_map = [
@@ -29,9 +34,12 @@ var controller_map = [
         match_method: "path",
         check: "^user"
     },
+    {
+        controller: "page-signup",
+        match_method: "path",
+        check: "^$"
+    }
 ];
-
-console.log();
 
 /**
  * @param match_method

@@ -140,11 +140,13 @@
     </div>
 {% endblock footer %}
 {% block scripts %}
-    {{ block.super }}
     <script src="//fast.wistia.net/assets/external/E-v1.js" async></script>
     <script charset="windows-1252" src="//fast.wistia.com/assets/external/popover-v1.js"></script>
+    {{ block.super }}
+    {% comment %}
     <script src="{% static 'js/signup.js' %}"></script>
     <script src="{% static 'js/signup_bootstrap_validation.js' %}"></script>
     <script src="{% static 'js/sb_date_of_birth.js' %}"></script>
     <script src="{% static 'js/intro_video.js' %}"></script>
+    {% endcomment %}
 {% endblock %}

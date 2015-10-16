@@ -202,5 +202,9 @@ gulp.task('watch', function () {
 });
 
 //
+// Build
+gulp.task('build', ['scripts', 'styles', 'images', 'fonts']);
+
+//
 // Default task.
 gulp.task('default', ['watch', 'scripts', 'styles', 'images', 'fonts']);

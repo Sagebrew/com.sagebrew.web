@@ -5,9 +5,7 @@
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
                     <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
+                    <i class="fa fa-bars"></i>
                 </button>
                 <h1>{% if request_profile.completed_profile_info or user.is_anonymous %}<a href="{% url 'root_profile_page' %}">{% endif %}<img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/>Sagebrew{% if request_profile.completed_profile_info or user.is_anonymous %}</a>{% endif %}</h1>
 
@@ -36,9 +34,7 @@
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
                     <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
+                    <i class="fa fa-bars"></i>
                 </button>
                 {% if request_profile.completed_profile_info or user.is_anonymous %}<a class="navbar-brand" href="{% url 'root_profile_page' %}">{% else %}<a class="navbar-brand" href="#">{% endif %}Sagebrew</a>
             </div>

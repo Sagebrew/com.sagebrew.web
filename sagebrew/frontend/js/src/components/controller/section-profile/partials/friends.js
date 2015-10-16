@@ -56,25 +56,25 @@ export function init() {
 
         //
         // Delete friend request
-        .on('click', '.delete_friend_request-action', function(event) {
+        .on('click', '.js-delete-friend-request', function(event) {
             event.preventDefault();
-            var $deleteAction = $(".delete_friend_request-action"),
+            var $deleteAction = $(".js-delete-friend-request"),
                 objectUUID = $(this).data('uuid');
             $deleteAction.attr("disabled", "disabled");
 
             request.remove({url: "/v1/me/sent_friend_requests/" + objectUUID + "/"})
                 .done(function(){
-                    $(".delete_friend_request-action").hide();
-                    var $friendAction = $(".send_friend_request-action");
+                    $(".js-delete-friend-request").hide();
+                    var $friendAction = $(".js-send-friend-request");
                     $friendAction.show();
                     $friendAction.removeAttr("disabled");
                 });
         })
         //
         // Send Friend Request.
-        .on('click', 'button.send_friend_request-action', function(event) {
+        .on('click', 'button.js-send-friend-request', function(event) {
             event.preventDefault();
-            var sendRequest = $("button.send_friend_request-action");
+            var sendRequest = $("button.js-send-friend-request");
             sendRequest.attr("disabled", "disabled");
 
             request.post({
@@ -86,7 +86,7 @@ export function init() {
             }).done(function(data){
                 if (data.action === true) {
                     sendRequest.hide();
-                    var deleteFriend = $(".delete_friend_request-action");
+                    var deleteFriend = $(".js-delete-friend-request");
                     deleteFriend.data('uuid', data.friend_request_id);
                     deleteFriend.removeAttr("disabled");
                     deleteFriend.show();

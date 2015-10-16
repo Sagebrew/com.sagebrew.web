@@ -68,6 +68,7 @@ var paths = {
     ],
     images: [
         'styles/contrib/misc/css/vendor/img/**',
+        'styles/contrib/misc/img/**',
         '../sagebrew/static/images/*.png',
         '../sagebrew/static/images/*.gif',
         '../sagebrew/static/images/*.jpg',
@@ -142,7 +143,7 @@ gulp.task('scripts:global', function () {
 gulp.task('scripts:vendor', function () {
     return gulp.src(paths.libraries)
         .pipe(concat('vendor.js'))
-       // .pipe(uglify())
+        .pipe(uglify())
         .pipe(gulp.dest('../sagebrew/static/dist/js'))
         .on('error', gutil.log)
         .pipe(refresh(server));

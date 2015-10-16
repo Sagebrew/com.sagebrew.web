@@ -1,3 +1,7 @@
+/**
+ * No longer used.
+ *
+ */
 $( document ).ready(function() {
     // This function populates the input field for a post when a user clicks
     // on it. That way it can look like a simple input area and then be expanded

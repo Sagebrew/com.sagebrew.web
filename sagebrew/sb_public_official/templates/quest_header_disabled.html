@@ -27,7 +27,11 @@
     <div class="col-md-6 cl-xs-12">
         <div class="block sb_bio_block sb_markdown_disabled">
             <h2 style="margin-bottom: -10px !important;">{{ first_name }} {{ last_name }}</h2>
-            <small>Running for {{ position_formal_name }}</small>
+            {% if position_formal_name %}
+                <small>Running for {{ position_formal_name }}</small>
+            {% else %}
+                <div style="padding-bottom: 10px;"></div>
+            {% endif %}
             {% if public_official %}
                 {% if public_official.title != "President" and public_official.title != "Vice President" %}
                   <p id="bio_wrapper">This {{ public_official.title }} from {{ public_official.state }} has not yet joined Sagebrew.</p>

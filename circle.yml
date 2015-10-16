@@ -14,11 +14,12 @@ dependencies:
     - pip install setuptools==12.3
     - pip install awscli
     - sudo apt-get -y install libjpeg-dev
+    - npm install -g gulp
     - npm prune && npm install:
         pwd: frontend
     - bower prune && bower install:
         pwd: frontend
-    - grunt build:
+    - gulp build:
         pwd: frontend
 
   post:

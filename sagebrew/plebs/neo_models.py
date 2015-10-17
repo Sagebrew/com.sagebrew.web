@@ -244,7 +244,7 @@ class Pleb(Searchable):
                                  'URL_CONTENT')
     # This is relating to which campaigns will affect you specifically.
     # So anyone who is running in your district will show up here.
-    related_campaigns = RelationshipTo('sb_campaigns.neo_models.Campaign',
+    related_campaigns = RelationshipTo('sb_quests.neo_models.Campaign',
                                        'HAS_STAKE_IN')
     # Users can only have one campaign as the campaign is essentially their
     # action page and account information. They won't be able to create
@@ -253,17 +253,17 @@ class Pleb(Searchable):
     # things to. If a user is waging a `PoliticalCampaign` their Action page
     # changes a little and they start being able to receive pledged votes and
     # there are more limitations on how donations occur.
-    campaign = RelationshipTo('sb_campaigns.neo_models.Campaign', 'IS_WAGING')
-    campaign_editor = RelationshipTo('sb_campaigns.neo_models.Campaign',
+    campaign = RelationshipTo('sb_quests.neo_models.Campaign', 'IS_WAGING')
+    campaign_editor = RelationshipTo('sb_quests.neo_models.Campaign',
                                      'CAN_EDIT')
-    campaign_accountant = RelationshipTo('sb_campaigns.neo_models.Campaign',
+    campaign_accountant = RelationshipTo('sb_quests.neo_models.Campaign',
                                          'CAN_MANAGE_FINANCES')
     # Can this just be a vote? Have it set like we do with votable content
     # with the assumption we can
     # utilize a different serializer that only enables up/off votes rather than
     # also allowing down votes to be cast. Then we can utilize the different
     # relationship to track any special items.
-    pledged_votes = RelationshipTo('sb_campaigns.neo_models.PoliticalCampaign',
+    pledged_votes = RelationshipTo('sb_quests.neo_models.PoliticalCampaign',
                                    'PLEDGED', model=VoteRelationship)
     donations = RelationshipTo('sb_donations.neo_models.Donation',
                                'DONATIONS_GIVEN')

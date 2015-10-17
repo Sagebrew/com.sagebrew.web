@@ -2,6 +2,7 @@ import stripe
 
 from django.conf import settings
 from django.template.loader import render_to_string
+from django.core.cache import cache
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -12,8 +13,8 @@ from api.utils import gather_request_data, spawn_task
 from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
 from plebs.serializers import PlebExportSerializer
-from sb_campaigns.neo_models import Campaign
-from sb_campaigns.tasks import release_single_donation_task
+from sb_quests.neo_models import Campaign
+from sb_quests.tasks import release_single_donation_task
 from sb_goals.neo_models import Round
 from sb_goals.tasks import check_goal_completion_task
 from plebs.tasks import send_email_task
@@ -70,6 +71,8 @@ class DonationSerializer(SBSerializer):
                 email=donor.email)
             donor.stripe_customer_id = customer['id']
             donor.save()
+            cache.delete(donor.username)
+            donor.refresh()
         current_round = Round.nodes.get(
             object_uuid=Campaign.get_active_round(campaign.object_uuid))
         current_round.donations.connect(donation)
@@ -102,7 +105,7 @@ class DonationSerializer(SBSerializer):
                 '[:STRIVING_FOR]->(goals:Goal) WHERE goals.completed=false ' \
                 'AND goals.total_required - total_amount <= 0 ' \
                 'WITH goals, r, cd, total_amount FOREACH (goal IN [goals]|' \
-                'MERGE(cd)-[:APPLIED_TO]->(goal) MERGE (goal)-' \
+                'MERGE (cd)-[:APPLIED_TO]->(goal) MERGE (goal)-' \
                 '[:RECEIVED]->(cd))' \
                 % (Campaign.get_active_round(campaign.object_uuid),
                    donation.object_uuid)
@@ -112,7 +115,10 @@ class DonationSerializer(SBSerializer):
         donation.campaign.connect(campaign)
         donor.donations.connect(donation)
         donation.owned_by.connect(donor)
-        if position_level == "local":
+        cache.delete("%s_total_donated" % campaign.object_uuid)
+        if position_level == "local" \
+                and campaign.get_total_donated(campaign.object_uuid) \
+                < settings.FREE_RELEASE_LIMIT:
             spawn_task(task_func=release_single_donation_task,
                        task_param={"donation_uuid": donation.object_uuid})
             return donation
@@ -157,7 +163,7 @@ class DonationSerializer(SBSerializer):
         return obj.owner_username
 
     def get_campaign(self, obj):
-        from sb_campaigns.neo_models import PoliticalCampaign
+        from sb_quests.neo_models import PoliticalCampaign
         request, expand, _, relation, _ = gather_request_data(self.context)
         campaign = Donation.get_campaign(obj.object_uuid)
         if expand == 'true':
@@ -200,6 +206,8 @@ class SBDonationSerializer(DonationSerializer):
                 email=donor.email)
             donor.stripe_customer_id = customer['id']
             donor.save()
+            cache.delete(donor.username)
+            donor.refresh()
         donor.donations.connect(donation)
         donation.owned_by.connect(donor)
         stripe.Charge.create(

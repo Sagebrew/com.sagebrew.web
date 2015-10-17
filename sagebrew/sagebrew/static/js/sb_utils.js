@@ -1,36 +1,5 @@
 /*global $, jQuery, guid, enableSinglePostFunctionality, errorDisplay, lightbox, Autolinker*/
-/**
- * csrftoken support for django
- */
-function getCookie(name) {
-    var cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-        var cookies = document.cookie.split(';');
-        for (var i = 0; i < cookies.length; i += 1) {
-            var cookie = jQuery.trim(cookies[i]);
-            // Does this cookie string begin with the name we want?
 
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-
-$.ajaxSetup({
-    beforeSend: function (xhr, settings) {
-        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", getCookie('csrftoken'));
-        }
-    }
-});
 
 function saveComment(commentArea, url, objectUuid) {
     $(commentArea).click(function (event) {
@@ -431,36 +400,47 @@ function voteObjects(populatedIds, resource) {
 function saveSolution() {
     $(".submit_solution-action").click(function (event) {
         event.preventDefault();
-        $("#submit_solution").attr("disabled", "disabled");
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/v1/questions/" + $(this).data('object_uuid') + "/solutions/?html=true&expand=true",
-            data: JSON.stringify({
-                'content': $('textarea.sb_solution_input_area').val()
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                $("#solution_container").append(data.html);
-                $('textarea.sb_solution_input_area').val("");
-                $("#wmd-preview-0").empty();
-                var solutionCountText = $("#solution_count").text();
-                if (solutionCountText !== "--") {
-                    // the reasoning for the addition of the 10 here is
-                    // http://solidlystated.com/scripting/missing-radix-parameter-jslint/
-                    var solutionCount = parseInt(solutionCountText, 10) + 1;
-                    $("#solution_count").text(solutionCount.toString());
+        var submitArea = $("#submit_solution");
+            textArea = $('textarea.sb_solution_input_area'),
+            regExp = /\b((?:https?:(?:|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw))(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b(?!@)))/gi,
+            regexMatches = textArea.val().match(regExp),
+            content = textArea.val();
+        submitArea.attr("disabled", "disabled");
+        if (!regexMatches) {
+            $.notify({message: "Please include at least 1 link to information that supports or adds context to your Solution"}, {type: "danger"});
+            submitArea.removeAttr("disabled");
+        } else {
+            $.ajax({
+                xhrFields: {withCredentials: true},
+                type: "POST",
+                url: "/v1/questions/" + $(this).data('object_uuid') + "/solutions/?html=true&expand=true",
+                data: JSON.stringify({
+                    'content': content
+                }),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    $("#solution_container").append(data.html);
+                    $('textarea.sb_solution_input_area').val("");
+                    $("#wmd-preview-0").empty();
+                    var solutionCountText = $("#solution_count").text();
+                    if (solutionCountText !== "--") {
+                        // the reasoning for the addition of the 10 here is
+                        // http://solidlystated.com/scripting/missing-radix-parameter-jslint/
+                        var solutionCount = parseInt(solutionCountText, 10) + 1;
+                        $("#solution_count").text(solutionCount.toString());
+                    }
+                    $('#wmd-preview-1').html("");
+                    $("#submit_solution").removeAttr("disabled");
+                    enableSolutionFunctionality(data.ids);
+                },
+                error: function (XMLHttpRequest) {
+                    $("#submit_solution").removeAttr("disabled");
+                    errorDisplay(XMLHttpRequest);
                 }
-                $('#wmd-preview-1').html("");
-                $("#submit_solution").removeAttr("disabled");
-                enableSolutionFunctionality(data.ids);
-            },
-            error: function (XMLHttpRequest) {
-                $("#submit_solution").removeAttr("disabled");
-                errorDisplay(XMLHttpRequest);
-            }
-        });
+            });
+        }
+
     });
 }
 
@@ -901,7 +881,15 @@ function foggyClosed(populatedIds) {
     });
 }
 
-function errorDisplay(XMLHttpRequest) {
+/**
+ * Deprecated.
+ * @param XMLHttpRequest
+ * @param notifyFrom
+ * @param notifyAlign
+ */
+function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
+    notifyFrom = typeof notifyFrom !== 'undefined' ? notifyFrom : "top";
+    notifyAlign = typeof notifyAlign !== 'undefined' ? notifyAlign : 'right';
     if (XMLHttpRequest.status === 500) {
         $.notify({message: "Sorry looks like we're having some server issues right now. "}, {type: "danger"});
     }
@@ -928,7 +916,7 @@ function errorDisplay(XMLHttpRequest) {
             }
             catch(e) {
                 if(notification.detail !== undefined) {
-                    $.notify({message: notification.detail}, {type: 'danger'});
+                    $.notify({message: notification.detail}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
                 } else{
                     for (var key in notification) {
                       $.notify({message: notification[key][0]}, {type: 'danger'});
@@ -946,7 +934,7 @@ function errorDisplay(XMLHttpRequest) {
                 }
                 badItemCap = badItem.charAt(0).toUpperCase() + badItem.slice(1);
                 errorMessage = badItemCap + ": " + reportMsg;
-                $.notify({message: errorMessage.replace('_', " ")}, {type: 'danger'});
+                $.notify({message: errorMessage.replace('_', " ")}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
             }
         }
 

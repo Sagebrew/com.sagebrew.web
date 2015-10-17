@@ -25,7 +25,7 @@ TEMPLATES = [{
         '%s/sagebrew/templates/' % PROJECT_DIR,
         '%s/sb_solutions/templates/' % PROJECT_DIR,
         '%s/sb_badges/templates/' % PROJECT_DIR,
-        '%s/sb_campaigns/templates/' % PROJECT_DIR,
+        '%s/sb_quests/templates/' % PROJECT_DIR,
         '%s/sb_comments/templates/' % PROJECT_DIR,
         '%s/sb_council/templates' % PROJECT_DIR,
         '%s/sb_flag/templates/' % PROJECT_DIR,
@@ -55,6 +55,8 @@ TEMPLATES = [{
             "django.core.context_processors.tz",
             "django.contrib.messages.context_processors.messages",
             "plebs.context_processors.request_profile",
+            "sb_base.context_processors.js_settings",
+
         ],
         'allowed_include_roots': [HELP_DOCS_PATH,]
     },

@@ -65,13 +65,13 @@ STATICFILES_DIRS = (
     '%s/help_center/static/' % PROJECT_DIR,
     '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
-    '%s/sb_campaigns/static/' % PROJECT_DIR,
     '%s/sb_goals/static/' % PROJECT_DIR,
     '%s/sb_solutions/static/' % PROJECT_DIR,
     '%s/sb_notifications/static/' % PROJECT_DIR,
     '%s/sb_privileges/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
+    '%s/sb_quests/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
     '%s/sb_public_official/static/' % PROJECT_DIR,
     '%s/sb_search/static/' % PROJECT_DIR,
@@ -124,7 +124,6 @@ TEMPLATES = [{
         '%s/sagebrew/templates/' % PROJECT_DIR,
         '%s/sb_solutions/templates/' % PROJECT_DIR,
         '%s/sb_badges/templates/' % PROJECT_DIR,
-        '%s/sb_campaigns/templates/' % PROJECT_DIR,
         '%s/sb_comments/templates/' % PROJECT_DIR,
         '%s/sb_council/templates' % PROJECT_DIR,
         '%s/sb_flag/templates/' % PROJECT_DIR,
@@ -134,6 +133,7 @@ TEMPLATES = [{
         '%s/sb_privileges/templates/' % PROJECT_DIR,
         '%s/sb_public_official/templates/' % PROJECT_DIR,
         '%s/sb_questions/templates/' % PROJECT_DIR,
+        '%s/sb_quests/templates/' % PROJECT_DIR,
         '%s/sb_registration/templates/' % PROJECT_DIR,
         '%s/sb_requirements/templates/' % PROJECT_DIR,
         '%s/sb_search/templates/' % PROJECT_DIR,
@@ -158,6 +158,7 @@ TEMPLATES = [{
             "django.core.context_processors.tz",
             "django.contrib.messages.context_processors.messages",
             "plebs.context_processors.request_profile",
+            "sb_base.context_processors.js_settings",
         ],
         'allowed_include_roots': [HELP_DOCS_PATH,],
     },
@@ -192,7 +193,6 @@ INSTALLED_APPS = (
     'sb_solutions',
     'sb_badges',
     'sb_base',
-    'sb_campaigns',
     'sb_comments',
     'sb_council',
     'sb_docstore',
@@ -205,6 +205,7 @@ INSTALLED_APPS = (
     'sb_privileges',
     'sb_public_official',
     'sb_questions',
+    'sb_quests',
     'sb_registration',
     'sb_requirements',
     'sb_search',
@@ -357,6 +358,8 @@ PAYMENT_PLANS = [
     ("free", "Free"),
     ("sub", "Subscription")
 ]
+
+FREE_RELEASE_LIMIT = 500000
 
 SEARCH_TYPES = [
     ("general", "general"),

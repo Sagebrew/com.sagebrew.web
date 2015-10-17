@@ -23,6 +23,21 @@ urlpatterns = patterns(
     url(r'^quests/quest/$', RedirectView.as_view(
         url='/help/quest/quest/', permanent=True),
         name='quest_redirect'),
+    url(r'^quests/how_to_run/$', RedirectView.as_view(
+        url='/help/quest/how-to-run/', permanent=True),
+        name='s-how-to-run-redirect'),
+    url(r'^quests/how_to_export_contributions/$', RedirectView.as_view(
+        url='/help/quest/how-to-export-contributions/', permanent=True),
+        name='s-how-to-export-contributions'),
+    url(r'^quests/principal_campaign_committee/$', RedirectView.as_view(
+        url='/help/quest/principal-campaign-committee/', permanent=True),
+        name='s-principal-campaign-committee'),
+    url(r'^quests/how_to_get_on_the_ballot/$', RedirectView.as_view(
+        url='/help/quest/how-to-get-on-the-ballot/', permanent=True),
+        name='s-how-to-get-on-the-ballot'),
+    url(r'^quests/need_more_help_public_official/$', RedirectView.as_view(
+        url='/help/quest/need-more-help-public-official/', permanent=True),
+        name='s-need-more-help-public-official'),
     url(r'^quests/funding_not_in_account/$', RedirectView.as_view(
         url='/help/quest/funding-not-in-account/', permanent=True),
         name='funding_not_in_account_direct_redirect'),

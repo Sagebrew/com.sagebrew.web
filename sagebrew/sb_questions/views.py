@@ -38,7 +38,7 @@ def question_page(request, sort_by="most_recent"):
 
     :param request:
 
-                request.DATA/request.body = {
+                request.data/request.body = {
                     'question_uuid': str(uuid1()),
                     'current_pleb': 'example@email.com'
                     'sort_by': ''

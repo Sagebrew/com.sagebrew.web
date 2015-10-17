@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.conf import settings
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -20,7 +20,7 @@ from sagebrew import errors
 from sb_public_official.neo_models import PublicOfficial
 from plebs.neo_models import Pleb, FriendRequest, Address, BetaUser
 from sb_privileges.neo_models import Privilege, SBAction
-from sb_campaigns.neo_models import Position, PoliticalCampaign
+from sb_quests.neo_models import Position, PoliticalCampaign
 from sb_updates.neo_models import Update
 from sb_locations.neo_models import Location
 from sb_questions.neo_models import Question
@@ -724,6 +724,19 @@ class ProfileEndpointTests(APITestCase):
         cache.clear()
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_pleb_campaign_expand(self):
+        for campaign in self.pleb.campaign.all():
+            campaign.delete()
+        cache.clear()
+        campaign = PoliticalCampaign(object_uuid=self.pleb.username).save()
+        campaign.owned_by.connect(self.pleb)
+        self.pleb.campaign.connect(campaign)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-detail', kwargs={
+            'username': self.pleb.username}) + "?expand=true"
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['campaign']['id'], self.user.username)
 
     def test_create_pleb(self):
         self.client.force_authenticate(user=self.user)
@@ -2109,7 +2122,10 @@ class BetaUserMethodEndpointTests(APITestCase):
 
     def test_get_is_beta_user_true(self):
         self.client.force_authenticate(user=self.user)
-        beta_user = BetaUser(email=self.email, invited=True).save()
+        try:
+            beta_user = BetaUser.nodes.get(email=self.email)
+        except DoesNotExist:
+            beta_user = BetaUser(email=self.email, invited=True).save()
         self.pleb.beta_user.connect(beta_user)
         self.pleb.save()
         cache.clear()

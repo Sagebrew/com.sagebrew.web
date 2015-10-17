@@ -1,9 +1,12 @@
 /*global $, ajaxSecurity*/
+/**
+ * NO LONGER USED (for real this time)
+ */
 $(document).ready(function () {
     "use strict";
-    $(".delete_friend_request-action").click(function (event) {
+    $(".js-delete-friend-request").click(function (event) {
         event.preventDefault();
-        var deleteAction = $(".delete_friend_request-action"),
+        var deleteAction = $(".js-delete-friend-request"),
             objectUUID = $(this).data('uuid');
         deleteAction.attr("disabled", "disabled");
 
@@ -14,8 +17,8 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function () {
-                $(".delete_friend_request-action").hide();
-                var friendAction = $(".send_friend_request-action");
+                $(".js-delete-friend-request").hide();
+                var friendAction = $(".js-send-friend-request");
                 friendAction.show();
                 friendAction.removeAttr("disabled");
             },

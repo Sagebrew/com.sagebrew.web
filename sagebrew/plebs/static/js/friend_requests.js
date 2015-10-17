@@ -1,4 +1,9 @@
+/**
+ * @file
+ * NO LONGER USED.
+ */
 /*global $*/
+
 $(document).ready(function () {
     "use strict";
     // Retrieves all the friend requests for a given user and gathers how
@@ -21,6 +26,7 @@ $(document).ready(function () {
             }
         }
     });
+
     // Shows the friend requests when the friend request icon is clicked
     $(".show_friend_request-action").click(function () {
         $("#friend_request_div").fadeToggle();

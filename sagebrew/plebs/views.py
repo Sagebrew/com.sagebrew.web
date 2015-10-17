@@ -24,8 +24,8 @@ from api.utils import spawn_task
 from plebs.neo_models import (Pleb, BetaUser, Address,
                               get_friend_requests_sent)
 from sb_registration.utils import (verify_completed_registration)
-from sb_campaigns.neo_models import Campaign
-from sb_campaigns.serializers import CampaignSerializer
+from sb_quests.neo_models import Campaign
+from sb_quests.serializers import CampaignSerializer
 
 from .serializers import PlebSerializerNeo
 from .tasks import create_friend_request_task, send_email_task
@@ -85,7 +85,9 @@ class ProfileView(LoginRequiredMixin):
             is_owner = True
             are_friends = False
         return render(request, self.template_name, {
-            'page_profile': PlebSerializerNeo(page_user_pleb).data,
+            'page_profile': PlebSerializerNeo(
+                page_user_pleb,
+                context={'expand': True, 'request': request}).data,
             'page_user': page_user,
             'is_owner': is_owner,
             'is_friend': are_friends,
@@ -149,7 +151,7 @@ def quest_settings(request):
         return redirect("500_Error")
     except IndexError:
         campaign = False
-    return render(request, 'campaign_settings.html',
+    return render(request, 'quest_settings.html',
                   {"campaign": campaign})
 
 

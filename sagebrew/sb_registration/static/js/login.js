@@ -1,3 +1,6 @@
+/**
+ * NOT IN USE
+ */
 /*global $, ajaxSecurity, getUrlParameter, errorDisplay*/
 $(document).ready(function () {
     "use strict";
@@ -28,7 +31,7 @@ $(document).ready(function () {
                 }
             },
             error: function (XMLHttpRequest) {
-                errorDisplay(XMLHttpRequest);
+                errorDisplay(XMLHttpRequest, "top", "left");
                 submitArea.removeAttr("disabled");
             }
         });

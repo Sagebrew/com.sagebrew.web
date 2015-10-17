@@ -1,13 +1,7 @@
 {% extends "base.html" %}
 {% load staticfiles %}
 {% block title %}{{ page_user.first_name}} {{ page_user.last_name }}{% endblock title %}
-{% block css %}
-    {{ block.super }}
-    <link href="{% static 'css/vendor/lightbox.css' %}" rel="stylesheet" type="text/css"/>
-    <link href="{% static 'css/vendor/croppic.css' %}" rel="stylesheet" type="text/css"/>
-{% endblock css %}
 {% block content %}
-
     <div id="user_info" style="display: none"
         data-current_user_username="{{ request.user.username }}"
         data-page_user_username="{{ page_user.username }}"></div>
@@ -55,6 +49,8 @@
             {% block midsection %}
                 {% include "sb_home_section/sb_home.html" %}
             {%  endblock %}
+        {% elif not is_friend %}
+            {% include "sb_home_section/sb_not_friend_home.html" %}
         {% endif %}
     </div>
     {% include "flag_modal.html" %}
@@ -64,29 +60,25 @@
 
 {% block scripts %}
     {{ block.super }}
+    {% comment %}
+        <script src="{% static 'js/get_reps.js' %}"></script>
+        <script src="{% static 'js/delete_friend_request.js' %}"></script>
+        <script src="{% static 'js/send_friend_request.js' %}"></script>
+        <script src="{% static 'js/respond_friend_request.js' %}"></script>
+        <script src="{% static 'js/sb_post_enter.js' %}"></script>
+        <script src="{% static 'js/get_dropzone.js' %}"></script>
+        <script src="{% static 'js/event_profile_intercom.js' %}"></script>
+    {% endcomment %}
     <script src="{% static 'js/vendor/jquery.timeago.js' %}"></script>
-    <script src="{% static 'js/vendor/lightbox.min.js' %}"></script>
-    <script src="{% static 'js/event_profile_intercom.js' %}"></script>
-    <script src="{% static 'js/get_reps.js' %}"></script>
     <script src="{% static 'js/save_post.js' %}"></script>
     <script src="{% static 'js/pleb_image_upload.js' %}"></script>
     {% block post_scripts %}
         <script src="{% static 'js/get_posts.js' %}"></script>
     {% endblock post_scripts %}
-    <script src="{% static 'js/send_friend_request.js' %}"></script>
     <script src="{% static 'js/send_notification.js' %}"></script>
-    <script src="{% static 'js/respond_friend_request.js' %}"></script>
-    <script src="{% static 'js/delete_friend_request.js' %}"></script>
-    <script src="{% static 'js/sb_post_enter.js' %}"></script>
     <script src="{% static 'js/post_validator.js' %}"></script>
-    <script src="{% static 'js/vendor/jquery.mousewheel.min.js' %}"></script>
-   	<script src="{% static 'js/croppic.min.js' %}"></script>
-    <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
-    <script src="{% static 'js/uuid.js' %}"></script>
     <script src="{% static 'js/flag_modal.js' %}"></script>
     <script src="{% static 'js/profile_pic_croppic.js' %}"></script>
     <script src="{% static 'js/wallpaper_pic_croppic.js' %}"></script>
-    {% comment %}
-    <script src="{% static 'js/get_dropzone.js' %}"></script>
-    {% endcomment %}
+
 {% endblock scripts %}

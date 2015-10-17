@@ -380,6 +380,19 @@ class SBContent(VotableContent):
         return [URLContentSerializer(URLContent.inflate(row[0])).data
                 for row in res]
 
+    def get_participating_users(self):
+        '''
+        This function will get all users involved in a comment thread on a
+        specific object.
+
+        :return:
+        '''
+        query = 'MATCH (a:SBContent {object_uuid:"%s"})-[:HAS_A]->' \
+                '(c:Comment) RETURN DISTINCT c.owner_username' \
+                % self.object_uuid
+        res, _ = db.cypher_query(query)
+        return [row[0] for row in res]
+
 
 class TaggableContent(SBContent):
     added_to_search_index = BooleanProperty(default=False)

@@ -6,7 +6,7 @@ from django.template import RequestContext
 
 from rest_framework.reverse import reverse
 from rest_framework.decorators import (api_view, permission_classes)
-from rest_framework.permissions import (IsAuthenticated)
+from rest_framework.permissions import (IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
@@ -14,7 +14,7 @@ from rest_framework import status
 from neomodel import db
 
 from sb_base.views import ObjectRetrieveUpdateDestroy
-from sb_campaigns.neo_models import Campaign
+from sb_quests.neo_models import Campaign
 from sb_goals.neo_models import Goal
 
 from .serializers import UpdateSerializer
@@ -24,14 +24,15 @@ from .neo_models import Update
 class UpdateListCreate(generics.ListCreateAPIView):
     serializer_class = UpdateSerializer
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
         query = 'MATCH (c:`Campaign` {object_uuid:"%s"})-' \
                 '[:HAS_UPDATE]->(u:`Update`) return u ' \
                 'ORDER BY u.created DESC' % \
                 (self.kwargs[self.lookup_field])
-        res, col = db.cypher_query(query)
+        res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [Update.inflate(row[0]) for row in res]
 
     def get_object(self):
@@ -66,7 +67,7 @@ class UpdateListCreate(generics.ListCreateAPIView):
 class UpdateRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     serializer_class = UpdateSerializer
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_object(self):
         return Update.nodes.get(object_uuid=self.kwargs[self.lookup_field])
@@ -79,7 +80,7 @@ class UpdateRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
 
 
 @api_view(['GET'])
-@permission_classes((IsAuthenticated,))
+@permission_classes((IsAuthenticatedOrReadOnly,))
 def update_renderer(request, object_uuid=None):
     html_array = []
     id_array = []

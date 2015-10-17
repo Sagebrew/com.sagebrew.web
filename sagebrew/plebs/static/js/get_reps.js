@@ -1,3 +1,7 @@
+/**
+ * @file
+ * NO LONGER USED.
+ */
 $(document).ready(function () {
     var username = $("#user_info").data("page_user_username");
     // These ajax calls are sequential due to the order which the html returned

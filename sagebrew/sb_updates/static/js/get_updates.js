@@ -10,13 +10,11 @@ $(document).ready(function () {
         success: function (data) {
             if(data.results.html.length !== 0){
                 $("#update-container").append(data.results.html);
-            } else {
-                $("#update-container").append("<h6>This Quest currently has no updates</h6>")
             }
 
             $(".edit-update").click(function (event) {
                 event.preventDefault();
-                window.location.href = "/updates/" + $(this).data('object_uuid') + "/edit/";
+                window.location.href = "/quests/" + campaignId + "/updates/" + $(this).data('object_uuid') + "/edit/";
             });
             //$.notify("Updated next goal set!", {type: 'success'});
         },

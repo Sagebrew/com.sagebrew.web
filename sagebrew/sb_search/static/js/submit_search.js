@@ -1,5 +1,9 @@
-$( document ).ready(function() {
-	$(".full_search-action").click(function(event){
+/**
+ * @file
+ * NO LONGER IN USE.
+ */
+$(document).ready(function() {
+	$(".full_search-action").click(function(e){
         var search_param = ($('#sb_search_input').val());
         window.location.href = "/search/?q=" + search_param + "&page=1&filter=general";
 	});

@@ -35,6 +35,9 @@ urlpatterns = patterns(
     url(r'^quests/how_to_get_on_the_ballot/$', RedirectView.as_view(
         url='/help/quest/how-to-get-on-the-ballot/', permanent=True),
         name='s-how-to-get-on-the-ballot'),
+    url(r'^quests/need_more_help_public_official/$', RedirectView.as_view(
+        url='/help/quest/need-more-help-public-official/', permanent=True),
+        name='s-need-more-help-public-official'),
     url(r'^quests/funding_not_in_account/$', RedirectView.as_view(
         url='/help/quest/funding-not-in-account/', permanent=True),
         name='funding_not_in_account_direct_redirect'),

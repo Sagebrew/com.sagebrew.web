@@ -71,6 +71,7 @@ var paths = {
     images: [
         'styles/contrib/misc/css/vendor/img/**',
         'styles/contrib/misc/img/**',
+        '../sagebrew/static/dist/images/*',
         '../sagebrew/static/images/*.png',
         '../sagebrew/static/images/*.gif',
         '../sagebrew/static/images/*.jpg',

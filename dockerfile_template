@@ -1,4 +1,4 @@
-FROM {{PROJECT_NAME}}/django.web:v2
+FROM {{PROJECT_NAME}}/django.web:v3
 
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 

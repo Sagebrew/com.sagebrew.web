@@ -10,7 +10,7 @@
         </div>
         <div class="col-xs-9" style="margin-top:-6px;  margin-bottom: -10px">
             <small>
-                <a href="{{ campaign.url }}">{{ profile.first_name }} {{ profile.last_name }}'s Quest</a> proposed a Solution
+                <a href="{{ campaign.url }}">{{ profile.first_name }} {{ profile.last_name }}'s Quest</a> posted an Update
             {% if created != last_edited_on %}
                 {{ last_edited_on|naturaltime }} · Edited
             {% else %}
@@ -29,9 +29,11 @@
             </small>
         </div>
         <div class="col-xs-11">
-            <small>
-                <b>Quest</b>  for {{ campaign.position_formal_name }}
-            </small>
+            {% if campaign.position_formal_name %}
+                <small>
+                    <b>Quest</b>  for {{ campaign.position_formal_name }}
+                </small>
+            {% endif %}
         </div>
     </div>
     <div class="row">

@@ -4,7 +4,7 @@ from celery import shared_task
 from django.template.loader import render_to_string
 from django.core.cache import cache
 
-from neomodel import CypherException, DoesNotExist, UniqueProperty
+from neomodel import CypherException, DoesNotExist
 from py2neo.cypher.error.statement import ClientError
 
 from api.utils import spawn_task, smart_truncate
@@ -111,8 +111,6 @@ def object_vote_notifications(object_uuid, previous_vote_type, new_vote_type,
 
 @shared_task()
 def create_vote_node(node_id, vote_type, voter, parent_object):
-    from logging import getLogger
-    logger = getLogger('loggly_logs')
     '''
     Creates a vote node that we can use to track reputation changes over time
     for users.
@@ -134,6 +132,9 @@ def create_vote_node(node_id, vote_type, voter, parent_object):
             IOError) as e:
         raise object_vote_notifications.retry(exc=e, countdown=10,
                                               max_retries=None)
+    last_vote = sb_object.get_last_user_vote(current_pleb.username)
+    if last_vote.vote_type == vote_type:
+        return True
     if sb_object.visibility == 'public':
         if vote_type == 1:
             reputation_change = sb_object.up_vote_adjustment
@@ -146,8 +147,6 @@ def create_vote_node(node_id, vote_type, voter, parent_object):
     except (Vote.DoesNotExist, DoesNotExist):
         vote_node = Vote(object_uuid=node_id, vote_type=vote_type,
                          reputation_change=reputation_change).save()
-    last_vote = sb_object.get_last_user_vote(current_pleb.username)
-    logger.info(last_vote)
     if not last_vote:
         sb_object.first_votes.connect(vote_node)
         sb_object.last_votes.connect(vote_node)
@@ -157,5 +156,4 @@ def create_vote_node(node_id, vote_type, voter, parent_object):
         sb_object.last_votes.connect(vote_node)
     vote_node.vote_on.connect(sb_object)
     vote_node.owned_by.connect(current_pleb)
-    cache.delete("%s_reputation_change" % parent_object.owner_username)
     return True

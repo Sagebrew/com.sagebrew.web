@@ -228,14 +228,6 @@ class VotableContent(NotificationCapable):
             "neg_rep": neg_rep,
         }
 
-    def get_user_votes(self, username):
-        from sb_votes.neo_models import Vote
-        query = 'MATCH (a:VotableContent {object_uuid:"%s"})-[:PLEB_VOTES]->' \
-                '(v:Vote)-[:MADE_VOTE]->(p:Pleb {username:"%s"}) RETURN v' % \
-                (self.object_uuid, username)
-        res, _ = db.cypher_query(query)
-        return [Vote.inflate(row[0]) for row in res]
-
     def get_last_user_vote(self, username):
         from sb_votes.neo_models import Vote
         query = 'MATCH (a:VotableContent {object_uuid:"%s"})-[:LAST_VOTES]->' \

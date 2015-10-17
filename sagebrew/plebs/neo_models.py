@@ -566,30 +566,26 @@ class Pleb(Searchable):
         return official
 
     def get_reputation_change_over_time(self):
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
-        reputation_change = cache.get("%s_reputation_change" % self.username)
-        if reputation_change is None:
-            date = self.last_checked_reputation
-            # TODO look into saving off the last voted on piece of content's
-            # uuid then querying from there based on the votes, this could
-            # save us from having to start the query from the timetreeroot
-            query = 'MATCH (:TimeTreeRoot)-[:CHILD]->(y:Year)-[:CHILD]->' \
-                    '(m:Month)-[:CHILD]->(d:Day)-[:CHILD]->(h:Hour)-' \
-                    '[:CHILD]->(min:Minute)-[:CHILD]->(s:Second) WHERE ' \
-                    'y.value>=%d AND m.value>=%d AND d.value>=%d AND ' \
-                    'h.value>=%d AND min.value>=%d AND s.value>=%d WITH s ' \
-                    'MATCH (s)<-[:CREATED_ON]-(v:Vote)<-[:LAST_VOTES]-' \
-                    '(content:VotableContent)-[:OWNED_BY]->(p:Pleb ' \
-                    '{username:"%s"}) RETURN sum(v.reputation_change)' \
-                    % (date.year, date.month, date.day, date.hour, date.minute,
-                       date.second, self.username)
-            res, _ = db.cypher_query(query)
-            logger.info(res.one)
-            reputation_change = res.one
-            if not res.one:
-                return 1000
-        # cache.set("%s_reputation_change" % self.username, reputation_change)
+        date = self.last_checked_reputation
+        # TODO look into saving off the last voted on piece of content's
+        # uuid then querying from there based on the votes, this could
+        # save us from having to start the query from the timetreeroot
+        query = 'MATCH (:TimeTreeRoot)-[:CHILD]->(y:Year)-[:CHILD]->' \
+                '(m:Month)-[:CHILD]->(d:Day)-[:CHILD]->(h:Hour)-' \
+                '[:CHILD]->(min:Minute)-[:CHILD]->(s:Second) WHERE ' \
+                'y.value>=%d AND m.value>=%d AND d.value>=%d AND ' \
+                'h.value>=%d AND min.value>=%d AND s.value>=%d WITH s ' \
+                'MATCH (s)<-[:CREATED_ON]-(v:Vote)<-[:LAST_VOTES]-' \
+                '(content:VotableContent)-[:OWNED_BY]->(p:Pleb ' \
+                '{username:"%s"}) RETURN sum(v.reputation_change)' \
+                % (date.year, date.month, date.day, date.hour, date.minute,
+                   date.second, self.username)
+        res, _ = db.cypher_query(query)
+        reputation_change = res.one
+        if not res.one:
+            return 0
+        if reputation_change >= 1000 or reputation_change <= -1000:
+            return "%dk" % (reputation_change / 1000)
         return reputation_change
 
     """

@@ -41,6 +41,15 @@ class IsUserOrAdmin(permissions.BasePermission):
             return False
 
 
+class IsAuthorizedAndVerified(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if obj.email_verified and obj.completed_profile_info and \
+                request.user.is_authenticated():
+            return True
+        else:
+            return False
+
+
 class IsAdminOrReadOnly(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:

@@ -18,7 +18,7 @@ $(document).ready(function(){
                     },
                     stringLength: {
                         min: 15,
-                        message: "Content must be at least 15 characters long"
+                        message: "Solutions must be at least 15 characters long"
                     }
                 }
             }

@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view, permission_classes
 
 from neomodel import db
 
+from api.permissions import IsAuthorizedAndVerified
 from sb_quests.neo_models import Campaign
 
 from .neo_models import Donation
@@ -76,7 +77,7 @@ class DonationListCreate(generics.ListCreateAPIView):
     """
     serializer_class = DonationSerializer
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthorizedAndVerified,)
 
     def get_queryset(self):
         query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \

@@ -3,9 +3,12 @@
 // TODO: A lot of this can be covered in flatui-variables.
 // -------------------------------------------------
 body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   color: @sb_dark_blue;
   word-wrap: break-word;
   background-color: @sb_grey;
+
 }
 
 h1 {
@@ -293,7 +296,7 @@ a {
 }
 .sb_reputation_block{
   &:extend(.sb_notification_block);
-  height: auto;
+  height: 50px;
   width: 300px;
 }
 .sb_friend_block{
@@ -511,10 +514,7 @@ a {
 }
 .vote_count_wrapper{
   font-weight: bold;
-  padding-left: 18px;
-  padding-right: 15px;
-  padding-top: 0;
-  padding-bottom: 0;
+  padding:0 15px 0 18px;
   margin: 0;
 }
 
@@ -724,7 +724,9 @@ a {
   color: white;
   background-color: transparent;
   position: relative;
-
+}
+.sb-footer-links{
+  padding-right: 0 !important;
 }
 
 // Signup
@@ -759,6 +761,15 @@ a {
 .navbar-header{
   margin-top: 2px;
 }
+.navbar-toggle {
+  color:#fff;
+  &:before {
+     content:" ";
+  }
+}
+.sb-signup-btn{
+  margin-left: 15px !important;
+}
 .sb_login{
   &:extend(.sb_search);
   input{
@@ -773,9 +784,10 @@ a {
     background-color: @sb_off_white;
     color: @sb_green;
     // Firefox fix for button being placed differently in navbar
-    padding-top: 0;
-    padding-bottom: 5px;
+    padding-top: 2px;
+    padding-bottom: 3px;
     margin-top: 6px;
+    margin-right: 5px;
   }
 }
 .nav-logged-in{
@@ -1041,7 +1053,15 @@ a {
   padding: @sb_common_padding_positive @sb_common_padding_positive 0;
   margin-bottom: 15px;
 }
-
+.sb-quest-block{
+  &:extend(.sb_post_header);
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.sb-quest-block-exists{
+  &:extend(.sb-quest-block);
+  padding-top: 0;
+}
 .sb_question_header{
   &:extend(.sb_post_header);
   margin-left: 15px;
@@ -1899,14 +1919,14 @@ textarea.sb_comment_input{
   border: 1px solid #aaaaaa;
   border-radius: 2px;
   img {
-    position:aboslute;
+    position:absolute;
     z-index:1;
     width: auto;
     height: auto;
   }
 }
 .sb-remove-image-upload {
-  border: 0 0 0 0;
+  border:none;
   height: 20px;
   width: 16px;
   opacity: .50;
@@ -1944,7 +1964,7 @@ textarea.sb_comment_input{
   border: 1px solid #aaaaaa;
   border-radius: 2px;
   img {
-    position:aboslute;
+    position:relative;
     z-index:1;
     width: 100%;
     height: auto;
@@ -1981,7 +2001,7 @@ textarea.sb_comment_input{
 
 #goal_wrapper {
   padding: 15px;
-  min-height: 615px;
+  min-height: 630px;
 }
 
 .goal-create-header {
@@ -1995,7 +2015,7 @@ textarea.sb_comment_input{
 }
 
 #epic-container {
-  min-height: 615px;
+  min-height: 600px;
 }
 
 .expanded-url-content-wrapper{
@@ -2059,4 +2079,93 @@ textarea.sb_comment_input{
 
 .sb-restricted-btn-wrapper{
   padding: 0 0 0 0;
+}
+
+.sb-profile-not-friend-container{
+  &:extend(.sb_profile_container_wall);
+  margin: 0 15px 0 15px;
+  position: relative;
+}
+
+.sb-profile-not-friend-element{
+  background-color: @sb_off_white;
+  border-radius: 5px 5px 5px 5px;
+  padding: @sb_common_padding_positive @sb_common_padding_positive @sb_common_padding_positive;
+  margin-top: 15px;
+  overflow: hidden;
+  position: relative;
+}
+
+.sb-profile-not-friend-header{
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.sb-profile-not-friend-image-wrapper{
+  text-align: center;
+}
+
+.sb-profile-not-friend-element-image{
+  text-align: center;
+  width: 80%;
+  height: 80%;
+  margin-bottom: 15px;
+}
+
+.sb_coming_soon{
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  height: 100%;
+  width: 100%;
+  background-color: @sb_grey;
+  opacity: 0.75;
+  border-radius: 5px;
+  h3{
+    margin-top: 50%;
+    vertical-align: middle;
+    line-height: normal;
+    text-align: center;
+    color: #000000;
+    opacity: 1;
+    z-index: 101;
+  }
+}
+
+.sb-not-friend-divider-wrapper{
+  padding-left: 0;
+}
+
+.sb-not-friend-divider{
+  &:extend(.sb_divider);
+  width: 100%;
+}
+
+.sb-overlay{
+  background-color: rgba(255,255,255,.85);
+  display: none;
+  width: 100%;
+  height: 100%;
+  margin-top: 15px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 110;
+  text-align: center;
+  vertical-align: middle;
+  .sb-overlay-text{
+    overflow: hidden;
+    height: 100%;
+    display: table;
+    div{
+      display: table-cell;
+      vertical-align: middle;
+    }
+  }
+}
+
+.sb-quest-nav-rocket{
+  font-size: 12pt;
 }

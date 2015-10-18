@@ -69,8 +69,8 @@ class Command(BaseCommand):
                 else:
                     camp.profile_pic = "%s/representative_images/225x275/" \
                                        "%s.jpg" % (
-                                            settings.LONG_TERM_STATIC_DOMAIN,
-                                            rep.bioguideid)
+                                        settings.LONG_TERM_STATIC_DOMAIN,
+                                        rep.bioguideid)
                     camp.save()
                     cache.set('%s_campaign' % camp.object_uuid, camp)
                 rep.gt_person.connect(person)

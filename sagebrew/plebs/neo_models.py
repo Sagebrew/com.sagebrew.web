@@ -572,16 +572,18 @@ class Pleb(Searchable):
         # TODO look into saving off the last voted on piece of content's
         # uuid then querying from there based on the votes, this could
         # save us from having to start the query from the timetreeroot
-        query = 'MATCH (:TimeTreeRoot)-[:CHILD]->(y:Year)-[:CHILD]->' \
+        query = 'MATCH (root:TimeTreeRoot) WITH root OPTIONAL MATCH (root)' \
+                '-[:CHILD]->(y:Year)-[:CHILD]->' \
                 '(m:Month)-[:CHILD]->(d:Day)-[:CHILD]->(h:Hour)-[:CHILD]' \
                 '->(min:Minute)-[:CHILD]->(s:Second) WHERE y.value>=%d ' \
                 'AND m.value>=%d AND d.value>=%d AND h.value>=%d AND ' \
-                'min.value>%d WITH s, min, h MATCH (s)<-[:CREATED_ON]-' \
+                'min.value>%d WITH s, min, h OPTIONAL ' \
+                'MATCH (s)<-[:CREATED_ON]-' \
                 '(v:Vote)<-[:LAST_VOTES]-(content:VotableContent)-' \
                 '[:OWNED_BY]->(p:Pleb {username:"%s"}) WITH s, v, p, h, ' \
                 'content OPTIONAL MATCH (h)-[:CHILD]->(min2:Minute)-' \
                 '[:CHILD]->(s2:Second) WHERE min2.value=%d AND s2.value>=%d ' \
-                'WITH min2, s2, v, p, content MATCH (s2)' \
+                'WITH min2, s2, v, p, content OPTIONAL MATCH (s2)' \
                 '<-[:CREATED_ON]-(v2:Vote)<-[:LAST_VOTES]-(content)-' \
                 '[:OWNED_BY]->(p) RETURN sum(v.reputation_change) + ' \
                 'sum(v2.reputation_change)' \

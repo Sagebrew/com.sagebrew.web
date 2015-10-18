@@ -7,7 +7,7 @@ from django.conf import settings
 from plebs.neo_models import Pleb
 from sb_posts.neo_models import Post
 from sb_comments.neo_models import Comment
-from sb_base.neo_models import VotableContent, get_parent_votable_content
+from sb_base.neo_models import VotableContent
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 

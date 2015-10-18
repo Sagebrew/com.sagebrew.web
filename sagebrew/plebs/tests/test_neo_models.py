@@ -1,8 +1,12 @@
+import pytz
+from datetime import datetime
+
 from django.test.testcases import TestCase
 from django.contrib.auth.models import User
 
 from neomodel import DoesNotExist, MultipleNodesReturned, db
 
+from sb_votes.neo_models import Vote
 from sb_comments.neo_models import Comment
 from sb_donations.neo_models import Donation
 from sb_questions.neo_models import Question
@@ -87,6 +91,20 @@ class TestPleb(TestCase):
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
         self.assertTrue(self.pleb.get_sagebrew_donations())
+
+    def test_get_reputation_change_over_time(self):
+        comment = Comment(content="some arbitrary test comment",
+                          owner_username=self.pleb.username).save()
+        comment.owned_by.connect(self.pleb)
+        self.pleb.comments.connect(comment)
+        self.pleb.last_checked_reputation = datetime.now(pytz.utc)
+        self.pleb.save()
+        vote = Vote(vote_type=1, reputation_change=2).save()
+        comment.last_votes.connect(vote)
+        comment.first_votes.connect(vote)
+        vote.vote_on.connect(comment)
+        res = self.pleb.get_reputation_change_over_time()
+        self.assertEqual(res, 2)
 
 
 class TestAddress(TestCase):

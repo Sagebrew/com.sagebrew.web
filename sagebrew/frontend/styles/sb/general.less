@@ -621,38 +621,7 @@ a {
 .sb-nav-collapse{
   border-color: @sb_green !important;
 }
-.sb_primary_nav{
-  &:extend(.sb_nav);
-  background-color: @sb_green;
-  height: 45px;
-  //padding: 0px 15px 0px 15px
-  padding-left: 15px;
-  padding-right: 15px;
-  margin-top: 0;
-  margin-bottom: 0;
-  a{
-    text-decoration: none;
-    color: @white;
-  }
-  ul{
-    float: right;
-  }
-  h1{
-    color: @white;
-    display: inline-block;
-    margin-top: 0;
-    padding-top: 5px;
-  }
-  input{
-    width: auto;
-    height: @sb_input_height;
-    margin-top: 6px;
-    // This fixes firefox border issue with input
-    border: 0 @sb_grey;
-    border-right: 1px none;
-    border-left-width: 1px;
-  }
-}
+
 .sb_secondary_nav{
   &:extend(.sb_nav);
   background-color: @sb_grey_light;
@@ -1196,7 +1165,8 @@ a {
   border-color: @sb_grey;
   padding-bottom: 0;
 }
-.sb_post_container{
+
+.app-post-create {
   background-color: @sb_green_wall;
   height:70px;
   padding: 10px @sb_common_padding_positive 0;
@@ -1960,13 +1930,11 @@ textarea.sb_comment_input{
   vertical-align: middle;
   overflow: hidden;
   text-overflow: ellipsis;
-  background-color: #111111;
   border: 1px solid #aaaaaa;
   border-radius: 2px;
   img {
-    position:absolute;
-    z-index:1;
-    width: 100%;
+    max-width:300px;
+    max-height:300px;
     height: auto;
     cursor: pointer;
   }

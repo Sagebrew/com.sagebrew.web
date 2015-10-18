@@ -1,7 +1,7 @@
 {
   "name": "sagebrew",
   "version": "1.0.0",
-  "description": "",
+  "description": "Sagebrew Frontend UI",
   "main": "gulpfile.js",
   "dependencies": {},
   "devDependencies": {

@@ -198,7 +198,7 @@ gulp.task('images', ['images:hotfix'], function() {
 gulp.task('watch', function () {
     'use strict';
     gulp.watch(paths.styles, ['styles']);
-    gulp.watch(['js/src/**'], ['scripts']);
+    gulp.watch(['js/src/**'], ['scripts:global']);
 
 });
 

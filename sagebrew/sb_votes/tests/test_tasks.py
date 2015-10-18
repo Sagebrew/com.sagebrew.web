@@ -7,11 +7,13 @@ from django.conf import settings
 from plebs.neo_models import Pleb
 from sb_posts.neo_models import Post
 from sb_comments.neo_models import Comment
-from sb_base.neo_models import VotableContent
+from sb_base.neo_models import VotableContent, get_parent_votable_content
 from sb_registration.utils import create_user_util_test
-from sb_votes.tasks import vote_object_task, object_vote_notifications
-
 from sb_questions.neo_models import Question
+
+from sb_votes.neo_models import Vote
+from sb_votes.tasks import (vote_object_task, object_vote_notifications,
+                            create_vote_node)
 
 
 class TestVoteObjectTask(TestCase):
@@ -167,3 +169,134 @@ class TestObjectVoteNotifications(TestCase):
 
         self.assertTrue(res.result)
         self.assertNotIsInstance(res.result, Exception)
+
+
+class TestCreateVoteNodeTask(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
+        self.question = Question(owner_username=self.pleb.username,
+                                 title=str(uuid1())).save()
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_create_vote_node(self):
+        question = Question(object_uuid=str(uuid1()),
+                            title=str(uuid1()),
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        task_data = {
+            'node_id': str(uuid1()),
+            'voter': self.pleb.username,
+            'parent_object': question.object_uuid,
+            'vote_type': 1
+        }
+        res = create_vote_node.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+        test_vote = Vote.nodes.get(object_uuid=task_data['node_id'])
+        self.assertEqual(test_vote.reputation_change, 5)
+        self.assertTrue(question.first_votes.is_connected(test_vote))
+        self.assertTrue(question.last_votes.is_connected(test_vote))
+
+    def test_create_vote_node_false(self):
+        question = Question(object_uuid=str(uuid1()),
+                            title=str(uuid1()),
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        task_data = {
+            'node_id': str(uuid1()),
+            'voter': self.pleb.username,
+            'parent_object': question.object_uuid,
+            'vote_type': 0
+        }
+        res = create_vote_node.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+        test_vote = Vote.nodes.get(object_uuid=task_data['node_id'])
+        self.assertEqual(test_vote.reputation_change, -2)
+        self.assertTrue(question.first_votes.is_connected(test_vote))
+        self.assertTrue(question.last_votes.is_connected(test_vote))
+
+    def test_multiple_votes(self):
+        vote = Vote(vote_type=0, reputation_change=-2).save()
+        question = Question(object_uuid=str(uuid1()),
+                            title=str(uuid1()),
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        question.last_votes.connect(vote)
+        question.first_votes.connect(vote)
+        vote.vote_on.connect(question)
+        vote.owned_by.connect(self.pleb)
+        task_data = {
+            'node_id': str(uuid1()),
+            'voter': self.pleb.username,
+            'parent_object': question.object_uuid,
+            'vote_type': 1
+        }
+        res = create_vote_node.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+        test_vote = Vote.nodes.get(object_uuid=task_data['node_id'])
+        self.assertEqual(test_vote.reputation_change, 5)
+        self.assertTrue(question.first_votes.is_connected(vote))
+        self.assertFalse(question.last_votes.is_connected(vote))
+        self.assertTrue(question.last_votes.is_connected(test_vote))
+
+    def test_vote_private(self):
+        post = Post(object_uuid=str(uuid1()),
+                    owner_username=self.pleb.username).save()
+        post.owned_by.connect(self.pleb)
+        task_data = {
+            'node_id': str(uuid1()),
+            'voter': self.pleb.username,
+            'parent_object': post.object_uuid,
+            'vote_type': 0
+        }
+        res = create_vote_node.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+        test_vote = Vote.nodes.get(object_uuid=task_data['node_id'])
+        self.assertEqual(test_vote.reputation_change, 0)
+        self.assertTrue(post.first_votes.is_connected(test_vote))
+        self.assertTrue(post.last_votes.is_connected(test_vote))
+
+    def test_pleb_does_not_exist(self):
+        question = Question(object_uuid=str(uuid1()),
+                            title=str(uuid1()),
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        task_data = {
+            'node_id': str(uuid1()),
+            'voter': str(uuid1()),
+            'parent_object': question.object_uuid,
+            'vote_type': 1
+        }
+        res = create_vote_node.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        self.assertIsInstance(res.result, Exception)
+
+    def test_owner_does_not_exist(self):
+        question = Question(object_uuid=str(uuid1()),
+                            title=str(uuid1()),
+                            owner_username=str(uuid1())).save()
+        question.owned_by.connect(self.pleb)
+        task_data = {
+            'node_id': str(uuid1()),
+            'voter': str(uuid1()),
+            'parent_object': question.object_uuid,
+            'vote_type': 1
+        }
+        res = create_vote_node.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+        self.assertIsInstance(res.result, Exception)

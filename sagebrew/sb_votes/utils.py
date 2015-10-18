@@ -64,11 +64,12 @@ def handle_vote(parent_object_uuid, status, username, now):
                    "new_vote_type": new_vote,
                    "voting_pleb": username
                })
-    spawn_task(task_func=create_vote_node,
-               task_param={
-                   "node_id": str(uuid1()),
-                   "vote_type": new_vote,
-                   "voter": username,
-                   "parent_object": parent_object_uuid
-               })
+    if previous_vote != new_vote:
+        spawn_task(task_func=create_vote_node,
+                   task_param={
+                       "node_id": str(uuid1()),
+                       "vote_type": new_vote,
+                       "voter": username,
+                       "parent_object": parent_object_uuid
+                   })
     return True

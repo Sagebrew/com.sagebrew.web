@@ -132,9 +132,13 @@ def create_vote_node(node_id, vote_type, voter, parent_object):
             IOError) as e:
         raise object_vote_notifications.retry(exc=e, countdown=10,
                                               max_retries=None)
+    try:
+        owner = Pleb.get(username=sb_object.owner_username)
+    except (DoesNotExist, Pleb.DoesNoteExist, CypherException, ClientError,
+            IOError) as e:
+        raise object_vote_notifications.retry(exc=e, countdown=10,
+                                              max_retries=None)
     last_vote = sb_object.get_last_user_vote(current_pleb.username)
-    if last_vote.vote_type == vote_type:
-        return True
     if sb_object.visibility == 'public':
         if vote_type == 1:
             reputation_change = sb_object.up_vote_adjustment
@@ -147,7 +151,7 @@ def create_vote_node(node_id, vote_type, voter, parent_object):
     except (Vote.DoesNotExist, DoesNotExist):
         vote_node = Vote(object_uuid=node_id, vote_type=vote_type,
                          reputation_change=reputation_change).save()
-    if not last_vote:
+    if last_vote is None:
         sb_object.first_votes.connect(vote_node)
         sb_object.last_votes.connect(vote_node)
     else:
@@ -156,4 +160,7 @@ def create_vote_node(node_id, vote_type, voter, parent_object):
         sb_object.last_votes.connect(vote_node)
     vote_node.vote_on.connect(sb_object)
     vote_node.owned_by.connect(current_pleb)
+    owner.reputation_update_seen = False
+    owner.save()
+    cache.set(owner.username, owner)
     return True

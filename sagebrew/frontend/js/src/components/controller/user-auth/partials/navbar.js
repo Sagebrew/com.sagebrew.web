@@ -61,7 +61,8 @@ function navbar() {
                 request.put({
                     url: "/v1/me/",
                     data: JSON.stringify({
-                        "reputation_update_seen": true
+                        "reputation_update_seen": true,
+                        "update_time": true
                     })
                 });
             }

@@ -1,3 +1,6 @@
+/**
+ * NOT IN USE
+ */
 /*global $, ajaxSecurity, getUrlParameter, errorDisplay*/
 $(document).ready(function () {
     "use strict";

@@ -1,4 +1,7 @@
 /*global $*/
+/**
+ * I'm pretty sure this was for the navbar... No longer used.
+ */
 $("#friend_request_div").on("mouseenter", "a", function () {
     'use strict';
     $(".respond_friend_request-accept-action").click(function (event) {

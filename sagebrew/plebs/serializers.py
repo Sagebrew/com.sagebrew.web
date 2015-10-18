@@ -161,6 +161,7 @@ class PlebSerializerNeo(SBSerializer):
     last_name = serializers.CharField(read_only=True)
     username = serializers.CharField(read_only=True)
     is_verified = serializers.BooleanField(read_only=True)
+    email_verified = serializers.BooleanField(read_only=True)
     completed_profile_info = serializers.BooleanField(read_only=True)
     # determine whether to show a notification about reputation change
     reputation_update_seen = serializers.BooleanField(

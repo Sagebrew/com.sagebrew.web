@@ -2,7 +2,7 @@ FROM {{PROJECT_NAME}}/django.web.primary.frontend:v4
 
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 
-RUN git clone -b {{CIRCLE_BRANCH}} git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_REPONAME}}/
+RUN git clone -b {{CIRCLE_BRANCH}} --depth=1 git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_REPONAME}}/
 RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 RUN mkdir /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/static/
 RUN pip install pip==6.0.8
@@ -18,7 +18,7 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     chown root /etc/rsyslog.d/ && service rsyslog restart && \
     python manage.py migrate oauth2_provider --fake && \
     python manage.py migrate --noinput && \
+    python manage.py create_prepopulated_reps && \
     python manage.py create_privileges && \
     python manage.py clear_cache && \
-    python manage.py clearsessions && \
-    python manage.py collectstatic --noinput
+    python manage.py clearsessions

@@ -158,6 +158,7 @@ TEMPLATES = [{
             "django.core.context_processors.tz",
             "django.contrib.messages.context_processors.messages",
             "plebs.context_processors.request_profile",
+            "sb_base.context_processors.js_settings",
         ],
         'allowed_include_roots': [HELP_DOCS_PATH,],
     },
@@ -269,7 +270,7 @@ ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 # Used for JS
 ADDRESS_AUTH_ID = environ.get("ADDRESS_AUTH_ID", '')
-
+LONG_TERM_STATIC_DOMAIN = "https://d2m0mj9tyf6rjw.cloudfront.net"
 STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", '')
 STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
 STRIPE_TRANSACTION_PERCENT = .029

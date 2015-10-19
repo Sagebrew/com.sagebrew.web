@@ -391,8 +391,8 @@ class PoliticalCampaign(Campaign):
     def get(cls, object_uuid):
         campaign = cache.get("%s_campaign" % object_uuid)
         if campaign is None or type(campaign) is not PoliticalCampaign:
-            query = 'MATCH (c:`Campaign` {object_uuid: "%s"}) RETURN c' % \
-                    object_uuid
+            query = 'MATCH (c:`PoliticalCampaign` {object_uuid: "%s"}) ' \
+                    'RETURN c' % object_uuid
             res, col = db.cypher_query(query)
             try:
                 campaign = PoliticalCampaign.inflate(res[0][0])

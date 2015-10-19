@@ -33,8 +33,8 @@ dependencies:
     - if [[ ! -e elasticsearch-1.3.2.tar ]]; then wget https://s3.amazonaws.com/sagebrew/elasticsearch-1.3.2.tar && tar -xvf elasticsearch-1.3.2.tar; fi
     - if [[ ! -e dynamodb_local_latest.tar ]]; then wget https://s3.amazonaws.com/sagebrew/dynamodb_local_2015-04-27_1.0.tar && tar -xvf dynamodb_local_2015-04-27_1.0.tar; fi
     - if [[ ! -e neo4j-community-2.2.2.zip ]]; then wget https://s3.amazonaws.com/sagebrew/neo4j-community-2.2.2.zip && yes Y | unzip neo4j-community-2.2.2.zip; fi
-    - if [[ ! -e graphaware-server-community-all-2.2.5.34.jar ]]; then sudo wget -P /usr/share/neo4j/plugins/ https://s3.amazonaws.com/sagebrew/graphaware-server-community-all-2.2.5.34.jar; fi
-    - if [[ ! -e graphaware-timetree-2.2.5.34.24.jar ]]; then sudo wget -P /usr/share/neo4j/plugins/ https://s3.amazonaws.com/sagebrew/graphaware-timetree-2.2.5.34.24.jar; fi
+    - if [[ ! -e graphaware-server-community-all-2.2.5.34.jar ]]; then sudo wget -P /var/lib/neo4j/plugins/ https://s3.amazonaws.com/sagebrew/graphaware-server-community-all-2.2.5.34.jar; fi
+    - if [[ ! -e graphaware-timetree-2.2.5.34.24.jar ]]; then sudo wget -P /var/lib/neo4j/plugins/ https://s3.amazonaws.com/sagebrew/graphaware-timetree-2.2.5.34.24.jar; fi
     - sudo rm /etc/neo4j/neo4j.properties
     - sudo wget -P /etc/neo4j/ https://s3.amazonaws.com/sagebrew/neo4j.properties
     - neo4j-community-2.2.2/bin/neo4j start:

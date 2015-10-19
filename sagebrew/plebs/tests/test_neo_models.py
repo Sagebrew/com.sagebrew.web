@@ -1,5 +1,5 @@
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from django.test.testcases import TestCase
 from django.contrib.auth.models import User
@@ -97,7 +97,8 @@ class TestPleb(TestCase):
                           owner_username=self.pleb.username).save()
         comment.owned_by.connect(self.pleb)
         self.pleb.comments.connect(comment)
-        self.pleb.last_checked_reputation = datetime.now(pytz.utc)
+        self.pleb.last_checked_reputation = datetime.now(pytz.utc) - \
+                                            timedelta(minutes=2)
         self.pleb.save()
         vote = Vote(vote_type=1, reputation_change=2).save()
         comment.last_votes.connect(vote)

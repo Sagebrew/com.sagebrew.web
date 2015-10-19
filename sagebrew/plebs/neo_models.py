@@ -566,8 +566,6 @@ class Pleb(Searchable):
         return official
 
     def get_reputation_change_over_time(self):
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
         date = self.last_checked_reputation
         # TODO look into saving off the last voted on piece of content's
         # uuid then querying from there based on the votes, this could
@@ -589,9 +587,7 @@ class Pleb(Searchable):
                 'sum(v2.reputation_change)' \
                 % (date.year, date.month, date.day, date.hour, date.minute,
                    self.username, date.minute, date.second)
-        logger.info(query)
         res, _ = db.cypher_query(query)
-        logger.info(res)
         reputation_change = res.one
         if not res.one:
             return 0

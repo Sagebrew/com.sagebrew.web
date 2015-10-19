@@ -98,7 +98,7 @@ class TestPleb(TestCase):
         comment.owned_by.connect(self.pleb)
         self.pleb.comments.connect(comment)
         self.pleb.last_checked_reputation = \
-            datetime.now(pytz.utc) - timedelta(minutes=2)
+            datetime.now(pytz.utc) - timedelta(minutes=1)
         self.pleb.save()
         vote = Vote(vote_type=1, reputation_change=2).save()
         comment.last_votes.connect(vote)

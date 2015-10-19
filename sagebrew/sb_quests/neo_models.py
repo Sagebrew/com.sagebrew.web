@@ -388,6 +388,21 @@ class PoliticalCampaign(Campaign):
                                   'POTENTIAL_REPRESENTATIVE_FOR')
 
     @classmethod
+    def get(cls, object_uuid):
+        campaign = cache.get("%s_campaign" % object_uuid)
+        if campaign is None or type(campaign) is not PoliticalCampaign:
+            query = 'MATCH (c:`Campaign` {object_uuid: "%s"}) RETURN c' % \
+                    object_uuid
+            res, col = db.cypher_query(query)
+            try:
+                campaign = PoliticalCampaign.inflate(res[0][0])
+                cache.set("%s_campaign" % object_uuid, campaign)
+                return campaign
+            except IndexError:
+                raise DoesNotExist("Quest does not exist")
+        return campaign
+
+    @classmethod
     def get_vote_count(cls, object_uuid):
         query = 'MATCH (c:`PoliticalCampaign` {object_uuid:"%s"})-' \
                 '[r:RECEIVED_PLEDGED_VOTE]->(p:`Pleb`) WHERE ' \

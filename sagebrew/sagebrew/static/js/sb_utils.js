@@ -801,11 +801,6 @@ function enableObjectFunctionality(populatedIds) {
     foggyClosed(populatedIds);
 }
 
-
-function enableFriendRequestFunctionality() {
-    respondFriendRequest();
-}
-
 function enableCommentFunctionality(populatedIds) {
     enableObjectFunctionality(populatedIds);
     showEditComment(populatedIds);

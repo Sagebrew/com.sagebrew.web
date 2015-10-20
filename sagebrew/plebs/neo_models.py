@@ -594,7 +594,7 @@ class Pleb(Searchable):
             self.save()
             cache.set(self.username, self)
         if reputation_change >= 1000 or reputation_change <= -1000:
-            return "%dk" % (reputation_change / 1000)
+            return "%dk" % (int(reputation_change / 1000.0))
         return reputation_change
 
     """

@@ -32,9 +32,6 @@ from .tasks import create_friend_request_task, send_email_task
 from .forms import (GetUserSearchForm, SubmitFriendRequestForm)
 from .serializers import BetaUserSerializer, AddressSerializer
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 def root_profile_page(request):
     if request.user.is_authenticated() is True:

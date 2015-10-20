@@ -1,6 +1,6 @@
-from logging import getLogger
-from time import sleep
 import pytz
+import logging
+from time import sleep
 from datetime import datetime
 
 from django.core.cache import cache
@@ -12,7 +12,7 @@ from sb_requirements.neo_models import Requirement
 
 from .neo_models import Privilege, SBAction
 
-logger = getLogger('loggly_logs')
+logger = logging.getLogger('loggly_logs')
 
 
 def manage_privilege_relation(username):

@@ -1,5 +1,4 @@
 from datetime import datetime
-from logging import getLogger
 
 from django.core.cache import cache
 from django.template.loader import render_to_string
@@ -19,8 +18,6 @@ from plebs.neo_models import Pleb
 
 from .neo_models import Flag
 from .serializers import FlagSerializer
-
-logger = getLogger('loggly_logs')
 
 
 class ObjectFlagsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):

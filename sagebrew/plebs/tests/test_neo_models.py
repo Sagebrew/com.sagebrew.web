@@ -104,7 +104,7 @@ class TestPleb(TestCase):
         comment.last_votes.connect(vote)
         comment.first_votes.connect(vote)
         vote.vote_on.connect(comment)
-        res = self.pleb.get_reputation_change_over_time()
+        res = self.pleb.reputation_change_over_time
         self.assertEqual(res, 2)
 
 

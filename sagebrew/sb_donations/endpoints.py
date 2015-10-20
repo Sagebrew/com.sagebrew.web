@@ -1,5 +1,3 @@
-from logging import getLogger
-
 from rest_framework.response import Response
 from rest_framework import status, viewsets, generics, mixins
 from rest_framework.permissions import IsAuthenticated
@@ -12,8 +10,6 @@ from sb_quests.neo_models import Campaign
 
 from .neo_models import Donation
 from .serializers import DonationSerializer, SBDonationSerializer
-
-logger = getLogger('loggly_logs')
 
 
 class DonationViewSet(viewsets.ReadOnlyModelViewSet, mixins.DestroyModelMixin):

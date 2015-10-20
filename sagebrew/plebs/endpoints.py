@@ -45,9 +45,6 @@ from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
 from .neo_models import Pleb, Address, FriendRequest
 from .utils import get_filter_by
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class AddressViewSet(viewsets.ModelViewSet):
     """
@@ -263,10 +260,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         user = self.get_object()
         return Response({"reputation": user.reputation,
                          "reputation_change":
-                             user.get_reputation_change_over_time(),
-                         "change_since": parser.parse(
-                             unicode(user.last_checked_reputation)).replace(
-                             microsecond=0)},
+                             user.reputation_change_over_time},
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, ))

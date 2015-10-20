@@ -1,12 +1,9 @@
-import logging
 from celery import shared_task
 
 from neomodel.exception import CypherException, DoesNotExist
 
 from plebs.neo_models import Pleb
 from .utils import create_notification_util
-
-logger = logging.getLogger('loggly_logs')
 
 
 @shared_task()

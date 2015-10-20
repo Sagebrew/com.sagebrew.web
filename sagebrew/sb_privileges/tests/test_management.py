@@ -1,4 +1,3 @@
-import logging
 from json import loads
 from django.conf import settings
 from django.test import TestCase
@@ -6,8 +5,6 @@ from django.core.management import call_command
 
 from sb_privileges.neo_models import Privilege, Restriction, SBAction
 from sb_requirements.neo_models import Requirement
-
-logger = logging.getLogger('loggly_logs')
 
 
 class TestCreatePrivileges(TestCase):

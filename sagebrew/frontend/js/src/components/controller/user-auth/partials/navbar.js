@@ -57,15 +57,13 @@ function navbar() {
         //
         // Show Rep
         .on('click', '.show-reputation-action', function(event) {
-            if ($(".sb_reputation_block:visible").length) {
-                request.put({
-                    url: "/v1/me/",
-                    data: JSON.stringify({
-                        "reputation_update_seen": true,
-                        "update_time": true
-                    })
-                });
-            }
+            request.put({
+                url: "/v1/me/",
+                data: JSON.stringify({
+                    "reputation_update_seen": true,
+                    "update_time": true
+                })
+            });
         })
         //
         // Shows the friend requests when the friend request icon is clicked

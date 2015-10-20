@@ -16,12 +16,9 @@ from api.utils import spawn_task, gather_request_data
 from sb_quests.serializers import CampaignSerializer
 from sb_quests.neo_models import Campaign
 
-from .neo_models import Address, Pleb, get_current_time
+from .neo_models import Address, Pleb
 from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
                     update_address_location)
-
-from logging import getLogger
-logger = getLogger('loggly_logs')
 
 
 def generate_username(first_name, last_name):
@@ -169,7 +166,6 @@ class PlebSerializerNeo(SBSerializer):
     # determine whether to show a notification about reputation change
     reputation_update_seen = serializers.BooleanField(
         required=False, validators=[ReputationNotificationValidator()])
-    last_checked_reputation = serializers.DateTimeField(read_only=True)
     href = serializers.SerializerMethodField()
 
     # These are read only because we force users to use a different endpoint
@@ -178,7 +174,8 @@ class PlebSerializerNeo(SBSerializer):
     wallpaper_pic = serializers.CharField(required=False)
 
     reputation = serializers.IntegerField(read_only=True)
-    reputation_change = serializers.SerializerMethodField()
+    reputation_change = serializers.ReadOnlyField(
+        source='reputation_change_over_time')
 
     # Don't think we need restrictions as that logic should be done for the
     # front end and privileges/actions that are not allowed to be used shouldn't
@@ -213,7 +210,7 @@ class PlebSerializerNeo(SBSerializer):
         instance.reputation_update_seen = validated_data.get(
             'reputation_update_seen', instance.reputation_update_seen)
         if update_time:
-            instance.last_checked_reputation = get_current_time()
+            instance.last_counted_vote_node = instance.vote_from_last_refresh
         instance.save()
         instance.refresh()
         cache.set(instance.username, instance)
@@ -257,9 +254,6 @@ class PlebSerializerNeo(SBSerializer):
             return CampaignSerializer(
                 Campaign.get(campaign), context={'request': request}).data
         return campaign
-
-    def get_reputation_change(self, obj):
-        return obj.get_reputation_change_over_time()
 
 
 class AddressSerializer(SBSerializer):

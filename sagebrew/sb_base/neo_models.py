@@ -1,6 +1,6 @@
 import math
 import pytz
-from logging import getLogger
+import logging
 from json import dumps
 from datetime import datetime
 from boto.exception import BotoClientError, BotoServerError, AWSConnectionError
@@ -19,7 +19,7 @@ from sb_tags.neo_models import TagRelevanceModel
 
 from .decorators import apply_defense
 
-logger = getLogger('loggly_logs')
+logger = logging.getLogger('loggly_logs')
 
 
 def get_current_time():

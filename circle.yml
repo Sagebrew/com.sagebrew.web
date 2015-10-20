@@ -37,7 +37,7 @@ dependencies:
         background: true
     - elasticsearch-1.3.2/bin/elasticsearch:
         background: true
-    - sleep 60
+    - sleep 90
     - neoauth neo4j neo4j my-p4ssword || true
     - sudo apt-get install supervisor
     - sudo chown -R ubuntu /etc/supervisor/conf.d/

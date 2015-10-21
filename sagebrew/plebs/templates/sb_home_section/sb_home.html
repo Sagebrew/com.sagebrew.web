@@ -4,13 +4,9 @@
 </div>
 
 <div class="col-md-8">
-    <div class="app-wall">
-        {% include "post_create.html" %}
-        <div class="sb_profile_container_wall" id="wall_app">
-            {% comment %}
-                This is automatically replaced by sb_posts/static/js/get_posts.js
-            {% endcomment %}
-        </div>
+    {% include "post_create.html" %}
+    <div class="app-wall sb_profile_container_wall" id="wall_app">
+        <div class="loader">Loading...</div>
     </div>
 </div>
 

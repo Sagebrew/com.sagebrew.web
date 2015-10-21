@@ -8,11 +8,45 @@ var request = require('./../../../api').request,
     settings = require('./../../../settings').settings,
     content = require('./../../../common/content');
 
+function loadPosts(url) {
+    $.ajax({
+        xhrFields: {withCredentials: true},
+        type: "GET",
+        url: url,
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            var wallContainer = $('#wall_app');
+            if (data.count === 0) {
+                wallContainer.append('<div id="js-wall_temp_message"><h3>Add a Spark :)</h3></div>');
+            } else {
+                console.log(data);
+                wallContainer.append(data.results.html);
+                // TODO Went with this approach as the scrolling approach resulted
+                // in the posts getting out of order. It also had some interesting
+                // functionality that wasn't intuitive. Hopefully transitioning to
+                // a JS Framework allows us to better handle this feature.
+                if (data.next !== null) {
+                    loadPosts(data.next);
+                }
+                enableSinglePostFunctionality(data.results.ids);
+                // TODO This can probably be changed to grab the href and append
+                // `comments/` to the end of it.
+                populateComments(data.results.ids, "posts");
+            }
+
+        },
+        error: function (XMLHttpRequest) {
+            errorDisplay(XMLHttpRequest);
+        }
+    });
+}
 
 /**
  * These should really be called load or something.
  */
 export function init () {
+    var profile_page_user = helpers.args(1);
 
     //
     // Show full post creation UI when the user clicks on the post input.
@@ -39,8 +73,6 @@ export function init () {
     //
     // Save the post.
     $appPostCreate.on('submit', '.post-create-form', function(event) {
-
-
         var $form = $(this),
             $preview = $(".post-image-preview-container", $(this)),
             $input = $("#post_input_id", $(this));
@@ -60,7 +92,6 @@ export function init () {
         }
 
         parsedText.always(function() {
-            var profile_page_user = $('#user_info').data('page_user_username');
             request.post({
                 url: "/v1/profiles/" + profile_page_user + "/wall/?html=true",
                 data: JSON.stringify({
@@ -86,4 +117,13 @@ export function init () {
         });
         return false;
     });
+
+    //
+    // Load up the wall.
+
+    var $appWall = $(".app-wall");
+    loadPosts("/v1/profiles/" + profile_page_user + "/wall/render/?page_size=" + 5 + "&expand=true&expedite=true");
+
+
+
 }

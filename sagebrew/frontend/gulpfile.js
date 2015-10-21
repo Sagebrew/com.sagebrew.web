@@ -32,7 +32,9 @@ var paths = {
         'bower_components/jquery/dist/jquery.js',
         'bower_components/bootstrap/dist/js/bootstrap.js',
         'bower_components/lightbox2/dist/js/lightbox.js',
-        '../sagebrew/static/js/vendor/bootstrap-notify.min.js',
+        'bower_components/waypoints/lib/jquery.waypoints.js',
+        'bower_components/Autolinker.js/dist/Autolinker.js',
+        'bower_components/remarkable-bootstrap-notify/dist/bootstrap-notify.js',
         '../sagebrew/static/js/vendor/formValidation.min.js',
         '../sagebrew/static/js/vendor/framework/bootstrap.min.js', // I think this is something to do with validator and not actually the bootstrap js.
         '../sagebrew/static/js/vendor/imagesloaded.pkgd.min.js',
@@ -40,7 +42,6 @@ var paths = {
         '../sagebrew/static/js/vendor/spin.min.js',
         '../sagebrew/static/js/vendor/jquery.spin.js',
         '../sagebrew/static/js/vendor/foggy.min.js',
-        '../sagebrew/static/js/vendor/Autolinker.min.js',
         '../sagebrew/static/js/vendor/croppic.min.js',
         '../sagebrew/static/js/vendor/jquery.mousewheel.min.js',
         '../sagebrew/static/js/vendor/jquery.pagedown-bootstrap.combined.min.js',

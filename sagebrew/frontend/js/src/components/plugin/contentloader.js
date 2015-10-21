@@ -27,7 +27,7 @@
         // Data store.
         var totalItems,
             ItemsPerPage = 5, //We could probably make this configurable.
-            currentPage = 0,
+            currentPage = 1,
             isInited = false;
 
 
@@ -49,10 +49,10 @@
 
                 $loadMore.waypoint(function(direction) {
 
+                    //
+                    // Load more data.
                     if (direction === "down" && currentPage && !$loadMore.hasClass("currently-loading")) {
                         base.loadMoreContent();
-                    } else {
-                        console.log("I refuse to get more data");
                     }
 
                 }, {
@@ -82,7 +82,6 @@
          * Call the callback.
          */
         base.getData = function() {
-            console.log("Getting Data");
             var params = base.options.params;
 
             if (currentPage) {
@@ -103,15 +102,16 @@
                 base.getData().done(function(data) {
                     currentPage++;
 
-                    base.initWithContent();
-                    $listContainer.append(data.results.html);
+                    base.options.renderCallback($listContainer, data);
+
                     $loadMore.text("Load more.").removeClass("currently-loading");
                     Waypoint.refreshAll();
                 });
 
             } else {
                 //Deregister stuff.
-                $loadMore.text("No more data");
+                $loadMore.remove();
+                //$loadMore.text("No more data");
                 Waypoint.disableAll();
             }
 
@@ -141,7 +141,8 @@
                     currentPage++;
 
                     base.initWithContent();
-                    $listContainer.append(data.results.html);
+
+                    base.options.renderCallback($listContainer, data);
 
                     //I don't know, man.
                     Waypoint.refreshAll();
@@ -164,6 +165,10 @@
         },
         dataCallback: function(params, page, page_size) {
             console.log("you did not supply a dataCallback");
+            return false;
+        },
+        renderCallback: function($container, data) {
+            console.log("you did not supply a renderCallback");
             return false;
         }
     };

@@ -6,37 +6,47 @@ var request = require('./../../../api').request,
     helpers = require('./../../../common/helpers'),
     settings = require('./../../../settings').settings;
 
-/**
- * Helper function to load friends.
- * This function is recursive. It will load friends until there are no more friends to load.
- *
- * @param url
- */
-function loadFriends($app, url) {
-    request.get({url:url})
-        .done(function(data){
-            if (data.count === 0){
-                $app.append("<div><h3>Please use search to find your friends :)</h3></div>");
-            } else {
-                $.each(data.results, function (i, l) {
-                    $app.append(l);
-                });
-            }
-            loadFriends($app, data.next);
-        });
-}
+require('./../../../plugin/contentloader');
 
 export function init() {
     var $app = $(".app-sb");
     var $appFriends = $(".app-friends");
 
     // Load Friends.
+    var profile_page_user = helpers.args(1);
+    $appFriends.sb_contentLoader({
+        emptyDataMessage: 'Please use search to find your friends :)',
+        url: '/v1/profiles/' + profile_page_user + '/friends/',
+        params: {
+            expand: 'true',
+            expedite: 'true',
+            html: 'true'
+        },
+        dataCallback: function(base_url, params) {
+            var urlParams = $.param(params);
+            var url;
+            if (urlParams) {
+                url = base_url + "?" + urlParams;
+            }
+            else {
+                url = base_url;
+            }
+
+            return request.get({url:url});
+
+        },
+        renderCallback: function($container, data) {
+            $.each(data.results, function (i, l) {
+                $container.append(l);
+            });
+        }
+    });
+    /**
     if ($appFriends.length) {
         //Load username from url.
-        var username = helpers.args(1);
-        loadFriends($appFriends, "/v1/profiles/" + username + "/friends/?html=true&limit=5");
+        loadFriends($appFriends, "/v1/profiles/" + profile_page_user + "/friends/?html=true&limit=5");
     }
-
+    **/
     //Friend Action binding.
     //TODO: this is a lot of repeated code from the nav app. We should
     //      consolidate.

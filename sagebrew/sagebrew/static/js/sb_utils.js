@@ -32,11 +32,13 @@ function saveComment(commentArea, url, objectUuid) {
 
 
 function enableExpandPostImage() {
+    /*
     lightbox.option({
         'resizeDuration': 200,
         'wrapAround': true,
         'alwaysShowNavOnTouchDevices': true
     });
+    */
 }
 
 

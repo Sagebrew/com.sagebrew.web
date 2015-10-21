@@ -8,6 +8,8 @@ var request = require('./../../../api').request,
     settings = require('./../../../settings').settings,
     content = require('./../../../common/content');
 
+require('./../../../plugin/contentloader');
+/*
 function loadPosts(url) {
     $.ajax({
         xhrFields: {withCredentials: true},
@@ -41,7 +43,7 @@ function loadPosts(url) {
         }
     });
 }
-
+*/
 /**
  * These should really be called load or something.
  */
@@ -122,8 +124,26 @@ export function init () {
     // Load up the wall.
 
     var $appWall = $(".app-wall");
-    loadPosts("/v1/profiles/" + profile_page_user + "/wall/render/?page_size=" + 5 + "&expand=true&expedite=true");
+    $appWall.sb_contentLoader({
+        emptyDataMessage: "Add a Spark :)",
+        url: "/v1/profiles/" + profile_page_user + "/wall/render/",
+        params: {
+            expand: "true",
+            expedite: "true"
+        },
+        dataCallback: function(base_url, params) {
+            var urlParams = $.param(params);
+            var url;
+            if (urlParams) {
+                url = base_url + "?" + urlParams;
+            }
+            else {
+                url = base_url;
+            }
 
+            return request.get({url:url});
 
+        }
+    });
 
 }

@@ -9,9 +9,6 @@
 var helpers = require('./helpers'),
     request = require('./../api').request;
 
-
-
-
 /**
  * Extract urls from content.
  */

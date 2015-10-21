@@ -129,8 +129,8 @@ gulp.task('scripts:global', function () {
 
             .pipe(jshint('.jshintrc'))
             .pipe(jshint.reporter('jshint-stylish'))
-            .pipe(buffer())
-            .pipe(uglify()) // now gulp-uglify works
+            //.pipe(buffer())
+            //.pipe(uglify()) // now gulp-uglify works
             .on('error', gutil.log)
             .pipe(gulp.dest('../sagebrew/static/dist/js/'));
         });

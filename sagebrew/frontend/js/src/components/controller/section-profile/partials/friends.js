@@ -41,12 +41,7 @@ export function init() {
             });
         }
     });
-    /**
-    if ($appFriends.length) {
-        //Load username from url.
-        loadFriends($appFriends, "/v1/profiles/" + profile_page_user + "/friends/?html=true&limit=5");
-    }
-    **/
+
     //Friend Action binding.
     //TODO: this is a lot of repeated code from the nav app. We should
     //      consolidate.

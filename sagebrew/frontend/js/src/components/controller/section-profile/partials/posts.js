@@ -10,41 +10,6 @@ var request = require('./../../../api').request,
 
 require('./../../../plugin/contentloader');
 
-/*
-function loadPosts(url) {
-    $.ajax({
-        xhrFields: {withCredentials: true},
-        type: "GET",
-        url: url,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data) {
-            var wallContainer = $('#wall_app');
-            if (data.count === 0) {
-                wallContainer.append('<div id="js-wall_temp_message"><h3>Add a Spark :)</h3></div>');
-            } else {
-                console.log(data);
-                wallContainer.append(data.results.html);
-                // TODO Went with this approach as the scrolling approach resulted
-                // in the posts getting out of order. It also had some interesting
-                // functionality that wasn't intuitive. Hopefully transitioning to
-                // a JS Framework allows us to better handle this feature.
-                if (data.next !== null) {
-                    loadPosts(data.next);
-                }
-                enableSinglePostFunctionality(data.results.ids);
-                // TODO This can probably be changed to grab the href and append
-                // `comments/` to the end of it.
-                populateComments(data.results.ids, "posts");
-            }
-
-        },
-        error: function (XMLHttpRequest) {
-            errorDisplay(XMLHttpRequest);
-        }
-    });
-}
-*/
 /**
  * These should really be called load or something.
  */
@@ -110,6 +75,8 @@ export function init () {
                 $input.val("");
                 $("#wall_app").prepend(data.html);
                 enableSinglePostFunctionality(data.ids);
+                //
+                // We need to update this.
                 var placeHolder = $("#js-wall_temp_message");
                 if (placeHolder !== undefined) {
                     placeHolder.remove();

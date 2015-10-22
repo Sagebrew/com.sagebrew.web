@@ -42,6 +42,7 @@ var paths = {
         '../sagebrew/static/js/vendor/spin.min.js',
         '../sagebrew/static/js/vendor/jquery.spin.js',
         '../sagebrew/static/js/vendor/foggy.min.js',
+        '../sagebrew/static/js/vendor/Autolinker.min.js',
         '../sagebrew/static/js/vendor/croppic.min.js',
         '../sagebrew/static/js/vendor/jquery.mousewheel.min.js',
         '../sagebrew/static/js/vendor/jquery.pagedown-bootstrap.combined.min.js',

@@ -97,6 +97,8 @@ class ProfileView(LoginRequiredMixin):
 
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def general_settings(request):
     """
     Displays the users profile_page. This is where we call the functions to
@@ -129,6 +131,8 @@ def general_settings(request):
 
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def quest_settings(request):
     """
     This view provides the necessary information for rendering a user's
@@ -156,6 +160,8 @@ def quest_settings(request):
 
 
 @login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
 def contribute_settings(request):
     """
     This view provides the necessary information for rendering a user's

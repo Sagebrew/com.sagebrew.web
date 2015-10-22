@@ -89,8 +89,7 @@ def verify_completed_registration(user):
     :return:
     '''
     try:
-        pleb = Pleb.get(username=user.username)
-        return pleb.completed_profile_info
+        return Pleb.get(username=user.username).completed_profile_info
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError):
         return False
 

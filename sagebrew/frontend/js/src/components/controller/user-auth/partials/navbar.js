@@ -5,6 +5,7 @@
  * App: .app-navbar
  */
 var request = require('./../../../api').request;
+var settings = require('./../../../settings').settings;
 
 
 /**
@@ -17,7 +18,7 @@ function navbar() {
     //
     // Load navbar count(s)
     var notifications = request.get({url: "/v1/me/notifications/render/"}),
-        rep = request.get({url: "/v1/profiles/" + $("#reputation_total").data('username') + "/reputation/"}),
+        rep = request.get({url: "/v1/profiles/" + settings.user.username + "/reputation/"}),
         friends = request.get({url: "/v1/me/friend_requests/render/"});
 
     $.when(notifications, rep, friends).done(function(notificationData, repData, friendsData) {

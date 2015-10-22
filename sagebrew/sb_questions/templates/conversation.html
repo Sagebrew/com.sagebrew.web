@@ -80,7 +80,7 @@
                             </div>
                         {% endif %}
                     </div>
-                    {% if not is_closed and not request.user.is_anonymous and not html_snapshot%}
+                    {% if not is_closed and not request.user.is_anonymous and not html_snapshot and request_profile.email_verified and request_profile.completed_profile_info %}
                         <div class="row" style="padding-left: 15px; padding-right: 15px;">
                             <div class="block sb_markdown sb_solution sb_provide_solution">
                                 <form id="solutionSubmitForm">
@@ -106,6 +106,40 @@
                                     </div>
                                 </div>
                                 </form>
+                            </div>
+                        </div>
+                    {% endif %}
+                    {% if request.user.is_anonymous  %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button class="btn sb_restricted sb_btn_disabled"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        data-title="Signup to Provide a Solution">
+                                    Submit Solution
+                                </button>
+                            </div>
+                        </div>
+                    {% elif not request_profile.email_verified %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button class="btn sb_restricted sb_btn_disabled"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        data-title="Please Verify Your Email">
+                                    Submit Solution
+                                </button>
+                            </div>
+                        </div>
+                    {% elif not request_profile.completed_profile_info %}
+                        <div class="row">
+                            <div class="col-md-4">
+                                <button class="btn sb_restricted sb_btn_disabled"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        data-title="Please Complete Registration">
+                                    Submit Solution
+                                </button>
                             </div>
                         </div>
                     {% endif %}

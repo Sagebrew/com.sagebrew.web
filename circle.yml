@@ -57,10 +57,10 @@ checkout:
 
 test:
   override:
+    - flake8 ~/com.sagebrew.web/sagebrew/ --ignore C901
     - coverage run --source='.' manage.py test --failfast
     - coverage html --fail-under=80
     - coveralls
-    - flake8 ~/com.sagebrew.web/sagebrew/ --ignore C901
   post:
     - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
@@ -191,6 +191,9 @@ test:
     # aws will give it.
     - sleep 90
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/
+    - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/quest/
+    - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/help/
+    - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/conversations/
     - curl -X POST -d "grant_type=password&username=test_username&password=development&client_id=test_env_client_id&client_secret=test_env_this_is_it" https://localhost/o/token/ --insecure
     - docker logs sb_web >> $CIRCLE_ARTIFACTS/sb_web.log
     - docker logs sb_worker >> $CIRCLE_ARTIFACTS/sb_worker.log
@@ -200,11 +203,17 @@ deployment:
   production:
     branch: master
     commands:
+      - export SHA1=$CIRCLE_SHA1 && export AWS_S3_BUCKET=$AWS_S3_BUCKET_PROD && export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_PROD && export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_PROD && python ~/com.sagebrew.web/sagebrew/manage.py collectstatic --noinput:
+          environment:
+            CIRCLECI: false
       - python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-web.json /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-worker.json
       - bash -x ~/com.sagebrew.web/deployment/master.sh $CIRCLE_SHA1
   staging:
     branch: staging
     commands:
+      - export SHA1=$CIRCLE_SHA1 && export AWS_S3_BUCKET=$AWS_S3_BUCKET_STAGING && export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY_STAGING && export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID_STAGING && python ~/com.sagebrew.web/sagebrew/manage.py collectstatic --noinput:
+          environment:
+            CIRCLECI: false
       - python ~/com.sagebrew.web/sagebrew/manage.py populateenvconfig /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-web.json /home/ubuntu/com.sagebrew.web/$CIRCLE_SHA1-$CIRCLE_BRANCH-worker.json
       - bash -x ~/com.sagebrew.web/deployment/staging.sh $CIRCLE_SHA1
 

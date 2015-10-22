@@ -2,7 +2,7 @@ FROM {{PROJECT_NAME}}/django.web.primary.{{IMAGE_TYPE}}:v{{VERSION}}
 
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 
-RUN git clone -b {{CIRCLE_BRANCH}} git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_REPONAME}}/
+RUN git clone -b {{CIRCLE_BRANCH}} --depth=1 git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_REPONAME}}/
 RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 WORKDIR /home/apps/{{PROJECT_REPONAME}}/
 RUN git submodule update --init --recursive

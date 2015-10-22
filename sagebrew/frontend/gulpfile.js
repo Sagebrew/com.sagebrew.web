@@ -26,7 +26,12 @@ var gulp = require('gulp'),
 var paths = {
     libraries: [
         'bower_components/jquery/dist/jquery.js',
-        'bower_components/bootstrap/dist/js/bootstrap.js',
+        //'bower_components/bootstrap/dist/js/bootstrap.js',
+        'bower_components/bootstrap/js/alert.js',
+        'bower_components/bootstrap/js/dropdown.js',
+        'bower_components/bootstrap/js/modal.js',
+        'bower_components/bootstrap/js/tooltip.js',
+        'bower_components/bootstrap/js/popover.js',
         'bower_components/lightbox2/dist/js/lightbox.js',
         'bower_components/waypoints/lib/jquery.waypoints.js',
         'bower_components/Autolinker.js/dist/Autolinker.js',

@@ -16,6 +16,11 @@ var request = require('./../../../api').request,
 export function init () {
     var profile_page_user = helpers.args(1);
 
+    // Newsroom doesn't have username in the url.
+    if (profile_page_user === "newsfeed") {
+        profile_page_user = settings.user.username;
+    }
+
     //
     // Show full post creation UI when the user clicks on the post input.
     var $appPostCreate = $(".app-post-create");

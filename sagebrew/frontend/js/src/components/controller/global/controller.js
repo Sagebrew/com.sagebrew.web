@@ -1,3 +1,4 @@
+/* global lightbox */
 /**
  * @file
  * Global SB controller. Loaded on every page.
@@ -26,6 +27,12 @@ function ajaxSetup() {
  */
 export function init() {
     ajaxSetup();
+
+    lightbox.option({
+        'resizeDuration': 200,
+        'wrapAround': true,
+        'alwaysShowNavOnTouchDevices': true
+    });
 
 }
 /**

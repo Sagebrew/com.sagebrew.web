@@ -1,3 +1,4 @@
+/* global SB_APP_SETTINGS */
 /**
  * @file
  * collect and parse various settings.

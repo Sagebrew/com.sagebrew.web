@@ -124,16 +124,16 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
-    <script src="{% static 'js/vendor/bootstrap-tokenfield.min.js' %}"></script>
-    <script src="{% static 'js/vendor/typeahead.js' %}"></script>
     <script src="{% static 'js/create_markdown.js' %}"></script>
     <script src="{% static 'js/get_tags.js' %}"></script>
     <script src="{% static 'js/question_validator.js' %}"></script>
     <script src="{% static 'js/save_question.js' %}"></script>
-    <script src="{% static 'js/event_create_question.js' %}"></script>
     {% if edit %}
         <script src="{% static 'js/populate_edit_question.js' %}"></script>
         <script src="{% static 'js/edit_question.js' %}"></script>
     {% endif %}
 {% endblock scripts %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-create-question-page');
+{% endblock %}

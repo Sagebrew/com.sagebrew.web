@@ -1,3 +1,6 @@
+/**
+ * NO LONGER USED.
+ */
 $(document).ready(function(){
     $("#postInputForm").formValidation({
         framework: 'bootstrap',

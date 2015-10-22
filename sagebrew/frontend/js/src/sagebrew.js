@@ -2,12 +2,9 @@
  * @file
  * Primary JS file that is loaded on every page.
  * WIP JS Strategy. This is a WIP and may or may not even work.
- *
- *
  */
 
-var helpers = require('./components/common/helpers'),
-    app_settings = require('./components/settings').settings,
+var app_settings = require('./components/settings').settings,
     router = require('./components/router');
 
 var ctrls = router.controllers();
@@ -51,6 +48,5 @@ if (ctrls.length) {
     }
 
 }
-
 
 export const settings = app_settings;

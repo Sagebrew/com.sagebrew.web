@@ -43,3 +43,7 @@
     {% endif %}
     <script src="{% static 'js/event_quest_statistics.js' %}"></script>
 {% endblock scripts %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-own-stats-page');
+{% endblock %}

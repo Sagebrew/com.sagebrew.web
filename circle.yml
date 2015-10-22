@@ -19,7 +19,7 @@ dependencies:
         pwd: frontend
     - bower prune && bower install:
         pwd: frontend
-    - gulp build:
+    - gulp build --env production:
         pwd: frontend
 
   post:

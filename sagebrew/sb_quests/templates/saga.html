@@ -42,9 +42,9 @@
         </div>
     </div>
 {% endblock quest_wall %}
-{% block scripts %}
-    {{ block.super }}
+
+{% block intercom %}
     {% if request.user.username == id %}
-        <script src="{% static 'js/event_quest_intercom.js' %}"></script>
+    Intercom('trackEvent', 'visited-own-quest');
     {% endif %}
-{% endblock scripts %}
+{% endblock %}

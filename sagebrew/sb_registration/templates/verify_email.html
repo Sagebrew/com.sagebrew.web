@@ -18,7 +18,7 @@
     </div>
 </div>
 {% endblock %}
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/event_verify_email.js' %}"></script>
-{% endblock scripts %}
+
+{% block intercom %}
+   Intercom('trackEvent', 'verify-email-page');
+{% endblock %}

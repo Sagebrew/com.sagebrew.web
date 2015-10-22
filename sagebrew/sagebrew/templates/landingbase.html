@@ -12,7 +12,6 @@
     {% block css %}
     <link rel="stylesheet" href="{% static 'dist/css/styles.css' %}"/>
     {% endblock css %}
-
     {% block page-javascript %}
     <!--[if lt IE 9]>
     <script src="{% static 'js/dist/vendor/html5shiv.js' %}"></script>
@@ -26,27 +25,9 @@
 
 </head>
 <body>
-    {% block navigation %}
-        {% include "navigation/navbar.html" %}
-    {% endblock navigation %}
-    {% block background_image %}
-    {% endblock background_image %}
+  {% block content %}
 
-    <div class="container-fluid container-main">
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="app-sb">
-                    {% block content %}
-                    {% endblock content %}
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container-fluid footer-wrapper">
-        {% block footer %}
-        {% endblock footer %}
-    </div>
+  {% endblock %}
 
 {% block scripts %}
     <script src="{% static 'dist/js/vendor.js' %}"></script>

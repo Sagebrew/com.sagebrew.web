@@ -65,9 +65,11 @@ function matchController(match_method, check) {
 function finder() {
     var load = [];
     for (var key in controller_map) {
-        var controller = controller_map[key];
-        if (matchController(controller.match_method, controller.check)) {
-            load.push(controller.controller);
+        if (controller_map.hasOwnProperty(key)) {
+            var controller = controller_map[key];
+            if (matchController(controller.match_method, controller.check)) {
+                load.push(controller.controller);
+            }
         }
     }
     return load;

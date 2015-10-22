@@ -74,3 +74,6 @@
     <script src="{% static 'js/wallpaper_pic_croppic.js' %}"></script>
 
 {% endblock scripts %}
+{% block intercom %}
+    Intercom('trackEvent', 'visited-profile-page');
+{% endblock %}

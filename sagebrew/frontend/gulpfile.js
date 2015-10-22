@@ -46,8 +46,12 @@ var paths = {
         '../sagebrew/static/js/vendor/foggy.min.js',
         '../sagebrew/static/js/vendor/Autolinker.min.js',
         '../sagebrew/static/js/vendor/croppic.min.js',
-        '../sagebrew/static/js/vendor/jquery.mousewheel.min.js',
         '../sagebrew/static/js/vendor/jquery.pagedown-bootstrap.combined.min.js',
+        '../sagebrew/static/js/vendor/jquery.bootstrap-tokenfield.min.js',
+        '../sagebrew/static/js/vendor/typeahead.js',
+        '../sagebrew/static/js/vendor/bootstrap-switch.min.js',
+        '../sagebrew/static/js/vendor/sortable.min.js',
+
         '../sagebrew/static/js/uuid.js',
         '../sagebrew/static/js/sb_utils.js', // These need to updated to support the new JS structure.
                           // Considering them global vendor like scripts for now. to prevent the site from breaking.

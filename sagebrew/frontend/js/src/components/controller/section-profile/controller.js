@@ -41,5 +41,4 @@ export function load() {
 export function postload() {
     //
     // Intercom Tracking
-    Intercom('trackEvent', 'visited-profile-page');
 }

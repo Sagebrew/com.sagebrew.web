@@ -50,15 +50,20 @@
         {% endblock footer %}
     </div>
 
-    {% include "partials/intercom.html" %}
-    {% block scripts %}
-
+{% block scripts %}
     <script src="{% static 'dist/js/vendor.js' %}"></script>
     <script src="{% static 'dist/js/sagebrew.js' %}"></script>
-
 {% endblock scripts %}
+
 {% block external_scripts %}
 {% endblock external_scripts %}
+
+{% include "partials/intercom.html" %}
+<script>
+{%  block intercom %}
+{% endblock %}
+</script>
+
 {% block analytics %}
     {% include "partials/google_analytics.html" %}
 {% endblock analytics %}

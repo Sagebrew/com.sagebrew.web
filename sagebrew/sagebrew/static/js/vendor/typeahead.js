@@ -4,7 +4,7 @@
  * Copyright 2013-2014 Twitter, Inc. and other contributors; Licensed MIT
  */
 
-(function($) {
+;(function($) {
     var _ = function() {
         "use strict";
         return {

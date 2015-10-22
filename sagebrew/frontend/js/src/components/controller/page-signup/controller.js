@@ -127,7 +127,7 @@ function submitSignup() {
                 $("#submit_signup").removeAttr("disabled");
             }
         })
-        .fail(function(XMLHttpRequest) {
+        .fail(function() {
             $("#submit_signup").removeAttr("disabled");
         });
 }
@@ -196,9 +196,9 @@ export function load() {
                 }
             } else {
                 temp = $(this).val();
-                if ($(this).val().length == 5) {
+                if ($(this).val().length === 5) {
                     $(this).val(temp.substring(0, 4));
-                } else if ($(this).val().length == 2) {
+                } else if ($(this).val().length === 2) {
                     $(this).val(temp.substring(0, 1));
                 }
             }

@@ -33,7 +33,6 @@ var paths = {
         'bower_components/bootstrap/js/popover.js',
         'bower_components/lightbox2/dist/js/lightbox.js',
         'bower_components/waypoints/lib/jquery.waypoints.js',
-        'bower_components/Autolinker.js/dist/Autolinker.js',
         'bower_components/remarkable-bootstrap-notify/dist/bootstrap-notify.js',
         'bower_components/imagesloaded/imagesloaded.pkgd.min.js',
         'bower_components/jquery-mousewheel/jquery.mousewheel.js',

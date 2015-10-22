@@ -53,7 +53,7 @@ export function init () {
     //
     // Show full post creation UI when the user clicks on the post input.
     var $appPostCreate = $(".app-post-create");
-    $appPostCreate.on('click', '#post_input_id', function (event) {
+    $appPostCreate.on('click', '#post_input_id', function () {
         $(".app-post-create").css("height", "auto");
         $("#post_input_id").css("height", "100px").css("max-height", "800px").css("resize", "vertical");
         $("#sb_post_menu").show();
@@ -74,7 +74,7 @@ export function init () {
 
     //
     // Save the post.
-    $appPostCreate.on('submit', '.post-create-form', function (event) {
+    $appPostCreate.on('submit', '.post-create-form', function () {
         var $form = $(this),
             $preview = $(".post-image-preview-container", $(this)),
             $input = $("#post_input_id", $(this));
@@ -144,7 +144,7 @@ export function init () {
                 }
             }
         }
-    })
+    });
 
     //
     // Handle uploads. TODO: Refactor.

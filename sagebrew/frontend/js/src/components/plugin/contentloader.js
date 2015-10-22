@@ -163,7 +163,7 @@
         params: {
 
         },
-        dataCallback: function(params, page, page_size) {
+        dataCallback: function(base_url, params) {
             console.log("you did not supply a dataCallback");
             return false;
         },

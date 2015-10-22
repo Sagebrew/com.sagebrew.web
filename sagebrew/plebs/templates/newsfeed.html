@@ -24,8 +24,9 @@
 {% endblock %}
 {% block post_scripts %}
 {% endblock %}
-
+{% comment %}
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/newsfeed.js' %}"></script>
 {% endblock %}
+{% endcomment %}

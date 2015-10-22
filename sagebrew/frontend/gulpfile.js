@@ -6,6 +6,7 @@ var gulp = require('gulp'),
     globify = require('require-globify'),
     babelify = require("babelify"),
     less = require('gulp-less'),
+    gulpif = require('gulp-if'),
     //imagemin = require('gulp-imagemin'),
     jshint = require('gulp-jshint'),
     uglify = require('gulp-uglify'),
@@ -17,6 +18,7 @@ var gulp = require('gulp'),
     gutil = require('gulp-util'),
     minifycss = require('gulp-minify-css'),
     del = require('del'),
+    argv = require('yargs').argv;
     refresh = require('gulp-livereload'),
     lr = require('tiny-lr'),
     server = lr();
@@ -80,6 +82,7 @@ var paths = {
     ]
 };
 
+var production = argv.env === 'production';
 
 //
 // Clean BAF again.
@@ -103,11 +106,14 @@ gulp.task('scripts:global', function () {
 
         var source_name = path.basename(entry);
         var module_name = path.basename(entry, '.js');
-
+        var debug = true;
+        if (production) {
+            debug = false;
+        }
         var bundler =  browserify({
             entries: [__dirname + "/" + entry],
             basedir: __dirname,
-            debug: true
+            debug: debug
             //transform: [bulkify, babelify]
         });
 
@@ -123,15 +129,10 @@ gulp.task('scripts:global', function () {
                 this.emit("end");
             })
             .pipe(source(source_name))
-            // rename them to have "bundle as postfix"
-            //.pipe(rename({
-            //    extname: '.bundle.js'
-            //}))
-
-            .pipe(jshint('.jshintrc'))
-            .pipe(jshint.reporter('jshint-stylish'))
-            //.pipe(buffer())
-            //.pipe(uglify()) // now gulp-uglify works
+            .pipe(buffer())
+            .pipe(gulpif(!production, jshint('.jshintrc')))
+            .pipe(gulpif(!production, jshint.reporter('jshint-stylish')))
+            .pipe(gulpif(production, uglify())) // now gulp-uglify works
             .on('error', gutil.log)
             .pipe(gulp.dest('../sagebrew/static/dist/js/'));
         });
@@ -145,7 +146,7 @@ gulp.task('scripts:global', function () {
 gulp.task('scripts:vendor', function () {
     return gulp.src(paths.libraries)
         .pipe(concat('vendor.js'))
-        .pipe(uglify())
+        .pipe(gulpif(production, uglify()))
         .pipe(gulp.dest('../sagebrew/static/dist/js'))
         .on('error', gutil.log);
 });

@@ -33,7 +33,7 @@ dependencies:
     - if [[ ! -e neo4j-community-2.2.2.zip ]]; then wget https://s3.amazonaws.com/sagebrew/neo4j-community-2.2.2.zip && yes Y | unzip neo4j-community-2.2.2.zip; fi
     - neo4j-community-2.2.2/bin/neo4j start:
         background: true
-    - java  -Xmx1024m -Djava.library.path=DynamoDBLocal_lib/DynamoDBLocal_lib -jar DynamoDBLocal.jar:
+    - java  -Xmx512m -Djava.library.path=DynamoDBLocal_lib/DynamoDBLocal_lib -jar DynamoDBLocal.jar:
         background: true
     - elasticsearch-1.3.2/bin/elasticsearch:
         background: true

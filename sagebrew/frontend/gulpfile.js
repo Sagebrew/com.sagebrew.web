@@ -26,7 +26,6 @@ var gulp = require('gulp'),
 var paths = {
     libraries: [
         'bower_components/jquery/dist/jquery.js',
-        //'bower_components/bootstrap/dist/js/bootstrap.js',
         'bower_components/bootstrap/js/alert.js',
         'bower_components/bootstrap/js/dropdown.js',
         'bower_components/bootstrap/js/modal.js',
@@ -81,7 +80,7 @@ var paths = {
 var production = argv.env === 'production';
 
 //
-// Clean BAF again.
+// TODO: Make this work. Clean BAF again.
 gulp.task('clean', function() {
   return del(['dist']);
 });

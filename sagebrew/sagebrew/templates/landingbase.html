@@ -12,9 +12,6 @@
     {% block css %}
     <link rel="stylesheet" href="{% static 'dist/css/styles.css' %}"/>
     {% endblock css %}
-
-    {% include "partials/newrelic.html" %}
-
     {% block page-javascript %}
     <!--[if lt IE 9]>
     <script src="{% static 'js/dist/vendor/html5shiv.js' %}"></script>
@@ -29,7 +26,7 @@
 </head>
 <body>
   {% block content %}
-  
+
   {% endblock %}
 
 {% block scripts %}

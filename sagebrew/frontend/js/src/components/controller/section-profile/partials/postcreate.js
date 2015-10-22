@@ -108,8 +108,6 @@ export function init () {
                 $input.val("");
                 $("#wall_app").prepend(data.html);
                 enableSinglePostFunctionality(data.ids);
-                //
-                // We need to update this.
                 var placeHolder = $(".list-empty");
                 if (placeHolder !== undefined) {
                     placeHolder.remove();

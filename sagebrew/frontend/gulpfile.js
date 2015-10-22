@@ -80,7 +80,6 @@ var paths = {
         '../sagebrew/static/images/*.png',
         '../sagebrew/static/images/*.gif',
         '../sagebrew/static/images/*.jpg',
-        '!../sagebrew/static/images/congress',
         '../sagebrew/static/media/**',
         'bower_components/lightbox2/dist/images/*'
     ]

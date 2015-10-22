@@ -135,8 +135,9 @@ function submitSignup() {
  * Init.
  */
 export function init() {
-    console.log("signup init");
+
 }
+
 /**
  * Load
  */

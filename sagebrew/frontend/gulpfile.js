@@ -7,21 +7,15 @@ var gulp = require('gulp'),
     babelify = require("babelify"),
     less = require('gulp-less'),
     gulpif = require('gulp-if'),
-    //imagemin = require('gulp-imagemin'),
     jshint = require('gulp-jshint'),
     uglify = require('gulp-uglify'),
     source = require('vinyl-source-stream'),
     buffer = require('vinyl-buffer'),
-    sourcemaps = require('gulp-sourcemaps'),
-    rename     = require('gulp-rename'),
     es    = require('event-stream'),
     gutil = require('gulp-util'),
     minifycss = require('gulp-minify-css'),
     del = require('del'),
     argv = require('yargs').argv;
-    refresh = require('gulp-livereload'),
-    lr = require('tiny-lr'),
-    server = lr();
 
 
 //
@@ -37,19 +31,20 @@ var paths = {
         'bower_components/waypoints/lib/jquery.waypoints.js',
         'bower_components/Autolinker.js/dist/Autolinker.js',
         'bower_components/remarkable-bootstrap-notify/dist/bootstrap-notify.js',
-        '../sagebrew/static/js/vendor/formValidation.min.js',
-        '../sagebrew/static/js/vendor/framework/bootstrap.min.js', // I think this is something to do with validator and not actually the bootstrap js.
-        '../sagebrew/static/js/vendor/imagesloaded.pkgd.min.js',
+        'bower_components/imagesloaded/imagesloaded.pkgd.min.js',
+        'bower_components/jquery-mousewheel/jquery.mousewheel.js',
+        'bower_components/croppic/croppic.js',
+        'bower_components/bootstrap-switch/dist/js/bootstrap-switch.js',
+        'js/vendor/flatui/radiocheck.js',
+        'js/vendor/flatui/typeahead.js',
+        'js/vendor/formvalidation/formValidation.min.js',
+        'js/vendor/formvalidation/bootstrap.min.js',
         '../sagebrew/static/js/vendor/packery.pkgd.min.js',
         '../sagebrew/static/js/vendor/spin.min.js',
         '../sagebrew/static/js/vendor/jquery.spin.js',
         '../sagebrew/static/js/vendor/foggy.min.js',
-        '../sagebrew/static/js/vendor/Autolinker.min.js',
-        '../sagebrew/static/js/vendor/croppic.min.js',
         '../sagebrew/static/js/vendor/jquery.pagedown-bootstrap.combined.min.js',
         '../sagebrew/static/js/vendor/jquery.bootstrap-tokenfield.min.js',
-        '../sagebrew/static/js/vendor/typeahead.js',
-        '../sagebrew/static/js/vendor/bootstrap-switch.min.js',
         '../sagebrew/static/js/vendor/sortable.min.js',
 
         '../sagebrew/static/js/uuid.js',
@@ -60,13 +55,6 @@ var paths = {
     global_modules: [
         'js/src/sagebrew.js'
     ],
-    user_modules: [
-        'js/src/user-anoned.js',
-        'js/src/user-authed.js'
-    ],
-    section_modules: [
-        'js/src/section-profile.js'
-    ],
     styles: [
         'styles/**/*.less'
     ],
@@ -75,13 +63,13 @@ var paths = {
         'fonts/**'
     ],
     images: [
-        'styles/contrib/misc/css/vendor/img/**',
-        'styles/contrib/misc/img/**',
+        'bower_components/lightbox2/dist/images/*',
+        'bower_components/croppic/assets/img/*',
         '../sagebrew/static/images/*.png',
         '../sagebrew/static/images/*.gif',
         '../sagebrew/static/images/*.jpg',
-        '../sagebrew/static/media/**',
-        'bower_components/lightbox2/dist/images/*'
+        '../sagebrew/static/media/*'
+
     ]
 };
 
@@ -150,8 +138,8 @@ gulp.task('scripts:vendor', function () {
     return gulp.src(paths.libraries)
         .pipe(concat('vendor.js'))
         .pipe(gulpif(production, uglify()))
-        .pipe(gulp.dest('../sagebrew/static/dist/js'))
-        .on('error', gutil.log);
+        .on('error', gutil.log)
+        .pipe(gulp.dest('../sagebrew/static/dist/js'));
 });
 
 //
@@ -173,6 +161,7 @@ gulp.task('styles', function () {
 // Fonts
 gulp.task('fonts', function() {
     return gulp.src(paths.fonts)
+            .on('error', gutil.log)
             .pipe(gulp.dest('../sagebrew/static/dist/fonts/'));
 });
 
@@ -181,6 +170,7 @@ gulp.task('fonts', function() {
 // TODO: Fix.
 gulp.task('images:hotfix', function() {
     return gulp.src(['css/vendor/img/**'])
+            .on('error', gutil.log)
            .pipe(gulp.dest('../sagebrew/static/dist/css/vendor/img/'));
 });
 
@@ -188,14 +178,10 @@ gulp.task('images:hotfix', function() {
 // Images
 gulp.task('images', ['images:hotfix'], function() {
     return gulp.src(paths.images)
-           /*
-            .pipe(imagemin({
-                progressive: true,
-                svgoPlugins: [{removeViewBox: false}]
-            }))
-            */
+            .on('error', gutil.log)
             .pipe(gulp.dest('../sagebrew/static/dist/images/'));
 });
+
 
 //
 // Default task.

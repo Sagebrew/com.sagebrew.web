@@ -1,3 +1,4 @@
+/* global lightbox */
 /**
  * @file
  * Global SB controller. Loaded on every page.

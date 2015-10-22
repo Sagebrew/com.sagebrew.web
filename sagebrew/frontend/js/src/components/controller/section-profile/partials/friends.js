@@ -3,8 +3,7 @@
  * Do things with friends.
  */
 var request = require('./../../../api').request,
-    helpers = require('./../../../common/helpers'),
-    settings = require('./../../../settings').settings;
+    helpers = require('./../../../common/helpers');
 
 require('./../../../plugin/contentloader');
 
@@ -96,7 +95,7 @@ export function init() {
                     deleteFriend.removeAttr("disabled");
                     deleteFriend.show();
                 }
-            }).fail(function(jqXHR, textStatus, errorThrown){
+            }).fail(function(jqXHR){
                 if (jqXHR.status === 500) {
                     sendRequest.removeAttr("disabled");
                 }

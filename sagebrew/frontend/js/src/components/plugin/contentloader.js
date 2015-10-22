@@ -1,3 +1,4 @@
+/* global Waypoint, jQuery */
 /**
  * @file
  * This is getting intense. Lets see where this goes...

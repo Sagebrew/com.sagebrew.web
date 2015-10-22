@@ -41,7 +41,7 @@ export function expandContent(content, match) {
         return request.post({
             url: "/v1/urlcontent/",
             data: JSON.stringify({
-                'object_uuid': guid(),
+                'object_uuid': helpers.generateUuid(),
                 'url': value
             })
         });

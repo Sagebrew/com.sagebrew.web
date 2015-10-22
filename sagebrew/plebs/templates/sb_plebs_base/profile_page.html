@@ -62,13 +62,13 @@
     {{ block.super }}
     {% comment %}
         <script src="{% static 'js/get_posts.js' %}"></script>
+        <script src="{% static 'js/pleb_image_upload.js' %}"></script>
+        {% block post_scripts %}
+        {% endblock post_scripts %}
+        <script src="{% static 'js/post_validator.js' %}"></script>
     {% endcomment %}
 
-    <script src="{% static 'js/pleb_image_upload.js' %}"></script>
-    {% block post_scripts %}
-    {% endblock post_scripts %}
     <script src="{% static 'js/send_notification.js' %}"></script>
-    <script src="{% static 'js/post_validator.js' %}"></script>
     <script src="{% static 'js/flag_modal.js' %}"></script>
     <script src="{% static 'js/profile_pic_croppic.js' %}"></script>
     <script src="{% static 'js/wallpaper_pic_croppic.js' %}"></script>

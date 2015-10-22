@@ -58,15 +58,19 @@ function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
                 }
             }
             for (var badItem in notification) {
-                for (var message in notification[badItem]) {
-                    if (typeof(notification[badItem]) === 'object'){
-                        reportMsg = notification[badItem][message].message;
-                    } else {
-                        reportMsg = notification[badItem][message];
+                if (notification.hasOwnProperty(badItem)) {
+                    for (var message in notification[badItem]) {
+                        if (notification[badItem].hasOwnProperty(message)) {
+                            if (typeof(notification[badItem]) === 'object'){
+                                reportMsg = notification[badItem][message].message;
+                            } else {
+                                reportMsg = notification[badItem][message];
+                            }
+                            badItemCap = badItem.charAt(0).toUpperCase() + badItem.slice(1);
+                            errorMessage = badItemCap + ": " + reportMsg;
+                            $.notify({message: errorMessage.replace('_', " ")}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
+                        }
                     }
-                    badItemCap = badItem.charAt(0).toUpperCase() + badItem.slice(1);
-                    errorMessage = badItemCap + ": " + reportMsg;
-                    $.notify({message: errorMessage.replace('_', " ")}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
                 }
             }
         break;

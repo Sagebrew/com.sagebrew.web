@@ -96,6 +96,15 @@ gulp.task('lr-server', function() {
 });
 
 //
+// App Scripts - Lint
+gulp.task('scripts:lint', function () {
+    return gulp.src(['js/src/**'])
+            .pipe(gulpif(!production, jshint('.jshintrc')))
+            .pipe(gulpif(!production, jshint.reporter('jshint-stylish')))
+            .on('error', gutil.log);
+});
+
+//
 // App Scripts - Global
 gulp.task('scripts:global', function () {
     var tasks = paths.global_modules.map(function(entry) {
@@ -126,8 +135,6 @@ gulp.task('scripts:global', function () {
             })
             .pipe(source(source_name))
             .pipe(buffer())
-            .pipe(gulpif(!production, jshint('.jshintrc')))
-            .pipe(gulpif(!production, jshint.reporter('jshint-stylish')))
             .pipe(gulpif(production, uglify())) // now gulp-uglify works
             .on('error', gutil.log)
             .pipe(gulp.dest('../sagebrew/static/dist/js/'));
@@ -138,7 +145,7 @@ gulp.task('scripts:global', function () {
 });
 
 //
-// JS
+// JS - Vendor aka catchall.
 gulp.task('scripts:vendor', function () {
     return gulp.src(paths.libraries)
         .pipe(concat('vendor.js'))
@@ -149,7 +156,7 @@ gulp.task('scripts:vendor', function () {
 
 //
 // JS
-gulp.task('scripts', ['scripts:global', 'scripts:vendor']);
+gulp.task('scripts', ['scripts:lint', 'scripts:global', 'scripts:vendor']);
 
 //
 // Styles
@@ -193,7 +200,7 @@ gulp.task('images', ['images:hotfix'], function() {
 gulp.task('watch', function () {
     'use strict';
     gulp.watch(paths.styles, ['styles']);
-    gulp.watch(['js/src/**'], ['scripts:global']);
+    gulp.watch(['js/src/**'], ['scripts:lint', 'scripts:global']);
 
 });
 

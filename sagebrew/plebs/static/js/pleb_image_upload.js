@@ -1,5 +1,7 @@
 /*global $, ajaxSecurity, guid, errorDisplay, enableExpandPostImage*/
-
+/**
+ * NO LONGER USED!
+ */
 function getStyle(width, height) {
     var style;
     if (width > height) {

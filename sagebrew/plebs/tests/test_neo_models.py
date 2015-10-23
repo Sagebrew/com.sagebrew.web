@@ -104,7 +104,7 @@ class TestPleb(TestCase):
         comment.last_votes.connect(vote)
         comment.first_votes.connect(vote)
         vote.vote_on.connect(comment)
-        res = self.pleb.reputation_change_over_time
+        res = self.pleb.reputation_change
         self.assertEqual(res, 2)
 
     def test_get_reputation_change_no_change(self):
@@ -116,7 +116,7 @@ class TestPleb(TestCase):
         self.pleb.last_counted_vote_node = old_vote.object_uuid
         self.pleb.save()
         time.sleep(1)  # ensure vote gets connected to later second
-        res = self.pleb.reputation_change_over_time
+        res = self.pleb.reputation_change
         self.assertEqual(res, 0)
 
     def test_reputation_change_over_1000(self):
@@ -132,7 +132,7 @@ class TestPleb(TestCase):
         comment.last_votes.connect(vote)
         comment.first_votes.connect(vote)
         vote.vote_on.connect(comment)
-        res = self.pleb.reputation_change_over_time
+        res = self.pleb.reputation_change
         self.assertEqual(res, "1k")
 
     def test_reputation_change_under_1000(self):
@@ -148,7 +148,7 @@ class TestPleb(TestCase):
         comment.last_votes.connect(vote)
         comment.first_votes.connect(vote)
         vote.vote_on.connect(comment)
-        res = self.pleb.reputation_change_over_time
+        res = self.pleb.reputation_change
         self.assertEqual(res, "-1k")
 
 

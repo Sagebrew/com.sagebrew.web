@@ -174,8 +174,7 @@ class PlebSerializerNeo(SBSerializer):
     wallpaper_pic = serializers.CharField(required=False)
 
     reputation = serializers.IntegerField(read_only=True)
-    reputation_change = serializers.ReadOnlyField(
-        source='reputation_change_over_time')
+    reputation_change = serializers.ReadOnlyField()
 
     # Don't think we need restrictions as that logic should be done for the
     # front end and privileges/actions that are not allowed to be used shouldn't

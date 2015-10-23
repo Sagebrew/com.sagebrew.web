@@ -572,7 +572,7 @@ class Pleb(Searchable):
         return official
 
     @property
-    def reputation_change_over_time(self):
+    def reputation_change(self):
         # TODO look into saving off the last voted on piece of content's
         # uuid then querying from there based on the votes, this could
         # save us from having to start the query from the timetreeroot

@@ -12,9 +12,6 @@ from sb_donations.neo_models import Donation
 
 from .neo_models import Campaign
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 def release_funds(goal_uuid):
     from sb_donations.serializers import DonationSerializer

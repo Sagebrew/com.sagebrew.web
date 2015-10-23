@@ -2,6 +2,7 @@ from uuid import uuid1
 from celery import shared_task
 
 from django.template.loader import render_to_string
+from django.core.cache import cache
 
 from neomodel import CypherException, DoesNotExist
 from py2neo.cypher.error.statement import ClientError
@@ -12,6 +13,8 @@ from plebs.neo_models import Pleb
 from sb_base.neo_models import (get_parent_votable_content,
                                 get_parent_titled_content)
 from sb_notifications.tasks import spawn_notifications
+
+from .neo_models import Vote
 
 
 @shared_task()
@@ -29,7 +32,7 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
     """
     try:
         current_pleb = Pleb.get(username=current_pleb)
-    except (DoesNotExist, Pleb.DoesNoteExist, CypherException, IOError) as e:
+    except (DoesNotExist, Pleb.DoesNotExist, CypherException, IOError) as e:
         raise vote_object_task.retry(exc=e, countdown=10, max_retries=None)
     sb_object = get_parent_votable_content(object_uuid)
     if isinstance(sb_object, Exception) is True:
@@ -45,6 +48,32 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
     if isinstance(res, Exception):
         raise vote_object_task.retry(exc=res, countdown=10, max_retries=None)
 
+    previous_vote_node = sb_object.get_last_user_vote(current_pleb.username)
+    previous_vote = 2
+    if previous_vote_node:
+        previous_vote = int(previous_vote_node.vote_type)
+
+    res = spawn_task(task_func=object_vote_notifications,
+                     task_param={
+                         "object_uuid": object_uuid,
+                         "previous_vote_type": previous_vote,
+                         "new_vote_type": vote_type,
+                         "voting_pleb": current_pleb.username
+                     })
+    if isinstance(res, Exception):
+        raise vote_object_task.retry(exc=res, countdown=10, max_retries=None)
+    if previous_vote != vote_type and previous_vote != 2:
+        res = spawn_task(task_func=create_vote_node,
+                         task_param={
+                             "node_id": str(uuid1()),
+                             "vote_type": vote_type,
+                             "voter": current_pleb.username,
+                             "parent_object": object_uuid
+                         })
+        if isinstance(res, Exception):
+            raise vote_object_task.retry(exc=res, countdown=10,
+                                         max_retries=None)
+
     return sb_object
 
 
@@ -54,7 +83,7 @@ def object_vote_notifications(object_uuid, previous_vote_type, new_vote_type,
     sb_object = get_parent_votable_content(object_uuid)
     try:
         current_pleb = Pleb.get(username=voting_pleb)
-    except (DoesNotExist, Pleb.DoesNoteExist, CypherException, ClientError,
+    except (DoesNotExist, Pleb.DoesNotExist, CypherException, ClientError,
             IOError) as e:
         raise object_vote_notifications.retry(exc=e, countdown=10,
                                               max_retries=None)
@@ -103,4 +132,63 @@ def object_vote_notifications(object_uuid, previous_vote_type, new_vote_type,
         if isinstance(res, Exception):
             raise object_vote_notifications.retry(exc=res, countdown=10,
                                                   max_retries=None)
+    return True
+
+
+@shared_task()
+def create_vote_node(node_id, vote_type, voter, parent_object):
+    '''
+    Creates a vote node that we can use to track reputation changes over time
+    for users.
+    This node is hooked up to the object that has been voted on and the
+    user that voted. The node is created every time someone votes and does not
+    get updated when someone changes their vote, it just makes a new one, this
+    may not be the final functionality but this is the current implementation.
+
+    :param node_id:
+    :param vote_type:
+    :param voter:
+    :param parent_object:
+    :return:
+    '''
+    sb_object = get_parent_votable_content(parent_object)
+    try:
+        current_pleb = Pleb.get(username=voter)
+    except (DoesNotExist, Pleb.DoesNotExist, CypherException, ClientError,
+            IOError) as e:
+        raise object_vote_notifications.retry(exc=e, countdown=10,
+                                              max_retries=None)
+    try:
+        owner = Pleb.get(username=sb_object.owner_username)
+    except (DoesNotExist, Pleb.DoesNotExist, CypherException, ClientError,
+            IOError) as e:
+        raise object_vote_notifications.retry(exc=e, countdown=10,
+                                              max_retries=None)
+    last_vote = sb_object.get_last_user_vote(current_pleb.username)
+    if sb_object.visibility == 'public':
+        if vote_type == 1:
+            reputation_change = sb_object.up_vote_adjustment
+        else:
+            reputation_change = sb_object.down_vote_adjustment
+    else:
+        reputation_change = 0
+    try:
+        vote_node = Vote.nodes.get(object_uuid=node_id)
+    except (Vote.DoesNotExist, DoesNotExist):
+        vote_node = Vote(object_uuid=node_id, vote_type=vote_type,
+                         reputation_change=reputation_change).save()
+    if last_vote is None:
+        sb_object.first_votes.connect(vote_node)
+        sb_object.last_votes.connect(vote_node)
+    else:
+        sb_object.last_votes.disconnect(last_vote)
+        last_vote.next_vote.connect(vote_node)
+        sb_object.last_votes.connect(vote_node)
+    vote_node.vote_on.connect(sb_object)
+    vote_node.owned_by.connect(current_pleb)
+    if owner.last_counted_vote_node is None:
+        owner.last_counted_vote_node = node_id
+    owner.reputation_update_seen = False
+    owner.save()
+    cache.set(owner.username, owner)
     return True

@@ -1,13 +1,9 @@
-from logging import getLogger
-
 from django.core.cache import cache
 
 from neomodel import DoesNotExist, CypherException
 
 from .neo_models import Notification, NotificationCapable
 from sb_base.decorators import apply_defense
-
-logger = getLogger('loggly_logs')
 
 
 @apply_defense

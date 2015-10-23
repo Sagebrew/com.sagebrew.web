@@ -174,6 +174,7 @@ class PlebSerializerNeo(SBSerializer):
     wallpaper_pic = serializers.CharField(required=False)
 
     reputation = serializers.IntegerField(read_only=True)
+    reputation_change = serializers.ReadOnlyField()
 
     # Don't think we need restrictions as that logic should be done for the
     # front end and privileges/actions that are not allowed to be used shouldn't
@@ -199,12 +200,16 @@ class PlebSerializerNeo(SBSerializer):
         :param validated_data:
         :return:
         """
+        request, _, _, _, _ = gather_request_data(self.context)
+        update_time = request.data.get('update_time', False)
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
         instance.reputation_update_seen = validated_data.get(
             'reputation_update_seen', instance.reputation_update_seen)
+        if update_time:
+            instance.last_counted_vote_node = instance.vote_from_last_refresh
         instance.save()
         instance.refresh()
         cache.set(instance.username, instance)

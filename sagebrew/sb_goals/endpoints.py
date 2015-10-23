@@ -1,4 +1,3 @@
-from logging import getLogger
 from django.template.loader import render_to_string
 
 from rest_framework.decorators import (api_view, permission_classes)
@@ -15,8 +14,6 @@ from sb_quests.neo_models import Campaign
 
 from .serializers import (GoalSerializer, RoundSerializer)
 from .neo_models import Goal, Round
-
-logger = getLogger('loggly_logs')
 
 
 class GoalListCreateMixin(generics.ListCreateAPIView):

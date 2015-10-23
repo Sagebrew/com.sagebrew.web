@@ -22,9 +22,6 @@ from sb_privileges.tasks import check_privileges
 
 from .neo_models import Donation
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class DonationSerializer(SBSerializer):
     completed = serializers.BooleanField(read_only=True)

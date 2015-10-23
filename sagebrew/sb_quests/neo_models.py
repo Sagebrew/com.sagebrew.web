@@ -9,9 +9,6 @@ from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
 from sb_base.neo_models import (VoteRelationship)
 from sb_search.neo_models import Searchable, SBObject
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class Campaign(Searchable):
     """

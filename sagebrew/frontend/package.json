@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Sagebrew Frontend UI",
   "main": "gulpfile.js",
+  "dependencies": {},
   "devDependencies": {
     "babel": "^5.8.23",
     "babelify": "^6.3.0",

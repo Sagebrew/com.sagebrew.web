@@ -151,6 +151,10 @@ class TestPleb(TestCase):
         res = self.pleb.reputation_change
         self.assertEqual(res, "-1k")
 
+    def test_reputation_change_no_nodes(self):
+        res = self.pleb.reputation_change
+        self.assertEqual(res, 0)
+
 
 class TestAddress(TestCase):
     def setUp(self):

@@ -42,6 +42,40 @@ class TestVoteObjectTask(TestCase):
 
         self.assertIsInstance(res.result, VotableContent)
 
+    def test_vote_object_task_previous_vote_exists(self):
+        question = Question(object_uuid=str(uuid1()),
+                            title=str(uuid1())).save()
+        question.owned_by.connect(self.pleb)
+        vote = Vote(vote_type=0).save()
+        vote.owned_by.connect(self.pleb)
+        question.last_votes.connect(vote)
+        vote.vote_on.connect(question)
+        task_data = {
+            'object_uuid': question.object_uuid,
+            'current_pleb': self.pleb.username,
+            'vote_type': True
+        }
+        res = vote_object_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertIsInstance(res.result, VotableContent)
+
+    def test_vote_object_task_pleb_does_not_exist(self):
+        question = Question(object_uuid=str(uuid1()),
+                            title=str(uuid1())).save()
+        question.owned_by.connect(self.pleb)
+        task_data = {
+            'object_uuid': question.object_uuid,
+            'current_pleb': str(uuid1()),
+            'vote_type': True
+        }
+        res = vote_object_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertIsInstance(res.result, Exception)
+
 
 class TestObjectVoteNotifications(TestCase):
     def setUp(self):
@@ -292,7 +326,7 @@ class TestCreateVoteNodeTask(TestCase):
         question.owned_by.connect(self.pleb)
         task_data = {
             'node_id': str(uuid1()),
-            'voter': str(uuid1()),
+            'voter': self.pleb.username,
             'parent_object': question.object_uuid,
             'vote_type': 1
         }

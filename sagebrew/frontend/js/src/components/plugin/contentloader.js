@@ -166,11 +166,11 @@
         params: {
 
         },
-        dataCallback: function(base_url, params) {
+        dataCallback: function() {
             console.log("you did not supply a dataCallback");
             return false;
         },
-        renderCallback: function($container, data) {
+        renderCallback: function() {
             console.log("you did not supply a renderCallback");
             return false;
         }

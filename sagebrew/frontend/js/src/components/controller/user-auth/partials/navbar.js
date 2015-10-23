@@ -29,7 +29,7 @@ function navbar() {
         }
 
         //Rep
-        $("#reputation_total").append("<p>" + repData[0]['reputation'] + "</p>");
+        $("#reputation_total").append("<p>" + repData[0].reputation + "</p>");
 
         //Friends
         $('#friend_request_wrapper').append(friendsData[0].results.html);
@@ -44,7 +44,7 @@ function navbar() {
     $navbar
         // Shows the notifications when the notification icon is clicked
         // Notify backend user has viewed the notifications.
-        .on('click', '.show_notifications-action', function(event) {
+        .on('click', '.show_notifications-action', function() {
             $("#notification_div").fadeToggle();
             if ($('#js-notification_notifier_wrapper').children().length > 0) {
                 request.get({url:  "/v1/me/notifications/?seen=true"})
@@ -56,7 +56,7 @@ function navbar() {
         })
         //
         // Show Rep
-        .on('click', '.show-reputation-action', function(event) {
+        .on('click', '.show-reputation-action', function() {
             if ($(".sb_reputation_block:visible").length) {
                 request.put({
                     url: "/v1/me/",
@@ -68,7 +68,7 @@ function navbar() {
         })
         //
         // Shows the friend requests when the friend request icon is clicked
-        .on('click', '.show_friend_request-action', function(event) {
+        .on('click', '.show_friend_request-action', function() {
             $("#friend_request_div").fadeToggle();
             if ($('#js-sb_friend_request_notifier').length > 0) {
                 request.get({url: "/v1/me/friend_requests/?seen=true"})
@@ -122,7 +122,7 @@ function navbar() {
 
     //
     // Search
-    $(".full_search-action").click(function(event) {
+    $(".full_search-action").click(function() {
         var search_param = ($('#sb_search_input').val());
         window.location.href = "/search/?q=" + search_param + "&page=1&filter=general";
     });

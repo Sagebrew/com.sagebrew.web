@@ -152,6 +152,8 @@ class TestPleb(TestCase):
         self.assertEqual(res, "-1k")
 
     def test_reputation_change_no_nodes(self):
+        for vote in Vote.nodes.all():
+            vote.delete()
         res = self.pleb.reputation_change
         self.assertEqual(res, 0)
 

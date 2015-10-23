@@ -99,7 +99,7 @@ class TestPleb(TestCase):
         old_vote = Vote(vote_type=1, reputation_change=5).save()
         self.pleb.last_counted_vote_node = old_vote.object_uuid
         self.pleb.save()
-        time.sleep(1) # ensure vote gets connected to later second
+        time.sleep(1)  # ensure vote gets connected to later second
         vote = Vote(vote_type=1, reputation_change=2).save()
         comment.last_votes.connect(vote)
         comment.first_votes.connect(vote)
@@ -115,7 +115,7 @@ class TestPleb(TestCase):
         old_vote = Vote(vote_type=1, reputation_change=5).save()
         self.pleb.last_counted_vote_node = old_vote.object_uuid
         self.pleb.save()
-        time.sleep(1) # ensure vote gets connected to later second
+        time.sleep(1)  # ensure vote gets connected to later second
         res = self.pleb.reputation_change_over_time
         self.assertEqual(res, 0)
 
@@ -127,7 +127,7 @@ class TestPleb(TestCase):
         old_vote = Vote(vote_type=1, reputation_change=5).save()
         self.pleb.last_counted_vote_node = old_vote.object_uuid
         self.pleb.save()
-        time.sleep(1) # ensure vote gets connected to later second
+        time.sleep(1)  # ensure vote gets connected to later second
         vote = Vote(vote_type=1, reputation_change=1001).save()
         comment.last_votes.connect(vote)
         comment.first_votes.connect(vote)
@@ -143,7 +143,7 @@ class TestPleb(TestCase):
         old_vote = Vote(vote_type=1, reputation_change=5).save()
         self.pleb.last_counted_vote_node = old_vote.object_uuid
         self.pleb.save()
-        time.sleep(1) # ensure vote gets connected to later second
+        time.sleep(1)  # ensure vote gets connected to later second
         vote = Vote(vote_type=1, reputation_change=-1001).save()
         comment.last_votes.connect(vote)
         comment.first_votes.connect(vote)

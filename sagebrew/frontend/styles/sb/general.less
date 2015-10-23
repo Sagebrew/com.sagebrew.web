@@ -651,7 +651,28 @@ a {
     color: @sb_green;
   }
 }
-
+.sb_help_nav {
+  &:extend(.sb_secondary_nav);
+  ul {
+    margin-top: 10px;
+  }
+  li {
+    margin-right: 20px;
+  }
+  a{
+    color: @sb_grey_dark;
+    font-size: 20px;
+    &:hover{
+       color: @sb_green;
+    }
+  }
+  h3 {
+    margin-top: 10px;
+  }
+  .active{
+    color: @sb_green;
+  }
+}
 .sb_action_nav{
   &:extend(.sb_secondary_nav);
   background-color: @sb_green_extra_light;
@@ -1597,16 +1618,13 @@ textarea.sb_comment_input{
   top: 0;
   width: 100%;
   max-height: 300px;
-  height: auto;
   vertical-align: middle;
   overflow: hidden;
   text-overflow: ellipsis;
   border: 1px solid #aaaaaa;
   border-radius: 2px;
   img {
-    max-width:300px;
-    max-height:300px;
-    height: auto;
+    width: 100%;
     cursor: pointer;
   }
   img.sb-post-image-tall {

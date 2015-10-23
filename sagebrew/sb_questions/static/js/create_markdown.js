@@ -13,6 +13,14 @@ $(document).ready(function () {
         ],
      */
     "use strict";
+    $('#tab1').click(function (e) {
+      e.preventDefault();
+      $(this).tab('show')
+    });
+    $('#tab2').click(function (e) {
+      e.preventDefault();
+      $(this).tab('show')
+    });
     $("textarea#question_content_id").pagedownBootstrap({
         "sanatize": false,
         'editor_hooks': [
@@ -23,6 +31,7 @@ $(document).ready(function () {
                         $('#fileModal').modal();
                         $("#insert_image_post").click(function (e) {
                             e.preventDefault();
+
                             $(".modal-footer").spin('small');
                             if ($("#upload_image").val().length > 1) {
                                 var formdata = new FormData(),

@@ -4,8 +4,7 @@
  * we're just going to include them in the entire profile for now.
  */
 var request = require('./../../../api').request,
-    helpers = require('./../../../common/helpers'),
-    Autolinker = require( 'autolinker' );
+    helpers = require('./../../../common/helpers');
 require('./../../../plugin/contentloader');
 
 /**

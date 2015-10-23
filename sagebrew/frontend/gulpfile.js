@@ -6,20 +6,16 @@ var gulp = require('gulp'),
     globify = require('require-globify'),
     babelify = require("babelify"),
     less = require('gulp-less'),
-    //imagemin = require('gulp-imagemin'),
+    gulpif = require('gulp-if'),
     jshint = require('gulp-jshint'),
     uglify = require('gulp-uglify'),
     source = require('vinyl-source-stream'),
     buffer = require('vinyl-buffer'),
-    sourcemaps = require('gulp-sourcemaps'),
-    rename     = require('gulp-rename'),
     es    = require('event-stream'),
     gutil = require('gulp-util'),
     minifycss = require('gulp-minify-css'),
     del = require('del'),
-    refresh = require('gulp-livereload'),
-    lr = require('tiny-lr'),
-    server = lr();
+    argv = require('yargs').argv;
 
 
 //
@@ -30,22 +26,30 @@ var gulp = require('gulp'),
 var paths = {
     libraries: [
         'bower_components/jquery/dist/jquery.js',
-        'bower_components/bootstrap/dist/js/bootstrap.js',
+        'bower_components/bootstrap/js/alert.js',
+        'bower_components/bootstrap/js/dropdown.js',
+        'bower_components/bootstrap/js/modal.js',
+        'bower_components/bootstrap/js/tooltip.js',
+        'bower_components/bootstrap/js/popover.js',
         'bower_components/lightbox2/dist/js/lightbox.js',
         'bower_components/waypoints/lib/jquery.waypoints.js',
-        'bower_components/waypoints/lib/shortcuts/infinite.js',
-        '../sagebrew/static/js/vendor/bootstrap-notify.min.js',
-        '../sagebrew/static/js/vendor/formValidation.min.js',
-        '../sagebrew/static/js/vendor/framework/bootstrap.min.js', // I think this is something to do with validator and not actually the bootstrap js.
-        '../sagebrew/static/js/vendor/imagesloaded.pkgd.min.js',
-        '../sagebrew/static/js/vendor/packery.pkgd.min.js',
+        'bower_components/Autolinker.js/dist/Autolinker.js',
+        'bower_components/remarkable-bootstrap-notify/dist/bootstrap-notify.js',
+        'bower_components/imagesloaded/imagesloaded.pkgd.min.js',
+        'bower_components/jquery-mousewheel/jquery.mousewheel.js',
+        'bower_components/croppic/croppic.js',
+        'bower_components/bootstrap-switch/dist/js/bootstrap-switch.js',
+        'bower_components/packery/dist/packery.pkgd.js',
+        'js/vendor/flatui/radiocheck.js',
+        'js/vendor/typeahead.js',
+        'js/vendor/formvalidation/formValidation.min.js',
+        'js/vendor/formvalidation/bootstrap.min.js',
         '../sagebrew/static/js/vendor/spin.min.js',
         '../sagebrew/static/js/vendor/jquery.spin.js',
         '../sagebrew/static/js/vendor/foggy.min.js',
-        '../sagebrew/static/js/vendor/Autolinker.min.js',
-        '../sagebrew/static/js/vendor/croppic.min.js',
-        '../sagebrew/static/js/vendor/jquery.mousewheel.min.js',
         '../sagebrew/static/js/vendor/jquery.pagedown-bootstrap.combined.min.js',
+        '../sagebrew/static/js/vendor/bootstrap-tokenfield.min.js',
+        '../sagebrew/static/js/vendor/sortable.min.js',
         '../sagebrew/static/js/uuid.js',
         '../sagebrew/static/js/sb_utils.js', // These need to updated to support the new JS structure.
                           // Considering them global vendor like scripts for now. to prevent the site from breaking.
@@ -53,13 +57,6 @@ var paths = {
     ],
     global_modules: [
         'js/src/sagebrew.js'
-    ],
-    user_modules: [
-        'js/src/user-anoned.js',
-        'js/src/user-authed.js'
-    ],
-    section_modules: [
-        'js/src/section-profile.js'
     ],
     styles: [
         'styles/**/*.less'
@@ -69,20 +66,20 @@ var paths = {
         'fonts/**'
     ],
     images: [
-        'styles/contrib/misc/css/vendor/img/**',
-        'styles/contrib/misc/img/**',
-        '../sagebrew/static/dist/images/*',
+        'bower_components/lightbox2/dist/images/*',
+        'bower_components/croppic/assets/img/*',
         '../sagebrew/static/images/*.png',
         '../sagebrew/static/images/*.gif',
         '../sagebrew/static/images/*.jpg',
-        '../sagebrew/static/media/**',
-        'bower_components/lightbox2/dist/images/*'
+        '../sagebrew/static/media/*'
+
     ]
 };
 
+var production = argv.env === 'production';
 
 //
-// Clean BAF again.
+// TODO: Make this work. Clean BAF again.
 gulp.task('clean', function() {
   return del(['dist']);
 });
@@ -97,17 +94,29 @@ gulp.task('lr-server', function() {
 });
 
 //
+// App Scripts - Lint
+gulp.task('scripts:lint', function () {
+    return gulp.src(['js/src/**'])
+            .pipe(gulpif(!production, jshint('.jshintrc')))
+            .pipe(gulpif(!production, jshint.reporter('jshint-stylish')))
+            .on('error', gutil.log);
+});
+
+//
 // App Scripts - Global
 gulp.task('scripts:global', function () {
     var tasks = paths.global_modules.map(function(entry) {
 
         var source_name = path.basename(entry);
         var module_name = path.basename(entry, '.js');
-
+        var debug = true;
+        if (production) {
+            debug = false;
+        }
         var bundler =  browserify({
             entries: [__dirname + "/" + entry],
             basedir: __dirname,
-            debug: true
+            debug: debug
             //transform: [bulkify, babelify]
         });
 
@@ -123,15 +132,8 @@ gulp.task('scripts:global', function () {
                 this.emit("end");
             })
             .pipe(source(source_name))
-            // rename them to have "bundle as postfix"
-            //.pipe(rename({
-            //    extname: '.bundle.js'
-            //}))
-
-            .pipe(jshint('.jshintrc'))
-            .pipe(jshint.reporter('jshint-stylish'))
-            //.pipe(buffer())
-            //.pipe(uglify()) // now gulp-uglify works
+            .pipe(buffer())
+            .pipe(gulpif(production, uglify())) // now gulp-uglify works
             .on('error', gutil.log)
             .pipe(gulp.dest('../sagebrew/static/dist/js/'));
         });
@@ -141,20 +143,18 @@ gulp.task('scripts:global', function () {
 });
 
 //
-// JS
+// JS - Vendor aka catchall.
 gulp.task('scripts:vendor', function () {
     return gulp.src(paths.libraries)
         .pipe(concat('vendor.js'))
-        .pipe(uglify())
-        .pipe(gulp.dest('../sagebrew/static/dist/js'))
+        .pipe(gulpif(production, uglify()))
         .on('error', gutil.log)
-        .pipe(refresh(server));
-
+        .pipe(gulp.dest('../sagebrew/static/dist/js'));
 });
 
 //
 // JS
-gulp.task('scripts', ['scripts:global', 'scripts:vendor']);
+gulp.task('scripts', ['scripts:lint', 'scripts:global', 'scripts:vendor']);
 
 //
 // Styles
@@ -171,6 +171,7 @@ gulp.task('styles', function () {
 // Fonts
 gulp.task('fonts', function() {
     return gulp.src(paths.fonts)
+            .on('error', gutil.log)
             .pipe(gulp.dest('../sagebrew/static/dist/fonts/'));
 });
 
@@ -179,6 +180,7 @@ gulp.task('fonts', function() {
 // TODO: Fix.
 gulp.task('images:hotfix', function() {
     return gulp.src(['css/vendor/img/**'])
+            .on('error', gutil.log)
            .pipe(gulp.dest('../sagebrew/static/dist/css/vendor/img/'));
 });
 
@@ -186,21 +188,17 @@ gulp.task('images:hotfix', function() {
 // Images
 gulp.task('images', ['images:hotfix'], function() {
     return gulp.src(paths.images)
-           /*
-            .pipe(imagemin({
-                progressive: true,
-                svgoPlugins: [{removeViewBox: false}]
-            }))
-            */
+            .on('error', gutil.log)
             .pipe(gulp.dest('../sagebrew/static/dist/images/'));
 });
+
 
 //
 // Default task.
 gulp.task('watch', function () {
     'use strict';
     gulp.watch(paths.styles, ['styles']);
-    gulp.watch(['js/src/**'], ['scripts']);
+    gulp.watch(['js/src/**'], ['scripts:lint', 'scripts:global']);
 
 });
 

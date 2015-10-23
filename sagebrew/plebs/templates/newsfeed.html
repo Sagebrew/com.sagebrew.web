@@ -16,18 +16,17 @@
    {% include "sb_home_section/sb_profile_potential_reps_stats.html" %}
 </div>
 <div class="col-md-8">
-    <div class="sb_profile_post_enter">
-        {% include "input_post.html" %}
-    </div>
-    <div class="sb_wall" id="wall_app">
+    {% include "post_create.html" %}
+    <div class="app-newsfeed sb_wall" id="wall_app">
 
     </div>
 </div>
 {% endblock %}
 {% block post_scripts %}
 {% endblock %}
-
+{% comment %}
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/newsfeed.js' %}"></script>
 {% endblock %}
+{% endcomment %}

@@ -1,3 +1,4 @@
+/* global wistiaJQuery */
 /**
  * @file
  * Signup Page... This is actually the homepage for anon users.
@@ -126,7 +127,7 @@ function submitSignup() {
                 $("#submit_signup").removeAttr("disabled");
             }
         })
-        .fail(function(XMLHttpRequest) {
+        .fail(function() {
             $("#submit_signup").removeAttr("disabled");
         });
 }
@@ -135,8 +136,9 @@ function submitSignup() {
  * Init.
  */
 export function init() {
-    console.log("signup init");
+
 }
+
 /**
  * Load
  */
@@ -184,23 +186,24 @@ export function load() {
     //
     //Birthday input in signup form.
     $('#birthday').keyup(function (e) {
-        if (e.keyCode != 193 && e.keyCode != 111) {
-            if (e.keyCode != 8) {
-                if ($(this).val().length == 2) {
+        var temp;
+        if (e.keyCode !== 193 && e.keyCode !== 111) {
+            if (e.keyCode !== 8) {
+                if ($(this).val().length === 2) {
                     $(this).val($(this).val() + "/");
-                } else if ($(this).val().length == 5) {
+                } else if ($(this).val().length === 5) {
                     $(this).val($(this).val() + "/");
                 }
             } else {
-                var temp = $(this).val();
-                if ($(this).val().length == 5) {
+                temp = $(this).val();
+                if ($(this).val().length === 5) {
                     $(this).val(temp.substring(0, 4));
-                } else if ($(this).val().length == 2) {
+                } else if ($(this).val().length === 2) {
                     $(this).val(temp.substring(0, 1));
                 }
             }
         } else {
-            var temp = $(this).val();
+            temp = $(this).val();
             var tam = $(this).val().length;
             $(this).val(temp.substring(0, tam-1));
         }

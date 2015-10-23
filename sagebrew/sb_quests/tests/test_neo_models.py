@@ -44,3 +44,13 @@ class TestPoliticalCampaignNeoModel(TestCase):
     def test_get_allow_vote_user_does_not_exist(self):
         res = PoliticalCampaign.get_allow_vote(str(uuid1()), str(uuid1()))
         self.assertFalse(res)
+
+    def test_campaign_to_political_campaign(self):
+        stripe_id = str(uuid1())
+        campaign = PoliticalCampaign(stripe_id=stripe_id).save()
+        campaign = Campaign.get(object_uuid=campaign.object_uuid)
+        self.assertIs(type(campaign), Campaign)
+        campaign = PoliticalCampaign.get(object_uuid=campaign.object_uuid)
+        self.assertIs(type(campaign), PoliticalCampaign)
+        votes = campaign.get_vote_count(object_uuid=campaign.object_uuid)
+        self.assertEqual(votes, 0)

@@ -26,7 +26,6 @@ $("textarea#update_content_id").pagedownBootstrap({
                                         $(".modal-footer").spin(false);
                                         $("#upload_image").val("");
                                         $("#fileModal").modal('hide');
-                                        enable_post_functionality();
                                     },
                                     error: function (XMLHttpRequest) {
                                         errorDisplay(XMLHttpRequest);

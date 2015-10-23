@@ -32,11 +32,13 @@ function saveComment(commentArea, url, objectUuid) {
 
 
 function enableExpandPostImage() {
+    /*
     lightbox.option({
         'resizeDuration': 200,
         'wrapAround': true,
         'alwaysShowNavOnTouchDevices': true
     });
+    */
 }
 
 
@@ -799,11 +801,6 @@ function enableObjectFunctionality(populatedIds) {
     readyVotes(populatedIds);
     readyComments(populatedIds);
     foggyClosed(populatedIds);
-}
-
-
-function enableFriendRequestFunctionality() {
-    respondFriendRequest();
 }
 
 function enableCommentFunctionality(populatedIds) {

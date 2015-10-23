@@ -83,10 +83,13 @@
     {{ block.super }}
     {% if not html_snapshot %}
         <script src="{% static 'js/query_questions.js' %}"></script>
-        {% if not request.user.is_anonymous %}
-            <script src="{% static 'js/event_conversation_intercom.js' %}"></script>
-        {% endif %}
     {% endif %}
     <script src="{% static 'js/question_ui.js' %}"></script>
     <script src="{% static 'js/toggle_filters.js' %}"></script>
 {% endblock scripts %}
+
+{% block intercom %}
+    {% if not request.user.is_anonymous %}
+        Intercom('trackEvent', 'visited-conversation-list');
+    {% endif %}
+{% endblock %}

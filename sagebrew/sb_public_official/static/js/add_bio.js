@@ -1,22 +1,3 @@
-$( document ).ready(function() {
-    $(".add_bio").click(function (event) {
-        event.preventDefault();
-
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "GET",
-            url: "/reps/bio/",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function(data){
-                $("#bio_added_form").append(data['rendered']);
-                enable_post_functionality();
-                $(".add_bio").remove();
-            }
-        });
-    });
-});
-
 $(document).ready(function(){
     $(".submit_bio-action").click(function(event){
         event.preventDefault();

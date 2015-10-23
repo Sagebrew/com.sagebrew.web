@@ -52,8 +52,10 @@ export function args(arg) {
     var elements = window.location.pathname.split("/");
 
     for (var item in elements) {
-        if (!elements[item]) {
-            elements.splice(item, 1);
+        if (elements.hasOwnProperty(item)) {
+            if (!elements[item]) {
+                elements.splice(item, 1);
+            }
         }
     }
 

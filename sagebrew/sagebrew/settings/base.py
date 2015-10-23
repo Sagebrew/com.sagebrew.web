@@ -67,7 +67,6 @@ STATICFILES_DIRS = (
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_solutions/static/' % PROJECT_DIR,
     '%s/sb_notifications/static/' % PROJECT_DIR,
-    '%s/sb_privileges/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_quests/static/' % PROJECT_DIR,

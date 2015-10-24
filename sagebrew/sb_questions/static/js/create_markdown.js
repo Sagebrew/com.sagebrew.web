@@ -13,14 +13,6 @@ $(document).ready(function () {
         ],
      */
     "use strict";
-    $('#tab1').click(function (e) {
-      e.preventDefault();
-      $(this).tab('show')
-    });
-    $('#tab2').click(function (e) {
-      e.preventDefault();
-      $(this).tab('show')
-    });
     $("textarea#question_content_id").pagedownBootstrap({
         "sanatize": false,
         'editor_hooks': [

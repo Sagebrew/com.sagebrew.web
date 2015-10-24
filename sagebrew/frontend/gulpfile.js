@@ -38,7 +38,6 @@ var paths = {
         'bower_components/remarkable-bootstrap-notify/dist/bootstrap-notify.js',
         'bower_components/imagesloaded/imagesloaded.pkgd.min.js',
         'bower_components/jquery-mousewheel/jquery.mousewheel.js',
-        'bower_components/croppic/croppic.js',
         'bower_components/bootstrap-switch/dist/js/bootstrap-switch.js',
         'bower_components/packery/dist/packery.pkgd.js',
         'js/vendor/flatui/radiocheck.js',
@@ -53,6 +52,7 @@ var paths = {
         '../sagebrew/static/js/vendor/bootstrap-tokenfield.min.js',
         '../sagebrew/static/js/vendor/sortable.min.js',
         '../sagebrew/static/js/uuid.js',
+        '../sagebrew/static/js/sbcropic.js',
         '../sagebrew/static/js/sb_utils.js', // These need to updated to support the new JS structure.
                           // Considering them global vendor like scripts for now. to prevent the site from breaking.
         '../sagebrew/static/js/sign_up_btn.js'

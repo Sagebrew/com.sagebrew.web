@@ -1281,6 +1281,37 @@ class CampaignEndpointTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_donation_create_over_270000(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        cache.set(self.pleb.username, self.pleb)
+        data = {
+            'amount': 280000
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_donation_goal_connection(self):
+        donation = Donation(amount=400000).save()
+        self.campaign.donations.connect(donation)
+        donation.campaign.connect(self.campaign)
+        active_round = Round(active=True).save()
+        goal = Goal(total_required=100).save()
+        active_round.goals.connect(goal)
+        goal.associated_round.connect(active_round)
+        self.campaign.active_round.connect(active_round)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 250000
+        }
+        response = self.client.post(url, data=data, format='json')
+        donation = Donation.nodes.get(object_uuid=response.data['id'])
+        self.assertTrue(donation.donated_for.is_connected(goal))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def test_update_create(self):
         self.client.force_authenticate(user=self.user)
         active_round = Round(active=True).save()

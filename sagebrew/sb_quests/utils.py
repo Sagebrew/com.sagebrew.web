@@ -17,7 +17,7 @@ def release_funds(goal_uuid):
     from sb_donations.serializers import DonationSerializer
     try:
         stripe.api_key = settings.STRIPE_SECRET_KEY
-        query = 'MATCH (g:Goal {object_uuid:"%s"})-[:RECEIVED]-(d:Donation), ' \
+        query = 'MATCH (g:Goal {object_uuid:"%s"})-[:RECEIVED]->(d:Donation), ' \
                 '(g)-[:ASSOCIATED_WITH]->(c:Campaign) ' \
                 'RETURN d, c' % goal_uuid
         res, _ = db.cypher_query(query)

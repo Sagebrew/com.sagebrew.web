@@ -1,4 +1,4 @@
-/*global $, guid, Croppic, alert*/
+ /*global $, guid, Croppic, alert*/
 $(document).ready(function () {
     "use strict";
     var fileName = guid();

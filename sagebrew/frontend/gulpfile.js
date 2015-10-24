@@ -41,7 +41,6 @@ var paths = {
         'bower_components/bootstrap-switch/dist/js/bootstrap-switch.js',
         'bower_components/packery/dist/packery.pkgd.js',
         'js/vendor/flatui/radiocheck.js',
-        'js/vendor/flatui/fileinput.js',
         'js/vendor/typeahead.js',
         'js/vendor/formvalidation/formValidation.min.js',
         'js/vendor/formvalidation/bootstrap.min.js',

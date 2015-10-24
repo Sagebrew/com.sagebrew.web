@@ -92,7 +92,6 @@ export function init () {
                 imageIds.push($(value).data('object_uuid'));
             });
         }
-
         parsedText.always(function () {
             request.post({
                 url: "/v1/profiles/" + profile_page_user + "/wall/?html=true",
@@ -114,6 +113,7 @@ export function init () {
                 }
             }).always(function () {
                 $("button", $form).prop("disabled", false);
+                $("button", $form).removeClass("disabled");
             });
         });
         return false;
@@ -144,6 +144,8 @@ export function init () {
                 }
             }
         }
+    }).on('success.form.fv', function(e) {
+        e.preventDefault();
     });
 
     //

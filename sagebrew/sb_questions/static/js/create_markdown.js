@@ -23,6 +23,7 @@ $(document).ready(function () {
                         $('#fileModal').modal();
                         $("#insert_image_post").click(function (e) {
                             e.preventDefault();
+
                             $(".modal-footer").spin('small');
                             if ($("#upload_image").val().length > 1) {
                                 var formdata = new FormData(),

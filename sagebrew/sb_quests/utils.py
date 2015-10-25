@@ -17,7 +17,7 @@ def release_funds(goal_uuid):
     from sb_donations.serializers import DonationSerializer
     try:
         stripe.api_key = settings.STRIPE_SECRET_KEY
-        query = 'MATCH (g:Goal {object_uuid:"%s"})-[:RECEIVED]-(d:Donation), ' \
+        query = 'MATCH (g:Goal {object_uuid:"%s"})-[:RECEIVED]->(d:Donation), ' \
                 '(g)-[:ASSOCIATED_WITH]->(c:Campaign) ' \
                 'RETURN d, c' % goal_uuid
         res, _ = db.cypher_query(query)
@@ -78,7 +78,7 @@ def release_single_donation(donation_uuid):
             donor = Pleb.get(username=donation.owner_username)
         except (Pleb.DoesNotExist, DoesNotExist) as e:
             return e
-        stripe.Charge.create(
+        charge = stripe.Charge.create(
             customer=donor.stripe_customer_id,
             amount=donation.amount,
             currency="usd",
@@ -101,7 +101,7 @@ def release_single_donation(donation_uuid):
                 serialized_donation)
         }
         spawn_task(send_email_task, email_data)
-        return True
+        return charge
     except (stripe.CardError, stripe.APIConnectionError, stripe.StripeError) \
             as e:
         return e

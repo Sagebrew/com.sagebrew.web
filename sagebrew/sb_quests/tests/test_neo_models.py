@@ -1,13 +1,14 @@
 from uuid import uuid1
 
 from django.test import TestCase
+from django.core.cache import cache
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_donations.neo_models import Donation
 from sb_goals.neo_models import Goal
-from sb_quests.neo_models import Campaign, PoliticalCampaign
+from sb_quests.neo_models import Campaign, PoliticalCampaign, Position
 
 
 class TestCampaignNeoModel(TestCase):
@@ -54,3 +55,20 @@ class TestPoliticalCampaignNeoModel(TestCase):
         self.assertIs(type(campaign), PoliticalCampaign)
         votes = campaign.get_vote_count(object_uuid=campaign.object_uuid)
         self.assertEqual(votes, 0)
+
+    def test_get_position_level(self):
+        campaign = PoliticalCampaign().save()
+        position = Position(level='federal').save()
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        res = PoliticalCampaign.get_position_level(campaign.object_uuid)
+        self.assertEqual(res, position.level)
+
+    def test_get_position_level_cached(self):
+        campaign = PoliticalCampaign().save()
+        position = Position(level='state_upper').save()
+        cache.set("%s_position" % campaign.object_uuid, position.level)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        res = PoliticalCampaign.get_position_level(campaign.object_uuid)
+        self.assertEqual(res, position.level)

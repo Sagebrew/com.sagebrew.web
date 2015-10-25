@@ -41,10 +41,31 @@ export function init() {
         }
     });
 
+
+
     //Friend Action binding.
     //TODO: this is a lot of repeated code from the nav app. We should
     //      consolidate.
     $app
+        //
+        // Add overlays to non-friend page for descriptions of what the different
+        // pieces do
+        .on('mouseenter', ".js-hover-overlay-activate", function(event) {
+            event.preventDefault();
+            var $this = $(this),
+            overlay = $this.parent().parent().find(".sb-overlay");
+            overlay.height($this.height());
+            overlay.fadeIn('fast');
+        })
+
+        //
+        // Remove overlay when mouse leaves card region
+        .on('mouseleave', '.sb-overlay', function(event) {
+            event.preventDefault();
+            $(this).fadeOut('fast');
+            $(".sb-profile-not-friend-element-image").removeClass("active");
+        })
+
         //
         // Remove Friend. (How Rude)
         .on('click', '.js-remove_friend', function(event) {

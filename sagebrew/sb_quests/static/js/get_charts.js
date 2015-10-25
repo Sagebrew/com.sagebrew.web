@@ -98,7 +98,7 @@ $(document).ready(function () {
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/campaigns/" + campaignId + "/pledged_votes/",
+        url: "/v1/campaigns/" + campaignId + "/pledged_votes_per_day/",
         cache: false,
         processData: false,
         success: function (data) {

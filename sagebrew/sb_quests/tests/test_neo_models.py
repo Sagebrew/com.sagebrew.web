@@ -72,3 +72,29 @@ class TestPoliticalCampaignNeoModel(TestCase):
         position.campaigns.connect(campaign)
         res = PoliticalCampaign.get_position_level(campaign.object_uuid)
         self.assertEqual(res, position.level)
+
+    def test_pledged_votes_per_day(self):
+        campaign = PoliticalCampaign().save()
+        self.campaigner.campaign.connect(campaign)
+        campaign.owned_by.connect(self.campaigner)
+        rel = campaign.pledged_votes.connect(self.campaigner)
+        rel.active = True
+        rel.save()
+        res = campaign.pledged_votes_per_day()
+        self.assertEqual(
+            res, {rel.created.strftime('%Y-%m-%d'): int(rel.active)})
+
+    def test_pledged_votes_per_day_multiple_votes_same_day(self):
+        pleb = Pleb(username=str(uuid1())).save()
+        campaign = PoliticalCampaign().save()
+        self.campaigner.campaign.connect(campaign)
+        campaign.owned_by.connect(self.campaigner)
+        rel = campaign.pledged_votes.connect(self.campaigner)
+        rel.active = True
+        rel.save()
+        rel2 = campaign.pledged_votes.connect(pleb)
+        rel2.active = True
+        rel.save()
+        res = campaign.pledged_votes_per_day()
+        self.assertEqual(
+            res, {rel.created.strftime('%Y-%m-%d'): 2})

@@ -26,20 +26,16 @@ function prepareDonationData(donationData) {
 }
 
 function preparePledgedVoteData(voteData) {
-    var parsedVoteData = [];
-    $.each(voteData, function (index, value) {
-        var tempDate = new Date(value.created.toLocaleString()),
-            voteValue;
-        if (value.active) {
-            voteValue = 1;
-        } else {
-            voteValue = 0;
+    var parsedVoteData = [],
+        myKey,
+        tempDate;
+    for (myKey in voteData) {
+        if (voteData.hasOwnProperty(myKey)) {
+            tempDate = new Date(myKey);
+            parsedVoteData.push([Date.UTC(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate()), voteData[myKey]]);
         }
-        parsedVoteData.push([Date.UTC(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate()), voteValue]);
-    });
-    return {
-        'dailyVoteTotal': parsedVoteData
-    };
+    }
+    return parsedVoteData.reverse();
 }
 
 $(document).ready(function () {
@@ -102,7 +98,7 @@ $(document).ready(function () {
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/v1/campaigns/" + campaignId + "/pledged_votes/",
+        url: "/v1/campaigns/" + campaignId + "/pledged_votes/?html=true",
         cache: false,
         processData: false,
         success: function (data) {
@@ -123,7 +119,8 @@ $(document).ready(function () {
                     },
                     title: {
                         text: 'Date'
-                    }
+                    },
+                    minTickInterval: 86400000
                 },
                 yAxis: {
                     title: {
@@ -139,7 +136,7 @@ $(document).ready(function () {
                 series: [
                     {
                         name: 'Lifetime Pledged Votes',
-                        data: preparedData.dailyVoteTotal
+                        data: preparedData
                     }]
             });
         },

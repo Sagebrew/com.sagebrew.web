@@ -468,7 +468,7 @@ class PoliticalCampaign(Campaign):
             return True
         return False
 
-    def get_pledged_votes(self):
+    def pledged_votes_per_day(self):
         query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
                 '[r:RECEIVED_PLEDGED_VOTE]->(:Pleb) RETURN r ' \
                 'ORDER BY r.created' \

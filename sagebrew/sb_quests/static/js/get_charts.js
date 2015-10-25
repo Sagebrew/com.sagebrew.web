@@ -131,7 +131,7 @@ $(document).ready(function () {
                 },
                 tooltip: {
                     headerFormat: '<b>Pledge Amount</b><br>',
-                    pointFormat: '{point.y} Pledge Vote'
+                    pointFormat: '{point.y} Pledge Vote(s)'
                 },
                 series: [
                     {

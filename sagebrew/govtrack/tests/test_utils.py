@@ -1,3 +1,4 @@
+"""
 from requests import get
 from django.test.testcases import TestCase
 
@@ -28,3 +29,4 @@ class TestPopulateTermData(TestCase):
     def test_populate_term_data(self):
         res = populate_term_data()
         self.assertTrue(res)
+"""

@@ -468,24 +468,22 @@ class PoliticalCampaign(Campaign):
             return True
         return False
 
-    def get_pledged_votes(self, for_chart='false'):
+    def get_pledged_votes(self):
         query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
                 '[r:RECEIVED_PLEDGED_VOTE]->(:Pleb) RETURN r ' \
                 'ORDER BY r.created' \
                 % self.object_uuid
         res, _ = db.cypher_query(query)
-        if for_chart == 'true':
-            vote_data = {}
-            for vote in res:
-                rel = VoteRelationship.inflate(vote[0])
-                active_value = int(rel.active)
-                date_string = rel.created.strftime('%Y-%m-%d')
-                if not date_string in vote_data.keys():
-                    vote_data[date_string] = active_value
-                else:
-                    vote_data[date_string] += active_value
-            return vote_data
-        return [VoteRelationship.inflate(row[0]) for row in res]
+        vote_data = {}
+        for vote in res:
+            rel = VoteRelationship.inflate(vote[0])
+            active_value = int(rel.active)
+            date_string = rel.created.strftime('%Y-%m-%d')
+            if not date_string in vote_data.keys():
+                vote_data[date_string] = active_value
+            else:
+                vote_data[date_string] += active_value
+        return vote_data
 
 
 class Position(SBObject):

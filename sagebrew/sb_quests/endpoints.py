@@ -379,8 +379,7 @@ class PoliticalCampaignViewSet(CampaignViewSet):
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
                                                        IsOwnerOrAccountant,))
     def pledged_votes(self, request, object_uuid=None):
-        html = request.query_params.get('html', 'false').lower()
-        queryset = self.get_object().get_pledged_votes(html)
+        queryset = self.get_object().get_pledged_votes()
         return Response(queryset, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], serializer_class=GoalSerializer)

@@ -1392,7 +1392,7 @@ class CampaignEndpointTests(APITestCase):
 
     def test_pledged_votes(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-pledged-votes',
+        url = reverse('campaign-pledged-votes-per-day',
                       kwargs={'object_uuid': self.campaign.object_uuid})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

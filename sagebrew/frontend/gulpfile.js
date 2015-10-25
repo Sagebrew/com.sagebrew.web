@@ -31,6 +31,7 @@ var paths = {
         'bower_components/bootstrap/js/modal.js',
         'bower_components/bootstrap/js/tooltip.js',
         'bower_components/bootstrap/js/popover.js',
+        'bower_components/bootstrap/js/collapse.js',
         'bower_components/bootstrap/js/tab.js',
         'bower_components/lightbox2/dist/js/lightbox.js',
         'bower_components/waypoints/lib/jquery.waypoints.js',

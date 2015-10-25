@@ -479,7 +479,7 @@ class PoliticalCampaign(Campaign):
             rel = VoteRelationship.inflate(vote[0])
             active_value = int(rel.active)
             date_string = rel.created.strftime('%Y-%m-%d')
-            if not date_string in vote_data.keys():
+            if date_string not in vote_data.keys():
                 vote_data[date_string] = active_value
             else:
                 vote_data[date_string] += active_value

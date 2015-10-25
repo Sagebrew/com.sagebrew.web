@@ -201,15 +201,6 @@ class TestReleaseSingleDonation(TestCase):
             time.sleep(1)
         self.assertIsInstance(res.result, Exception)
 
-    def test_release_single_donation_correct_amount_charged(self):
-        test_donation = Donation(amount=100,
-                                 owner_username=self.pleb.username).save()
-        res = release_single_donation_task.apply_async(
-            kwargs={"donation_uuid": test_donation.object_uuid})
-        while not res.ready():
-            time.sleep(1)
-        self.assertIsInstance(res.result, Exception)
-
     def test_release_single_donation_charge_amount(self):
         test_donation = Donation(amount=10000,
                                  owner_username=self.pleb.username).save()

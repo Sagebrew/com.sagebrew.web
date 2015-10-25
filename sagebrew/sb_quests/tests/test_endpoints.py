@@ -10,7 +10,7 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
 from sb_privileges.neo_models import SBAction, Privilege
 from plebs.neo_models import Pleb, Address
@@ -1290,6 +1290,11 @@ class CampaignEndpointTests(APITestCase):
             'amount': 280000
         }
         response = self.client.post(url, data=data, format='json')
+        try:
+            donation = Donation.nodes.get(amount=28000)
+            self.assertFalse(donation.campaign.is_connected(self.campaign))
+        except (Donation.DoesNotExist, DoesNotExist) as e:
+            self.assertIsInstance(e, Exception)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_donation_goal_connection(self):
@@ -1305,7 +1310,7 @@ class CampaignEndpointTests(APITestCase):
         url = reverse('campaign-donations',
                       kwargs={'object_uuid': self.campaign.object_uuid})
         data = {
-            'amount': 100
+            'amount': 1000
         }
         response = self.client.post(url, data=data, format='json')
         donation = Donation.nodes.get(object_uuid=response.data['id'])
@@ -1324,6 +1329,11 @@ class CampaignEndpointTests(APITestCase):
             'amount': -1000
         }
         response = self.client.post(url, data=data, format='json')
+        try:
+            donation = Donation.nodes.get(amount=-1000)
+            self.assertFalse(donation.campaign.is_connected(self.campaign))
+        except (Donation.DoesNotExist, DoesNotExist) as e:
+            self.assertIsInstance(e, Exception)
         self.assertEqual(response.data['amount'],
                          ["You cannot donate a negative amount "
                           "of money to this campaign."])

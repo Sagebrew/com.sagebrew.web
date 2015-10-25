@@ -105,20 +105,18 @@ class DonationSerializer(SBSerializer):
                 '(cd:Donation {object_uuid:"%s"}) WITH r, SUM(d.amount) ' \
                 'as total_amount, cd, d MATCH (r)-[:STRIVING_FOR]->' \
                 '(goals:Goal) WHERE goals.completed=false AND ' \
-                'goals.total_required-total_amount>=0 FOREACH ' \
+                'goals.total_required-total_amount<=0 FOREACH ' \
                 '(goal IN [goals]|MERGE (cd)-[:APPLIED_TO]->(goal) ' \
                 'MERGE (goal)-[:RECEIVED]->(cd))' \
                 % (Campaign.get_active_round(campaign.object_uuid),
                    donation.object_uuid)
         db.cypher_query(query)
-        position_level = Campaign.get_position_level(campaign.object_uuid)
         campaign.donations.connect(donation)
         donation.campaign.connect(campaign)
         donor.donations.connect(donation)
         donation.owned_by.connect(donor)
         cache.delete("%s_total_donated" % campaign.object_uuid)
-        if position_level != "federal" \
-                and campaign.get_total_donated(campaign.object_uuid) \
+        if campaign.get_total_donated(campaign.object_uuid) \
                 < settings.FREE_RELEASE_LIMIT:
             spawn_task(task_func=release_single_donation_task,
                        task_param={"donation_uuid": donation.object_uuid})

@@ -9,9 +9,6 @@ from sb_base.serializers import ContentSerializer
 
 from .tasks import update_closed_task
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class CouncilVoteSerializer(ContentSerializer):
     content = serializers.CharField(required=False)

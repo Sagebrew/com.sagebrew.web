@@ -1,4 +1,3 @@
-from logging import getLogger
 from operator import itemgetter
 
 from django.conf import settings
@@ -22,8 +21,6 @@ from sb_registration.utils import verify_completed_registration
 from .tasks import update_search_query
 from .utils import process_search_result
 from .forms import SearchForm
-
-logger = getLogger('loggly_logs')
 
 
 @login_required()

@@ -9,9 +9,6 @@ from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
 from sb_base.neo_models import (VoteRelationship)
 from sb_search.neo_models import Searchable, SBObject
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class Campaign(Searchable):
     """
@@ -471,13 +468,22 @@ class PoliticalCampaign(Campaign):
             return True
         return False
 
-    def get_pledged_votes(self):
+    def pledged_votes_per_day(self):
         query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
                 '[r:RECEIVED_PLEDGED_VOTE]->(:Pleb) RETURN r ' \
                 'ORDER BY r.created' \
                 % self.object_uuid
         res, _ = db.cypher_query(query)
-        return [VoteRelationship.inflate(row[0]) for row in res]
+        vote_data = {}
+        for vote in res:
+            rel = VoteRelationship.inflate(vote[0])
+            active_value = int(rel.active)
+            date_string = rel.created.strftime('%Y-%m-%d')
+            if date_string not in vote_data.keys():
+                vote_data[date_string] = active_value
+            else:
+                vote_data[date_string] += active_value
+        return vote_data
 
 
 class Position(SBObject):

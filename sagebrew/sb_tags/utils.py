@@ -1,10 +1,7 @@
-import logging
 from neomodel.exception import CypherException
 
 from sb_base.decorators import apply_defense
 from sb_tags.neo_models import Tag
-
-logger = logging.getLogger('loggly_logs')
 
 
 @apply_defense

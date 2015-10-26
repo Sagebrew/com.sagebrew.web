@@ -41,7 +41,6 @@ $(document).ready(function () {
                                         $(".modal-footer").spin(false);
                                         $("#upload_image").val("");
                                         $("#fileModal").modal('hide');
-                                        enable_post_functionality();
                                     },
                                     error: function (XMLHttpRequest) {
                                         errorDisplay(XMLHttpRequest);

@@ -8,9 +8,6 @@ from PIL import Image
 
 from api.utils import smart_truncate
 
-from logging import getLogger
-logger = getLogger("loggly_logs")
-
 """
 def crop_image(image, height, width, x, y, f_uuid=None):
     if f_uuid is None:

@@ -14,7 +14,7 @@
                        <img id="profile_pic" src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
                    </div>
                     <div class="hidden-sm hidden-md hidden-lg">
-                       <img id="profile_pic" src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
+                       <img src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
                    </div>
                {% else %}
                   <img id="profile_pic" src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
@@ -27,7 +27,7 @@
                         <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
                    </div>
                     <div class="hidden-sm hidden-md hidden-lg">
-                        <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
+                        <img class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
                    </div>
                {% else %}
                    <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
@@ -61,23 +61,19 @@
 {% block scripts %}
     {{ block.super }}
     {% comment %}
-        <script src="{% static 'js/get_reps.js' %}"></script>
-        <script src="{% static 'js/delete_friend_request.js' %}"></script>
-        <script src="{% static 'js/send_friend_request.js' %}"></script>
-        <script src="{% static 'js/respond_friend_request.js' %}"></script>
-        <script src="{% static 'js/sb_post_enter.js' %}"></script>
-        <script src="{% static 'js/get_dropzone.js' %}"></script>
-        <script src="{% static 'js/event_profile_intercom.js' %}"></script>
-    {% endcomment %}
-    <script src="{% static 'js/save_post.js' %}"></script>
-    <script src="{% static 'js/pleb_image_upload.js' %}"></script>
-    {% block post_scripts %}
         <script src="{% static 'js/get_posts.js' %}"></script>
-    {% endblock post_scripts %}
+        <script src="{% static 'js/pleb_image_upload.js' %}"></script>
+        {% block post_scripts %}
+        {% endblock post_scripts %}
+        <script src="{% static 'js/post_validator.js' %}"></script>
+    {% endcomment %}
+
     <script src="{% static 'js/send_notification.js' %}"></script>
-    <script src="{% static 'js/post_validator.js' %}"></script>
     <script src="{% static 'js/flag_modal.js' %}"></script>
     <script src="{% static 'js/profile_pic_croppic.js' %}"></script>
     <script src="{% static 'js/wallpaper_pic_croppic.js' %}"></script>
 
 {% endblock scripts %}
+{% block intercom %}
+    Intercom('trackEvent', 'visited-profile-page');
+{% endblock %}

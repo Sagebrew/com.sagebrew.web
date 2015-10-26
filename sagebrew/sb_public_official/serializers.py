@@ -6,8 +6,6 @@ from rest_framework import serializers
 from neomodel import db
 
 from api.serializers import SBSerializer
-from logging import getLogger
-logger = getLogger('loggly_logs')
 
 
 class PublicOfficialSerializer(SBSerializer):

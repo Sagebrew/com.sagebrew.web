@@ -8,9 +8,6 @@ from sb_privileges.tasks import check_privileges
 from sb_base.neo_models import SBContent
 from plebs.neo_models import Pleb
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 def update_closed(object_uuid):
     try:

@@ -1,36 +1,44 @@
 /**
  * @file
- * JS for the entire profile area.
- */
-
-/**
- * @file
- * -- Contains all functionality for the profile section.
+ * JS for the entire user area.
+ * TODO: Rename controller.
+ * Profile is really one specific page in this section.
  */
 var representatives = require('./partials/representatives'),
-    friends = require('./partials/friends');
+    friends = require('./partials/friends'),
+    postcreate = require('./partials/postcreate'),
+    profile = require('./partials/profile'),
+    newsfeed = require('./partials/newsfeed');
 
+
+
+/**
+ * Init
+ */
 export function init() {
-    $(document).ready(function(){
 
-        representatives.init();
-        friends.init();
-
-        //
-        // Expand post input.
-        if ($("#post_input_id").length) {
-            $("#post_input_id").click(function (){
-                $("#sb_post_container").css("height","auto");
-                $("#post_input_id").css("height", "100px").css("max-height", "800px").css("resize", "vertical");
-                $("#sb_post_menu").show();
-            });
-        }
-
-
-    });
-
-    //
-    // Intercom Tracking
-    Intercom('trackEvent', 'visited-profile-page');
 }
 
+/**
+ * Load
+ */
+export function load() {
+    // Sidebar
+    representatives.init();
+    // Friends Page
+    friends.init();
+    // Post create functionality.
+    postcreate.init();
+    // Profile page.
+    profile.init();
+    // Newsfeed page.
+    newsfeed.init();
+}
+
+/**
+ * Post Load
+ */
+export function postload() {
+    //
+    // Intercom Tracking
+}

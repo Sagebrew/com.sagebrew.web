@@ -32,11 +32,13 @@ function saveComment(commentArea, url, objectUuid) {
 
 
 function enableExpandPostImage() {
+    /*
     lightbox.option({
         'resizeDuration': 200,
         'wrapAround': true,
         'alwaysShowNavOnTouchDevices': true
     });
+    */
 }
 
 
@@ -533,7 +535,7 @@ function editObject(editArea, url, objectUuid, dataArea) {
                     if (data.urlcontent_html) {
                         contentContainer.append(data.urlcontent_html);
                     }
-                    if ("uploaded_objects" in data) {
+                    if ("uploaded_objects" in data && data.uploaded_objects.length > 0) {
                         contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
                         var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
                         $.each(data.uploaded_objects, function(index, value){
@@ -799,11 +801,6 @@ function enableObjectFunctionality(populatedIds) {
     readyVotes(populatedIds);
     readyComments(populatedIds);
     foggyClosed(populatedIds);
-}
-
-
-function enableFriendRequestFunctionality() {
-    respondFriendRequest();
 }
 
 function enableCommentFunctionality(populatedIds) {

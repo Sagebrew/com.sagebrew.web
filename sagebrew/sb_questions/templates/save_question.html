@@ -3,50 +3,12 @@
 {% load staticfiles %}
 {% block css %}
     {{ block.super }}
-    <link href="{% static 'css/vendor/select2.css' %}" rel="stylesheet"/>
-    <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/vendor/bootstrap-tokenfield.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/vendor/tokenfield-typeahead.min.css' %}"/>
 {% endblock css %}
 
 {% block content %}
 
-<div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="btn btn-sm sb_btn close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h3 id="fileModalLabel">Upload Images</h3>
-            </div>
-            <div class="modal-form">
-                <div class="tabbable tabs-left">
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a href="#tab1" data-toggle="tab">Upload</a></li>
-                        <li><a href="#tab2" data-toggle="tab">Enter URL</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="tab1">
-                            <div class="preview" id="preview" >
-                                <input id="upload_image" type="file" name="img">
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="tab2">
-                            <p><input type="text" class="form-control input-lg img-url" placeholder="Ex: http://yoursite.com/image.jpg" id="img-url" /></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                            <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                    <button class="btn btn-primary sb_btn sb_btn_fill" id="insert_image_post">Insert Image</button>
-                </div>
-                <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                    <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove" data-dismiss="modal" aria-hidden="true">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
     <div class="action" style="display: none" data-action="write_question"></div>
     <div class="action" style="display: none" data-action="write_comment"></div>
     <div class="action" style="display: none" data-action="write_solution"></div>
@@ -114,8 +76,44 @@
              </div>
         </div>
     </div>
-{% include "side_content.html" %}
 
+{% include "side_content.html" %}
+<div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="btn btn-sm sb_btn close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3 id="fileModalLabel">Upload Images</h3>
+            </div>
+            <div class="modal-form">
+                <div class="tabbable tabs-left">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#tab1" data-toggle="tab">Upload</a></li>
+                        <li><a href="#tab2" data-toggle="tab">Enter URL</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tab1">
+                            <div class="preview" id="preview" >
+                                <input id="upload_image" type="file" name="img">
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="tab2">
+                            <p><input type="text" class="form-control input-lg img-url" placeholder="Ex: http://yoursite.com/image.jpg" id="img-url" /></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                            <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                    <button class="btn btn-primary sb_btn sb_btn_fill" id="insert_image_post">Insert Image</button>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                    <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove" data-dismiss="modal" aria-hidden="true">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 {% endblock %}
@@ -124,16 +122,16 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
-    <script src="{% static 'js/vendor/bootstrap-tokenfield.min.js' %}"></script>
-    <script src="{% static 'js/vendor/typeahead.js' %}"></script>
     <script src="{% static 'js/create_markdown.js' %}"></script>
     <script src="{% static 'js/get_tags.js' %}"></script>
     <script src="{% static 'js/question_validator.js' %}"></script>
     <script src="{% static 'js/save_question.js' %}"></script>
-    <script src="{% static 'js/event_create_question.js' %}"></script>
     {% if edit %}
         <script src="{% static 'js/populate_edit_question.js' %}"></script>
         <script src="{% static 'js/edit_question.js' %}"></script>
     {% endif %}
 {% endblock scripts %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-create-question-page');
+{% endblock %}

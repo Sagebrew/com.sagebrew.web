@@ -1,0 +1,38 @@
+/**
+ * Header
+ */
+.sb_primary_nav {
+  &:extend(.sb_nav);
+  background-color: @sb_green;
+  height: 45px;
+  padding:0;
+  margin-top: 0;
+  margin-bottom: 0;
+  a{
+    text-decoration: none;
+    color: @white;
+  }
+  ul{
+    float: right;
+  }
+  h1{
+    color: @white;
+    display: inline-block;
+    margin-top: 0;
+    padding-top: 5px;
+  }
+  input{
+    width: auto;
+    height: @sb_input_height;
+    margin-top: 6px;
+    // This fixes firefox border issue with input
+    border: 0 @sb_grey;
+    border-right: 1px none;
+    border-left-width: 1px;
+  }
+}
+.navbar .container-fluid {
+  padding-left:5%;
+  padding-right:5%;
+}
+

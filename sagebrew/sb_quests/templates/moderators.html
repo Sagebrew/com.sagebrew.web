@@ -36,5 +36,8 @@
 {% block scripts %}
     {{ block.super }}
     <script src="{% static 'js/get_possible_helpers.js' %}"></script>
-    <script src="{% static 'js/event_quest_moderators.js' %}"></script>
 {% endblock scripts %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-own-moderators-page');
+{% endblock %}

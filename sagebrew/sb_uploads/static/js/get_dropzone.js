@@ -22,7 +22,6 @@ $( document ).ready(function() {
                 $(".dropzone").hide();
                 $("#add").hide();
                 $("#wall_app").prepend(data['html']);
-                enable_post_functionality()
             },
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                 if(XMLHttpRequest.status === 409) {

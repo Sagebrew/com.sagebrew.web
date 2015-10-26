@@ -3,44 +3,69 @@
  * Do things with friends.
  */
 var request = require('./../../../api').request,
-    helpers = require('./../../../common/helpers'),
-    settings = require('./../../../settings').settings;
+    helpers = require('./../../../common/helpers');
 
-/**
- * Helper function to load friends.
- * This function is recursive. It will load friends until there are no more friends to load.
- *
- * @param url
- */
-function loadFriends($app, url) {
-    request.get({url:url})
-        .done(function(data){
-            if (data.count === 0){
-                $app.append("<div><h3>Please use search to find your friends :)</h3></div>");
-            } else {
-                $.each(data.results, function (i, l) {
-                    $app.append(l);
-                });
-            }
-            loadFriends($app, data.next);
-        });
-}
+require('./../../../plugin/contentloader');
 
 export function init() {
     var $app = $(".app-sb");
     var $appFriends = $(".app-friends");
 
     // Load Friends.
-    if ($appFriends.length) {
-        //Load username from url.
-        var username = helpers.args(1);
-        loadFriends($appFriends, "/v1/profiles/" + username + "/friends/?html=true&limit=5");
-    }
+    var profile_page_user = helpers.args(1);
+    $appFriends.sb_contentLoader({
+        emptyDataMessage: 'Please use search to find your friends :)',
+        url: '/v1/profiles/' + profile_page_user + '/friends/',
+        params: {
+            expand: 'true',
+            expedite: 'true',
+            html: 'true'
+        },
+        dataCallback: function(base_url, params) {
+            var urlParams = $.param(params);
+            var url;
+            if (urlParams) {
+                url = base_url + "?" + urlParams;
+            }
+            else {
+                url = base_url;
+            }
+
+            return request.get({url:url});
+
+        },
+        renderCallback: function($container, data) {
+            $.each(data.results, function (i, l) {
+                $container.append(l);
+            });
+        }
+    });
+
+
 
     //Friend Action binding.
     //TODO: this is a lot of repeated code from the nav app. We should
     //      consolidate.
     $app
+        //
+        // Add overlays to non-friend page for descriptions of what the different
+        // pieces do
+        .on('mouseenter', ".js-hover-overlay-activate", function(event) {
+            event.preventDefault();
+            var $this = $(this),
+            overlay = $this.parent().parent().find(".sb-overlay");
+            overlay.height($this.height());
+            overlay.fadeIn('fast');
+        })
+
+        //
+        // Remove overlay when mouse leaves card region
+        .on('mouseleave', '.sb-overlay', function(event) {
+            event.preventDefault();
+            $(this).fadeOut('fast');
+            $(".sb-profile-not-friend-element-image").removeClass("active");
+        })
+
         //
         // Remove Friend. (How Rude)
         .on('click', '.js-remove_friend', function(event) {
@@ -91,7 +116,7 @@ export function init() {
                     deleteFriend.removeAttr("disabled");
                     deleteFriend.show();
                 }
-            }).fail(function(jqXHR, textStatus, errorThrown){
+            }).fail(function(jqXHR){
                 if (jqXHR.status === 500) {
                     sendRequest.removeAttr("disabled");
                 }

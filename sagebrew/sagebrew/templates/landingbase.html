@@ -1,0 +1,50 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}Sagebrew{% endblock title %}</title>
+    {% block description %}{% endblock description %}
+    {% block keywords %}{% endblock keywords %}
+    {% block css %}
+    <link rel="stylesheet" href="{% static 'dist/css/styles.css' %}"/>
+    {% endblock css %}
+    {% block page-javascript %}
+    <!--[if lt IE 9]>
+    <script src="{% static 'js/dist/vendor/html5shiv.js' %}"></script>
+    <script src="{% static 'js/dist/vendor/respond.min.js' %}"></script>
+    <![endif]-->
+    {% endblock page-javascript %}
+    <script type="text/javascript">
+        {{ js_settings|safe }}
+    </script>
+
+
+</head>
+<body>
+  {% block content %}
+
+  {% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'dist/js/vendor.js' %}"></script>
+    <script src="{% static 'dist/js/sagebrew.js' %}"></script>
+{% endblock scripts %}
+
+{% block external_scripts %}
+{% endblock external_scripts %}
+
+{% include "partials/intercom.html" %}
+<script>
+{%  block intercom %}
+{% endblock %}
+</script>
+
+{% block analytics %}
+    {% include "partials/google_analytics.html" %}
+{% endblock analytics %}
+</body>
+</html>

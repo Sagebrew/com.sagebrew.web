@@ -168,6 +168,13 @@ class Pleb(Searchable):
     initial_verification_email_sent = BooleanProperty(default=False)
     stripe_account = StringProperty()
     stripe_customer_id = StringProperty()
+    # last_counted_vote_node is the node we want to query on to get
+    # reputation change over time
+    last_counted_vote_node = StringProperty()
+    # vote_from_last_refresh is what gets stored every time a user
+    # refreshes their page, allows us to easily swap it with
+    # last_counted_vote_node when they check their reputation
+    vote_from_last_refresh = StringProperty()
 
     # Relationships
     privileges = RelationshipTo('sb_privileges.neo_models.Privilege', 'HAS',
@@ -563,6 +570,29 @@ class Pleb(Searchable):
             except IndexError:
                 official = None
         return official
+
+    @property
+    def reputation_change(self):
+        query = 'MATCH (last_counted:Vote {object_uuid:"%s"})-' \
+                '[:CREATED_ON]->(s:Second) WITH s, last_counted MATCH ' \
+                '(s)-[:NEXT*]->(s2:Second)<-[:CREATED_ON]-(v:Vote)<-' \
+                '[:LAST_VOTES]-(content:VotableContent)-[:OWNED_BY]->(p:Pleb ' \
+                '{username:"%s"}) WITH v ORDER BY v.created DESC ' \
+                'RETURN sum(v.reputation_change) ' \
+                'as rep_change, collect(v.object_uuid)[0] as last_created' \
+                % (self.last_counted_vote_node, self.username)
+        res, _ = db.cypher_query(query)
+        if not res:
+            return 0
+        reputation_change = res[0].rep_change
+        last_seen = res[0].last_created
+        if last_seen != self.vote_from_last_refresh:
+            self.vote_from_last_refresh = res[0].last_created
+            self.save()
+            cache.set(self.username, self)
+        if reputation_change >= 1000 or reputation_change <= -1000:
+            return "%dk" % (int(reputation_change / 1000.0))
+        return reputation_change
 
     """
     def update_tag_rep(self, base_tags, tags):

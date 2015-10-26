@@ -1,6 +1,6 @@
 import math
 import pytz
-from logging import getLogger
+import logging
 from json import dumps
 from datetime import datetime
 from boto.exception import BotoClientError, BotoServerError, AWSConnectionError
@@ -19,7 +19,7 @@ from sb_tags.neo_models import TagRelevanceModel
 
 from .decorators import apply_defense
 
-logger = getLogger('loggly_logs')
+logger = logging.getLogger('loggly_logs')
 
 
 def get_current_time():
@@ -93,6 +93,8 @@ class VotableContent(NotificationCapable):
                               model=PostedOnRel)
     votes = RelationshipFrom('plebs.neo_models.Pleb', 'PLEB_VOTES',
                              model=VoteRelationship)
+    last_votes = RelationshipTo('sb_votes.neo_models.Vote', 'LAST_VOTES')
+    first_votes = RelationshipTo('sb_votes.neo_models.Vote', 'FIRST_VOTES')
     # counsel_vote = RelationshipTo('sb_council.neo_models.SBCounselVote',
     #                              'VOTE')
     # views = RelationshipTo('sb_views.neo_models.SBView', 'VIEWS')
@@ -225,6 +227,17 @@ class VotableContent(NotificationCapable):
             "pos_rep": pos_rep,
             "neg_rep": neg_rep,
         }
+
+    def get_last_user_vote(self, username):
+        from sb_votes.neo_models import Vote
+        query = 'MATCH (a:VotableContent {object_uuid:"%s"})-[:LAST_VOTES]->' \
+                '(v:Vote)-[:MADE_VOTE]->(p:Pleb {username:"%s"}) RETURN v' % \
+                (self.object_uuid, username)
+        res, _ = db.cypher_query(query)
+        vote = res.one
+        if vote:
+            return Vote.inflate(vote)
+        return vote
 
 
 class SBContent(VotableContent):

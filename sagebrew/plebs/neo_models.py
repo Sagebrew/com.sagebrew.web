@@ -573,9 +573,6 @@ class Pleb(Searchable):
 
     @property
     def reputation_change(self):
-        # TODO look into saving off the last voted on piece of content's
-        # uuid then querying from there based on the votes, this could
-        # save us from having to start the query from the timetreeroot
         query = 'MATCH (last_counted:Vote {object_uuid:"%s"})-' \
                 '[:CREATED_ON]->(s:Second) WITH s, last_counted MATCH ' \
                 '(s)-[:NEXT*]->(s2:Second)<-[:CREATED_ON]-(v:Vote)<-' \

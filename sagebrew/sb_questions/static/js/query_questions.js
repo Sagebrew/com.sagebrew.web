@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    $(".sb_border_question").spin("small");
+    $(".sb_border_question").append('<div class="loader" id="question-loader"></div>');
     function loadQuestionSummaries(url) {
         $.ajax({
             xhrFields: {withCredentials: true},
@@ -8,7 +8,7 @@ $(document).ready(function () {
             contentType: "application/json; charset=utf-8",
             dataType: "json",
             success: function (data) {
-                $(".sb_border_question").spin(false);
+                $("#question-loader").remove();
                 $("#question_wrapper").append(data.results.html);
                 if (data.next !== null) {
                     loadQuestionSummaries(data.next);
@@ -32,7 +32,10 @@ $(document).ready(function () {
         if (taggedAs === undefined) {
             taggedAs = "";
         }
-        $(".sb_border_question").spin('small');
+        var questionWrapper = $("#question_wrapper");
+        $("#js-no_result").hide();
+        questionWrapper.empty();
+        questionWrapper.append('<div class="loader" id="question-loader"></div>');
         $.ajax({
             xhrFields: {withCredentials: true},
             type: "GET",
@@ -41,7 +44,7 @@ $(document).ready(function () {
             dataType: "json",
             success: function (data) {
                 var questionWrapper = $("#question_wrapper");
-                $(".sb_border_question").spin(false);
+                $("#question-loader").remove();
                 questionWrapper.empty();
                 questionWrapper.append(data.results.html);
                 if (data.next !== null) {

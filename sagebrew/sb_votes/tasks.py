@@ -27,7 +27,7 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
 
     :param vote_type:
     :param current_pleb:
-    :param sb_object:
+    :param object_uuid:
     :return:
     """
     try:
@@ -137,7 +137,7 @@ def object_vote_notifications(object_uuid, previous_vote_type, new_vote_type,
 
 @shared_task()
 def create_vote_node(node_id, vote_type, voter, parent_object):
-    '''
+    """
     Creates a vote node that we can use to track reputation changes over time
     for users.
     This node is hooked up to the object that has been voted on and the
@@ -150,20 +150,18 @@ def create_vote_node(node_id, vote_type, voter, parent_object):
     :param voter:
     :param parent_object:
     :return:
-    '''
+    """
     sb_object = get_parent_votable_content(parent_object)
     try:
         current_pleb = Pleb.get(username=voter)
     except (DoesNotExist, Pleb.DoesNotExist, CypherException, ClientError,
             IOError) as e:
-        raise object_vote_notifications.retry(exc=e, countdown=10,
-                                              max_retries=None)
+        raise create_vote_node.retry(exc=e, countdown=10, max_retries=None)
     try:
         owner = Pleb.get(username=sb_object.owner_username)
     except (DoesNotExist, Pleb.DoesNotExist, CypherException, ClientError,
             IOError) as e:
-        raise object_vote_notifications.retry(exc=e, countdown=10,
-                                              max_retries=None)
+        raise create_vote_node.retry(exc=e, countdown=10, max_retries=None)
     last_vote = sb_object.get_last_user_vote(current_pleb.username)
     if sb_object.visibility == 'public':
         if vote_type == 1:

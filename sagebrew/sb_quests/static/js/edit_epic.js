@@ -37,13 +37,14 @@ $(document).ready(function () {
                                     dataType: "json",
                                     data: formdata,
                                     success: function (data) {
-                                        callback(data.url);
                                         $(".modal-footer").spin(false);
                                         $("#upload_image").val("");
                                         $("#fileModal").modal('hide');
+                                        callback(data.url);
                                     },
                                     error: function (XMLHttpRequest) {
                                         errorDisplay(XMLHttpRequest);
+                                        callback(null);
                                     }
                                 });
                             } else {

@@ -31,9 +31,7 @@ export function init () {
             else {
                 url = base_url;
             }
-
             return request.get({url:url});
-
         },
         renderCallback: function($container, data) {
             for (var i = 0; i < data.results.length; i++) {

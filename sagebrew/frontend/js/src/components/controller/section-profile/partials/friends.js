@@ -30,14 +30,13 @@ export function init() {
             else {
                 url = base_url;
             }
-
             return request.get({url:url});
 
         },
         renderCallback: function($container, data) {
-            $.each(data.results, function (i, l) {
-                $container.append(l);
-            });
+            for (var i = 0; i < data.results.length; i++) {
+                $container.append(data.results[i]);
+            }
         }
     });
 

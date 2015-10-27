@@ -35,9 +35,9 @@ export function init() {
 
         },
         renderCallback: function($container, data) {
-            $.each(data.results, function (i, l) {
-                $container.append(l);
-            });
+            for (var i = 0; i < data.results.length; i++) {
+                $container.append(data.results[i]);
+            }
         }
     });
 

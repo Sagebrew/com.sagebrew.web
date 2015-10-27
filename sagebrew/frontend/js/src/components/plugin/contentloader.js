@@ -69,8 +69,6 @@
          * Init Without Content
          */
         base.initWithoutContent = function() {
-                            console.log("wtf");
-
             if (!isInited) {
                 //
                 // Insert List Container. I'm not sure if we should do this.

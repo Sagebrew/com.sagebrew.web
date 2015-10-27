@@ -5,7 +5,8 @@ from json import dumps
 from datetime import datetime
 from boto.exception import BotoClientError, BotoServerError, AWSConnectionError
 from boto.dynamodb2.exceptions import ProvisionedThroughputExceededException
-from py2neo.cypher.error.statement import ConstraintViolation, ClientError
+from py2neo.cypher.error.statement import (ConstraintViolation, ClientError,
+                                           EntityNotFound)
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
@@ -104,7 +105,10 @@ class VotableContent(NotificationCapable):
         try:
             try:
                 if pleb in self.votes:
-                    rel = self.votes.relationship(pleb)
+                    try:
+                        rel = self.votes.relationship(pleb)
+                    except EntityNotFound:
+                        rel = self.votes.connect(pleb)
                 else:
                     rel = self.votes.connect(pleb)
             except(CardinalityViolation, ConstraintViolation):

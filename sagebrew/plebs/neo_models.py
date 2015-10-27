@@ -170,11 +170,11 @@ class Pleb(Searchable):
     stripe_customer_id = StringProperty()
     # last_counted_vote_node is the node we want to query on to get
     # reputation change over time
-    last_counted_vote_node = StringProperty()
+    last_counted_vote_node = StringProperty(default=None)
     # vote_from_last_refresh is what gets stored every time a user
     # refreshes their page, allows us to easily swap it with
     # last_counted_vote_node when they check their reputation
-    vote_from_last_refresh = StringProperty()
+    vote_from_last_refresh = StringProperty(default=None)
 
     # Relationships
     privileges = RelationshipTo('sb_privileges.neo_models.Privilege', 'HAS',

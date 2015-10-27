@@ -1,21 +1,22 @@
 {% load staticfiles %}
-# How do I start a public conversation? #
+# How do I start a conversation? #
 To start a public conversation, navigate to the 
-Conversation by clicking the 
-<img src="{% static 'media/conversation.svg' %}" alt="conversation" 
+Conversation Cloud by clicking the 
+<img src="{% static 'media/convo_cloud.svg' %}" alt="conversation" 
 style="width: 20px; background: #838c92; padding-bottom:5px;"/> in the 
-navigation bar. Once you're in the Conversation you'll want to look 
-around and see if a Conversation is already being had regarding the topic you 
+navigation bar. Once you're in the Conversation Cloud you'll want to look 
+around and see if a conversation is already being had regarding the topic you 
 have a Question on. If there isn't click the "Start a Conversation" button.
 You will be taken to a page where you can enter your Question and the 
 [Context][3] for it. There are two sections for you to enter information, 
-the "Question title" space is for the actual Question you are posing. 
+the "Question Title" space is for the actual Question you are posing. 
 The "Question Context" space is where you will 
 provide relevant information that you've [researched][1] that provides background 
 to your Question. Check out the [Participate in the Conversation][2] article for
 best practices and more information.
 
-After you click "Submit" your question will go public in the Conversation and you will receive notifications whenever someone poses a Solution or 
+After you click "Submit" your question will go public in the Conversation Cloud
+and you will receive notifications whenever someone poses a Solution or 
 a Comment is added to your Question.
 
 Welcome to the brew! 

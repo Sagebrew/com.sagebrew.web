@@ -50,6 +50,10 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
 
     previous_vote_node = sb_object.get_last_user_vote(current_pleb.username)
     previous_vote = 2
+    # set previous_vote to 2 here to ensure that a vote notification gets
+    # spawned off, previous_vote will change if there is a previous_vote_node
+    # but we have this here to make sure that even if there isn't a previous
+    # node a notification will get created.
     if previous_vote_node:
         previous_vote = int(previous_vote_node.vote_type)
 
@@ -62,7 +66,7 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
                      })
     if isinstance(res, Exception):
         raise vote_object_task.retry(exc=res, countdown=10, max_retries=None)
-    if previous_vote != vote_type and previous_vote != 2:
+    if previous_vote != vote_type and vote_type != 2:
         res = spawn_task(task_func=create_vote_node,
                          task_param={
                              "node_id": str(uuid1()),
@@ -120,18 +124,19 @@ def object_vote_notifications(object_uuid, previous_vote_type, new_vote_type,
                                                     smart_truncate(
                                                         truncate_content))
             public = True
-        res = spawn_task(spawn_notifications, task_param={
-            'from_pleb': current_pleb.username,
-            'to_plebs': [sb_object.owner_username],
-            'sb_object': sb_object.object_uuid,
-            'notification_id': str(uuid1()),
-            'url': sb_object.url,
-            'action_name': action_name,
-            'public': public
-        })
-        if isinstance(res, Exception):
-            raise object_vote_notifications.retry(exc=res, countdown=10,
-                                                  max_retries=None)
+        if previous_vote_type != new_vote_type and new_vote_type != 2:
+            res = spawn_task(spawn_notifications, task_param={
+                'from_pleb': current_pleb.username,
+                'to_plebs': [sb_object.owner_username],
+                'sb_object': sb_object.object_uuid,
+                'notification_id': str(uuid1()),
+                'url': sb_object.url,
+                'action_name': action_name,
+                'public': public
+            })
+            if isinstance(res, Exception):
+                raise object_vote_notifications.retry(exc=res, countdown=10,
+                                                      max_retries=None)
     return True
 
 
@@ -184,7 +189,7 @@ def create_vote_node(node_id, vote_type, voter, parent_object):
         sb_object.last_votes.connect(vote_node)
     vote_node.vote_on.connect(sb_object)
     vote_node.owned_by.connect(current_pleb)
-    if owner.last_counted_vote_node is None:
+    if not owner.last_counted_vote_node:
         owner.last_counted_vote_node = node_id
     owner.reputation_update_seen = False
     owner.save()

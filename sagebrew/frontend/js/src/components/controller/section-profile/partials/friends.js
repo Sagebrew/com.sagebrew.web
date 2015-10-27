@@ -30,7 +30,6 @@ export function init() {
             else {
                 url = base_url;
             }
-
             return request.get({url:url});
 
         },

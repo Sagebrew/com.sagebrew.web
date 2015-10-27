@@ -8,7 +8,7 @@ due to spam.
 
 If multiple pieces of content are labeled as spam in this way, your 
 account will be suspended from adding additional contributions to the 
-Conversation.
+Conversation Cloud.
 
 [1]: /help/conversation/deletions/
 [2]: /help/policies/do_not_spam/

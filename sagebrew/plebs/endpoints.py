@@ -16,7 +16,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.generics import (RetrieveUpdateDestroyAPIView, mixins)
 
 from neomodel import db
@@ -150,7 +149,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
     lookup_field = "username"
     queryset = Pleb.nodes.all()
     permission_classes = (IsAuthenticated, IsSelfOrReadOnly)
-    pagination_class = LimitOffsetPagination
 
     def get_object(self):
         return Pleb.get(self.kwargs[self.lookup_field])
@@ -235,9 +233,11 @@ class ProfileViewSet(viewsets.ModelViewSet):
         # /v1/friends/ to /v1/friends/username/ to your method rather than
         # /v1/profiles/username/friends/ to /v1/profiles/username/ to your
         # method. But maybe we make both available.
+        # Added in the ORDER BY to ensure order for the infinite scroll
+        # loading on a users friend list page
         query = 'MATCH (a:Pleb {username: "%s"})-' \
                 '[:FRIENDS_WITH {currently_friends: true}]->' \
-                '(b:Pleb) RETURN DISTINCT b' % username
+                '(b:Pleb) RETURN DISTINCT b ORDER BY b.first_name' % username
         res, col = db.cypher_query(query)
         [row[0].pull() for row in res]
         queryset = [Pleb.inflate(row[0]) for row in res]

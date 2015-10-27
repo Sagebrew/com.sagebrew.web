@@ -50,6 +50,10 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
 
     previous_vote_node = sb_object.get_last_user_vote(current_pleb.username)
     previous_vote = 2
+    # set previous_vote to 2 here to ensure that a vote notification gets
+    # spawned off, previous_vote will change if there is a previous_vote_node
+    # but we have this here to make sure that even if there isn't a previous
+    # node a notification will get created.
     if previous_vote_node:
         previous_vote = int(previous_vote_node.vote_type)
 

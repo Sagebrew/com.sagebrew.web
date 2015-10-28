@@ -439,7 +439,7 @@ class Pleb(Searchable):
         from sb_base.neo_models import VotableContent
         query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(' \
                 'b:VotableContent) WHERE b.visibility = "public" RETURN b' \
-                '' % (self.username)
+                '' % self.username
         res, col = db.cypher_query(query)
 
         return [VotableContent.inflate(row[0]) for row in res]
@@ -573,6 +573,7 @@ class Pleb(Searchable):
 
     @property
     def reputation_change(self):
+        """
         query = 'MATCH (last_counted:Vote {object_uuid:"%s"})-' \
                 '[:CREATED_ON]->(s:Second) WITH s, last_counted MATCH ' \
                 '(s)-[:NEXT*]->(s2:Second)<-[:CREATED_ON]-(v:Vote)<-' \
@@ -586,10 +587,14 @@ class Pleb(Searchable):
             return 0
         reputation_change = res[0].rep_change
         last_seen = res[0].last_created
+        """
+        reputation_change = 0
+        last_seen = None
         if last_seen != self.vote_from_last_refresh:
-            self.vote_from_last_refresh = res[0].last_created
-            self.save()
-            cache.set(self.username, self)
+            # self.vote_from_last_refresh = res[0].last_created
+            # self.save()
+            # cache.set(self.username, self)
+            pass
         if reputation_change >= 1000 or reputation_change <= -1000:
             return "%dk" % (int(reputation_change / 1000.0))
         return reputation_change

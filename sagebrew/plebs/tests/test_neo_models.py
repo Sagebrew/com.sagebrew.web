@@ -2,6 +2,7 @@ import time
 
 from django.test.testcases import TestCase
 from django.contrib.auth.models import User
+from django.core.cache import cache
 
 from neomodel import DoesNotExist, MultipleNodesReturned, db
 
@@ -92,6 +93,7 @@ class TestPleb(TestCase):
         self.assertTrue(self.pleb.get_sagebrew_donations())
 
     def test_get_reputation_change_over_time(self):
+        cache.clear()
         comment = Comment(content="some arbitrary test comment",
                           owner_username=self.pleb.username).save()
         comment.owned_by.connect(self.pleb)
@@ -108,6 +110,7 @@ class TestPleb(TestCase):
         self.assertEqual(res, 2)
 
     def test_get_reputation_change_no_change(self):
+        cache.clear()
         comment = Comment(content="some arbitrary test comment",
                           owner_username=self.pleb.username).save()
         comment.owned_by.connect(self.pleb)
@@ -120,6 +123,7 @@ class TestPleb(TestCase):
         self.assertEqual(res, 0)
 
     def test_reputation_change_over_1000(self):
+        cache.clear()
         comment = Comment(content="some arbitrary test comment",
                           owner_username=self.pleb.username).save()
         comment.owned_by.connect(self.pleb)
@@ -136,6 +140,7 @@ class TestPleb(TestCase):
         self.assertEqual(res, "1k")
 
     def test_reputation_change_under_1000(self):
+        cache.clear()
         comment = Comment(content="some arbitrary test comment",
                           owner_username=self.pleb.username).save()
         comment.owned_by.connect(self.pleb)
@@ -152,6 +157,7 @@ class TestPleb(TestCase):
         self.assertEqual(res, "-1k")
 
     def test_reputation_change_no_nodes(self):
+        cache.clear()
         for vote in Vote.nodes.all():
             vote.delete()
         res = self.pleb.reputation_change

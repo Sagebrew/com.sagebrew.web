@@ -587,11 +587,14 @@ class Pleb(Searchable):
             res, _ = db.cypher_query(query)
             if not res:
                 return 0
-            cache.set("%s_reputation_change" % self.username, res[0])
-        reputation_change = res[0].rep_change
-        last_seen = res[0].last_created
+            # Have to cast to dict because pickle cannot handle the object
+            # returned from cypher_query
+            res = res[0].__dict__
+            cache.set("%s_reputation_change" % self.username, res)
+        reputation_change = res['rep_change']
+        last_seen = res['last_created']
         if last_seen != self.vote_from_last_refresh:
-            self.vote_from_last_refresh = res[0].last_created
+            self.vote_from_last_refresh = res['last_created']
             self.save()
             cache.set(self.username, self)
         if reputation_change >= 1000 or reputation_change <= -1000:

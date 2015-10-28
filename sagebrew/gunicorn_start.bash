@@ -29,4 +29,5 @@ exec newrelic-admin run-program gunicorn ${DJANGO_WSGI_MODULE}:application \
   --workers $NUM_WORKERS \
   --user=$USER --group=$GROUP \
   --log-level error \
-  --bind=unix:$SOCKFILE
+  --bind=unix:$SOCKFILE \
+  --timeout=60

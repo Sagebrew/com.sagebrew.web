@@ -195,5 +195,5 @@ def create_vote_node(node_id, vote_type, voter, parent_object):
     owner.save()
     cache.set(owner.username, owner)
     # See reputation_change method on pleb for where this is set
-    cache.delete("%s_reputation_change" % owner.username)
+    cache.delete("%s_reputation_change" % sb_object.owner_username)
     return True

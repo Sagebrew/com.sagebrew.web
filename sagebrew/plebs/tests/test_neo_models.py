@@ -163,6 +163,27 @@ class TestPleb(TestCase):
         res = self.pleb.reputation_change
         self.assertEqual(res, 0)
 
+    def test_reputation_change_under_1000_cache(self):
+        cache.clear()
+        comment = Comment(content="some arbitrary test comment",
+                          owner_username=self.pleb.username).save()
+        comment.owned_by.connect(self.pleb)
+        self.pleb.comments.connect(comment)
+        old_vote = Vote(vote_type=1, reputation_change=5).save()
+        self.pleb.last_counted_vote_node = old_vote.object_uuid
+        self.pleb.save()
+        time.sleep(1)  # ensure vote gets connected to later second
+        vote = Vote(vote_type=1, reputation_change=-1001).save()
+        comment.last_votes.connect(vote)
+        comment.first_votes.connect(vote)
+        vote.vote_on.connect(comment)
+        res = self.pleb.reputation_change
+        self.assertEqual(res, "-1k")
+        res = self.pleb.reputation_change
+        self.assertEqual(res, "-1k")
+        self.assertEqual(cache.get('%s_reputation_change')['rep_change'] %
+                         self.pleb.username, "-1k")
+
 
 class TestAddress(TestCase):
     def setUp(self):

@@ -591,9 +591,9 @@ class Pleb(Searchable):
         reputation_change = 0
         last_seen = None
         if last_seen != self.vote_from_last_refresh:
-            #self.vote_from_last_refresh = res[0].last_created
-            #self.save()
-            #cache.set(self.username, self)
+            # self.vote_from_last_refresh = res[0].last_created
+            # self.save()
+            # cache.set(self.username, self)
             pass
         if reputation_change >= 1000 or reputation_change <= -1000:
             return "%dk" % (int(reputation_change / 1000.0))

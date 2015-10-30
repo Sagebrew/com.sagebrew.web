@@ -98,7 +98,8 @@
          */
         base.loadMoreContent = function() {
             //Do we even have more data to get?
-            if (totalItems > (currentPage * ItemsPerPage)) {
+            //Subtract one to fix not loading the last page of data from api
+            if (totalItems > ((currentPage - 1) * ItemsPerPage)) {
                 $loadMore.text("Please wait, loading more items").addClass("currently-loading");
                 base.getData().done(function(data) {
                     currentPage++;

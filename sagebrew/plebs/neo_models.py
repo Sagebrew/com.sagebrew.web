@@ -439,7 +439,7 @@ class Pleb(Searchable):
         from sb_base.neo_models import VotableContent
         query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(' \
                 'b:VotableContent) WHERE b.visibility = "public" RETURN b' \
-                '' % (self.username)
+                '' % self.username
         res, col = db.cypher_query(query)
 
         return [VotableContent.inflate(row[0]) for row in res]
@@ -573,21 +573,28 @@ class Pleb(Searchable):
 
     @property
     def reputation_change(self):
-        query = 'MATCH (last_counted:Vote {object_uuid:"%s"})-' \
-                '[:CREATED_ON]->(s:Second) WITH s, last_counted MATCH ' \
-                '(s)-[:NEXT*]->(s2:Second)<-[:CREATED_ON]-(v:Vote)<-' \
-                '[:LAST_VOTES]-(content:VotableContent)-[:OWNED_BY]->(p:Pleb ' \
-                '{username:"%s"}) WITH v ORDER BY v.created DESC ' \
-                'RETURN sum(v.reputation_change) ' \
-                'as rep_change, collect(v.object_uuid)[0] as last_created' \
-                % (self.last_counted_vote_node, self.username)
-        res, _ = db.cypher_query(query)
-        if not res:
-            return 0
-        reputation_change = res[0].rep_change
-        last_seen = res[0].last_created
+        # See create_vote_node task in sb_votes tasks for where this is deleted
+        res = cache.get("%s_reputation_change" % self.username)
+        if res is None:
+            query = 'MATCH (last_counted:Vote {object_uuid:"%s"})-' \
+                    '[:CREATED_ON]->(s:Second) WITH s, last_counted MATCH ' \
+                    '(s)-[:NEXT*]->(s2:Second)<-[:CREATED_ON]-(v:Vote)<-' \
+                    '[:LAST_VOTES]-(content:VotableContent)-[:OWNED_BY]->' \
+                    '(p:Pleb {username:"%s"}) WITH v ORDER BY v.created DESC ' \
+                    'RETURN sum(v.reputation_change) ' \
+                    'as rep_change, collect(v.object_uuid)[0] as last_created' \
+                    % (self.last_counted_vote_node, self.username)
+            res, _ = db.cypher_query(query)
+            if not res:
+                return 0
+            # Have to cast to dict because pickle cannot handle the object
+            # returned from cypher_query
+            res = res[0].__dict__
+            cache.set("%s_reputation_change" % self.username, res)
+        reputation_change = res['rep_change']
+        last_seen = res['last_created']
         if last_seen != self.vote_from_last_refresh:
-            self.vote_from_last_refresh = res[0].last_created
+            self.vote_from_last_refresh = res['last_created']
             self.save()
             cache.set(self.username, self)
         if reputation_change >= 1000 or reputation_change <= -1000:

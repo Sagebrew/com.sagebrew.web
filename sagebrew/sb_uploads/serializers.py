@@ -24,8 +24,7 @@ class MediaType:
                        'PNG']
         if (value not in allowed_ext):
             message = 'You have provided an invalid file type. ' \
-                      'The valid file types are: %s' % (', '.join(allowed_ext))
-
+                      'The valid file types are gif, jpeg, jpg, and png'
             raise serializers.ValidationError(message)
         return value
 

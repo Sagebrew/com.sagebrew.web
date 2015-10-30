@@ -932,8 +932,11 @@ function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
                 notification = [];
             }
         }
+        console.log(notification);
         for (var badItem in notification) {
+            console.log(badItem);
             for (var message in notification[badItem]) {
+                console.log(message);
                 if (typeof(notification[badItem]) === 'object'){
                     reportMsg = notification[badItem][message].message;
                 } else {

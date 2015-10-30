@@ -44,6 +44,9 @@ $(document).ready(function () {
                                         $("#fileModal").modal('hide');
                                     },
                                     error: function (XMLHttpRequest) {
+                                        callback(null);
+                                        $(".modal-footer").spin(false);
+                                        $("#fileModal").modal('hide');
                                         errorDisplay(XMLHttpRequest);
                                     }
                                 });

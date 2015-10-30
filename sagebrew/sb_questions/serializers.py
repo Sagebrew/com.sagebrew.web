@@ -147,9 +147,10 @@ class QuestionSerializerNeo(TitledContentSerializer):
         question.owned_by.connect(owner)
         owner.questions.connect(question)
         for tag in tags:
-            try:
-                tag_obj = Tag.nodes.get(name=tag.lower())
-            except(Tag.DoesNotExist, DoesNotExist):
+            query = 'MATCH (t:Tag {name:"%s"}) WHERE NOT t:AutoTag ' \
+                    'RETURN t' % tag.lower()
+            res, _ = db.cypher_query(query)
+            if not res.one:
                 if settings.DEBUG is True:
                     # TODO this is only here because we don't have a stable
                     # setup for ES and initial tags. Once @matt finishes up
@@ -160,8 +161,8 @@ class QuestionSerializerNeo(TitledContentSerializer):
                         tag_obj = Tag(name=tag.lower()).save()
                     else:
                         continue
-                else:
-                    continue
+            else:
+                tag_obj = Tag.inflate(res.one)
             question.tags.connect(tag_obj)
         spawn_task(task_func=update_tags, task_param={"tags": tags})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={

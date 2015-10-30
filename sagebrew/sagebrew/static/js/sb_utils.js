@@ -533,7 +533,6 @@ function editObject(editArea, url, objectUuid, dataArea) {
                     var contentContainer = $("#sb_content_" + objectUuid);
                     contentContainer.html(Autolinker.link(data.content).replace(/\n/g, "<br/>"));
                     if ("uploaded_objects" in data && data.uploaded_objects.length > 0) {
-                        console.log('everywhere');
                         if (data.first_url_content && data.uploaded_objects[0].created < data.first_url_content.created) {
                             contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
                             var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");

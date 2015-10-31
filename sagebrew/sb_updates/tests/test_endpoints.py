@@ -8,7 +8,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
-from sb_goals.neo_models import Goal, Round
 from sb_registration.utils import create_user_util_test
 from sb_quests.neo_models import PoliticalCampaign
 from sb_updates.neo_models import Update

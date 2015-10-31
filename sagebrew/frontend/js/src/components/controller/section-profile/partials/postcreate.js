@@ -80,6 +80,7 @@ export function init () {
             $input = $("#post_input_id", $(this));
 
         $("button", $form).prop("disabled", true);
+        $("#sb_btn_post").append($('<div class="loader post-loader"></div>'));
 
         var parsedText = content.expandContent($input.val()),
             images,
@@ -113,6 +114,7 @@ export function init () {
                 }
             }).always(function () {
                 $("button", $form).prop("disabled", false);
+                $(".loader").remove();
                 $("button", $form).removeClass("disabled");
             });
         });

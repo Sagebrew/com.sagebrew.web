@@ -1414,6 +1414,22 @@ class CampaignEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+class QuestUpdateTests(APITestCase):
+    def setUp(self):
+        self.unit_under_test_name = 'position'
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.url = "http://testserver"
+        self.campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username).save()
+
+    def test_create(self):
+        url = reverse('update_list',
+                      kwargs={"object_uuid": self.campaign.object_uuid})
+
+
 class PositionEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'position'

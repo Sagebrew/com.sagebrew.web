@@ -8,6 +8,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
+from sb_goals.neo_models import Goal, Round
 from sb_registration.utils import create_user_util_test
 from sb_quests.neo_models import PoliticalCampaign
 from sb_updates.neo_models import Update
@@ -36,8 +37,13 @@ class UpdateEndpointsTest(APITestCase):
         self.update.campaign.connect(self.campaign)
         self.campaign.updates.connect(self.update)
         self.pleb.campaign.connect(self.campaign)
-
         self.update.owned_by.connect(self.pleb)
+        self.active_round = Round().save()
+        self.goal = Goal().save()
+        self.campaign.active_round.connect(self.active_round)
+        self.active_round.campaign.connect(self.campaign)
+        self.active_round.goals.connect(self.goal)
+        self.goal.associated_round.connect(self.active_round)
 
     def test_unauthorized(self):
         url = reverse('update-detail',

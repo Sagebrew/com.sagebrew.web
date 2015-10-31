@@ -161,7 +161,7 @@ export function init () {
         jsImageWrapper.show();
         postInput.css('margin-bottom', jsImageWrapper.css('height'));
         buttonSelector.prop('disabled', true);
-        jsImageWrapper.spin('small');
+        jsImageWrapper.append($('<div class="loader post-image-loader"></div>'));
         if (files.length > 1) {
             postImageButtom.prop('disabled', true);
             var formdata = new FormData(),
@@ -181,7 +181,7 @@ export function init () {
                     if (!postInput.val()) {
                         postInput.val(" ");
                     }
-                    jsImageWrapper.spin(false);
+                    jsImageWrapper.remove(".loader");
                     jsImageWrapper.empty();
                     buttonSelector.prop('disabled', false);
                     jsImageWrapper = $("#js-image-wrapper");
@@ -206,6 +206,7 @@ export function init () {
                     });
                 },
                 error: function (XMLHttpRequest) {
+                    jsImageWrapper.remove(".loader");
                     errorDisplay(XMLHttpRequest);
                 }
             });

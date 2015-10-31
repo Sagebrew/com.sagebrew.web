@@ -10,7 +10,7 @@ from django.utils.text import slugify
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel import db, DoesNotExist
+from neomodel import db
 
 from api.utils import spawn_task, gather_request_data
 from sb_base.serializers import TitledContentSerializer
@@ -147,9 +147,10 @@ class QuestionSerializerNeo(TitledContentSerializer):
         question.owned_by.connect(owner)
         owner.questions.connect(question)
         for tag in tags:
-            try:
-                tag_obj = Tag.nodes.get(name=tag.lower())
-            except(Tag.DoesNotExist, DoesNotExist):
+            query = 'MATCH (t:Tag {name:"%s"}) WHERE NOT t:AutoTag ' \
+                    'RETURN t' % tag.lower()
+            res, _ = db.cypher_query(query)
+            if not res.one:
                 if settings.DEBUG is True:
                     # TODO this is only here because we don't have a stable
                     # setup for ES and initial tags. Once @matt finishes up
@@ -158,11 +159,12 @@ class QuestionSerializerNeo(TitledContentSerializer):
                     if (request.user.username == "devon_bleibtrey" or
                             request.user.username == "tyler_wiersing"):
                         tag_obj = Tag(name=tag.lower()).save()
+                        question.tags.connect(tag_obj)
                     else:
                         continue
-                else:
-                    continue
-            question.tags.connect(tag_obj)
+            else:
+                tag_obj = Tag.inflate(res.one)
+                question.tags.connect(tag_obj)
         spawn_task(task_func=update_tags, task_param={"tags": tags})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": question.object_uuid})

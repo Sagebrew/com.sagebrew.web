@@ -80,6 +80,7 @@ export function init () {
             $input = $("#post_input_id", $(this));
 
         $("button", $form).prop("disabled", true);
+        $("#sb_btn_post").append($('<div class="loader post-loader"></div>'));
 
         var parsedText = content.expandContent($input.val()),
             images,
@@ -113,6 +114,7 @@ export function init () {
                 }
             }).always(function () {
                 $("button", $form).prop("disabled", false);
+                $(".loader").remove();
                 $("button", $form).removeClass("disabled");
             });
         });
@@ -159,7 +161,7 @@ export function init () {
         jsImageWrapper.show();
         postInput.css('margin-bottom', jsImageWrapper.css('height'));
         buttonSelector.prop('disabled', true);
-        jsImageWrapper.spin('small');
+        jsImageWrapper.append($('<div class="loader post-image-loader"></div>'));
         if (files.length > 1) {
             postImageButtom.prop('disabled', true);
             var formdata = new FormData(),
@@ -179,7 +181,7 @@ export function init () {
                     if (!postInput.val()) {
                         postInput.val(" ");
                     }
-                    jsImageWrapper.spin(false);
+                    jsImageWrapper.remove(".loader");
                     jsImageWrapper.empty();
                     buttonSelector.prop('disabled', false);
                     jsImageWrapper = $("#js-image-wrapper");
@@ -204,6 +206,7 @@ export function init () {
                     });
                 },
                 error: function (XMLHttpRequest) {
+                    jsImageWrapper.remove(".loader");
                     errorDisplay(XMLHttpRequest);
                 }
             });

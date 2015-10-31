@@ -1424,6 +1424,10 @@ class QuestUpdateTests(APITestCase):
         self.url = "http://testserver"
         self.campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username).save()
+        self.campaign.owned_by.connect(self.pleb)
+        self.campaign.editors.connect(self.pleb)
+        self.campaign.accountants.connect(self.pleb)
+        self.pleb.campaign.connect(self.campaign)
         self.active_round = Round().save()
         self.goal = Goal(title="This is my test goal").save()
         self.campaign.active_round.connect(self.active_round)
@@ -1433,7 +1437,7 @@ class QuestUpdateTests(APITestCase):
 
     def test_create(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('update_list',
+        url = reverse('update-list',
                       kwargs={"object_uuid": self.campaign.object_uuid})
         data = {
             "campaign": self.campaign.object_uuid,
@@ -1443,6 +1447,42 @@ class QuestUpdateTests(APITestCase):
         }
         response = self.client.post(url, data=data, format='json')
         print response
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_multiple_goals(self):
+        self.client.force_authenticate(user=self.user)
+        goal2 = Goal(title='This is another test goal').save()
+        self.active_round.goals.connect(goal2)
+        goal2.associated_round.connect(self.active_round)
+        url = reverse('update-list',
+                      kwargs={"object_uuid": self.campaign.object_uuid})
+        data = {
+            "campaign": self.campaign.object_uuid,
+            "associated_goals": [self.goal.title, goal2.title],
+            "title": "This is a test update",
+            "content": "I repeat, this is a test update"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_three_goals(self):
+        self.client.force_authenticate(user=self.user)
+        goal2 = Goal(title='This is another test goal').save()
+        self.active_round.goals.connect(goal2)
+        goal2.associated_round.connect(self.active_round)
+        goal3 = Goal(title='Yet another test goal').save()
+        self.active_round.goals.connect(goal3)
+        goal3.associated_round.connect(self.active_round)
+        url = reverse('update-list',
+                      kwargs={"object_uuid": self.campaign.object_uuid})
+        data = {
+            "campaign": self.campaign.object_uuid,
+            "associated_goals": [self.goal.title, goal2.title, goal3.title],
+            "title": "This is a test update",
+            "content": "I repeat, this is a test update"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class PositionEndpointTests(APITestCase):

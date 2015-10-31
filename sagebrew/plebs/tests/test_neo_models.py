@@ -1,12 +1,12 @@
-import time
+# import time
 
 from django.test.testcases import TestCase
 from django.contrib.auth.models import User
-from django.core.cache import cache
+# from django.core.cache import cache
 
 from neomodel import DoesNotExist, MultipleNodesReturned, db
 
-from sb_votes.neo_models import Vote
+# from sb_votes.neo_models import Vote
 from sb_comments.neo_models import Comment
 from sb_donations.neo_models import Donation
 from sb_questions.neo_models import Question
@@ -102,7 +102,7 @@ class TestPlebReputationChange(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    '''
+'''
     def test_get_reputation_change_over_time(self):
         cache.clear()
         comment = Comment(content="some arbitrary test comment",
@@ -119,7 +119,6 @@ class TestPlebReputationChange(TestCase):
         vote.vote_on.connect(comment)
         res = self.pleb.reputation_change
         self.assertEqual(res, 2)
-    '''
 
     def test_get_reputation_change_no_change(self):
         cache.clear()
@@ -195,6 +194,7 @@ class TestPlebReputationChange(TestCase):
         self.assertEqual(res, "-1k")
         self.assertEqual(cache.get(
             '%s_reputation_change' % self.pleb.username)['rep_change'], -1001)
+'''
 
 
 class TestAddress(TestCase):

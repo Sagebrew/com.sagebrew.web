@@ -29,6 +29,10 @@ $("textarea#update_content_id").pagedownBootstrap({
                                     },
                                     error: function (XMLHttpRequest) {
                                         errorDisplay(XMLHttpRequest);
+                                        callback(null);
+                                        $(".modal-footer").spin(false);
+                                        $("#upload_image").val("");
+                                        $("#fileModal").modal('hide');
                                     }
                                 });
                             } else {

@@ -45,6 +45,7 @@ $(document).ready(function () {
                                     error: function (XMLHttpRequest) {
                                         errorDisplay(XMLHttpRequest);
                                         callback(null);
+                                        $("#upload_image").val("");
                                         $(".modal-footer").spin(false);
                                         $("#fileModal").modal('hide');
                                     }

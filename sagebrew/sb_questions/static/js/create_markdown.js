@@ -47,6 +47,7 @@ $(document).ready(function () {
                                         callback(null);
                                         $(".modal-footer").spin(false);
                                         $("#fileModal").modal('hide');
+                                        $("#upload_image").val("");
                                         errorDisplay(XMLHttpRequest);
                                     }
                                 });

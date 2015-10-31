@@ -1,12 +1,12 @@
-# import time
+import time
 
 from django.test.testcases import TestCase
 from django.contrib.auth.models import User
-# from django.core.cache import cache
+from django.core.cache import cache
 
 from neomodel import DoesNotExist, MultipleNodesReturned, db
 
-# from sb_votes.neo_models import Vote
+from sb_votes.neo_models import Vote
 from sb_comments.neo_models import Comment
 from sb_donations.neo_models import Donation
 from sb_questions.neo_models import Question
@@ -91,7 +91,17 @@ class TestPleb(TestCase):
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
         self.assertTrue(self.pleb.get_sagebrew_donations())
-    '''
+
+
+class TestPlebReputationChange(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        self.username = res["username"]
+        self.assertNotEqual(res, False)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+
     def test_get_reputation_change_over_time(self):
         cache.clear()
         comment = Comment(content="some arbitrary test comment",
@@ -181,9 +191,8 @@ class TestPleb(TestCase):
         self.assertEqual(res, "-1k")
         res = self.pleb.reputation_change
         self.assertEqual(res, "-1k")
-        self.assertEqual(cache.get('%s_reputation_change')['rep_change'] %
-                         self.pleb.username, "-1k")
-    '''
+        self.assertEqual(cache.get(
+            '%s_reputation_change' % self.pleb.username)['rep_change'], -1001)
 
 
 class TestAddress(TestCase):

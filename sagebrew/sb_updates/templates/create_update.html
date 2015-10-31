@@ -70,7 +70,7 @@
                             {% endif %}
                         </div>
                         <div class="update_content_input">
-                            <textarea class="form-control"
+                            <textarea class="form-control markdown-input"
                                       id="update_content_id"
                                       name="content"
                                       cols="20"
@@ -123,8 +123,7 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'js/update_bootstrap.js' %}"></script>
-
+    <script src="{% static 'js/create_markdown.js' %}"></script>
     {% if not 'edit' in request.path %}
         <script src="{% static 'js/update_create_validator.js' %}"></script>
         <script src="{% static 'js/create_update.js' %}"></script>

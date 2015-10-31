@@ -1416,7 +1416,7 @@ class CampaignEndpointTests(APITestCase):
 
 class QuestUpdateTests(APITestCase):
     def setUp(self):
-        self.unit_under_test_name = 'position'
+        self.unit_under_test_name = 'updates'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -1424,10 +1424,25 @@ class QuestUpdateTests(APITestCase):
         self.url = "http://testserver"
         self.campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username).save()
+        self.active_round = Round().save()
+        self.goal = Goal(title="This is my test goal").save()
+        self.campaign.active_round.connect(self.active_round)
+        self.active_round.campaign.connect(self.campaign)
+        self.active_round.goals.connect(self.goal)
+        self.goal.associated_round.connect(self.active_round)
 
     def test_create(self):
+        self.client.force_authenticate(user=self.user)
         url = reverse('update_list',
                       kwargs={"object_uuid": self.campaign.object_uuid})
+        data = {
+            "campaign": self.campaign.object_uuid,
+            "associated_goals": [self.goal.title],
+            "title": "This is a test update",
+            "content": "I repeat, this is a test update"
+        }
+        response = self.client.post(url, data=data, format='json')
+        print response
 
 
 class PositionEndpointTests(APITestCase):

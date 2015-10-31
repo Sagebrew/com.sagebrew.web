@@ -38,12 +38,6 @@ class UpdateEndpointsTest(APITestCase):
         self.campaign.updates.connect(self.update)
         self.pleb.campaign.connect(self.campaign)
         self.update.owned_by.connect(self.pleb)
-        self.active_round = Round().save()
-        self.goal = Goal().save()
-        self.campaign.active_round.connect(self.active_round)
-        self.active_round.campaign.connect(self.campaign)
-        self.active_round.goals.connect(self.goal)
-        self.goal.associated_round.connect(self.active_round)
 
     def test_unauthorized(self):
         url = reverse('update-detail',

@@ -58,25 +58,29 @@
     <div class="col-lg-5 col-md-4 col-sm-12">
 
         <div align="right" class="block sb_channel_social row-fluid hidden-md hidden-sm hidden-xs">
-            {% if not facebook %}
-                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-facebook-square"></span></button>
+            {% if is_editor or is_accountant %}
+                <button class="btn btn-primary sb_btn" id="js-complete-setup">Complete Setup</button>
             {% else %}
-                <button onclick="location.href='http://facebook.com/{{ facebook }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-facebook"></span></button>
-            {% endif %}
-            {% if not linkedin %}
-                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-linkedin-square"></span></button>
-            {% else %}
-                <button onclick="location.href='http://linkedin.com/{{ linkedin }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-linkedin"></span></button>
-            {% endif %}
-            {% if not youtube %}
-                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-youtube-play"></span></button>
-            {% else %}
-                <button onclick="location.href='http://youtube.com/{{ youtube }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-youtube-play"></span></button>
-            {% endif %}
-            {% if not twitter %}
-                <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-twitter"></span></button>
-            {% else %}
-                <button onclick="location.href='http://twitter.com/{{ twitter }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-twitter"></span></button>
+                {% if not facebook %}
+                    <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-facebook-square"></span></button>
+                {% else %}
+                    <button onclick="location.href='http://facebook.com/{{ facebook }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-facebook"></span></button>
+                {% endif %}
+                {% if not linkedin %}
+                    <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-linkedin-square"></span></button>
+                {% else %}
+                    <button onclick="location.href='http://linkedin.com/{{ linkedin }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-linkedin"></span></button>
+                {% endif %}
+                {% if not youtube %}
+                    <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-youtube-play"></span></button>
+                {% else %}
+                    <button onclick="location.href='http://youtube.com/{{ youtube }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-youtube-play"></span></button>
+                {% endif %}
+                {% if not twitter %}
+                    <button class="btn btn-primary sb_btn_icon sb_btn_icon_green disabled"><span class="fa fa-twitter"></span></button>
+                {% else %}
+                    <button onclick="location.href='http://twitter.com/{{ twitter }}'" class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span class="fa fa-twitter"></span></button>
+                {% endif %}
             {% endif %}
         </div>
     </div>

@@ -61,7 +61,7 @@
     <div id="sb_comments_container_{{ object_uuid }}">
     </div>
     <div class="row">
-        {% if "comment" in request_profile.privileges and not is_closed or "beta_user" in request_profile.privileges and not is_closed %}
+        {% if "comment" in request_profile.privileges and not is_closed %}
             <form id="commentSubmitForm">
                 <div class="input-group sb_comment">
                         <textarea class="input-group form-control sb_comment_input"

@@ -73,7 +73,7 @@
         {% endcomment %}
     </div>
     <div class="row">
-        {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
+        {% if "comment" in request_profile.privileges %}
             <form id="commentSubmitForm">
             <div class="input-group sb_comment">
                     <textarea class="input-group form-control sb_comment_input"

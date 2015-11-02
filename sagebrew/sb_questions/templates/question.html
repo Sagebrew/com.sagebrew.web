@@ -139,7 +139,7 @@
 
     <div class="row">
         {% if not html_snapshot %}
-            {% if "comment" in request_profile.privileges and not is_closed and not request.user.is_anonymous or "beta_user" in request_profile.privileges and not is_closed and not request.user.is_anonymous %}
+            {% if "comment" in request_profile.privileges and not is_closed and not request.user.is_anonymous %}
                 <form id="commentSubmitForm">
                 <div class="input-group sb_comment">
                         <textarea class="input-group form-control sb_comment_input"

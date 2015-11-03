@@ -75,7 +75,8 @@ var paths = {
         '../sagebrew/static/images/*.png',
         '../sagebrew/static/images/*.gif',
         '../sagebrew/static/images/*.jpg',
-        '../sagebrew/static/media/*'
+        '../sagebrew/static/media/*',
+        'images/**'
 
     ]
 };

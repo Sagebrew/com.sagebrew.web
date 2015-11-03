@@ -4,7 +4,7 @@ from django.core.cache import cache
 from rest_framework.reverse import reverse
 
 from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
-                      FloatProperty, DoesNotExist, IntegerProperty)
+                      FloatProperty, DoesNotExist)
 
 from sb_base.neo_models import (VoteRelationship)
 from sb_search.neo_models import Searchable, SBObject
@@ -601,8 +601,6 @@ class Position(SBObject):
 
 
 class Seat(SBObject):
-    number = IntegerProperty()
-
     # relationships
     position = RelationshipTo("sb_quests.neo_models.Position", "POSITION")
     current_holder = RelationshipTo("sb_quests.neo_models.PoliticalCampaign",

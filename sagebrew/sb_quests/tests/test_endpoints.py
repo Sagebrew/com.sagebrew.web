@@ -552,6 +552,23 @@ class CampaignEndpointTests(APITestCase):
         position.delete()
         self.assertEqual(response.data['updates'], [])
 
+    def test_create_current_seat(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-list')
+        position = Position(name="Senator").save()
+        data = {
+            "biography": "this is a test bio",
+            "facebook": "fake facebook link",
+            "linkedin": "fake linkedin link",
+            "youtube": "fake youtube link",
+            "twitter": "fake twitter link",
+            "website": "fake campaign website",
+            "position": position.object_uuid
+        }
+        response = self.client.post(url, data=data, format='json')
+        position.delete()
+        self.assertEqual(response.data['current_seat'], None)
+
     def test_detail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-detail',

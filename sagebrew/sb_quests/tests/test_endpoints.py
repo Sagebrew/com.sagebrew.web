@@ -1414,6 +1414,88 @@ class CampaignEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
+class QuestUpdateTests(APITestCase):
+    def setUp(self):
+        self.unit_under_test_name = 'updates'
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.url = "http://testserver"
+        self.campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username).save()
+        self.campaign.owned_by.connect(self.pleb)
+        self.campaign.editors.connect(self.pleb)
+        self.campaign.accountants.connect(self.pleb)
+        self.pleb.campaign.connect(self.campaign)
+        self.active_round = Round().save()
+        self.goal = Goal(title="This is my test goal").save()
+        self.campaign.active_round.connect(self.active_round)
+        self.active_round.campaign.connect(self.campaign)
+        self.active_round.goals.connect(self.goal)
+        self.goal.associated_round.connect(self.active_round)
+
+    def test_create(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('update-list',
+                      kwargs={"object_uuid": self.campaign.object_uuid})
+        data = {
+            "campaign": self.campaign.object_uuid,
+            "goals": [self.goal.title],
+            "title": "This is a test update",
+            "content": "I repeat, this is a test update"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        update = Update.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(update.title, data['title'])
+        self.assertTrue(self.goal in update.goals)
+
+    def test_create_multiple_goals(self):
+        self.client.force_authenticate(user=self.user)
+        goal2 = Goal(title='This is another test goal').save()
+        self.active_round.goals.connect(goal2)
+        goal2.associated_round.connect(self.active_round)
+        url = reverse('update-list',
+                      kwargs={"object_uuid": self.campaign.object_uuid})
+        data = {
+            "campaign": self.campaign.object_uuid,
+            "goals": [self.goal.title, goal2.title],
+            "title": "This is a test update",
+            "content": "I repeat, this is a test update"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        update = Update.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(update.title, data['title'])
+        self.assertTrue(self.goal in update.goals)
+        self.assertTrue(goal2 in update.goals)
+
+    def test_create_three_goals(self):
+        self.client.force_authenticate(user=self.user)
+        goal2 = Goal(title='This is another test goal').save()
+        self.active_round.goals.connect(goal2)
+        goal2.associated_round.connect(self.active_round)
+        goal3 = Goal(title='Yet another test goal').save()
+        self.active_round.goals.connect(goal3)
+        goal3.associated_round.connect(self.active_round)
+        url = reverse('update-list',
+                      kwargs={"object_uuid": self.campaign.object_uuid})
+        data = {
+            "campaign": self.campaign.object_uuid,
+            "goals": [self.goal.title, goal2.title, goal3.title],
+            "title": "This is a test update",
+            "content": "I repeat, this is a test update"
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        update = Update.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(update.title, data['title'])
+        self.assertTrue(self.goal in update.goals)
+        self.assertTrue(goal2 in update.goals)
+        self.assertTrue(goal3 in update.goals)
+
+
 class PositionEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'position'

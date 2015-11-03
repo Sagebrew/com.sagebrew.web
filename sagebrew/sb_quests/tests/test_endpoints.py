@@ -1441,13 +1441,15 @@ class QuestUpdateTests(APITestCase):
                       kwargs={"object_uuid": self.campaign.object_uuid})
         data = {
             "campaign": self.campaign.object_uuid,
-            "associated_goals": [self.goal.title],
+            "goals": [self.goal.title],
             "title": "This is a test update",
             "content": "I repeat, this is a test update"
         }
         response = self.client.post(url, data=data, format='json')
-        print response
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        update = Update.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(update.title, data['title'])
+        self.assertTrue(self.goal in update.goals)
 
     def test_create_multiple_goals(self):
         self.client.force_authenticate(user=self.user)
@@ -1458,12 +1460,16 @@ class QuestUpdateTests(APITestCase):
                       kwargs={"object_uuid": self.campaign.object_uuid})
         data = {
             "campaign": self.campaign.object_uuid,
-            "associated_goals": [self.goal.title, goal2.title],
+            "goals": [self.goal.title, goal2.title],
             "title": "This is a test update",
             "content": "I repeat, this is a test update"
         }
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        update = Update.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(update.title, data['title'])
+        self.assertTrue(self.goal in update.goals)
+        self.assertTrue(goal2 in update.goals)
 
     def test_create_three_goals(self):
         self.client.force_authenticate(user=self.user)
@@ -1477,12 +1483,17 @@ class QuestUpdateTests(APITestCase):
                       kwargs={"object_uuid": self.campaign.object_uuid})
         data = {
             "campaign": self.campaign.object_uuid,
-            "associated_goals": [self.goal.title, goal2.title, goal3.title],
+            "goals": [self.goal.title, goal2.title, goal3.title],
             "title": "This is a test update",
             "content": "I repeat, this is a test update"
         }
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        update = Update.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(update.title, data['title'])
+        self.assertTrue(self.goal in update.goals)
+        self.assertTrue(goal2 in update.goals)
+        self.assertTrue(goal3 in update.goals)
 
 
 class PositionEndpointTests(APITestCase):

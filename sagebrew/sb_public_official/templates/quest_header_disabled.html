@@ -1,6 +1,6 @@
 {% load staticfiles %}
 {% load static %}
-<div class="sb_wallpaper sb_wallpaper_action hidden-xs">
+<div class="row sb_wallpaper sb_wallpaper_action hidden-xs">
     {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
     {% if is_editor or is_accountant %}
         <div id="cropQuestWallpaperPictureEyecandy">
@@ -11,7 +11,7 @@
     {% endif %}
     <div id="stripe_img" style="display: none;" data-stripe_image="{% static 'images/icon_sage.png' %}"></div>
 </div>
-<div class="block sb_channel_block">
+<div class="row block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
        <div class="thumbnail sb_thumbnail_md sb_quest_profile">
            {% static 'images/sage_coffee_grey-01.png' as default_profile %}

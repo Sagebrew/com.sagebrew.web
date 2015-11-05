@@ -1,57 +1,54 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block title %}{{ page_user.first_name }} {{ page_user.last_name }}{% endblock title %}
+{% block title %}{{ page_user.first_name}} {{ page_user.last_name }}{% endblock title %}
 {% block content %}
     <div id="user_info" style="display: none"
-         data-current_user_username="{{ request.user.username }}"
-         data-page_user_username="{{ page_user.username }}"></div>
+        data-current_user_username="{{ request.user.username }}"
+        data-page_user_username="{{ page_user.username }}"></div>
     <div class="row">
         <div class="col-md-12 wallpaper-wrapper">
-            <div class="thumbnail sb_profile_pic">
-                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
-                {% if request.user.username == page_user.username %}
-                    <div class="hidden-xs" id="cropProfilePageEyecandy">
-                        <img id="profile_pic" src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
-                    </div>
+           <div class="thumbnail sb_profile_pic">
+               {% static 'images/sage_coffee_grey-01.png' as default_profile %}
+               {% if request.user.username == page_user.username %}
+                   <div class="hidden-xs" id="cropProfilePageEyecandy">
+                       <img id="profile_pic" src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
+                   </div>
                     <div class="hidden-sm hidden-md hidden-lg">
-                        <img src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
-                    </div>
-                {% else %}
-                    <img id="profile_pic" src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
-                {% endif %}
-            </div>
-            <div>
-                {% static 'images/wallpaper_western.jpg' as default_wallpaper %}
-                {% if request.user.username == page_user.username %}
-                    <div class="hidden-xs" id="cropWallpaperPictureEyecandy">
-                        <img id="wallpaper_pic" class="wallpaper_profile"
-                             src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
-                    </div>
+                       <img src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
+                   </div>
+               {% else %}
+                  <img id="profile_pic" src="{{ page_profile.profile_pic|default_if_none:default_profile }}">
+               {% endif %}
+           </div>
+           <div>
+               {% static 'images/wallpaper_western.jpg' as default_wallpaper %}
+               {% if request.user.username == page_user.username %}
+                   <div class="hidden-xs" id="cropWallpaperPictureEyecandy">
+                        <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
+                   </div>
                     <div class="hidden-sm hidden-md hidden-lg">
-                        <img class="wallpaper_profile"
-                             src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
-                    </div>
-                {% else %}
-                    <img id="wallpaper_pic" class="wallpaper_profile"
-                         src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
-                    {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
-                {% endif %}
-            </div>
+                        <img class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
+                   </div>
+               {% else %}
+                   <img id="wallpaper_pic" class="wallpaper_profile" src="{{ page_profile.wallpaper_pic|default_if_none:default_wallpaper }}">
+                   {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
+               {% endif %}
+           </div>
         </div>
     </div>
 
     <div class="row">
         <div class="col-md-12">
-            <div class="clearfix sb_nav sb_secondary_nav sb_secondary_nav_bar">
+           <div class="sb_nav sb_secondary_nav sb_secondary_nav_bar">
                 {% include "sb_home_section/sb_profile_user_menu.html" %}
-            </div>
+           </div>
         </div>
     </div>
     <div class="row">
         {% if page_user.username == request.user.username or is_friend == True %}
             {% block midsection %}
                 {% include "sb_home_section/sb_home.html" %}
-            {% endblock %}
+            {%  endblock %}
         {% elif not is_friend %}
             {% include "sb_home_section/sb_not_friend_home.html" %}
         {% endif %}
@@ -63,6 +60,14 @@
 
 {% block scripts %}
     {{ block.super }}
+    {% comment %}
+        <script src="{% static 'js/get_posts.js' %}"></script>
+        <script src="{% static 'js/pleb_image_upload.js' %}"></script>
+        {% block post_scripts %}
+        {% endblock post_scripts %}
+        <script src="{% static 'js/post_validator.js' %}"></script>
+    {% endcomment %}
+
     <script src="{% static 'js/send_notification.js' %}"></script>
     <script src="{% static 'js/flag_modal.js' %}"></script>
     <script src="{% static 'js/profile_pic_croppic.js' %}"></script>

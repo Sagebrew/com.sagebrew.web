@@ -185,7 +185,7 @@
         </div>
     </div>
 </div>
-{% include "side_content.html" %}
+{% include "conversation_side_content.html" %}
 <div class="div_data_hidden"
      data-sort_by="uuid"
      data-question_uuid="{{ uuid }}"></div>
@@ -202,5 +202,6 @@
         <script src="{% static 'js/solution_validator.js' %}"></script>
         <script src="{% static 'js/activate_tooltips.js' %}"></script>
     {% endif %}
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYSN_Flb7jJVswYVf-9pG4UMBPId3zlys&libraries=places&callback=initAutocomplete" async defer></script>
 
 {% endblock scripts %}

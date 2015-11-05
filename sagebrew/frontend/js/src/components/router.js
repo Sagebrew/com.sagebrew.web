@@ -38,6 +38,11 @@ var controller_map = [
         controller: "page-signup",
         match_method: "path",
         check: "^$"
+    },
+    {
+        controller: "section-conversation",
+        match_method: "path",
+        check: "^$"
     }
 ];
 

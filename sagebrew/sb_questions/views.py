@@ -104,7 +104,8 @@ def question_detail_page(request, question_uuid, slug=None):
         'description': description,
         'keywords': keywords,
         'authors': question.get_conversation_authors(),
-        'title': question.title
+        'title': question.title,
+        'question': question
     })
 
 

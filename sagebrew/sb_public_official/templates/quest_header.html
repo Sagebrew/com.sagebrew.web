@@ -1,6 +1,6 @@
 {% load staticfiles %}
 {% load static %}
-<div class="row sb_wallpaper sb_wallpaper_action hidden-xs">
+<div class="sb_wallpaper sb_wallpaper_action hidden-xs">
     {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
     {% if is_editor or is_accountant %}
         <div id="cropQuestWallpaperPictureEyecandy">
@@ -11,7 +11,7 @@
     {% endif %}
     <div id="stripe_img" style="display: none;" data-stripe_image="{% static 'images/icon_sage.png' %}"></div>
 </div>
-<div class="row block sb_channel_block">
+<div class="block sb_channel_block">
     <div class="col-lg-1 col-md-2 hidden-sm hidden-xs">
            {% if is_editor or is_accountant %}
                 <div id="cropQuestProfilePictureEyecandy" class="thumbnail sb_thumbnail_md">
@@ -104,7 +104,7 @@
                     {% endif %}
             {% endif %}
         </div>
-        <div class="row-fluid hidden-md hidden-sm hidden-xs">
+        <div class="hidden-md hidden-sm hidden-xs">
             <div class="col-lg-9 col-lg-offset-3">
                 <div align="right" class="block sb_channel_social row-fluid hidden-md hidden-sm hidden-xs">
                     {% if not facebook %}

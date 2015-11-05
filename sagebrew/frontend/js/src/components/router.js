@@ -42,7 +42,7 @@ var controller_map = [
     {
         controller: "section-conversation",
         match_method: "path",
-        check: "^$"
+        check: "^conversations/"
     }
 ];
 
@@ -63,7 +63,6 @@ function matchController(match_method, check) {
         case 'path':
             var match = path.match(check);
             return match;
-
     }
 }
 

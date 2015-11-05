@@ -59,13 +59,6 @@
 
     </div>
     <div class="row">
-        <div class="col-md-4 hidden-sm hidden-xs col-md-offset-8 col-lg-offset-9">
-            <small>
-                asked by
-            </small>
-        </div>
-    </div>
-    <div class="row">
 
         <div class="col-md-2 hidden-xs hidden-sm col-lg-offset-1">
             {% if request.user.is_anonymous %}
@@ -88,41 +81,6 @@
                     </span>
                 </small></div>
             {% endif %}
-        </div>
-
-        <div class="col-md-1 hidden-sm hidden-xs col-md-offset-6"
-             style="padding-right:0; margin-right: -10px">
-            <div class="sb_thumbnail_xs thumbnail">
-                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
-                <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>
-            </div>
-        </div>
-        <div class="col-md-2 hidden-sm hidden-xs sb-content-edited">
-            <div>
-                <small>
-                    <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>
-                    {% if profile.campaign %}
-                        <a href="{% url "quest_saga" profile.username %}"
-                           data-toggle="tooltip"
-                           data-placement="top"
-                           data-title="View User's Quest!">
-                            <span class="fa fa-rocket sb_btn_icon sb-quest-nav-rocket"></span>
-                        </a>
-                    {% endif %}
-                </small>
-            </div>
-            <div style="margin-top:-10px;">
-                {% if created != last_edited_on %}
-                    <small>{{ last_edited_on|naturaltime }} · Edited</small>
-                {% else %}
-                    <small>{{ created|naturaltime }}</small>
-                {% endif %}
-            </div>
-        </div>
-        <div class="hidden-lg hidden-md col-sm-11 col-xs-11">
-            <small>
-                asked by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
-            </small>
         </div>
     </div>
     {% if html_snapshot %}

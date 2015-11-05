@@ -1,6 +1,3 @@
-var locations = require('./partials/locations');
-
-
 
 /**
  * Init
@@ -14,7 +11,7 @@ export function init() {
  */
 export function load() {
     // Sidebar
-    locations.init();
+
 }
 
 /**

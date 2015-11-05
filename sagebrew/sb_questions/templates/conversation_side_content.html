@@ -1,10 +1,21 @@
+{% load staticfiles %}
+{% load humanize %}
 <div class="col-lg-3 hidden-md hidden-sm hidden-xs">
-    <div style="background-color: #e0e7e1; margin-top: 30px; padding: 15px;">
+    <div style="background-color: #e0e7e1; margin-top: 30px; padding: 15px; font-size: 11pt;">
         <div class="meta">
-            <span class="metadata" style="display: block">created: {{ question.created }}</span>
-            <span class="metadata" style="display: block">tags: {{ keywords }}</span>
-            <span class="metadata" style="display: block">location: Wixom, Michigan</span>
+            <small style="display: block; font-size: 10pt;">Topic{{ tags|length|pluralize }}: {{ tags|join:", "|title|default:" No Tags Set on Conversation" }}</small>
+            <small style="display: block; font-size: 10pt;">Views: {{ views }}</small>
+            <small style="display: block; font-size: 10pt;">Created: {{ question.created|naturaltime }}</small>
+            {% if question.created|naturaltime != question.last_edited_on|naturaltime %}
+                <small style="display: block; font-size: 10pt;">Last Edited: {{ question.last_edited_on|naturaltime }}</small>
+            {% endif %}
+
+
+
         </div>
+    </div>
+    <div style="background-color: #e0e7e1; margin-top: 30px; padding: 15px; width: 100%; height: 300px;">
+        <div id="map"></div>
     </div>
     <div class="sb_questions_side_container">
         <h3 align="center">

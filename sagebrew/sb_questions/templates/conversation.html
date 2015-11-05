@@ -10,8 +10,8 @@
     <meta name="description" content="{{ description }}">
 {% endblock description %}
 {% block keywords %}
-    {% if keywords %}
-        <meta name="keywords" content="{{ keywords }}">
+    {% if tags %}
+        <meta name="keywords" content="{{ tags|join:", "|title}}">
     {% endif %}
     <meta name="author" content="{{ authors }}">
 {% endblock keywords %}
@@ -192,16 +192,34 @@
     {% include "flag_modal.html" %}
 {% endblock content %}
 {% block scripts %}
+
     {{ block.super }}
+
     {% if not html_snapshot %}
         <script src="{% static 'js/query_single_question.js' %}"></script>
         <script src="{% static 'js/edit_question.js' %}"></script>
+        <script type="text/javascript">
+            // Required to provide global function to be called with callback
+            function initMap() {
+                var latLong = {lat: 42.524756, lng: -83.536327};
+                var map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 12,
+                    center: latLong,
+                    disableDefaultUI: true
+                });
+                new google.maps.Marker({
+                    position: latLong,
+                    map: map,
+                    title: 'Wixom'
+                });
+            }
+        </script>
+        <script async defer type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYSN_Flb7jJVswYVf-9pG4UMBPId3zlys&callback=initMap"></script>
         <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
         <script src="{% static 'js/flag_modal.js' %}"></script>
         <script src="{% static 'js/create_markdown.js' %}"></script>
         <script src="{% static 'js/solution_validator.js' %}"></script>
         <script src="{% static 'js/activate_tooltips.js' %}"></script>
     {% endif %}
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYSN_Flb7jJVswYVf-9pG4UMBPId3zlys&libraries=places&callback=initAutocomplete" async defer></script>
 
 {% endblock scripts %}

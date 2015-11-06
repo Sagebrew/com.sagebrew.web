@@ -18,6 +18,16 @@ class Location(SBObject):
     addresses = RelationshipTo('plebs.neo_models.Address',
                                'ENCOMPASSES_ADDRESS')
 
+    # optimizations
+    # TODO these might be best moved to the Question or maybe lat, long to since
+    # we only need to create the marker on the display page
+    # Allows us to determine which service to query with the id for additional
+    # info
+    created_by = StringProperty(default="Smarty Streets")
+    # ID provided by a third party representing the ID that should be used
+    # when querying their service.
+    external_id = StringProperty(default=None)
+
     @classmethod
     def get(cls, object_uuid):
         location = cache.get(object_uuid)

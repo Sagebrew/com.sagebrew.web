@@ -1,3 +1,4 @@
+/* global enableSinglePostFunctionality */
 /**
  * @file
  * For post creation. Giving this a dedicated file since it's on multiple pages.

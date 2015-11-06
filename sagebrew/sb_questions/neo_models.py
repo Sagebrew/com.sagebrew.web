@@ -33,6 +33,12 @@ class Question(TitledContent):
     tags_added = BooleanProperty(default=False)
     title = StringProperty(unique_index=True)
 
+    # optimizations
+    longitude = FloatProperty()
+    latitude = FloatProperty()
+    # Google place_id
+    external_location_id = StringProperty()
+
     # relationships
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
     solutions = RelationshipTo('sb_solutions.neo_models.Solution',

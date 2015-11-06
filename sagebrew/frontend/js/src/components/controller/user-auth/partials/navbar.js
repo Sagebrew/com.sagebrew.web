@@ -56,7 +56,7 @@ function navbar() {
         })
         //
         // Show Rep
-        .on('click', '.show-reputation-action', function(event) {
+        .on('click', '.show-reputation-action', function() {
             request.put({
                 url: "/v1/me/",
                 data: JSON.stringify({

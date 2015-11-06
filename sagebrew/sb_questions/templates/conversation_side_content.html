@@ -1,6 +1,6 @@
 {% load staticfiles %}
 {% load humanize %}
-<div class="col-lg-3 hidden-md hidden-sm hidden-xs">
+<div class="hidden-xs col-lg-3">
     <div style="background-color: #e0e7e1; margin-top: 30px; padding: 15px; font-size: 11pt;">
         <div class="meta">
             <small style="display: block; font-size: 10pt;">Topic{{ tags|length|pluralize }}: {{ tags|join:", "|title|default:" No Tags Set on Conversation" }}</small>

@@ -40,9 +40,19 @@ var controller_map = [
         check: "^$"
     },
     {
+        controller: "section-conversation-manage",
+        match_method: "path",
+        check: "^conversations\/questions\/([A-Za-z0-9.@_%+-]{36})\/edit"
+    },
+    {
+        controller: "section-conversation-manage",
+        match_method: "path",
+        check: "^conversations/submit_question"
+    },
+    {
         controller: "section-conversation",
         match_method: "path",
-        check: "^conversations/"
+        check: "^conversations\/([A-Za-z0-9.@_%+-]{36})\/"
     }
 ];
 
@@ -63,6 +73,7 @@ function matchController(match_method, check) {
         case 'path':
             var match = path.match(check);
             return match;
+
     }
 }
 

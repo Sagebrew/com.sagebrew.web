@@ -109,6 +109,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
                                   min_length=15, max_length=140)
     solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
+    location = serializers.DictField(write_only=True, required=False)
 
     def validate_title(self, value):
         # We need to escape quotes prior to passing the title to the query.

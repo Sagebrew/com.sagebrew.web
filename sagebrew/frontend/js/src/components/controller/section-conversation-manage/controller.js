@@ -1,4 +1,4 @@
-var mapLocation = require('./partials/map-location');
+var locations = require('./partials/locations');
 
 /**
  * Init
@@ -12,7 +12,7 @@ export function init() {
  */
 export function load() {
     // Sidebar
-    mapLocation.init();
+    locations.init();
 }
 
 /**

@@ -1,6 +1,8 @@
+/* global enableSinglePostFunctionality, populateComments */
 /**
  * @file
  * Profile (aka wall) page.
+ *
  */
 var request = require('./../../../api').request,
     helpers = require('./../../../common/helpers');

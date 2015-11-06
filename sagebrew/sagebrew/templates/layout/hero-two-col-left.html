@@ -1,8 +1,14 @@
 {% extends "base.html" %}
 
-{% block body_class %}{{ block.super }} layout-two-col-left{% endblock %}
+{% block body_class %}{{ block.super }} layout-hero-two-col-left{% endblock %}
 
 {% block content %}
+
+    <div class="row"><div class="col-md-12"><div class="hero">
+        {% block hero %}
+        {% endblock %}
+    </div></div></div>
+
     <div class="row">
 
         <div class="col-md-3"><div class="sidbar-left">
@@ -15,4 +21,5 @@
             {% endblock %}
         </div></div>
     </div>
+
 {% endblock %}

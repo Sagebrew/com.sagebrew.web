@@ -218,8 +218,21 @@ class ProfileViewSet(viewsets.ModelViewSet):
         """
         queryset = self.get_object()
         is_following = queryset.is_following(request.user.username)
-        return Response({"detail": "TBD"},
-                        status=status.HTTP_501_NOT_IMPLEMENTED)
+        if is_following:
+            return Response(True, status=status.HTTP_200_OK)
+        res = queryset.follow(request.user.username)
+        return Response({"detail": "Successfully followed user."},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'])
+    def unfollow(self, request, username=None):
+        queryset = self.get_object()
+        is_following = queryset.is_following(request.user.username)
+        if not is_following:
+            return Response(True, status=status.HTTP_200_OK)
+        res = queryset.unfollow(request.user.username)
+        return Response({"detail": "Successfully unfollowed user."},
+                    status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'])
     def friend(self, request, username=None):
@@ -626,14 +639,39 @@ class MeViewSet(mixins.UpdateModelMixin,
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
             ' RETURN solutions, NULL AS posts, NULL AS questions, ' \
             'solutions.created AS created, s_question AS s_question,' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns' % (
+            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            '' \
+            '// Retrieve all the users questions that the current user is ' \
+            '// following \n' \
+            'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
+            '(:Pleb)-[:OWNS_QUESTION]->(questions:Question) ' \
+            'WHERE questions.to_be_deleted = False AND ' \
+            'questions.created > %s ' \
+            'RETURN NULL AS solutions, NULL AS posts, ' \
+            'questions AS questions, questions.created AS created, ' \
+            'NULL AS s_question, NULL AS campaigns, NULL AS updates, ' \
+            'NULL AS q_campaigns UNION ' \
+            '' \
+            '// Retrieve all the users solutions that the current user is ' \
+            '// following \n' \
+            'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
+            '(:Pleb)-[:OWNS_SOLUTION]->(solutions:Solution)-' \
+            '[:POSSIBLE_ANSWER_TO]->(s_question:Question) ' \
+            'WHERE solutions.to_be_deleted = False AND ' \
+            'solutions.created > %s ' \
+            'RETURN solutions, NULL AS posts, ' \
+            'NULL AS questions, solutions.created AS created, ' \
+            's_question as s_question, NULL AS campaigns, NULL AS updates, ' \
+            'NULL AS q_campaigns' \
+            % (
                 request.user.username, then,
                 request.user.username, then,
                 request.user.username, then, request.user.username,
                 then, request.user.username, then,
                 request.user.username, then,
                 request.user.username, then, request.user.username,
-                then, request.user.username, then)
+                then, request.user.username, then, request.user.username, then,
+                request.user.username, then)
         news = []
         article_html = None
         html = request.query_params.get('html', 'false').lower()

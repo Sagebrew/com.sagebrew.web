@@ -284,10 +284,12 @@ class Pleb(Searchable):
                                    'PLEDGED', model=VoteRelationship)
     donations = RelationshipTo('sb_donations.neo_models.Donation',
                                'DONATIONS_GIVEN')
-    followers = RelationshipTo('plebs.neo_models.Pleb', 'FOLLOWERS',
-                               model=FollowRelationship)
     following = RelationshipTo('plebs.neo_models.Pleb', 'FOLLOWING',
                                model=FollowRelationship)
+    # followers = RelationshipTo('plebs.neo_models.Pleb', 'FOLLOWERS',
+    #                            model=FollowRelationship)
+    # Don't need followers as we can use a single relationship to query based
+    # upon direction
 
     @classmethod
     def get(cls, username):
@@ -591,6 +593,34 @@ class Pleb(Searchable):
                 '(p2:Pleb {username:"%s"}) RETURN r.active' % \
                 (self.username, username)
         res, _ = db.cypher_query(query)
+        return res.one
+
+    def follow(self, username):
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
+        """
+        The username passed to this function is the user who will be following
+        the user the method is called upon.
+        """
+        query = 'MATCH (p:Pleb {username:"%s"}), (p2:Pleb {username:"%s"}) ' \
+                'WITH p, p2 CREATE (p)<-[r:FOLLOWING]-(p2) SET r.active=true ' \
+                'RETURN r' % (self.username, username)
+        res, _ = db.cypher_query(query)
+        logger.info(res)
+        return res.one
+
+    def unfollow(self, username):
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
+        """
+        The username passed to this function is the user who will stop
+        following the user the method is called upon.
+        """
+        query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-(p2:Pleb ' \
+                '{username:"%s"}) SET r.active=false RETURN r' \
+                % (self.username, username)
+        res, _ = db.cypher_query(query)
+        logger.info({"unfollow": res})
         return res.one
 
     @property

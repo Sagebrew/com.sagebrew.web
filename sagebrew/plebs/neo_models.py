@@ -596,8 +596,6 @@ class Pleb(Searchable):
         return res.one
 
     def follow(self, username):
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
         """
         The username passed to this function is the user who will be following
         the user the method is called upon.
@@ -606,12 +604,9 @@ class Pleb(Searchable):
                 'WITH p, p2 CREATE (p)<-[r:FOLLOWING]-(p2) SET r.active=true ' \
                 'RETURN r' % (self.username, username)
         res, _ = db.cypher_query(query)
-        logger.info(res)
         return res.one
 
     def unfollow(self, username):
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
         """
         The username passed to this function is the user who will stop
         following the user the method is called upon.
@@ -620,7 +615,6 @@ class Pleb(Searchable):
                 '{username:"%s"}) SET r.active=false RETURN r' \
                 % (self.username, username)
         res, _ = db.cypher_query(query)
-        logger.info({"unfollow": res})
         return res.one
 
     @property

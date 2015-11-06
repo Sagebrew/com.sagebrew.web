@@ -1,18 +1,23 @@
 <ul class="nav nav-list nav-list-vivid sb-side-nav">
     <li class="nav-header sb-nav-header"><h4>Manage Quest</h4></li>
-
-    <li class="{% if "manage/" in request.path %}active{% endif %}">
+    {% comment %} Not sure of a good way to make this active... {% endcomment %}
+    <li class="{% if "manage/" == request.path %}active{% endif %}">
         <a  href="{% url 'quest_manage_settings' request.user %}">
             General
         </a>
     </li>
 
-    <li class="{% if "z/" in request.path %}active{% endif %}">
-        <a  href="{% url 'quest_manage_settings' request.user %}">
+    <li class="{% if "/manage/goals/" in request.path %}active{% endif %}">
+        <a  href="{% url 'manage_goals' request.user %}">
             Goals
         </a>
     </li>
 
+    <li class="{% if "manage/epic/" in request.path %}active{% endif %}">
+        <a  href="{% url 'quest_epic' request.user %}">
+            Epic
+        </a>
+    </li>
     <li class="{% if "z/" in request.path %}active{% endif %}">
         <a  href="{% url 'quest_manage_settings' request.user %}">
             Updates
@@ -24,9 +29,9 @@
             Banking
         </a>
     </li>
-
-    <li class="{% if "z/" in request.path %}active{% endif %}">
-        <a  href="{% url 'quest_manage_settings' request.user %}">
+    {% comment %}TODO: Check permissions{% endcomment %}
+    <li class="{% if "/manage/moderators/" in request.path %}active{% endif %}">
+        <a  href="{% url 'quest_moderators' request.user %}">
             Moderators
         </a>
     </li>

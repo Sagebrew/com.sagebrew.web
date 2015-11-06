@@ -48,7 +48,7 @@ def edit_epic(request, username):
         return redirect("404_Error")
     except (CypherException, IOError):
         return redirect("500_Error")
-    return render(request, 'edit_epic.html',
+    return render(request, 'manage/edit_epic.html',
                   PoliticalCampaignSerializer(
                       campaign, context={'request': request}).data)
 
@@ -97,7 +97,7 @@ def moderators(request, username):
     serializer_data['keywords'] = "Moderators, Admins, Accountants, Editors," \
                                   " Quest"
     serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
-    return render(request, 'moderators.html', serializer_data)
+    return render(request, 'manage/moderators.html', serializer_data)
 
 
 @login_required()

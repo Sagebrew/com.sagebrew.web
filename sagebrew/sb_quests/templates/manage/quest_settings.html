@@ -3,7 +3,7 @@
 {% block title %}Quest Settings{% endblock title %}
 
 {% block sidebar_left %}
-{% include "manage/quest_manage_nav.html" %}
+    {% include "manage/quest_manage_nav.html" %}
 {% endblock %}
 
 {% block sidebar_right %}
@@ -72,6 +72,20 @@
                         </div>
                     </form>
                 </div>
+                <div class="row">
+                    <div class="col-lg-12 password1">
+                        <h5>Short Bio</h5>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <textarea class="form-control input-lg" name="short_bio">
+
+                        </textarea>
+                    </div>
+                </div>
+
                 <div class="row">
                     <div class="col-lg-12 password1">
                         <h5>Web and Social Media</h5>

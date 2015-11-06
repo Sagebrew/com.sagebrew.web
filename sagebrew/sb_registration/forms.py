@@ -190,6 +190,12 @@ class AddressInfoForm(forms.Form):
         widget=forms.HiddenInput()
     )
 
+    county = forms.CharField(
+        label="County",
+        max_length=125,
+        required=True,
+    )
+
 
 class ProfilePictureForm(forms.Form):
     picture = forms.FileField(

@@ -14,12 +14,12 @@
     <div class="action" style="display: none" data-action="write_solution"></div>
     <div class="row-fluid sb_page">
         <div class="col-lg-8">
-            <div class="sb_wall sb_conversation_wall" style="min-height: 500px">
+            <div class="sb_wall sb_conversation_wall">
                 <div>
                    <h3>Conversations</h3>
                 </div>
                 <div class="sb_border sb_markdown">
-                    <h3 style="padding-top: 0">{% if not edit %}Submit Question{% else %} Edit Question{% endif %}</h3>
+                    <h3 class="question-header">{% if not edit %}Submit Question{% else %} Edit Question{% endif %}</h3>
                     <form id="questionInputForm">
                         <div class="title_input">
                             {% if edit %}
@@ -51,7 +51,7 @@
         </div>
         {% include "create_side_content.html" %}
         <div class="col-lg-8">
-        <div style="background-color: #e0e7e1; padding: 0 15px 15px 15px;">
+        <div class="map-wrapper">
             <div class="row">
                 <div class="col-xs-12">
                     <div class="position-wrapper">

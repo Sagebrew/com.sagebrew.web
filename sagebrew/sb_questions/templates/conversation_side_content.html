@@ -1,20 +1,17 @@
 {% load staticfiles %}
 {% load humanize %}
 <div class="hidden-xs col-lg-3">
-    <div style="background-color: #e0e7e1; margin-top: 30px; padding: 15px; font-size: 11pt;">
+    <div class="conversation-meta">
         <div class="meta">
-            <small style="display: block; font-size: 10pt;">Topic{{ tags|length|pluralize }}: {{ tags|join:", "|title|default:" No Tags Set on Conversation" }}</small>
-            <small style="display: block; font-size: 10pt;">Views: {{ views }}</small>
-            <small style="display: block; font-size: 10pt;">Created: {{ question.created|naturaltime }}</small>
+            <small>Topic{{ tags|length|pluralize }}: {{ tags|join:", "|title|default:" No Tags Set on Conversation" }}</small>
+            <small>Views: {{ views }}</small>
+            <small>Created: {{ question.created|naturaltime }}</small>
             {% if question.created|naturaltime != question.last_edited_on|naturaltime %}
-                <small style="display: block; font-size: 10pt;">Last Edited: {{ question.last_edited_on|naturaltime }}</small>
+                <small>Last Edited: {{ question.last_edited_on|naturaltime }}</small>
             {% endif %}
-
-
-
         </div>
     </div>
-    <div style="background-color: #e0e7e1; margin-top: 30px; padding: 15px; width: 100%; height: 300px;">
+    <div class="map-viewer-conversation">
         <div id="map"></div>
     </div>
     <div class="sb_questions_side_container">

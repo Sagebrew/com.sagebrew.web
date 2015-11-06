@@ -643,6 +643,7 @@ class Address(SBObject):
     country = StringProperty()
     latitude = FloatProperty()
     longitude = FloatProperty()
+    county = StringProperty()
     congressional_district = IntegerProperty()
     validated = BooleanProperty(default=False)
 

@@ -9,7 +9,11 @@ $(document).ready(function () {
             data: JSON.stringify({
                 'title': title,
                 'content': content,
-                'tags': tags
+                'tags': tags,
+                'external_location_id': document.getElementById('location-id').innerHTML,
+                'latitude': document.getElementById('location-lat').innerHTML,
+                'longitude': document.getElementById('location-long').innerHTML,
+                'affected_area': document.getElementById('location-area').innerHTML
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",

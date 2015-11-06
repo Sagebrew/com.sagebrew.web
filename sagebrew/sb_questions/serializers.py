@@ -109,7 +109,13 @@ class QuestionSerializerNeo(TitledContentSerializer):
                                   min_length=15, max_length=140)
     solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
-    location = serializers.DictField(write_only=True, required=False)
+    longitude = serializers.FloatField(required=False)
+    latitude = serializers.FloatField(required=False)
+    affected_area = serializers.CharField()
+    # Used to associate Question with our tree structure after tasks have
+    # been completed and Question has been created
+    external_location_id = serializers.CharField(write_only=True,
+                                                 required=False)
 
     def validate_title(self, value):
         # We need to escape quotes prior to passing the title to the query.
@@ -143,6 +149,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
                       request=request)
         href = reverse('question-detail', kwargs={'object_uuid': uuid},
                        request=request)
+
         question = Question(url=url, href=href, object_uuid=uuid,
                             **validated_data).save()
         question.owned_by.connect(owner)

@@ -191,9 +191,9 @@ class AddressInfoForm(forms.Form):
     )
 
     county = forms.CharField(
-        label="County",
         max_length=125,
-        required=True,
+        required=False,
+        widget=forms.HiddenInput()
     )
 
 

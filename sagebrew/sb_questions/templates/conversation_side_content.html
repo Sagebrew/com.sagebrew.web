@@ -5,6 +5,7 @@
         <div class="meta">
             <small>Topic{{ tags|length|pluralize }}: {{ tags|join:", "|title|default:" No Tags Set on Conversation" }}</small>
             <small>Views: {{ views }}</small>
+            <small>Affected Area: {{ question.affected_area|default:"World" }}</small>
             <small>Created: {{ question.created|naturaltime }}</small>
             {% if question.created|naturaltime != question.last_edited_on|naturaltime %}
                 <small>Last Edited: {{ question.last_edited_on|naturaltime }}</small>

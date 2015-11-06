@@ -1,4 +1,5 @@
 from logging import getLogger
+from localflavor.us.us_states import US_STATES
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -39,12 +40,16 @@ class Command(BaseCommand):
                 try:
                     rep = PublicOfficial.nodes.get(gt_id=person.gt_id)
                 except(DoesNotExist, PublicOfficial.DoesNotExist):
+                    try:
+                        state = dict(US_STATES)[role.state]
+                    except KeyError:
+                        state = role.state
                     rep = PublicOfficial(
                         first_name=person.firstname, last_name=person.lastname,
                         gender=person.gender, date_of_birth=person.birthday,
                         name_mod=person.namemod, current=role.current,
                         bio=role.description, district=role.district,
-                        state=role.state, title=role.title,
+                        state=state, title=role.title,
                         website=role.website, start_date=role.startdate,
                         end_date=role.enddate, full_name=person.name,
                         twitter=person.twitterid, youtube=person.youtubeid,

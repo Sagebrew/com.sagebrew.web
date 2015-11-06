@@ -36,6 +36,7 @@ class Question(TitledContent):
     # optimizations
     longitude = FloatProperty()
     latitude = FloatProperty()
+    affected_area = StringProperty()
     # Google place_id
     external_location_id = StringProperty()
 

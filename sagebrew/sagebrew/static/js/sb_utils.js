@@ -231,33 +231,6 @@ function loadPosts(url) {
     });
 }
 
-
-function loadQuestion() {
-    var timeOutId = 0;
-    var ajaxFn = function () {
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "GET",
-            url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/?html=true&expand=true&expedite=true",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                var questionContainer = $('#single_question_wrapper');
-                questionContainer.append(Autolinker.link(data.html));
-                loadSolutionCount();
-                enableQuestionFunctionality(data.ids);
-                populateComments(data.ids, "questions");
-                loadSolutions("/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?page_size=10&expand=true");
-            },
-            error: function (XMLHttpRequest) {
-                timeOutId = setTimeout(ajaxFn, 1000);
-                errorDisplay(XMLHttpRequest);
-            }
-        });
-    };
-    ajaxFn();
-}
-
 function loadSolutionCount() {
     $.ajax({
         xhrFields: {withCredentials: true},

@@ -253,9 +253,21 @@ a {
     padding-top: 15px;
   }
 }
-#sb-nav-link-active{
-  background-color: @sb_green;
+.nav-list-vivid {
+  li.active > a {
+    background-color: @sb_green;
+  }
+  li:last-child {
+    margin-bottom:0px;
+
+  }
+
+  li:last-child a {
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+  }
 }
+
 .sb-nav-header{
   text-transform: none;
 }

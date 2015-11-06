@@ -1,322 +1,312 @@
-{% extends "base.html" %}
+{% extends "settings/settings_base.html" %}
 {% load staticfiles %}
 {% block title %}Quest Settings{% endblock title %}
-{% block content %}
-
-<div class="row-fluid sb_page">
-    <div id="sb-greyout-page" class="sb_hidden"></div>
-    <div class="col-lg-10 col-lg-offset-1 col-md-12 col-sm-12 col-xs-12">
-        <div class="sb_wall sb_settings_wall">
-            <div class="row">
-                <div class="col-md-3 col-sm-12 col-xs-12 col-lg-offset-1 col-md-offset-1 col-sm-offset-0 col-xs-offset-0">
-                    <ul class="nav nav-list nav-list-vivid sb-side-nav">
-                        <li class="nav-header sb-nav-header"><h3>Settings</h3></li>
-                        <li role="presentation" class="sb_divider"></li>
-                        <li style="margin-bottom: 0;">
-                            <a href="{% url 'general_settings' %}">
-                                <p>General</p>
-                            </a>
-                        </li>
-                        <li class="active" style="margin-bottom: 0;">
-                            <a id="sb-nav-link-active" href="#">
-                                <p>Quests</p>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{% url 'contribute_settings' %}">
-                                <p>Contribute</p>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="col-lg-7 col-md-7 col-sm-12 col-xs-12">
-                <form id="socialForm">
-                    <div class="block sb_settings_block">
-                    {% if campaign.id %}
-                        <div id="campaign_id" data-object_uuid="{{ campaign.id }}" style="display: none"></div>
-                        <div id="stripe_key" data-key="{{ campaign.stripe_key }}" style="display: none"></div>
-                        <div id="completed-stripe" data-completed_stripe="{{ campaign.completed_stripe }}"></div>
-                        <div id="js-completed_customer" class="sb_hidden" data-completed_customer="{{ campaign.completed_customer }}"></div>
-                        <div id="js-paid_account" class="sb_hidden" data-paid_account="{{ campaign.paid_account }}"></div>
-                        <div id="js-active" class="sb_hidden" data-active="{{ campaign.active }}"></div>
-                        <div id="js-taking_live" class="sb_hidden" data-taking_live=False></div>
-                            <div class="{% if campaign.completed_stripe %}sb_hidden{% endif %}" id="js-banking-block">
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <h5>Banking</h5>
-                                    </div>
-                                </div>
-                                {% comment %} I think we should require full SSN from people for stripe verification {% endcomment %}
-                                <form id="bankingForm">
-                                    <div class="row">
-                                        <div class="col-lg-12 social-number">
-                                            <input type="text"
-                                                   id="ssn"
-                                                   name="socnumb"
-                                                   placeholder="Social Security Number (we store the last four digits)"
-                                                   class="form-control input-lg"
-                                                   value="">
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-12">
-                                            <input type="text"
-                                                   id="ein"
-                                                   name="employernumb"
-                                                   placeholder="EIN for political campaign committee (we do not store this) (optional)"
-                                                   class="form-control input-lg"
-                                                   value="">
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-12">
-                                            <input type="text"
-                                                   id="routing-number"
-                                                   name="routingnumb"
-                                                   placeholder="Routing Number (we do not store this)"
-                                                   class="form-control input-lg"
-                                                   value="">
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-lg-12">
-                                            <input type="text"
-                                                   name="accountnumb"
-                                                   id="account-number"
-                                                   placeholder="Account Number (we do not store this)"
-                                                   class="form-control input-lg"
-                                                   value="">
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12 password1">
-                                    <h5>Web and Social Media</h5>
-                                </div>
-                            </div>
-
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <input type="text"
-                                               id="personal-social-address"
-                                               name="weburl"
-                                               placeholder="Website URL"
-                                               value="{{ campaign.website|default_if_none:'' }}"
-                                               class="form-control input-lg">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <input type="text"
-                                               id="facebook-social-address"
-                                               name="facebook"
-                                               placeholder="Facebook Username"
-                                               value="{{ campaign.facebook|default_if_none:'' }}"
-                                               class="form-control input-lg">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-12 twitter-row">
-                                        <input type="text"
-                                               id="twitter-social-address"
-                                               name="twitter"
-                                               placeholder="Twitter ID"
-                                               value="{{ campaign.twitter|default_if_none:'' }}"
-                                               class="form-control input-lg">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <input type="text"
-                                               name="linkedin"
-                                               id="linkedin-social-address"
-                                               placeholder="LinkedIn Username"
-                                               value="{{ campaign.linkedin|default_if_none:'' }}"
-                                               class="form-control input-lg">
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <input type="text"
-                                               name="youtube"
-                                               id="youtube-social-address"
-                                               placeholder="Youtube Username"
-                                               value="{{ campaign.youtube|default_if_none:'' }}"
-                                               class="form-control input-lg">
-                                    </div>
-                                </div>
-
+{% block settings_content %}
+    <form id="socialForm">
+        <div class="block sb_settings_block">
+            {% if campaign.id %}
+                <div id="campaign_id" data-object_uuid="{{ campaign.id }}" style="display: none"></div>
+                <div id="stripe_key" data-key="{{ campaign.stripe_key }}" style="display: none"></div>
+                <div id="completed-stripe" data-completed_stripe="{{ campaign.completed_stripe }}"></div>
+                <div id="js-completed_customer" class="sb_hidden"
+                     data-completed_customer="{{ campaign.completed_customer }}"></div>
+                <div id="js-paid_account" class="sb_hidden" data-paid_account="{{ campaign.paid_account }}"></div>
+                <div id="js-active" class="sb_hidden" data-active="{{ campaign.active }}"></div>
+                <div id="js-taking_live" class="sb_hidden" data-taking_live=False></div>
+                <div class="{% if campaign.completed_stripe %}sb_hidden{% endif %}" id="js-banking-block">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <h5>Banking</h5>
+                        </div>
+                    </div>
+                    {% comment %} I think we should require full SSN from people for stripe verification {% endcomment %}
+                    <form id="bankingForm">
                         <div class="row">
-                            <div class="col-lg-12 hidden-sm hidden-xs">
-                                <h5>Sitting Representative Authorization</h5>
-                                <div class="block sb_success_block">
-                                    <p>
-                                        Sitting Representatives can start the
-                                        Authentication process by clicking Authenticate.
-                                    </p>
-                                    <button class="btn btn-primary sb_btn"
-                                            id="delete_account"
-                                            data-toggle="modal"
-                                            data-target="#authModal">Authenticate</button>
-                                </div>
+                            <div class="col-lg-12 social-number">
+                                <input type="text"
+                                       id="ssn"
+                                       name="socnumb"
+                                       placeholder="Social Security Number (we store the last four digits)"
+                                       class="form-control input-lg"
+                                       value="">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <input type="text"
+                                       id="ein"
+                                       name="employernumb"
+                                       placeholder="EIN for political campaign committee (we do not store this) (optional)"
+                                       class="form-control input-lg"
+                                       value="">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <input type="text"
+                                       id="routing-number"
+                                       name="routingnumb"
+                                       placeholder="Routing Number (we do not store this)"
+                                       class="form-control input-lg"
+                                       value="">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <input type="text"
+                                       name="accountnumb"
+                                       id="account-number"
+                                       placeholder="Account Number (we do not store this)"
+                                       class="form-control input-lg"
+                                       value="">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 password1">
+                        <h5>Web and Social Media</h5>
+                    </div>
+                </div>
 
-                                <!-- Modal -->
-                                <div class="modal fade" id="authModal" tabindex="-1" role="dialog" aria-labelledby="authModalLabel" aria-hidden="true">
-                                  <div class="modal-dialog">
-                                    <div class="modal-content">
-                                      <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <input type="text"
+                               id="personal-social-address"
+                               name="weburl"
+                               placeholder="Website URL"
+                               value="{{ campaign.website|default_if_none:'' }}"
+                               class="form-control input-lg">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <input type="text"
+                               id="facebook-social-address"
+                               name="facebook"
+                               placeholder="Facebook Username"
+                               value="{{ campaign.facebook|default_if_none:'' }}"
+                               class="form-control input-lg">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 twitter-row">
+                        <input type="text"
+                               id="twitter-social-address"
+                               name="twitter"
+                               placeholder="Twitter ID"
+                               value="{{ campaign.twitter|default_if_none:'' }}"
+                               class="form-control input-lg">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <input type="text"
+                               name="linkedin"
+                               id="linkedin-social-address"
+                               placeholder="LinkedIn Username"
+                               value="{{ campaign.linkedin|default_if_none:'' }}"
+                               class="form-control input-lg">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <input type="text"
+                               name="youtube"
+                               id="youtube-social-address"
+                               placeholder="Youtube Username"
+                               value="{{ campaign.youtube|default_if_none:'' }}"
+                               class="form-control input-lg">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-12 hidden-sm hidden-xs">
+                        <h5>Sitting Representative Authorization</h5>
+
+                        <div class="block sb_success_block">
+                            <p>
+                                Sitting Representatives can start the
+                                Authentication process by clicking Authenticate.
+                            </p>
+                            <button class="btn btn-primary sb_btn"
+                                    id="delete_account"
+                                    data-toggle="modal"
+                                    data-target="#authModal">Authenticate
+                            </button>
+                        </div>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="authModal" tabindex="-1" role="dialog"
+                             aria-labelledby="authModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span></button>
                                         <h4 class="modal-title" id="myModalLabel">Authenticate</h4>
-                                      </div>
-                                      <div class="modal-body">
+                                    </div>
+                                    <div class="modal-body">
                                         By clicking the button below you are acknowledging that you are currently
-                                          a sitting US Representative. You will receive a confirmation email after
-                                          clicking continue. We will follow up as quickly as possible by calling your
-                                          office phone.
-                                      </div>
-                                      <div class="modal-footer">
+                                        a sitting US Representative. You will receive a confirmation email after
+                                        clicking continue. We will follow up as quickly as possible by calling your
+                                        office phone.
+                                    </div>
+                                    <div class="modal-footer">
                                         <div class="col-md-6 col-md-offset-3">
                                             <button type="button"
                                                     id="rep_auth"
                                                     class="btn btn-primary sb_btn" style="width: 100%;"
-                                                    data-dismiss="modal">Continue</button>
+                                                    data-dismiss="modal">Continue
+                                            </button>
                                         </div>
-                                      </div>
                                     </div>
-                                  </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row {% if campaign.active %}sb_hidden{% endif %}">
-                            <div class="col-lg-12 hidden-sm hidden-xs">
-                                <h5>Take Quest Live</h5>
-                                <div class="block sb_success_block">
-                                    <p>
-                                        Here you may take your Sagebrew Quest live for the world to see.
-                                    </p>
-                                    {% if not request_profile.is_verified %}
-                                        <div class="btn sb_restricted sb_btn_disabled sb-restricted-btn-wrapper"
-                                             data-toggle="tooltip"
-                                             data-placement="top"
-                                             data-title="Please verify your account">
-                                            <button class="btn sb_restricted sb_btn_disabled" disabled="disabled">Take Quest Live</button>
-                                        </div>
-                                    {% else %}
-                                        <button class="btn btn-primary sb_btn"
-                                                type="button"
-                                                data-toggle="modal"
-                                                data-target="#liveModal">Take Quest Live</button>
-                                    {% endif %}
+                    </div>
+                </div>
+                <div class="row {% if campaign.active %}sb_hidden{% endif %}">
+                    <div class="col-lg-12 hidden-sm hidden-xs">
+                        <h5>Take Quest Live</h5>
+
+                        <div class="block sb_success_block">
+                            <p>
+                                Here you may take your Sagebrew Quest live for the world to see.
+                            </p>
+                            {% if not request_profile.is_verified %}
+                                <div class="btn sb_restricted sb_btn_disabled sb-restricted-btn-wrapper"
+                                     data-toggle="tooltip"
+                                     data-placement="top"
+                                     data-title="Please verify your account">
+                                    <button class="btn sb_restricted sb_btn_disabled" disabled="disabled">Take Quest
+                                        Live
+                                    </button>
                                 </div>
+                            {% else %}
+                                <button class="btn btn-primary sb_btn"
+                                        type="button"
+                                        data-toggle="modal"
+                                        data-target="#liveModal">Take Quest Live
+                                </button>
+                            {% endif %}
+                        </div>
 
-                                <!-- Modal -->
-                                <div class="modal fade" id="liveModal" tabindex="-1" role="dialog" aria-labelledby="authModalLabel" aria-hidden="true">
-                                  <div class="modal-dialog">
-                                    <div class="modal-content">
-                                      <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <!-- Modal -->
+                        <div class="modal fade" id="liveModal" tabindex="-1" role="dialog"
+                             aria-labelledby="authModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span></button>
                                         <h4 class="modal-title" id="myModalLabel">Take it live!</h4>
-                                      </div>
-                                      <div class="modal-body">
-                                          <p>By continuing you are beginning your Sagebrew Quest! After it is live you will be able
-                                          to start collecting donations and pledged votes from your supporters.</p>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>By continuing you are beginning your Sagebrew Quest! After it is live you
+                                            will be able
+                                            to start collecting donations and pledged votes from your supporters.</p>
 
-                                          <p><b>Please note</b> that if you wish to make any changes to your Goals that you have setup please do so
-                                          before taking your Quest live as you will not be able to edit them after.</p>
+                                        <p><b>Please note</b> that if you wish to make any changes to your Goals that
+                                            you have setup please do so
+                                            before taking your Quest live as you will not be able to edit them after.
+                                        </p>
 
-                                          <p>You <b>must</b> also have a bank account set up, we will prompt you to set this up should it not be done already. Also, if you are
-                                          part of our paid plan you will also need a credit card on file.</p>
-                                      </div>
-                                      <div class="modal-footer">
+                                        <p>You <b>must</b> also have a bank account set up, we will prompt you to set
+                                            this up should it not be done already. Also, if you are
+                                            part of our paid plan you will also need a credit card on file.</p>
+                                    </div>
+                                    <div class="modal-footer">
                                         <div class="col-md-6 col-md-offset-3">
                                             <button type="button"
                                                     id="take_live"
                                                     class="btn btn-primary sb_btn" style="width: 100%;"
-                                                    data-dismiss="modal">Continue</button>
+                                                    data-dismiss="modal">Continue
+                                            </button>
                                         </div>
-                                      </div>
                                     </div>
-                                  </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-lg-12 hidden-sm hidden-xs">
-                                <h5>Delete Account</h5>
-                                <div class="block sb_alert_block">
-                                    <p>
-                                        After you confirm you wish to delete your Quest we will send you a confirmation email and call you shortly after to begin the process of closing your Quest account.
-                                    </p>
-                                    <button class="btn btn-primary btn-danger"
-                                            id="delete-quest"
-                                            data-toggle="modal"
-                                            data-target="#myModal">Delete Account</button>
-                                </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 hidden-sm hidden-xs">
+                        <h5>Delete Account</h5>
 
-                                <!-- Modal -->
-                                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                                  <div class="modal-dialog">
-                                    <div class="modal-content">
-                                      <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <div class="block sb_alert_block">
+                            <p>
+                                After you confirm you wish to delete your Quest we will send you a confirmation email
+                                and call you shortly after to begin the process of closing your Quest account.
+                            </p>
+                            <button class="btn btn-primary btn-danger"
+                                    id="delete-quest"
+                                    data-toggle="modal"
+                                    data-target="#myModal">Delete Account
+                            </button>
+                        </div>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                             aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span></button>
                                         <h4 class="modal-title" id="myModalLabel">Delete Quest?</h4>
-                                      </div>
-                                      <div class="modal-body">
+                                    </div>
+                                    <div class="modal-body">
                                         Are you absolutely sure you want to delete your quest?
-                                      </div>
-                                      <div class="modal-footer">
+                                    </div>
+                                    <div class="modal-footer">
                                         <div class="col-lg-6 col-md-6">
                                             <button type="button"
                                                     class="btn btn-primary sb_btn" style="width: 100%;"
-                                                    data-dismiss="modal">GET ME OUT OF HERE!</button>
+                                                    data-dismiss="modal">GET ME OUT OF HERE!
+                                            </button>
                                         </div>
                                         <div class="col-lg-4 col-md-4">
                                             <button type="button" style="width: 100%;"
                                                     class="btn btn-primary btn-danger"
                                                     data-dismiss="modal"
-                                                    id="delete_button">DELETE</button>
+                                                    id="delete_button">DELETE
+                                            </button>
                                         </div>
-                                      </div>
                                     </div>
-                                  </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="row">
-                            <div id="validation-errors"></div>
-                            <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                                <button class="btn btn-primary sb_btn sb_btn_fill"
-                                        id="submit_settings">
-                                    Save Changes
-                                </button>
-                            </div>
-                            <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                                <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove" id="js-cancel-button">
-                                    Cancel
-                                </button>
-                            </div>
-                        </div>
-
-                    {% else %}
-                        <div class="col-xs-12">
-                            <button id="register-for-quest" class="btn btn-primary sb_btn sb_btn_fill">
-                                Register for a Quest!
-                            </button>
-                        </div>
-                    {% endif %}
                     </div>
-                </form>
                 </div>
-            </div>
+                <div class="row">
+                    <div id="validation-errors"></div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                        <button class="btn btn-primary sb_btn sb_btn_fill"
+                                id="submit_settings">
+                            Save Changes
+                        </button>
+                    </div>
+                    <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                        <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove" id="js-cancel-button">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+            {% else %}
+                <div class="col-xs-12">
+                    <button id="register-for-quest" class="btn btn-primary sb_btn sb_btn_fill">
+                        Register for a Quest!
+                    </button>
+                </div>
+            {% endif %}
         </div>
-    </div>
+    </form>
     <div hidden id="address_data_block" data-address_validation={{ address_key }}></div>
-</div>
 
 {% endblock %}
-{% block footer %}
-{% endblock %}
+
 {% block scripts %}
     {{ block.super }}
     <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>

@@ -123,7 +123,7 @@ def general_settings(request):
         return redirect("500_Error")
     except IndexError:
         address = False
-    return render(request, 'general_settings.html',
+    return render(request, 'settings/general_settings.html',
                   {"address": address, "address_key": address_key})
 
 
@@ -169,7 +169,7 @@ def contribute_settings(request):
     :param request:
     :return:
     """
-    return render(request, 'contribute_settings.html',
+    return render(request, 'settings/contribute_settings.html',
                   {"stripe_key": settings.STRIPE_PUBLIC_KEY})
 
 

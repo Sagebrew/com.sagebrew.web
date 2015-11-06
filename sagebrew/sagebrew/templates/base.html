@@ -22,10 +22,8 @@
     <script type="text/javascript">
         {{ js_settings|safe }}
     </script>
-
-
 </head>
-<body>
+<body class="{% block body_class %}{% endblock body_class %}">
     {% block navigation %}
         {% include "navigation/navbar.html" %}
     {% endblock navigation %}

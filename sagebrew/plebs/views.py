@@ -69,8 +69,8 @@ class ProfileView(LoginRequiredMixin):
         is_owner = False
         query = 'MATCH (person:Pleb {username: "%s"})' \
                 '-[r:FRIENDS_WITH]->(p:Pleb {username: "%s"}) ' \
-                'RETURN CASE WHEN r.currently_friends = True THEN True ' \
-                'WHEN r.currently_friends = False THEN False ' \
+                'RETURN CASE WHEN r.active = True THEN True ' \
+                'WHEN r.active = False THEN False ' \
                 'ELSE False END AS result' % (request.user.username,
                                               page_user.username)
         try:

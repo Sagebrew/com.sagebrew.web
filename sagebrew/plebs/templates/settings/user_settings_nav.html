@@ -1,6 +1,6 @@
 <ul class="nav nav-list nav-list-vivid sb-side-nav">
     <li class="nav-header sb-nav-header"><h3>Settings</h3></li>
-    <li class="{% if "user/settings/" in request.path %}active{% endif %}" style="margin-bottom: 0;">
+    <li class="{% if "user/settings/" in request.path %}active{% endif %}">
         <a  href="{% url 'general_settings' %}">
             <p>General</p>
         </a>

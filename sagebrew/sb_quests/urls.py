@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
 
-from .views import (saga, edit_epic, insights, moderators)
+from .views import (saga, edit_epic,
+                    insights, moderators, manage_settings)
 
 urlpatterns = patterns(
     'sb_public_official.views',
@@ -11,5 +12,7 @@ urlpatterns = patterns(
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/moderators/$', moderators,
         name='quest_moderators'),
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/edit_epic/$', edit_epic,
-        name="quest_epic")
+        name="quest_epic"),
+    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/manage/$', manage_settings,
+        name='quest_manage_settings'),
 )

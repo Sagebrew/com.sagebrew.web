@@ -20,6 +20,12 @@
                            href="{% url 'quest_moderators' id %}">Moderators</a>
                     </li>
                 {% endif %}
+                {% if request.user.username == owner_username %}
+                    <li>
+                        <a {% if "manage" in request.path %}class="active"{% endif %}
+                           href="{% url 'quest_manage_settings' id %}">Manage</a>
+                    </li>
+                {% endif %}
             </ul>
         </div>
     </div>

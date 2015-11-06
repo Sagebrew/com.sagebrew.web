@@ -1,0 +1,36 @@
+<ul class="nav nav-list nav-list-vivid sb-side-nav">
+    <li class="nav-header sb-nav-header"><h4>Manage Quest</h4></li>
+
+    <li class="{% if "manage/" in request.path %}active{% endif %}">
+        <a  href="{% url 'quest_manage_settings' request.user %}">
+            General
+        </a>
+    </li>
+
+    <li class="{% if "z/" in request.path %}active{% endif %}">
+        <a  href="{% url 'quest_manage_settings' request.user %}">
+            Goals
+        </a>
+    </li>
+
+    <li class="{% if "z/" in request.path %}active{% endif %}">
+        <a  href="{% url 'quest_manage_settings' request.user %}">
+            Updates
+        </a>
+    </li>
+
+    <li class="{% if "z/" in request.path %}active{% endif %}">
+        <a  href="{% url 'quest_manage_settings' request.user %}">
+            Banking
+        </a>
+    </li>
+
+    <li class="{% if "z/" in request.path %}active{% endif %}">
+        <a  href="{% url 'quest_manage_settings' request.user %}">
+            Moderators
+        </a>
+    </li>
+
+
+
+</ul>

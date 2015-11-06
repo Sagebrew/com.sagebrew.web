@@ -1,8 +1,13 @@
-{% extends "layout/two-col-left.html" %}
+{% extends "layout/three-col.html" %}
 {% load staticfiles %}
 {% block title %}Quest Settings{% endblock title %}
+
 {% block sidebar_left %}
-{% include "settings/user_settings_nav.html" %}
+{% include "manage/quest_manage_nav.html" %}
+{% endblock %}
+
+{% block sidebar_right %}
+    {% include "manage/manage_right_sidebar.html" %}
 {% endblock %}
 
 {% block live %}

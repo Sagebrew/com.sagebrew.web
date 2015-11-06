@@ -24,8 +24,7 @@ from api.utils import spawn_task
 from plebs.neo_models import (Pleb, BetaUser, Address,
                               get_friend_requests_sent)
 from sb_registration.utils import (verify_completed_registration)
-from sb_quests.neo_models import Campaign
-from sb_quests.serializers import CampaignSerializer
+
 
 from .serializers import PlebSerializerNeo
 from .tasks import create_friend_request_task, send_email_task
@@ -127,33 +126,7 @@ def general_settings(request):
                   {"address": address, "address_key": address_key})
 
 
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def quest_settings(request):
-    """
-    This view provides the necessary information for rendering a user's
-    Quest settings. If they have an ongoing Quest it provides the information
-    for that and if not it returns nothing and the template is expected to
-    provide a button for the user to start their Quest.
 
-    :param request:
-    :return:
-    """
-    query = 'MATCH (person:Pleb {username: "%s"})' \
-            '-[r:IS_WAGING]->(campaign:Campaign) RETURN campaign' % (
-                request.user.username)
-    try:
-        res, col = db.cypher_query(query)
-        campaign = CampaignSerializer(Campaign.inflate(res[0][0]),
-                                      context={'request': request}).data
-        campaign['stripe_key'] = settings.STRIPE_PUBLIC_KEY
-    except(CypherException, ClientError):
-        return redirect("500_Error")
-    except IndexError:
-        campaign = False
-    return render(request, 'quest_settings.html',
-                  {"campaign": campaign})
 
 
 @login_required()

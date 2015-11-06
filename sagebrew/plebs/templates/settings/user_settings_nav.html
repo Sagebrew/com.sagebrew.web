@@ -1,18 +1,18 @@
 <ul class="nav nav-list nav-list-vivid sb-side-nav">
-    <li class="nav-header sb-nav-header"><h3>Settings</h3></li>
+    <li class="nav-header sb-nav-header"><h4>Account Settings</h4></li>
     <li class="{% if "user/settings/" in request.path %}active{% endif %}">
         <a  href="{% url 'general_settings' %}">
-            <p>General</p>
-        </a>
-    </li>
-    <li class="{% if "user/quest_settings/" in request.path %}active{% endif %}">
-        <a  href="{% url 'quest_settings' %}">
-            <p>Quests</p>
+            General
         </a>
     </li>
     <li class="{% if "user/contribute/" in request.path %}active{% endif %}">
         <a  href="{% url 'contribute_settings' %}">
-            <p>Contribute</p>
+            Contribute
+        </a>
+    </li>
+    <li class="{% if "user/settings/" in request.path %}active{% endif %}">
+        <a  href="{% url 'general_settings' %}">
+            Delete Account
         </a>
     </li>
 </ul>

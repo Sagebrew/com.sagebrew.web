@@ -32,15 +32,9 @@
     {% block background_image %}
     {% endblock background_image %}
 
-    <div class="container-fluid container-main">
-        <div class="row">
-            <div class="col-xs-12">
-                <div class="app-sb">
-                    {% block content %}
-                    {% endblock content %}
-                </div>
-            </div>
-        </div>
+    <div class="container-fluid container-main app-sb">
+        {% block content %}
+        {% endblock content %}
     </div>
 
     <div class="container-fluid footer-wrapper">

@@ -1,8 +1,12 @@
-{% extends "settings/settings_base.html" %}
+{% extends "layout/two-col-left.html" %}
 {% load staticfiles %}
 {% block title %}{{ page_user.first_name }} {{ page_user.last_name }}{% endblock title %}
 
-{% block settings_content %}
+{% block sidebar_left %}
+{% include "settings/user_settings_nav.html" %}
+{% endblock %}
+
+{% block live %}
 
     <div class="block sb_markdown">
         <h1>Contributions</h1>

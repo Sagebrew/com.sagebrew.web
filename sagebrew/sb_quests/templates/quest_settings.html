@@ -1,7 +1,11 @@
-{% extends "settings/settings_base.html" %}
+{% extends "layout/two-col-left.html" %}
 {% load staticfiles %}
 {% block title %}Quest Settings{% endblock title %}
-{% block settings_content %}
+{% block sidebar_left %}
+{% include "settings/user_settings_nav.html" %}
+{% endblock %}
+
+{% block live %}
     <form id="socialForm">
         <div class="block sb_settings_block">
             {% if campaign.id %}

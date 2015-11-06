@@ -383,7 +383,9 @@ class PoliticalCampaign(Campaign):
     # reps, and presidents that can be voted on by the different users.
     constituents = RelationshipTo('plebs.neo_models.Pleb',
                                   'POTENTIAL_REPRESENTATIVE_FOR')
-    current_seat = RelationshipTo('sb_quests.neo_models.Seat', "CURRENT_SEAT")
+    # current_seat = RelationshipTo('sb_quests.neo_models.Seat', "CURRENT_SEAT")
+    # Can access current_seat by using the relationship on seats:
+    # CURRENTLY_HELD_BY going from the Seat to the Quest
 
     @classmethod
     def get(cls, object_uuid):

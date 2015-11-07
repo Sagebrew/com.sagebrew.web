@@ -1,9 +1,13 @@
+from logging import getLogger
+from unidecode import unidecode
+
 from neomodel import db
 from requests import get
 
 from django.conf import settings
 
 from .neo_models import Location
+logger = getLogger('loggly_logs')
 
 
 def parse_google_places(places, external_id):
@@ -23,7 +27,6 @@ def parse_google_places(places, external_id):
     us_variants = ['United States', 'USA', 'US']
     country = None
     admin_area_1 = None
-    admin_area_2 = None
     locality = None
     for place in places:
         if 'country' in place['types']:
@@ -32,13 +35,19 @@ def parse_google_places(places, external_id):
                 country['long_name'] = "United States of America"
         elif 'administrative_area_level_1' in place['types']:
             admin_area_1 = place
-        elif 'administrative_area_level_2' in place['types']:
-            admin_area_2 = place
+        # Taking out county for time being as with the current query it will
+        # cause duplicate cities
+        # elif 'administrative_area_level_2' in place['types']:
+        #    admin_area_2 = place
         elif ('administrative_area_level_3' in place['types'] or
                 'locality' in place['types']):
             locality = place
+    logger.critical(country)
+    logger.critical(admin_area_1)
+    logger.critical(locality)
     structure = verify_structure([
-        country, admin_area_1, admin_area_2, locality], external_id)
+        country, admin_area_1, locality], external_id)
+    logger.critical(structure)
     return create_tree(structure)
 
 
@@ -64,15 +73,12 @@ def verify_structure(structure, external_id, verify=True):
                 if remaining is not None and verify is True:
                     return verify_structure(google_maps_query(external_id),
                                             external_id, False)
-                elif verify is False:
-                    # We've already been here and need to make due with what
-                    # we have
-                    pass
                 elif r_idx + 1 == len(structure[idx+1:]):
                     # We're actually at the end. We should cut off the Nones
                     # and move on
                     structure = structure[:idx-1]
                     break
+    return structure
 
 
 def create_tree(structure):
@@ -87,14 +93,20 @@ def create_tree(structure):
         # know this isn't labeled a country but google says it's the top of
         # the chain for this structure, and we may need to update it at a later
         # date.
-        name = element['long_name']
+        try:
+            name = unidecode(unicode(element['long_name'], "utf-8"))
+        except TypeError:
+            # Handles cases where the name is already in unicode format
+            name = unidecode(element['long_name'])
+        logger.critical(name)
         if idx == 0:
             # Could craft out a CREATE UNIQUE potentially but rather create
             # node with neomodel to get UUID and defaults set properly
             query = 'MATCH (a:Location {name: "%s"}) RETURN a' % name
             res, _ = db.cypher_query(query)
             if not res.one:
-                parent_node = Location(name=name).save()
+                parent_node = Location(name=name,
+                                       created_by="google_maps").save()
             else:
                 parent_node = Location.inflate(res.one)
         else:
@@ -110,7 +122,8 @@ def create_tree(structure):
                         parent_node.object_uuid, name)
             res, _ = db.cypher_query(query)
             if not res.one:
-                child_node = Location(name=name).save()
+                child_node = Location(name=name,
+                                      created_by="google_maps").save()
                 parent_node.encompasses.connect(child_node)
                 child_node.encompassed_by.connect(parent_node)
                 parent_node = child_node
@@ -124,12 +137,15 @@ def connect_related_element(location, element_id):
     # This could be generalized to manage other nodes we want to link to a
     # location but since we only do questions right now, simplifying it.
     from sb_questions.neo_models import Question
-    query = 'MATCH (a:Question {external_location_id: %s}) RETURN a' % (
+    query = 'MATCH (a:Question {external_location_id: "%s"}) RETURN a' % (
         element_id)
     res, _ = db.cypher_query(query)
+    logger.critical(res.one)
     if not res.one:
         raise KeyError("Could not find Question yet")
+    logger.critical(location)
+
     connection_node = Question.inflate(res.one)
-    connection_node.connect(location)
+    connection_node.focus_location.connect(location)
 
     return connection_node

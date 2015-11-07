@@ -45,7 +45,8 @@ class Question(TitledContent):
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
     solutions = RelationshipTo('sb_solutions.neo_models.Solution',
                                'POSSIBLE_ANSWER')
-    focus_location = RelationshipTo('sb_locations.Location', 'FOCUSED_ON')
+    focus_location = RelationshipTo('sb_locations.neo_models.Location',
+                                    'FOCUSED_ON')
 
     @classmethod
     def get(cls, object_uuid):

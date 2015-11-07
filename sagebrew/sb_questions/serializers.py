@@ -176,8 +176,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
                 tag_obj = Tag.inflate(res.one)
                 question.tags.connect(tag_obj)
         spawn_task(task_func=update_tags, task_param={"tags": tags})
-        spawn_task(task_func=create_location_tree, task_param={
-            "external_id": question.external_location_id})
+        if validated_data.get('external_location_id', None) is not None:
+            spawn_task(task_func=create_location_tree, task_param={
+                "external_id": question.external_location_id})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": question.object_uuid})
         question.refresh()
@@ -208,8 +209,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
             'external_location_id', instance.external_location_id)
         instance.save()
         cache.delete(instance.object_uuid)
-        spawn_task(task_func=create_location_tree, task_param={
-            "external_id": instance.external_location_id})
+        if validated_data.get('external_location_id', None) is not None:
+            spawn_task(task_func=create_location_tree, task_param={
+                "external_id": instance.external_location_id})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
         spawn_task(task_func=update_search_index, task_param={

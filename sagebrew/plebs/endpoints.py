@@ -214,7 +214,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def follow(self, request, username=None):
         """
-        This endpoint allows users to follow and un-follow other users.
+        This endpoint allows users to follow other users.
         """
         queryset = self.get_object()
         is_following = queryset.is_following(request.user.username)
@@ -229,6 +229,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'])
     def unfollow(self, request, username=None):
+        """
+        This endpoint allows users to unfollow other users.
+        """
         queryset = self.get_object()
         is_following = queryset.is_following(request.user.username)
         if not is_following:

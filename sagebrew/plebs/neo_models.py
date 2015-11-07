@@ -598,7 +598,7 @@ class Pleb(Searchable):
         """
         query = 'MATCH (p:Pleb {username:"%s"}), (p2:Pleb {username:"%s"}) ' \
                 'WITH p, p2 CREATE UNIQUE (p)<-[r:FOLLOWING]-(p2) SET ' \
-                'r.active=true RETURN r' % (self.username, username)
+                'r.active=true RETURN r.active' % (self.username, username)
         res, _ = db.cypher_query(query)
         return res.one
 
@@ -608,7 +608,7 @@ class Pleb(Searchable):
         following the user the method is called upon.
         """
         query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-(p2:Pleb ' \
-                '{username:"%s"}) SET r.active=false RETURN r' \
+                '{username:"%s"}) SET r.active=false RETURN r.active' \
                 % (self.username, username)
         res, _ = db.cypher_query(query)
         return res.one

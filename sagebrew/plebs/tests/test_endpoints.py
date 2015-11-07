@@ -2873,6 +2873,55 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['results'][2]['type'], 'post')
 
 
+class TestFollowNewsfeed(APITestCase):
+    def setUp(self):
+        cache.clear()
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.url = "http://testserver"
+        self.email2 = "bounce@simulator.amazonses.com"
+        res = create_user_util_test(self.email2)
+        self.assertNotEqual(res, False)
+        wait_util(res)
+        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.user2 = User.objects.get(email=self.email2)
+        rel = self.pleb.following.connect(self.pleb2)
+        rel.save()
+        self.question = Question(
+            title=str(uuid1()),
+            content="This is some arbitrary test content"
+        ).save()
+        self.question.owned_by.connect(self.pleb2)
+        self.pleb2.questions.connect(self.question)
+
+    def test_get_question_from_following(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['id'],
+                         self.question.object_uuid)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_solution_from_following(self):
+        self.client.force_authenticate(user=self.user)
+        solution = Solution(content="Some arbitrary solution content").save()
+        self.question.solutions.connect(solution)
+        solution.solution_to.connect(self.question)
+        self.pleb.solutions.connect(solution)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 2)
+        self.assertEqual(response.data['results'][0]['id'],
+                         solution.object_uuid)
+
+
 class TestAcceptFriendRequest(APITestCase):
     def setUp(self):
         query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"

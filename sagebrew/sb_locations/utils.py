@@ -47,9 +47,8 @@ def parse_google_places(places, external_id):
 
 def google_maps_query(external_id):
     url = "https://maps.googleapis.com/maps/api/" \
-                          "place/details/json?" \
-                          "placeid=%s&key=%s" % (
-                            external_id, settings.GOOGLE_MAPS_API_SERVER)
+          "place/details/json?placeid=%s&key=%s" % (
+              external_id, settings.GOOGLE_MAPS_API_SERVER)
     response = get(url, headers={
         "content-type": "application/json"})
     return response.json()['result']['address_components']
@@ -60,17 +59,17 @@ def verify_structure(structure, external_id, verify=True):
         if place is None:
             # check to make sure we've actually hit the end and aren't just
             # missing an intermediate location due to Google not returning it
-            for r_idx, remaining in enumerate(structure[idx+1:]):
+            for r_idx, remaining in enumerate(structure[idx + 1:]):
                 # If we aren't at the last node yet go ask Google again for
                 # the full structure and restart the function with a flag that
                 # stops us from constantly asking google
                 if remaining is not None and verify is True:
                     return verify_structure(google_maps_query(external_id),
                                             external_id, False)
-                elif r_idx + 1 == len(structure[idx+1:]):
+                elif r_idx + 1 == len(structure[idx + 1:]):
                     # We're actually at the end. We should cut off the Nones
                     # and move on
-                    structure = structure[:idx-1]
+                    structure = structure[:idx - 1]
                     break
     return structure
 

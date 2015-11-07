@@ -111,13 +111,14 @@ class QuestionSerializerNeo(TitledContentSerializer):
                                   min_length=15, max_length=140)
     solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
-    longitude = serializers.FloatField(required=False)
-    latitude = serializers.FloatField(required=False)
-    affected_area = serializers.CharField()
+    longitude = serializers.FloatField(required=False, allow_null=True)
+    latitude = serializers.FloatField(required=False, allow_null=True)
+    affected_area = serializers.CharField(required=False, allow_null=True)
     # Used to associate Question with our tree structure after tasks have
     # been completed and Question has been created
     external_location_id = serializers.CharField(write_only=True,
-                                                 required=False)
+                                                 required=False,
+                                                 allow_null=True)
 
     def validate_title(self, value):
         # We need to escape quotes prior to passing the title to the query.

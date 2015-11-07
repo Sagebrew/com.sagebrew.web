@@ -10,10 +10,10 @@ $(document).ready(function () {
                 'title': title,
                 'content': content,
                 'tags': tags,
-                'external_location_id': document.getElementById('location-id').innerHTML,
-                'latitude': document.getElementById('location-lat').innerHTML,
-                'longitude': document.getElementById('location-long').innerHTML,
-                'affected_area': document.getElementById('location-area').innerHTML
+                'external_location_id': document.getElementById('location-id').innerHTML || null,
+                'latitude': document.getElementById('location-lat').innerHTML || null,
+                'longitude': document.getElementById('location-long').innerHTML || null,
+                'affected_area': document.getElementById('location-area').innerHTML || null
             }),
             contentType: "application/json; charset=utf-8",
             dataType: "json",

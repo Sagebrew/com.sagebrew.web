@@ -286,10 +286,6 @@ class Pleb(Searchable):
                                'DONATIONS_GIVEN')
     following = RelationshipTo('plebs.neo_models.Pleb', 'FOLLOWING',
                                model=FollowRelationship)
-    # followers = RelationshipTo('plebs.neo_models.Pleb', 'FOLLOWERS',
-    #                            model=FollowRelationship)
-    # Don't need followers as we can use a single relationship to query based
-    # upon direction
 
     @classmethod
     def get(cls, username):
@@ -601,8 +597,8 @@ class Pleb(Searchable):
         the user the method is called upon.
         """
         query = 'MATCH (p:Pleb {username:"%s"}), (p2:Pleb {username:"%s"}) ' \
-                'WITH p, p2 CREATE (p)<-[r:FOLLOWING]-(p2) SET r.active=true ' \
-                'RETURN r' % (self.username, username)
+                'WITH p, p2 CREATE UNIQUE (p)<-[r:FOLLOWING]-(p2) SET ' \
+                'r.active=true RETURN r' % (self.username, username)
         res, _ = db.cypher_query(query)
         return res.one
 

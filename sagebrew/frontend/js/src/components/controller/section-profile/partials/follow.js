@@ -8,20 +8,19 @@ var request = require('./../../../api').request,
 require('./../../../plugin/contentloader');
 
 export function init() {
-    var $app = $(".app-sb"),
+    var $app = $(".sb-profile-not-friend-container"),
         profilePageUser = helpers.args(1);
 
 
-    //Friend Action binding.
-    //TODO: this is a lot of repeated code from the nav app. We should
-    //      consolidate.
+    // (Un)follow user bindings
     $app
 
         //
-        // Delete friend request
+        // Follow user
         .on('click', '#js-follow', function (event) {
             event.preventDefault();
-            var $deleteAction = $(".js-delete-friend-request");
+            var $deleteAction = $(".js-delete-friend-request"),
+                $follow = $("#js-follow");
             $deleteAction.attr("disabled", "disabled");
 
             request.post({
@@ -31,25 +30,29 @@ export function init() {
                     var $unfollow = $("#js-unfollow");
                     $unfollow.show();
                     $unfollow.removeAttr("disabled");
+            }).fail(function(jqXHR) {
+                if (jqXHR.status === 500) {
+                    $follow.removeAttr("disabled");
+                }
             });
         })
         //
-        // Send Friend Request.
+        // Unfollow user
         .on('click', '#js-unfollow', function (event) {
             event.preventDefault();
-            var $follow = $("#js-follow");
+            var $follow = $("#js-follow"),
+                $unfollow = $("#js-unfollow");
             $follow.attr("disabled", "disabled");
 
             request.post({
                 url: "/v1/profiles/" + profilePageUser + "/unfollow/"
             }).done(function (data) {
-                var $unfollow = $("#js-unfollow");
                 $unfollow.hide();
                 $follow.removeAttr("disabled");
                 $follow.show();
             }).fail(function (jqXHR) {
                 if (jqXHR.status === 500) {
-                    $follow.removeAttr("disabled");
+                    $unfollow.removeAttr("disabled");
                 }
             });
         });

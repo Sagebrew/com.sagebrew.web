@@ -219,9 +219,12 @@ class ProfileViewSet(viewsets.ModelViewSet):
         queryset = self.get_object()
         is_following = queryset.is_following(request.user.username)
         if is_following:
-            return Response(True, status=status.HTTP_200_OK)
-        res = queryset.follow(request.user.username)
-        return Response({"detail": "Successfully followed user."},
+            return Response({"detail": "Already following user.",
+                             "status": status.HTTP_200_OK},
+                            status=status.HTTP_200_OK)
+        queryset.follow(request.user.username)
+        return Response({"detail": "Successfully followed user.",
+                         "status": status.HTTP_200_OK},
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'])
@@ -229,8 +232,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
         queryset = self.get_object()
         is_following = queryset.is_following(request.user.username)
         if not is_following:
-            return Response(True, status=status.HTTP_200_OK)
-        res = queryset.unfollow(request.user.username)
+            return Response({"detail": "Already not following user.",
+                             "status": status.HTTP_200_OK},
+                            status=status.HTTP_200_OK)
+        queryset.unfollow(request.user.username)
         return Response({"detail": "Successfully unfollowed user."},
                     status=status.HTTP_200_OK)
 

@@ -2925,6 +2925,59 @@ class TestFollowNewsfeed(APITestCase):
         solution.delete()
 
 
+class TestFollowEndpoints(APITestCase):
+    def setUp(self):
+        cache.clear()
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.url = "http://testserver"
+        self.pleb2 = Pleb(username=shortuuid.uuid()).save()
+
+    def test_follow(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-follow',
+                      kwargs={'username': self.pleb2.username})
+        response = self.client.post(url)
+        self.assertEqual(response.data['detail'], "Successfully followed user.")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_follow_already_following(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-follow',
+                      kwargs={'username': self.pleb2.username})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response2 = self.client.post(url)
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        self.assertEqual(response2.data['detail'], "Already following user.")
+
+    def test_unfollow(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-unfollow',
+                      kwargs={'username': self.pleb2.username})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], "Already not following user.")
+
+    def test_unfollow_following(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-follow',
+                      kwargs={'username': self.pleb2.username})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        url = reverse('profile-unfollow',
+                      kwargs={'username': self.pleb2.username})
+        response = self.client.post(url)
+        self.assertEqual(response.data['detail'],
+                         "Successfully unfollowed user.")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
 class TestAcceptFriendRequest(APITestCase):
     def setUp(self):
         query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"

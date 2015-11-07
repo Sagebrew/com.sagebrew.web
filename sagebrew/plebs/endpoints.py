@@ -239,7 +239,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                              "status": status.HTTP_200_OK},
                             status=status.HTTP_200_OK)
         queryset.unfollow(request.user.username)
-        return Response({"detail": "Successfully unfollowed user."},
+        return Response({"detail": "Successfully unfollowed user.",
+                         "status": status.HTTP_200_OK},
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'])

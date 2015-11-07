@@ -41,7 +41,6 @@ function initAutocomplete() {
         }));
         marker.setPosition(place.geometry.location);
         marker.setVisible(true);
-        console.log(place);
         document.getElementById('location-id').innerHTML = place.place_id;
         document.getElementById('location-lat').innerHTML = place.geometry.location.lat();
         document.getElementById('location-long').innerHTML = place.geometry.location.lng();

@@ -625,14 +625,12 @@ a {
 .sb_secondary_nav{
   &:extend(.sb_nav);
   background-color: @sb_grey_light;
-  height: 50px;
   border-radius: 0 0 2px 2px;
   border-width: 2px;
   border-bottom: solid @sb_grey;
   margin-bottom: @sb_common_margin_positive;
   ul {
-    margin-top: 10px;
-    padding-left:0;
+    margin:0;
   }
   li {
     margin-right: 20px;
@@ -640,6 +638,8 @@ a {
   a{
     color: @sb_grey_dark;
     font-size: 20px;
+    padding:5px 0;
+    display:block;
     &:hover{
        color: @sb_green;
     }
@@ -676,7 +676,7 @@ a {
 .sb_action_nav{
   &:extend(.sb_secondary_nav);
   background-color: @sb_green_extra_light;
-  margin: 60px 15px 0 -15px;
+  margin: 60px 0 0 0;
   border-radius: 2px 2px 0 0;
   ul{
     padding: 0 0 0 20px;
@@ -692,7 +692,7 @@ a {
 .sb_secondary_nav_bar{
   &:extend(.sb_secondary_nav);
   background-color: @sb_green_wall;
-  padding: 0 0 30px 0;
+  padding:0;
 }
 .sb_secondary_nav_transparent{
   &:extend(.sb_secondary_nav);
@@ -718,76 +718,6 @@ a {
 }
 .sb-footer-links{
   padding-right: 0 !important;
-}
-
-// Signup
-.sb_sign_up_form{
-  input {
-    width: 348px;
-  }
-  button{
-    width: 348px;
-  }
-}
-.sb_input_wrapper{
-  margin-bottom: 15px;
-  h3 {
-    color: white;
-  }
-}
-
-// Groupings
-.sb_search{
-  display: inline-block;
-  float: right;
-  margin-top: 5px;
-  form{
-    padding-top: 5px;
-  }
-  input{
-    width: 400px;
-    border-radius: 5px 0 0 5px;
-  }
-}
-.navbar-header{
-  margin-top: 2px;
-}
-.navbar-toggle {
-  color:#fff;
-  &:before {
-     content:" ";
-  }
-}
-.sb-signup-btn{
-  margin-left: 15px !important;
-}
-.sb_login{
-  &:extend(.sb_search);
-  input{
-    line-height: 25px;
-    margin-right: 10px;
-  }
-  ul{
-    margin-bottom: 14px;
-  }
-  button{
-    &:extend(.sb_btn_submit);
-    background-color: @sb_off_white;
-    color: @sb_green;
-    // Firefox fix for button being placed differently in navbar
-    padding-top: 2px;
-    padding-bottom: 3px;
-    margin-top: 6px;
-    margin-right: 5px;
-  }
-}
-.nav-logged-in{
-  margin-top: 5px;
-}
-
-//this is for disabling certain dropdowns when editing an object
-.sb_object_dropdown {
-
 }
 
 //progress bar
@@ -1235,7 +1165,7 @@ a {
   resize: vertical;
 }
 textarea.sb_comment_input{
-  height: 50px;
+  height: 45px;
 }
 .sb_comment_disabled{
   color: @sb_grey_light;

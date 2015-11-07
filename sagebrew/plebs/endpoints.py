@@ -353,7 +353,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         if possible_reps is None:
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(a:Address)-[:ENCOMPASSED_BY]->' \
-                    '(l:Location {name: a.congressional_district})-' \
+                    '(l:Location {name: str(a.congressional_district)})-' \
                     '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
                     '->(c:Campaign) WHERE c.active=true AND o.level="federal"' \
                     ' RETURN DISTINCT c LIMIT 5' % username

@@ -1,11 +1,13 @@
+from os import environ
 import json
 
 
 def js_settings(request):
 
-    data = {}
-    data['user'] = {}
-
+    data = {
+        'google_maps': environ.get('GOOGLE_MAPS_JS'),
+        'user': {}
+    }
     try:
         if request.user.is_authenticated():
             data['user']['type'] = "auth"

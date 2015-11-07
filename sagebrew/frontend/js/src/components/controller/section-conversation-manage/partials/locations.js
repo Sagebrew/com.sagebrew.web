@@ -1,5 +1,6 @@
 /*global google*/
-var request = require('./../../../api').request;
+var request = require('./../../../api').request,
+    settings = require('./../../../settings').settings;
 
 function initAutocomplete() {
     var map = new google.maps.Map(document.getElementById('map'), {
@@ -53,7 +54,7 @@ export function init() {
     "use strict";
     var s = document.createElement("script");
     s.type = "text/javascript";
-    s.src  = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDYSN_Flb7jJVswYVf-9pG4UMBPId3zlys&libraries=places&callback=setupAutoSearchMaps";
+    s.src  = "https://maps.googleapis.com/maps/api/js?key=" + settings.google_maps + "&libraries=places&callback=setupAutoSearchMaps";
     window.setupAutoSearchMaps = function(){
         initAutocomplete();
     };

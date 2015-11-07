@@ -27,7 +27,7 @@ function displayMap() {
         })
         .fail(function(){
             timeOutId = setTimeout(displayMap, 1000);
-        })
+        });
 
 }
 

@@ -2,6 +2,7 @@
 /**
  * @file
  * For post creation. Giving this a dedicated file since it's on multiple pages.
+ * TODO refactor and include the above globals.
  *
  */
 var request = require('./../../../api').request,

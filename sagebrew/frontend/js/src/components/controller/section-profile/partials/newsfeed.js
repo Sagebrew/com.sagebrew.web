@@ -3,6 +3,7 @@
  * @file
  * For posts. Posts only exist on the feed and profile pages, but
  * we're just going to include them in the entire profile for now.
+ * TODO refactor and include the above globals.
  *
  */
 var request = require('./../../../api').request,

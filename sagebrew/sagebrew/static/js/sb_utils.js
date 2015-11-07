@@ -231,26 +231,6 @@ function loadPosts(url) {
     });
 }
 
-function loadSolutionCount() {
-    $.ajax({
-        xhrFields: {withCredentials: true},
-        type: "GET",
-        url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solution_count/",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data) {
-            $('#solution_count').html("");
-            $('#solution_count').append(data.solution_count);
-            if (data.solution_count !== 1) {
-                $('#solution_plural').append('s');
-            }
-        },
-        error: function (XMLHttpRequest) {
-            errorDisplay(XMLHttpRequest);
-        }
-    });
-}
-
 
 function loadSolutions(url) {
     $.ajax({

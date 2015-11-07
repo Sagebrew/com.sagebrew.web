@@ -1,4 +1,3 @@
-from logging import getLogger
 from unidecode import unidecode
 
 from neomodel import db
@@ -7,7 +6,6 @@ from requests import get
 from django.conf import settings
 
 from .neo_models import Location
-logger = getLogger('loggly_logs')
 
 
 def parse_google_places(places, external_id):
@@ -42,12 +40,8 @@ def parse_google_places(places, external_id):
         elif ('administrative_area_level_3' in place['types'] or
                 'locality' in place['types']):
             locality = place
-    logger.critical(country)
-    logger.critical(admin_area_1)
-    logger.critical(locality)
     structure = verify_structure([
         country, admin_area_1, locality], external_id)
-    logger.critical(structure)
     return create_tree(structure)
 
 
@@ -98,7 +92,6 @@ def create_tree(structure):
         except TypeError:
             # Handles cases where the name is already in unicode format
             name = unidecode(element['long_name'])
-        logger.critical(name)
         if idx == 0:
             # Could craft out a CREATE UNIQUE potentially but rather create
             # node with neomodel to get UUID and defaults set properly
@@ -140,11 +133,8 @@ def connect_related_element(location, element_id):
     query = 'MATCH (a:Question {external_location_id: "%s"}) RETURN a' % (
         element_id)
     res, _ = db.cypher_query(query)
-    logger.critical(res.one)
     if not res.one:
         raise KeyError("Could not find Question yet")
-    logger.critical(location)
-
     connection_node = Question.inflate(res.one)
     connection_node.focus_location.connect(location)
 

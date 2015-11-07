@@ -25,7 +25,8 @@ class Location(SBObject):
     # we only need to create the marker on the display page
     # Allows us to determine which service to query with the id for additional
     # info
-    created_by = StringProperty(default="Smarty Streets")
+    # valid values: smarty_streets, google_maps
+    created_by = StringProperty(default="smarty_streets")
     # ID provided by a third party representing the ID that should be used
     # when querying their service.
     external_id = StringProperty(default=None)

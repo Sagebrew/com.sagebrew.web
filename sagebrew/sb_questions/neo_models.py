@@ -38,12 +38,14 @@ class Question(TitledContent):
     latitude = FloatProperty()
     affected_area = StringProperty()
     # Google place_id
-    external_location_id = StringProperty()
+    external_location_id = StringProperty(index=True)
 
     # relationships
+
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
     solutions = RelationshipTo('sb_solutions.neo_models.Solution',
                                'POSSIBLE_ANSWER')
+    focus_location = RelationshipTo('sb_locations.Location', 'FOCUSED_ON')
 
     @classmethod
     def get(cls, object_uuid):

@@ -15,6 +15,8 @@ from neomodel import db
 from api.utils import spawn_task, gather_request_data
 from sb_base.serializers import TitledContentSerializer
 from plebs.neo_models import Pleb
+from sb_locations.tasks import create_location_tree
+
 from sb_tags.neo_models import Tag
 from sb_tags.tasks import update_tags
 from sb_solutions.serializers import SolutionSerializerNeo
@@ -174,6 +176,8 @@ class QuestionSerializerNeo(TitledContentSerializer):
                 tag_obj = Tag.inflate(res.one)
                 question.tags.connect(tag_obj)
         spawn_task(task_func=update_tags, task_param={"tags": tags})
+        spawn_task(task_func=create_location_tree, task_param={
+            "external_id": question.external_location_id})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": question.object_uuid})
         question.refresh()
@@ -196,8 +200,16 @@ class QuestionSerializerNeo(TitledContentSerializer):
         instance.content = bleach.clean(validated_data.get('content',
                                                            instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
+        instance.latitude = validated_data.get('latitude', instance.latitude)
+        instance.longitude = validated_data.get('longitude', instance.longitude)
+        instance.affected_area = validated_data.get('affected_area',
+                                                    instance.affected_area)
+        instance.external_location_id = validated_data.get(
+            'external_location_id', instance.external_location_id)
         instance.save()
         cache.delete(instance.object_uuid)
+        spawn_task(task_func=create_location_tree, task_param={
+            "external_id": instance.external_location_id})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
         spawn_task(task_func=update_search_index, task_param={

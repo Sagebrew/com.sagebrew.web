@@ -2907,6 +2907,7 @@ class TestFollowNewsfeed(APITestCase):
         self.assertEqual(response.data['results'][0]['id'],
                          self.question.object_uuid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.question.delete()
 
     def test_get_solution_from_following(self):
         self.client.force_authenticate(user=self.user)

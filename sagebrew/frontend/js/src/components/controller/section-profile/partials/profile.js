@@ -3,7 +3,7 @@
  * @file
  * Profile (aka wall) page.
  * TODO refactor and include the above globals.
- * 
+ *
  */
 var request = require('./../../../api').request,
     helpers = require('./../../../common/helpers');

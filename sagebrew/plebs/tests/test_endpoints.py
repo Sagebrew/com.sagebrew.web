@@ -2921,6 +2921,8 @@ class TestFollowNewsfeed(APITestCase):
         self.assertEqual(response.data['count'], 2)
         self.assertEqual(response.data['results'][0]['id'],
                          solution.object_uuid)
+        self.question.delete()
+        solution.delete()
 
 
 class TestAcceptFriendRequest(APITestCase):

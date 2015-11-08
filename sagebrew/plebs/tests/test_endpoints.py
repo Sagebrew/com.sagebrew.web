@@ -2093,14 +2093,9 @@ class PlebHouseRepresentativeTest(APITestCase):
             self.pleb.senators.disconnect(house_representative)
         self.pleb.house_rep.connect(house_representative)
         self.client.force_authenticate(user=self.user)
-        query = "MATCH (a:Pleb {username: '%s'})-" \
-                "[:HAS_HOUSE_REPRESENTATIVE]->" \
-                "(s:PublicOfficial) RETURN s" % self.user.username
-        res, col = db.cypher_query(query)
-        senators = [PublicOfficial.inflate(row[0]) for row in res]
-        cache.set("%s_house_representative" % self.user.username, senators)
         url = reverse('profile-house-representative',
                       kwargs={'username': self.pleb.username})
+        self.client.get(url, format='json')
         response = self.client.get(url, format='json')
         self.assertGreater(len(response.data), 0)
 

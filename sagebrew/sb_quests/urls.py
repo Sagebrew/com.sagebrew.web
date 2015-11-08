@@ -1,7 +1,8 @@
 from django.conf.urls import patterns, url
 
 from .views import (saga, edit_epic,
-                    insights, moderators, manage_settings)
+                    insights, moderators,
+                    manage_settings, delete_quest)
 
 urlpatterns = patterns(
     'sb_public_official.views',
@@ -15,4 +16,6 @@ urlpatterns = patterns(
         name="quest_epic"),
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/manage/$', manage_settings,
         name='quest_manage_settings'),
+    url(r'^delete_quest/$', delete_quest, name="delete_quest"),
+
 )

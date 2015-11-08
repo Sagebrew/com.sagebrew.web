@@ -126,7 +126,14 @@ def general_settings(request):
                   {"address": address, "address_key": address_key})
 
 
-
+@login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
+def delete_account(request):
+    """
+    Delete account page.
+    """
+    return render(request, 'settings/delete_account.html')
 
 
 @login_required()
@@ -192,36 +199,6 @@ def get_user_search_view(request, pleb_username=""):
             status=200)
     else:
         return Response({'detail': 'error'}, 400)
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def delete_quest(request):
-    internal_data = {
-        "source": "support@sagebrew.com",
-        "to": [row[1] for row in settings.ADMINS],
-        "subject": "Quest Deletion",
-        "html_content": render_to_string(
-            "email_templates/email_internal_quest_deletion.html", {
-                "username": request.user.username,
-                "email": request.user.email
-            })
-    }
-    user_data = {
-        "source": "support@sagebrew.com",
-        "to": request.user.email,
-        "subject": "Quest Deletion Confirmation",
-        "html_content": render_to_string(
-            "email_templates/email_quest_deletion_confirmation.html", {
-                "first_name": request.user.first_name,
-                "last_name": request.user.last_name
-            })
-    }
-    spawn_task(task_func=send_email_task, task_param=internal_data)
-    spawn_task(task_func=send_email_task, task_param=user_data)
-    return Response({"detail": "We have sent a confirmation email to you "
-                               "and will be in contact soon to follow up!"},
-                    status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

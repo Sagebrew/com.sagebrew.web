@@ -1,17 +1,19 @@
 <ul class="nav nav-list nav-list-vivid sb-side-nav">
     <li class="nav-header sb-nav-header"><h4>Account Settings</h4></li>
-    <li class="{% if "user/settings/" in request.path %}active{% endif %}">
+    <li class="{% if "user/settings/" == request.path %}active{% endif %}">
         <a  href="{% url 'general_settings' %}">
             General
         </a>
     </li>
-    <li class="{% if "user/contribute/" in request.path %}active{% endif %}">
+    <li class="{% if "user/contribute/" == request.path %}active{% endif %}">
+
+
         <a  href="{% url 'contribute_settings' %}">
             Contribute
         </a>
     </li>
-    <li class="{% if "user/settings/" in request.path %}active{% endif %}">
-        <a  href="{% url 'general_settings' %}">
+    <li class="{% if "user/settings/delete" == request.path %}active{% endif %}">
+        <a  href="{% url 'settings_delete_account' %}">
             Delete Account
         </a>
     </li>

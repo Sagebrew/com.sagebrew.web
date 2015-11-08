@@ -10,6 +10,10 @@ from api.utils import smart_truncate
 from sb_quests.neo_models import PoliticalCampaign, Campaign
 from sb_quests.serializers import PoliticalCampaignSerializer, CampaignSerializer
 
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
 
 from py2neo.cypher import ClientError
 
@@ -127,3 +131,33 @@ def manage_settings(request, username):
         campaign = False
     return render(request, 'manage/quest_settings.html',
                   {"campaign": campaign})
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def delete_quest(request):
+    internal_data = {
+        "source": "support@sagebrew.com",
+        "to": [row[1] for row in settings.ADMINS],
+        "subject": "Quest Deletion",
+        "html_content": render_to_string(
+            "email_templates/email_internal_quest_deletion.html", {
+                "username": request.user.username,
+                "email": request.user.email
+            })
+    }
+    user_data = {
+        "source": "support@sagebrew.com",
+        "to": request.user.email,
+        "subject": "Quest Deletion Confirmation",
+        "html_content": render_to_string(
+            "email_templates/email_quest_deletion_confirmation.html", {
+                "first_name": request.user.first_name,
+                "last_name": request.user.last_name
+            })
+    }
+    spawn_task(task_func=send_email_task, task_param=internal_data)
+    spawn_task(task_func=send_email_task, task_param=user_data)
+    return Response({"detail": "We have sent a confirmation email to you "
+                               "and will be in contact soon to follow up!"},
+                    status=status.HTTP_200_OK)

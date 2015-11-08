@@ -11,7 +11,6 @@ class Command(BaseCommand):
                 'FOREACH (rel in [r]|SET rel.active = rel.currently_friends)' \
                 ' RETURN r'
         res, _ = db.cypher_query(query)
-        print res
         return True
 
     def handle(self, *args, **options):

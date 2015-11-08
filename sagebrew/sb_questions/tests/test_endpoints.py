@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from neomodel.exception import DoesNotExist
+from neomodel import db
 
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
@@ -107,6 +108,52 @@ class QuestionEndpointTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_with_focus_area(self):
+        self.client.force_authenticate(user=self.user)
+        content = "This is the content to my question, it's a pretty good " \
+                  "question."
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": str(uuid1()),
+            "tags": ['taxes', 'environment'],
+            "latitude": 42.5247555,
+            "longitude": -83.53632679999998,
+            "affected_area": "Wixom, MI, USA",
+            "external_location_id": "ChIJ7xtMYSCmJIgRZBZBy5uZHl8"
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        res, _ = db.cypher_query('MATCH (a:Question '
+                                 '{external_location_id: '
+                                 '"ChIJ7xtMYSCmJIgRZBZBy5uZHl8"}) RETURN a')
+        question = Question.inflate(res.one)
+        self.assertEqual(question.affected_area, "Wixom, MI, USA")
+        self.assertEqual(question.content, content)
+        self.assertEqual(question.object_uuid, response.data['object_uuid'])
+
+    def test_create_null_focus_area(self):
+        self.client.force_authenticate(user=self.user)
+        content = "This is the content to my question, it's a pretty good " \
+                  "question."
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": str(uuid1()),
+            "tags": ['taxes', 'environment'],
+            "latitude": None,
+            "longitude": None,
+            "affected_area": None,
+            "external_location_id": None
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        res, _ = db.cypher_query('MATCH (a:Question {object_uuid: '
+                                 '"%s"}) RETURN a' %
+                                 response.data['object_uuid'])
+        question = Question.inflate(res.one)
+        self.assertEqual(question.content, content)
 
     def test_create_duplicate_title(self):
         self.client.force_authenticate(user=self.user)
@@ -450,6 +497,37 @@ class QuestionEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.question.object_uuid})
         response = self.client.get(url, format='json')
         self.assertEqual(self.question.title, response.data['title'])
+
+    def test_update_focus_area(self):
+        self.client.force_authenticate(user=self.user)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': self.question.object_uuid})
+        latitude = 42.537811
+        longitude = -83.48104810000001
+        affected_area = "Walled Lake, MI, USA"
+        external_id = "ChIJCV7PpJGlJIgRkkwposHal-Q"
+        data = {
+            "latitude": latitude,
+            "longitude": longitude,
+            "affected_area": affected_area,
+            "external_location_id": external_id
+        }
+        response = self.client.patch(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        res, _ = db.cypher_query('MATCH (a:Question '
+                                 '{external_location_id: '
+                                 '"ChIJCV7PpJGlJIgRkkwposHal-Q"}) RETURN a')
+        question = Question.inflate(res.one)
+        updated_question = Question.get(self.question.object_uuid)
+        self.assertEqual(question.affected_area, "Walled Lake, MI, USA")
+        self.assertEqual(question.latitude, 42.537811)
+        self.assertEqual(question.object_uuid, response.data['object_uuid'])
+        self.assertEqual(updated_question.latitude, latitude)
+        self.assertEqual(updated_question.longitude, longitude)
+        self.assertEqual(updated_question.affected_area, affected_area)
+        self.assertEqual(updated_question.external_location_id, external_id)
 
     def test_update_title(self):
         self.client.force_authenticate(user=self.user)

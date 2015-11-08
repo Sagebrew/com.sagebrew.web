@@ -13,7 +13,7 @@ function loadSolutionCount(questionID) {
             solutionCount.html("");
             solutionCount.append(data.solution_count);
             if (data.solution_count === 0) {
-                document.getElementById('js-solution-count-header').innerHTML = "Solutions Needed";
+                document.getElementById('js-solution-count-header').innerHTML = "Provide the First Solution";
             } else if (data.solution_count !== 1) {
                 $('#solution_plural').append('s');
             }

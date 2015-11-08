@@ -22,6 +22,20 @@ def parse_google_places(places, external_id):
     :param external_id:
     :return:
     """
+    structure = verify_structure(break_out_structure(places), external_id)
+    return create_tree(structure)
+
+
+def google_maps_query(external_id):
+    url = "https://maps.googleapis.com/maps/api/" \
+          "place/details/json?placeid=%s&key=%s" % (
+              external_id, settings.GOOGLE_MAPS_API_SERVER)
+    response = get(url, headers={
+        "content-type": "application/json"})
+    return break_out_structure(response.json()['result']['address_components'])
+
+
+def break_out_structure(places):
     us_variants = ['United States', 'USA', 'US']
     country = None
     admin_area_1 = None
@@ -40,18 +54,8 @@ def parse_google_places(places, external_id):
         elif ('administrative_area_level_3' in place['types'] or
                 'locality' in place['types']):
             locality = place
-    structure = verify_structure([
-        country, admin_area_1, locality], external_id)
-    return create_tree(structure)
 
-
-def google_maps_query(external_id):
-    url = "https://maps.googleapis.com/maps/api/" \
-          "place/details/json?placeid=%s&key=%s" % (
-              external_id, settings.GOOGLE_MAPS_API_SERVER)
-    response = get(url, headers={
-        "content-type": "application/json"})
-    return response.json()['result']['address_components']
+    return [country, admin_area_1, locality]
 
 
 def verify_structure(structure, external_id, verify=True):
@@ -66,12 +70,9 @@ def verify_structure(structure, external_id, verify=True):
                 if remaining is not None and verify is True:
                     return verify_structure(google_maps_query(external_id),
                                             external_id, False)
-                elif r_idx + 1 == len(structure[idx + 1:]):
-                    # We're actually at the end. We should cut off the Nones
-                    # and move on
-                    structure = structure[:idx - 1]
-                    break
-    return structure
+
+    # We're actually at the end. We should remove all the remaining Nones
+    return [x for x in structure if x is not None]
 
 
 def create_tree(structure):
@@ -106,11 +107,11 @@ def create_tree(structure):
             #       (Check if any children at any depth down the tree)
             #       TODO: Should we do this? Not sure the chances of city and
             #       state sharing the same name but New York, New York has
-            #       already bite us.
+            #       already bit us.
             # if it doesn't then create it
             # continue until reach bottom node
             query = 'MATCH (a:Location {object_uuid: "%s"})-' \
-                    '[:ENCOMPASSES*..]->(b:Location {name: "%s"}) RETURN b' % (
+                    '[:ENCOMPASSES]->(b:Location {name: "%s"}) RETURN b' % (
                         parent_node.object_uuid, name)
             res, _ = db.cypher_query(query)
             if not res.one:

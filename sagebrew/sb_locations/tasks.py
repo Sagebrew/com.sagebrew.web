@@ -20,13 +20,13 @@ def create_location_tree(external_id):
     spawn_task(task_func=connect_location_to_element, task_param={
         "element_id": external_id, "location": end_node})
 
-    return True
+    return end_node
 
 
 @shared_task()
 def connect_location_to_element(location, element_id):
     try:
-        connect_related_element(location, element_id)
+        return connect_related_element(location, element_id)
     except KeyError as e:
         raise connect_location_to_element.retry(exc=e, countdown=10,
                                                 max_retries=None)

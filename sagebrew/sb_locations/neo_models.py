@@ -10,7 +10,6 @@ class Location(SBObject):
     sector = StringProperty(default=None)
     geo_data = StringProperty(default=None)
 
-
     encompasses = RelationshipTo('sb_locations.neo_models.Location',
                                  'ENCOMPASSES')
     encompassed_by = RelationshipTo('sb_locations.neo_models.Location',

@@ -128,7 +128,7 @@ def create_state_districts(object_uuid):
             ClientError) as e:
         raise create_state_districts.retry(exc=e, countdown=3, max_retries=None)
     lookup_url = settings.MCOMMONS_DISTRICT_SEARCH_URL % \
-                 (address.latitude, address.longitude)
+        (address.latitude, address.longitude)
     http = urllib3.PoolManager()
     response = http.request('GET', lookup_url)
     response_json = json.loads(response.data)
@@ -179,7 +179,6 @@ def create_state_districts(object_uuid):
         return True
     except (CypherException, IOError, ClientError) as e:
         raise create_state_districts.retry(exc=e, countdown=3, max_retries=None)
-
 
 
 @shared_task()

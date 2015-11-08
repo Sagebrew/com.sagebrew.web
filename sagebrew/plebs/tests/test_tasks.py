@@ -435,7 +435,7 @@ class TestCreateStateDistricts(TestCase):
         query = 'MATCH (l:Location {name:"38", sector:"state_lower"}), ' \
                 '(l2:Location {name:"15", sector:"state_upper"}) RETURN l, l2'
         res, _ = db.cypher_query(query)
-        self.assertEqual(len(res[0]), 2) # assert only two nodes returned
+        self.assertEqual(len(res[0]), 2)  # assert only two nodes returned
         self.assertEqual(lower, Location.inflate(res[0].l))
         # assert only one lower node
         self.assertEqual(upper, Location.inflate(res[0].l2))

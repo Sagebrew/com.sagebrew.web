@@ -48,13 +48,24 @@ class SearchCount(StructuredRel):
     last_searched = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 
-class FriendRelationship(StructuredRel):
+class InterpersonalRelationship(StructuredRel):
+    """
+    Relationship base for handling relations between two or more people
+    such as friends and followers/following.
+    """
     since = DateTimeProperty(default=get_current_time)
+    active = BooleanProperty(default=True)
+
+
+class FriendRelationship(InterpersonalRelationship):
     friend_type = StringProperty(default="friends")
-    currently_friends = BooleanProperty(default=True)
     time_unfriended = DateTimeProperty()
     who_unfriended = StringProperty()
-    # who_unfriended = RelationshipTo("Pleb", "")
+
+
+class FollowRelationship(InterpersonalRelationship):
+    get_notifications = BooleanProperty(default=False)
+    # determine if the user wants to get notifications in their navbar
 
 
 class UserWeightRelationship(StructuredRel):
@@ -273,6 +284,8 @@ class Pleb(Searchable):
                                    'PLEDGED', model=VoteRelationship)
     donations = RelationshipTo('sb_donations.neo_models.Donation',
                                'DONATIONS_GIVEN')
+    following = RelationshipTo('plebs.neo_models.Pleb', 'FOLLOWING',
+                               model=FollowRelationship)
 
     @classmethod
     def get(cls, username):
@@ -499,7 +512,7 @@ class Pleb(Searchable):
     def is_friends_with(self, username):
         query = "MATCH (a:Pleb {username:'%s'})-" \
                 "[friend:FRIENDS_WITH]->(b:Pleb {username:'%s'}) " \
-                "RETURN friend.currently_friends" % (self.username, username)
+                "RETURN friend.active" % (self.username, username)
         res, col = db.cypher_query(query)
         if len(res) == 0:
             return False
@@ -570,6 +583,35 @@ class Pleb(Searchable):
             except IndexError:
                 official = None
         return official
+
+    def is_following(self, username):
+        query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-' \
+                '(p2:Pleb {username:"%s"}) RETURN r.active' % \
+                (self.username, username)
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def follow(self, username):
+        """
+        The username passed to this function is the user who will be following
+        the user the method is called upon.
+        """
+        query = 'MATCH (p:Pleb {username:"%s"}), (p2:Pleb {username:"%s"}) ' \
+                'WITH p, p2 CREATE UNIQUE (p)<-[r:FOLLOWING]-(p2) SET ' \
+                'r.active=true RETURN r.active' % (self.username, username)
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def unfollow(self, username):
+        """
+        The username passed to this function is the user who will stop
+        following the user the method is called upon.
+        """
+        query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-(p2:Pleb ' \
+                '{username:"%s"}) SET r.active=false RETURN r.active' \
+                % (self.username, username)
+        res, _ = db.cypher_query(query)
+        return res.one
 
     @property
     def reputation_change(self):

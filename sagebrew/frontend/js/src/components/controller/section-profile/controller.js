@@ -8,7 +8,8 @@ var representatives = require('./partials/representatives'),
     friends = require('./partials/friends'),
     postcreate = require('./partials/postcreate'),
     profile = require('./partials/profile'),
-    newsfeed = require('./partials/newsfeed');
+    newsfeed = require('./partials/newsfeed'),
+    follow = require('./partials/follow');
 
 
 
@@ -33,6 +34,8 @@ export function load() {
     profile.init();
     // Newsfeed page.
     newsfeed.init();
+    // Follow functionality
+    follow.init();
 }
 
 /**

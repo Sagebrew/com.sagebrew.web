@@ -92,15 +92,26 @@
                 </div>
                 <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
                 <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
-                    <button class="btn btn-primary sb_btn disabled sb_restricted">Follow User
-                    </button>
-                </div>
-                <div class="sb_coming_soon">
-                    <h3>Coming Soon!</h3>
+                    {% if not page_profile.is_following %}
+                        <button id="js-follow" class="btn btn-primary sb_btn">
+                            Follow User
+                        </button>
+                        <button id="js-unfollow" class="btn btn-primary sb_btn sb_hidden">
+                            Unfollow User
+                        </button>
+                    {% else %}
+                        <button id="js-unfollow" class="btn btn-primary sb_btn">
+                            Unfollow User
+                        </button>
+                        <button id="js-follow" class="btn btn-primary sb_btn sb_hidden">
+                            Follow User
+                        </button>
+                    {% endif %}
                 </div>
                 <div class="sb-overlay">
                     <div class="sb-overlay-text">
                         <div>
+                            When you follow a user their Conversation Cloud endeavours will show up in your newsfeed.
                         </div>
                     </div>
                 </div>

@@ -211,6 +211,38 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                                context={'request': request})
         return self.get_paginated_response(serializer.data)
 
+    @detail_route(methods=['post'])
+    def follow(self, request, username=None):
+        """
+        This endpoint allows users to follow other users.
+        """
+        queryset = self.get_object()
+        is_following = queryset.is_following(request.user.username)
+        if is_following:
+            return Response({"detail": "Already following user.",
+                             "status": status.HTTP_200_OK},
+                            status=status.HTTP_200_OK)
+        queryset.follow(request.user.username)
+        return Response({"detail": "Successfully followed user.",
+                         "status": status.HTTP_200_OK},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'])
+    def unfollow(self, request, username=None):
+        """
+        This endpoint allows users to unfollow other users.
+        """
+        queryset = self.get_object()
+        is_following = queryset.is_following(request.user.username)
+        if not is_following:
+            return Response({"detail": "Already not following user.",
+                             "status": status.HTTP_200_OK},
+                            status=status.HTTP_200_OK)
+        queryset.unfollow(request.user.username)
+        return Response({"detail": "Successfully unfollowed user.",
+                         "status": status.HTTP_200_OK},
+                        status=status.HTTP_200_OK)
+
     @detail_route(methods=['get'])
     def friend(self, request, username=None):
         return Response({"detail": "TBD"},
@@ -236,7 +268,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         # Added in the ORDER BY to ensure order for the infinite scroll
         # loading on a users friend list page
         query = 'MATCH (a:Pleb {username: "%s"})-' \
-                '[:FRIENDS_WITH {currently_friends: true}]->' \
+                '[:FRIENDS_WITH {active: true}]->' \
                 '(b:Pleb) RETURN DISTINCT b ORDER BY b.first_name' % username
         res, col = db.cypher_query(query)
         [row[0].pull() for row in res]
@@ -505,7 +537,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             WHERE questions.to_be_deleted = False AND questions.created > %s
             RETURN questions, tags.name AS tags, NULL as solutions,
                 NULL as posts UNION
-        MATCH (a)-[manyFriends:FRIENDS_WITH*2 {currently_friends: True}]->
+        MATCH (a)-[manyFriends:FRIENDS_WITH*2 {active: True}]->
                 ()-[OWNS_QUESTION]->(questions:Question)-[:TAGGED_AS]->
                 (tags:Tag)
             WHERE questions.to_be_deleted = False AND questions.created > %s
@@ -586,10 +618,10 @@ class MeViewSet(mixins.UpdateModelMixin,
             "// Retrieve all the current user's friends posts on their \n" \
             '// walls\n' \
             'MATCH (a:Pleb {username: "%s"})-' \
-            '[r:FRIENDS_WITH {currently_friends: True}]->(p:Pleb)-' \
+            '[r:FRIENDS_WITH {active: True}]->(p:Pleb)-' \
             '[:OWNS_POST]->(posts:Post) ' \
             'WHERE (posts)-[:POSTED_ON]->(:Wall)<-[:OWNS_WALL]-(p) AND ' \
-            'HAS(r.currently_friends) AND posts.to_be_deleted = False ' \
+            'HAS(r.active) AND posts.to_be_deleted = False ' \
             'AND posts.created > %s ' \
             'RETURN posts, NULL AS questions, NULL AS solutions, ' \
             'posts.created AS created, NULL AS s_question, ' \
@@ -598,7 +630,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// Retrieve all the current users friends and friends of friends' \
             '// questions \n' \
             'MATCH (a:Pleb {username: "%s"})-' \
-            '[manyFriends:FRIENDS_WITH*..2 {currently_friends: True}]' \
+            '[manyFriends:FRIENDS_WITH*..2 {active: True}]' \
             '->(:Pleb)-[:OWNS_QUESTION]->(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND ' \
             'questions.created > %s ' \
@@ -609,21 +641,46 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// Retrieve all the current users friends and friends of friends' \
             '// solutions \n' \
             'MATCH (a:Pleb {username: "%s"})-' \
-            '[manyFriends:FRIENDS_WITH*..2 {currently_friends: True}]->' \
+            '[manyFriends:FRIENDS_WITH*..2 {active: True}]->' \
             '(:Pleb)-[:OWNS_SOLUTION]->' \
             '(solutions:Solution)-[:POSSIBLE_ANSWER_TO]->' \
             '(s_question:Question) ' \
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
             ' RETURN solutions, NULL AS posts, NULL AS questions, ' \
             'solutions.created AS created, s_question AS s_question,' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns' % (
+            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            '' \
+            '// Retrieve all the users questions that the current user is ' \
+            '// following \n' \
+            'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
+            '(:Pleb)-[:OWNS_QUESTION]->(questions:Question) ' \
+            'WHERE questions.to_be_deleted = False AND ' \
+            'questions.created > %s ' \
+            'RETURN NULL AS solutions, NULL AS posts, ' \
+            'questions AS questions, questions.created AS created, ' \
+            'NULL AS s_question, NULL AS campaigns, NULL AS updates, ' \
+            'NULL AS q_campaigns UNION ' \
+            '' \
+            '// Retrieve all the users solutions that the current user is ' \
+            '// following \n' \
+            'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
+            '(:Pleb)-[:OWNS_SOLUTION]->(solutions:Solution)-' \
+            '[:POSSIBLE_ANSWER_TO]->(s_question:Question) ' \
+            'WHERE solutions.to_be_deleted = False AND ' \
+            'solutions.created > %s ' \
+            'RETURN solutions, NULL AS posts, ' \
+            'NULL AS questions, solutions.created AS created, ' \
+            's_question as s_question, NULL AS campaigns, NULL AS updates, ' \
+            'NULL AS q_campaigns' \
+            % (
                 request.user.username, then,
                 request.user.username, then,
                 request.user.username, then, request.user.username,
                 then, request.user.username, then,
                 request.user.username, then,
                 request.user.username, then, request.user.username,
-                then, request.user.username, then)
+                then, request.user.username, then, request.user.username, then,
+                request.user.username, then)
         news = []
         article_html = None
         html = request.query_params.get('html', 'false').lower()

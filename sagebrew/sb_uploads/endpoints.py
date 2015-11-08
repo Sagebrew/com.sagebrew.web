@@ -183,7 +183,7 @@ class URLContentViewSet(viewsets.ModelViewSet):
             query = 'MATCH (current:Pleb {username:"%s"})-' \
                     '[friend:FRIENDS_WITH]->(other:' \
                     'Pleb {username:"%s"})<-[:OWNED_BY]-(url:URLContent) ' \
-                    'RETURN CASE friend.currently_friends WHEN True THEN ' \
+                    'RETURN CASE friend.active WHEN True THEN ' \
                     'url END AS result ORDER BY result.created DESC' % \
                     (self.request.user.username, username)
         res, _ = db.cypher_query(query)

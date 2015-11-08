@@ -1,4 +1,5 @@
 import us
+import urllib3
 from uuid import uuid1
 
 from django.core import signing
@@ -116,6 +117,33 @@ def update_address_location(object_uuid):
         raise update_address_location.retry(exc=e, countdown=3,
                                             max_retries=None)
     return True
+
+
+@shared_task()
+def create_state_districts(object_uuid):
+    from logging import getLogger
+    logger = getLogger('loggly_logs')
+    try:
+        address = Address.nodes.get(object_uuid=object_uuid)
+    except (DoesNotExist, Address.DoesNotExist, CypherException, IOError,
+            ClientError) as e:
+        raise create_state_districts.retry(exc=e, countdown=3, max_retries=None)
+    lookup_url = settings.MCOMMONS_DISTRICT_SEARCH_URL % \
+                 (address.latitude, address.longitude)
+    http = urllib3.PoolManager()
+    logger.info(lookup_url)
+    response = http.request('GET', lookup_url)
+    try:
+        query = 'MATCH (l:Location {name: "%s"}) WHERE l.sector="federal" WITH l MATCH (lower'
+        lower_district = \
+            Location(name=response.data['state_lower']['district'],
+                     sector='state_lower').save()
+        upper_district = \
+            Location(name=response.data['state_upper']['district'],
+                     sector='state_upper').save()
+    except (CypherException, IOError, ClientError) as e:
+        raise create_state_districts.retry(exc=e, countdown=3, max_retries=None)
+
 
 
 @shared_task()

@@ -422,6 +422,9 @@ OPERATOR_DICT = {
     'coperator\ntruth\np0\n.': 'truth'
 }
 
+MCOMMONS_DISTRICT_SEARCH_URL = "http://congress.mcommons.com/districts/" \
+                               "lookup.json?lat=%f&lng=%f"
+
 CORS_ORIGIN_ALLOW_ALL = True
 
 EXPLICIT_STIES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',

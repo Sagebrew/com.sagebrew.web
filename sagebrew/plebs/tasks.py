@@ -1,4 +1,5 @@
 import us
+import json
 import urllib3
 from uuid import uuid1
 
@@ -121,8 +122,6 @@ def update_address_location(object_uuid):
 
 @shared_task()
 def create_state_districts(object_uuid):
-    from logging import getLogger
-    logger = getLogger('loggly_logs')
     try:
         address = Address.nodes.get(object_uuid=object_uuid)
     except (DoesNotExist, Address.DoesNotExist, CypherException, IOError,
@@ -131,16 +130,53 @@ def create_state_districts(object_uuid):
     lookup_url = settings.MCOMMONS_DISTRICT_SEARCH_URL % \
                  (address.latitude, address.longitude)
     http = urllib3.PoolManager()
-    logger.info(lookup_url)
     response = http.request('GET', lookup_url)
+    response_json = json.loads(response.data)
     try:
-        query = 'MATCH (l:Location {name: "%s"}) WHERE l.sector="federal" WITH l MATCH (lower'
-        lower_district = \
-            Location(name=response.data['state_lower']['district'],
-                     sector='state_lower').save()
-        upper_district = \
-            Location(name=response.data['state_upper']['district'],
-                     sector='state_upper').save()
+        query = 'MATCH (l:Location {name: "%s", sector:"federal"}) ' \
+                'WITH l OPTIONAL MATCH (l)-[:ENCOMPASSES]->(lower:Location ' \
+                '{name:"%s", sector:"state_lower"}), ' \
+                '(l)-[:ENCOMPASSES]->(upper:Location ' \
+                '{name:"%s", sector: "state_upper"}) RETURN l, ' \
+                'lower, upper' % \
+                (us.states.lookup(address.state).name,
+                 response_json['state_lower']['district'],
+                 response_json['state_upper']['district'])
+        res, _ = db.cypher_query(query)
+        try:
+            res = res[0]
+        except IndexError as e:
+            raise create_state_districts.retry(exc=e, countdown=3,
+                                               max_retries=None)
+        else:
+            try:
+                state = Location.inflate(res.l)
+            except (CypherException, ClientError, IOError) as e:
+                raise create_state_districts.retry(exc=e, countdown=3,
+                                                   max_retries=None)
+            lower = res.lower
+            upper = res.upper
+        if lower is None:
+            lower_district = \
+                Location(name=response_json['state_lower']['district'],
+                         sector='state_lower').save()
+        else:
+            lower_district = Location.inflate(lower)
+        if upper is None:
+            upper_district = \
+                Location(name=response_json['state_upper']['district'],
+                         sector='state_upper').save()
+        else:
+            upper_district = Location.inflate(upper)
+        state.encompasses.connect(upper_district)
+        upper_district.encompassed_by.connect(state)
+        state.encompasses.connect(lower_district)
+        lower_district.encompassed_by.connect(state)
+        address.encompassed_by.connect(upper_district)
+        upper_district.addresses.connect(address)
+        address.encompassed_by.connect(lower_district)
+        lower_district.addresses.connect(address)
+        return True
     except (CypherException, IOError, ClientError) as e:
         raise create_state_districts.retry(exc=e, countdown=3, max_retries=None)
 

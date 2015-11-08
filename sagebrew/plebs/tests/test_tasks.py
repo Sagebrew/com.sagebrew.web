@@ -1,17 +1,21 @@
+import us
 import time
 from uuid import uuid1
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
+from neomodel import db
+
 from api.utils import wait_util
-from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb, Address
+from sb_locations.neo_models import Location
 from sb_registration.utils import create_user_util_test
 from plebs.tasks import (create_pleb_task, create_wall_task,
                          finalize_citizen_creation, send_email_task,
                          create_friend_request_task, pleb_user_update,
                          determine_pleb_reps, create_beta_user,
-                         update_reputation)
+                         update_reputation, create_state_districts)
 from sb_wall.neo_models import Wall
 
 
@@ -371,3 +375,75 @@ class TestUpdateReputation(TestCase):
         while not res.ready():
             time.sleep(1)
         self.assertTrue(res.result)
+
+
+class TestCreateStateDistricts(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        self.username = res["username"]
+        self.assertNotEqual(res, False)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_create_state_districts(self):
+        Location(name=us.states.lookup("MI").name, sector="federal").save()
+        address = Address(state="MI", latitude=42.532020,
+                          longitude=-83.496500).save()
+        res = create_state_districts.apply_async(
+            kwargs={'object_uuid': address.object_uuid})
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+        query = 'MATCH (l:Location {name:"38", sector:"state_lower"}), ' \
+                '(l2:Location {name:"15", sector:"state_upper"}) RETURN l, l2'
+        res, _ = db.cypher_query(query)
+        lower = Location.inflate(res[0].l)
+        upper = Location.inflate(res[0].l2)
+        self.assertTrue(address.encompassed_by.is_connected(lower))
+        self.assertTrue(lower.addresses.is_connected(address))
+        self.assertTrue(address.encompassed_by.is_connected(upper))
+        self.assertTrue(upper.addresses.is_connected(address))
+
+    def test_create_state_districts_already_exist(self):
+        Location(name=us.states.lookup("MI").name, sector="federal").save()
+        address = Address(state="MI", latitude=42.532020,
+                          longitude=-83.496500).save()
+        res = create_state_districts.apply_async(
+            kwargs={'object_uuid': address.object_uuid})
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+        query = 'MATCH (l:Location {name:"38", sector:"state_lower"}), ' \
+                '(l2:Location {name:"15", sector:"state_upper"}) RETURN l, l2'
+        res, _ = db.cypher_query(query)
+        lower = Location.inflate(res[0].l)
+        upper = Location.inflate(res[0].l2)
+        self.assertTrue(address.encompassed_by.is_connected(lower))
+        self.assertTrue(lower.addresses.is_connected(address))
+        self.assertTrue(address.encompassed_by.is_connected(upper))
+        self.assertTrue(upper.addresses.is_connected(address))
+        res = create_state_districts.apply_async(
+            kwargs={'object_uuid': address.object_uuid})
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+        query = 'MATCH (l:Location {name:"38", sector:"state_lower"}), ' \
+                '(l2:Location {name:"15", sector:"state_upper"}) RETURN l, l2'
+        res, _ = db.cypher_query(query)
+        self.assertEqual(len(res[0]), 2) # assert only two nodes returned
+        self.assertEqual(lower, Location.inflate(res[0].l))
+        # assert only one lower node
+        self.assertEqual(upper, Location.inflate(res[0].l2))
+        # assert only one upper node
+
+    def test_address_doesnt_exist(self):
+        res = create_state_districts.apply_async(
+            kwargs={"object_uuid": str(uuid1())})
+        while not res.ready():
+            time.sleep(1)
+        self.assertIsInstance(res.result, Exception)

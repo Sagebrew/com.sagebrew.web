@@ -126,8 +126,8 @@ class QuestionEndpointTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         res, _ = db.cypher_query('MATCH (a:Question '
-                                 '{external_location_id: '
-                                 '"ChIJ7xtMYSCmJIgRZBZBy5uZHl8"}) RETURN a')
+                                 '{object_uuid: "%s"}) RETURN a' %
+                                 response.data['object_uuid'])
         question = Question.inflate(res.one)
         self.assertEqual(question.affected_area, "Wixom, MI, USA")
         self.assertEqual(question.content, content)

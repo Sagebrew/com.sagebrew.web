@@ -363,8 +363,8 @@ class TestGooglePlaces(TestCase):
             location.delete()
         url = "https://maps.googleapis.com/maps/api/" \
               "place/details/json?placeid=%s&key=%s" % (
-                wixom_without_state_data['place_id'],
-                settings.GOOGLE_MAPS_API_SERVER)
+                  wixom_without_state_data['place_id'],
+                  settings.GOOGLE_MAPS_API_SERVER)
         m.get(url, json=wixom_server_response, status_code=status.HTTP_200_OK)
 
         location = parse_google_places(
@@ -500,3 +500,4 @@ class TestGooglePlaces(TestCase):
         except KeyError:
             # Verify that KeyError is thrown in this instance
             self.assertTrue(True)
+        question.delete()

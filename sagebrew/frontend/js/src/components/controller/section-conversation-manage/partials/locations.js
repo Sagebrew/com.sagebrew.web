@@ -46,9 +46,6 @@ function initAutocomplete() {
         document.getElementById('location-lat').innerHTML = place.geometry.location.lat();
         document.getElementById('location-long').innerHTML = place.geometry.location.lng();
         document.getElementById('location-area').innerHTML = place.formatted_address;
-        console.log(place);
-        console.log(place.geometry.location.lat());
-        console.log(place.geometry.location.lng());
         request.post({url: '/v1/locations/cache/', data: JSON.stringify(place)});
     });
 }

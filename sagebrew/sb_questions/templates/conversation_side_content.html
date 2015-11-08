@@ -1,20 +1,31 @@
 {% load staticfiles %}
 {% load humanize %}
 <div class="hidden-xs col-lg-3">
+
     <div class="conversation-meta">
         <div class="meta">
-            <small>Topic{{ tags|length|pluralize }}: {{ tags|join:", "|title|default:" No Tags Set on Conversation" }}</small>
-            <small>Views: {{ views }}</small>
-            <small>Area of Focus: {{ question.affected_area|default:"World" }}</small>
-            <small>Created: {{ question.created|naturaltime }}</small>
-            {% if question.created|naturaltime != question.last_edited_on|naturaltime %}
-                <small>Last Edited: {{ question.last_edited_on|naturaltime }}</small>
-            {% endif %}
+            <div class="row">
+                <div class="col-xs-12"><h5 align="center">Topic{{ tags|length|pluralize }}</h5></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12"><h6 align="center">{{ tags|join:", "|title|default:" No Tags Set on Conversation" }}</h6></div>
+            </div>
+        </div>
+    </div>
+    <div class="conversation-meta">
+        <div class="meta">
+            <div class="row">
+                <div class="col-xs-12"><h5 align="center">Focus</h5></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12"><h6 align="center">{{ question.affected_area|default:"World" }}</h6></div>
+            </div>
         </div>
     </div>
     <div class="map-viewer-conversation">
         <div id="map"></div>
     </div>
+
     <div class="sb_questions_side_container">
         <h3 align="center">
             Things to Keep in Mind

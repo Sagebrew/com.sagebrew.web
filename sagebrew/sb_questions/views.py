@@ -96,7 +96,7 @@ def question_detail_page(request, question_uuid, slug=None):
     """
     question = Question.get(question_uuid)
     description = smart_truncate(question.content, length=150)
-    tags = question.get_tags()
+    tags = question.get_tags_humanized()
     if '_escaped_fragment_' in request.GET:
         return render(request, 'conversation.html', question_html_snapshot(
             request, question, question_uuid, tags, description))

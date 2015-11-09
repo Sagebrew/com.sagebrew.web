@@ -42,10 +42,22 @@ function initAutocomplete() {
         }));
         marker.setPosition(place.geometry.location);
         marker.setVisible(true);
-        document.getElementById('location-id').innerHTML = place.place_id;
-        document.getElementById('location-lat').innerHTML = place.geometry.location.lat();
-        document.getElementById('location-long').innerHTML = place.geometry.location.lng();
-        document.getElementById('location-area').innerHTML = place.formatted_address;
+        var placeID = place.place_id,
+            latitude = place.geometry.location.lat(),
+            longitude = place.geometry.location.lng(),
+            affectedArea = place.formatted_address;
+        if(typeof(Storage) !== "undefined") {
+            localStorage.setItem('questionPlaceID', placeID);
+            localStorage.setItem('questionLatitude', latitude);
+            localStorage.setItem('questionLongitude', longitude);
+            localStorage.setItem('questionAffectedArea', affectedArea);
+        } else {
+            document.getElementById('location-id').innerHTML = placeID;
+            document.getElementById('location-lat').innerHTML = latitude;
+            document.getElementById('location-long').innerHTML = longitude;
+            document.getElementById('location-area').innerHTML = affectedArea;
+        }
+
         request.post({url: '/v1/locations/cache/', data: JSON.stringify(place)});
     });
 }

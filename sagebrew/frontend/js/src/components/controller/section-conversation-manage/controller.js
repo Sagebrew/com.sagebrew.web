@@ -1,4 +1,5 @@
-var locations = require('./partials/locations');
+var locations = require('./partials/locations'),
+    questionCreate = require('./partials/questioncreate');
 
 /**
  * Init
@@ -12,6 +13,7 @@ export function init() {
  */
 export function load() {
     // Sidebar
+    questionCreate.init();
     locations.init();
 }
 

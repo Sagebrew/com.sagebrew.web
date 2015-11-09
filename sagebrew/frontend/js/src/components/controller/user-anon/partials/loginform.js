@@ -6,6 +6,8 @@
 /**
  * Init Login
  */
+var request = require('./../../../api').request;
+
 function loginform() {
     var submitArea = $("#submit_login");
     function loginFxn() {
@@ -34,7 +36,7 @@ function loginform() {
                 }
             },
             error: function (XMLHttpRequest) {
-                errorDisplay(XMLHttpRequest, "top", "left");
+                request.errorDisplay(XMLHttpRequest, "top", "left");
                 submitArea.removeAttr("disabled");
             }
         });

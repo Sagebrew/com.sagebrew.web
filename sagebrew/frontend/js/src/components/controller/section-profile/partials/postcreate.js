@@ -209,7 +209,7 @@ export function init () {
                 },
                 error: function (XMLHttpRequest) {
                     jsImageWrapper.remove(".loader");
-                    errorDisplay(XMLHttpRequest);
+                    request.errorDisplay(XMLHttpRequest);
                 }
             });
         }

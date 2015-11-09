@@ -1,6 +1,9 @@
 from os import environ
 import json
 
+from plebs.serializers import PlebSerializerNeo
+from plebs.neo_models import Pleb
+
 
 def js_settings(request):
 
@@ -12,6 +15,9 @@ def js_settings(request):
         if request.user.is_authenticated():
             data['user']['type'] = "auth"
             data['user']['username'] = request.user.username
+            data['profile'] = PlebSerializerNeo(
+                Pleb.get(request.user.username),
+                context={"request": request}).data
         else:
             data['user']['type'] = "anon"
 

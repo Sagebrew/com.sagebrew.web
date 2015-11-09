@@ -1,6 +1,8 @@
 from os import environ
 import json
 
+from neomodel import CypherException, DoesNotExist
+
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
 
@@ -15,9 +17,12 @@ def js_settings(request):
         if request.user.is_authenticated():
             data['user']['type'] = "auth"
             data['user']['username'] = request.user.username
-            data['profile'] = PlebSerializerNeo(
-                Pleb.get(request.user.username),
-                context={"request": request}).data
+            try:
+                data['profile'] = PlebSerializerNeo(
+                    Pleb.get(request.user.username),
+                    context={"request": request}).data
+            except(CypherException, IOError, Pleb.DoesNotExist, DoesNotExist):
+                data['profile'] = None
         else:
             data['user']['type'] = "anon"
 

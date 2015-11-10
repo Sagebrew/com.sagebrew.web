@@ -10,9 +10,9 @@
 {% endif %}
 
 {% include "action_nav.html" %}
-<div class="row">
-    <div class="col-md-12">
-        <div class="sb_wall sb_action_wall">
+<div class="row saga-wrapper">
+    <div class="col-md-12 epic-wrapper">
+        <div>
             {% block quest_wall %}
             {% endblock quest_wall %}
             {% if "moderators" not in request.path %}

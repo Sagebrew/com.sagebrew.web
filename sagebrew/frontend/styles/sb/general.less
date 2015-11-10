@@ -375,6 +375,20 @@ a {
   padding-top: 60px;
 }
 
+// TODO: Part time fix till PR #720
+.saga-wrapper {
+  margin-right: 0;
+  margin-left: 0;
+}
+// TODO: Part time fix till PR #720
+.epic-wrapper{
+  height: auto;
+  background-color: @sb_green_wall;
+  padding: 15px 15px 15px 15px;
+  border-radius: 2px;
+  min-height: 575px;
+}
+
 // Border
 .sb_border{
   border-radius: 5px;
@@ -623,6 +637,7 @@ a {
   border-color: @sb_green !important;
 }
 
+
 .sb_secondary_nav{
   &:extend(.sb_nav);
   background-color: @sb_grey_light;
@@ -631,7 +646,7 @@ a {
   border-bottom: solid @sb_grey;
   margin-bottom: @sb_common_margin_positive;
   ul {
-    margin:0;
+    padding-left: 0;
   }
   li {
     margin-right: 20px;
@@ -652,8 +667,34 @@ a {
     color: @sb_green;
   }
 }
+
+// TODO: Part time fix till PR #720
+.search-nav-wrapper{
+  ul {
+    margin:0;
+    padding-top: 5px;
+    padding-left: 30px;
+  }
+}
+
+// TODO: Part time fix till PR #720
+.profile-nav-wrapper{
+  ul {
+    margin:0;
+    padding-top: 5px;
+  }
+}
+
+// TODO: Part time fix till PR #720
+.help-page-wrapper {
+  ul {
+    margin-bottom: 4px !important;
+  }
+}
 .sb-help-nav {
   &:extend(.sb_secondary_nav);
+  // TODO: Part time fix till PR #720
+  padding-bottom: 0 !important;
   ul {
     margin-top: 10px;
   }
@@ -680,7 +721,9 @@ a {
   margin: 60px 0 0 0;
   border-radius: 2px 2px 0 0;
   ul{
-    padding: 0 0 0 20px;
+    // TODO: Part time fix till PR #720
+    padding: 0 0 0 30px;
+    margin-bottom: 0;
   }
 }
 .sb_search_nav{

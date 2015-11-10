@@ -169,5 +169,7 @@ def question_edit_page(request, question_uuid=None):
     :param request:
     :return:
     """
-    data = {"object_uuid": question_uuid, "edit": True}
+    data = {"object_uuid": question_uuid,
+            "question": Question.get(question_uuid), "edit": True
+            }
     return render(request, 'save_question.html', data)

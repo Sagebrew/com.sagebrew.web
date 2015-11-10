@@ -71,7 +71,8 @@ class Question(TitledContent):
         return [row[0] for row in res]
 
     def get_tags_humanized(self):
-        return [tag.replace('-', ' ') for tag in self.get_tags()]
+        return [tag.replace('-', ' ').replace('_', ' ')
+                for tag in self.get_tags()]
 
     def get_tags_string(self):
         try:

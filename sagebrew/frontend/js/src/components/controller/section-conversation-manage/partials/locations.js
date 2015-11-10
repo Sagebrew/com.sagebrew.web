@@ -3,8 +3,10 @@ var request = require('./../../../api').request,
     settings = require('./../../../settings').settings;
 
 function initAutocomplete() {
+    var latitude = parseFloat(document.getElementById('location-lat').innerHTML) || 42.3314;
+    var longitude = parseFloat(document.getElementById('location-long').innerHTML) || -83.0458;
     var map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: 42.3314, lng: -83.0458},
+        center: {lat: latitude, lng: longitude},
         zoom: 12,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         disableDefaultUI: true
@@ -43,9 +45,9 @@ function initAutocomplete() {
         marker.setPosition(place.geometry.location);
         marker.setVisible(true);
         var placeID = place.place_id,
-            latitude = place.geometry.location.lat(),
-            longitude = place.geometry.location.lng(),
             affectedArea = place.formatted_address;
+        latitude = place.geometry.location.lat();
+        longitude = place.geometry.location.lng();
         if(typeof(Storage) !== "undefined") {
             localStorage.setItem('questionPlaceID', placeID);
             localStorage.setItem('questionLatitude', latitude);

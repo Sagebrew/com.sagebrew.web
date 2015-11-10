@@ -56,10 +56,10 @@
                 <div class="col-xs-12">
                     <div class="position-wrapper">
                         <input id="pac-input" class="form-control" type="text" placeholder="What Place is Affected? (Country, State, City, etc)">
-                        <div id="location-id" hidden></div>
-                        <div id="location-lat" hidden></div>
-                        <div id="location-long" hidden></div>
-                        <div id="location-area" hidden></div>
+                        <div id="location-id" hidden>{{ question.external_location_id }}</div>
+                        <div id="location-lat" hidden>{{ question.latitude }}</div>
+                        <div id="location-long" hidden>{{ question.longitude }}</div>
+                        <div id="location-area" hidden>{{ question.affected_area }}</div>
                     </div>
                 </div>
             </div>

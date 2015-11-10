@@ -352,7 +352,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                   username)
         if possible_reps is None:
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                    '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
+                    '(a:Address)-[:ENCOMPASSED_BY]->' \
+                    '(l:Location {sector:"federal"})-' \
                     '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
                     '->(c:Campaign) WHERE c.active=true AND o.level="federal"' \
                     ' RETURN DISTINCT c LIMIT 5' % \
@@ -379,7 +380,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def possible_local_representatives(self, request, username=None):
         query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
+                '(a:Address)-[:ENCOMPASSED_BY]->(l:Location {sector:"local"})-' \
                 '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
                 '->(c:Campaign) WHERE c.active=true AND NOT ' \
                 'o.level="federal" RETURN DISTINCT c LIMIT 5' % \
@@ -407,8 +408,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
         possible_senators = cache.get('%s_possible_senators' % username)
         if possible_senators is None:
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                    '(a:Address)-[:ENCOMPASSED_BY]->(l:Location)-' \
-                    '[:ENCOMPASSED_BY]->(l2:Location)-' \
+                    '(a:Address)-[:ENCOMPASSED_BY]->(l:Location ' \
+                    '{sector:"federal"})-[:ENCOMPASSED_BY]->' \
+                    '(l2:Location {sector:"federal"})-' \
                     '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
                     '->(c:Campaign) WHERE c.active=true RETURN DISTINCT ' \
                     'c LIMIT 5' % \

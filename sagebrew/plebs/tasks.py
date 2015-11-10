@@ -127,22 +127,29 @@ def create_state_districts(object_uuid):
     except (DoesNotExist, Address.DoesNotExist, CypherException, IOError,
             ClientError) as e:
         raise create_state_districts.retry(exc=e, countdown=3, max_retries=None)
-    lookup_url = settings.MCOMMONS_DISTRICT_SEARCH_URL % \
-        (address.latitude, address.longitude)
+    try:
+        lookup_url = settings.MCOMMONS_DISTRICT_SEARCH_URL % \
+            (address.latitude, address.longitude)
+    except TypeError:
+        # in case an address doesn't have a latitude or longitude
+        return False
     http = urllib3.PoolManager()
     response = http.request('GET', lookup_url)
     response_json = json.loads(response.data)
     try:
-        query = 'MATCH (l:Location {name: "%s", sector:"federal"}) ' \
-                'WITH l OPTIONAL MATCH (l)-[:ENCOMPASSES]->(lower:Location ' \
-                '{name:"%s", sector:"state_lower"}), ' \
-                '(l)-[:ENCOMPASSES]->(upper:Location ' \
-                '{name:"%s", sector: "state_upper"}) RETURN l, ' \
-                'lower, upper' % \
-                (us.states.lookup(address.state).name,
-                 response_json['state_lower']['district'],
-                 response_json['state_upper']['district'])
-        res, _ = db.cypher_query(query)
+        try:
+            query = 'MATCH (l:Location {name: "%s", sector:"federal"}) ' \
+                    'WITH l OPTIONAL MATCH (l)-[:ENCOMPASSES]->(lower:Location ' \
+                    '{name:"%s", sector:"state_lower"}), ' \
+                    '(l)-[:ENCOMPASSES]->(upper:Location ' \
+                    '{name:"%s", sector: "state_upper"}) RETURN l, ' \
+                    'lower, upper' % \
+                    (us.states.lookup(address.state).name,
+                     response_json['state_lower']['district'],
+                     response_json['state_upper']['district'])
+            res, _ = db.cypher_query(query)
+        except KeyError:
+            return False
         try:
             res = res[0]
         except IndexError as e:

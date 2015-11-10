@@ -18,7 +18,7 @@ from sb_quests.neo_models import Campaign
 
 from .neo_models import Address, Pleb
 from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
-                    update_address_location, create_state_districts)
+                    update_address_location)
 
 
 def generate_username(first_name, last_name):
@@ -299,8 +299,6 @@ class AddressSerializer(SBSerializer):
             "username": self.context['request'].user.username,
         })
         spawn_task(task_func=update_address_location,
-                   task_param={"object_uuid": instance.object_uuid})
-        spawn_task(task_func=create_state_districts,
                    task_param={"object_uuid": instance.object_uuid})
         return instance
 

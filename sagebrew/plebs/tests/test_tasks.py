@@ -447,3 +447,22 @@ class TestCreateStateDistricts(TestCase):
         while not res.ready():
             time.sleep(1)
         self.assertIsInstance(res.result, Exception)
+
+    def test_address_has_no_lat_long(self):
+        Location(name=us.states.lookup("MI").name, sector="federal").save()
+        address = Address(state="MI").save()
+        res = create_state_districts.apply_async(
+            kwargs={'object_uuid': address.object_uuid})
+        while not res.ready():
+            time.sleep(1)
+        self.assertFalse(res.result)
+
+    def test_address_has_lat_long_outside_usa(self):
+        Location(name=us.states.lookup("MI").name, sector="federal").save()
+        # lat/long of Greenwich UK
+        address = Address(state="MI", latitude=51.4800, longitude=0.0000).save()
+        res = create_state_districts.apply_async(
+            kwargs={'object_uuid': address.object_uuid})
+        while not res.ready():
+            time.sleep(1)
+        self.assertFalse(res.result)

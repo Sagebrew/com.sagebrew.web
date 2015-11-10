@@ -59,13 +59,6 @@
 
     </div>
     <div class="row">
-        <div class="col-md-4 hidden-sm hidden-xs col-md-offset-8 col-lg-offset-9">
-            <small>
-                asked by
-            </small>
-        </div>
-    </div>
-    <div class="row">
 
         <div class="col-md-2 hidden-xs hidden-sm col-lg-offset-1">
             {% if request.user.is_anonymous %}
@@ -89,9 +82,8 @@
                 </small></div>
             {% endif %}
         </div>
-
         <div class="col-md-1 hidden-sm hidden-xs col-md-offset-6"
-             style="padding-right:0; margin-right: -10px">
+                 style="padding-right:0; margin-right: -10px">
             <div class="sb_thumbnail_xs thumbnail">
                 {% static 'images/sage_coffee_grey-01.png' as default_profile %}
                 <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>

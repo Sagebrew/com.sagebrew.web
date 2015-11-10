@@ -42,7 +42,7 @@ def create_friend_request_util(from_username, to_username, object_uuid):
         friend_request.request_to.connect(to_citizen)
         from_citizen.friend_requests_sent.connect(friend_request)
         to_citizen.friend_requests_received.connect(friend_request)
-        cache.delete("%s_friend_requests" % (to_citizen.username))
+        cache.delete("%s_friend_requests" % to_citizen.username)
         return True
     except(CypherException, KeyError) as e:
         return e

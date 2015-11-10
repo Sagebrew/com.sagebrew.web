@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.template import RequestContext
 from django.template.loader import render_to_string
 
@@ -40,6 +41,16 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
             return Response(LocationSerializer(serializer).data,
                             status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @list_route(methods=['post'], permission_classes=(IsAuthenticated, ))
+    def cache(self, request):
+        if 'place_id' in request.data:
+            cache.set(request.data['place_id'], request.data)
+            return Response({"status": status.HTTP_201_CREATED},
+                            status=status.HTTP_201_CREATED)
+        else:
+            return Response({"status": status.HTTP_400_BAD_REQUEST},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['GET'])

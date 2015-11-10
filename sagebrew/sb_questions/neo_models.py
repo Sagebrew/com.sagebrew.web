@@ -33,10 +33,20 @@ class Question(TitledContent):
     tags_added = BooleanProperty(default=False)
     title = StringProperty(unique_index=True)
 
+    # optimizations
+    longitude = FloatProperty()
+    latitude = FloatProperty()
+    affected_area = StringProperty()
+    # Google place_id
+    external_location_id = StringProperty(index=True)
+
     # relationships
+
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
     solutions = RelationshipTo('sb_solutions.neo_models.Solution',
                                'POSSIBLE_ANSWER')
+    focus_location = RelationshipTo('sb_locations.neo_models.Location',
+                                    'FOCUSED_ON')
 
     @classmethod
     def get(cls, object_uuid):
@@ -59,6 +69,9 @@ class Question(TitledContent):
                 "(b:Tag) RETURN b.name" % self.object_uuid
         res, _ = db.cypher_query(query)
         return [row[0] for row in res]
+
+    def get_tags_humanized(self):
+        return [tag.replace('-', ' ') for tag in self.get_tags()]
 
     def get_tags_string(self):
         try:

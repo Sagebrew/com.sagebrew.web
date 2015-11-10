@@ -1,4 +1,5 @@
 from celery import shared_task
+from localflavor.us.us_states import US_STATES
 
 from django.core.cache import cache
 
@@ -42,16 +43,21 @@ def store_address(username, address_clean):
     except (CypherException, IOError) as e:
         raise store_address.retry(exc=e, countdown=3, max_retries=None)
     try:
+        try:
+            state = dict(US_STATES)[address_clean['state']]
+        except KeyError:
+            return address_clean['state']
         address = Address(street=address_clean['primary_address'],
                           street_aditional=address_clean[
                               'street_additional'],
                           city=address_clean['city'],
-                          state=address_clean['state'],
+                          state=state,
                           postal_code=address_clean['postal_code'],
                           latitude=address_clean['latitude'],
                           longitude=address_clean['longitude'],
                           congressional_district=address_clean[
-                              'congressional_district'])
+                              'congressional_district'],
+                          county=address_clean['county'])
         address.save()
     except (CypherException, IOError) as e:
         raise store_address.retry(exc=e, countdown=3, max_retries=None)

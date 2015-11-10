@@ -80,9 +80,7 @@
 
                 <div class="row">
                     <div class="col-lg-12">
-                        <textarea class="form-control input-lg" name="short_bio">
-
-                        </textarea>
+                        <textarea class="form-control input-lg" name="short_bio">{{ campaign.biography|default_if_none:'' }}</textarea>
                     </div>
                 </div>
 

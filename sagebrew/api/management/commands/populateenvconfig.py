@@ -138,6 +138,10 @@ def populate_staging_values(data):
                         environ.get("ADDRESS_VALIDATION_TOKEN_STAGING", ""))
     data = data.replace("<ADDRESS_AUTH_ID>",
                         environ.get("ADDRESS_AUTH_ID_STAGING", ""))
+    data = data.replace("<GOOGLE_MAPS_API>",
+                        environ.get("GOOGLE_MAPS_API_STAGING", ""))
+    data = data.replace("<GOOGLE_MAPS_JS>",
+                        environ.get("GOOGLE_MAPS_JS_STAGING", ""))
     return data
 
 
@@ -219,6 +223,10 @@ def populate_production_values(data):
                         environ.get("ADDRESS_VALIDATION_TOKEN_PROD", ""))
     data = data.replace("<ADDRESS_AUTH_ID>",
                         environ.get("ADDRESS_AUTH_ID_PROD", ""))
+    data = data.replace("<GOOGLE_MAPS_API>",
+                        environ.get("GOOGLE_MAPS_API_PROD", ""))
+    data = data.replace("<GOOGLE_MAPS_JS>",
+                        environ.get("GOOGLE_MAPS_JS_PROD", ""))
     return data
 
 
@@ -274,6 +282,10 @@ def populate_test_values(data):
                         environ.get("ADDRESS_VALIDATION_TOKEN", ""))
     data = data.replace("<ADDRESS_AUTH_ID>",
                         environ.get("ADDRESS_AUTH_ID", ""))
+    data = data.replace("<GOOGLE_MAPS_API>",
+                        environ.get("GOOGLE_MAPS_API", ""))
+    data = data.replace("<GOOGLE_MAPS_JS>",
+                        environ.get("GOOGLE_MAPS_JS", ""))
     return data
 
 

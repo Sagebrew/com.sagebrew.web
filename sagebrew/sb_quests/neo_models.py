@@ -300,7 +300,7 @@ class Campaign(Searchable):
     @classmethod
     def get_possible_helpers(cls, object_uuid):
         query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:WAGED_BY]->(p:Pleb)-' \
-                '[:FRIENDS_WITH {currently_friends: true}]->' \
+                '[:FRIENDS_WITH {active: true}]->' \
                 '(b:Pleb) WHERE NOT (c)-[:CAN_BE_EDITED_BY]->(b) XOR ' \
                 '(c)-[:CAN_VIEW_MONETARY_DATA]->(b) RETURN b.username' \
                 % object_uuid
@@ -383,6 +383,9 @@ class PoliticalCampaign(Campaign):
     # reps, and presidents that can be voted on by the different users.
     constituents = RelationshipTo('plebs.neo_models.Pleb',
                                   'POTENTIAL_REPRESENTATIVE_FOR')
+    # current_seat = RelationshipTo('sb_quests.neo_models.Seat', "CURRENT_SEAT")
+    # Can access current_seat by using the relationship on seats:
+    # CURRENTLY_HELD_BY going from the Seat to the Quest
 
     @classmethod
     def get(cls, object_uuid):
@@ -468,6 +471,14 @@ class PoliticalCampaign(Campaign):
             return True
         return False
 
+    @classmethod
+    def get_current_seat(cls, object_uuid):
+        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
+                '[:CURRENTLY_HELD_SEAT]->(s:Seat) RETURN s.object_uuid' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
     def pledged_votes_per_day(self):
         query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
                 '[r:RECEIVED_PLEDGED_VOTE]->(:Pleb) RETURN r ' \
@@ -500,6 +511,7 @@ class Position(SBObject):
                                "CAMPAIGNS")
     restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
                                   'RESTRICTED_BY')
+    seats = RelationshipTo('sb_quests.neo_models.Seat', 'SEATS')
 
     @classmethod
     def get(cls, object_uuid):
@@ -588,3 +600,10 @@ class Position(SBObject):
                 return {"full_name": full_name, "object_uuid": object_uuid}
             except IndexError:
                 return None
+
+
+class Seat(SBObject):
+    # relationships
+    position = RelationshipTo("sb_quests.neo_models.Position", "POSITION")
+    current_holder = RelationshipTo("sb_quests.neo_models.PoliticalCampaign",
+                                    "CURRENTLY_HELD_BY")

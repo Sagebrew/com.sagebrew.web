@@ -626,7 +626,9 @@ a {
     margin-bottom: 5px;
   }
 }
+.sb_settings_list {
 
+}
 // Navigation
 .sb_nav{
   li{
@@ -649,7 +651,6 @@ a {
   margin-bottom: @sb_common_margin_positive;
   ul {
     margin:0;
-    padding:0;
   }
   li {
     margin-right: 20px;
@@ -664,7 +665,7 @@ a {
     }
   }
   h3 {
-    margin:8px 0 8px 0;
+    margin-top: 10px;
   }
   .active{
     color: @sb_green;
@@ -695,7 +696,9 @@ a {
   margin: 60px 0 0 0;
   border-radius: 2px 2px 0 0;
   ul{
-    padding: 0 0 0 20px;
+    // TODO: Part time fix till PR #720
+    padding: 0 0 0 30px;
+    margin-bottom: 0;
   }
 }
 .sb_search_nav{
@@ -1181,7 +1184,7 @@ a {
   resize: vertical;
 }
 textarea.sb_comment_input{
-  height: 45px;
+  height: 50px;
 }
 .sb_comment_disabled{
   color: @sb_grey_light;

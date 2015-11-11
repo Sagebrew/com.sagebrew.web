@@ -36,6 +36,12 @@
         </a>
     </li>
 
+    {% comment %}TODO: Check permissions{% endcomment %}
+    <li class="{% if "/manage/moderators/" in request.path %}active{% endif %}">
+        <a  href="{% url 'quest_moderators' request.user %}">
+            Delete Quest
+        </a>
+    </li>
 
 
 </ul>

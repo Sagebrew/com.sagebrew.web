@@ -36,7 +36,6 @@ class UpdateEndpointsTest(APITestCase):
         self.update.campaign.connect(self.campaign)
         self.campaign.updates.connect(self.update)
         self.pleb.campaign.connect(self.campaign)
-
         self.update.owned_by.connect(self.pleb)
 
     def test_unauthorized(self):

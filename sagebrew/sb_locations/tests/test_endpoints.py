@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# coding=utf-8
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -217,6 +220,25 @@ class LocationEndpointTests(APITestCase):
         self.assertIn(self.location.object_uuid,
                       response.data['encompassed_by'])
 
+    def test_add_admin_unicode(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add')
+        response = self.client.post(url, {
+            "name": "Iñtërnâtiônàlizætiøn2",
+            "geo_data": None,
+            "encompassed_by_name": self.location.name,
+            "encompassed_by_uuid": ""
+        }, format='json')
+        self.user.is_staff = False
+        self.user.save()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'Internationalizaetion2')
+        self.assertEqual(response.data['geo_data'], False)
+        self.assertIn(self.location.object_uuid,
+                      response.data['encompassed_by'])
+
     def test_add_get(self):
         self.user.is_staff = True
         self.user.save()
@@ -279,3 +301,120 @@ class LocationEndpointTests(APITestCase):
         self.user.is_staff = False
         self.user.save()
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_cache_location(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "address_components": [
+                {
+                    "long_name": "Wixom",
+                    "short_name": "Wixom",
+                    "types": [
+                        "locality",
+                        "political"
+                    ]
+                },
+                {
+                    "long_name": "Oakland County",
+                    "short_name": "Oakland County",
+                    "types": [
+                        "administrative_area_level_2",
+                        "political"
+                    ]
+                },
+                {
+                    "long_name": "Michigan",
+                    "short_name": "MI",
+                    "types": [
+                        "administrative_area_level_1",
+                        "political"
+                    ]
+                },
+                {
+                    "long_name": "United States",
+                    "short_name": "US",
+                    "types": [
+                        "country",
+                        "political"
+                    ]
+                }
+            ],
+            "adr_address": "",
+            "formatted_address": "Wixom, MI, USA",
+            "geometry": {
+                "location": {},
+                "viewport": {
+                    "O": {
+                        "O": 42.493165,
+                        "j": 42.55855589999999
+                    },
+                    "j": {
+                        "j": -83.558674,
+                        "O": -83.507566
+                    }
+                }
+            },
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/"
+                    "icons/geocode-71.png",
+            "id": "20c67ea90c3088cc7d5fdd08dc7ccd170559a4fe",
+            "name": "Wixom",
+            "place_id": "ChIJ7xtMYSCmJIgRZBZBy5uZHl8",
+            "reference": "-wRMKo-",
+            "scope": "GOOGLE",
+            "types": [
+                "locality",
+                "political"
+            ],
+            "url": "",
+            "vicinity": "Wixom",
+            "html_attributions": []
+        }
+        url = reverse('location-cache')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(cache.get(data['place_id']), data)
+
+    def test_cache_location_bad_request(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "address_components": [
+                {
+                    "long_name": "Wixom",
+                    "short_name": "Wixom",
+                    "types": [
+                        "locality",
+                        "political"
+                    ]
+                },
+                {
+                    "long_name": "Oakland County",
+                    "short_name": "Oakland County",
+                    "types": [
+                        "administrative_area_level_2",
+                        "political"
+                    ]
+                },
+                {
+                    "long_name": "Michigan",
+                    "short_name": "MI",
+                    "types": [
+                        "administrative_area_level_1",
+                        "political"
+                    ]
+                },
+                {
+                    "long_name": "United States",
+                    "short_name": "US",
+                    "types": [
+                        "country",
+                        "political"
+                    ]
+                }
+            ]
+        }
+        url = reverse('location-cache')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIsNone(cache.get("ChIJ7xtMYSCmJIgRZBZBy5uZHl8"))

@@ -1,37 +1,38 @@
-<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-        <h3>{{ page_user.first_name }} {{ page_user.last_name }}</h3>
+<div class="col-sm-4 col-xs-12">
+    <h3>{{ page_user.first_name }} {{ page_user.last_name }}</h3>
 </div>
-<div class="col-lg-8 col-md-8 hidden-sm hidden-xs">
+<div class="col-md-8 hidden-sm hidden-xs">
     {% if page_user.username == request.user.username or is_friend == True %}
         <ul>
             {% if page_user.username == request.user.username %}
-            <li>
-                   <a {% if 'feed' in request.path %}class="active"{% endif %} href="{% url 'newsfeed' %}">Feed</a>
-            </li>
+                <li>
+                    <a {% if 'feed' in request.path %}class="active"{% endif %} href="{% url 'newsfeed' %}">Feed</a>
+                </li>
             {% endif %}
             <li>
-                <a {% if 'donations' not in request.path and 'friends' not in request.path and 'about' not in request.path and 'reputation' not in request.path and 'feed' not in request.path and 'quest' not in request.path  %}class="active"{% endif %} href="{% url 'profile_page' page_user.username %}">Profile</a>
+                <a {% if 'donations' not in request.path and 'friends' not in request.path and 'about' not in request.path and 'reputation' not in request.path and 'feed' not in request.path and 'quest' not in request.path %}class="active"{% endif %}
+                   href="{% url 'profile_page' page_user.username %}">Profile</a>
             </li>
             {% if debug == True %}
                 {% comment %}
                     # TODO BETA ADD IN feature
                 {% endcomment %}
                 <li>
-                    <a href='#'>
-                        About</a>
+                    <a href="#">About</a>
                 </li>
                 <li>
-                    <a href='#'>
-                        Reputation</a>
+                    <a href="#">Reputation</a>
                 </li>
             {% endif %}
             <li>
-                   <a {% if 'friends' in request.path %}class="active"{% endif %} href="{% url 'friend_page' page_user.username %}">Friends</a>
+                <a {% if 'friends' in request.path %}class="active"{% endif %}
+                   href="{% url 'friend_page' page_user.username %}">Friends</a>
             </li>
             {% if request.user.username == page_user.username and request_profile.donations %}
-            <li>
-                <a {% if 'donations' in request.path %}class="active"{% endif %} href="{% url 'donation_page' page_user.username %}">Donations</a>
-            </li>
+                <li>
+                    <a {% if 'donations' in request.path %}class="active"{% endif %}
+                       href="{% url 'donation_page' page_user.username %}">Donations</a>
+                </li>
             {% endif %}
             {% if page_profile.campaign %}
                 <li>

@@ -13,7 +13,7 @@ $(document).ready(function () {
         ],
      */
     "use strict";
-    $("textarea#question_content_id").pagedownBootstrap({
+    $("textarea.markdown-input").pagedownBootstrap({
         "sanatize": false,
         'editor_hooks': [
             {
@@ -44,6 +44,10 @@ $(document).ready(function () {
                                         $("#fileModal").modal('hide');
                                     },
                                     error: function (XMLHttpRequest) {
+                                        callback(null);
+                                        $(".modal-footer").spin(false);
+                                        $("#upload_image").val("");
+                                        $("#fileModal").modal('hide');
                                         errorDisplay(XMLHttpRequest);
                                     }
                                 });
@@ -61,5 +65,4 @@ $(document).ready(function () {
             }
         ]
     });
-    $("textarea#solution_content_id").pagedownBootstrap();
 });

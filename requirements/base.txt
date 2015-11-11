@@ -1,6 +1,6 @@
 pip==7.1.2
 setuptools==18.0.1
-Django==1.8.5
+Django==1.8.6
 Logentries==0.7
 Markdown==2.6.1
 Pillow==2.8.2

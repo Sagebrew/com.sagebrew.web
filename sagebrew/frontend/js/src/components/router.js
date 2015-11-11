@@ -38,6 +38,21 @@ var controller_map = [
         controller: "page-signup",
         match_method: "path",
         check: "^$"
+    },
+    {
+        controller: "section-conversation-manage",
+        match_method: "path",
+        check: "^conversations\/questions\/([A-Za-z0-9.@_%+-]{36})\/edit"
+    },
+    {
+        controller: "section-conversation-manage",
+        match_method: "path",
+        check: "^conversations/submit_question"
+    },
+    {
+        controller: "section-conversation",
+        match_method: "path",
+        check: "^conversations\/([A-Za-z0-9.@_%+-]{36})\/"
     }
 ];
 

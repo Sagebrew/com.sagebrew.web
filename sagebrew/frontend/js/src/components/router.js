@@ -2,8 +2,8 @@
  * @file
  * Dynamically load controllers and whatnot based on urls.
  */
-var helpers = require('./common/helpers'),
-    settings = require('./settings').settings;
+var helpers = require('common/helpers'),
+    settings = require('settings').settings;
 
 /**
  * Gather all the controllers into an array.
@@ -11,77 +11,66 @@ var helpers = require('./common/helpers'),
  */
 var ctrlHash = require('./controller/**/controller.js', {mode: 'hash'});
 
-//
-// Define all the controllers.
-var controller_map = [
-    {
-        controller: "global",
-        match_method: true,
-        check: true
-    },
-    {
-        controller: "user-anon",
-        match_method: "user",
-        check: "anon"
-    },
-    {
-        controller: "user-auth",
-        match_method: "user",
-        check: "auth"
-    },
-    {
-        controller: "section-profile",
-        match_method: "path",
-        check: "^user"
-    },
-    {
-        controller: "page-signup",
-        match_method: "path",
-        check: "^$"
-    },
-    {
-        controller: "section-conversation-manage",
-        match_method: "path",
-        check: "^conversations\/questions\/([A-Za-z0-9.@_%+-]{36})\/edit"
-    },
-    {
-        controller: "section-conversation-manage",
-        match_method: "path",
-        check: "^conversations/submit_question"
-    },
-    {
-        controller: "section-conversation",
-        match_method: "path",
-        check: "^conversations\/([A-Za-z0-9.@_%+-]{36})\/"
-    }
-];
+/**
+ * Gather all the controller meta info.
+ */
+function controllerMetaInfo() {
+    var meta = [];
+    for (var ctrl_key in ctrlHash) {
+        if (ctrlHash.hasOwnProperty(ctrl_key)) {
+            if (ctrlHash[ctrl_key].hasOwnProperty('meta')) {
+                meta.push(ctrlHash[ctrl_key].meta);
+            }
+        }
 
+    }
+
+    return meta;
+}
 /**
  * @param match_method
  * @param check
  */
 function matchController(match_method, check) {
-    var path = helpers.args().join("/");
-    switch(match_method) {
-        case true:
-            return true;
-        case 'user': //Need to output app settings in python for this.
-            if(settings.user.type && settings.user.type === check) {
-                return true;
-            }
-            return false;
-        case 'path':
-            var match = path.match(check);
-            return match;
+    // Support multiple checks.
+    var checks;
+    if (check instanceof Array) {
+        checks = check;
+    }
+    else {
+        checks = [check];
+    }
 
+    var path = helpers.args().join("/");
+    for (var check_key in checks) {
+        if (checks.hasOwnProperty(check_key)) {
+            var value = checks[check_key];
+            switch(match_method) {
+                case true:
+                    return true;
+                case 'user': //Need to output app settings in python for this.
+                    if(settings.user.type && settings.user.type === value) {
+                        return true;
+                    }
+                    return false;
+                case 'path':
+                    var match = path.match(value);
+                    return match;
+            }
+        }
     }
 }
 
+/**
+ * Determines if the controllers should be loaded or not.
+ * @returns {Array}
+ */
 function finder() {
+    var meta = controllerMetaInfo();
     var load = [];
-    for (var key in controller_map) {
-        if (controller_map.hasOwnProperty(key)) {
-            var controller = controller_map[key];
+    for (var key in meta) {
+        if (meta.hasOwnProperty(key)) {
+            var controller = meta[key];
             if (matchController(controller.match_method, controller.check)) {
                 load.push(controller.controller);
             }
@@ -90,6 +79,10 @@ function finder() {
     return load;
 }
 
+/**
+ * Returns all the controllers that should be loaded.
+ * @returns {Array}
+ */
 export function controllers() {
     var found = finder();
     var loaded = [];

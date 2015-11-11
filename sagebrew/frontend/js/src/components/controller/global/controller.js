@@ -6,6 +6,14 @@
 
 var helpers = require('common/helpers');
 
+/**
+ * Meta.
+ */
+export const meta = {
+    controller: "global",
+    match_method: true,
+    check: true
+};
 
 /**
  * Scope - Global

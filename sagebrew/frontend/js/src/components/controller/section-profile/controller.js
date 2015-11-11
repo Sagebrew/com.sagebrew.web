@@ -12,6 +12,15 @@ var representatives = require('./partials/representatives'),
     follow = require('./partials/follow');
 
 /**
+ * Meta.
+ */
+export const meta = {
+    controller: "section-profile",
+    match_method: "path",
+    check: "^user"
+};
+
+/**
  * Init
  */
 export function init() {

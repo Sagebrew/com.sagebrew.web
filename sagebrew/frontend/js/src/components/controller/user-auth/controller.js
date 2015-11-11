@@ -6,6 +6,15 @@ var navbar = require('./partials/navbar').initNavbar,
     request = require('api').request;
 
 
+/**
+ * Meta.
+ */
+export const meta = {
+    controller: "user-auth",
+    match_method: "user",
+    check: "auth"
+};
+
 
 /**
  *  Scope - User Authed

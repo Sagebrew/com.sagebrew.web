@@ -5,6 +5,16 @@
  */
 var request = require('api').request;
 
+/**
+ * Meta.
+ */
+export const meta = {
+    controller: "page-signup",
+    match_method: "path",
+    check: "^$"
+};
+
+
 function signupFormValidation() {
        $("#signupForm").formValidation({
         framework: 'bootstrap',

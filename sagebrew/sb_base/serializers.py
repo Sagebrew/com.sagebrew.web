@@ -1,3 +1,4 @@
+import re
 import markdown
 
 from rest_framework import serializers
@@ -121,8 +122,20 @@ class MarkdownContentSerializer(ContentSerializer):
 
     def get_html_content(self, obj):
         if obj.content is not None:
-            return markdown.markdown(obj.content.replace(
+            content = markdown.markdown(obj.content.replace(
                 '&gt;', '>')).replace('<a', '<a target="_blank"')
+            for image in re.finditer('<img ', content):
+                temp_content = content[image.start():]
+                temp_content = temp_content[:temp_content.find("/>") + 2]
+                src = temp_content[temp_content.find('src="') + 5:]
+                src = src[:src.find('"')]
+                lightbox_wrapper = '<a href="%s" data-lightbox="%s">%s</a>' % (
+                    src, obj.object_uuid, temp_content)
+                for item in re.finditer(temp_content, content):
+                    content = content[:item.start()] + lightbox_wrapper + \
+                              content[item.end():]
+                    break
+            return content
         else:
             return ""
 

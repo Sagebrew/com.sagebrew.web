@@ -72,10 +72,6 @@ class UploadSerializer(SBSerializer):
     def update(self, instance, validated_data):
         return None
 
-    def get_html(self, instance):
-        return render_to_string('contained_image.html',
-                                {"uploaded_object": instance})
-
 
 class ModifiedSerializer(UploadSerializer):
 

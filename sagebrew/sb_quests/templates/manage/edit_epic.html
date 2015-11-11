@@ -9,12 +9,10 @@
 {% endblock %}
 
 {% block live %}
-<div class="sb_wall">
-    <div class="row" style="padding-left: 15px; padding-right: 15px;">
-        <div class="block sb_epic sb_provide_epic">
-            <div class="row-fluid">
-                <h5>Edit Epic</h5>
-            </div>
+    <div class="block">
+        <h3 class="block-title">Quest Epic</h3>
+
+        <div class="block-content">
             <form id="epicForm">
                 <div class="row sb_markdown epic-content">
                     <div class="col-lg-12">
@@ -30,19 +28,12 @@
                         <button class="btn btn-primary sb_btn sb_btn_fill edit_epic-action"
                                 id="submit_epic"
                                 data-object_uuid="{{ id }}">
-                            Submit
+                            Save
                         </button>
-                    </div>
-                    <div class="col-lg-4 col-md-4">
-                        <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove cancel_edit_epic-action"
-                                >Cancel</button>
                     </div>
                 </div>
             </form>
-        </div>
-    </div>
-</div>
-<div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -78,6 +69,9 @@
         </div>
     </div>
 </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block scripts %}

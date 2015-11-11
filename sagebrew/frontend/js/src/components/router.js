@@ -24,12 +24,13 @@ function controllerMetaInfo() {
         }
 
     }
-
     return meta;
 }
 /**
  * @param match_method
  * @param check
+ * TODO: Fix bug:
+ *  -- The path generated strips out the trailing slash.
  */
 function matchController(match_method, check) {
     // Support multiple checks.
@@ -48,17 +49,22 @@ function matchController(match_method, check) {
             switch(match_method) {
                 case true:
                     return true;
+                    break;
                 case 'user': //Need to output app settings in python for this.
                     if(settings.user.type && settings.user.type === value) {
                         return true;
                     }
-                    return false;
+                    break;
                 case 'path':
                     var match = path.match(value);
-                    return match;
+                    if (match !== null) {
+                        return true;
+                    }
+                    break;
             }
         }
     }
+    return false;
 }
 
 /**
@@ -93,4 +99,3 @@ export function controllers() {
     }
     return loaded;
 }
-

@@ -10,12 +10,6 @@ export const meta = {
     check: "^conversations\/([A-Za-z0-9.@_%+-]{36})\/"
 };
 
-/**
- * Init
- */
-export function init() {
-
-}
 
 /**
  * Load
@@ -26,10 +20,3 @@ export function load() {
     mapLocation.init();
 }
 
-/**
- * Post Load
- */
-export function postload() {
-    //
-    // Intercom Tracking
-}

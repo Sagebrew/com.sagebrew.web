@@ -1,5 +1,5 @@
 /*global google*/
-var request = require('./../../../api').request;
+var request = require('api').request;
 
 // Required to provide global function to be called with callback
 function displayMap() {

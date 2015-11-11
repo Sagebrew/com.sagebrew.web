@@ -3,7 +3,7 @@
  * @file
  * Signup Page... This is actually the homepage for anon users.
  */
-var request = require('./../../api').request;
+var request = require('api').request;
 
 function signupFormValidation() {
        $("#signupForm").formValidation({

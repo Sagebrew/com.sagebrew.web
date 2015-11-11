@@ -11,8 +11,6 @@ var representatives = require('./partials/representatives'),
     newsfeed = require('./partials/newsfeed'),
     follow = require('./partials/follow');
 
-
-
 /**
  * Init
  */

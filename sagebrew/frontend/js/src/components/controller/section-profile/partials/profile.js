@@ -5,10 +5,10 @@
  * TODO refactor and include the above globals.
  *
  */
-var request = require('./../../../api').request,
-    helpers = require('./../../../common/helpers');
+var request = require('api').request,
+    helpers = require('common/helpers');
 
-require('./../../../plugin/contentloader');
+require('plugin/contentloader');
 
 /**
  * These should really be called load or something.

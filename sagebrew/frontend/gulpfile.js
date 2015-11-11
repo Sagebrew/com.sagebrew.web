@@ -38,7 +38,7 @@ var paths = {
         'bower_components/Autolinker.js/dist/Autolinker.js',
         'bower_components/remarkable-bootstrap-notify/dist/bootstrap-notify.js',
         'bower_components/imagesloaded/imagesloaded.pkgd.min.js',
-        'bower_components/jquery-mousewheel/jquery.mousewheel.js',
+        'bower_components/jquery-mousewheel/jquery.mousewhe el.js',
         'bower_components/bootstrap-switch/dist/js/bootstrap-switch.js',
         'bower_components/packery/dist/packery.pkgd.js',
         'js/vendor/flatui/radiocheck.js',
@@ -121,10 +121,12 @@ gulp.task('scripts:global', function () {
         var bundler =  browserify({
             entries: [__dirname + "/" + entry],
             basedir: __dirname,
-            debug: debug
-            //transform: [bulkify, babelify]
+            debug: debug,
+            paths: [
+                './node_modules',
+                './js/src/components'
+            ]
         });
-
         bundler.transform(babelify);
         bundler.transform(globify);
 

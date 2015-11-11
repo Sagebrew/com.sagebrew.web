@@ -4,7 +4,7 @@
  * Global SB controller. Loaded on every page.
  */
 
-var helpers = require('./../../common/helpers');
+var helpers = require('common/helpers');
 
 
 /**

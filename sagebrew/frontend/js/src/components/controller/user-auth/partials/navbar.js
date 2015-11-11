@@ -4,8 +4,8 @@
  * TODO: Reorganize.
  * App: .app-navbar
  */
-var request = require('./../../../api').request;
-var settings = require('./../../../settings').settings;
+var request = require('api').request;
+var settings = require('settings').settings;
 
 
 /**

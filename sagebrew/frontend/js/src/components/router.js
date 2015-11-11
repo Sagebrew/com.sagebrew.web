@@ -9,7 +9,7 @@ var helpers = require('./common/helpers'),
  * Gather all the controllers into an array.
  * This is some magical browserify plugin, you can't actually do this out of the box.
  */
-var ctrlHash = require('./controller/*/controller.js', {mode: 'hash'});
+var ctrlHash = require('./controller/**/controller.js', {mode: 'hash'});
 
 //
 // Define all the controllers.

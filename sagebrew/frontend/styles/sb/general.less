@@ -253,29 +253,9 @@ a {
     padding-top: 15px;
   }
 }
-.nav-list-vivid {
-  li {
-    a {
-      font-size: 18px;
-      line-height: 25px;
-      padding:15px;
-    }
-  }
-
-  li.active > a {
-    background-color: @sb_green;
-  }
-  li:last-child {
-    margin-bottom:0px;
-
-  }
-
-  li:last-child a {
-    border-bottom-left-radius: 3px;
-    border-bottom-right-radius: 3px;
-  }
+#sb-nav-link-active{
+  background-color: @sb_green;
 }
-
 .sb-nav-header{
   text-transform: none;
 }
@@ -377,6 +357,7 @@ a {
 .sb_conversation_wall{
   &:extend(.sb_wall);
   margin-top: 30px;
+  min-height: 500px;
 }
 .sb_action_wall{
   &:extend(.sb_wall);
@@ -392,6 +373,20 @@ a {
   margin-top: 30px;
   margin-bottom: 30px;
   padding-top: 60px;
+}
+
+// TODO: Part time fix till PR #720
+.saga-wrapper {
+  margin-right: 0;
+  margin-left: 0;
+}
+// TODO: Part time fix till PR #720
+.epic-wrapper{
+  height: auto;
+  background-color: @sb_green_wall;
+  padding: 15px 15px 15px 15px;
+  border-radius: 2px;
+  min-height: 575px;
 }
 
 // Border
@@ -642,6 +637,7 @@ a {
   border-color: @sb_green !important;
 }
 
+
 .sb_secondary_nav{
   &:extend(.sb_nav);
   background-color: @sb_grey_light;
@@ -651,6 +647,7 @@ a {
   margin-bottom: @sb_common_margin_positive;
   ul {
     margin:0;
+    padding:0;
   }
   li {
     margin-right: 20px;
@@ -671,8 +668,34 @@ a {
     color: @sb_green;
   }
 }
+
+// TODO: Part time fix till PR #720
+.search-nav-wrapper{
+  ul {
+    margin:0;
+    padding-top: 5px;
+    padding-left: 30px;
+  }
+}
+
+// TODO: Part time fix till PR #720
+.profile-nav-wrapper{
+  ul {
+    margin:0;
+    padding-top: 5px;
+  }
+}
+
+// TODO: Part time fix till PR #720
+.help-page-wrapper {
+  ul {
+    margin-bottom: 4px !important;
+  }
+}
 .sb-help-nav {
   &:extend(.sb_secondary_nav);
+  // TODO: Part time fix till PR #720
+  padding-bottom: 0 !important;
   ul {
     margin-top: 10px;
   }
@@ -685,6 +708,9 @@ a {
     &:hover{
        color: @sb_green;
     }
+  }
+  h3 {
+    margin-top: 10px;
   }
   .active{
     color: @sb_green;
@@ -881,10 +907,10 @@ a {
   color: white;
 }
 .sb-signup-mission{
- h4{
-   color: white;
-   position: absolute;
- }
+  h4{
+    color: white;
+    position: absolute;
+  }
 }
 .intro-video-wrapper{
   display:inline-block;
@@ -938,12 +964,12 @@ a {
   width: 100%;
   height: 40px;
   font-size: @sb_body_text;
-    &:active{
-      color: @sb_green;
-    }
-    &:hover{
-      color: @sb_green;
-    }
+  &:active{
+    color: @sb_green;
+  }
+  &:hover{
+    color: @sb_green;
+  }
 }
 
 // This is used as the css for collage plus after uploading images
@@ -1711,7 +1737,7 @@ textarea.sb_comment_input{
   text-align: center;
 }
 
-.sb-profile-not-friend-element-image{
+.sb-profile-not-friend-element-image{0
   text-align: center;
   width: 80%;
   height: 80%;
@@ -1774,4 +1800,87 @@ textarea.sb_comment_input{
 
 .sb-quest-nav-rocket{
   font-size: 12pt;
+}
+
+.conversation-meta {
+  background-color: @sb_green_wall;
+  margin-top: 30px;
+  padding: 15px;
+  font-size: 11pt;
+  small{
+    display: block; font-size: 10pt;
+  }
+  h5 {
+    margin-top: 0;
+  }
+}
+
+.map-viewer-conversation {
+  background-color: @sb_green_wall;
+
+  padding: 15px;
+  width: 100%;
+  height: 300px;
+  h5 {
+    margin-top: 0;
+  }
+}
+.map-wrapper {
+  background-color: @sb_green_wall;
+  padding: 0 15px 15px 15px;
+}
+.question-header{
+  padding-top: 0;
+}
+#map {
+  height: 100%;
+}
+#target {
+  width: 345px;
+}
+
+#pac-input {
+  margin-bottom: 15px;
+  height: 52px;
+}
+
+#type-selector {
+  color: #fff;
+  background-color: #4d90fe;
+  padding: 5px 11px 0px 11px;
+}
+
+#type-selector label {
+  font-size: 13px;
+  font-weight: 300;
+}
+.side-create-map{
+  background-color: @sb_green_wall;
+  margin-top: 30px;
+  padding: 15px;
+  width: 100%;
+  height: 400px;
+}
+
+.nav-list-vivid {
+  li {
+    a {
+      font-size: 18px;
+      line-height: 25px;
+      padding:15px;
+    }
+  }
+
+  li.active > a {
+    background-color: @sb_green;
+  }
+  li:last-child {
+    margin-bottom:0px;
+
+  }
+
+  li:last-child a {
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+  }
 }

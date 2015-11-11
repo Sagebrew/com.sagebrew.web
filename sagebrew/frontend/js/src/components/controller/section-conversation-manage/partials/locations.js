@@ -1,6 +1,6 @@
 /*global google*/
-var request = require('./../../../api').request,
-    settings = require('./../../../settings').settings;
+var request = require('api').request,
+    settings = require('settings').settings;
 
 function initAutocomplete() {
     var latitude = parseFloat(document.getElementById('location-lat').innerHTML) || 42.3314;

@@ -133,6 +133,54 @@ def manage_settings(request, username):
                   {"campaign": campaign})
 
 
+
+@login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
+def quest_delete_page(request, username):
+    """
+    :param request:
+    :return:
+    """
+    query = 'MATCH (person:Pleb {username: "%s"})' \
+            '-[r:IS_WAGING]->(campaign:Campaign) RETURN campaign' % (
+                request.user.username)
+    try:
+        res, col = db.cypher_query(query)
+        campaign = CampaignSerializer(Campaign.inflate(res[0][0]),
+                                      context={'request': request}).data
+        campaign['stripe_key'] = settings.STRIPE_PUBLIC_KEY
+    except(CypherException, ClientError):
+        return redirect("500_Error")
+    except IndexError:
+        campaign = False
+    return render(request, 'manage/quest_delete.html',
+                  {"campaign": campaign})
+
+
+@login_required()
+@user_passes_test(verify_completed_registration,
+                  login_url='/registration/profile_information')
+def quest_manage_banking(request, username):
+    """
+    :param request:
+    :return:
+    """
+    query = 'MATCH (person:Pleb {username: "%s"})' \
+            '-[r:IS_WAGING]->(campaign:Campaign) RETURN campaign' % (
+                request.user.username)
+    try:
+        res, col = db.cypher_query(query)
+        campaign = CampaignSerializer(Campaign.inflate(res[0][0]),
+                                      context={'request': request}).data
+        campaign['stripe_key'] = settings.STRIPE_PUBLIC_KEY
+    except(CypherException, ClientError):
+        return redirect("500_Error")
+    except IndexError:
+        campaign = False
+    return render(request, 'manage/quest_banking.html',
+                  {"campaign": campaign})
+
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def delete_quest(request):

@@ -104,25 +104,27 @@
   margin-top: 5px;
 }
 
-//this is for disabling certain dropdowns when editing an object
-.sb_object_dropdown {
-
-}
-
 
 //
 // Layouts
 // -------------------------------------------------
-.sidebar-left,
-.sidebar-right {
-  .block {
-    margin-bottom:10px;
-    padding:0;
-    .block-title {
-      padding:10px 10px 0 10px;
-    }
-    .block-content {
-      padding:10px;
-    }
+
+
+//
+// Blocks
+// -------------------------------------------------
+.block {
+  margin-bottom:20px;
+  padding:0;
+  .block-title {
+    padding:20px 20px 0 20px;
+    margin:0;
   }
+  .block-content {
+    padding:20px;
+  }
+}
+
+.block-content > ul.list-group {
+  margin:0;
 }

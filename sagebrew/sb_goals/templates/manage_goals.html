@@ -21,7 +21,7 @@
         <div class="block-content">
             <div style="display: none" id="campaign_id" data-object_uuid="{{ id }}"></div>
             <div style="display: none" id="upcoming_round"
-                                 data-object_uuid="{{ upcoming_round }}"></div>
+                 data-object_uuid="{{ upcoming_round }}"></div>
             <div class="sb_create_goal_wrapper">
                 <div class="sb_goal sb_provide_goal">
                     <div id="create_container" style="display: none;">
@@ -86,41 +86,42 @@
                     </div>
                 </div>
             </div>
+            <div class="clearfix">
+                <div class="pull-right" id="sb_queue_switch">
+                    {% if active and not active_round %}
+                        <button id="activate_round" class="btn btn-primary sb_btn sb_btn_fill"
+                                style="margin-top: 5px;">Activate
+                        </button>
+                    {% else %}
+                        <input type="checkbox" data-toggle="bootstrap-switch" id="toggle-queued"
+                               name="my-checkbox"
+                               data-on-text="Queued" data-off-text="Unqueued"/>
+                    {% endif %}
+                </div>
+                <div class="pull-right">
+                    <button id="submit_round" class="btn btn-primary sb_btn "
+                            style="margin-top: 5px;">
+                        Save
+                    </button>
+                </div>
+            </div>
+
             <div class="row">
-            <div class="hidden-xs col-sm-6">
-                <div class="sb_wall sb_conversation_wall">
+                <div class="hidden-xs col-sm-6">
                     <h4>Unused Goals</h4>
 
                     <div class="manage-goal-wrapper" id="existing_goals">
                     </div>
                 </div>
-            </div>
-            <div class="hidden-xs col-sm-6">
-                <div class="sb_wall sb_conversation_wall">
-                    <div class="col-xs-4">
-                        <h4>Next Goal Set</h4>
-                    </div>
-                    <div class="col-xs-4" id="sb_queue_switch">
-                        {% if active and not active_round %}
-                            <button id="activate_round" class="btn btn-primary sb_btn sb_btn_fill"
-                                    style="margin-top: 5px;">Activate
-                            </button>
-                        {% else %}
-                            <input type="checkbox" data-toggle="bootstrap-switch" id="toggle-queued" name="my-checkbox"
-                                   data-on-text="Queued" data-off-text="Unqueued"/>
-                        {% endif %}
-                    </div>
-                    <div class="col-xs-4">
-                        <button id="submit_round" class="btn btn-primary sb_btn sb_btn_fill" style="margin-top: 5px;">
-                            Save
-                        </button>
-                    </div>
+                <div class="hidden-xs col-sm-6">
+                    <h4>Next Goal Set</h4>
+
+
                     <div class="manage-goal-wrapper" id="current_goals">
 
                     </div>
                 </div>
             </div>
-        </div>
         </div>
     </div>
 {% endblock %}

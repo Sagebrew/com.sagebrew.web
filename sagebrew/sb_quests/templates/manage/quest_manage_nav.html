@@ -24,8 +24,8 @@
         </a>
     </li>
 
-    <li class="{% if "z/" in request.path %}active{% endif %}">
-        <a  href="{% url 'quest_manage_settings' request.user %}">
+    <li class="{% if "/manage/banking/" in request.path %}active{% endif %}">
+        <a  href="{% url 'quest_manage_banking' request.user %}">
             Banking
         </a>
     </li>
@@ -37,8 +37,8 @@
     </li>
 
     {% comment %}TODO: Check permissions{% endcomment %}
-    <li class="{% if "/manage/moderators/" in request.path %}active{% endif %}">
-        <a  href="{% url 'quest_moderators' request.user %}">
+    <li class="{% if "/manage/delete/" in request.path %}active{% endif %}">
+        <a  href="{% url 'quest_delete_page' request.user %}">
             Delete Quest
         </a>
     </li>

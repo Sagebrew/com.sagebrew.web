@@ -9,7 +9,17 @@ function displayMap() {
         .done(function (data) {
             var zoomLevel = 1;
             if(data.longitude !== undefined && data.longitude !== null) {
-                zoomLevel = 5;
+                if((data.affected_area.match(/,/g) || []).length === 0){
+                    zoomLevel = 3;
+                } else if ((data.affected_area.match(/,/g) || []).length === 1) {
+                    zoomLevel = 5;
+                } else if ((data.affected_area.match(/,/g) || []).length === 2) {
+                    zoomLevel = 12;
+                } else if ((data.affected_area.match(/,/g) || []).length === 3) {
+                    zoomLevel = 14;
+                } else if ((data.affected_area.match(/,/g) || []).length === 4) {
+                    zoomLevel = 14;
+                }
             }
             var latLong = {lat: data.latitude || 37.09024, lng: data.longitude || -95.71289100000001};
             var map = new google.maps.Map(document.getElementById('map'), {
@@ -18,11 +28,13 @@ function displayMap() {
                 disableDefaultUI: true
             });
             if(data.longitude !== undefined && data.longitude !== null) {
-                new google.maps.Marker({
-                    position: latLong,
-                    map: map,
-                    title: data.affected_area
-                });
+                if((data.affected_area.match(/,/g) || []).length > 1){
+                    new google.maps.Marker({
+                        position: latLong,
+                        map: map,
+                        title: data.affected_area
+                    });
+                }
             }
         })
         .fail(function(){

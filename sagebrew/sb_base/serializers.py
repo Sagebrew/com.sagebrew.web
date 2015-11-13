@@ -124,13 +124,23 @@ class MarkdownContentSerializer(ContentSerializer):
         if obj.content is not None:
             content = markdown.markdown(obj.content.replace(
                 '&gt;', '>')).replace('<a', '<a target="_blank"')
+            # Iterate through each image tag within the document and add the
+            # necessary a tag for lightbox to work.
             for image in re.finditer('<img ', content):
+                # Get the beginning of the image tag to the end of the document
                 temp_content = content[image.start():]
+                # Chop off the rest of the document after the close of the img
+                # tag
                 temp_content = temp_content[:temp_content.find("/>") + 2]
+                # Need to get the source of the image to populate the a href
+                # so find the src and chop off anything before it
                 src = temp_content[temp_content.find('src="') + 5:]
+                # Chop off anything after it is closed
                 src = src[:src.find('"')]
+                # Build the wrapper
                 lightbox_wrapper = '<a href="%s" data-lightbox="%s">%s</a>' % (
                     src, obj.object_uuid, temp_content)
+                # Replace the instances of the image tag with the new wrapper
                 for item in re.finditer(temp_content, content):
                     content = content[:item.start()] + lightbox_wrapper + \
                               content[item.end():]

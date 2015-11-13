@@ -142,8 +142,9 @@ class MarkdownContentSerializer(ContentSerializer):
                     src, obj.object_uuid, temp_content)
                 # Replace the instances of the image tag with the new wrapper
                 for item in re.finditer(temp_content, content):
-                    content = content[:item.start()] + lightbox_wrapper + \
-                              content[item.end():]
+                    content = "%s%s%s" % (
+                        content[:item.start()], lightbox_wrapper,
+                        content[item.end():])
                     break
             return content
         else:

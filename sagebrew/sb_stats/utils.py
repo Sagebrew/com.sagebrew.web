@@ -1,12 +1,8 @@
-from logging import getLogger
-
 from django.core.cache import cache
 
 from neomodel import CypherException
 
 from sb_questions.neo_models import Question
-
-logger = getLogger('loggly_logs')
 
 
 def update_view_count(sb_object):

@@ -1,8 +1,8 @@
 {% load staticfiles %}
 <div class="btn-group sb_dropdown">
     <div class="btn-group">
-        {% if not request_profile.reputation_update_seen %}
-            <span class="navbar-new sb_reputation_notifier" id="js-sb_friend_request_notifier"></span>
+        {% if not request_profile.reputation_update_seen and request_profile.reputation_change != 0 %}
+            <span class="navbar-new sb_notifier" id="js-sb_friend_request_notifier">{{ request_profile.reputation_change }}</span>
         {% endif %}
         <button class="btn dropdown-toggle sb_btn_nav show_friend_request-action show-reputation-action"
                 type="button"
@@ -27,7 +27,7 @@
 
     <div class="btn-group">
         <a href="{% url "question_page" %}" class="btn dropdown-toggle sb_btn_nav show_friend_request-action">
-            <span class="sb_btn_icon conversation_logo" style="margin-left: 5px; background-image: url({% static 'media/conversation.svg' %});"></span>
+            <span class="sb_btn_icon conversation_logo" style="margin-left: 5px; background-image: url({% static 'media/convo_cloud.svg' %});"></span>
         </a>
     </div>
 

@@ -30,11 +30,11 @@ $(document).ready(function(){
                 row: 'question_content_input',
                 validators: {
                     notEmpty: {
-                        message: "Content is required"
+                        message: "Please provide context to the Question"
                     },
                     stringLength: {
                         min: 15,
-                        message: "Content must be at least 15 characters long"
+                        message: "Context must be at least 15 characters long"
                     }
                 }
             },
@@ -42,7 +42,15 @@ $(document).ready(function(){
                 row: 'twitter-typeahead',
                 validators: {
                     notEmpty: {
-                        message: "Tags are required"
+                        message: "Please add at least one tag"
+                    }
+                }
+            },
+            place: {
+                row: 'position-wrapper',
+                validators: {
+                    notEmpty: {
+                        message: "Please specify the area that is affected"
                     }
                 }
             }

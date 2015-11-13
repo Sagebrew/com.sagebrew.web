@@ -16,9 +16,6 @@ from sb_uploads.neo_models import UploadedObject, URLContent
 
 from .neo_models import Post
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class PostSerializerNeo(ContentSerializer):
     href = serializers.HyperlinkedIdentityField(view_name='post-detail',

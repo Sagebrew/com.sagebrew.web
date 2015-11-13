@@ -4,7 +4,6 @@ import StringIO
 from io import BytesIO
 from uuid import uuid1
 from copy import deepcopy
-from logging import getLogger
 
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -28,8 +27,6 @@ from .serializers import (UploadSerializer, ModifiedSerializer, CropSerializer,
                           URLContentSerializer)
 from .neo_models import (UploadedObject, URLContent)
 from .utils import resize_image, crop_image2
-
-logger = getLogger('loggly_logs')
 
 
 class UploadViewSet(viewsets.ModelViewSet):
@@ -186,7 +183,7 @@ class URLContentViewSet(viewsets.ModelViewSet):
             query = 'MATCH (current:Pleb {username:"%s"})-' \
                     '[friend:FRIENDS_WITH]->(other:' \
                     'Pleb {username:"%s"})<-[:OWNED_BY]-(url:URLContent) ' \
-                    'RETURN CASE friend.currently_friends WHEN True THEN ' \
+                    'RETURN CASE friend.active WHEN True THEN ' \
                     'url END AS result ORDER BY result.created DESC' % \
                     (self.request.user.username, username)
         res, _ = db.cypher_query(query)

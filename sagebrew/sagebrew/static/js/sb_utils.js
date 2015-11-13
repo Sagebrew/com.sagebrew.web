@@ -32,11 +32,13 @@ function saveComment(commentArea, url, objectUuid) {
 
 
 function enableExpandPostImage() {
+    /*
     lightbox.option({
         'resizeDuration': 200,
         'wrapAround': true,
         'alwaysShowNavOnTouchDevices': true
     });
+    */
 }
 
 
@@ -222,53 +224,6 @@ function loadPosts(url) {
                 populateComments(data.results.ids, "posts");
             }
             wallContainer.spin(false);
-        },
-        error: function (XMLHttpRequest) {
-            errorDisplay(XMLHttpRequest);
-        }
-    });
-}
-
-
-function loadQuestion() {
-    var timeOutId = 0;
-    var ajaxFn = function () {
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "GET",
-            url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/?html=true&expand=true&expedite=true",
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                var questionContainer = $('#single_question_wrapper');
-                questionContainer.append(Autolinker.link(data.html));
-                loadSolutionCount();
-                enableQuestionFunctionality(data.ids);
-                populateComments(data.ids, "questions");
-                loadSolutions("/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solutions/render/?page_size=10&expand=true");
-            },
-            error: function (XMLHttpRequest) {
-                timeOutId = setTimeout(ajaxFn, 1000);
-                errorDisplay(XMLHttpRequest);
-            }
-        });
-    };
-    ajaxFn();
-}
-
-function loadSolutionCount() {
-    $.ajax({
-        xhrFields: {withCredentials: true},
-        type: "GET",
-        url: "/v1/questions/" + $('.div_data_hidden').data('question_uuid') + "/solution_count/",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data) {
-            $('#solution_count').html("");
-            $('#solution_count').append(data.solution_count);
-            if (data.solution_count !== 1) {
-                $('#solution_plural').append('s');
-            }
         },
         error: function (XMLHttpRequest) {
             errorDisplay(XMLHttpRequest);
@@ -530,15 +485,24 @@ function editObject(editArea, url, objectUuid, dataArea) {
                     $(editButton).removeAttr("disabled");
                     var contentContainer = $("#sb_content_" + objectUuid);
                     contentContainer.html(Autolinker.link(data.content).replace(/\n/g, "<br/>"));
-                    if (data.urlcontent_html) {
+                    if ("uploaded_objects" in data && data.uploaded_objects.length > 0) {
+                        if (data.first_url_content && data.uploaded_objects[0].created < data.first_url_content.created) {
+                            contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
+                            var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
+                            $.each(data.uploaded_objects, function(index, value){
+                                uploadContainer.append(value.html);
+                            });
+                        } else if (data.first_url_content && data.uploaded_objects[0].created > data.first_url_content.created && data.urlcontent_html) {
+                            contentContainer.append(data.urlcontent_html);
+                        } else {
+                            contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
+                            var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
+                            $.each(data.uploaded_objects, function(index, value){
+                                uploadContainer.append(value.html);
+                            });
+                        }
+                    } else if ((data.uploaded_objects.length <= 0) && data.urlcontent_html) {
                         contentContainer.append(data.urlcontent_html);
-                    }
-                    if ("uploaded_objects" in data) {
-                        contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
-                        var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
-                        $.each(data.uploaded_objects, function(index, value){
-                            uploadContainer.append(value.html);
-                        });
                     }
                     $("#edit_container_" + objectUuid).hide();
                     contentContainer.show();
@@ -799,11 +763,6 @@ function enableObjectFunctionality(populatedIds) {
     readyVotes(populatedIds);
     readyComments(populatedIds);
     foggyClosed(populatedIds);
-}
-
-
-function enableFriendRequestFunctionality() {
-    respondFriendRequest();
 }
 
 function enableCommentFunctionality(populatedIds) {

@@ -14,9 +14,6 @@ from sb_registration.utils import upload_image
 from .utils import parse_page_html
 from .neo_models import UploadedObject, ModifiedObject, URLContent
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class MediaType:
     def __init__(self):
@@ -27,8 +24,7 @@ class MediaType:
                        'PNG']
         if (value not in allowed_ext):
             message = 'You have provided an invalid file type. ' \
-                      'The valid file types are: %s' % (', '.join(allowed_ext))
-
+                      'The valid file types are gif, jpeg, jpg, and png'
             raise serializers.ValidationError(message)
         return value
 

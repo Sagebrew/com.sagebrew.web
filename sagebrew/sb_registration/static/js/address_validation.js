@@ -19,6 +19,7 @@ $( document ).ready(function() {
             $("#id_congressional_district").val(1);
         }
         $("#id_latitude").val(data.response.raw[0].metadata.latitude);
+        $("#id_county").val(data.response.raw[0].metadata.county_name);
         $("#id_longitude").val(data.response.raw[0].metadata.longitude);
         previousHandler(event, data);
     });

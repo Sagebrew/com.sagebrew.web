@@ -6,8 +6,6 @@ from rest_framework import serializers
 from neomodel import db
 
 from api.serializers import SBSerializer
-from logging import getLogger
-logger = getLogger('loggly_logs')
 
 
 class PublicOfficialSerializer(SBSerializer):
@@ -66,15 +64,15 @@ class PublicOfficialSerializer(SBSerializer):
         return None
 
     def get_campaign(self, obj):
-        campaign = cache.get('%s_campaign' % (obj.object_uuid))
+        campaign = cache.get('%s_campaign' % obj.object_uuid)
         if campaign is None:
             query = 'MATCH (o:PublicOfficial {object_uuid: "%s"})-' \
                     '[:HAS_CAMPAIGN]->(c:PoliticalCampaign) ' \
-                    'RETURN c.object_uuid' % (obj.object_uuid)
+                    'RETURN c.object_uuid' % obj.object_uuid
             res, _ = db.cypher_query(query)
             try:
                 campaign = res[0][0]
-                cache.set('%s_campaign' % (obj.object_uuid), campaign)
+                cache.set('%s_campaign' % obj.object_uuid, campaign)
             except IndexError:
                 return None
         return campaign

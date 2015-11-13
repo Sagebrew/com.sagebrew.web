@@ -3,13 +3,13 @@ from boto.dynamodb2.exceptions import (JSONResponseError)
 from boto.exception import BotoClientError, BotoServerError, AWSConnectionError
 
 from api.utils import spawn_task
-from sb_votes.tasks import vote_object_task
 
 from .utils import (add_object_to_table, get_user_updates)
 
 
 @shared_task()
 def spawn_user_updates(username, object_uuids):
+    from sb_votes.tasks import vote_object_task
     vote_res = []
     for object_uuid in object_uuids:
         try:
@@ -34,6 +34,7 @@ def spawn_user_updates(username, object_uuids):
             spawn_task(task_func=vote_object_task, task_param=task_data)
         except KeyError:
             pass
+
     return True
 
 

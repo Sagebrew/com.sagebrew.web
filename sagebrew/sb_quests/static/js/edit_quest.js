@@ -44,5 +44,9 @@ $(document).ready(function () {
     $("#manage_goals").click(function (event) {
         window.location.href = "/quests/" + campaignId + "/manage_goals/";
     });
+    $("#js-complete-setup").click(function(event){
+        event.preventDefault();
+        window.location.href = "/user/quest_settings/";
+    });
 
 });

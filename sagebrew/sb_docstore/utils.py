@@ -1,5 +1,5 @@
 import os
-from logging import getLogger
+import logging
 
 from boto.dynamodb2.layer1 import DynamoDBConnection
 from boto.dynamodb2.table import Table
@@ -11,7 +11,7 @@ from boto.dynamodb2.exceptions import (JSONResponseError, ItemNotFound,
 
 from django.conf import settings
 
-logger = getLogger('loggly_logs')
+logger = logging.getLogger('loggly_logs')
 
 
 def get_table_name(name):

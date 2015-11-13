@@ -1,5 +1,4 @@
 from dateutil import parser
-from logging import getLogger
 from operator import attrgetter
 
 from django.template.loader import render_to_string
@@ -21,8 +20,6 @@ from sb_comments.serializers import CommentSerializer
 from sb_posts.serializers import PostSerializerNeo
 
 from .serializers import CouncilVoteSerializer
-
-logger = getLogger('loggly_logs')
 
 
 class CouncilObjectEndpoint(viewsets.ModelViewSet):

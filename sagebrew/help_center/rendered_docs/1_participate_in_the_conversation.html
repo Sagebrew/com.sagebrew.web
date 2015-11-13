@@ -6,33 +6,30 @@
 <li>Create Posts on own wall and friend’s walls</li>
 <li>Ability to Create Questions and Solutions</li>
 <li>Ability to Edit Own Questions</li>
-<li>Until user attains 10 <a href="/help/reputation/">Reputation</a> (leave "new user" status) they are 
-  limited to a sum of 3 Questions and Solutions per day
-{% if debug == True %}</li>
-<li>Ability to Concede to more viable Solutions
-{% endif %}</li>
+<li _="%" debug="debug" if="if">Until user attains 10 <a href="/help/reputation/">Reputation</a> (leave "new user" status) they are 
+  limited to a sum of 3 Questions and Solutions per day</li>
+<li _="%" endif="endif">Ability to Concede to more viable Solutions</li>
 </ul>
 <h3>Description</h3>
 <p>This is the most basic privilege: the ability to communicate with others.</p>
-<p>{% if debug == True %}
+<p _="%" endif="endif">{% if debug == True %}
 You can reach out to your friends and start Private Conversations. Consider 
 Private Conversations a testing ground where you can discuss issues with your 
 friends and family without worrying about Reputation. This is a place to 
 practice proper discussion etiquette, or to blow off etiquette altogether if 
-you’d like. It’s your space. Have fun.
-{% endif %}</p>
-<p>You can create Questions and provide Solutions in the Conversation. This is your opportunity to lend your voice to the ongoing discussions, 
+you’d like. It’s your space. Have fun.</p>
+<p>You can create Questions and provide Solutions in the Conversation Cloud. This is 
+your opportunity to lend your voice to the ongoing discussions, 
 allowing you to interact with other like-minded visionaries and find solutions 
 to real problems. Note that Reputation is on the line in the 
-Conversation. You may amass Reputation for quality Questions and 
+Conversation Cloud. You may amass Reputation for quality Questions and 
 Solutions, or you may lose Reputation for poor quality Questions and Solutions. </p>
-<p>{% if debug == True %}
+<p _="%" endif="endif">{% if debug == True %}
 Lastly, you'll be able to Concede your Solutions to more viable/invested 
 Solutions if you desire. If somebody comes up with a Solution that seems to 
 cover more ground than yours, there is no shame in Conceding to that person's 
 solution! In fact, by Conceding to a better solution, you've shown that you're 
-here to find the best solution to a problem and not to argue a moot point! 
-{% endif %}</p>
+here to find the best solution to a problem and not to argue a moot point! </p>
 <p>Time to stir the brew!  </p>
 <h2>Conversation Etiquette</h2>
 <h4>When should I ask Questions?</h4>
@@ -56,15 +53,14 @@ the atmosphere? </p>
 <p>Sources: http://epa.gov/climatechange/ghgemissions/gases/n2o.html</p>
 <hr />
 <h3>What's a bad Question look like?</h3>
-<p>A Question is a bad Question if it is: offensive, only has one side, 
+<p _="%" endif="endif">A Question is a bad Question if it is: offensive, only has one side, 
 has an obvious solution, is not aimed at finding a solution, does not make 
 sense etc. 
 {% if debug == True %}
 If you aren't sure if your Question is good or bad, start a 
 Private Conversation first and see what kind of feedback you get. If it 
 seems to spark a good conversation with multiple sides, it's probably okay. 
-If it doesn't, well, take it back to the drawing board and rework it. 
-{% endif %}</p>
+If it doesn't, well, take it back to the drawing board and rework it. </p>
 <h4>Example of a Bad Question</h4>
 <hr />
 <h5>Why do republicans keep wasting their time fighting Obamacare?</h5>
@@ -80,7 +76,7 @@ yet, and you can lend merit to that thought, create a Solution. Don't
 provide a Solution that has already been provided, and don't provide a 
 Solution that doesn't add new information to the conversation. </p>
 <h3>What happens to my Question?</h3>
-<p>Your Question, like a shooting star in the night sky, might burn brightly for 
+<p _="%" endif="endif">Your Question, like a shooting star in the night sky, might burn brightly for 
 a short time, igniting a conversation between visionaries until a solution is 
 reached and it fizzles out and is replaced by others. Or, like a mountain, 
 your Question may continue to gain attention as new, relevant 
@@ -90,8 +86,7 @@ them at any time you'd like.
 {% if debug == True %}
 If your Question was part of a 
 Private Conversation it will remain archived on your page for you 
-and your friends to see should they so choose. 
-{% endif %}</p>
+and your friends to see should they so choose. </p>
 <p>{% if debug == True %}</p>
 <h3>When should I Concede to another Solution?</h3>
 <p>You should Concede to another Solution if you honestly think somebody has 
@@ -105,8 +100,7 @@ come up with a better Solution. </p>
 <li>The author of the Conceded Solution will retain all Reputation gained/lost
   10% of Reputation accrued on the Conceded Solution will be awarded 
   to the user of the "better" Solution </li>
-<li>The process of Conceding a Solution is irreversible
-{% endif %}</li>
+<li _="%" endif="endif">The process of Conceding a Solution is irreversible</li>
 </ul>
 <h3>Question Linking</h3>
 <p>If you have a question about a specific detail in another Question, it may be 
@@ -167,6 +161,5 @@ start a new Question. </p>
 <li>Majestic Solution</li>
 <li>Sort of Popular</li>
 <li>Popular</li>
-<li>Way Popular
-{% endif %}</li>
+<li _="%" endif="endif">Way Popular</li>
 </ul>

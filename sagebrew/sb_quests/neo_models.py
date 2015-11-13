@@ -9,9 +9,6 @@ from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
 from sb_base.neo_models import (VoteRelationship)
 from sb_search.neo_models import Searchable, SBObject
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class Campaign(Searchable):
     """
@@ -303,7 +300,7 @@ class Campaign(Searchable):
     @classmethod
     def get_possible_helpers(cls, object_uuid):
         query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:WAGED_BY]->(p:Pleb)-' \
-                '[:FRIENDS_WITH {currently_friends: true}]->' \
+                '[:FRIENDS_WITH {active: true}]->' \
                 '(b:Pleb) WHERE NOT (c)-[:CAN_BE_EDITED_BY]->(b) XOR ' \
                 '(c)-[:CAN_VIEW_MONETARY_DATA]->(b) RETURN b.username' \
                 % object_uuid
@@ -386,6 +383,24 @@ class PoliticalCampaign(Campaign):
     # reps, and presidents that can be voted on by the different users.
     constituents = RelationshipTo('plebs.neo_models.Pleb',
                                   'POTENTIAL_REPRESENTATIVE_FOR')
+    # current_seat = RelationshipTo('sb_quests.neo_models.Seat', "CURRENT_SEAT")
+    # Can access current_seat by using the relationship on seats:
+    # CURRENTLY_HELD_BY going from the Seat to the Quest
+
+    @classmethod
+    def get(cls, object_uuid):
+        campaign = cache.get("%s_campaign" % object_uuid)
+        if campaign is None or type(campaign) is not PoliticalCampaign:
+            query = 'MATCH (c:`PoliticalCampaign` {object_uuid: "%s"}) ' \
+                    'RETURN c' % object_uuid
+            res, col = db.cypher_query(query)
+            try:
+                campaign = PoliticalCampaign.inflate(res[0][0])
+                cache.set("%s_campaign" % object_uuid, campaign)
+                return campaign
+            except IndexError:
+                raise DoesNotExist("Quest does not exist")
+        return campaign
 
     @classmethod
     def get_vote_count(cls, object_uuid):
@@ -456,13 +471,30 @@ class PoliticalCampaign(Campaign):
             return True
         return False
 
-    def get_pledged_votes(self):
+    @classmethod
+    def get_current_seat(cls, object_uuid):
+        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
+                '[:CURRENTLY_HELD_SEAT]->(s:Seat) RETURN s.object_uuid' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def pledged_votes_per_day(self):
         query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
                 '[r:RECEIVED_PLEDGED_VOTE]->(:Pleb) RETURN r ' \
                 'ORDER BY r.created' \
                 % self.object_uuid
         res, _ = db.cypher_query(query)
-        return [VoteRelationship.inflate(row[0]) for row in res]
+        vote_data = {}
+        for vote in res:
+            rel = VoteRelationship.inflate(vote[0])
+            active_value = int(rel.active)
+            date_string = rel.created.strftime('%Y-%m-%d')
+            if date_string not in vote_data.keys():
+                vote_data[date_string] = active_value
+            else:
+                vote_data[date_string] += active_value
+        return vote_data
 
 
 class Position(SBObject):
@@ -479,6 +511,7 @@ class Position(SBObject):
                                "CAMPAIGNS")
     restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
                                   'RESTRICTED_BY')
+    seats = RelationshipTo('sb_quests.neo_models.Seat', 'SEATS')
 
     @classmethod
     def get(cls, object_uuid):
@@ -567,3 +600,10 @@ class Position(SBObject):
                 return {"full_name": full_name, "object_uuid": object_uuid}
             except IndexError:
                 return None
+
+
+class Seat(SBObject):
+    # relationships
+    position = RelationshipTo("sb_quests.neo_models.Position", "POSITION")
+    current_holder = RelationshipTo("sb_quests.neo_models.PoliticalCampaign",
+                                    "CURRENTLY_HELD_BY")

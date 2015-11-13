@@ -19,7 +19,7 @@
 // Core CSS
 @import "../bower_components/bootstrap/less/scaffolding";
 @import "../bower_components/bootstrap/less/type";
-//@import "../bower_components/bootstrap/less/code";
+@import "../bower_components/bootstrap/less/code"; // Needed for preformatted text
 @import "../bower_components/bootstrap/less/grid";
 //@import "../bower_components/bootstrap/less/tables";
 @import "../bower_components/bootstrap/less/forms";
@@ -72,7 +72,7 @@
 // Modules
 @import "contrib/flatui/modules/scaffolding";
 @import "contrib/flatui/modules/type";
-//@import "contrib/flatui/modules/code";
+@import "contrib/flatui/modules/code";
 @import "contrib/flatui/modules/thumbnails";
 @import "contrib/flatui/modules/buttons";
 @import "contrib/flatui/modules/button-groups";
@@ -81,7 +81,7 @@
 @import "contrib/flatui/modules/file-input";
 @import "contrib/flatui/modules/radiocheck";
 //@import "contrib/flatui/modules/tagsinput";
-//@import "contrib/flatui/modules/typeahead";
+@import "contrib/flatui/modules/typeahead";
 @import "contrib/flatui/modules/progress-bars";
 //@import "contrib/flatui/modules/slider";
 //@import "contrib/flatui/modules/spinner";
@@ -93,7 +93,7 @@
 @import "contrib/flatui/modules/dropdowns";
 @import "contrib/flatui/modules/select";
 //@import "contrib/flatui/modules/tables";
-//@import "contrib/flatui/modules/labels";
+@import "contrib/flatui/modules/labels";
 //@import "contrib/flatui/modules/badges";
 @import "contrib/flatui/modules/alerts";
 @import "contrib/flatui/modules/bottom-menu";
@@ -123,6 +123,7 @@
 // LESS Contrib
 // -------------------------------------------------
 @import "../bower_components/fontawesome/less/font-awesome";
+@import "../bower_components/bootstrap-switch/src/less/bootstrap3/bootstrap-switch";
 
 //
 // NON LESS Contrib
@@ -133,15 +134,17 @@
 @import "contrib/misc/transitions.css";
 @import "contrib/misc/dropzone.css";
 @import "contrib/misc/animate.min.css";
-@import "contrib/misc/croppic.css";
+@import "../bower_components/croppic/assets/css/croppic.css";
 
 
 //
 // SAGEBREW
 // --------------------------------------------------
 @import "sb/general";
+@import "sb/layout";
 @import "sb/profile";
 @import "sb/markdown";
+@import "sb/quest";
 //@import "sb/beta";
 @import "sb/misc";
 

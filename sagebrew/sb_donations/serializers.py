@@ -22,9 +22,6 @@ from sb_privileges.tasks import check_privileges
 
 from .neo_models import Donation
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class DonationSerializer(SBSerializer):
     completed = serializers.BooleanField(read_only=True)
@@ -40,6 +37,10 @@ class DonationSerializer(SBSerializer):
         request = self.context.get('request', None)
         donation_amount = Pleb.get_campaign_donations(
             request.user.username, self.context['view'].kwargs['object_uuid'])
+        if value < 0:
+            message = "You cannot donate a negative amount of " \
+                      "money to this campaign."
+            raise serializers.ValidationError(message)
         if donation_amount >= 270000:
             message = "You have already donated the max amount to this " \
                       "campaign."
@@ -99,25 +100,23 @@ class DonationSerializer(SBSerializer):
         # next goal as well, this occurs when a donation amount will be
         # applied to partially complete a goal. It then creates the
         # connections between the goals which the donation will be applied to.
-        query = 'MATCH (r:Round { object_uuid: "%s" })-[:HAS_DONATIONS]->' \
-                '(d:Donation),(cd:Donation { object_uuid:"%s" }) ' \
-                'WITH r, SUM(d.amount) AS total_amount, cd MATCH (r)-' \
-                '[:STRIVING_FOR]->(goals:Goal) WHERE goals.completed=false ' \
-                'AND goals.total_required - total_amount <= 0 ' \
-                'WITH goals, r, cd, total_amount FOREACH (goal IN [goals]|' \
-                'MERGE (cd)-[:APPLIED_TO]->(goal) MERGE (goal)-' \
-                '[:RECEIVED]->(cd))' \
+        query = 'MATCH (r:Round {object_uuid:"%s"}) WITH r OPTIONAL MATCH ' \
+                '(r)-[:HAS_DONATIONS]->(d:Donation) WITH r, d MATCH ' \
+                '(cd:Donation {object_uuid:"%s"}) WITH r, SUM(d.amount) ' \
+                'as total_amount, cd, d MATCH (r)-[:STRIVING_FOR]->' \
+                '(goals:Goal) WHERE goals.completed=false AND ' \
+                'goals.total_required-total_amount<=0 FOREACH ' \
+                '(goal IN [goals]|MERGE (cd)-[:APPLIED_TO]->(goal) ' \
+                'MERGE (goal)-[:RECEIVED]->(cd))' \
                 % (Campaign.get_active_round(campaign.object_uuid),
                    donation.object_uuid)
         db.cypher_query(query)
-        position_level = Campaign.get_position_level(campaign.object_uuid)
         campaign.donations.connect(donation)
         donation.campaign.connect(campaign)
         donor.donations.connect(donation)
         donation.owned_by.connect(donor)
         cache.delete("%s_total_donated" % campaign.object_uuid)
-        if position_level == "local" \
-                and campaign.get_total_donated(campaign.object_uuid) \
+        if campaign.get_total_donated(campaign.object_uuid) \
                 < settings.FREE_RELEASE_LIMIT:
             spawn_task(task_func=release_single_donation_task,
                        task_param={"donation_uuid": donation.object_uuid})

@@ -113,14 +113,14 @@
         This area is for inputing a new comment. The include is needed for population of existing comments.
     {% endcomment %}
     <div class="row">
-        {% if "comment" in request_profile.privileges and not is_closed or "beta_user" in request_profile.privileges and not is_closed %}
+        {% if "comment" in request_profile.privileges and not is_closed and not request.user.is_anonymous %}
             <form id="commentSubmitForm">
             <div class="input-group sb_comment">
                 <textarea class="input-group form-control sb_comment_input"
                           id="post_comment_on_{{ object_uuid }}"
                           rows="2"
                           name="comment_content"
-                          placeholder="Write your comment..."></textarea>
+                          placeholder="Help improve the Solution by providing feedback or by requesting clarification..."></textarea>
                 <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
                    data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
             </div>

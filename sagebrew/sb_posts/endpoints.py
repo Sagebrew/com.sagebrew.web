@@ -22,9 +22,6 @@ from plebs.neo_models import Pleb
 from .serializers import PostSerializerNeo, PostEndpointSerializerNeo
 from .neo_models import Post
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 class PostsViewSet(viewsets.ModelViewSet):
     serializer_class = PostEndpointSerializerNeo
@@ -56,7 +53,7 @@ class PostsViewSet(viewsets.ModelViewSet):
                     "'%s'})-" \
                     "[:OWNS_WALL]->(wall:Wall)-[:HAS_POST]->(c) " \
                     "WHERE c.to_be_deleted=false RETURN " \
-                    "CASE friend.currently_friends WHEN True THEN c " \
+                    "CASE friend.active WHEN True THEN c " \
                     "END AS result ORDER BY result.created DESC" % (
                         self.request.user.username, username)
         res, _ = db.cypher_query(query)
@@ -135,7 +132,7 @@ class WallPostsListCreate(ListCreateAPIView):
                     "'%s'})-" \
                     "[:OWNS_WALL]->(wall:Wall)-[:HAS_POST]->(c) " \
                     "WHERE c.to_be_deleted=false RETURN " \
-                    "CASE friend.currently_friends WHEN True THEN c " \
+                    "CASE friend.active WHEN True THEN c " \
                     "END AS result ORDER BY result.created DESC" % (
                         self.request.user.username,
                         self.kwargs[self.lookup_field])

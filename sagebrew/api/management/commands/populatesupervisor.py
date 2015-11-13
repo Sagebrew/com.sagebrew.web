@@ -142,4 +142,9 @@ def populate_general_values(data, user, worker_count):
                                     ""))
     data = data.replace("%(ENV_OAUTH_CLIENT_ID_CRED_PUBLIC)s",
                         environ.get("OAUTH_CLIENT_ID_CRED_PUBLIC", ""))
+    data = data.replace("%(ENV_GOOGLE_MAPS_API)s",
+                        environ.get("GOOGLE_MAPS_API", ""))
+    data = data.replace("%(ENV_GOOGLE_MAPS_JS)s",
+                        environ.get("GOOGLE_MAPS_JS", ""))
+
     return data

@@ -82,7 +82,7 @@ $(document).ready(function () {
                 }
             });
         },
-        loaderHtml: '<div class="loader bubblingG"><span id="bubblingG_1"></span><span id="bubblingG_2"></span><span id="bubblingG_3"></span></div> '
+        loaderHtml: '<div class="loader croppic-loader-quest-wallpaper"></div> '
     };
     var cropContainerEyecandy = new Croppic('cropQuestWallpaperPictureEyecandy', croppicContainerEyecandyOptions);
 

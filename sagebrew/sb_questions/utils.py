@@ -43,7 +43,7 @@ def prepare_question_search_html(question_uuid):
     return rendered
 
 
-def question_html_snapshot(request, question, question_uuid, keywords,
+def question_html_snapshot(request, question, question_uuid, tags,
                            description):
     single_object = QuestionSerializerNeo(
         question, context={'request': request,
@@ -58,7 +58,7 @@ def question_html_snapshot(request, question, question_uuid, keywords,
     single_object['uuid'] = question.object_uuid
     single_object['sort_by'] = 'uuid'
     single_object['description'] = description
-    single_object['keywords'] = keywords
+    single_object['tags'] = tags
     single_object['html_snapshot'] = True
     single_object['comments'] = CommentSerializer(
         queryset, many=True, context={'request': request,

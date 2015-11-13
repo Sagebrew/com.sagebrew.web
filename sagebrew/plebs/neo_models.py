@@ -48,13 +48,24 @@ class SearchCount(StructuredRel):
     last_searched = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 
-class FriendRelationship(StructuredRel):
+class InterpersonalRelationship(StructuredRel):
+    """
+    Relationship base for handling relations between two or more people
+    such as friends and followers/following.
+    """
     since = DateTimeProperty(default=get_current_time)
+    active = BooleanProperty(default=True)
+
+
+class FriendRelationship(InterpersonalRelationship):
     friend_type = StringProperty(default="friends")
-    currently_friends = BooleanProperty(default=True)
     time_unfriended = DateTimeProperty()
     who_unfriended = StringProperty()
-    # who_unfriended = RelationshipTo("Pleb", "")
+
+
+class FollowRelationship(InterpersonalRelationship):
+    get_notifications = BooleanProperty(default=False)
+    # determine if the user wants to get notifications in their navbar
 
 
 class UserWeightRelationship(StructuredRel):
@@ -168,6 +179,13 @@ class Pleb(Searchable):
     initial_verification_email_sent = BooleanProperty(default=False)
     stripe_account = StringProperty()
     stripe_customer_id = StringProperty()
+    # last_counted_vote_node is the node we want to query on to get
+    # reputation change over time
+    last_counted_vote_node = StringProperty(default=None)
+    # vote_from_last_refresh is what gets stored every time a user
+    # refreshes their page, allows us to easily swap it with
+    # last_counted_vote_node when they check their reputation
+    vote_from_last_refresh = StringProperty(default=None)
 
     # Relationships
     privileges = RelationshipTo('sb_privileges.neo_models.Privilege', 'HAS',
@@ -266,6 +284,8 @@ class Pleb(Searchable):
                                    'PLEDGED', model=VoteRelationship)
     donations = RelationshipTo('sb_donations.neo_models.Donation',
                                'DONATIONS_GIVEN')
+    following = RelationshipTo('plebs.neo_models.Pleb', 'FOLLOWING',
+                               model=FollowRelationship)
 
     @classmethod
     def get(cls, username):
@@ -432,7 +452,7 @@ class Pleb(Searchable):
         from sb_base.neo_models import VotableContent
         query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(' \
                 'b:VotableContent) WHERE b.visibility = "public" RETURN b' \
-                '' % (self.username)
+                '' % self.username
         res, col = db.cypher_query(query)
 
         return [VotableContent.inflate(row[0]) for row in res]
@@ -492,7 +512,7 @@ class Pleb(Searchable):
     def is_friends_with(self, username):
         query = "MATCH (a:Pleb {username:'%s'})-" \
                 "[friend:FRIENDS_WITH]->(b:Pleb {username:'%s'}) " \
-                "RETURN friend.currently_friends" % (self.username, username)
+                "RETURN friend.active" % (self.username, username)
         res, col = db.cypher_query(query)
         if len(res) == 0:
             return False
@@ -564,6 +584,65 @@ class Pleb(Searchable):
                 official = None
         return official
 
+    def is_following(self, username):
+        query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-' \
+                '(p2:Pleb {username:"%s"}) RETURN r.active' % \
+                (self.username, username)
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def follow(self, username):
+        """
+        The username passed to this function is the user who will be following
+        the user the method is called upon.
+        """
+        query = 'MATCH (p:Pleb {username:"%s"}), (p2:Pleb {username:"%s"}) ' \
+                'WITH p, p2 CREATE UNIQUE (p)<-[r:FOLLOWING]-(p2) SET ' \
+                'r.active=true RETURN r.active' % (self.username, username)
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def unfollow(self, username):
+        """
+        The username passed to this function is the user who will stop
+        following the user the method is called upon.
+        """
+        query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-(p2:Pleb ' \
+                '{username:"%s"}) SET r.active=false RETURN r.active' \
+                % (self.username, username)
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    @property
+    def reputation_change(self):
+        # See create_vote_node task in sb_votes tasks for where this is deleted
+        res = cache.get("%s_reputation_change" % self.username)
+        if res is None:
+            query = 'MATCH (last_counted:Vote {object_uuid:"%s"})-' \
+                    '[:CREATED_ON]->(s:Second) WITH s, last_counted MATCH ' \
+                    '(s)-[:NEXT*]->(s2:Second)<-[:CREATED_ON]-(v:Vote)<-' \
+                    '[:LAST_VOTES]-(content:VotableContent)-[:OWNED_BY]->' \
+                    '(p:Pleb {username:"%s"}) WITH v ORDER BY v.created DESC ' \
+                    'RETURN sum(v.reputation_change) ' \
+                    'as rep_change, collect(v.object_uuid)[0] as last_created' \
+                    % (self.last_counted_vote_node, self.username)
+            res, _ = db.cypher_query(query)
+            if not res:
+                return 0
+            # Have to cast to dict because pickle cannot handle the object
+            # returned from cypher_query
+            res = res[0].__dict__
+            cache.set("%s_reputation_change" % self.username, res)
+        reputation_change = res['rep_change']
+        last_seen = res['last_created']
+        if last_seen != self.vote_from_last_refresh:
+            self.vote_from_last_refresh = res['last_created']
+            self.save()
+            cache.set(self.username, self)
+        if reputation_change >= 1000 or reputation_change <= -1000:
+            return "%dk" % (int(reputation_change / 1000.0))
+        return reputation_change
+
     """
     def update_tag_rep(self, base_tags, tags):
         from sb_tags.neo_models import Tag
@@ -606,6 +685,7 @@ class Address(SBObject):
     country = StringProperty()
     latitude = FloatProperty()
     longitude = FloatProperty()
+    county = StringProperty()
     congressional_district = IntegerProperty()
     validated = BooleanProperty(default=False)
 

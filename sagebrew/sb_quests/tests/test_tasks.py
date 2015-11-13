@@ -1,5 +1,6 @@
 import time
 import stripe
+from uuid import uuid1
 
 from django.conf import settings
 from django.test import TestCase
@@ -75,6 +76,39 @@ class TestReleaseFundsTask(TestCase):
         test_donation.refresh()
         self.assertTrue(test_donation.completed)
 
+    def test_release_funds_goal_completed(self):
+        test_goal = Goal().save()
+        test_goal.campaign.connect(self.campaign)
+        test_donation = Donation(amount=100,
+                                 owner_username=self.pleb.username,
+                                 completed=True).save()
+        test_goal.donations.connect(test_donation)
+        test_donation.donated_for.connect(test_goal)
+        data = {
+            "goal_uuid": test_goal.object_uuid
+        }
+        res = release_funds_task.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+        test_donation.refresh()
+        self.assertTrue(test_donation.completed)
+
+    def test_release_funds_pleb_does_not_exist(self):
+        test_goal = Goal().save()
+        test_goal.campaign.connect(self.campaign)
+        test_donation = Donation(amount=100,
+                                 owner_username=str(uuid1())).save()
+        test_goal.donations.connect(test_donation)
+        test_donation.donated_for.connect(test_goal)
+        data = {
+            "goal_uuid": test_goal.object_uuid
+        }
+        res = release_funds_task.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        self.assertIsInstance(res.result, Exception)
+
 
 class TestReleaseSingleDonation(TestCase):
     def setUp(self):
@@ -146,3 +180,42 @@ class TestReleaseSingleDonation(TestCase):
         while not res.ready():
             time.sleep(1)
         self.assertTrue(res.result)
+
+    def test_release_single_donation_pleb_does_not_exist(self):
+        test_donation = Donation(amount=100,
+                                 owner_username=str(uuid1())).save()
+        self.campaign.donations.connect(test_donation)
+        test_donation.campaign.connect(self.campaign)
+        res = release_single_donation_task.apply_async(
+            kwargs={"donation_uuid": test_donation.object_uuid})
+        while not res.ready():
+            time.sleep(1)
+        self.assertIsInstance(res.result, Exception)
+
+    def test_release_single_donation_campaign_does_not_exist(self):
+        test_donation = Donation(amount=100,
+                                 owner_username=self.pleb.username).save()
+        res = release_single_donation_task.apply_async(
+            kwargs={"donation_uuid": test_donation.object_uuid})
+        while not res.ready():
+            time.sleep(1)
+        self.assertIsInstance(res.result, Exception)
+
+    def test_release_single_donation_charge_amount(self):
+        test_donation = Donation(amount=10000,
+                                 owner_username=self.pleb.username).save()
+        self.campaign.donations.connect(test_donation)
+        test_donation.campaign.connect(self.campaign)
+        res = release_single_donation_task.apply_async(
+            kwargs={"donation_uuid": test_donation.object_uuid})
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+        self.assertEqual(res.result['amount'], test_donation.amount)
+        application_fee = stripe.ApplicationFee.retrieve(
+            res.result['application_fee'])
+        self.assertEqual(
+            application_fee['amount'],
+            int(test_donation.amount *
+                (self.campaign.application_fee +
+                 settings.STRIPE_TRANSACTION_PERCENT)) + 30)

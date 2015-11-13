@@ -3,7 +3,8 @@
  * Load reps onto page.
 */
 var request = require('./../../../api').request,
-    settings = require('./../../../settings').settings;
+    settings = require('./../../../settings').settings,
+    helpers = require('./../../../common/helpers');
 
 /**
  * Get the username of whoever owns the profile.
@@ -18,15 +19,18 @@ function getUsername() {
  * info from one request.
  */
 export function init() {
-    var username = settings.user.username;
+    var pageUser = helpers.args(1);
+    if(pageUser === "newsfeed" || pageUser === "undefined" || pageUser === undefined || pageUser === ""){
+        pageUser = settings.user.username;
+    }
     if ($("#president_wrapper").length) {
-        var rcp = request.get({url: '/v1/profiles/' + username + '/president/?html=true'}),
-            rcs = request.get({url: '/v1/profiles/' + username + '/senators/?html=true'}),
-            rchr = request.get({url: '/v1/profiles/' + username + '/house_representative/?html=true'}),
-            rps = request.get({url: '/v1/profiles/' + username + '/possible_senators/?html=true'}),
-            rphr = request.get({url: '/v1/profiles/' + username + '/possible_house_representatives/?html=true'}),
-            rpp = request.get({url: '/v1/profiles/' + username + '/possible_presidents/?html=true'}),
-            rplr = request.get({url: '/v1/profiles/' + username + '/possible_local_representatives/?html=true'});
+        var rcp = request.get({url: '/v1/profiles/' + pageUser + '/president/?html=true'}),
+            rcs = request.get({url: '/v1/profiles/' + pageUser + '/senators/?html=true'}),
+            rchr = request.get({url: '/v1/profiles/' + pageUser + '/house_representative/?html=true'}),
+            rps = request.get({url: '/v1/profiles/' + pageUser + '/possible_senators/?html=true'}),
+            rphr = request.get({url: '/v1/profiles/' + pageUser + '/possible_house_representatives/?html=true'}),
+            rpp = request.get({url: '/v1/profiles/' + pageUser + '/possible_presidents/?html=true'}),
+            rplr = request.get({url: '/v1/profiles/' + pageUser + '/possible_local_representatives/?html=true'});
 
         $.when(rcp, rcs, rchr, rps, rphr, rpp, rplr).done(function (dcp, dcs, dchr, dps, dphr, dpp, dplr) {
             $("#president_wrapper").append(dcp[0]);

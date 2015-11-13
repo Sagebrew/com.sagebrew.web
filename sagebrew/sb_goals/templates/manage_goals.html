@@ -42,7 +42,7 @@
                                 <div class="row sb_input_wrapper">
                                     <div class="col-xs-6">
                                         <div class="input-group">
-                                            <span class="input-group-addon fa fa-check"></span>
+                                            <div class="input-group-addon"><span class="fa fa-check"></span> </div>
                                             <input class="form-control"
                                                       id="goal_vote_req"
                                                       name="goal_vote_req"
@@ -129,10 +129,11 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'js/vendor/bootstrap-switch.min.js' %}"></script>
-    <script src="{% static 'js/vendor/sortable.min.js' %}"></script>
     <script src="{% static 'js/create_goal.js' %}"></script>
     <script src="{% static 'js/manage_goals.js' %}"></script>
-    <script src="{% static 'js/event_quest_goal_setup_intercom.js' %}"></script>
 
+{% endblock %}
+
+{% block intercom %}
+   Intercom('trackEvent', 'visited-manage-goals');
 {% endblock %}

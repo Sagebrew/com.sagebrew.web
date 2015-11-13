@@ -327,6 +327,7 @@ class PoliticalCampaignSerializer(CampaignSerializer):
     allow_vote = serializers.SerializerMethodField()
     constituents = serializers.SerializerMethodField()
     paid_account = serializers.SerializerMethodField()
+    current_seat = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -462,6 +463,9 @@ class PoliticalCampaignSerializer(CampaignSerializer):
             return False
         return PoliticalCampaign.get_allow_vote(obj.object_uuid,
                                                 request.user.username)
+
+    def get_current_seat(self, obj):
+        return PoliticalCampaign.get_current_seat(obj.object_uuid)
 
 
 class PoliticalVoteSerializer(serializers.Serializer):

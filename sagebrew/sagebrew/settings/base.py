@@ -65,10 +65,8 @@ STATICFILES_DIRS = (
     '%s/help_center/static/' % PROJECT_DIR,
     '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
-    '%s/sb_goals/static/' % PROJECT_DIR,
     '%s/sb_solutions/static/' % PROJECT_DIR,
     '%s/sb_notifications/static/' % PROJECT_DIR,
-    '%s/sb_privileges/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_quests/static/' % PROJECT_DIR,
@@ -270,7 +268,7 @@ ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 # Used for JS
 ADDRESS_AUTH_ID = environ.get("ADDRESS_AUTH_ID", '')
-
+LONG_TERM_STATIC_DOMAIN = "https://d2m0mj9tyf6rjw.cloudfront.net"
 STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", '')
 STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
 STRIPE_TRANSACTION_PERCENT = .029
@@ -282,7 +280,8 @@ OAUTH_CLIENT_SECRET_CRED = environ.get("OAUTH_CLIENT_SECRET_CRED", "")
 OAUTH_CLIENT_ID_CRED_PUBLIC = environ.get("OAUTH_CLIENT_ID_CRED_PUBLIC", '')
 OAUTH_CLIENT_SECRET_CRED_PUBLIC = environ.get(
     "OAUTH_CLIENT_SECRET_CRED_PUBLIC", '')
-
+GOOGLE_MAPS_API_SERVER = environ.get("GOOGLE_MAPS_API",
+                                     "AIzaSyA0oDFTNqlan-vNsGvJv9HckKoMqlV5Nqo")
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
 EMAIL_BACKEND = 'django_ses.SESBackend'

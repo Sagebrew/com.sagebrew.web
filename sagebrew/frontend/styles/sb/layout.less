@@ -1,0 +1,110 @@
+//
+// Header
+// -------------------------------------------------
+.sb_primary_nav {
+  &:extend(.sb_nav);
+  background-color: @sb_green;
+  height: 45px;
+  padding:0;
+  margin-top: 0;
+  margin-bottom: 0;
+  a{
+    text-decoration: none;
+    color: @white;
+  }
+  ul{
+    float: right;
+  }
+  h1{
+    color: @white;
+    display: inline-block;
+    margin-top: 0;
+    padding-top: 5px;
+  }
+  input{
+    width: auto;
+    height: @sb_input_height;
+    margin-top: 6px;
+    // This fixes firefox border issue with input
+    border: 0 @sb_grey;
+    border-right: 1px none;
+    border-left-width: 1px;
+  }
+}
+
+.navbar .container-fluid {
+  padding-left:5%;
+  padding-right:5%;
+}
+
+
+
+// Signup
+.sb_sign_up_form{
+  input {
+    width: 348px;
+  }
+  button{
+    width: 348px;
+  }
+}
+.sb_input_wrapper{
+  margin-bottom: 15px;
+  h3 {
+    color: white;
+  }
+}
+
+// Groupings
+.sb_search{
+  display: inline-block;
+  float: right;
+  margin-top: 5px;
+  form{
+    padding-top: 5px;
+  }
+  input{
+    width: 400px;
+    border-radius: 5px 0 0 5px;
+  }
+}
+.navbar-header{
+  margin-top: 2px;
+}
+.navbar-toggle {
+  color:#fff;
+  &:before {
+     content:" ";
+  }
+}
+.sb-signup-btn{
+  margin-left: 15px !important;
+}
+.sb_login{
+  &:extend(.sb_search);
+  input{
+    line-height: 25px;
+    margin-right: 10px;
+  }
+  ul{
+    margin-bottom: 14px;
+  }
+  button{
+    &:extend(.sb_btn_submit);
+    background-color: @sb_off_white;
+    color: @sb_green;
+    // Firefox fix for button being placed differently in navbar
+    padding-top: 2px;
+    padding-bottom: 3px;
+    margin-top: 6px;
+    margin-right: 5px;
+  }
+}
+.nav-logged-in{
+  margin-top: 5px;
+}
+
+//this is for disabling certain dropdowns when editing an object
+.sb_object_dropdown {
+
+}

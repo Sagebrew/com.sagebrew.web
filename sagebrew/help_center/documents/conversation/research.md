@@ -168,7 +168,7 @@ When should Anecdotal Evidence be cited?
   individual is appealing for an objective study or more research to be 
   performed
 
-**Note:** Using anecdotal evidence alone in a Conversation without any additional 
+**Note:** Using anecdotal evidence alone in a conversation without any additional 
 supporting research will most likely be flagged by the Community, reviewed by 
 the [Admin Council][1] and potentially removed, resulting in loss of [Reputation][2].
 Basing one's Solution, Question, or Comment on a single piece of anecdotal 

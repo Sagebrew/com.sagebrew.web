@@ -15,7 +15,7 @@ from plebs.tasks import (create_pleb_task, create_wall_task,
                          finalize_citizen_creation, send_email_task,
                          create_friend_request_task, pleb_user_update,
                          determine_pleb_reps, create_beta_user,
-                         update_reputation, create_state_districts)
+                         update_reputation, connect_to_state_districts)
 from sb_wall.neo_models import Wall
 
 
@@ -394,16 +394,17 @@ class TestCreateStateDistricts(TestCase):
         mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
         address = Address(state="MI", latitude=42.532020,
                           longitude=-83.496500).save()
-        res = create_state_districts.apply_async(
+        lower = Location(name='38', sector='state_lower').save()
+        upper = Location(name='15', sector='state_upper').save()
+        mi.encompasses.connect(lower)
+        lower.encompassed_by.connect(mi)
+        mi.encompasses.connect(upper)
+        upper.encompassed_by.connect(mi)
+        res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
         while not res.ready():
             time.sleep(1)
         self.assertTrue(res.result)
-        query = 'MATCH (l:Location {name:"38", sector:"state_lower"}), ' \
-                '(l2:Location {name:"15", sector:"state_upper"}) RETURN l, l2'
-        res, _ = db.cypher_query(query)
-        lower = Location.inflate(res[0].l)
-        upper = Location.inflate(res[0].l2)
         self.assertTrue(address.encompassed_by.is_connected(lower))
         self.assertTrue(lower.addresses.is_connected(address))
         self.assertTrue(address.encompassed_by.is_connected(upper))
@@ -427,7 +428,7 @@ class TestCreateStateDistricts(TestCase):
         upper.encompassed_by.connect(mi)
         mi.encompasses.connect(lower)
         lower.encompassed_by.connect(mi)
-        res = create_state_districts.apply_async(
+        res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
         while not res.ready():
             time.sleep(1)
@@ -441,7 +442,7 @@ class TestCreateStateDistricts(TestCase):
         self.assertTrue(lower.addresses.is_connected(address))
         self.assertTrue(address.encompassed_by.is_connected(upper))
         self.assertTrue(upper.addresses.is_connected(address))
-        res = create_state_districts.apply_async(
+        res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
         while not res.ready():
             time.sleep(1)
@@ -460,7 +461,7 @@ class TestCreateStateDistricts(TestCase):
         lower.delete()
 
     def test_address_doesnt_exist(self):
-        res = create_state_districts.apply_async(
+        res = connect_to_state_districts.apply_async(
             kwargs={"object_uuid": str(uuid1())})
         while not res.ready():
             time.sleep(1)
@@ -469,7 +470,7 @@ class TestCreateStateDistricts(TestCase):
     def test_address_has_no_lat_long(self):
         mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
         address = Address(state="MI").save()
-        res = create_state_districts.apply_async(
+        res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
         while not res.ready():
             time.sleep(1)
@@ -481,7 +482,7 @@ class TestCreateStateDistricts(TestCase):
         mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
         # lat/long of Greenwich UK
         address = Address(state="MI", latitude=51.4800, longitude=0.0000).save()
-        res = create_state_districts.apply_async(
+        res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
         while not res.ready():
             time.sleep(1)

@@ -1,11 +1,10 @@
-from unidecode import unidecode
-
+import us
 from celery import shared_task
 
 from py2neo.cypher.error.transaction import ClientError, CouldNotCommit
 from neomodel import (db, CypherException, DoesNotExist)
 
-from sb_quests.neo_models import PoliticalCampaign
+from sb_quests.neo_models import PoliticalCampaign, Position
 
 from .neo_models import PublicOfficial
 
@@ -15,9 +14,10 @@ def create_and_attach_state_level_reps(rep_data):
     try:
         for rep in rep_data:
             try:
-                rep = PublicOfficial.nodes.get(gt_id=rep['id'])
+                rep = PublicOfficial.nodes.get(bioguideid=rep['id'])
             except (PublicOfficial.DoesNotExist, DoesNotExist):
-                rep = PublicOfficial(gt_id=rep['id'], first_name=rep['first_name'],
+                rep = PublicOfficial(gt_id=rep['id'], bioguideid=rep['id'],
+                                     first_name=rep['first_name'],
                                      last_name=rep['last_name'],
                                      middle_name=rep['middle_name'],
                                      state=rep['state'],
@@ -33,7 +33,17 @@ def create_and_attach_state_level_reps(rep_data):
                                          profile_picture=rep.image_url).save()
             rep.campaign.connect(camp)
             camp.public_official.connect(rep)
-            return True
+            query = 'MATCH (l:Location {name:"%s", sector:"federal"})<-' \
+                    '[:ENCOMPASSED_BY]-(l2:Location {name:"%s", sector:"%s"})-' \
+                    '[:POSITIONS_AVAILABLE]->(p:Position) RETURN p' \
+                    % (us.states.lookup(rep.state).name,
+                       rep.state_district, 'state_%s' % rep.state_chamber)
+            res, _ = db.cypher_query(query)
+            if res.one:
+                position = Position.inflate(res.one)
+                position.campaigns.connect(camp)
+                camp.position.connect(position)
+        return True
     except (CypherException, ClientError, IOError, CouldNotCommit) as e:
         raise create_and_attach_state_level_reps.retry(exc=e, countdown=5,
                                                        max_retries=None)

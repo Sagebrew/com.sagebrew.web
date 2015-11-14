@@ -153,7 +153,7 @@ def connect_to_state_districts(object_uuid):
                 res = res[0]
             except IndexError as e:
                 raise connect_to_state_districts.retry(exc=e, countdown=3,
-                                                   max_retries=None)
+                                                       max_retries=None)
             try:
                 state_district = Location.inflate(res.district)
             except (CypherException, ClientError, IOError, CouldNotCommit) as e:

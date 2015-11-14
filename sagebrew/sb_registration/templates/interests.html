@@ -6,7 +6,7 @@
 {% endblock description %}
 
 {% block content %}
-<div class="row block">
+<div class="row block registration">
     <div class="row">
         <div class="hidden-xs hidden-sm col-md-6">
             <div>
@@ -25,15 +25,15 @@
     </div>
 
 
-    <div class="row" style="margin-bottom: 15px;">
+    <div class="row registration-row">
         <div class="col-xs-12 col-md-offset-1">
             <div class="hidden-xs hidden-sm">
-                <h2 style="margin-bottom: 0;">Conversation Topics</h2>
+                <h2>Conversation Topics</h2>
                 <small>What are your favorite topics? We'll use these to
                     help find info from the Conversation Cloud to put on your newsfeed.</small>
             </div>
             <div class="hidden-lg hidden-md" align="center">
-                <h2 style="margin-bottom: 0;">Conversation Topics</h2>
+                <h2>Conversation Topics</h2>
                 <small>What are your favorite topics? We'll use these to
                     help find info from the Conversation Cloud to put on your newsfeed.</small>
             </div>
@@ -49,7 +49,7 @@
                 {% for field in interest_form %}
                     {% if field.id_for_label == "id_select_all" %}
                         <div class="row-fluid">
-                            <div class="col-xs-10 col-sm-3 col-sm-offset-1" style="padding-right: 0;">
+                            <div class="col-xs-10 col-sm-3 col-sm-offset-1 registration-tooltip">
                                 <div class="has-popover"
                                      data-toggle="tooltip"
                                      data-original-title="{{ field.help_text }}">
@@ -92,15 +92,15 @@
                     {% endfor %}
                 </div>
             </div>
-            <div class="row" style="margin-bottom: 15px;">
+            <div class="row registration-row">
                 <div class="col-xs-12 col-md-offset-1">
                     <div class="hidden-xs hidden-sm">
-                        <h2 style="margin-bottom: 0;">Interested In</h2>
+                        <h2>Interested In</h2>
                         <small>Are you interested in working with others to achieve a goal? We can help you
                         connect with the people who share your passions.</small>
                     </div>
                     <div class="hidden-lg hidden-md" align="center">
-                        <h2 style="margin-bottom: 0;">Interested In</h2>
+                        <h2>Interested In</h2>
                         <small>Are you interested in working with others to achieve a goal? We can help you
                         connect with the people who share your passions.</small>
                     </div>
@@ -146,14 +146,14 @@
                 </div>
             </div>
             <div id="affiliation-js" hidden>
-                <div class="row" style="margin-bottom: 15px;">
+                <div class="row registration-row">
                     <div class="col-xs-12 col-md-offset-1">
                         <div class="hidden-xs hidden-sm">
-                            <h2 style="margin-bottom: 0;">Affiliations</h2>
+                            <h2>Affiliations</h2>
                             <small>Are there any parties you're apart of or like to affiliate with?</small>
                         </div>
                         <div class="hidden-lg hidden-md" align="center">
-                            <h2 style="margin-bottom: 0;">Affiliations</h2>
+                            <h2>Affiliations</h2>
                             <small>Are there any parties you're apart of or like to affiliate with?</small>
                         </div>
                     </div>
@@ -269,7 +269,7 @@
                 </div>
             </div>
             <div class="row">
-                <div class="row sb_row_continue"  style="margin-top: 30px;">
+                <div class="row sb_row_continue">
                     <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-7">
                         <button class="btn btn-block btn-lg btn-primary sb_btn"
                                type="submit" id="submit-js">Continue</button>

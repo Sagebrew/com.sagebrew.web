@@ -18,7 +18,8 @@ from rest_framework.test import APITestCase
 from api.utils import wait_util
 from sagebrew import errors
 from sb_public_official.neo_models import PublicOfficial
-from plebs.neo_models import Pleb, FriendRequest, Address, BetaUser
+from plebs.neo_models import (Pleb, FriendRequest, Address, BetaUser,
+                              PoliticalParty, ActivityInterest)
 from sb_privileges.neo_models import Privilege, SBAction
 from sb_quests.neo_models import Position, PoliticalCampaign
 from sb_updates.neo_models import Update
@@ -281,46 +282,180 @@ class MeEndpointTests(APITestCase):
         donation.delete()
 
     def test_add_party(self):
-        pass
+        name = 'democratic_party'
+        party = PoliticalParty(name=name).save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": [name]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn(name, response.data['names'])
+        self.assertIn(name, self.pleb.get_political_parties())
+        for political_party in self.pleb.party_affiliations.all():
+            self.pleb.party_affiliations.disconnect(political_party)
+        party.delete()
 
     def test_add_no_parties(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": []}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(self.pleb.get_political_parties()), 0)
 
     def test_add_multiple_parties(self):
-        pass
+        name = 'democratic_party'
+        name2 = 'republican_party'
+        party = PoliticalParty(name=name).save()
+        party2 = PoliticalParty(name=name2).save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": [name, name2]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn(name, response.data["names"])
+        self.assertIn(name2, response.data["names"])
+        self.assertIn(name, self.pleb.get_political_parties())
+        self.assertIn(name2, self.pleb.get_political_parties())
+        for political_party in self.pleb.party_affiliations.all():
+            self.pleb.party_affiliations.disconnect(political_party)
+        party.delete()
+        party2.delete()
 
     def test_non_existent_parties(self):
-        pass
+        for political_party in self.pleb.party_affiliations.all():
+            self.pleb.party_affiliations.disconnect(political_party)
+        name = 'other_party'
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": [name]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["names"], [])
+        self.assertEqual(len(self.pleb.get_political_parties()), 0)
 
     def test_non_string_party(self):
-        pass
+        name = 5
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": [name]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['names'], [])
 
     def test_non_array_party(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": "hello"}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['names'],
+                         [u'Expected a list of items but got type "unicode".'])
 
     def test_exists_and_does_not_exist_parties(self):
-        pass
+        name = 'democratic_party'
+        name2 = 'republican_party'
+        party = PoliticalParty(name=name).save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": [name, name2]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn(name, response.data["names"])
+        self.assertNotIn(name2, response.data["names"])
+        self.assertIn(name, self.pleb.get_political_parties())
+        self.assertNotIn(name2, self.pleb.get_political_parties())
+        for political_party in self.pleb.party_affiliations.all():
+            self.pleb.party_affiliations.disconnect(political_party)
+        party.delete()
 
     def test_add_interest(self):
-        pass
+        name = 'volunteering'
+        activity = ActivityInterest(name=name).save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": [name]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn(name, response.data['interests'])
+        self.assertIn(name, self.pleb.get_activity_interests())
+        for interest in self.pleb.activity_interests.all():
+            self.pleb.activity_interests.disconnect(interest)
+        activity.delete()
 
-    def test_add_no_interest(self):
-        pass
+    def test_add_no_interests(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": []}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(self.pleb.get_activity_interests()), 0)
 
     def test_add_multiple_interests(self):
-        pass
+        name = 'volunteering'
+        name2 = 'attending_events'
+        activity = ActivityInterest(name=name).save()
+        activity2 = ActivityInterest(name=name2).save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": [name, name2]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn(name, response.data["interests"])
+        self.assertIn(name2, response.data["interests"])
+        self.assertIn(name, self.pleb.get_activity_interests())
+        self.assertIn(name2, self.pleb.get_activity_interests())
+        for interest in self.pleb.activity_interests.all():
+            self.pleb.activity_interests.disconnect(interest)
+        activity.delete()
+        activity2.delete()
 
-    def test_non_existent_interest(self):
-        pass
+    def test_non_existent_interests(self):
+        for activity in self.pleb.activity_interests.all():
+            self.pleb.activity_interests.disconnect(activity)
+        name = 'other_interest'
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": [name]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["interests"], [])
+        self.assertEqual(len(self.pleb.get_activity_interests()), 0)
 
     def test_non_string_interest(self):
-        pass
+        name = 5
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": [name]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['interests'], [])
 
     def test_non_array_interest(self):
-        pass
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": "hello"}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['interests'],
+                         [u'Expected a list of items but got type "unicode".'])
 
     def test_exists_and_does_not_exist_interests(self):
-        pass
+        name = 'volunteering'
+        name2 = 'attending_events'
+        activity = ActivityInterest(name=name).save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": [name, name2]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn(name, response.data["interests"])
+        self.assertNotIn(name2, response.data["interests"])
+        self.assertIn(name, self.pleb.get_activity_interests())
+        self.assertNotIn(name2, self.pleb.get_activity_interests())
+        for interest in self.pleb.activity_interests.all():
+            self.pleb.activity_interests.disconnect(interest)
+        activity.delete()
 
 
 class SentFriendRequestEndpointTests(APITestCase):

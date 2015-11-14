@@ -288,8 +288,8 @@ class Pleb(Searchable):
                                model=FollowRelationship)
     party_affiliations = RelationshipTo('plebs.neo_models.PoliticalParty',
                                         'AFFILIATES_WITH')
-    activity_interest = RelationshipTo('plebs.neo_models.ActivityInterest',
-                                       'WILL_PARTICIPATE')
+    activity_interests = RelationshipTo('plebs.neo_models.ActivityInterest',
+                                        'WILL_PARTICIPATE')
 
     @classmethod
     def get(cls, username):
@@ -653,15 +653,12 @@ class Pleb(Searchable):
         res, _ = db.cypher_query(query)
         return [row[0] for row in res]
 
-    def get_political_parties_humanized(self):
-        return [party.replace('-', ' ').replace('_', ' ')
-                for party in self.get_political_parties()]
+    def get_activity_interests(self):
+        query = "MATCH (a:Pleb {username:'%s'})-[:WILL_PARTICIPATE]->" \
+                "(b:ActivityInterest) RETURN b.name" % self.username
+        res, _ = db.cypher_query(query)
+        return [row[0] for row in res]
 
-    def get_political_parties_string(self):
-        try:
-            return ", ".join(self.get_political_parties())
-        except (CypherException, IOError, CouldNotCommit, ClientError):
-            return ""
 
     """
     def update_tag_rep(self, base_tags, tags):

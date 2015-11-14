@@ -818,11 +818,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             response = serializer.data
             response['names'] = added
             return Response(response, status=status.HTTP_201_CREATED)
-        return Response(
-            {
-                "status": status.HTTP_400_BAD_REQUEST,
-                "detail": "Please submit a list of valid Political Parties."
-            }, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @list_route(methods=['post'], serializer_class=InterestsSerializer,
                 permission_classes=(IsAuthenticated,))
@@ -847,11 +843,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             response = serializer.data
             response['interests'] = added
             return Response(response, status=status.HTTP_201_CREATED)
-        return Response(
-            {
-                "status": status.HTTP_400_BAD_REQUEST,
-                "detail": "Please submit a list of valid Interests."
-            }, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SentFriendRequestViewSet(viewsets.ModelViewSet):

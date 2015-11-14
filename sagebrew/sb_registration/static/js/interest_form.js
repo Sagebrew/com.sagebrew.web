@@ -1,3 +1,4 @@
+/*global $, ajaxSecurity, Bloodhound*/
 $(document).ready(function () {
     /**
      * This is the function that selects all the fields and deselects all the

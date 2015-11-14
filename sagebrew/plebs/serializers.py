@@ -366,3 +366,15 @@ class PlebExportSerializer(serializers.Serializer):
 
     def get_address(self, obj):
         return AddressExportSerializer(obj.get_address()).data
+
+
+class PoliticalPartySerializer(SBSerializer):
+    names = serializers.ListField(
+        child=serializers.CharField(max_length=126),
+    )
+
+
+class InterestsSerializer(SBSerializer):
+    interests = serializers.ListField(
+        child=serializers.CharField(max_length=126),
+    )

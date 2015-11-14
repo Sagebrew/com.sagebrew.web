@@ -6,48 +6,57 @@
 {% endblock description %}
 
 {% block content %}
-<div class="row sb_registration_block">
+<div class="row block">
     <div class="row">
-         <div class="row">
-                    <div class="col-lg-6 col-md-6 col-sm-7 col-xs-12 ">
-                        <div>
-                            <h1 class="hidden-sm hidden-xs sb_registration_header">About You</h1>
-                        </div>
-                        <div>
-                            <h1 class="hidden-lg hidden-md"
-                                align="center">About You</h1>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-md-3 col-sm-5 col-xs-4 col-lg-offset-3 col-md-offset-3">
-                            <h4 class="hidden-xs sb_registration_step">Step 2 of 3</h4>
-                    </div>
-                </div>
+        <div class="hidden-xs hidden-sm col-md-6">
+            <div>
+                <h1 class="sb_registration_header">About You</h1>
+            </div>
+        </div>
+        <div class="hidden-xs hidden-sm col-md-3 col-md-offset-3">
+            <h4 class="sb_registration_step">Step 2 of 3</h4>
+        </div>
     </div>
-    <div class="deco-line-interests"></div>
-    <div class="row" style="margin-bottom: 15px;">
-        <div class="col-xs-10 col-xs-offset-1">
-            <h2 style="margin-bottom: 0;">Conversation Topics</h2>
-            <small>What are your favorite discussion topics? We'll use these to
-                help find info from the Conversation Cloud to put on your newsfeed.</small>
-        <div class="deco-line-interests"></div>
+    <div class="row">
+        <div class="hidden-xs hidden-sm col-md-12">
+            <div class="deco-line-interests"></div>
         </div>
 
     </div>
 
+
+    <div class="row" style="margin-bottom: 15px;">
+        <div class="col-xs-12 col-md-offset-1">
+            <div class="hidden-xs hidden-sm">
+                <h2 style="margin-bottom: 0;">Conversation Topics</h2>
+                <small>What are your favorite topics? We'll use these to
+                    help find info from the Conversation Cloud to put on your newsfeed.</small>
+            </div>
+            <div class="hidden-lg hidden-md" align="center">
+                <h2 style="margin-bottom: 0;">Conversation Topics</h2>
+                <small>What are your favorite topics? We'll use these to
+                    help find info from the Conversation Cloud to put on your newsfeed.</small>
+            </div>
+        </div>
+        <div class="col-xs-12 col-md-10 col-md-offset-1">
+            <div class="deco-line-interests"></div>
+        </div>
+    </div>
+
     <div>
-        <form action="/registration/interests/" method="post">{% csrf_token %}
+        <form name="interstForm" action="/registration/interests/" method="post">{% csrf_token %}
             <div class="row">
                 {% for field in interest_form %}
                     {% if field.id_for_label == "id_select_all" %}
                         <div class="row-fluid">
-                            <div class="col-lg-3 col-md-3 col-sm-4 col-xs-10 col-md-offset-1">
+                            <div class="col-xs-10 col-sm-3 col-md-3 col-sm-offset-1" style="padding-right: 0;">
                                 <div class="has-popover"
                                      data-toggle="tooltip"
                                      data-original-title="{{ field.help_text }}">
                                     {{ field.label_tag }}
                                 </div>
                             </div>
-                            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
+                            <div class="col-xs-1 col-sm-2">
                                 <label class=" checkbox toggle-all"
                                     for="{{ field.id_for_label }}">
                                         <input type="checkbox"
@@ -63,15 +72,14 @@
                 <div id="select_all_checkboxes">
                     {% for field in interest_form %}
                         {% if field.id_for_label != "id_select_all" and not forloop.last %}
-                            <div class="col-lg-3 col-md-3 col-sm-4 col-xs-10 col-md-offset-1">
+                            <div class="col-xs-10 col-sm-3 col-sm-offset-1">
                                 <div class="tooltips"
-                                     id="InterestForm"
                                      data-toggle="tooltip"
                                      data-original-title="{{ field.help_text }}">
                                     {{ field.label_tag }}
                                 </div>
                             </div>
-                            <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
+                            <div class="col-xs-1 col-sm-2  col-md-2">
                                 <label class="checkbox" for="{{ field.id_for_label }}">
                                     <input type="checkbox"
                                            value="{{ field.value|default_if_none:"false" }}"
@@ -85,24 +93,32 @@
                 </div>
             </div>
             <div class="row" style="margin-bottom: 15px;">
-                <div class="col-xs-10 col-xs-offset-1">
-                    <h2 style="margin-bottom: 0">Interested In</h2>
-                    <small>Are you interested in working with others to achieve a goal? We can help you
+                <div class="col-xs-12 col-md-offset-1">
+                    <div class="hidden-xs hidden-sm">
+                        <h2 style="margin-bottom: 0;">Interested In</h2>
+                        <small>Are you interested in working with others to achieve a goal? We can help you
                         connect with the people who share your passions.</small>
+                    </div>
+                    <div class="hidden-lg hidden-md" align="center">
+                        <h2 style="margin-bottom: 0;">Interested In</h2>
+                        <small>Are you interested in working with others to achieve a goal? We can help you
+                        connect with the people who share your passions.</small>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-md-10 col-md-offset-1">
                     <div class="deco-line-interests"></div>
                 </div>
             </div>
             <div class="row">
-                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-10 col-md-offset-1">
+                <div class="col-xs-10 col-sm-3 col-md-3 col-sm-offset-1">
                     <div class="tooltips"
-                         id="InterestForm"
                          data-toggle="tooltip"
-                         data-original-title="We'll notify campaigns sharing your passions
+                         data-original-title="We'll notify Quests sharing your passions
                          that you're interested in helping out">
                         <label for="volunteering">Volunteering</label>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
+                <div class="col-xs-1 col-sm-2">
                     <label class="checkbox" for="volunteering">
                         <input type="checkbox"
                                value="false"
@@ -111,111 +127,152 @@
                                data-toggle="checkbox">
                     </label>
                 </div>
-            </div>
-            <div  class="row" style="margin-bottom: 15px;">
-                <div class="col-xs-10 col-xs-offset-1">
-                    <h2 style="margin-bottom: 0">Passions</h2>
-                    <small>What drives you? What are you looking to get involved
-                        about? We'll use your selections to help connect you with
-                        others sharing your views.</small>
-                    <div class="deco-line-interests"></div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-10 col-md-offset-1">
+                <div class="col-xs-10 col-sm-4 col-md-3 col-md-offset-1">
                     <div class="tooltips"
-                         id="InterestForm"
                          data-toggle="tooltip"
-                         data-original-title="We'll notify campaigns sharing your passions
-                         that you're interested in helping out">
-                        <label for="legalize_drugs">Legalize Drugs</label>
+                         data-original-title="We'll notify Quests sharing your passions
+                         that you're interested in knowing about their Events">
+                        <label for="attend-events">Attending Events</label>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
-                    <label class="checkbox" for="legalize_drugs">
+                <div class="col-xs-1 col-sm-2">
+                    <label class="checkbox" for="attend-events">
                         <input type="checkbox"
                                value="false"
-                               name="legalize_drugs"
-                               id="legalize_drugs"
+                               name="attend-events"
+                               id="attend-events"
                                data-toggle="checkbox">
                     </label>
                 </div>
             </div>
-            <div  class="row" style="margin-bottom: 15px;">
-                <div class="col-xs-10 col-xs-offset-1">
-                    <h2 style="margin-bottom: 0">Skills</h2>
-                    <small>Is there a specific way you'd like to help out or a skill you have that you think would be helpful?</small>
-                    <div class="deco-line-interests"></div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-10 col-md-offset-1">
-                    <div class="tooltips"
-                         id="InterestForm"
-                         data-toggle="tooltip"
-                         data-original-title="We'll notify campaigns sharing your passions
-                         that you're interested in helping out">
-                        <label for="door_to_door">Door to Door</label>
+            <div id="affiliation-js" hidden>
+                <div class="row" style="margin-bottom: 15px;">
+                    <div class="col-xs-12 col-md-offset-1">
+                        <div class="hidden-xs hidden-sm">
+                            <h2 style="margin-bottom: 0;">Affiliations</h2>
+                            <small>Are there any parties you're apart of or like to affiliate with?</small>
+                        </div>
+                        <div class="hidden-lg hidden-md" align="center">
+                            <h2 style="margin-bottom: 0;">Affiliations</h2>
+                            <small>Are there any parties you're apart of or like to affiliate with?</small>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-10 col-md-offset-1">
+                        <div class="deco-line-interests"></div>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
-                    <label class="checkbox" for="door_to_door">
-                        <input type="checkbox"
-                               value="false"
-                               name="door_to_door"
-                               id="door_to_door"
-                               data-toggle="checkbox">
-                    </label>
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-10 col-md-offset-1">
-                    <div class="tooltips"
-                         id="phone_booth"
-                         data-toggle="tooltip"
-                         data-original-title="">
-                        <label for="phone_booth">Phone Calling</label>
+                <div class="row">
+                    <div class="col-xs-10 col-sm-3 col-md-3 col-sm-offset-1">
+                        <div>
+                            <label for="independent">Independent</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-1 col-sm-2">
+                        <label class="checkbox" for="independent">
+                            <input type="checkbox"
+                                   value="false"
+                                   name="independent"
+                                   id="independent"
+                                   data-toggle="checkbox">
+                        </label>
+                    </div>
+                    <div class="col-xs-10 col-sm-4 col-md-3 col-md-offset-1">
+                        <div>
+                            <label for="not-listed">Other</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-1 col-sm-2">
+                        <label class="checkbox" for="not-listed">
+                            <input type="checkbox"
+                                   value="false"
+                                   name="not-listed"
+                                   id="not-listed"
+                                   data-toggle="checkbox">
+                        </label>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
-                    <label class="checkbox" for="phone_booth">
-                        <input type="checkbox"
-                               value="false"
-                               name="phone_booth"
-                               id="phone_booth"
-                               data-toggle="checkbox">
-                    </label>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-10 col-md-offset-1">
-                    <div class="tooltips"
-                         id="InterestForm"
-                         data-toggle="tooltip"
-                         data-original-title="">
-                        <label for="event_assistance">Assist with Events</label>
+                <div class="row">
+                    <div class="col-xs-10 col-sm-3 col-md-3 col-sm-offset-1">
+                        <div>
+                            <label for="democratic-party">Democratic Party</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-1 col-sm-2">
+                        <label class="checkbox" for="democratic-party">
+                            <input type="checkbox"
+                                   value="false"
+                                   name="democratic-party"
+                                   id="democratic-party"
+                                   data-toggle="checkbox">
+                        </label>
+                    </div>
+                    <div class="col-xs-10 col-sm-4 col-md-3 col-md-offset-1">
+                        <div>
+                            <label for="republican-party">Republican Party</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-1 col-sm-2">
+                        <label class="checkbox" for="republican-party">
+                            <input type="checkbox"
+                                   value="false"
+                                   name="republican-party"
+                                   id="republican-party"
+                                   data-toggle="checkbox">
+                        </label>
                     </div>
                 </div>
-                <div class="col-lg-2 col-md-2 col-sm-2 col-xs-1">
-                    <label class="checkbox" for="event_assistance">
-                        <input type="checkbox"
-                               value="false"
-                               name="event_assistance"
-                               id="event_assistance"
-                               data-toggle="checkbox">
-                    </label>
+                <div class="row">
+                    <div class="col-xs-10 col-sm-3 col-md-3 col-sm-offset-1">
+                        <div>
+                            <label for="libertarian-party">Libertarian Party</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-1 col-sm-2">
+                        <label class="checkbox" for="libertarian-party">
+                            <input type="checkbox"
+                                   value="false"
+                                   name="libertarian-party"
+                                   id="libertarian-party"
+                                   data-toggle="checkbox">
+                        </label>
+                    </div>
+                    <div class="col-xs-10 col-sm-4 col-md-3 col-md-offset-1">
+                        <div>
+                            <label for="green-party">Green Party</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-1 col-sm-2">
+                        <label class="checkbox" for="green-party">
+                            <input type="checkbox"
+                                   value="false"
+                                   name="green-party"
+                                   id="green-party"
+                                   data-toggle="checkbox">
+                        </label>
+                    </div>
                 </div>
-            </div>
-            <div  class="row" style="margin-bottom: 15px;">
-                <div class="col-xs-10 col-xs-offset-1">
-                    <h2 style="margin-bottom: 0">Affiliation</h2>
-                    <small>Are there any parties you'd specifically like to volunteer for?</small>
-                    <div class="deco-line-interests"></div>
+                <div class="row">
+                    <div class="col-xs-10 col-sm-3 col-md-3 col-sm-offset-1">
+                        <div>
+                            <label for="constitution-party">Constitution Party</label>
+                        </div>
+                    </div>
+                    <div class="col-xs-1 col-sm-2">
+                        <label class="checkbox" for="constitution-party">
+                            <input type="checkbox"
+                                   value="false"
+                                   name="constitution-party"
+                                   id="constitution-party"
+                                   data-toggle="checkbox">
+                        </label>
+                    </div>
                 </div>
             </div>
             <div class="row">
                 <div class="row sb_row_continue"  style="margin-top: 30px;">
                     <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-7">
                         <button class="btn btn-block btn-lg btn-primary sb_btn"
-                               type="submit">Continue</button>
+                               type="submit" id="submit-js">Continue</button>
                     </div>
                 </div>
             </div>

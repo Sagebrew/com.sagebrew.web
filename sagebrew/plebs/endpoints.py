@@ -40,7 +40,8 @@ from sb_quests.serializers import PoliticalCampaignSerializer
 from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
-                          FriendRequestSerializer)
+                          FriendRequestSerializer, PoliticalPartySerializer,
+                          InterestsSerializer)
 from .neo_models import Pleb, Address, FriendRequest
 from .utils import get_filter_by
 
@@ -793,6 +794,64 @@ class MeViewSet(mixins.UpdateModelMixin,
                                                    context))
             return self.get_paginated_response(html_array)
         return self.get_paginated_response(serializer.data)
+
+    @list_route(methods=['post'], serializer_class=PoliticalPartySerializer,
+                permission_classes=(IsAuthenticated,))
+    def add_parties(self, request):
+        """
+        Connects the authenticated pleb up to all the existing parties that
+        are passed within a list. Returns all of names of the successfully
+        connected parties.
+        """
+        serializer = self.get_serializer(data=request.data,
+                                         context={"request": request})
+        if serializer.is_valid():
+            added = []
+            for party in serializer.data['names']:
+                query = 'MATCH (a:PoliticalParty {name: "%s"}), ' \
+                        '(b:Pleb {username: "%s"}) ' \
+                        'CREATE UNIQUE (a)<-[r:AFFILIATES_WITH]-(b) ' \
+                        'RETURN r' % (party, request.user.username)
+                res, _ = db.cypher_query(query)
+                if res.one:
+                    added.append(party)
+            response = serializer.data
+            response['names'] = added
+            return Response(response, status=status.HTTP_201_CREATED)
+        return Response(
+            {
+                "status": status.HTTP_400_BAD_REQUEST,
+                "detail": "Please submit a list of valid Political Parties."
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    @list_route(methods=['post'], serializer_class=InterestsSerializer,
+                permission_classes=(IsAuthenticated,))
+    def add_interests(self, request):
+        """
+        Connects the authenticated pleb up to all the existing parties that
+        are passed within a list. Returns all of names of the successfully
+        connected parties.
+        """
+        serializer = self.get_serializer(data=request.data,
+                                         context={"request": request})
+        if serializer.is_valid():
+            added = []
+            for interest in serializer.data['interests']:
+                query = 'MATCH (a:ActivityInterest {name: "%s"}), ' \
+                        '(b:Pleb {username: "%s"}) ' \
+                        'CREATE UNIQUE (a)<-[r:WILL_PARTICIPATE]-(b) ' \
+                        'RETURN r' % (interest, request.user.username)
+                res, _ = db.cypher_query(query)
+                if res.one:
+                    added.append(interest)
+            response = serializer.data
+            response['interests'] = added
+            return Response(response, status=status.HTTP_201_CREATED)
+        return Response(
+            {
+                "status": status.HTTP_400_BAD_REQUEST,
+                "detail": "Please submit a list of valid Interests."
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SentFriendRequestViewSet(viewsets.ModelViewSet):

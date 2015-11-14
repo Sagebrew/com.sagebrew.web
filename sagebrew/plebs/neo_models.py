@@ -7,7 +7,7 @@ from django.template.loader import get_template
 from django.template import Context
 from django.core.cache import cache
 from django.templatetags.static import static
-
+from py2neo.cypher.error.transaction import CouldNotCommit, ClientError
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
@@ -286,6 +286,10 @@ class Pleb(Searchable):
                                'DONATIONS_GIVEN')
     following = RelationshipTo('plebs.neo_models.Pleb', 'FOLLOWING',
                                model=FollowRelationship)
+    party_affiliations = RelationshipTo('plebs.neo_models.PoliticalParty',
+                                        'AFFILIATES_WITH')
+    activity_interest = RelationshipTo('plebs.neo_models.ActivityInterest',
+                                       'WILL_PARTICIPATE')
 
     @classmethod
     def get(cls, username):
@@ -643,6 +647,22 @@ class Pleb(Searchable):
             return "%dk" % (int(reputation_change / 1000.0))
         return reputation_change
 
+    def get_political_parties(self):
+        query = "MATCH (a:Pleb {username:'%s'})-[:AFFILIATES_WITH]->" \
+                "(b:PoliticalParty) RETURN b.name" % self.username
+        res, _ = db.cypher_query(query)
+        return [row[0] for row in res]
+
+    def get_political_parties_humanized(self):
+        return [party.replace('-', ' ').replace('_', ' ')
+                for party in self.get_political_parties()]
+
+    def get_political_parties_string(self):
+        try:
+            return ", ".join(self.get_political_parties())
+        except (CypherException, IOError, CouldNotCommit, ClientError):
+            return ""
+
     """
     def update_tag_rep(self, base_tags, tags):
         from sb_tags.neo_models import Tag
@@ -754,3 +774,16 @@ class FriendRequest(SBObject):
             'RETURN count(n)' % username
         res, col = db.cypher_query(query)
         return res[0][0]
+
+
+class PoliticalParty(SBObject):
+    name = StringProperty(unique_index=True)
+    formal_name = StringProperty()
+
+    # Relationship Pleb: Python: party_affiliations Cypher: 'AFFILIATES_WITH'
+
+
+class ActivityInterest(SBObject):
+    name = StringProperty(unique_index=True)
+
+    # Relationship Pleb: Python: activity_interest Cypher: 'WILL_PARTICIPATE'

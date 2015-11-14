@@ -155,15 +155,7 @@ a {
   padding: @sb_common_padding_positive;
   margin-bottom: @sb_common_margin_positive;
 }
-.sb_registration_block{
-  &:extend(.block);
-  width: 80%;
-  margin: 100px 10% 60px;
-  border-radius: 10px;
-  background-color: @sb_grey_extra_light;
-  position: inherit;
-  float: left;
-}
+
 .sb_blog_post_block{
   &:extend(.block);
   margin-top:40px;
@@ -342,7 +334,10 @@ a {
     }
 }
 
-
+.tokenfield {
+  height: auto;
+  padding-bottom: 0;
+}
 .sb_wall{
   height: auto;
   background-color: @sb_green_wall;

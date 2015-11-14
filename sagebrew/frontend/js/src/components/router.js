@@ -53,6 +53,21 @@ var controller_map = [
         controller: "section-conversation",
         match_method: "path",
         check: "^conversations\/([A-Za-z0-9.@_%+-]{36})\/"
+    },
+    {
+        controller: "registration",
+        match_method: "path",
+        check: "^registration/interests"
+    },
+    {
+        controller: "registration",
+        match_method: "path",
+        check: "^registration/profile_information"
+    },
+    {
+        controller: "registration",
+        match_method: "path",
+        check: "^registration/profile_picture"
     }
 ];
 

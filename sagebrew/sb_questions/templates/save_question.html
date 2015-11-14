@@ -1,14 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load staticfiles %}
-{% block css %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'css/vendor/bootstrap-tokenfield.min.css' %}"/>
-    <link rel="stylesheet" href="{% static 'css/vendor/tokenfield-typeahead.min.css' %}"/>
-{% endblock css %}
-
 {% block content %}
-
     <div class="action" style="display: none" data-action="write_question"></div>
     <div class="action" style="display: none" data-action="write_comment"></div>
     <div class="action" style="display: none" data-action="write_solution"></div>

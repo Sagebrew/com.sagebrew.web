@@ -75,9 +75,7 @@ a {
 // Blocks
 .block{
   height: auto;
-  padding-top: @sb_common_padding_positive;
-  padding-left: @sb_common_padding_positive;
-  padding-right: @sb_common_padding_positive;
+  padding: @sb_common_padding_positive;
   border-radius: @sb_common_radius;
   background-color: @sb_off_white;
 }
@@ -155,15 +153,7 @@ a {
   padding: @sb_common_padding_positive;
   margin-bottom: @sb_common_margin_positive;
 }
-.sb_registration_block{
-  &:extend(.block);
-  width: 80%;
-  margin: 100px 10% 60px;
-  border-radius: 10px;
-  background-color: @sb_grey_extra_light;
-  position: inherit;
-  float: left;
-}
+
 .sb_blog_post_block{
   &:extend(.block);
   margin-top:40px;
@@ -342,7 +332,10 @@ a {
     }
 }
 
-
+.tokenfield {
+  height: auto;
+  padding-bottom: 0;
+}
 .sb_wall{
   height: auto;
   background-color: @sb_green_wall;
@@ -857,16 +850,26 @@ a {
 .sb_registration_header{
   margin-left: 60px;
 }
+.registration-tooltip {
+  padding-right: 0;
+}
+.registration-row{
+  margin-bottom: 15px;
+}
 .sb_registration_step{
   margin-right: 0;
   margin-top: 35px;
   margin-left: 1%;
   padding-right: 30px;
 }
+.registration {
+  margin-top: 30px;
+  h2{
+    margin-bottom: 0;
+  }
+}
 .sb_row_continue{
-  margin-left: 15px;
-  margin-right: 15px;
-  margin-bottom: 30px;
+  margin: 30px 15px 30px 15px;
 }
 .sb_address_fix{
   padding-left: 4px;
@@ -877,6 +880,10 @@ a {
   color: @sb_grey;
   margin-bottom: 35px;
   padding-top: 5px;
+}
+.deco-line-interests{
+  &:extend(.sb_deco_line);
+  margin-bottom: 0;
 }
 .sb_btn_modal{
   a{

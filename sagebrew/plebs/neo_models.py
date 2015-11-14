@@ -7,7 +7,7 @@ from django.template.loader import get_template
 from django.template import Context
 from django.core.cache import cache
 from django.templatetags.static import static
-from py2neo.cypher.error.transaction import CouldNotCommit, ClientError
+
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
@@ -658,7 +658,6 @@ class Pleb(Searchable):
                 "(b:ActivityInterest) RETURN b.name" % self.username
         res, _ = db.cypher_query(query)
         return [row[0] for row in res]
-
 
     """
     def update_tag_rep(self, base_tags, tags):

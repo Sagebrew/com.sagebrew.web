@@ -127,8 +127,8 @@ class QuestionEndpointTests(APITestCase):
                        'data-lightbox="%s">' \
                        '<img alt="enter image description here" ' \
                        'src="https://i.imgur.com/nHcAF4t.jpg" /></a> ' \
-                       'asdfasdfasdfasdfadsfasdfasdfa</p>' % (
-                            response.data['id'])
+                       'asdfasdfasdfasdfadsfasdfasdfa</p>' % \
+                       response.data['id']
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
         Question.get(object_uuid=response.data['object_uuid']).delete()
@@ -197,10 +197,10 @@ class QuestionEndpointTests(APITestCase):
                        'robber-penguin-agency/images/6/6e/Small-mario.png"' \
                        ' /></a> \n<img alt="enter image description here" ' \
                        'src="https://i.imgur.com/Q2ZST9f.jpg" />' \
-                       'asdfasdfasdfasdfadsfasdfasdfa</p>' % (
-                            response.data['id'], response.data['id'],
-                            response.data['id'], response.data['id'],
-                            response.data['id'],)
+                       'asdfasdfasdfasdfadsfasdfasdfa</p>' \
+                       % (response.data['id'], response.data['id'],
+                          response.data['id'], response.data['id'],
+                          response.data['id'],)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
         Question.get(object_uuid=response.data['id']).delete()

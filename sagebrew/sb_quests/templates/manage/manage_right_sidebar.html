@@ -23,8 +23,11 @@
         Quest Status
     </h3>
     <div class="block-content">
-        Quest is currently: INACTIVE.
-        Toggle quest status here...
+        {% if campaign.active %}
+            Your quest is currently active.
+        {% else %}
+            Quest is currently inactive.
+        {% endif %}
     </div>
 </div>
 

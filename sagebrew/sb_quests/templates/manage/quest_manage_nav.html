@@ -18,15 +18,17 @@
             Epic
         </a>
     </li>
+    {% comment %}
     <li class="{% if "z/" in request.path %}active{% endif %}">
         <a  href="{% url 'quest_manage_settings' request.user %}">
             Updates
         </a>
     </li>
+    {% endcomment %}
 
     <li class="{% if "/manage/banking/" in request.path %}active{% endif %}">
         <a  href="{% url 'quest_manage_banking' request.user %}">
-            Banking
+            Accounting
         </a>
     </li>
     {% comment %}TODO: Check permissions{% endcomment %}

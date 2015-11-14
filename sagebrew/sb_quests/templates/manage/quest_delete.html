@@ -11,17 +11,22 @@
 {% endblock %}
 
 {% block live %}
-    <div class="block sb_alert_block">
-        <p>
-            After you confirm you wish to delete your Quest we will send you a confirmation email
-            and call you shortly after to begin the process of closing your Quest account.
-        </p>
-        <button class="btn btn-primary btn-danger"
-                id="delete-quest"
-                data-toggle="modal"
-                data-target="#myModal">Delete Account
-        </button>
+    <div class="block">
+        <h3 class="block-title">Delete Quest</h3>
+
+        <div class="block-content">
+           <p>
+                After you confirm you wish to delete your Quest we will send you a confirmation email
+                and call you shortly after to begin the process of closing your Quest account.
+            </p>
+            <button class="btn btn-primary btn-danger"
+                    id="delete-quest"
+                    data-toggle="modal"
+                    data-target="#myModal">Delete Account
+            </button>
+        </div>
     </div>
+
 
     <!-- Modal -->
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"

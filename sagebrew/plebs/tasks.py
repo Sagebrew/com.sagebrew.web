@@ -14,14 +14,14 @@ from elasticsearch import Elasticsearch, NotFoundError
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 
-from py2neo.cypher import ClientError
+from py2neo.cypher.error.transaction import ClientError, CouldNotCommit
 from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task, generate_oauth_user
 from api.tasks import add_object_to_search_index
 from sb_base.utils import defensive_exception
 from sb_wall.neo_models import Wall
-
+from sb_public_official.tasks import create_and_attach_state_level_reps
 from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
@@ -121,14 +121,15 @@ def update_address_location(object_uuid):
 
 
 @shared_task()
-def create_state_districts(object_uuid):
+def connect_to_state_districts(object_uuid):
     try:
         address = Address.nodes.get(object_uuid=object_uuid)
     except (DoesNotExist, Address.DoesNotExist, CypherException, IOError,
             ClientError) as e:
-        raise create_state_districts.retry(exc=e, countdown=3, max_retries=None)
+        raise connect_to_state_districts.retry(exc=e, countdown=3,
+                                               max_retries=None)
     try:
-        lookup_url = settings.MCOMMONS_DISTRICT_SEARCH_URL % \
+        lookup_url = settings.OPENSTATES_DISTRICT_SEARCH_URL % \
             (address.latitude, address.longitude)
     except TypeError:
         # in case an address doesn't have a latitude or longitude
@@ -137,55 +138,35 @@ def create_state_districts(object_uuid):
     response = http.request('GET', lookup_url)
     response_json = json.loads(response.data)
     try:
-        try:
-            query = 'MATCH (l:Location {name: "%s", sector:"federal"}) ' \
-                    'WITH l OPTIONAL MATCH (l)-[:ENCOMPASSES]->(lower:Location ' \
-                    '{name:"%s", sector:"state_lower"}), ' \
-                    '(l)-[:ENCOMPASSES]->(upper:Location ' \
-                    '{name:"%s", sector: "state_upper"}) RETURN l, ' \
-                    'lower, upper' % \
-                    (us.states.lookup(address.state).name,
-                     response_json['state_lower']['district'],
-                     response_json['state_upper']['district'])
-            res, _ = db.cypher_query(query)
-        except KeyError:
-            return False
-        try:
-            res = res[0]
-        except IndexError as e:
-            raise create_state_districts.retry(exc=e, countdown=3,
-                                               max_retries=None)
-        else:
+        for rep in response_json:
             try:
-                state = Location.inflate(res.l)
-            except (CypherException, ClientError, IOError) as e:
-                raise create_state_districts.retry(exc=e, countdown=3,
+                sector = 'state_%s' % rep['chamber']
+                query = 'MATCH (l:Location {name: "%s", sector:"federal"})-' \
+                        '[:ENCOMPASSES]->(district:Location {name:"%s", ' \
+                        'sector:"%s"}) RETURN district ' % \
+                        (us.states.lookup(address.state).name,
+                         rep['district'], sector)
+                res, _ = db.cypher_query(query)
+            except KeyError:
+                return False
+            try:
+                res = res[0]
+            except IndexError as e:
+                raise connect_to_state_districts.retry(exc=e, countdown=3,
                                                    max_retries=None)
-            lower = res.lower
-            upper = res.upper
-        if lower is None:
-            lower_district = \
-                Location(name=response_json['state_lower']['district'],
-                         sector='state_lower').save()
-        else:
-            lower_district = Location.inflate(lower)
-        if upper is None:
-            upper_district = \
-                Location(name=response_json['state_upper']['district'],
-                         sector='state_upper').save()
-        else:
-            upper_district = Location.inflate(upper)
-        state.encompasses.connect(upper_district)
-        upper_district.encompassed_by.connect(state)
-        state.encompasses.connect(lower_district)
-        lower_district.encompassed_by.connect(state)
-        address.encompassed_by.connect(upper_district)
-        upper_district.addresses.connect(address)
-        address.encompassed_by.connect(lower_district)
-        lower_district.addresses.connect(address)
+            try:
+                state_district = Location.inflate(res.district)
+            except (CypherException, ClientError, IOError, CouldNotCommit) as e:
+                raise connect_to_state_districts.retry(exc=e, countdown=3,
+                                                       max_retries=None)
+            address.encompassed_by.connect(state_district)
+            state_district.addresses.connect(address)
+        spawn_task(task_func=create_and_attach_state_level_reps,
+                   task_param={"rep_data": response_json})
         return True
-    except (CypherException, IOError, ClientError) as e:
-        raise create_state_districts.retry(exc=e, countdown=3, max_retries=None)
+    except (CypherException, IOError, ClientError, CouldNotCommit) as e:
+        raise connect_to_state_districts.retry(exc=e, countdown=3,
+                                               max_retries=None)
 
 
 @shared_task()

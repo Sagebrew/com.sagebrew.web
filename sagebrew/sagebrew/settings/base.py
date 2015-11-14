@@ -424,6 +424,8 @@ OPERATOR_DICT = {
 
 MCOMMONS_DISTRICT_SEARCH_URL = "http://congress.mcommons.com/districts/" \
                                "lookup.json?lat=%f&lng=%f"
+OPENSTATES_DISTRICT_SEARCH_URL = "http://openstates.org/api/v1/legislators/" \
+                                 "geo/?lat=%f&long=%f"
 
 CORS_ORIGIN_ALLOW_ALL = True
 

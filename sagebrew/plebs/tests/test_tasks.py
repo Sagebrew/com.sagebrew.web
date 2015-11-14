@@ -391,7 +391,7 @@ class TestCreateStateDistricts(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_state_districts(self):
-        Location(name=us.states.lookup("MI").name, sector="federal").save()
+        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
         address = Address(state="MI", latitude=42.532020,
                           longitude=-83.496500).save()
         res = create_state_districts.apply_async(
@@ -408,11 +408,25 @@ class TestCreateStateDistricts(TestCase):
         self.assertTrue(lower.addresses.is_connected(address))
         self.assertTrue(address.encompassed_by.is_connected(upper))
         self.assertTrue(upper.addresses.is_connected(address))
+        mi.delete()
+        address.delete()
+        upper.delete()
+        lower.delete()
 
     def test_create_state_districts_already_exist(self):
-        Location(name=us.states.lookup("MI").name, sector="federal").save()
+        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
         address = Address(state="MI", latitude=42.532020,
                           longitude=-83.496500).save()
+        upper = Location(name="15", sector="state_upper").save()
+        lower = Location(name="38", sector="state_lower").save()
+        address.encompassed_by.connect(lower)
+        lower.addresses.connect(address)
+        address.encompassed_by.connect(upper)
+        upper.addresses.connect(address)
+        mi.encompasses.connect(upper)
+        upper.encompassed_by.connect(mi)
+        mi.encompasses.connect(lower)
+        lower.encompassed_by.connect(mi)
         res = create_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
         while not res.ready():
@@ -440,6 +454,10 @@ class TestCreateStateDistricts(TestCase):
         # assert only one lower node
         self.assertEqual(upper, Location.inflate(res[0].l2))
         # assert only one upper node
+        mi.delete()
+        address.delete()
+        upper.delete()
+        lower.delete()
 
     def test_address_doesnt_exist(self):
         res = create_state_districts.apply_async(
@@ -449,20 +467,24 @@ class TestCreateStateDistricts(TestCase):
         self.assertIsInstance(res.result, Exception)
 
     def test_address_has_no_lat_long(self):
-        Location(name=us.states.lookup("MI").name, sector="federal").save()
+        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
         address = Address(state="MI").save()
         res = create_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
         while not res.ready():
             time.sleep(1)
         self.assertFalse(res.result)
+        mi.delete()
+        address.delete()
 
     def test_address_has_lat_long_outside_usa(self):
-        Location(name=us.states.lookup("MI").name, sector="federal").save()
+        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
         # lat/long of Greenwich UK
         address = Address(state="MI", latitude=51.4800, longitude=0.0000).save()
         res = create_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
         while not res.ready():
             time.sleep(1)
-        self.assertFalse(res.result)
+        self.assertTrue(res.result)
+        mi.delete()
+        address.delete()

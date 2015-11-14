@@ -661,7 +661,7 @@ class Address(SBObject):
         return flatten_lists(res)  # flatten
 
     def set_encompassing(self):
-        from .tasks import create_state_districts
+        from .tasks import connect_to_state_districts
         try:
             encompassed_by = Location.nodes.get(name=self.city)
             if Location.get_single_encompassed_by(
@@ -688,7 +688,7 @@ class Address(SBObject):
             self.encompassed_by.connect(encompassed_by)
             encompassed_by.addresses.connect(self)
         # get or create the state level districts and attach them to the address
-        spawn_task(task_func=create_state_districts,
+        spawn_task(task_func=connect_to_state_districts,
                    task_param={'object_uuid': self.object_uuid})
         return self
 

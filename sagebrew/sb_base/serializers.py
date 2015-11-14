@@ -1,4 +1,3 @@
-import re
 import markdown
 
 from rest_framework import serializers
@@ -11,6 +10,32 @@ from api.utils import gather_request_data
 
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
+
+
+def replace_images(end_temp, content, identifier):
+    # Get the beginning of the image tag to the end of the document
+    image = end_temp.find('<img ')
+    if image == -1:
+        return content
+    temp_content = end_temp[image:]
+    # Set the remaining string to parse to the end of the current image tag
+    end_temp = temp_content[temp_content.find("/>") + 2:]
+    # Chop off the rest of the document after the close of the img
+    # tag
+    temp_content = temp_content[:temp_content.find("/>") + 2]
+    # Need to get the source of the image to populate the a href
+    # so find the src and chop off anything before it
+    src = temp_content[temp_content.find('src="') + 5:]
+    # Chop off anything after it is closed
+    src = src[:src.find('"')]
+    # Build the wrapper
+    lightbox_wrapper = '<a href="%s" data-lightbox="%s">%s</a>' % (
+        src, identifier, temp_content)
+    # Replace the instances of the image tag with the new wrapper
+    content = content.replace(temp_content, lightbox_wrapper, 1)
+    if end_temp.find('<img ') != -1:
+        return replace_images(end_temp, content, identifier)
+    return content
 
 
 class VotableContentSerializer(SBSerializer):
@@ -126,27 +151,7 @@ class MarkdownContentSerializer(ContentSerializer):
                 '&gt;', '>')).replace('<a', '<a target="_blank"')
             # Iterate through each image tag within the document and add the
             # necessary a tag for lightbox to work.
-            for image in re.finditer('<img ', content):
-                # Get the beginning of the image tag to the end of the document
-                temp_content = content[image.start():]
-                # Chop off the rest of the document after the close of the img
-                # tag
-                temp_content = temp_content[:temp_content.find("/>") + 2]
-                # Need to get the source of the image to populate the a href
-                # so find the src and chop off anything before it
-                src = temp_content[temp_content.find('src="') + 5:]
-                # Chop off anything after it is closed
-                src = src[:src.find('"')]
-                # Build the wrapper
-                lightbox_wrapper = '<a href="%s" data-lightbox="%s">%s</a>' % (
-                    src, obj.object_uuid, temp_content)
-                # Replace the instances of the image tag with the new wrapper
-                for item in re.finditer(temp_content, content):
-                    content = "%s%s%s" % (
-                        content[:item.start()], lightbox_wrapper,
-                        content[item.end():])
-                    break
-            return content
+            return replace_images(content, content, obj.object_uuid)
         else:
             return ""
 

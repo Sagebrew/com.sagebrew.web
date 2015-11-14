@@ -109,6 +109,119 @@ class QuestionEndpointTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_create_with_image(self):
+        self.client.force_authenticate(user=self.user)
+        content = "![enter image description here][1] " \
+                  "asdfasdfasdfasdfadsfasdfasdfa\n" \
+                  "[1]: https://i.imgur.com/nHcAF4t.jpg"
+        title = "This is a question that must be t is blue21?"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        html_content = '<p><a href="https://i.imgur.com/nHcAF4t.jpg" ' \
+                       'data-lightbox="%s">' \
+                       '<img alt="enter image description here" ' \
+                       'src="https://i.imgur.com/nHcAF4t.jpg" /></a> ' \
+                       'asdfasdfasdfasdfadsfasdfasdfa</p>' % (
+                            response.data['id'])
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['html_content'], html_content)
+        Question.get(object_uuid=response.data['object_uuid']).delete()
+
+    def test_create_with_fake_image(self):
+        self.client.force_authenticate(user=self.user)
+        content = '<img alt="fake image" src="https://sagebrew.com"/>'\
+                  "asdfasdfasdfasdfadsfasdfasdfa\n" \
+                  "[1]: https://i.imgur.com/nHcAF4t.jpg"
+        title = "This is a question that must be t is blue21?"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        html_content = '<p>&lt;img alt="fake image" ' \
+                       'src="https://sagebrew.com"/&gt;' \
+                       'asdfasdfasdfasdfadsfasdfasdfa</p>'
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['html_content'], html_content)
+        Question.get(object_uuid=response.data['id']).delete()
+
+    def test_create_with_multiple_image(self):
+        self.client.force_authenticate(user=self.user)
+        content = "![enter image description here][1] \n" \
+                  "![enter image description here][2] \n" \
+                  "![enter image description here][3] \n" \
+                  "![enter image description here][4] \n" \
+                  "![enter image description here][2]" \
+                  "asdfasdfasdfasdfadsfasdfasdfa\n" \
+                  "[1]: https://i.imgur.com/nHcAF4t.jpg\n" \
+                  "[2]: https://i.imgur.com/Q2ZST9f.jpg\n" \
+                  "[3]: bit.ly/1LfIewy\n" \
+                  "[4]: http://vignette4.wikia.nocookie.net/" \
+                  "robber-penguin-agency/images/6/6e/Small-mario.png"
+        title = "This is a question that must be t i222?"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        html_content = '<p><a href="https://i.imgur.com/nHcAF4t.jpg" ' \
+                       'data-lightbox="%s">' \
+                       '<img alt="enter image description here" ' \
+                       'src="https://i.imgur.com/nHcAF4t.jpg" /></a> \n' \
+                       '<a href="https://i.imgur.com/Q2ZST9f.jpg" ' \
+                       'data-lightbox="%s">' \
+                       '<a href="https://i.imgur.com/Q2ZST9f.jpg" ' \
+                       'data-lightbox="%s">' \
+                       '<img alt="enter image description here" ' \
+                       'src="https://i.imgur.com/Q2ZST9f.jpg" />' \
+                       '</a></a> \n<a href="bit.ly/1LfIewy" ' \
+                       'data-lightbox="%s"><img ' \
+                       'alt="enter image description here" ' \
+                       'src="bit.ly/1LfIewy" /></a> \n' \
+                       '<a href="http://vignette4.wikia.nocookie.net/' \
+                       'robber-penguin-agency/images/6/6e/Small-mario.png" ' \
+                       'data-lightbox="%s"><img alt="enter image description' \
+                       ' here" src="http://vignette4.wikia.nocookie.net/' \
+                       'robber-penguin-agency/images/6/6e/Small-mario.png"' \
+                       ' /></a> \n<img alt="enter image description here" ' \
+                       'src="https://i.imgur.com/Q2ZST9f.jpg" />' \
+                       'asdfasdfasdfasdfadsfasdfasdfa</p>' % (
+                            response.data['id'], response.data['id'],
+                            response.data['id'], response.data['id'],
+                            response.data['id'],)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['html_content'], html_content)
+        Question.get(object_uuid=response.data['id']).delete()
+
+    def test_create_with_script(self):
+        self.client.force_authenticate(user=self.user)
+        content = "<script>alert('hello')</script>"
+        title = str(uuid1())
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        html_content = "<p>&lt;script&gt;alert('hello')&lt;/script&gt;</p>"
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['html_content'], html_content)
+        Question.get(object_uuid=response.data['id']).delete()
+
     def test_create_with_focus_area(self):
         self.client.force_authenticate(user=self.user)
         content = "This is the content to my question, it's a pretty good " \

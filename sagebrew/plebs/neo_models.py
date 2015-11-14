@@ -780,10 +780,18 @@ class PoliticalParty(SBObject):
     name = StringProperty(unique_index=True)
     formal_name = StringProperty()
 
-    # Relationship Pleb: Python: party_affiliations Cypher: 'AFFILIATES_WITH'
+    # Relationship from Pleb to PoliticalParty:
+    #   Python: party_affiliations
+    #   Cypher: 'AFFILIATES_WITH'
+    #   Example: (a:Pleb {username: "test_user"})-[:AFFILIATES_WITH]->
+    #            (b:PoliticalParty)
 
 
 class ActivityInterest(SBObject):
     name = StringProperty(unique_index=True)
 
-    # Relationship Pleb: Python: activity_interest Cypher: 'WILL_PARTICIPATE'
+    # Relationship from Pleb to ActivityInterest:
+    #   Python: activity_interest
+    #   Cypher: 'WILL_PARTICIPATE'
+    #   Example: (a:Pleb {username: "test_user"})-[:WILL_PARTICIPATE]->
+    #            (b:ActivityInterest)

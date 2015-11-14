@@ -280,6 +280,48 @@ class MeEndpointTests(APITestCase):
         self.assertFalse(res.data['results'])
         donation.delete()
 
+    def test_add_party(self):
+        pass
+
+    def test_add_no_parties(self):
+        pass
+
+    def test_add_multiple_parties(self):
+        pass
+
+    def test_non_existent_parties(self):
+        pass
+
+    def test_non_string_party(self):
+        pass
+
+    def test_non_array_party(self):
+        pass
+
+    def test_exists_and_does_not_exist_parties(self):
+        pass
+
+    def test_add_interest(self):
+        pass
+
+    def test_add_no_interest(self):
+        pass
+
+    def test_add_multiple_interests(self):
+        pass
+
+    def test_non_existent_interest(self):
+        pass
+
+    def test_non_string_interest(self):
+        pass
+
+    def test_non_array_interest(self):
+        pass
+
+    def test_exists_and_does_not_exist_interests(self):
+        pass
+
 
 class SentFriendRequestEndpointTests(APITestCase):
     def setUp(self):

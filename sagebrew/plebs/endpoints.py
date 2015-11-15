@@ -316,7 +316,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             sen_html = []
             for sen in senators:
                 sen_html.append(
-                    render_to_string('sb_home_section/sb_senator_block.html',
+                    render_to_string('sb_home_section/sitting_rep_block.html',
                                      PublicOfficialSerializer(sen).data))
             return Response(sen_html, status=status.HTTP_200_OK)
         return Response(PublicOfficialSerializer(senators, many=True).data,
@@ -344,7 +344,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             house_rep_html = render_to_string(
-                'sb_home_section/sb_house_rep_block.html',
+                'sb_home_section/sitting_rep_block.html',
                 PublicOfficialSerializer(house_rep).data)
             return Response(house_rep_html, status=status.HTTP_200_OK)
         return Response(PublicOfficialSerializer(house_rep).data,
@@ -368,7 +368,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             return Response(
-                render_to_string('sb_home_section/sb_house_rep_block.html',
+                render_to_string('sb_home_section/sitting_rep_block.html',
                                  PublicOfficialSerializer(president).data),
                 status=status.HTTP_200_OK)
         return Response(PublicOfficialSerializer(president).data,

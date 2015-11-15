@@ -2460,7 +2460,7 @@ class PlebLocalRepresentativeTest(APITestCase):
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username,
             active=True).save()
-        location = Location(name="Commerce Township").save()
+        location = Location(name="Commerce Township", sector='local').save()
         position = Position(name="Test Position", level='local').save()
 
         position.location.connect(location)
@@ -2488,7 +2488,7 @@ class PlebLocalRepresentativeTest(APITestCase):
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username,
             active=True).save()
-        location = Location(name="Commerce Township").save()
+        location = Location(name="Commerce Township", sector='local').save()
         position = Position(name="Test Position", level='local').save()
 
         position.location.connect(location)
@@ -2514,7 +2514,7 @@ class PlebLocalRepresentativeTest(APITestCase):
         cache.clear()
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username).save()
-        location = Location(name="Commerce Township").save()
+        location = Location(name="Commerce Township", sector='local').save()
         position = Position(name="Test Position", level='local').save()
 
         position.location.connect(location)
@@ -2539,7 +2539,7 @@ class PlebLocalRepresentativeTest(APITestCase):
         cache.clear()
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username).save()
-        location = Location(name="Commerce Township").save()
+        location = Location(name="Commerce Township", sector='local').save()
         position = Position(name="Test Position", level='local').save()
 
         position.location.connect(location)
@@ -2565,7 +2565,7 @@ class PlebLocalRepresentativeTest(APITestCase):
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username,
             active=True).save()
-        location = Location(name="Commerce Township").save()
+        location = Location(name="Commerce Township", sector='local').save()
         position = Position(name="Test Position", level='local').save()
 
         position.location.connect(location)

@@ -3,31 +3,33 @@
 {% block title %}{{ page_user.first_name }} {{ page_user.last_name }}{% endblock title %}
 
 {% block sidebar_left %}
-{% include "settings/user_settings_nav.html" %}
+    {% include "settings/user_settings_nav.html" %}
 {% endblock %}
 
 {% block live %}
+    <div class="block">
+        <h3 class="block-title">Contributions</h3>
 
-    <div class="block sb_markdown">
-        <h1>Contributions</h1>
+        <div class="block-content">
 
-        <p>We'd like to start out by saying thanks for being here! We
-            couldn't be achieving our goals without the enormous amount of support
-            we've received, be it criticism, positive feedback, new ideas,
-            or donations. We're immensely grateful for it all! We're doing our best
-            to find ways to empower you and will continue to spend each
-            day trying to craft a service that helps you to make
-            worldly changes. If you believe in our cause and can spare a
-            dollar or two we'd greatly appreciate it!</p>
+            <p>We'd like to start out by saying thanks for being here! We
+                couldn't be achieving our goals without the enormous amount of support
+                we've received, be it criticism, positive feedback, new ideas,
+                or donations. We're immensely grateful for it all! We're doing our best
+                to find ways to empower you and will continue to spend each
+                day trying to craft a service that helps you to make
+                worldly changes. If you believe in our cause and can spare a
+                dollar or two we'd greatly appreciate it!</p>
 
-        <p style="padding-bottom: 30px;"><b>Thank you for the support!!!</b></p>
+            <p style="padding-bottom: 30px;"><b>Thank you for the support!!!</b></p>
 
-        <div class="row">
-            <div class="col-lg-4 col-md-6">
-                  <button class="btn btn-primary sb_btn sb_btn_fill"
-                        data-toggle="modal"
-                        data-target="#donationModal">Donate
+            <div class="row">
+                <div class="col-lg-4 col-md-6">
+                    <button class="btn btn-primary sb_btn sb_btn_fill"
+                            data-toggle="modal"
+                            data-target="#donationModal">Donate
                     </button>
+                </div>
             </div>
         </div>
     </div>

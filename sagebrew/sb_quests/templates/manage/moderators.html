@@ -12,23 +12,34 @@
     {% include "manage/manage_right_sidebar.html" %}
 {% endblock %}
 
+{% comment %}
+    This page doesn't scale very well. We to do some auto loading /filtering / searching.
+{% endcomment %}
 {% block live %}
-<div class="sb_wall">
-    <div class="row">
+<div class="block">
+    <h3 class="block-title">Moderators</h3>
+
+    <div class="block-content">
         <div id="js-campaign_id" class="sb_hidden" data-current_user="{{ request.user.username }}" data-object_uuid="{{ id }}"></div>
-        <div class="col-xs-4">
-            <h3>Friends</h3>
-            <div class="block sb_action_content_block sb_markdown_disabled" id="js-quest_helper_wrapper">
+        <div class="row">
+            <div class="col-xs-12">
+                <h6>Friends</h6>
+                <div class="sb_markdown_disabled" id="js-quest_helper_wrapper">
+                </div>
             </div>
         </div>
-        <div class="col-xs-4">
-            <h3>Editors</h3>
-            <div class="block sb_action_content_block sb_markdown_disabled" id="js-editor_wrapper">
+        <div class="row">
+            <div class="col-xs-12">
+                <h6>Editors</h6>
+                <div class="sb_markdown_disabled" id="js-editor_wrapper">
+                </div>
             </div>
         </div>
-        <div class="col-xs-4">
-            <h3>Admins</h3>
-            <div class="block sb_action_content_block sb_markdown_disabled" id="js-accountant_wrapper">
+        <div class="row">
+            <div class="col-xs-12">
+                <h6>Admins</h6>
+                <div class="sb_markdown_disabled" id="js-accountant_wrapper">
+                </div>
             </div>
         </div>
     </div>

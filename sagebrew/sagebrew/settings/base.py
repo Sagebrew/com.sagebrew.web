@@ -423,8 +423,6 @@ OPERATOR_DICT = {
     'coperator\ntruth\np0\n.': 'truth'
 }
 
-MCOMMONS_DISTRICT_SEARCH_URL = "http://congress.mcommons.com/districts/" \
-                               "lookup.json?lat=%f&lng=%f"
 OPENSTATES_DISTRICT_SEARCH_URL = "http://openstates.org/api/v1/legislators/" \
                                  "geo/?lat=%f&long=%f"
 

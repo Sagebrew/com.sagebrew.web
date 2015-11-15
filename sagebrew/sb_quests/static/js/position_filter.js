@@ -1,5 +1,6 @@
 /*global $, ajaxSecurity, Bloodhound, errorDisplay*/
 $(document).ready(function () {
+    $(':radio').radiocheck();
     var engine = new Bloodhound({
         local: [
             {"value": "Alabama"},
@@ -83,10 +84,19 @@ $(document).ready(function () {
             return false;
         })
         .on('tokenfield:createdtoken', function (e) {
+            var $federalFilter = $("#js-federal-filter"),
+                $stateFilter = $("#js-state-filter"),
+                positionFilter = "";
+            if ($federalFilter.is(':checked')) {
+                positionFilter += $federalFilter.value;
+            }
+            if ($stateFilter.is(':checked')) {
+                positionFilter += $stateFilter.value;
+            }
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "GET",
-                url: "/v1/locations/" + e.attrs.value + "/positions/render/",
+                url: "/v1/locations/" + e.attrs.value + "/positions/render/?filter=" + positionFilter,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {

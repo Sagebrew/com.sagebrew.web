@@ -29,9 +29,7 @@ class Command(BaseCommand):
                 location = Location(
                     name=district['name'], sector='state_upper').save()
                 position = Position(
-                    name="Senator for %s's %s District" %
-                         (state_node.name, district['name']),
-                    level="state_upper").save()
+                    name="State Senator", level="state_upper").save()
                 state_node.encompasses.connect(location)
                 location.encompassed_by.connect(state_node)
                 location.positions.connect(position)
@@ -44,8 +42,7 @@ class Command(BaseCommand):
                 location = Location(
                     name=district["name"], sector="state_lower").save()
                 position = Position(
-                    name="House Representative for %s's %s District" %
-                         (state_node.name, district['name']),
+                    name="State House Representative",
                     level="state_lower").save()
                 state_node.encompasses.connect(location)
                 location.encompassed_by.connect(state_node)

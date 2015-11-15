@@ -286,6 +286,10 @@ class Pleb(Searchable):
                                'DONATIONS_GIVEN')
     following = RelationshipTo('plebs.neo_models.Pleb', 'FOLLOWING',
                                model=FollowRelationship)
+    party_affiliations = RelationshipTo('plebs.neo_models.PoliticalParty',
+                                        'AFFILIATES_WITH')
+    activity_interests = RelationshipTo('plebs.neo_models.ActivityInterest',
+                                        'WILL_PARTICIPATE')
 
     @classmethod
     def get(cls, username):
@@ -643,6 +647,18 @@ class Pleb(Searchable):
             return "%dk" % (int(reputation_change / 1000.0))
         return reputation_change
 
+    def get_political_parties(self):
+        query = "MATCH (a:Pleb {username:'%s'})-[:AFFILIATES_WITH]->" \
+                "(b:PoliticalParty) RETURN b.name" % self.username
+        res, _ = db.cypher_query(query)
+        return [row[0] for row in res]
+
+    def get_activity_interests(self):
+        query = "MATCH (a:Pleb {username:'%s'})-[:WILL_PARTICIPATE]->" \
+                "(b:ActivityInterest) RETURN b.name" % self.username
+        res, _ = db.cypher_query(query)
+        return [row[0] for row in res]
+
     """
     def update_tag_rep(self, base_tags, tags):
         from sb_tags.neo_models import Tag
@@ -754,3 +770,24 @@ class FriendRequest(SBObject):
             'RETURN count(n)' % username
         res, col = db.cypher_query(query)
         return res[0][0]
+
+
+class PoliticalParty(SBObject):
+    name = StringProperty(unique_index=True)
+    formal_name = StringProperty()
+
+    # Relationship from Pleb to PoliticalParty:
+    #   Python: party_affiliations
+    #   Cypher: 'AFFILIATES_WITH'
+    #   Example: (a:Pleb {username: "test_user"})-[:AFFILIATES_WITH]->
+    #            (b:PoliticalParty)
+
+
+class ActivityInterest(SBObject):
+    name = StringProperty(unique_index=True)
+
+    # Relationship from Pleb to ActivityInterest:
+    #   Python: activity_interest
+    #   Cypher: 'WILL_PARTICIPATE'
+    #   Example: (a:Pleb {username: "test_user"})-[:WILL_PARTICIPATE]->
+    #            (b:ActivityInterest)

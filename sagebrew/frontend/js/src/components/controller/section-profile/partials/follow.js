@@ -46,7 +46,7 @@ export function init() {
 
             request.post({
                 url: "/v1/profiles/" + profilePageUser + "/unfollow/"
-            }).done(function (data) {
+            }).done(function () {
                 $unfollow.hide();
                 $follow.removeAttr("disabled");
                 $follow.show();

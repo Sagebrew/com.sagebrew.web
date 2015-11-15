@@ -1,13 +1,6 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load staticfiles %}
-{% block css %}
-    {{ block.super }}
-    <link href="{% static 'css/vendor/select2.css' %}" rel="stylesheet"/>
-    <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
-    <link rel="stylesheet" href="{% static 'css/vendor/bootstrap-tokenfield.min.css' %}"/>
-    <link rel="stylesheet" href="{% static 'css/vendor/tokenfield-typeahead.min.css' %}"/>
-{% endblock css %}
 
 {% block content %}
 

@@ -300,7 +300,7 @@ class Campaign(Searchable):
     @classmethod
     def get_possible_helpers(cls, object_uuid):
         query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:WAGED_BY]->(p:Pleb)-' \
-                '[:FRIENDS_WITH {currently_friends: true}]->' \
+                '[:FRIENDS_WITH {active: true}]->' \
                 '(b:Pleb) WHERE NOT (c)-[:CAN_BE_EDITED_BY]->(b) XOR ' \
                 '(c)-[:CAN_VIEW_MONETARY_DATA]->(b) RETURN b.username' \
                 % object_uuid

@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# coding=utf-8
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -217,6 +220,25 @@ class LocationEndpointTests(APITestCase):
         self.assertIn(self.location.object_uuid,
                       response.data['encompassed_by'])
 
+    def test_add_admin_unicode(self):
+        self.user.is_staff = True
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add')
+        response = self.client.post(url, {
+            "name": "Iñtërnâtiônàlizætiøn2",
+            "geo_data": None,
+            "encompassed_by_name": self.location.name,
+            "encompassed_by_uuid": ""
+        }, format='json')
+        self.user.is_staff = False
+        self.user.save()
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['name'], 'Internationalizaetion2')
+        self.assertEqual(response.data['geo_data'], False)
+        self.assertIn(self.location.object_uuid,
+                      response.data['encompassed_by'])
+
     def test_add_get(self):
         self.user.is_staff = True
         self.user.save()
@@ -279,3 +301,233 @@ class LocationEndpointTests(APITestCase):
         self.user.is_staff = False
         self.user.save()
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_cache_location(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "address_components": [
+                {
+                    "long_name": "Wixom",
+                    "short_name": "Wixom",
+                    "types": [
+                        "locality",
+                        "political"
+                    ]
+                },
+                {
+                    "long_name": "Oakland County",
+                    "short_name": "Oakland County",
+                    "types": [
+                        "administrative_area_level_2",
+                        "political"
+                    ]
+                },
+                {
+                    "long_name": "Michigan",
+                    "short_name": "MI",
+                    "types": [
+                        "administrative_area_level_1",
+                        "political"
+                    ]
+                },
+                {
+                    "long_name": "United States",
+                    "short_name": "US",
+                    "types": [
+                        "country",
+                        "political"
+                    ]
+                }
+            ],
+            "adr_address": "",
+            "formatted_address": "Wixom, MI, USA",
+            "geometry": {
+                "location": {},
+                "viewport": {
+                    "O": {
+                        "O": 42.493165,
+                        "j": 42.55855589999999
+                    },
+                    "j": {
+                        "j": -83.558674,
+                        "O": -83.507566
+                    }
+                }
+            },
+            "icon": "https://maps.gstatic.com/mapfiles/place_api/"
+                    "icons/geocode-71.png",
+            "id": "20c67ea90c3088cc7d5fdd08dc7ccd170559a4fe",
+            "name": "Wixom",
+            "place_id": "ChIJ7xtMYSCmJIgRZBZBy5uZHl8",
+            "reference": "-wRMKo-",
+            "scope": "GOOGLE",
+            "types": [
+                "locality",
+                "political"
+            ],
+            "url": "",
+            "vicinity": "Wixom",
+            "html_attributions": []
+        }
+        url = reverse('location-cache')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(cache.get(data['place_id']), data)
+
+    def test_cache_location_bad_request(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "address_components": [
+                {
+                    "long_name": "Wixom",
+                    "short_name": "Wixom",
+                    "types": [
+                        "locality",
+                        "political"
+                    ]
+                },
+                {
+                    "long_name": "Oakland County",
+                    "short_name": "Oakland County",
+                    "types": [
+                        "administrative_area_level_2",
+                        "political"
+                    ]
+                },
+                {
+                    "long_name": "Michigan",
+                    "short_name": "MI",
+                    "types": [
+                        "administrative_area_level_1",
+                        "political"
+                    ]
+                },
+                {
+                    "long_name": "United States",
+                    "short_name": "US",
+                    "types": [
+                        "country",
+                        "political"
+                    ]
+                }
+            ]
+        }
+        url = reverse('location-cache')
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIsNone(cache.get("ChIJ7xtMYSCmJIgRZBZBy5uZHl8"))
+
+
+class TestRenderPositions(APITestCase):
+    def setUp(self):
+        self.unit_under_test_name = 'location'
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.url = "http://testserver"
+        for item in Position.nodes.all():
+            item.delete()
+        for item in Location.nodes.all():
+            item.delete()
+        self.location = Location(name="Michigan").save()
+        self.city = Location(name="Walled Lake").save()
+        self.senator = Position(name="Senator").save()
+        self.house_rep = Position(name="House Rep").save()
+        self.state_upper = Location(name="38", sector="state_upper").save()
+        self.state_senator = Position(name="State Senator",
+                                      level="state_upper").save()
+        self.school = Position(name="School Board", level="local").save()
+        self.state_upper.positions.connect(self.state_senator)
+        self.state_senator.location.connect(self.state_upper)
+        self.location.encompasses.connect(self.state_upper)
+        self.state_upper.encompassed_by.connect(self.location)
+        self.location.encompasses.connect(self.city)
+        self.city.encompassed_by.connect(self.location)
+        self.location.positions.connect(self.senator)
+        self.senator.location.connect(self.location)
+        self.location.positions.connect(self.house_rep)
+        self.house_rep.location.connect(self.location)
+        self.city.positions.connect(self.school)
+        self.school.location.connect(self.city)
+        cache.clear()
+
+    def test_unauthorized(self):
+        url = reverse('render_positions', kwargs={"name": "Michigan"})
+        response = self.client.get(url, format='json')
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_no_filter(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('render_positions', kwargs={'name': 'Michigan'})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('\n<div class="row sb_input_wrapper Michigan">\n    '
+                      '<div class="col-xs-1 hidden-xs hidden-sm '
+                      'sb-position-image-selector">\n        \n        \n     '
+                      '       <img class="sb_thumbnail_sm" src="https://sageb'
+                      'rew.local.dev/static/images/senator_badge.png">\n     '
+                      '   \n\n    </div>\n    <div class="col-xs-7">\n      '
+                      '  <p class="quest-options">Senator of Michigan</p>\n  '
+                      '  </div>\n    <div class="col-xs-4">\n        <button '
+                      'id="submit_position" class="btn btn-block btn-sm btn-'
+                      'primary sb_btn" data-object_uuid="%s">Start</button>\n '
+                      '   </div>\n</div>' % self.senator.object_uuid,
+                      response.data)
+
+    def test_filter_state(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('render_positions', kwargs={'name': 'Michigan'})
+        response = self.client.get(url + "?filter=state", format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('\n<div class="row sb_input_wrapper Michigan">\n    '
+                      '<div class="col-xs-1 hidden-xs hidden-sm sb-position'
+                      '-image-selector">\n        \n        \n            '
+                      '<img class="sb_thumbnail_sm" src="https://sagebrew.'
+                      'local.dev/static/images/senator_badge.png">\n       '
+                      ' \n\n    </div>\n    <div class="col-xs-7">\n        '
+                      '<p class="quest-options">State Senator for Michigan&'
+                      '#39;s 38th district</p>\n    </div>\n    <div class='
+                      '"col-xs-4">\n        <button id="submit_position" cl'
+                      'ass="btn btn-block btn-sm btn-primary sb_btn" data-o'
+                      'bject_uuid="%s">Start</button>\n    </div>\n</div>'
+                      % self.state_senator.object_uuid, response.data)
+
+    def test_filter_federal(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('render_positions', kwargs={'name': 'Michigan'})
+        response = self.client.get(url + "?filter=federal", format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('\n<div class="row sb_input_wrapper Michigan">\n    '
+                      '<div class="col-xs-1 hidden-xs hidden-sm '
+                      'sb-position-image-selector">\n        \n        \n     '
+                      '       <img class="sb_thumbnail_sm" src="https://sageb'
+                      'rew.local.dev/static/images/senator_badge.png">\n     '
+                      '   \n\n    </div>\n    <div class="col-xs-7">\n      '
+                      '  <p class="quest-options">Senator of Michigan</p>\n  '
+                      '  </div>\n    <div class="col-xs-4">\n        <button '
+                      'id="submit_position" class="btn btn-block btn-sm btn-'
+                      'primary sb_btn" data-object_uuid="%s">Start</button>\n '
+                      '   </div>\n</div>' % self.senator.object_uuid,
+                      response.data)
+
+    def test_filter_local(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('render_positions', kwargs={'name': 'Michigan'})
+        response = self.client.get(url + "?filter=local", format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('\n<div class="row sb_input_wrapper Michigan">\n    '
+                      '<div class="col-xs-1 hidden-xs hidden-sm sb-positio'
+                      'n-image-selector">\n        \n        \n            '
+                      '<img class="sb_thumbnail_sm" src="https://sagebrew.'
+                      '.dev/static/images/local_badge.png">\n        \n\n '
+                      '   </div>\n    <div class="col-xs-7">\n        <p c'
+                      'lass="quest-options">School Board of Walled Lake</p>'
+                      '\n    </div>\n    <div class="col-xs-4">\n        <b'
+                      'utton id="submit_position" class="btn btn-block btn-'
+                      'sm btn-primary sb_btn" data-object_uuid="%s">Start'
+                      '</button>\n    </>\n</div>' % self.school.object_uuid,
+                      response.data)

@@ -16,7 +16,7 @@ var helpers = require('./helpers');
  * @param notifyFrom
  * @param notifyAlign
  */
-function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
+export function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
     notifyFrom = typeof notifyFrom !== 'undefined' ? notifyFrom : "top";
     notifyAlign = typeof notifyAlign !== 'undefined' ? notifyAlign : 'right';
     switch (XMLHttpRequest.status) {

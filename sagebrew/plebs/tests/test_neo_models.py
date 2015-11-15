@@ -1,4 +1,5 @@
 # import time
+from uuid import uuid1
 
 from django.test.testcases import TestCase
 from django.contrib.auth.models import User
@@ -91,6 +92,37 @@ class TestPleb(TestCase):
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
         self.assertTrue(self.pleb.get_sagebrew_donations())
+
+    def test_is_following(self):
+        test_pleb = Pleb(username=str(uuid1())).save()
+        rel = self.pleb.following.connect(test_pleb)
+        rel.save()
+        res = test_pleb.is_following(self.pleb.username)
+        self.assertTrue(res)
+
+    def test_is_following_not_following(self):
+        test_pleb = Pleb(username=str(uuid1())).save()
+        res = test_pleb.is_following(self.pleb.username)
+        self.assertFalse(res)
+
+    def test_is_following_was_following(self):
+        test_pleb = Pleb(username=str(uuid1())).save()
+        rel = self.pleb.following.connect(test_pleb)
+        rel.active = False
+        rel.save()
+        res = test_pleb.is_following(self.pleb.username)
+        self.assertFalse(res)
+
+    def test_follow(self):
+        test_pleb = Pleb(username=str(uuid1())).save()
+        res = test_pleb.follow(self.pleb.username)
+        self.assertTrue(res)
+        self.assertTrue(test_pleb.is_following(self.pleb.username))
+
+    def test_unfollow(self):
+        test_pleb = Pleb(username=str(uuid1())).save()
+        res = test_pleb.unfollow(self.pleb.username)
+        self.assertFalse(res)
 
 
 class TestPlebReputationChange(TestCase):

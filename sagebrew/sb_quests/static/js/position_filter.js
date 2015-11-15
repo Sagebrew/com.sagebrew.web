@@ -84,19 +84,13 @@ $(document).ready(function () {
             return false;
         })
         .on('tokenfield:createdtoken', function (e) {
-            var $federalFilter = $("#js-federal-filter"),
-                $stateFilter = $("#js-state-filter"),
-                positionFilter = "";
-            if ($federalFilter.is(':checked')) {
-                positionFilter += $federalFilter.value;
-            }
-            if ($stateFilter.is(':checked')) {
-                positionFilter += $stateFilter.value;
-            }
+            var $filterWrapper = $(".sb-position-filter-wrapper"),
+                filterValue;
+            filterValue = $filterWrapper.find("input:checked").val();
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "GET",
-                url: "/v1/locations/" + e.attrs.value + "/positions/render/?filter=" + positionFilter,
+                url: "/v1/locations/" + e.attrs.value + "/positions/render/?filter=" + filterValue,
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
@@ -134,6 +128,46 @@ $(document).ready(function () {
             typeahead: [null, {source: engine.ttAdapter()}],
             delimiter: [",", "'", ".", "*", "_"]
         });
+    $(":radio").on('change', function() {
+        var $positionWrapper = $("#position_wrapper"),
+            $tokenField = $("#state"),
+            tokens = $tokenField.tokenfield('getTokens'),
+            $this = $(this);
+        $.each(tokens, function (index, value) {
+            $("." + value.label.replace(/ /g, '')).remove();
+            $.ajax({
+                xhrFields: {withCredentials: true},
+                type: "GET",
+                url: "/v1/locations/" + value.label + "/positions/render/?filter=" + $this.val(),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (data) {
+                    $positionWrapper.append(data);
+                    $(".sb_btn").off().on("click", function (event) { // http://stackoverflow.com/questions/14969960/jquery-click-events-firing-multiple-times reason for off
+                        event.preventDefault();
+                        $(this).prop("disabled", true);
+                        $.ajax({
+                            xhrFields: {withCredentials: true},
+                            type: "POST",
+                            url: "/v1/campaigns/",
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({
+                                "position": $(this).data("object_uuid")
+                            }),
+                            dataType: "json",
+                            success: function (data) {
+                                window.location.href = data.url;
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                errorDisplay(XMLHttpRequest);
+                                $(this).prop('disabled', false);
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    });
     $("#js-president_selector").on("click", function (event) {
         event.preventDefault();
         $(this).spin('small');

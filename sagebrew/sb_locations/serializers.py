@@ -1,4 +1,5 @@
 from json import loads
+from unidecode import unidecode
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -73,6 +74,11 @@ class LocationManagerSerializer(SBSerializer):
         temp_value = value
         temp_value = temp_value.replace('"', '\\"')
         temp_value = temp_value.replace("'", "\\'")
+        try:
+            temp_value = unidecode(unicode(temp_value, "utf-8"))
+        except TypeError:
+            # Handles cases where the name is already in unicode format
+            temp_value = unidecode(temp_value)
         query = 'MATCH (l:Location {name: "%s"}) RETURN l' % temp_value
         res, _ = db.cypher_query(query)
         if res.one is not None:
@@ -84,6 +90,13 @@ class LocationManagerSerializer(SBSerializer):
         encompassed_by = None
         location_name = validated_data.pop('encompassed_by_name', '')
         location_id = validated_data.pop('encompassed_by_uuid', '')
+        name = validated_data.get('name', '')
+        try:
+            name = unidecode(unicode(name, "utf-8"))
+        except TypeError:
+            # Handles cases where the name is already in unicode format
+            name = unidecode(name)
+        validated_data['name'] = name
         try:
             encompassed_by = Location.nodes.get(name=location_name)
         except(Location.DoesNotExist, DoesNotExist):

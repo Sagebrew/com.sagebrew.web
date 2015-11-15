@@ -19,6 +19,8 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py migrate oauth2_provider --fake && \
     python manage.py migrate --noinput && \
     python manage.py create_privileges && \
+    python manage.py create_affiliations && \
+    python manage.py create_activity_interests && \
     python manage.py clear_cache && \
     python manage.py clearsessions && \
     python manage.py populate_sectors && \

@@ -48,13 +48,24 @@ class SearchCount(StructuredRel):
     last_searched = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
 
 
-class FriendRelationship(StructuredRel):
+class InterpersonalRelationship(StructuredRel):
+    """
+    Relationship base for handling relations between two or more people
+    such as friends and followers/following.
+    """
     since = DateTimeProperty(default=get_current_time)
+    active = BooleanProperty(default=True)
+
+
+class FriendRelationship(InterpersonalRelationship):
     friend_type = StringProperty(default="friends")
-    currently_friends = BooleanProperty(default=True)
     time_unfriended = DateTimeProperty()
     who_unfriended = StringProperty()
-    # who_unfriended = RelationshipTo("Pleb", "")
+
+
+class FollowRelationship(InterpersonalRelationship):
+    get_notifications = BooleanProperty(default=False)
+    # determine if the user wants to get notifications in their navbar
 
 
 class UserWeightRelationship(StructuredRel):
@@ -273,6 +284,12 @@ class Pleb(Searchable):
                                    'PLEDGED', model=VoteRelationship)
     donations = RelationshipTo('sb_donations.neo_models.Donation',
                                'DONATIONS_GIVEN')
+    following = RelationshipTo('plebs.neo_models.Pleb', 'FOLLOWING',
+                               model=FollowRelationship)
+    party_affiliations = RelationshipTo('plebs.neo_models.PoliticalParty',
+                                        'AFFILIATES_WITH')
+    activity_interests = RelationshipTo('plebs.neo_models.ActivityInterest',
+                                        'WILL_PARTICIPATE')
 
     @classmethod
     def get(cls, username):
@@ -499,7 +516,7 @@ class Pleb(Searchable):
     def is_friends_with(self, username):
         query = "MATCH (a:Pleb {username:'%s'})-" \
                 "[friend:FRIENDS_WITH]->(b:Pleb {username:'%s'}) " \
-                "RETURN friend.currently_friends" % (self.username, username)
+                "RETURN friend.active" % (self.username, username)
         res, col = db.cypher_query(query)
         if len(res) == 0:
             return False
@@ -571,6 +588,35 @@ class Pleb(Searchable):
                 official = None
         return official
 
+    def is_following(self, username):
+        query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-' \
+                '(p2:Pleb {username:"%s"}) RETURN r.active' % \
+                (self.username, username)
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def follow(self, username):
+        """
+        The username passed to this function is the user who will be following
+        the user the method is called upon.
+        """
+        query = 'MATCH (p:Pleb {username:"%s"}), (p2:Pleb {username:"%s"}) ' \
+                'WITH p, p2 CREATE UNIQUE (p)<-[r:FOLLOWING]-(p2) SET ' \
+                'r.active=true RETURN r.active' % (self.username, username)
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def unfollow(self, username):
+        """
+        The username passed to this function is the user who will stop
+        following the user the method is called upon.
+        """
+        query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-(p2:Pleb ' \
+                '{username:"%s"}) SET r.active=false RETURN r.active' \
+                % (self.username, username)
+        res, _ = db.cypher_query(query)
+        return res.one
+
     @property
     def reputation_change(self):
         # See create_vote_node task in sb_votes tasks for where this is deleted
@@ -600,6 +646,18 @@ class Pleb(Searchable):
         if reputation_change >= 1000 or reputation_change <= -1000:
             return "%dk" % (int(reputation_change / 1000.0))
         return reputation_change
+
+    def get_political_parties(self):
+        query = "MATCH (a:Pleb {username:'%s'})-[:AFFILIATES_WITH]->" \
+                "(b:PoliticalParty) RETURN b.name" % self.username
+        res, _ = db.cypher_query(query)
+        return [row[0] for row in res]
+
+    def get_activity_interests(self):
+        query = "MATCH (a:Pleb {username:'%s'})-[:WILL_PARTICIPATE]->" \
+                "(b:ActivityInterest) RETURN b.name" % self.username
+        res, _ = db.cypher_query(query)
+        return [row[0] for row in res]
 
     """
     def update_tag_rep(self, base_tags, tags):
@@ -643,6 +701,7 @@ class Address(SBObject):
     country = StringProperty()
     latitude = FloatProperty()
     longitude = FloatProperty()
+    county = StringProperty()
     congressional_district = IntegerProperty()
     validated = BooleanProperty(default=False)
 
@@ -715,3 +774,24 @@ class FriendRequest(SBObject):
             'RETURN count(n)' % username
         res, col = db.cypher_query(query)
         return res[0][0]
+
+
+class PoliticalParty(SBObject):
+    name = StringProperty(unique_index=True)
+    formal_name = StringProperty()
+
+    # Relationship from Pleb to PoliticalParty:
+    #   Python: party_affiliations
+    #   Cypher: 'AFFILIATES_WITH'
+    #   Example: (a:Pleb {username: "test_user"})-[:AFFILIATES_WITH]->
+    #            (b:PoliticalParty)
+
+
+class ActivityInterest(SBObject):
+    name = StringProperty(unique_index=True)
+
+    # Relationship from Pleb to ActivityInterest:
+    #   Python: activity_interest
+    #   Cypher: 'WILL_PARTICIPATE'
+    #   Example: (a:Pleb {username: "test_user"})-[:WILL_PARTICIPATE]->
+    #            (b:ActivityInterest)

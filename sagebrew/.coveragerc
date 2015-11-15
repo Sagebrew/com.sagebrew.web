@@ -45,6 +45,10 @@ omit =
     */management/commands/create_privileges.py
     */management/commands/add_url_and_href.py
     */management/commands/add_cities_from_addresses.py
+    */management/commands/migrate_addresses.py
+    */management/commands/migrate_public_official_states.py
+    */management/commands/create_affiliations.py
+    */management/commands/create_activity_interests.py
     */sagebrew/test_runner.py
 
 [report]

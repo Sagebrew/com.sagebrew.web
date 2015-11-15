@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from neomodel.exception import DoesNotExist
+from neomodel import db
 
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
@@ -107,6 +108,165 @@ class QuestionEndpointTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_with_image(self):
+        self.client.force_authenticate(user=self.user)
+        content = "![enter image description here][1] " \
+                  "asdfasdfasdfasdfadsfasdfasdfa\n" \
+                  "[1]: https://i.imgur.com/nHcAF4t.jpg"
+        title = "This is a question that must be t is blue21?"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        html_content = '<p><a href="https://i.imgur.com/nHcAF4t.jpg" ' \
+                       'data-lightbox="%s">' \
+                       '<img alt="enter image description here" ' \
+                       'src="https://i.imgur.com/nHcAF4t.jpg" /></a> ' \
+                       'asdfasdfasdfasdfadsfasdfasdfa</p>' % \
+                       response.data['id']
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['html_content'], html_content)
+        Question.get(object_uuid=response.data['object_uuid']).delete()
+
+    def test_create_with_fake_image(self):
+        self.client.force_authenticate(user=self.user)
+        content = '<img alt="fake image" src="https://sagebrew.com"/>'\
+                  "asdfasdfasdfasdfadsfasdfasdfa\n" \
+                  "[1]: https://i.imgur.com/nHcAF4t.jpg"
+        title = "This is a question that must be t is blue21?"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        html_content = '<p>&lt;img alt="fake image" ' \
+                       'src="https://sagebrew.com"/&gt;' \
+                       'asdfasdfasdfasdfadsfasdfasdfa</p>'
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['html_content'], html_content)
+        Question.get(object_uuid=response.data['id']).delete()
+
+    def test_create_with_multiple_image(self):
+        self.client.force_authenticate(user=self.user)
+        content = "![enter image description here][1] \n" \
+                  "![enter image description here][2] \n" \
+                  "![enter image description here][3] \n" \
+                  "![enter image description here][4] \n" \
+                  "![enter image description here][2]" \
+                  "asdfasdfasdfasdfadsfasdfasdfa\n" \
+                  "[1]: https://i.imgur.com/nHcAF4t.jpg\n" \
+                  "[2]: https://i.imgur.com/Q2ZST9f.jpg\n" \
+                  "[3]: bit.ly/1LfIewy\n" \
+                  "[4]: http://vignette4.wikia.nocookie.net/" \
+                  "robber-penguin-agency/images/6/6e/Small-mario.png"
+        title = "This is a question that must be t i222?"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        html_content = '<p><a href="https://i.imgur.com/nHcAF4t.jpg" ' \
+                       'data-lightbox="%s">' \
+                       '<img alt="enter image description here" ' \
+                       'src="https://i.imgur.com/nHcAF4t.jpg" /></a> \n' \
+                       '<a href="https://i.imgur.com/Q2ZST9f.jpg" ' \
+                       'data-lightbox="%s">' \
+                       '<a href="https://i.imgur.com/Q2ZST9f.jpg" ' \
+                       'data-lightbox="%s">' \
+                       '<img alt="enter image description here" ' \
+                       'src="https://i.imgur.com/Q2ZST9f.jpg" />' \
+                       '</a></a> \n<a href="bit.ly/1LfIewy" ' \
+                       'data-lightbox="%s"><img ' \
+                       'alt="enter image description here" ' \
+                       'src="bit.ly/1LfIewy" /></a> \n' \
+                       '<a href="http://vignette4.wikia.nocookie.net/' \
+                       'robber-penguin-agency/images/6/6e/Small-mario.png" ' \
+                       'data-lightbox="%s"><img alt="enter image description' \
+                       ' here" src="http://vignette4.wikia.nocookie.net/' \
+                       'robber-penguin-agency/images/6/6e/Small-mario.png"' \
+                       ' /></a> \n<img alt="enter image description here" ' \
+                       'src="https://i.imgur.com/Q2ZST9f.jpg" />' \
+                       'asdfasdfasdfasdfadsfasdfasdfa</p>' \
+                       % (response.data['id'], response.data['id'],
+                          response.data['id'], response.data['id'],
+                          response.data['id'],)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['html_content'], html_content)
+        Question.get(object_uuid=response.data['id']).delete()
+
+    def test_create_with_script(self):
+        self.client.force_authenticate(user=self.user)
+        content = "<script>alert('hello')</script>"
+        title = str(uuid1())
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        html_content = "<p>&lt;script&gt;alert('hello')&lt;/script&gt;</p>"
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['html_content'], html_content)
+        Question.get(object_uuid=response.data['id']).delete()
+
+    def test_create_with_focus_area(self):
+        self.client.force_authenticate(user=self.user)
+        content = "This is the content to my question, it's a pretty good " \
+                  "question."
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": str(uuid1()),
+            "tags": ['taxes', 'environment'],
+            "latitude": 42.5247555,
+            "longitude": -83.53632679999998,
+            "affected_area": "Wixom, MI, USA",
+            "external_location_id": "ChIJ7xtMYSCmJIgRZBZBy5uZHl8"
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        res, _ = db.cypher_query('MATCH (a:Question '
+                                 '{object_uuid: "%s"}) RETURN a' %
+                                 response.data['object_uuid'])
+        question = Question.inflate(res.one)
+        self.assertEqual(question.affected_area, "Wixom, MI, USA")
+        self.assertEqual(question.content, content)
+        self.assertEqual(question.object_uuid, response.data['object_uuid'])
+
+    def test_create_null_focus_area(self):
+        self.client.force_authenticate(user=self.user)
+        content = "This is the content to my question, it's a pretty good " \
+                  "question."
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": str(uuid1()),
+            "tags": ['taxes', 'environment'],
+            "latitude": None,
+            "longitude": None,
+            "affected_area": None,
+            "external_location_id": None
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        res, _ = db.cypher_query('MATCH (a:Question {object_uuid: '
+                                 '"%s"}) RETURN a' %
+                                 response.data['object_uuid'])
+        question = Question.inflate(res.one)
+        self.assertEqual(question.content, content)
 
     def test_create_duplicate_title(self):
         self.client.force_authenticate(user=self.user)
@@ -450,6 +610,37 @@ class QuestionEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.question.object_uuid})
         response = self.client.get(url, format='json')
         self.assertEqual(self.question.title, response.data['title'])
+
+    def test_update_focus_area(self):
+        self.client.force_authenticate(user=self.user)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': self.question.object_uuid})
+        latitude = 42.537811
+        longitude = -83.48104810000001
+        affected_area = "Walled Lake, MI, USA"
+        external_id = "ChIJCV7PpJGlJIgRkkwposHal-Q"
+        data = {
+            "latitude": latitude,
+            "longitude": longitude,
+            "affected_area": affected_area,
+            "external_location_id": external_id
+        }
+        response = self.client.patch(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        res, _ = db.cypher_query('MATCH (a:Question '
+                                 '{external_location_id: '
+                                 '"ChIJCV7PpJGlJIgRkkwposHal-Q"}) RETURN a')
+        question = Question.inflate(res.one)
+        updated_question = Question.get(self.question.object_uuid)
+        self.assertEqual(question.affected_area, "Walled Lake, MI, USA")
+        self.assertEqual(question.latitude, 42.537811)
+        self.assertEqual(question.object_uuid, response.data['object_uuid'])
+        self.assertEqual(updated_question.latitude, latitude)
+        self.assertEqual(updated_question.longitude, longitude)
+        self.assertEqual(updated_question.affected_area, affected_area)
+        self.assertEqual(updated_question.external_location_id, external_id)
 
     def test_update_title(self):
         self.client.force_authenticate(user=self.user)

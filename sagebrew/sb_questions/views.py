@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.utils.text import slugify
 from django.contrib.auth.decorators import login_required, user_passes_test
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
@@ -14,7 +14,9 @@ from rest_framework import status
 
 from api.utils import smart_truncate
 from sb_registration.utils import verify_completed_registration
+from sb_quests.neo_models import PoliticalCampaign
 from sb_questions.neo_models import Question
+from plebs.neo_models import Pleb
 
 from .serializers import QuestionSerializerNeo
 from .utils import prepare_question_search_html, question_html_snapshot
@@ -94,17 +96,25 @@ def question_detail_page(request, question_uuid, slug=None):
     """
     question = Question.get(question_uuid)
     description = smart_truncate(question.content, length=150)
-    keywords = question.get_tags_string()
+    tags = question.get_tags_humanized()
     if '_escaped_fragment_' in request.GET:
         return render(request, 'conversation.html', question_html_snapshot(
-            request, question, question_uuid, keywords, description))
+            request, question, question_uuid, tags, description))
+    try:
+        campaign = PoliticalCampaign.get(object_uuid=question.owner_username)
+    except (PoliticalCampaign.DoesNotExist, DoesNotExist):
+        campaign = None
     return render(request, 'conversation.html', {
         'uuid': question.object_uuid,
         'sort_by': 'uuid',
         'description': description,
-        'keywords': keywords,
         'authors': question.get_conversation_authors(),
-        'title': question.title
+        'title': question.title,
+        'question': question,
+        'tags': tags,
+        'owner': Pleb.get(username=question.owner_username),
+        'campaign': campaign,
+        'views': question.get_view_count()
     })
 
 
@@ -159,5 +169,7 @@ def question_edit_page(request, question_uuid=None):
     :param request:
     :return:
     """
-    data = {"object_uuid": question_uuid, "edit": True}
+    data = {"object_uuid": question_uuid,
+            "question": Question.get(question_uuid), "edit": True
+            }
     return render(request, 'save_question.html', data)

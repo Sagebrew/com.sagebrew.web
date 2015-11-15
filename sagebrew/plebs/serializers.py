@@ -185,6 +185,7 @@ class PlebSerializerNeo(SBSerializer):
     actions = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
     campaign = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         pass
@@ -253,6 +254,12 @@ class PlebSerializerNeo(SBSerializer):
             return CampaignSerializer(
                 Campaign.get(campaign), context={'request': request}).data
         return campaign
+
+    def get_is_following(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is not None:
+            return obj.is_following(request.user.username)
+        return False
 
 
 class AddressSerializer(SBSerializer):
@@ -359,3 +366,15 @@ class PlebExportSerializer(serializers.Serializer):
 
     def get_address(self, obj):
         return AddressExportSerializer(obj.get_address()).data
+
+
+class PoliticalPartySerializer(SBSerializer):
+    names = serializers.ListField(
+        child=serializers.CharField(max_length=126),
+    )
+
+
+class InterestsSerializer(SBSerializer):
+    interests = serializers.ListField(
+        child=serializers.CharField(max_length=126),
+    )

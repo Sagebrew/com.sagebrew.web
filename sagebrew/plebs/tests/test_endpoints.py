@@ -18,7 +18,8 @@ from rest_framework.test import APITestCase
 from api.utils import wait_util
 from sagebrew import errors
 from sb_public_official.neo_models import PublicOfficial
-from plebs.neo_models import Pleb, FriendRequest, Address, BetaUser
+from plebs.neo_models import (Pleb, FriendRequest, Address, BetaUser,
+                              PoliticalParty, ActivityInterest)
 from sb_privileges.neo_models import Privilege, SBAction
 from sb_quests.neo_models import Position, PoliticalCampaign
 from sb_updates.neo_models import Update
@@ -279,6 +280,182 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertFalse(res.data['results'])
         donation.delete()
+
+    def test_add_party(self):
+        name = 'democratic_party'
+        party = PoliticalParty(name=name).save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": [name]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn(name, response.data['names'])
+        self.assertIn(name, self.pleb.get_political_parties())
+        for political_party in self.pleb.party_affiliations.all():
+            self.pleb.party_affiliations.disconnect(political_party)
+        party.delete()
+
+    def test_add_no_parties(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": []}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(self.pleb.get_political_parties()), 0)
+
+    def test_add_multiple_parties(self):
+        name = 'democratic_party'
+        name2 = 'republican_party'
+        party = PoliticalParty(name=name).save()
+        party2 = PoliticalParty(name=name2).save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": [name, name2]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn(name, response.data["names"])
+        self.assertIn(name2, response.data["names"])
+        self.assertIn(name, self.pleb.get_political_parties())
+        self.assertIn(name2, self.pleb.get_political_parties())
+        for political_party in self.pleb.party_affiliations.all():
+            self.pleb.party_affiliations.disconnect(political_party)
+        party.delete()
+        party2.delete()
+
+    def test_non_existent_parties(self):
+        for political_party in self.pleb.party_affiliations.all():
+            self.pleb.party_affiliations.disconnect(political_party)
+        name = 'other_party'
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": [name]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["names"], [])
+        self.assertEqual(len(self.pleb.get_political_parties()), 0)
+
+    def test_non_string_party(self):
+        name = 5
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": [name]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['names'], [])
+
+    def test_non_array_party(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": "hello"}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['names'],
+                         [u'Expected a list of items but got type "unicode".'])
+
+    def test_exists_and_does_not_exist_parties(self):
+        name = 'democratic_party'
+        name2 = 'republican_party'
+        party = PoliticalParty(name=name).save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-parties')
+        data = {"names": [name, name2]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn(name, response.data["names"])
+        self.assertNotIn(name2, response.data["names"])
+        self.assertIn(name, self.pleb.get_political_parties())
+        self.assertNotIn(name2, self.pleb.get_political_parties())
+        for political_party in self.pleb.party_affiliations.all():
+            self.pleb.party_affiliations.disconnect(political_party)
+        party.delete()
+
+    def test_add_interest(self):
+        name = 'volunteering'
+        activity = ActivityInterest(name=name).save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": [name]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn(name, response.data['interests'])
+        self.assertIn(name, self.pleb.get_activity_interests())
+        for interest in self.pleb.activity_interests.all():
+            self.pleb.activity_interests.disconnect(interest)
+        activity.delete()
+
+    def test_add_no_interests(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": []}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(self.pleb.get_activity_interests()), 0)
+
+    def test_add_multiple_interests(self):
+        name = 'volunteering'
+        name2 = 'attending_events'
+        activity = ActivityInterest(name=name).save()
+        activity2 = ActivityInterest(name=name2).save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": [name, name2]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn(name, response.data["interests"])
+        self.assertIn(name2, response.data["interests"])
+        self.assertIn(name, self.pleb.get_activity_interests())
+        self.assertIn(name2, self.pleb.get_activity_interests())
+        for interest in self.pleb.activity_interests.all():
+            self.pleb.activity_interests.disconnect(interest)
+        activity.delete()
+        activity2.delete()
+
+    def test_non_existent_interests(self):
+        for activity in self.pleb.activity_interests.all():
+            self.pleb.activity_interests.disconnect(activity)
+        name = 'other_interest'
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": [name]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["interests"], [])
+        self.assertEqual(len(self.pleb.get_activity_interests()), 0)
+
+    def test_non_string_interest(self):
+        name = 5
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": [name]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['interests'], [])
+
+    def test_non_array_interest(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": "hello"}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['interests'],
+                         [u'Expected a list of items but got type "unicode".'])
+
+    def test_exists_and_does_not_exist_interests(self):
+        name = 'volunteering'
+        name2 = 'attending_events'
+        activity = ActivityInterest(name=name).save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-interests')
+        data = {"interests": [name, name2]}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertIn(name, response.data["interests"])
+        self.assertNotIn(name2, response.data["interests"])
+        self.assertIn(name, self.pleb.get_activity_interests())
+        self.assertNotIn(name2, self.pleb.get_activity_interests())
+        for interest in self.pleb.activity_interests.all():
+            self.pleb.activity_interests.disconnect(interest)
+        activity.delete()
 
 
 class SentFriendRequestEndpointTests(APITestCase):
@@ -1360,6 +1537,274 @@ class FriendRequestListTest(APITestCase):
         self.assertGreater(len(response.data['results']['html']), 0)
 
 
+class PlebPresidentTest(APITestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.address = Address(street="3295 Rio Vista St",
+                               city="Commerce Township", state="Michigan",
+                               postal_code="48382", country="US",
+                               congressional_district="11")
+        self.address.save()
+        self.address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(self.address)
+
+    def test_unauthorized(self):
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_missing_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_int_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.post(url, 98897965, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_string_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.post(url, 'asfonosdnf', format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_list_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.post(url, [], format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_float_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.post(url, 1.010101010, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_create_on_detail_status(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_create_on_detail_message(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data['detail'], 'Method "POST" not allowed.')
+
+    def test_delete_status(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_message(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.delete(url, data=data, format='json')
+        self.assertEqual(response.data['detail'],
+                         'Method "DELETE" not allowed.')
+
+    def test_empty_list(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        for senator in self.pleb.senators.all():
+            self.pleb.senators.disconnect(senator)
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual("<small>Sorry we could not find"
+                         " your President. Please alert us to our "
+                         "error!</small>", response.data)
+
+    def test_list_president(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        president = PublicOfficial(first_name="Debbie", last_name="Stab",
+                                   state="Michigan",
+                                   bioguideid=shortuuid.uuid(),
+                                   full_name="Debbie Stab [Dem]")
+        president.save()
+        for president in self.pleb.president.all():
+            self.pleb.president.disconnect(president)
+        self.pleb.president.connect(president)
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertGreater(len(response.data), 0)
+
+    def test_list_president_cache(self):
+        president = PublicOfficial(first_name="Debbie", last_name="Stab",
+                                   state="Michigan",
+                                   bioguideid=shortuuid.uuid(),
+                                   full_name="Debbie Stab [Dem]")
+        president.save()
+        for president in self.pleb.president.all():
+            self.pleb.president.disconnect(president)
+        self.pleb.president.connect(president)
+        self.client.force_authenticate(user=self.user)
+        query = "MATCH (a:Pleb {username: '%s'})-[:HAS_PRESIDENT]->" \
+                "(s:PublicOfficial) RETURN s" % self.user.username
+        res, col = db.cypher_query(query)
+        senators = [PublicOfficial.inflate(row[0]) for row in res]
+        cache.set("%s_senators" % self.user.username, senators)
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertGreater(len(response.data), 0)
+
+    def test_list_president_html(self):
+        cache.clear()
+        president = PublicOfficial(first_name="Debbie", last_name="Stab",
+                                   state="Michigan",
+                                   bioguideid=shortuuid.uuid(),
+                                   full_name="Debbie Stab [Dem]")
+        president.save()
+        for president in self.pleb.president.all():
+            self.pleb.president.disconnect(president)
+        self.pleb.president.connect(president)
+        url = "%s?html=true" % reverse('profile-president',
+                                       kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertGreater(len(response.data), 0)
+
+    def test_list_potential_presidents(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username,
+            active=True).save()
+        position = Position(name="President").save()
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-possible-presidents',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        self.assertEqual(response.data[0]['owner_username'],
+                         self.pleb.username)
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_presidents_cached(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username,
+            active=True).save()
+        position = Position(name="President").save()
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-possible-presidents',
+                      kwargs={'username': self.pleb.username})
+        self.client.get(url, format='json')
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_presidents_not_active(self):
+        cache.clear()
+        for campaign in PoliticalCampaign.nodes.all():
+            campaign.delete()
+        for position in Position.nodes.all():
+            position.delete()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username).save()
+        position = Position(name="President").save()
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-possible-presidents',
+                      kwargs={'username': self.pleb.username})
+        self.client.get(url, format='json')
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_presidents_html_no_presidents(self):
+        cache.clear()
+        for campaign in PoliticalCampaign.nodes.all():
+            campaign.delete()
+        for position in Position.nodes.all():
+            position.delete()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username
+        ).save()
+        position = Position(name="President").save()
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('profile-possible-presidents',
+                                       kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue("Currently No Registered" in response.data)
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_presidents_html(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username,
+            active=True).save()
+        position = Position(name="President").save()
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('profile-possible-presidents',
+                                       kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        position.delete()
+        campaign.delete()
+
+
 class PlebSenatorsTest(APITestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
@@ -1367,7 +1812,7 @@ class PlebSenatorsTest(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.address = Address(street="3295 Rio Vista St",
-                               city="Commerce Township", state="MI",
+                               city="Commerce Township", state="Michigan",
                                postal_code="48382", country="US",
                                congressional_district="11")
         self.address.save()
@@ -1477,11 +1922,11 @@ class PlebSenatorsTest(APITestCase):
         cache.clear()
         self.client.force_authenticate(user=self.user)
         senator1 = PublicOfficial(first_name="Debbie", last_name="Stab",
-                                  state="MI", bioguideid=shortuuid.uuid(),
+                                  state="Michigan", bioguideid=shortuuid.uuid(),
                                   full_name="Debbie Stab [Dem]")
         senator1.save()
         senator2 = PublicOfficial(first_name="Tester", last_name="Test",
-                                  state="MI", bioguideid=shortuuid.uuid())
+                                  state="Michigan", bioguideid=shortuuid.uuid())
         senator2.save()
         for senator in self.pleb.senators.all():
             self.pleb.senators.disconnect(senator)
@@ -1519,7 +1964,7 @@ class PlebSenatorsTest(APITestCase):
         cache.clear()
         self.client.force_authenticate(user=self.user)
         senator1 = PublicOfficial(first_name="Debbie", last_name="Stab",
-                                  state="MI", bioguideid=shortuuid.uuid(),
+                                  state="Michigan", bioguideid=shortuuid.uuid(),
                                   full_name="Debbie Stab [Dem]")
         senator1.save()
         senator2 = PublicOfficial(first_name="Tester", last_name="Test",
@@ -1534,6 +1979,154 @@ class PlebSenatorsTest(APITestCase):
         response = self.client.get(url, format='json')
         self.assertGreater(len(response.data), 0)
 
+    def test_list_potential_senators(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username,
+            active=True).save()
+        location = Location(name="Test Location").save()
+        location2 = Location(name="Michigan").save()
+        position = Position(name="Test Position").save()
+
+        position.location.connect(location2)
+        location2.positions.connect(position)
+        location2.encompasses.connect(location)
+        location.encompassed_by.connect(location2)
+        self.address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(self.address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-possible-senators',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        self.assertEqual(response.data[0]['owner_username'],
+                         self.pleb.username)
+        location.delete()
+        location2.delete()
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_senators_cached(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username,
+            active=True).save()
+        location = Location(name="Test Location").save()
+        location2 = Location(name="Michigan").save()
+        position = Position(name="Test Position").save()
+
+        position.location.connect(location2)
+        location2.positions.connect(position)
+        location2.encompasses.connect(location)
+        location.encompassed_by.connect(location2)
+        self.address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(self.address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-possible-senators',
+                      kwargs={'username': self.pleb.username})
+        self.client.get(url, format='json')
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        location.delete()
+        location2.delete()
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_senators_not_active(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username).save()
+        location = Location(name="Test Location").save()
+        location2 = Location(name="Michigan").save()
+        position = Position(name="Test Position").save()
+
+        position.location.connect(location2)
+        location2.positions.connect(position)
+        location2.encompasses.connect(location)
+        location.encompassed_by.connect(location2)
+        self.address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(self.address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-possible-senators',
+                      kwargs={'username': self.pleb.username})
+        self.client.get(url, format='json')
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+        location.delete()
+        location2.delete()
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_senators_html_no_senators(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username).save()
+        location = Location(name="Test Location").save()
+        location2 = Location(name="Michigan").save()
+        position = Position(name="Test Position").save()
+
+        position.location.connect(location2)
+        location2.positions.connect(position)
+        location2.encompasses.connect(location)
+        location.encompassed_by.connect(location2)
+        self.address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(self.address)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('profile-possible-senators',
+                                       kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue("Currently No Registered" in response.data)
+        location.delete()
+        location2.delete()
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_senators_html(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username,
+            active=True).save()
+        location = Location(name="Test Location").save()
+        location2 = Location(name="Michigan").save()
+        position = Position(name="Test Position").save()
+
+        position.location.connect(location2)
+        location2.positions.connect(position)
+        location2.encompasses.connect(location)
+        location.encompassed_by.connect(location2)
+        self.address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(self.address)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('profile-possible-senators',
+                                       kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        location.delete()
+        location2.delete()
+        position.delete()
+        campaign.delete()
+
 
 class PlebHouseRepresentativeTest(APITestCase):
     def setUp(self):
@@ -1542,7 +2135,7 @@ class PlebHouseRepresentativeTest(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.address = Address(street="3295 Rio Vista St",
-                               city="Commerce Township", state="MI",
+                               city="Commerce Township", state="Michigan",
                                postal_code="48382", country="US",
                                congressional_district="11")
         self.address.save()
@@ -1666,6 +2259,7 @@ class PlebHouseRepresentativeTest(APITestCase):
         self.assertGreater(len(response.data), 0)
 
     def test_list_house_representative_cache(self):
+        cache.clear()
         house_representative = PublicOfficial(
             first_name="Debbie", last_name="Stab",
             state="MI", bioguideid=shortuuid.uuid(),
@@ -1676,14 +2270,9 @@ class PlebHouseRepresentativeTest(APITestCase):
             self.pleb.senators.disconnect(house_representative)
         self.pleb.house_rep.connect(house_representative)
         self.client.force_authenticate(user=self.user)
-        query = "MATCH (a:Pleb {username: '%s'})-" \
-                "[:HAS_HOUSE_REPRESENTATIVE]->" \
-                "(s:PublicOfficial) RETURN s" % self.user.username
-        res, col = db.cypher_query(query)
-        senators = [PublicOfficial.inflate(row[0]) for row in res]
-        cache.set("%s_senators" % self.user.username, senators)
         url = reverse('profile-house-representative',
                       kwargs={'username': self.pleb.username})
+        self.client.get(url, format='json')
         response = self.client.get(url, format='json')
         self.assertGreater(len(response.data), 0)
 
@@ -1702,6 +2291,299 @@ class PlebHouseRepresentativeTest(APITestCase):
                                        kwargs={'username': self.pleb.username})
         response = self.client.get(url, format='json')
         self.assertGreater(len(response.data), 0)
+
+    def test_list_potential_house_representative(self):
+        cache.clear()
+        for address in self.pleb.address.all():
+            address.delete()
+        address = Address(street="3295 Rio Vista St",
+                          city="Commerce Township", state="Michigan",
+                          postal_code="48382", country="US",
+                          congressional_district="11")
+        address.save()
+        address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(address)
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username,
+            active=True).save()
+        location = Location(name="11").save()
+        position = Position(name="Test Position").save()
+
+        position.location.connect(location)
+        location.positions.connect(position)
+        address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-possible-house-representatives',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        self.assertEqual(response.data[0]['owner_username'],
+                         self.pleb.username)
+        location.delete()
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_house_representative_cached(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username,
+            active=True).save()
+        location = Location(name="11").save()
+        position = Position(name="Test Position").save()
+
+        position.location.connect(location)
+        location.positions.connect(position)
+        self.address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(self.address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-possible-house-representatives',
+                      kwargs={'username': self.pleb.username})
+        self.client.get(url, format='json')
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        location.delete()
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_house_representative_not_active(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username).save()
+        location = Location(name="11").save()
+        position = Position(name="Test Position").save()
+
+        position.location.connect(location)
+        location.positions.connect(position)
+        self.address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(self.address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-possible-house-representatives',
+                      kwargs={'username': self.pleb.username})
+        self.client.get(url, format='json')
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+        location.delete()
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_house_representative_html_none(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username).save()
+        location = Location(name="11").save()
+        position = Position(name="Test Position").save()
+
+        position.location.connect(location)
+        location.positions.connect(position)
+        self.address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(self.address)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('profile-possible-house-representatives',
+                                       kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        self.assertTrue("Currently No Registered" in response.data)
+        location.delete()
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_house_representative_html(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username,
+            active=True).save()
+        location = Location(name="11").save()
+        position = Position(name="Test Position").save()
+
+        position.location.connect(location)
+        location.positions.connect(position)
+        self.address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(self.address)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('profile-possible-house-representatives',
+                                       kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        self.assertFalse("Currently No Registered" in response.data)
+        location.delete()
+        position.delete()
+        campaign.delete()
+
+
+class PlebLocalRepresentativeTest(APITestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.address = Address(street="3295 Rio Vista St",
+                               city="Commerce Township", state="Michigan",
+                               postal_code="48382", country="US",
+                               congressional_district="11")
+        self.address.save()
+        self.address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(self.address)
+
+    def test_list_potential_local_representative(self):
+        cache.clear()
+        for address in self.pleb.address.all():
+            address.delete()
+        address = Address(street="3295 Rio Vista St",
+                          city="Commerce Township", state="Michigan",
+                          postal_code="48382", country="US",
+                          congressional_district="11")
+        address.save()
+        address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(address)
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username,
+            active=True).save()
+        location = Location(name="Commerce Township").save()
+        position = Position(name="Test Position", level='local').save()
+
+        position.location.connect(location)
+        location.positions.connect(position)
+        address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-possible-local-representatives',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        self.assertEqual(response.data[0]['owner_username'],
+                         self.pleb.username)
+        location.delete()
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_local_representative_cached(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username,
+            active=True).save()
+        location = Location(name="Commerce Township").save()
+        position = Position(name="Test Position", level='local').save()
+
+        position.location.connect(location)
+        location.positions.connect(position)
+        self.address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(self.address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-possible-local-representatives',
+                      kwargs={'username': self.pleb.username})
+        self.client.get(url, format='json')
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        location.delete()
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_local_representative_not_active(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username).save()
+        location = Location(name="Commerce Township").save()
+        position = Position(name="Test Position", level='local').save()
+
+        position.location.connect(location)
+        location.positions.connect(position)
+        self.address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(self.address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-possible-local-representatives',
+                      kwargs={'username': self.pleb.username})
+        self.client.get(url, format='json')
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+        location.delete()
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_local_representative_html_none(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username).save()
+        location = Location(name="Commerce Township").save()
+        position = Position(name="Test Position", level='local').save()
+
+        position.location.connect(location)
+        location.positions.connect(position)
+        self.address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(self.address)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('profile-possible-local-representatives',
+                                       kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        self.assertTrue("Currently No Registered" in response.data)
+        location.delete()
+        position.delete()
+        campaign.delete()
+
+    def test_list_potential_local_representative_html(self):
+        cache.clear()
+        campaign = PoliticalCampaign(
+            biography='Test Bio', owner_username=self.pleb.username,
+            active=True).save()
+        location = Location(name="Commerce Township").save()
+        position = Position(name="Test Position", level='local').save()
+
+        position.location.connect(location)
+        location.positions.connect(position)
+        self.address.encompassed_by.connect(location)
+        campaign.position.connect(position)
+        position.campaigns.connect(campaign)
+        location.addresses.connect(self.address)
+        self.client.force_authenticate(user=self.user)
+        url = "%s?html=true" % reverse('profile-possible-local-representatives',
+                                       kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreater(len(response.data), 0)
+        self.assertFalse("Currently No Registered" in response.data)
+        location.delete()
+        position.delete()
+        campaign.delete()
 
 
 class AddressEndpointTests(APITestCase):
@@ -2871,6 +3753,111 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['results'][0]['type'], 'solution')
         self.assertEqual(response.data['results'][1]['type'], 'question')
         self.assertEqual(response.data['results'][2]['type'], 'post')
+
+
+class TestFollowNewsfeed(APITestCase):
+    def setUp(self):
+        cache.clear()
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.url = "http://testserver"
+        self.email2 = "bounce@simulator.amazonses.com"
+        res = create_user_util_test(self.email2)
+        self.assertNotEqual(res, False)
+        wait_util(res)
+        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.user2 = User.objects.get(email=self.email2)
+        rel = self.pleb.following.connect(self.pleb2)
+        rel.save()
+        self.question = Question(
+            title=str(uuid1()),
+            content="This is some arbitrary test content"
+        ).save()
+        self.question.owned_by.connect(self.pleb2)
+        self.pleb2.questions.connect(self.question)
+
+    def test_get_question_from_following(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 1)
+        self.assertEqual(response.data['results'][0]['id'],
+                         self.question.object_uuid)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.question.delete()
+
+    def test_get_solution_from_following(self):
+        self.client.force_authenticate(user=self.user)
+        solution = Solution(content="Some arbitrary solution content").save()
+        self.question.solutions.connect(solution)
+        solution.solution_to.connect(self.question)
+        self.pleb.solutions.connect(solution)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['count'], 2)
+        self.assertEqual(response.data['results'][0]['id'],
+                         solution.object_uuid)
+        self.question.delete()
+        solution.delete()
+
+
+class TestFollowEndpoints(APITestCase):
+    def setUp(self):
+        cache.clear()
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.url = "http://testserver"
+        self.pleb2 = Pleb(username=shortuuid.uuid()).save()
+
+    def test_follow(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-follow',
+                      kwargs={'username': self.pleb2.username})
+        response = self.client.post(url)
+        self.assertEqual(response.data['detail'], "Successfully followed user.")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_follow_already_following(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-follow',
+                      kwargs={'username': self.pleb2.username})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response2 = self.client.post(url)
+        self.assertEqual(response2.status_code, status.HTTP_200_OK)
+        self.assertEqual(response2.data['detail'], "Already following user.")
+
+    def test_unfollow(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-unfollow',
+                      kwargs={'username': self.pleb2.username})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], "Already not following user.")
+
+    def test_unfollow_following(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-follow',
+                      kwargs={'username': self.pleb2.username})
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        url = reverse('profile-unfollow',
+                      kwargs={'username': self.pleb2.username})
+        response = self.client.post(url)
+        self.assertEqual(response.data['detail'],
+                         "Successfully unfollowed user.")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class TestAcceptFriendRequest(APITestCase):

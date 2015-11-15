@@ -280,7 +280,8 @@ OAUTH_CLIENT_SECRET_CRED = environ.get("OAUTH_CLIENT_SECRET_CRED", "")
 OAUTH_CLIENT_ID_CRED_PUBLIC = environ.get("OAUTH_CLIENT_ID_CRED_PUBLIC", '')
 OAUTH_CLIENT_SECRET_CRED_PUBLIC = environ.get(
     "OAUTH_CLIENT_SECRET_CRED_PUBLIC", '')
-
+GOOGLE_MAPS_API_SERVER = environ.get("GOOGLE_MAPS_API",
+                                     "AIzaSyA0oDFTNqlan-vNsGvJv9HckKoMqlV5Nqo")
 DYNAMO_IP = environ.get("DYNAMO_IP", None)
 
 EMAIL_BACKEND = 'django_ses.SESBackend'

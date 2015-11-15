@@ -15,6 +15,8 @@ from neomodel import db
 from api.utils import spawn_task, gather_request_data
 from sb_base.serializers import TitledContentSerializer
 from plebs.neo_models import Pleb
+from sb_locations.tasks import create_location_tree
+
 from sb_tags.neo_models import Tag
 from sb_tags.tasks import update_tags
 from sb_solutions.serializers import SolutionSerializerNeo
@@ -109,6 +111,14 @@ class QuestionSerializerNeo(TitledContentSerializer):
                                   min_length=15, max_length=140)
     solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
+    longitude = serializers.FloatField(required=False, allow_null=True)
+    latitude = serializers.FloatField(required=False, allow_null=True)
+    affected_area = serializers.CharField(required=False, allow_null=True)
+    # Used to associate Question with our tree structure after tasks have
+    # been completed and Question has been created
+    external_location_id = serializers.CharField(write_only=True,
+                                                 required=False,
+                                                 allow_null=True)
 
     def validate_title(self, value):
         # We need to escape quotes prior to passing the title to the query.
@@ -142,6 +152,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
                       request=request)
         href = reverse('question-detail', kwargs={'object_uuid': uuid},
                        request=request)
+
         question = Question(url=url, href=href, object_uuid=uuid,
                             **validated_data).save()
         question.owned_by.connect(owner)
@@ -166,6 +177,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
                 tag_obj = Tag.inflate(res.one)
                 question.tags.connect(tag_obj)
         spawn_task(task_func=update_tags, task_param={"tags": tags})
+        if validated_data.get('external_location_id', None) is not None:
+            spawn_task(task_func=create_location_tree, task_param={
+                "external_id": question.external_location_id})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": question.object_uuid})
         question.refresh()
@@ -188,8 +202,17 @@ class QuestionSerializerNeo(TitledContentSerializer):
         instance.content = bleach.clean(validated_data.get('content',
                                                            instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
+        instance.latitude = validated_data.get('latitude', instance.latitude)
+        instance.longitude = validated_data.get('longitude', instance.longitude)
+        instance.affected_area = validated_data.get('affected_area',
+                                                    instance.affected_area)
+        instance.external_location_id = validated_data.get(
+            'external_location_id', instance.external_location_id)
         instance.save()
         cache.delete(instance.object_uuid)
+        if validated_data.get('external_location_id', None) is not None:
+            spawn_task(task_func=create_location_tree, task_param={
+                "external_id": instance.external_location_id})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
         spawn_task(task_func=update_search_index, task_param={

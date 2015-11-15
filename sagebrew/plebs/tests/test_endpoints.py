@@ -1984,8 +1984,8 @@ class PlebSenatorsTest(APITestCase):
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username,
             active=True).save()
-        location = Location(name="Test Location").save()
-        location2 = Location(name="Michigan").save()
+        location = Location(name="Test Location", sector="federal").save()
+        location2 = Location(name="Michigan", sector="federal").save()
         position = Position(name="Test Position").save()
 
         position.location.connect(location2)
@@ -2015,8 +2015,8 @@ class PlebSenatorsTest(APITestCase):
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username,
             active=True).save()
-        location = Location(name="Test Location").save()
-        location2 = Location(name="Michigan").save()
+        location = Location(name="Test Location", sector="federal").save()
+        location2 = Location(name="Michigan", sector="federal").save()
         position = Position(name="Test Position").save()
 
         position.location.connect(location2)
@@ -2045,8 +2045,8 @@ class PlebSenatorsTest(APITestCase):
         cache.clear()
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username).save()
-        location = Location(name="Test Location").save()
-        location2 = Location(name="Michigan").save()
+        location = Location(name="Test Location", sector="federal").save()
+        location2 = Location(name="Michigan", sector="federal").save()
         position = Position(name="Test Position").save()
 
         position.location.connect(location2)
@@ -2074,8 +2074,8 @@ class PlebSenatorsTest(APITestCase):
         cache.clear()
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username).save()
-        location = Location(name="Test Location").save()
-        location2 = Location(name="Michigan").save()
+        location = Location(name="Test Location", sector="federal").save()
+        location2 = Location(name="Michigan", sector="federal").save()
         position = Position(name="Test Position").save()
 
         position.location.connect(location2)
@@ -2103,8 +2103,8 @@ class PlebSenatorsTest(APITestCase):
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username,
             active=True).save()
-        location = Location(name="Test Location").save()
-        location2 = Location(name="Michigan").save()
+        location = Location(name="Test Location", sector="federal").save()
+        location2 = Location(name="Michigan", sector="federal").save()
         position = Position(name="Test Position").save()
 
         position.location.connect(location2)
@@ -2250,8 +2250,8 @@ class PlebHouseRepresentativeTest(APITestCase):
             full_name="Debbie Stab [Dem]",
             district=11)
         house_representative.save()
-        for senator in self.pleb.house_rep.all():
-            self.pleb.house_rep.disconnect(senator)
+        for rep in self.pleb.house_rep.all():
+            self.pleb.house_rep.disconnect(rep)
         self.pleb.house_rep.connect(house_representative)
         url = reverse('profile-house-representative',
                       kwargs={'username': self.pleb.username})
@@ -2267,7 +2267,7 @@ class PlebHouseRepresentativeTest(APITestCase):
             district=11)
         house_representative.save()
         for house_representative in self.pleb.house_rep.all():
-            self.pleb.senators.disconnect(house_representative)
+            self.pleb.house_rep.disconnect(house_representative)
         self.pleb.house_rep.connect(house_representative)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-house-representative',
@@ -2306,7 +2306,7 @@ class PlebHouseRepresentativeTest(APITestCase):
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username,
             active=True).save()
-        location = Location(name="11").save()
+        location = Location(name="11", sector="federal").save()
         position = Position(name="Test Position").save()
 
         position.location.connect(location)
@@ -2334,7 +2334,7 @@ class PlebHouseRepresentativeTest(APITestCase):
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username,
             active=True).save()
-        location = Location(name="11").save()
+        location = Location(name="11", sector="federal").save()
         position = Position(name="Test Position").save()
 
         position.location.connect(location)
@@ -2360,7 +2360,7 @@ class PlebHouseRepresentativeTest(APITestCase):
         cache.clear()
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username).save()
-        location = Location(name="11").save()
+        location = Location(name="11", sector="federal").save()
         position = Position(name="Test Position").save()
 
         position.location.connect(location)
@@ -2411,7 +2411,7 @@ class PlebHouseRepresentativeTest(APITestCase):
         campaign = PoliticalCampaign(
             biography='Test Bio', owner_username=self.pleb.username,
             active=True).save()
-        location = Location(name="11").save()
+        location = Location(name="11", sector="federal").save()
         position = Position(name="Test Position").save()
 
         position.location.connect(location)

@@ -40,7 +40,7 @@
             </div>
             <div class="sb-content-edited">
                 {% if created != last_edited_on %}
-                    <small>4 days, 18 hours ago · Edited</small>
+                    <small>{{ last_edited_on|naturaltime }} · Edited</small>
                 {% else %}
                     <small>{{ created|naturaltime }}</small>
                 {% endif %}

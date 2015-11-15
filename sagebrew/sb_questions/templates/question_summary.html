@@ -25,14 +25,14 @@
         <div class="hidden-xs col-sm-2 col-sm-offset-1">
             <small>Solutions: {{ solution_count|default_if_none:"0" }}</small>
         </div>
-        <div class="hidden-xs col-sm-1 col-sm-offset-5 col-md-offset-6"
-             style="padding-right:0; margin-right: -10px">
+        <div class="hidden-xs col-sm-1 col-sm-offset-5"
+             style="padding-right:0; margin-right: -10px;">
             <div class="sb_thumbnail_xs thumbnail">
                 {% static 'images/sage_coffee_grey-01.png' as default_profile %}
                 <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>
             </div>
         </div>
-        <div class="hidden-xs col-sm-2 sb-content-edited author-info">
+        <div class="hidden-xs col-sm-3 sb-content-edited author-info">
             <div>
                 <small>
                     <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>

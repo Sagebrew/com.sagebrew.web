@@ -1,0 +1,103 @@
+{% load staticfiles %}
+
+<div class="navbar-left hidden-md hidden-sm hidden-xs navbar-form">
+    <div class="form-group">
+        <div class="input-group">
+            <input type="text" class="form-control" id="sb_search_input"  placeholder="Search">
+            <span class="input-group-btn">
+                <button type="submit" class="btn full_search-action">
+                    <span class="fa fa-search"></span>
+                </button>
+            </span>
+        </div>
+    </div>
+</div>
+
+<ul class="nav navbar-nav navbar-left">
+    <li>
+        <a href="{% url 'profile_page' request.user.username %}">
+            {{ request.user.first_name }}
+        </a>
+    </li>
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-certificate"></i>
+            {% if not request_profile.reputation_update_seen and request_profile.reputation_change != 0 %}
+                <span class="navbar-new sb_notifier" id="js-sb_friend_request_notifier">{{ request_profile.reputation_change }}</span>
+            {% endif %}
+        </a>
+        <ul class="dropdown-menu">
+            <li class="dropdown-menu-header">Reputation</li>
+            <li class="dropdown-menu-content">
+                <span>Current Reputation:</span> <span id="reputation_total"></span>
+            </li>
+        </ul>
+    </li>
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-user"></i>
+            <span id="js-friend_request_notifier_wrapper"></span>
+        </a>
+        <ul class="dropdown-menu">
+            <li class="dropdown-menu-header">Friend Requests</li>
+            <li class="dropdown-menu-content" id="friend_request_wrapper">
+                {% comment %}
+                    Data loaded via ajax.
+                {% endcomment %}
+            </li>
+        </ul>
+    </li>
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-eye"></i>
+            <span id="js-notification_notifier_wrapper"></span>
+        </a>
+        <ul class="dropdown-menu">
+            <li class="dropdown-menu-header">Notifications</li>
+            <li class="dropdown-menu-content" id="notification_wrapper">
+                {% comment %}
+                    Data loaded via ajax.
+                {% endcomment %}
+            </li>
+        </ul>
+    </li>
+    {% if request_profile.campaign %}
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                <i class="fa fa-rocket"></i>
+            </a>
+            <ul class="dropdown-menu">
+                <li class="dropdown-menu-header">Quest</li>
+                <li>
+                    <a href="{% url "quest_saga" request_profile.username %}">
+                        View
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url "quest_saga" request_profile.username %}">
+                        Manage
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url "quest_saga" request_profile.username %}">
+                        Insights
+                    </a>
+                </li>
+            </ul>
+        </li>
+    {% endif %}
+    <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            <i class="fa fa-cog"></i>
+        </a>
+        <ul class="dropdown-menu">
+            <li class="dropdown-menu-header">Account</li>
+            <li><a href="{% url 'general_settings' %}">Settings</a></li>
+            <li><a href="http://shop.sagebrew.com">Shop</a></li>
+            <li><a href="http://blog.sagebrew.com">Blog</a></li>
+            <li><a href="{% url 'help_center' %}">Help</a></li>
+            <li role="presentation" class="sb_divider"></li>
+            <li><a href="{% url 'logout' %}">Log Out</a></li>
+        </ul>
+    </li>
+</ul>

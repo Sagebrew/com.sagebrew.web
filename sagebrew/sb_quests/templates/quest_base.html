@@ -11,14 +11,13 @@
 
 {% endblock %}
 
-
 {% block live %}
 <div id="campaign_id" style="display: none" data-object_uuid="{{ id }}"></div>
 <div id="stripe-publishable" data-stripe_key="{{ stripe_key }}"></div>
 {% include "action_nav.html" %}
 <div class="row">
     <div class="col-md-12">
-        <div class=" sb_wall sb_action_wall">
+        <div class="sb_wall sb_action_wall">
             <div class="row">
                 {% block quest_wall %}
                 {% endblock quest_wall %}
@@ -45,7 +44,6 @@
     </div>
 </div>
 {% endblock %}
-
 
 {% block scripts %}
     {{ block.super }}

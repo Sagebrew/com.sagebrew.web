@@ -26,9 +26,19 @@
                 <div id="js-paid_account" class="sb_hidden" data-paid_account="{{ campaign.paid_account }}"></div>
                 <div id="js-active" class="sb_hidden" data-active="{{ campaign.active }}"></div>
                 <div id="js-taking_live" class="sb_hidden" data-taking_live=False></div>
-             
+
                 <div class="form-group">
-                    <label for="">Short Bio</label>
+                    <label for="">Quest Title</label>
+                    <input type="text"
+                       id="quest-title"
+                       name="title"
+                       placeholder="Quest title"
+                       value="{{ campaign.title|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="">Short Description</label>
                     <textarea class="form-control" rows="3" name="short_bio">{{ campaign.biography|default_if_none:'' }}</textarea>
                 </div>
 

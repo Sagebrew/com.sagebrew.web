@@ -12,40 +12,50 @@
     {% endif %}
     <meta name="author" content="{{ first_name }} {{ last_name }}">
 {% endblock keywords %}
-{% block quest_wall %}
-    <div class="col-xs-12 col-md-8">
-        <h5>Epic
-            {% if is_editor or is_accountant %}
-                <a  class="btn btn-primary sb_btn_icon sb_btn_icon_green toggle_create_goal" href="{% url 'quest_epic' request.user %}"><span class="fa fa-edit"></span></a>
-            {% endif %}
-        </h5>
-        <div class="block sb_action_content_block">
-            <div id="epic-container" class="sb_markdown epic-area">
-                {% if not rendered_epic and is_editor or is_accountant %}
+
+{% block live %}
+<div class="block">
+    <div class="block-content">
+        <ul class="nav nav-pills">
+            <li><a href="{% url 'quest_saga' username=id %}">Saga</a></li>
+            <li><a href="{% url 'quest_updates' username=id %}">Updates</a></li>
+        </ul>
+    </div>
+</div>
+<div class="block">
+    <h3 class="block-title">
+        Epic
+        {% if is_editor or is_accountant %}
+            <a  class="btn btn-primary pull-right" href="{% url 'quest_epic' request.user %}"><span class="fa fa-edit"></span></a>
+        {% endif %}
+    </h3>
+
+    <div class="block-content">
+        {% if not rendered_epic and is_editor or is_accountant %}
+            {% autoescape off %}
+                {{ rendered_epic|default:'This is your Epic, we recommend using it to share your: <ul style="font-size: 14pt; "><li>Policies</li><li>Agenda</li><li>Vision</li></ul>' }}
+            {% endautoescape %}
+        {% else %}
+            {% if active == True %}
+                {% if rendered_epic %}
                     {% autoescape off %}
-                        {{ rendered_epic|default:'This is your Epic, we recommend using it to share your: <ul style="font-size: 14pt; "><li>Policies</li><li>Agenda</li><li>Vision</li></ul>' }}
+                        {{ rendered_epic }}
                     {% endautoescape %}
                 {% else %}
-                    {% if active == True %}
-                        {% if rendered_epic %}
-                            {% autoescape off %}
-                                {{ rendered_epic }}
-                            {% endautoescape %}
-                        {% else %}
-                            <h4>This Quest has not setup their Epic</h4>
-                        {% endif %}
-                    {% else %}
-                        {% if public_official %}
-                            <h4>This user has not yet embarked upon their Sagebrew Quest.</h4>
-                        {% else %}
-                            <h4>This user has not activated their Quest yet, check back soon!</h4>
-                        {% endif %}
-                    {% endif %}
+                    <h4>This Quest has not setup their Epic</h4>
                 {% endif %}
-            </div>
-        </div>
+            {% else %}
+                {% if public_official %}
+                    <h4>This user has not yet embarked upon their Sagebrew Quest.</h4>
+                {% else %}
+                    <h4>This user has not activated their Quest yet, check back soon!</h4>
+                {% endif %}
+            {% endif %}
+        {% endif %}
     </div>
-{% endblock quest_wall %}
+
+</div>
+{% endblock %}
 
 {% block intercom %}
     {% if request.user.username == id %}

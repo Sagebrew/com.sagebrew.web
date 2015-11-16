@@ -2,12 +2,17 @@
 {% load staticfiles %}
 
 {% block hero %}
+    {% include "quest_header.html" %}
 
+    {% comment %}
+    I'm not really sure what the difference is here,
+    but there is a lot of duplicate markup between the two files.
     {% if active == True %}
         {% include "quest_header.html" %}
     {% else %}
         {% include "quest_header_disabled.html" %}
     {% endif %}
+    {% endcomment %}
 
 {% endblock %}
 

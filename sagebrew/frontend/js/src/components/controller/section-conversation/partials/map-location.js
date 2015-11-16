@@ -17,7 +17,7 @@ function displayMap() {
                     zoomLevel = 12;
                 } else if ((data.affected_area.match(/,/g) || []).length === 3) {
                     zoomLevel = 14;
-                } else if ((data.affected_area.match(/,/g) || []).length === 4) {
+                } else if ((data.affected_area.match(/,/g) || []).length >= 4) {
                     zoomLevel = 14;
                 }
             }

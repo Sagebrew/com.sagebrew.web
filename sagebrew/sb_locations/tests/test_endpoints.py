@@ -487,3 +487,12 @@ class TestRenderPositions(APITestCase):
         response = self.client.get(url + "?filter=local", format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreater(len(response.data), 0)
+
+    def test_no_positions(self):
+        for position in Position.nodes.all():
+            position.delete()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('render_positions', kwargs={'name': 'Michigan'})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)

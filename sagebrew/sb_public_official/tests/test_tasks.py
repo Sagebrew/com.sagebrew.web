@@ -51,7 +51,7 @@ class TestCreateStateDistricts(TestCase):
         self.lower_pos.delete()
 
     def test_success(self):
-        response = requests.get(self.lookup_url, headers=self.headers )
+        response = requests.get(self.lookup_url, headers=self.headers)
         json_response = response.json()
         res = create_and_attach_state_level_reps.apply_async(
             kwargs={'rep_data': json_response})
@@ -71,7 +71,7 @@ class TestCreateStateDistricts(TestCase):
                                   state_district="38",
                                   state_chamber="lower",
                                   state="mi").save()
-        response = requests.get(self.lookup_url, headers=self.headers )
+        response = requests.get(self.lookup_url, headers=self.headers)
         json_response = response.json()
         res = create_and_attach_state_level_reps.apply_async(
             kwargs={'rep_data': json_response})
@@ -100,7 +100,7 @@ class TestCreateStateDistricts(TestCase):
                                      last_name=official.last_name).save()
         official.campaign.connect(campaign)
         campaign.public_official.connect(official)
-        response = requests.get(self.lookup_url, headers=self.headers )
+        response = requests.get(self.lookup_url, headers=self.headers)
         json_response = response.json()
         res = create_and_attach_state_level_reps.apply_async(
             kwargs={'rep_data': json_response})

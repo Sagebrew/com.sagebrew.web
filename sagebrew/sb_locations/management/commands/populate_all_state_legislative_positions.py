@@ -30,10 +30,14 @@ class Command(BaseCommand):
                     name=district['name'], sector='state_upper').save()
                 position = Position(
                     name="State Senator", level="state_upper").save()
-                state_node.encompasses.connect(location)
-                location.encompassed_by.connect(state_node)
-                location.positions.connect(position)
-                position.location.connect(location)
+                if location not in state_node.encompasses:
+                    state_node.encompasses.connect(location)
+                if state_node not in location.encompasses:
+                    location.encompassed_by.connect(state_node)
+                if position not in location.positions:
+                    location.positions.connect(position)
+                if location not in position.location:
+                    position.location.connect(location)
 
             lookup_url = base_url % (abbr, "lower")
             response = requests.get(
@@ -46,10 +50,14 @@ class Command(BaseCommand):
                 position = Position(
                     name="State House Representative",
                     level="state_lower").save()
-                state_node.encompasses.connect(location)
-                location.encompassed_by.connect(state_node)
-                location.positions.connect(position)
-                position.location.connect(location)
+                if location not in state_node.encompasses:
+                    state_node.encompasses.connect(location)
+                if state_node not in location.encompasses:
+                    location.encompassed_by.connect(state_node)
+                if position not in location.positions:
+                    location.positions.connect(position)
+                if location not in position.location:
+                    position.location.connect(location)
 
         return True
 

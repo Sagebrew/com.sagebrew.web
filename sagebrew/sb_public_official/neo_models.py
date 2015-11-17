@@ -46,7 +46,6 @@ class PublicOfficial(Searchable):
     bioguideid = StringProperty(unique_index=True)
     state_district = StringProperty()
     state_chamber = StringProperty()
-    image_url = StringProperty()
     # address and contact form are gained from the term data and they will be
     # updated to their current office address and their current contact form
     address = StringProperty()

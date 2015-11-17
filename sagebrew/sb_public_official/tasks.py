@@ -44,8 +44,10 @@ def create_and_attach_state_level_reps(rep_data):
             res, _ = db.cypher_query(query)
             if res.one:
                 position = Position.inflate(res.one)
-                position.campaigns.connect(camp)
-                camp.position.connect(position)
+                if camp not in position.campaigns:
+                    position.campaigns.connect(camp)
+                if position not in camp.position:
+                    camp.position.connect(position)
         return True
     except (CypherException, ClientError, IOError, CouldNotCommit) as e:
         raise create_and_attach_state_level_reps.retry(exc=e, countdown=5,

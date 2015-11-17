@@ -4,6 +4,7 @@ import urllib2
 import urlparse
 import cStringIO
 import HTMLParser
+from uuid import uuid1
 from PIL import Image
 
 from api.utils import smart_truncate
@@ -155,3 +156,16 @@ def parse_page_html(soupified, url, content_type='html/text'):
     description = get_page_description(soupified)
     title = get_page_title(soupified)
     return title, description, image, width, height
+
+def download_image_from_url(url, file_type):
+    try:
+        req = urllib2.Request(url)
+        temp_file = urllib2.urlopen(req)
+        local_file = open(str(uuid1()), "w+")
+        local_file.write(temp_file.read())
+        local_file.close()
+        print local_file
+
+        return local_file
+    except Exception as e:
+        print e

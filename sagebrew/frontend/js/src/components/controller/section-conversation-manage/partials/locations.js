@@ -3,11 +3,33 @@ var request = require('./../../../api').request,
     settings = require('./../../../settings').settings;
 
 function initAutocomplete() {
+    if(typeof(Storage) !== "undefined") {
+        localStorage.removeItem('questionPlaceID');
+        localStorage.removeItem('questionLatitude');
+        localStorage.removeItem('questionLongitude');
+        localStorage.removeItem('questionAffectedArea');
+    }
     var latitude = parseFloat(document.getElementById('location-lat').innerHTML) || 42.3314;
     var longitude = parseFloat(document.getElementById('location-long').innerHTML) || -83.0458;
+    var affectedArea = document.getElementById('location-area').innerHTML || null;
+    var zoomLevel = 12;
+    // TODO: Duplicated code, need to move this into a fxn, export it, and call it
+    if(affectedArea !== null) {
+        if((affectedArea.match(/,/g) || []).length === 0){
+            zoomLevel = 3;
+        } else if ((affectedArea.match(/,/g) || []).length === 1) {
+            zoomLevel = 5;
+        } else if ((affectedArea.match(/,/g) || []).length === 2) {
+            zoomLevel = 12;
+        } else if ((affectedArea.match(/,/g) || []).length === 3) {
+            zoomLevel = 14;
+        } else if ((affectedArea.match(/,/g) || []).length >= 4) {
+            zoomLevel = 14;
+        }
+    }
     var map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: latitude, lng: longitude},
-        zoom: 12,
+        zoom: zoomLevel,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         disableDefaultUI: true
     });

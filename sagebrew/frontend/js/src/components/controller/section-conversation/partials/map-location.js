@@ -7,6 +7,7 @@ function displayMap() {
         questionID = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0];
     request.get({url: '/v1/questions/' + questionID + '/?expedite=true'})
         .done(function (data) {
+            // TODO: Duplicated code, need to move this into a fxn, export it, and call it
             var zoomLevel = 1;
             if(data.longitude !== undefined && data.longitude !== null) {
                 if((data.affected_area.match(/,/g) || []).length === 0){
@@ -17,7 +18,7 @@ function displayMap() {
                     zoomLevel = 12;
                 } else if ((data.affected_area.match(/,/g) || []).length === 3) {
                     zoomLevel = 14;
-                } else if ((data.affected_area.match(/,/g) || []).length === 4) {
+                } else if ((data.affected_area.match(/,/g) || []).length >= 4) {
                     zoomLevel = 14;
                 }
             }

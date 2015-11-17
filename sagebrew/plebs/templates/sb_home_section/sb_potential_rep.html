@@ -1,10 +1,15 @@
 <div class="row block_vertical">
-    <div class="col-lg-3 hidden-md">
+    <div class="hidden-sm hidden-md col-lg-3">
         <div class="thumbnail sb_thumbnail_md">
             <img src="{{ profile_pic }}"> {% comment %} Link to their S3 public image{% endcomment %}
         </div>
     </div>
-    <div class="col-lg-8 vertical_nav">
+    <div class="col-sm-2 hidden-lg">
+        <div class="thumbnail thumbnail-md-sm">
+              <img src="{{ profile_pic }}"> {% comment %} Link to their S3 public image{% endcomment %}
+        </div>
+    </div>
+    <div class="hidden-sm hidden-md col-lg-8 vertical_nav">
         <ul>
             <li>
                 <a href="{{ url }}">{{ first_name }} {{ last_name }}</a>
@@ -12,6 +17,14 @@
             <li>
                 {{ position_name }}
             </li>
+        </ul>
+    </div>
+    <div class="col-xs-9 hidden-lg vertical_nav">
+        <ul>
+            <li>
+                <small><a href="{{ url }}">{{ first_name }} {{ last_name }}</a></small>
+            </li>
+            <li class="sb_rep_info"><small>{{ position_name }}</small></li>
         </ul>
     </div>
 </div>

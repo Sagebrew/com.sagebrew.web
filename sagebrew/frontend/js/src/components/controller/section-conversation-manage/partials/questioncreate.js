@@ -23,7 +23,6 @@ function sendQuestionRequest(url, title, content, tags, submitButton) {
         'longitude': longitude || null,
         'affected_area': affected_area || null
     });
-    console.log(data)
     request.post({url: url, data: data})
         .done(function (data) {
             window.location.href = data.url;

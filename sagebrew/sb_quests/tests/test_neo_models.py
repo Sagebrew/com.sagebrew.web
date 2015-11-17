@@ -10,6 +10,7 @@ from sb_registration.utils import create_user_util_test
 
 from sb_donations.neo_models import Donation
 from sb_goals.neo_models import Goal
+from sb_locations.neo_models import Location
 from sb_quests.neo_models import Campaign, PoliticalCampaign, Position
 
 
@@ -118,3 +119,62 @@ class TestPoliticalCampaignNeoModel(TestCase):
         self.assertEqual(
             res, {rel.created.strftime('%Y-%m-%d'): int(rel.active),
                   rel2.created.strftime('%Y-%m-%d'): int(rel2.active)})
+
+
+class TestPosition(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        create_user_util_test(self.email)
+        self.position = Position().save()
+
+    def test_get_full_name_house_rep(self):
+        self.position.name = "House Representative"
+        self.position.level = "federal"
+        self.position.save()
+        state = Location(name="Michigan", level="federal").save()
+        district = Location(name="11", level="federal").save()
+        state.encompasses.connect(district)
+        district.encompassed_by.connect(state)
+        self.position.location.connect(district)
+        district.positions.connect(self.position)
+        res = Position.get_full_name(self.position.object_uuid)
+        self.assertEqual(res['full_name'], "House Representative for "
+                                           "Michigan's 11th district")
+
+    def test_get_full_name_senator(self):
+        self.position.name = "Senator"
+        self.position.level = "federal"
+        self.position.save()
+        state = Location(name="Michigan", level="federal").save()
+        self.position.location.connect(state)
+        state.positions.connect(self.position)
+        res = Position.get_full_name(self.position.object_uuid)
+        self.assertEqual(res['full_name'], "Senator of Michigan")
+
+    def test_get_full_name_state_senator(self):
+        self.position.name = "State Senator"
+        self.position.level = "state_upper"
+        self.position.save()
+        state = Location(name="Michigan", level="federal").save()
+        district = Location(name="38", level="state_upper").save()
+        state.encompasses.connect(district)
+        district.encompassed_by.connect(state)
+        self.position.location.connect(district)
+        district.positions.connect(self.position)
+        res = Position.get_full_name(self.position.object_uuid)
+        self.assertEqual(res['full_name'], "State Senator for Michigan's "
+                                           "38th district")
+
+    def test_get_full_name_state_house_rep(self):
+        self.position.name = "State House Representative"
+        self.position.level = "state_lower"
+        self.position.save()
+        state = Location(name="Michigan", level="federal").save()
+        district = Location(name="15", level="state_lower").save()
+        state.encompasses.connect(district)
+        district.encompassed_by.connect(state)
+        self.position.location.connect(district)
+        district.positions.connect(self.position)
+        res = Position.get_full_name(self.position.object_uuid)
+        self.assertEqual(res['full_name'], "State House Representative"
+                                           " for Michigan's 15th district")

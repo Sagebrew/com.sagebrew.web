@@ -1,3 +1,4 @@
+import urllib
 from django.core.cache import cache
 from django.template import RequestContext
 from django.template.loader import render_to_string
@@ -56,16 +57,25 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
 @api_view(['GET'])
 @permission_classes((IsAuthenticated,))
 def get_positions(request, name=None):
-    query = 'MATCH (l:Location {name:"%s"})-' \
-            '[:POSITIONS_AVAILABLE]->(p1:Position) WITH l, ' \
-            'p1 OPTIONAL MATCH (l)-[:ENCOMPASSES]->(l2:Location)' \
-            '-[:POSITIONS_AVAILABLE]->(p2:Position) WITH l2, p2, ' \
-            'l, p1 OPTIONAL MATCH (l2)-[:ENCOMPASSES]->(l3:Location)' \
-            '-[:POSITIONS_AVAILABLE]->(p3:Position) ' \
-            'RETURN collect(p1.object_uuid) + collect(p2.object_uuid) + ' \
-            'collect(p3.object_uuid) as positions' % name
+    filter_param = request.query_params.get("filter", "")
+    if filter_param == "state":
+        constructed_filter = 'AND p.level="state_upper" ' \
+                             'OR p.level="state_lower"'
+    elif filter_param == '':
+        constructed_filter = ''
+    else:
+        constructed_filter = 'AND p.level="%s"' % filter_param
+    query = 'MATCH (l:Location {name:"%s"})-[:ENCOMPASSES*..]->' \
+            '(l2:Location) WITH collect(id(l))+collect(id(l2)) ' \
+            'AS collected_ids OPTIONAL MATCH (final_location:Location)-' \
+            '[:POSITIONS_AVAILABLE]->' \
+            '(p:Position) WHERE id(final_location) in collected_ids %s ' \
+            'RETURN collect(DISTINCT p.object_uuid) as uuids' \
+            % (name, constructed_filter)
     res, _ = db.cypher_query(query)
-    return Response(list(set(res.one)), status=status.HTTP_200_OK)
+    if not res.one:
+        return Response([], status=status.HTTP_200_OK)
+    return Response(res[0].uuids, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])
@@ -73,8 +83,10 @@ def get_positions(request, name=None):
 def render_positions(request, name=None):
     return Response([render_to_string(
         'position_selector.html', {
-            'name': Position.get_full_name(representative),
+            'name': Position.get_full_name(
+                representative),
             "state_name": "".join(name.split())
         }, context_instance=RequestContext(request))
-        for representative in get_positions(request, name).data],
+        for representative in get_positions(
+            request, urllib.unquote(name).decode('utf-8')).data],
         status=status.HTTP_200_OK)

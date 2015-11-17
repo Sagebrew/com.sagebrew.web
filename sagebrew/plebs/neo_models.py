@@ -14,7 +14,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DoesNotExist, MultipleNodesReturned)
 from neomodel import db
 
-from api.utils import flatten_lists
+from api.utils import flatten_lists, spawn_task
 from api.neo_models import SBObject
 from sb_locations.neo_models import Location
 from sb_search.neo_models import Searchable, Impression
@@ -720,6 +720,7 @@ class Address(SBObject):
         return flatten_lists(res)  # flatten
 
     def set_encompassing(self):
+        from .tasks import connect_to_state_districts
         try:
             encompassed_by = Location.nodes.get(name=self.city)
             if Location.get_single_encompassed_by(
@@ -728,11 +729,13 @@ class Address(SBObject):
                 # if a location node exists with an incorrect encompassing state
                 raise DoesNotExist("This Location does not exist")
         except (Location.DoesNotExist, DoesNotExist):
-            encompassed_by = Location(name=self.city).save()
+            encompassed_by = Location(name=self.city, sector="local").save()
             city_encompassed = Location.nodes.get(
                 name=us.states.lookup(self.state).name)
-            encompassed_by.encompassed_by.connect(city_encompassed)
-            city_encompassed.encompasses.connect(encompassed_by)
+            if city_encompassed not in encompassed_by.encompassed_by:
+                encompassed_by.encompassed_by.connect(city_encompassed)
+            if encompassed_by not in city_encompassed.encompasses:
+                city_encompassed.encompasses.connect(encompassed_by)
         except MultipleNodesReturned:
             query = 'MATCH (l1:Location {name:"%s"})-[:ENCOMPASSED_BY]->' \
                     '(l2:Location {name:"%s"}) RETURN l1' % \
@@ -743,8 +746,13 @@ class Address(SBObject):
             else:
                 encompassed_by = None
         if encompassed_by is not None:
-            self.encompassed_by.connect(encompassed_by)
-            encompassed_by.addresses.connect(self)
+            if encompassed_by not in self.encompassed_by:
+                self.encompassed_by.connect(encompassed_by)
+            if self not in encompassed_by.addresses:
+                encompassed_by.addresses.connect(self)
+        # get or create the state level districts and attach them to the address
+        spawn_task(task_func=connect_to_state_districts,
+                   task_param={'object_uuid': self.object_uuid})
         return self
 
 

@@ -1,6 +1,6 @@
 {% load staticfiles %}
 <div class="row sb_input_wrapper {{ state_name }}">
-    <div class="col-xs-1 hidden-xs hidden-sm">
+    <div class="col-xs-1 hidden-xs hidden-sm sb-position-image-selector">
         {% static 'images/sage_coffee_grey-01.png' as default_profile %}
         {% if "House Representative" in name.full_name %}
             <img class="sb_thumbnail_sm" src="{% static 'images/house_rep_badge.png' %}">

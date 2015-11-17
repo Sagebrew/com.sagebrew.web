@@ -12,25 +12,28 @@ from .neo_models import PublicOfficial
 @shared_task()
 def create_and_attach_state_level_reps(rep_data):
     try:
-        for rep in rep_data:
+        for representative in rep_data:
             try:
-                rep = PublicOfficial.nodes.get(bioguideid=rep['id'])
+                rep = PublicOfficial.nodes.get(bioguideid=representative['id'])
             except (PublicOfficial.DoesNotExist, DoesNotExist):
-                rep = PublicOfficial(gt_id=rep['id'], bioguideid=rep['id'],
-                                     first_name=rep['first_name'],
-                                     last_name=rep['last_name'],
-                                     middle_name=rep['middle_name'],
-                                     state=rep['state'],
-                                     state_district=rep['district'],
-                                     state_chamber=rep['chamber'],
-                                     gov_phone=rep.get('office_phone', ''),
-                                     full_name=rep.get('full_name', ''),
-                                     image_url=rep.get('photo_url', '')).save()
+                rep = PublicOfficial(gt_id=representative['id'],
+                                     bioguideid=representative['id'],
+                                     first_name=representative['first_name'],
+                                     last_name=representative['last_name'],
+                                     middle_name=representative['middle_name'],
+                                     state=representative['state'],
+                                     state_district=representative['district'],
+                                     state_chamber=representative['chamber'],
+                                     gov_phone=representative.get(
+                                         'office_phone', ''),
+                                     full_name=representative.get(
+                                         'full_name', '')).save()
             camp = rep.get_campaign()
             if not camp:
                 camp = PoliticalCampaign(first_name=rep.first_name,
                                          last_name=rep.last_name,
-                                         profile_picture=rep.image_url).save()
+                                         profile_picture=representative.get(
+                                             'photo_url', '')).save()
             rep.campaign.connect(camp)
             camp.public_official.connect(rep)
             query = 'MATCH (l:Location {name:"%s", sector:"federal"})<-' \

@@ -1,7 +1,6 @@
 import us
 import time
-import json
-import urllib3
+import requests
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -25,6 +24,7 @@ class TestCreateStateDistricts(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.headers = {"content-type": 'application/json; charset=utf8'}
         self.lookup_url = 'http://openstates.org/api/v1/legislators/geo/?' \
                           'lat=42.532020&long=-83.496500'
         self.mi = Location(name=us.states.lookup("MI").name,
@@ -51,9 +51,8 @@ class TestCreateStateDistricts(TestCase):
         self.lower_pos.delete()
 
     def test_success(self):
-        http = urllib3.PoolManager()
-        response = http.request('GET', self.lookup_url)
-        json_response = json.loads(response.data)
+        response = requests.get(self.lookup_url, headers=self.headers )
+        json_response = response.json()
         res = create_and_attach_state_level_reps.apply_async(
             kwargs={'rep_data': json_response})
         while not res.ready():
@@ -72,17 +71,16 @@ class TestCreateStateDistricts(TestCase):
                                   state_district="38",
                                   state_chamber="lower",
                                   state="mi").save()
-        http = urllib3.PoolManager()
-        response = http.request('GET', self.lookup_url)
-        json_response = json.loads(response.data)
+        response = requests.get(self.lookup_url, headers=self.headers )
+        json_response = response.json()
         res = create_and_attach_state_level_reps.apply_async(
             kwargs={'rep_data': json_response})
         while not res.ready():
             time.sleep(1)
         self.assertTrue(res.result)
         camp = official.get_campaign()
-        self.assertTrue(official.campaign.is_connected(camp))
-        self.assertTrue(camp.position.is_connected(self.lower_pos))
+        self.assertTrue(camp in official.campaign)
+        self.assertTrue(self.lower_pos in camp.position)
         official.delete()
         camp.delete()
 
@@ -102,14 +100,13 @@ class TestCreateStateDistricts(TestCase):
                                      last_name=official.last_name).save()
         official.campaign.connect(campaign)
         campaign.public_official.connect(official)
-        http = urllib3.PoolManager()
-        response = http.request('GET', self.lookup_url)
-        json_response = json.loads(response.data)
+        response = requests.get(self.lookup_url, headers=self.headers )
+        json_response = response.json()
         res = create_and_attach_state_level_reps.apply_async(
             kwargs={'rep_data': json_response})
         while not res.ready():
             time.sleep(1)
         self.assertTrue(res.result)
-        self.assertTrue(campaign.position.is_connected(self.lower_pos))
+        self.assertTrue(self.lower_pos in campaign.position)
         official.delete()
         campaign.delete()

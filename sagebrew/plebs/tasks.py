@@ -1,6 +1,5 @@
 import us
-import json
-import urllib3
+import requests
 from uuid import uuid1
 
 from django.core import signing
@@ -134,9 +133,9 @@ def connect_to_state_districts(object_uuid):
     except TypeError:
         # in case an address doesn't have a latitude or longitude
         return False
-    http = urllib3.PoolManager()
-    response = http.request('GET', lookup_url)
-    response_json = json.loads(response.data)
+    response = requests.get(
+        lookup_url, headers={"content-type": 'application/json; charset=utf8'})
+    response_json = response.json()
     try:
         for rep in response_json:
             try:
@@ -159,8 +158,10 @@ def connect_to_state_districts(object_uuid):
             except (CypherException, ClientError, IOError, CouldNotCommit) as e:
                 raise connect_to_state_districts.retry(exc=e, countdown=3,
                                                        max_retries=None)
-            address.encompassed_by.connect(state_district)
-            state_district.addresses.connect(address)
+            if state_district not in address.encompassed_by:
+                address.encompassed_by.connect(state_district)
+            if address not in state_district.addresses:
+                state_district.addresses.connect(address)
         spawn_task(task_func=create_and_attach_state_level_reps,
                    task_param={"rep_data": response_json})
         return True

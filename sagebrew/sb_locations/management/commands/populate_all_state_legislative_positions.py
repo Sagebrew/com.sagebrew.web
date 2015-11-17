@@ -1,6 +1,5 @@
 import us
-import json
-import urllib3
+import requests
 
 from django.core.management.base import BaseCommand
 
@@ -15,7 +14,6 @@ class Command(BaseCommand):
 
     def populate_all_state_legislative_positions(self):
         base_url = 'http://openstates.org/api/v1/districts/%s/%s/'
-        http = urllib3.PoolManager()
         for state in us.states.STATES:
             query = 'MATCH (l:Location {name:"%s", sector:"federal"}) ' \
                     'RETURN l' % state.name
@@ -23,8 +21,10 @@ class Command(BaseCommand):
             state_node = Location.inflate(res.one)
             abbr = state.abbr.lower()
             lookup_url = base_url % (abbr, "upper")
-            response = http.request('GET', lookup_url)
-            json_response = json.loads(response.data)
+            response = requests.get(
+                lookup_url,
+                headers={"content-type": 'application/json; charset=utf8'})
+            json_response = response.json()
             for district in json_response:
                 location = Location(
                     name=district['name'], sector='state_upper').save()
@@ -36,8 +36,10 @@ class Command(BaseCommand):
                 position.location.connect(location)
 
             lookup_url = base_url % (abbr, "lower")
-            response = http.request('GET', lookup_url)
-            json_response = json.loads(response.data)
+            response = requests.get(
+                lookup_url,
+                headers={"content-type": 'application/json; charset=utf8'})
+            json_response = response.json()
             for district in json_response:
                 location = Location(
                     name=district["name"], sector="state_lower").save()

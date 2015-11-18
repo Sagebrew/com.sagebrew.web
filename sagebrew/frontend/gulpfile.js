@@ -41,15 +41,15 @@ var paths = {
         'bower_components/jquery-mousewheel/jquery.mousewheel.js',
         'bower_components/bootstrap-switch/dist/js/bootstrap-switch.js',
         'bower_components/packery/dist/packery.pkgd.js',
+        'node_modules/bootstrap-tokenfield/dist/bootstrap-tokenfield.min.js', // TODO Remove this after transitioning registration and tag input to new format and use require
         'js/vendor/flatui/radiocheck.js',
-        'js/vendor/typeahead.js',
+        'bower_components/typeahead.js/dist/typeahead.bundle.min.js',
         'js/vendor/formvalidation/formValidation.min.js',
         'js/vendor/formvalidation/bootstrap.min.js',
         '../sagebrew/static/js/vendor/spin.min.js',
         '../sagebrew/static/js/vendor/jquery.spin.js',
         '../sagebrew/static/js/vendor/foggy.min.js',
         '../sagebrew/static/js/vendor/jquery.pagedown-bootstrap.combined.min.js',
-        '../sagebrew/static/js/vendor/bootstrap-tokenfield.min.js',
         '../sagebrew/static/js/vendor/sortable.min.js',
         '../sagebrew/static/js/uuid.js',
         '../sagebrew/static/js/sbcropic.js', // This is needed rather than bower becausae we've made custom mods

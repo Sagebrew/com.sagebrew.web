@@ -47,6 +47,11 @@ omit =
     */management/commands/add_cities_from_addresses.py
     */management/commands/migrate_addresses.py
     */management/commands/migrate_public_official_states.py
+    */management/commands/create_affiliations.py
+    */management/commands/create_activity_interests.py
+    */management/commands/populate_sectors.py
+    */management/commands/populate_all_state_legislative_positions.py
+    */management/commands/populate_existing_state_districts.py
     */sagebrew/test_runner.py
 
 [report]

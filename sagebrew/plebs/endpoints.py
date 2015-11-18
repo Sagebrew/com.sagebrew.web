@@ -40,7 +40,8 @@ from sb_quests.serializers import PoliticalCampaignSerializer
 from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
-                          FriendRequestSerializer)
+                          FriendRequestSerializer, PoliticalPartySerializer,
+                          InterestsSerializer)
 from .neo_models import Pleb, Address, FriendRequest
 from .utils import get_filter_by
 
@@ -315,7 +316,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             sen_html = []
             for sen in senators:
                 sen_html.append(
-                    render_to_string('sb_home_section/sb_senator_block.html',
+                    render_to_string('sb_home_section/sitting_rep_block.html',
                                      PublicOfficialSerializer(sen).data))
             return Response(sen_html, status=status.HTTP_200_OK)
         return Response(PublicOfficialSerializer(senators, many=True).data,
@@ -343,7 +344,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             house_rep_html = render_to_string(
-                'sb_home_section/sb_house_rep_block.html',
+                'sb_home_section/sitting_rep_block.html',
                 PublicOfficialSerializer(house_rep).data)
             return Response(house_rep_html, status=status.HTTP_200_OK)
         return Response(PublicOfficialSerializer(house_rep).data,
@@ -367,7 +368,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             return Response(
-                render_to_string('sb_home_section/sb_house_rep_block.html',
+                render_to_string('sb_home_section/sitting_rep_block.html',
                                  PublicOfficialSerializer(president).data),
                 status=status.HTTP_200_OK)
         return Response(PublicOfficialSerializer(president).data,
@@ -385,8 +386,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
         if possible_reps is None:
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(a:Address)-[:ENCOMPASSED_BY]->' \
-                    '(l:Location {name: str(a.congressional_district)})-' \
-                    '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
+                    '(l:Location {name: str(a.congressional_district), ' \
+                    'sector:"federal"})-[:POSITIONS_AVAILABLE]->(o:Position)' \
+                    '-[:CAMPAIGNS]' \
                     '->(c:Campaign) WHERE c.active=true AND o.level="federal"' \
                     ' RETURN DISTINCT c LIMIT 5' % username
             res, _ = db.cypher_query(query)
@@ -411,9 +413,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def possible_local_representatives(self, request, username=None):
         query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                '(a:Address)-[:ENCOMPASSED_BY]->(l:Location {name: a.city})-' \
-                '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
-                '->(c:Campaign) WHERE c.active=true AND NOT ' \
+                '(a:Address)-[:ENCOMPASSED_BY]->(l:Location {name: a.city, ' \
+                'sector:"local"})-[:POSITIONS_AVAILABLE]->(o:Position)-' \
+                '[:CAMPAIGNS]->(c:Campaign) WHERE c.active=true AND NOT ' \
                 'o.level="federal" RETURN DISTINCT c LIMIT 5' % \
                 username
         res, _ = db.cypher_query(query)
@@ -440,7 +442,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         if possible_senators is None:
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(a:Address)-[:ENCOMPASSED_BY*..]->' \
-                    '(l:Location {name: a.state})-' \
+                    '(l:Location {name: a.state, sector:"federal"})-' \
                     '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
                     '->(c:Campaign) WHERE c.active=true RETURN DISTINCT ' \
                     'c LIMIT 5' % \
@@ -793,6 +795,56 @@ class MeViewSet(mixins.UpdateModelMixin,
                                                    context))
             return self.get_paginated_response(html_array)
         return self.get_paginated_response(serializer.data)
+
+    @list_route(methods=['post'], serializer_class=PoliticalPartySerializer,
+                permission_classes=(IsAuthenticated,))
+    def add_parties(self, request):
+        """
+        Connects the authenticated pleb up to all the existing parties that
+        are passed within a list. Returns all of names of the successfully
+        connected parties.
+        """
+        serializer = self.get_serializer(data=request.data,
+                                         context={"request": request})
+        if serializer.is_valid():
+            added = []
+            for party in serializer.data['names']:
+                query = 'MATCH (a:PoliticalParty {name: "%s"}), ' \
+                        '(b:Pleb {username: "%s"}) ' \
+                        'CREATE UNIQUE (a)<-[r:AFFILIATES_WITH]-(b) ' \
+                        'RETURN r' % (party, request.user.username)
+                res, _ = db.cypher_query(query)
+                if res.one:
+                    added.append(party)
+            response = serializer.data
+            response['names'] = added
+            return Response(response, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @list_route(methods=['post'], serializer_class=InterestsSerializer,
+                permission_classes=(IsAuthenticated,))
+    def add_interests(self, request):
+        """
+        Connects the authenticated pleb up to all the existing parties that
+        are passed within a list. Returns all of names of the successfully
+        connected parties.
+        """
+        serializer = self.get_serializer(data=request.data,
+                                         context={"request": request})
+        if serializer.is_valid():
+            added = []
+            for interest in serializer.data['interests']:
+                query = 'MATCH (a:ActivityInterest {name: "%s"}), ' \
+                        '(b:Pleb {username: "%s"}) ' \
+                        'CREATE UNIQUE (a)<-[r:WILL_PARTICIPATE]-(b) ' \
+                        'RETURN r' % (interest, request.user.username)
+                res, _ = db.cypher_query(query)
+                if res.one:
+                    added.append(interest)
+            response = serializer.data
+            response['interests'] = added
+            return Response(response, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SentFriendRequestViewSet(viewsets.ModelViewSet):

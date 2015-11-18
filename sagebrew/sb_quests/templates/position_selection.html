@@ -1,14 +1,8 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block css %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'css/vendor/jquery.pagedown-bootstrap.css' %}"/>
-    <link rel="stylesheet" href="{% static 'css/vendor/bootstrap-tokenfield.min.css' %}"/>
-    <link rel="stylesheet" href="{% static 'css/vendor/tokenfield-typeahead.min.css' %}"/>
-{% endblock css %}
 {% block title %} Profile Information {% endblock %}
 {% block content %}
-    <div class="sb_registration_block">
+    <div class="block registration">
         <div class="row">
             <div class="col-xs-12">
                 <div>
@@ -19,50 +13,93 @@
         <div class="sb_deco_line hidden-xs"></div>
         <div class="hidden-lg hidden-md hidden-sm sb_deco_line"></div>
         <div class="sb_line hidden-lg hidden-md hidden-sm"></div>
-        <div class="row-fluid">
-                <div class="row">
-                    <div class="col-xs-2 col-xs-offset-1 hidden-xs hidden-sm">
-                        <h5 style="display: inline;">Find:</h5>
-                    </div>
-                    <div class="col-xs-8">
-                        <input type="text" id="state"
-                               placeholder="Positions In: United States, Michigan, New York, etc"
-                               class="form-control input-md"
-                               value="">
+        <div class="row">
+            <div class="row">
+                <div class="col-xs-2 col-xs-offset-1 hidden-xs hidden-sm">
+                    <h5 style="display: inline;">Find:</h5>
+                </div>
+                <div class="col-xs-8">
+                    <input type="text" id="state"
+                           placeholder="Positions In: United States, Michigan, New York, etc"
+                           class="form-control input-md"
+                           value="">
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-2 col-xs-offset-1 hidden-xs hidden-sm">
+                    <h5>Filter:</h5>
+                </div>
+                <div class="col-xs-8">
+                    <div class="sb-position-filter-wrapper">
+                        <label class="radio radio-inline" for="js-all-filter">
+                            <input type="radio"
+                                   value=""
+                                   name="levelFilter"
+                                   data-toggle="radio"
+                                   id="js-all-filter"
+                                    checked>All
+                        </label>
+                        <label class="radio radio-inline" for="js-federal-filter">
+                            <input type="radio"
+                                   value="federal"
+                                   name="levelFilter"
+                                   data-toggle="radio"
+                                   id="js-federal-filter"
+                                    >Federal
+                        </label>
+                        <label class="radio radio-inline" for="js-state-filter">
+                            <input type="radio"
+                                   value="state"
+                                   name="levelFilter"
+                                   data-toggle="radio"
+                                   id="js-state-filter"
+                                    >State
+                        </label>
+                        <label class="radio radio-inline" for="js-local-filter">
+                            <input type="radio"
+                                   value="local"
+                                   name="levelFilter"
+                                   data-toggle="radio"
+                                   id="js-local-filter"
+                                    >Local
+                        </label>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-xs-2 col-xs-offset-1 hidden-xs hidden-sm">
-                        <h5>Positions:</h5>
-                    </div>
-                    <div id="position_wrapper" class="col-xs-8 block_vertical">
-                        <div class="row sb_input_wrapper">
-                            <div class="col-xs-1 hidden-xs hidden-sm">
-                                {% static 'images/president_badge.png' as default_profile %}
-                                <img class="sb_thumbnail_sm" src="{{ default_profile }}">
-                            </div>
-                            <div class="col-xs-7">
-                                <p class="quest-options">President of the United States of America</p>
-                            </div>
-                            <div class="col-xs-4">
-                                <button id="js-president_selector" class="btn btn-block btn-sm btn-primary sb_btn" data-object_uuid="{{ president }}">Start</button>
-                            </div>
+
+            </div>
+            <div class="row">
+                <div class="col-xs-2 col-xs-offset-1 hidden-xs hidden-sm">
+                    <h5>Positions:</h5>
+                </div>
+                <div id="position_wrapper" class="col-xs-8 block_vertical">
+                    <div class="row sb_input_wrapper">
+                        <div class="col-xs-1 hidden-xs hidden-sm sb-position-image-selector">
+                            {% static 'images/president_badge.png' as default_profile %}
+                            <img class="sb_thumbnail_sm" src="{{ default_profile }}">
+                        </div>
+                        <div class="col-xs-7">
+                            <p class="quest-options">President of the United States of America</p>
+                        </div>
+                        <div class="col-xs-4">
+                            <button id="js-president_selector" class="btn btn-block btn-sm btn-primary sb_btn" data-object_uuid="{{ president }}">Start</button>
                         </div>
                     </div>
                 </div>
             </div>
-        <div class="col-xs-12 quest-add-position">
-            <small>
-                Can't find the position you're running for? Please reach out to <a href="mailto:support@sagebrew.com">support@sagebrew.com</a> to have it added.
-            </small>
+            <div class="row">
+                <div class="col-xs-12 quest-add-position">
+                    <small>
+                        Can't find the position you're running for? Please reach out to <a href="mailto:support@sagebrew.com">support@sagebrew.com</a> to have it added.
+                    </small>
+                </div>
+            </div>
         </div>
+
     <div hidden id="address_data_block" data-address_validation={{ address_key }}></div>
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
     <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
-    <script src="{% static 'js/vendor/bootstrap-tokenfield.min.js' %}"></script>
-    <script src="{% static 'js/vendor/typeahead.js' %}"></script>
     <script src="{% static 'js/address_validation.js' %}"></script>
     <script src="{% static 'js/position_filter.js' %}"></script>
 {% endblock scripts %}

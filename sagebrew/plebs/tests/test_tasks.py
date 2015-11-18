@@ -1,17 +1,21 @@
+import us
 import time
 from uuid import uuid1
 from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
+from neomodel import db
+
 from api.utils import wait_util
-from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb, Address
+from sb_locations.neo_models import Location
 from sb_registration.utils import create_user_util_test
 from plebs.tasks import (create_pleb_task, create_wall_task,
                          finalize_citizen_creation, send_email_task,
                          create_friend_request_task, pleb_user_update,
                          determine_pleb_reps, create_beta_user,
-                         update_reputation)
+                         update_reputation, connect_to_state_districts)
 from sb_wall.neo_models import Wall
 
 
@@ -371,3 +375,117 @@ class TestUpdateReputation(TestCase):
         while not res.ready():
             time.sleep(1)
         self.assertTrue(res.result)
+
+
+class TestCreateStateDistricts(TestCase):
+    def setUp(self):
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        self.username = res["username"]
+        self.assertNotEqual(res, False)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        settings.CELERY_ALWAYS_EAGER = True
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_create_state_districts(self):
+        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
+        address = Address(state="MI", latitude=42.532020,
+                          longitude=-83.496500).save()
+        lower = Location(name='38', sector='state_lower').save()
+        upper = Location(name='15', sector='state_upper').save()
+        mi.encompasses.connect(lower)
+        lower.encompassed_by.connect(mi)
+        mi.encompasses.connect(upper)
+        upper.encompassed_by.connect(mi)
+        res = connect_to_state_districts.apply_async(
+            kwargs={'object_uuid': address.object_uuid})
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+        self.assertTrue(lower in address.encompassed_by)
+        self.assertTrue(address in lower.addresses)
+        self.assertTrue(upper in address.encompassed_by)
+        self.assertTrue(address in upper.addresses)
+        mi.delete()
+        address.delete()
+        upper.delete()
+        lower.delete()
+
+    def test_create_state_districts_already_exist(self):
+        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
+        address = Address(state="MI", latitude=42.532020,
+                          longitude=-83.496500).save()
+        upper = Location(name="15", sector="state_upper").save()
+        lower = Location(name="38", sector="state_lower").save()
+        address.encompassed_by.connect(lower)
+        lower.addresses.connect(address)
+        address.encompassed_by.connect(upper)
+        upper.addresses.connect(address)
+        mi.encompasses.connect(upper)
+        upper.encompassed_by.connect(mi)
+        mi.encompasses.connect(lower)
+        lower.encompassed_by.connect(mi)
+        res = connect_to_state_districts.apply_async(
+            kwargs={'object_uuid': address.object_uuid})
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+        query = 'MATCH (l:Location {name:"38", sector:"state_lower"}), ' \
+                '(l2:Location {name:"15", sector:"state_upper"}) RETURN l, l2'
+        res, _ = db.cypher_query(query)
+        lower = Location.inflate(res[0].l)
+        upper = Location.inflate(res[0].l2)
+        self.assertTrue(lower in address.encompassed_by)
+        self.assertTrue(address in lower.addresses)
+        self.assertTrue(upper in address.encompassed_by)
+        self.assertTrue(address in upper.addresses)
+        res = connect_to_state_districts.apply_async(
+            kwargs={'object_uuid': address.object_uuid})
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+        query = 'MATCH (l:Location {name:"38", sector:"state_lower"}), ' \
+                '(l2:Location {name:"15", sector:"state_upper"}) RETURN l, l2'
+        res, _ = db.cypher_query(query)
+        self.assertEqual(len(res[0]), 2)  # assert only two nodes returned
+        self.assertEqual(lower, Location.inflate(res[0].l))
+        # assert only one lower node
+        self.assertEqual(upper, Location.inflate(res[0].l2))
+        # assert only one upper node
+        mi.delete()
+        address.delete()
+        upper.delete()
+        lower.delete()
+
+    def test_address_doesnt_exist(self):
+        res = connect_to_state_districts.apply_async(
+            kwargs={"object_uuid": str(uuid1())})
+        while not res.ready():
+            time.sleep(1)
+        self.assertIsInstance(res.result, Exception)
+
+    def test_address_has_no_lat_long(self):
+        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
+        address = Address(state="MI").save()
+        res = connect_to_state_districts.apply_async(
+            kwargs={'object_uuid': address.object_uuid})
+        while not res.ready():
+            time.sleep(1)
+        self.assertFalse(res.result)
+        mi.delete()
+        address.delete()
+
+    def test_address_has_lat_long_outside_usa(self):
+        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
+        # lat/long of Greenwich UK
+        address = Address(state="MI", latitude=51.4800, longitude=0.0000).save()
+        res = connect_to_state_districts.apply_async(
+            kwargs={'object_uuid': address.object_uuid})
+        while not res.ready():
+            time.sleep(1)
+        self.assertTrue(res.result)
+        mi.delete()
+        address.delete()

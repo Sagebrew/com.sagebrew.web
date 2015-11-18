@@ -423,6 +423,9 @@ OPERATOR_DICT = {
     'coperator\ntruth\np0\n.': 'truth'
 }
 
+OPENSTATES_DISTRICT_SEARCH_URL = "http://openstates.org/api/v1/legislators/" \
+                                 "geo/?lat=%f&long=%f"
+
 CORS_ORIGIN_ALLOW_ALL = True
 
 EXPLICIT_STIES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',

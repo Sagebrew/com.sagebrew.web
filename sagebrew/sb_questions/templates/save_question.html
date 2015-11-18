@@ -1,14 +1,7 @@
 {% extends "base.html" %}
 {% load i18n %}
 {% load staticfiles %}
-{% block css %}
-    {{ block.super }}
-    <link rel="stylesheet" href="{% static 'css/vendor/bootstrap-tokenfield.min.css' %}"/>
-    <link rel="stylesheet" href="{% static 'css/vendor/tokenfield-typeahead.min.css' %}"/>
-{% endblock css %}
-
 {% block content %}
-
     <div class="action" style="display: none" data-action="write_question"></div>
     <div class="action" style="display: none" data-action="write_comment"></div>
     <div class="action" style="display: none" data-action="write_solution"></div>
@@ -55,7 +48,8 @@
             <div class="row">
                 <div class="col-xs-12">
                     <div class="position-wrapper">
-                        <input id="pac-input" class="form-control" type="text" placeholder="What Place is Affected? (Country, State, City, etc)">
+                        <input id="pac-input" class="form-control" type="text"
+                               placeholder="What Place is Affected? (Country, State, City, etc)" value="{{ question.affected_area|default_if_none:'' }}"/>
                         <div id="location-id" hidden>{{ question.external_location_id }}</div>
                         <div id="location-lat" hidden>{{ question.latitude }}</div>
                         <div id="location-long" hidden>{{ question.longitude }}</div>

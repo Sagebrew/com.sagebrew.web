@@ -52,6 +52,10 @@ class Command(BaseCommand):
                     location.positions.connect(position)
                 if location not in position.location:
                     position.location.connect(location)
+                if not position.full_name:
+                    full_name = Position.get_full_name(position.object_uuid)
+                    position.full_name = full_name['full_name']
+                    position.save()
 
             lookup_url = base_url % (abbr, "lower")
             response = requests.get(
@@ -86,6 +90,10 @@ class Command(BaseCommand):
                     location.positions.connect(position)
                 if location not in position.location:
                     position.location.connect(location)
+                if not position.full_name:
+                    full_name = Position.get_full_name(position.object_uuid)
+                    position.full_name = full_name['full_name']
+                    position.save()
 
         return True
 

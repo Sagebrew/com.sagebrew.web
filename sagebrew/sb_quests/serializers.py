@@ -548,10 +548,10 @@ class AccountantSerializer(serializers.Serializer):
 
 class PositionSerializer(SBSerializer):
     name = serializers.CharField()
+    full_name = serializers.CharField()
 
     href = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
-    full_name = serializers.SerializerMethodField()
     campaigns = serializers.SerializerMethodField()
 
     def get_href(self, obj):

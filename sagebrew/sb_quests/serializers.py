@@ -578,9 +578,6 @@ class PositionSerializer(SBSerializer):
                            request=request)
         return location
 
-    def get_full_name(self, obj):
-        return Position.get_full_name(obj.object_uuid)
-
 
 class PositionManagerSerializer(SBSerializer):
     name = serializers.CharField()

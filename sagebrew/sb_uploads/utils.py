@@ -157,11 +157,11 @@ def parse_page_html(soupified, url, content_type='html/text'):
     title = get_page_title(soupified)
     return title, description, image, width, height
 
-def download_image_from_url(url, file_type):
+def download_image_from_url(url, file_ext):
     try:
         req = urllib2.Request(url)
         temp_file = urllib2.urlopen(req)
-        local_file = open(str(uuid1()), "w+")
+        local_file = open('%s.%s' % (str(uuid1()), file_ext), "w+")
         local_file.write(temp_file.read())
         local_file.close()
         print local_file

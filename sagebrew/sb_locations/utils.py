@@ -139,3 +139,22 @@ def connect_related_element(location, element_id):
     connection_node.focus_location.connect(location)
 
     return connection_node
+
+
+def get_positions(name, filter_param=""):
+    if filter_param == "state":
+        constructed_filter = 'WHERE p.level="state_upper" ' \
+                             'OR p.level="state_lower"'
+    elif filter_param == '':
+        constructed_filter = ''
+    else:
+        constructed_filter = 'WHERE p.level="%s"' % filter_param
+    query = 'MATCH (l:Location {name:"%s"})-[:ENCOMPASSES*..]->' \
+            '(l2:Location)-[:POSITIONS_AVAILABLE]->(p:Position) %s ' \
+            'RETURN p UNION MATCH (l:Location {name:"%s"})' \
+            '-[:POSITIONS_AVAILABLE]->(p:Position) %s RETURN p' \
+            % (name, constructed_filter, name, constructed_filter)
+    res, _ = db.cypher_query(query)
+    if not res.one:
+        return []
+    return res

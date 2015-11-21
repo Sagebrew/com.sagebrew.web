@@ -14,6 +14,7 @@ from neomodel import db
 
 from sb_quests.neo_models import Position
 
+from .utils import get_positions
 from .serializers import LocationSerializer, LocationManagerSerializer
 from .neo_models import Location
 
@@ -54,28 +55,6 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-@permission_classes((IsAuthenticated,))
-def get_positions(request, name=None):
-    filter_param = request.query_params.get("filter", "")
-    if filter_param == "state":
-        constructed_filter = 'WHERE p.level="state_upper" ' \
-                             'OR p.level="state_lower"'
-    elif filter_param == '':
-        constructed_filter = ''
-    else:
-        constructed_filter = 'WHERE p.level="%s"' % filter_param
-    query = 'MATCH (l:Location {name:"%s"})-[:ENCOMPASSES*..]->' \
-            '(l2:Location)-[:POSITIONS_AVAILABLE]->(p:Position) %s ' \
-            'RETURN p UNION MATCH (l:Location {name:"%s"})' \
-            '-[:POSITIONS_AVAILABLE]->(p:Position) %s RETURN p' \
-            % (name, constructed_filter, name, constructed_filter)
-    res, _ = db.cypher_query(query)
-    if not res.one:
-        return Response([], status=status.HTTP_200_OK)
-    return Response(res, status=status.HTTP_200_OK)
-
-
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def render_positions(request, name=None):
@@ -86,5 +65,6 @@ def render_positions(request, name=None):
             "state_name": "".join(name.split())
         }, context_instance=RequestContext(request))
         for representative in get_positions(
-            request, urllib.unquote(name).decode('utf-8')).data],
+            urllib.unquote(name).decode('utf-8'),
+            request.query_params.get("filter", ""))],
         status=status.HTTP_200_OK)

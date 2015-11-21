@@ -2,12 +2,18 @@ import bleach
 import string
 import urllib2
 import urlparse
+import requests
 import cStringIO
 import HTMLParser
 from uuid import uuid1
 from PIL import Image
 
+from django.conf import settings
+
+from rest_framework import status
+
 from api.utils import smart_truncate
+from sb_registration.utils import upload_image
 
 """
 def crop_image(image, height, width, x, y, f_uuid=None):
@@ -74,6 +80,8 @@ def is_absolute(url):
 
 
 def get_page_image(url, soup, content_type='html/text'):
+    from logging import getLogger
+    logger = getLogger('loggly_logs')
     height = 0
     width = 0
     image = soup.find(attrs={"property": "og:image"})
@@ -96,17 +104,26 @@ def get_page_image(url, soup, content_type='html/text'):
                 return image, height, width
     else:
         image = url
+    logger.info({'image': image})
     if 'image' in content_type or image:
-        req = urllib2.Request(image, None, {'User-Agent': 'Mozilla/5.0'})
-        try:
-            temp_file = cStringIO.StringIO(urllib2.urlopen(req).read())
-        except IOError:
-            return "", height, width
-        try:
-            im = Image.open(temp_file)
-            width, height = im.size
-        except IOError:
-            pass
+        logger.info('here')
+        res = requests.get(image)
+        if res.status_code == status.HTTP_200_OK:
+            try:
+                temp_file = cStringIO.StringIO(res.content)
+            except IOError:
+                return "", height, width
+            try:
+                im = Image.open(temp_file)
+                width, height = im.size
+            except IOError:
+                pass
+            file_ext = ''.join(res.headers['content-type'].split('image/'))
+            logger.info(file_ext)
+            image = upload_image(settings.AWS_UPLOAD_IMAGE_FOLDER_NAME,
+                                 '%s.%s' % (str(uuid1()), file_ext),
+                                 temp_file, True)
+            logger.info(image)
     return image, height, width
 
 
@@ -156,16 +173,3 @@ def parse_page_html(soupified, url, content_type='html/text'):
     description = get_page_description(soupified)
     title = get_page_title(soupified)
     return title, description, image, width, height
-
-def download_image_from_url(url, file_ext):
-    try:
-        req = urllib2.Request(url)
-        temp_file = urllib2.urlopen(req)
-        local_file = open('%s.%s' % (str(uuid1()), file_ext), "w+")
-        local_file.write(temp_file.read())
-        local_file.close()
-        print local_file
-
-        return local_file
-    except Exception as e:
-        print e

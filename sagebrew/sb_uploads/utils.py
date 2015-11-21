@@ -1,12 +1,12 @@
 import bleach
 import string
-import urllib2
 import urlparse
 import requests
 import cStringIO
 import HTMLParser
 from uuid import uuid1
 from PIL import Image
+from mimetypes import guess_extension
 
 from django.conf import settings
 
@@ -80,8 +80,6 @@ def is_absolute(url):
 
 
 def get_page_image(url, soup, content_type='html/text'):
-    from logging import getLogger
-    logger = getLogger('loggly_logs')
     height = 0
     width = 0
     image = soup.find(attrs={"property": "og:image"})
@@ -104,9 +102,7 @@ def get_page_image(url, soup, content_type='html/text'):
                 return image, height, width
     else:
         image = url
-    logger.info({'image': image})
     if 'image' in content_type or image:
-        logger.info('here')
         res = requests.get(image)
         if res.status_code == status.HTTP_200_OK:
             try:
@@ -118,12 +114,10 @@ def get_page_image(url, soup, content_type='html/text'):
                 width, height = im.size
             except IOError:
                 pass
-            file_ext = ''.join(res.headers['content-type'].split('image/'))
-            logger.info(file_ext)
+            file_ext = guess_extension(res.headers['content-type'])
             image = upload_image(settings.AWS_UPLOAD_IMAGE_FOLDER_NAME,
-                                 '%s.%s' % (str(uuid1()), file_ext),
+                                 '%s%s' % (str(uuid1()), file_ext),
                                  temp_file, True)
-            logger.info(image)
     return image, height, width
 
 

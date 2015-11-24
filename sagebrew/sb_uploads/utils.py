@@ -1,12 +1,19 @@
 import bleach
 import string
-import urllib2
 import urlparse
+import requests
 import cStringIO
 import HTMLParser
+from uuid import uuid1
 from PIL import Image
+from mimetypes import guess_extension
+
+from django.conf import settings
+
+from rest_framework import status
 
 from api.utils import smart_truncate
+from sb_registration.utils import upload_image
 
 """
 def crop_image(image, height, width, x, y, f_uuid=None):
@@ -96,16 +103,28 @@ def get_page_image(url, soup, content_type='html/text'):
     else:
         image = url
     if 'image' in content_type or image:
-        req = urllib2.Request(image, None, {'User-Agent': 'Mozilla/5.0'})
-        try:
-            temp_file = cStringIO.StringIO(urllib2.urlopen(req).read())
-        except IOError:
+        res = requests.get(image)
+        if res.status_code == status.HTTP_200_OK:
+            try:
+                temp_file = cStringIO.StringIO(res.content)
+            except IOError:  # pragma: no cover
+                # this IOError catches issues created by passing StringIO some
+                # corrupt or invalid data which we cannot test reliably
+                # currently
+                return "", height, width
+            try:
+                im = Image.open(temp_file)
+                width, height = im.size
+            except IOError:
+                # this IOError handles the possibility of an SVG getting
+                # passed here, PIL cannot open SVGs so the IOError handles that
+                pass
+            file_ext = guess_extension(res.headers['content-type'])
+            image = upload_image(settings.AWS_UPLOAD_IMAGE_FOLDER_NAME,
+                                 '%s%s' % (str(uuid1()), file_ext),
+                                 temp_file, True)
+        else:
             return "", height, width
-        try:
-            im = Image.open(temp_file)
-            width, height = im.size
-        except IOError:
-            pass
     return image, height, width
 
 

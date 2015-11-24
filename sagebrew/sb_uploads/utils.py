@@ -107,7 +107,10 @@ def get_page_image(url, soup, content_type='html/text'):
         if res.status_code == status.HTTP_200_OK:
             try:
                 temp_file = cStringIO.StringIO(res.content)
-            except IOError:
+            except IOError:  # pragma: no cover
+                # this IOError catches issues created by passing StringIO some
+                # corrupt or invalid data which we cannot test reliably
+                # currently
                 return "", height, width
             try:
                 im = Image.open(temp_file)

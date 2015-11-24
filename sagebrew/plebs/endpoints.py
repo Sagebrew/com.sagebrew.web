@@ -386,8 +386,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
         if possible_reps is None:
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(a:Address)-[:ENCOMPASSED_BY]->' \
-                    '(l:Location {name: str(a.congressional_district)})-' \
-                    '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
+                    '(l:Location {name: str(a.congressional_district), ' \
+                    'sector:"federal"})-[:POSITIONS_AVAILABLE]->(o:Position)' \
+                    '-[:CAMPAIGNS]' \
                     '->(c:Campaign) WHERE c.active=true AND o.level="federal"' \
                     ' RETURN DISTINCT c LIMIT 5' % username
             res, _ = db.cypher_query(query)
@@ -412,9 +413,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def possible_local_representatives(self, request, username=None):
         query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                '(a:Address)-[:ENCOMPASSED_BY]->(l:Location {name: a.city})-' \
-                '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
-                '->(c:Campaign) WHERE c.active=true AND NOT ' \
+                '(a:Address)-[:ENCOMPASSED_BY]->(l:Location {name: a.city, ' \
+                'sector:"local"})-[:POSITIONS_AVAILABLE]->(o:Position)-' \
+                '[:CAMPAIGNS]->(c:Campaign) WHERE c.active=true AND NOT ' \
                 'o.level="federal" RETURN DISTINCT c LIMIT 5' % \
                 username
         res, _ = db.cypher_query(query)
@@ -441,7 +442,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         if possible_senators is None:
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(a:Address)-[:ENCOMPASSED_BY*..]->' \
-                    '(l:Location {name: a.state})-' \
+                    '(l:Location {name: a.state, sector:"federal"})-' \
                     '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
                     '->(c:Campaign) WHERE c.active=true RETURN DISTINCT ' \
                     'c LIMIT 5' % \

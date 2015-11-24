@@ -499,6 +499,7 @@ class PoliticalCampaign(Campaign):
 
 class Position(SBObject):
     name = StringProperty()
+    full_name = StringProperty()
     level = StringProperty(default="federal")
 
     location = RelationshipTo('sb_locations.neo_models.Location',
@@ -568,6 +569,13 @@ class Position(SBObject):
 
     @classmethod
     def get_full_name(cls, object_uuid):
+        '''
+        DEPRECATED
+        Use the full_name attribute on the Position node itself instead.
+
+        :param object_uuid:
+        :return:
+        '''
         full_name = cache.get("%s_full_name" % object_uuid)
         if full_name is None:
             query = 'MATCH (p:Position {object_uuid: "%s"})-' \
@@ -575,10 +583,12 @@ class Position(SBObject):
                     'OPTIONAL MATCH (l:Location)-[:ENCOMPASSED_BY]->' \
                     '(l2:Location) WHERE l2.name<>"United States of ' \
                     'America" RETURN p.name as position_name, ' \
-                    'l.name as location_name1, l2.name as location_name2' \
+                    'l.name as location_name1, l2.name as location_name2, ' \
+                    'p.level as position_level' \
                     % object_uuid
             res, _ = db.cypher_query(query)
-            # position_name will be either 'House Representative' or 'Senator',
+            # position_name will be either 'House Representative', 'Senator',
+            # 'State House Representative', or 'State Senator',
             #  location_name1 will be either a district number or a state name
             # and location_name2 will be a state name. This is done to build
             # up the full name of a position that a user can run for, we do
@@ -589,11 +599,12 @@ class Position(SBObject):
             # do an if to determine what position we are looking at, it allows
             # for generalization of the query.
             try:
-                if res[0][0] == 'House Representative':
+                if res[0][0] == 'House Representative' \
+                        or res[0].position_level == "state_upper" \
+                        or res[0].position_level == "state_lower":
                     full_name = "%s for %s's %s district" % \
                                 (res[0].position_name, res[0].location_name2,
                                  ordinal(res[0].location_name1))
-
                 else:
                     full_name = "%s of %s" % (res[0].position_name,
                                               res[0].location_name1)

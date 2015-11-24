@@ -19,6 +19,10 @@ class Command(BaseCommand):
         for url_object in URLContent.nodes.all():
             if url_object.selected_image:
                 try:
+                    if 'sagebrew' in url_object.selected_image \
+                            and '.s3.amazonaws.com/media/' \
+                                    in url_object.selected_image:
+                        continue
                     res = requests.get(url_object.selected_image)
                     if res.status_code == status.HTTP_200_OK:
                         try:

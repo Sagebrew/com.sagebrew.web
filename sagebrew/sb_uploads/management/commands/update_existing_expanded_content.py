@@ -40,6 +40,5 @@ class Command(BaseCommand):
                 except (requests.RequestException):
                     continue
 
-
     def handle(self, *args, **options):
         self.update_existing_expanded_content()

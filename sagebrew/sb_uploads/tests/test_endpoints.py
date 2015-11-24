@@ -264,7 +264,8 @@ class URLContentEndpointTests(APITestCase):
         }
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['selected_image'], data['url'])
+        self.assertIn('https://sagebrew-dev.s3.amazonaws.com/media/',
+                      response.data['selected_image'])
 
     def test_create_not_og(self):
         self.client.force_authenticate(user=self.user)

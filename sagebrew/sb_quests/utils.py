@@ -55,8 +55,8 @@ def release_funds(goal_uuid):
             }
             spawn_task(send_email_task, email_data)
         return True
-    except (stripe.CardError, stripe.APIConnectionError, stripe.StripeError) \
-            as e:
+    except (stripe.CardError, stripe.APIConnectionError, stripe.StripeError,
+            stripe.APIError) as e:
         return e
 
 
@@ -102,6 +102,6 @@ def release_single_donation(donation_uuid):
         }
         spawn_task(send_email_task, email_data)
         return charge
-    except (stripe.CardError, stripe.APIConnectionError, stripe.StripeError) \
-            as e:
+    except (stripe.CardError, stripe.APIConnectionError, stripe.StripeError,
+            stripe.APIError) as e:
         return e

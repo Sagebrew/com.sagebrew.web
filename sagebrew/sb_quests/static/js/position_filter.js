@@ -132,7 +132,14 @@ $(document).ready(function () {
         var $positionWrapper = $("#position_wrapper"),
             $tokenField = $("#state"),
             tokens = $tokenField.tokenfield('getTokens'),
-            $this = $(this);
+            $this = $(this),
+            $presidentWrapper = $("#js-president-selector");
+        $positionWrapper.append('<div class="position-selector-loader"></div>');
+        if ($this.val() === "federal" || $this.val() === "") {
+            $presidentWrapper.show();
+        } else {
+            $presidentWrapper.hide();
+        }
         $.each(tokens, function (index, value) {
             $("." + value.label.replace(/ /g, '')).remove();
             $.ajax({

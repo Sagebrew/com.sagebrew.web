@@ -147,7 +147,6 @@ $(document).ready(function () {
         } else {
             $presidentWrapper.hide();
         }
-        console.log(tokens);
         if ($.isEmptyObject(tokens)) { // remove loader if tokens is empty
             $(".loader").remove();
         }

@@ -9,11 +9,11 @@
             </div>
         </div>
         <div class="col-xs-8 col-sm-9">
-            <h3>You've pledged ${% widthratio amount 100 1 as money %}{{ money|intcomma }} to <a href="{% url "quest_saga" campaign.object_uuid %}">{{ campaign.first_name }} {{ campaign.last_name }}'s Quest!</a></h3>
+            <h3>You've {% if completed %}donated{% else %}pledged{% endif %} ${% widthratio amount 100 1 as money %}{{ money|intcomma }} to <a href="{% url "quest_saga" campaign.object_uuid %}">{{ campaign.first_name }} {{ campaign.last_name }}'s Quest!</a></h3>
             {% if not completed %}
                 <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove js-cancel-donation" data-object_uuid="{{ id }}">Cancel Pledge</button>
             {% else %}
-                <p>This pledge has been processed already and cannot be cancelled.</p>
+                <p>This donation has been processed already and cannot be cancelled.</p>
             {% endif %}
         </div>
     </div>

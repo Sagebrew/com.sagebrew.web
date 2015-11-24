@@ -50,6 +50,7 @@ def upload_image(folder_name, file_uuid, image_file, type_known=False):
     else:
         key_string = "%s/%s%s" % (folder_name, file_uuid, ".png")
     k.key = key_string
+    image_file.seek(0)
     k.set_contents_from_string(image_file.read())
     k.make_public()
     image_uri = k.generate_url(expires_in=0, query_auth=False)

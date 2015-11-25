@@ -72,6 +72,7 @@ urlpatterns = patterns(
     (r'^quests/', include('sb_quests.urls')),
     (r'^quests/', include('sb_updates.urls')),
     (r'^quests/', include('sb_goals.urls')),
+    (r'^quest/mission/', include('sb_missions.urls')),
     (r'^council/', include('sb_council.urls')),
     url(r'^sitemap\.xml$', sitemap,
         {'sitemaps': {

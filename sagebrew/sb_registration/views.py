@@ -19,13 +19,12 @@ from neomodel import (DoesNotExist, CypherException)
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb
-from sb_quests.neo_models import Position
 
 from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,
                     LoginForm)
 from .utils import (verify_completed_registration, verify_verified_email,
-                    create_user_util, verify_no_campaign)
+                    create_user_util)
 from .models import token_gen
 from .tasks import update_interests, store_address
 
@@ -367,14 +366,3 @@ def profile_picture(request):
             'profile_picture_form': profile_picture_form,
             'pleb': profile
         })
-
-
-@login_required()
-@user_passes_test(verify_verified_email,
-                  login_url='/registration/signup/confirm/')
-def quest_position_selector(request):
-    if verify_no_campaign(request.user):
-        return redirect('quest_saga', username=request.user.username)
-    president = Position.nodes.get(name="President")
-    return render(request, 'position_selection.html',
-                  {'president': president.object_uuid})

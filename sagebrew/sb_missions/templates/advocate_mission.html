@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %} Profile Information {% endblock %}
+{% block content %}
+    <div class="block registration">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>Tell us about your Mission</h1>
+                <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <h2>What are you advocating for?</h2>
+            </div>
+            <div class="col-xs-12">
+                <input id="advocacy-selector" class="form-control" type="text"
+                       placeholder="Examples: sidewalks, cure-for-cancer, education-reform, democratic-principles, republican-values?"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <h2>Where are you advocating?</h2>
+            </div>
+            <div class="col-xs-12">
+                <div class="map-viewer-quest">
+                    <div id="map"></div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <input id="pac-input" class="form-control" type="text"
+                               placeholder="Examples: United States, Michigan, California, Chicago?"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <h2>What district are you running in?</h2>
+            </div>
+            <div class="col-xs-12">
+                <input id="district-selector" class="form-control" type="text" placeholder="Examples: 1, 2, 3?"/>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-6">
+                <button class="btn btn-primary sb_btn sb_btn_fill submit_question-action"
+                   data-url="/v1/questions/">Start</button>
+            </div>
+            <div class="col-xs-6">
+                <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove cancel_question-action">Cancel</button>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+{% block page-javascript %}
+    <script src="{% static 'js/mission_starter.js' %}"></script>
+{% endblock page-javascript %}
+{% block intercom %}
+   Intercom('trackEvent', 'visited-quest-mission-starter');
+{% endblock %}

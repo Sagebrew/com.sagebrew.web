@@ -1,27 +1,55 @@
+var usStates = [
+
+];
+
+
 function findAncestor (el, cls) {
     while ((el = el.parentElement) && !el.classList.contains(cls));
     return el;
+}
+
+
+function radioSelector(selectedElement) {
+    "use strict";
+    if(selectedElement.classList.contains("radio-selected")){
+        selectedElement.classList.remove("radio-selected");
+    } else {
+        // this.closest('.block-container-radio').getElementsByClassName('radio-image-selector');
+        // The above works but is not supported in IE
+        // This makes sure you're only deselecting elements within the current
+        // block container rather than on the whole page. Incase you have multiple
+        // block selections
+        var elements = findAncestor(selectedElement, 'block-container-radio').getElementsByClassName('radio-image-selector');
+        for(var i = 0; i < elements.length; i++){
+            elements[i].classList.remove("radio-selected");
+        }
+        selectedElement.classList.add("radio-selected");
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function() {
     var $app = $(".app-sb");
     $app
         .on('click', '.radio-image-selector', function(event) {
-        event.preventDefault();
-        if(this.classList.contains("radio-selected")){
-            this.classList.remove("radio-selected");
-        } else {
-            // this.closest('.block-container-radio').getElementsByClassName('radio-image-selector');
-            // The above works but is not supported in IE
-            // This makes sure you're only deselecting elements within the current
-            // block container rather than on the whole page. Incase you have multiple
-            // block selections
-            var elements = findAncestor(this, 'block-container-radio').getElementsByClassName('radio-image-selector');
-            for(var i = 0; i < elements.length; i++){
-                elements[i].classList.remove("radio-selected");
+            event.preventDefault();
+            if(this.classList.contains("radio-selected")){
+                document.getElementById('state-input').disabled = true;
+                document.getElementById('pac-input').disabled = true;
+            } else {
+                document.getElementById('state-input').disabled = false;
+                document.getElementById('pac-input').disabled = false;
             }
-            this.classList.add("radio-selected");
-        }
+            radioSelector(this);
+            if(this.id === "local-selection"){
+                document.getElementById('state-input').classList.add('hidden');
+                document.getElementById('pac-input').classList.remove('hidden');
+            } else if (this.id === "state-selection"){
+                document.getElementById('state-input').classList.remove('hidden');
+                document.getElementById('pac-input').classList.add('hidden');
+            } else if (this.id === "federal-selection"){
+                document.getElementById('state-input').classList.remove('hidden');
+                document.getElementById('pac-input').classList.add('hidden');
+            }
         })
         //
         // TODO repeat code as what we use in section-profile friends.js
@@ -39,7 +67,18 @@ document.addEventListener("DOMContentLoaded", function() {
             event.preventDefault();
             $(this).fadeOut('fast');
             $(".sb-profile-not-friend-element-image").removeClass("active");
-        })
+        });
+    var nativedatalist = !!('list' in document.createElement('input')) &&
+        !!(document.createElement('datalist') && window.HTMLDataListElement);
+
+    if (!nativedatalist) {
+        $('input[list]').each(function () {
+            var availableTags = $('#' + $(this).attr("list")).find('option').map(function () {
+                return this.value;
+            }).get();
+            $(this).autocomplete({ source: availableTags });
+        });
+    }
     init();
 });
 
@@ -74,13 +113,7 @@ function initAutocomplete() {
     var autocomplete = new google.maps.places.Autocomplete(input);
     autocomplete.setTypes(['(regions)']);
     autocomplete.bindTo('bounds', map);
-    var marker = new google.maps.Marker({
-        map: map,
-        anchorPoint: new google.maps.Point(42.3314, -83.0458)
-    });
     autocomplete.addListener('place_changed', function() {
-        marker.setVisible(false);
-
         var place = autocomplete.getPlace();
         if (!place.geometry) {
             window.alert("Autocomplete's returned place contains no geometry");
@@ -93,30 +126,7 @@ function initAutocomplete() {
             map.setCenter(place.geometry.location);
             map.setZoom(12);
         }
-        marker.setIcon(({
-            url: place.icon,
-            size: new google.maps.Size(71, 71),
-            origin: new google.maps.Point(0, 0),
-            anchor: new google.maps.Point(17, 34),
-            scaledSize: new google.maps.Size(35, 35)
-        }));
-        marker.setPosition(place.geometry.location);
-        marker.setVisible(true);
-        var placeID = place.place_id,
-            affectedArea = place.formatted_address;
-        latitude = place.geometry.location.lat();
-        longitude = place.geometry.location.lng();
-        if(typeof(Storage) !== "undefined") {
-            localStorage.setItem('questionPlaceID', placeID);
-            localStorage.setItem('questionLatitude', latitude);
-            localStorage.setItem('questionLongitude', longitude);
-            localStorage.setItem('questionAffectedArea', affectedArea);
-        } else {
-            document.getElementById('location-id').innerHTML = placeID;
-            document.getElementById('location-lat').innerHTML = latitude;
-            document.getElementById('location-long').innerHTML = longitude;
-            document.getElementById('location-area').innerHTML = affectedArea;
-        }
+
 
         request.post({url: '/v1/locations/cache/', data: JSON.stringify(place)});
     });

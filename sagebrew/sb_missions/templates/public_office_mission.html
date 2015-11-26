@@ -14,7 +14,7 @@
                 <h2>What level is it?</h2>
             </div>
             <div class="col-xs-12 col-sm-4">
-                <div class="radio-image-selector">
+                <div class="radio-image-selector" id="local-selection">
                     <h4 class="sb-profile-not-friend-header">Local</h4>
                     <div class="row radio-image-selector-image-wrapper">
                         <img class="radio-image-selector-image" src="{% static "images/city.png" %}">
@@ -22,7 +22,7 @@
                 </div>
             </div>
             <div class="col-xs-12 col-sm-4 ">
-                <div class="radio-image-selector">
+                <div class="radio-image-selector" id="state-selection">
                     <h4 class="sb-profile-not-friend-header">State</h4>
                     <div class="row radio-image-selector-image-wrapper">
                         <img class="radio-image-selector-image" src="{% static "images/michigan.png" %}">
@@ -30,7 +30,7 @@
                 </div>
             </div>
             <div class="col-xs-12 col-sm-4">
-                <div class="radio-image-selector">
+                <div class="radio-image-selector" id="federal-selection">
                     <h4 class="sb-profile-not-friend-header">Federal</h4>
                     <div class="row radio-image-selector-image-wrapper">
                         <img class="radio-image-selector-image" src="{% static "images/federal.png" %}">
@@ -38,21 +38,78 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" id="map-row">
             <div class="col-xs-12">
                 <h2>Where are you running?</h2>
+            </div>
+            <div class="col-xs-12">
+                <input id="state-input" list="states" class="form-control mission-input" disabled type="text"
+                               placeholder="Examples: Michigan, Alabama, South Carolina, California?"/>
+                <datalist id="states">
+                    <select style="display: none;">
+                        <option value="Alabama" data-abbreviation="AL">
+                        <option value="Alasks" data-abbreviation="AK">
+                        <option value="Arizona" data-abbreviation="AZ">
+                        <option value="Arkansas" data-abbreviation="AR">
+                        <option value="California" data-abbreviation="CA">
+                        <option value="Colorado" data-abbreviation="CO">
+                        <option value="Connecticut" data-abbreviation="CT">
+                        <option value="Delaware" data-abbreviation="DE">
+                        <option value="District of Colombia" data-abbreviation="DC">
+                        <option value="Florida" data-abbreviation="FL">
+                        <option value="Georgia" data-abbreviation="GA">
+                        <option value="Hawaii" data-abbreviation="HI">
+                        <option value="Idaho" data-abbreviation="ID">
+                        <option value="Illinois" data-abbreviation="IL">
+                        <option value="Indiana" data-abbreviation="IN">
+                        <option value="Iowa" data-abbreviation="IA">
+                        <option value="Kansas" data-abbreviation="KS">
+                        <option value="Kentucky" data-abbreviation="KY">
+                        <option value="Louisiana" data-abbreviation="LA">
+                        <option value="Maine" data-abbreviation="ME">
+                        <option value="Maryland" data-abbreviation="MD">
+                        <option value="Massachusetts" data-abbreviation="MA">
+                        <option value="Michigan" data-abbreviation="MI">
+                        <option value="Minnesota" data-abbreviation="MN">
+                        <option value="Mississippi" data-abbreviation="MS">
+                        <option value="Missouri" data-abbreviation="MO">
+                        <option value="Montana" data-abbreviation="MT">
+                        <option value="Nebraska" data-abbreviation="NE">
+                        <option value="Nevada" data-abbreviation="NV">
+                        <option value="New Hampshire" data-abbreviation="NH">
+                        <option value="New Jersey" data-abbreviation="NJ">
+                        <option value="New Mexico" data-abbreviation="NM">
+                        <option value="New York" data-abbreviation="NY">
+                        <option value="North Carolina" data-abbreviation="NC">
+                        <option value="North Dakota" data-abbreviation="ND">
+                        <option value="Ohio" data-abbreviation="OH">
+                        <option value="Oklahoma" data-abbreviation="OK">
+                        <option value="Oregon" data-abbreviation="OR">
+                        <option value="Pennsylvania" data-abbreviation="PA">
+                        <option value="Rhode Island" data-abbreviation="RI">
+                        <option value="South Carolina" data-abbreviation="SC">
+                        <option value="South Dakota" data-abbreviation="SD">
+                        <option value="Tennessee" data-abbreviation="TN">
+                        <option value="Texas" data-abbreviation="TX">
+                        <option value="Utah" data-abbreviation="UT">
+                        <option value="Vermont" data-abbreviation="VT">
+                        <option value="Virginia" data-abbreviation="VA">
+                        <option value="Washington" data-abbreviation="WA">
+                        <option value="West Virginia" data-abbreviation="WV">
+                        <option value="Wisconsin" data-abbreviation="WI">
+                        <option value="Wyoming" data-abbreviation="WY">
+                    </select>
+                </datalist>
+                <input id="pac-input" class="form-control mission-input hidden" disabled type="text"
+                               placeholder="Examples: United States, Michigan, California, Chicago?"/>
             </div>
             <div class="col-xs-12">
                 <div class="map-viewer-quest">
                     <div id="map"></div>
                 </div>
             </div>
-            <div class="col-xs-12">
-                <input id="pac-input" class="form-control" type="text"
-                               placeholder="Examples: United States, Michigan, California, Chicago?"/>
-            </div>
         </div>
-        <div class="row block-container-radio">
+        <div class="row block-container-radio" id="position-row">
             <div class="col-xs-12">
                 <h2>What are you running for?</h2>
             </div>
@@ -91,17 +148,18 @@
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row" id="district-row">
             <div class="col-xs-12">
                 <h2>What district are you running in?</h2>
             </div>
             <div class="col-xs-12">
-                <input id="district-selector" class="form-control" type="text" placeholder="Examples: 1, 2, 3?"/>
+                <input id="district-selector" class="form-control mission-input" type="text" placeholder="Examples: 1, 2, 3?"/>
             </div>
         </div>
-        <div class="row">
+        <div class="row" id="start-row">
             <div class="col-xs-6">
                 <button class="btn btn-primary sb_btn sb_btn_fill submit_question-action"
+                        disabled
                    data-url="/v1/questions/">Start</button>
             </div>
             <div class="col-xs-6">

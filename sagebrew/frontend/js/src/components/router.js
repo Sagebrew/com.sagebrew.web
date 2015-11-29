@@ -68,6 +68,11 @@ var controller_map = [
         controller: "registration",
         match_method: "path",
         check: "^registration/profile_picture"
+    },
+    {
+        controller: "section-quest-temp",
+        match_method: "path",
+        check: "^quest/mission/public_office"
     }
 ];
 

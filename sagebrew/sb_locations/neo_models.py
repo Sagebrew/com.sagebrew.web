@@ -30,7 +30,7 @@ class Location(SBObject):
     created_by = StringProperty(default="smarty_streets")
     # ID provided by a third party representing the ID that should be used
     # when querying their service.
-    external_id = StringProperty(default=None)
+    external_id = StringProperty(default=None, unique_index=True)
 
     @classmethod
     def get(cls, object_uuid):

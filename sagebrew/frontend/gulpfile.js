@@ -26,13 +26,6 @@ var gulp = require('gulp'),
 var paths = {
     libraries: [
         'bower_components/jquery/dist/jquery.js',
-        // TODO may not want to be compiling in jquery ui everywhere for our current use case
-        'bower_components/jquery-ui/ui/core.js',
-        'bower_components/jquery-ui/ui/widget.js',
-        'bower_components/jquery-ui/ui/position.js',
-        'bower_components/jquery-ui/ui/menu.js',
-        'bower_components/jquery-ui/ui/autocomplete.js',
-
         'bower_components/bootstrap/js/alert.js',
         'bower_components/bootstrap/js/dropdown.js',
         'bower_components/bootstrap/js/modal.js',
@@ -79,8 +72,6 @@ var paths = {
     images: [
         'bower_components/lightbox2/dist/images/*',
         'bower_components/croppic/assets/img/*',
-        // TODO may not want to be compiling in jquery ui everywhere for our current use case
-        'bower_components/jquery-ui/themes/base/images/*',
         '../sagebrew/static/images/*.png',
         '../sagebrew/static/images/*.gif',
         '../sagebrew/static/images/*.jpg',

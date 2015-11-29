@@ -21,6 +21,7 @@ class LocationSerializer(SBSerializer):
     encompassed_by = serializers.SerializerMethodField()
     positions = serializers.SerializerMethodField()
     geo_data = serializers.SerializerMethodField()
+    external_id = serializers.CharField()
 
     def get_encompasses(self, obj):
         request, _, _, relations, _ = gather_request_data(self.context)

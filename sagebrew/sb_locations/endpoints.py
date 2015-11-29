@@ -2,9 +2,10 @@ import urllib
 from django.core.cache import cache
 from django.template import RequestContext
 from django.template.loader import render_to_string
+from django.conf import settings
 
 from rest_framework.decorators import (api_view, permission_classes)
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from rest_framework import viewsets
@@ -13,6 +14,7 @@ from rest_framework import status
 from neomodel import db
 
 from sb_quests.neo_models import Position
+from sb_quests.serializers import PositionSerializer
 
 from .utils import get_positions
 from .serializers import LocationSerializer, LocationManagerSerializer
@@ -31,7 +33,13 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
         return [Location.inflate(row[0]) for row in res]
 
     def get_object(self):
-        return Location.get(object_uuid=self.kwargs[self.lookup_field])
+        if self.request.query_params.get('lookup', False) == "external_id":
+            try:
+                Location.nodes.get(external_id=self.kwargs[self.lookup_field])
+            except Location.DoesNotExist:
+                return None
+        else:
+            return Location.get(object_uuid=self.kwargs[self.lookup_field])
 
     @list_route(methods=['post'],
                 serializer_class=LocationManagerSerializer,

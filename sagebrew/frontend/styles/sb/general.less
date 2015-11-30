@@ -871,7 +871,7 @@ a {
 }
 .registration {
   margin-top: 30px;
-  background-color: @sb_green_wall;
+  background-color: white;
   h2{
     margin-bottom: 0;
   }
@@ -1759,6 +1759,12 @@ textarea.sb_comment_input{
   &:extend(.sb-profile-not-friend-element);
   border: 5px lightgrey solid;
   background-color: #e4e4e4;
+}
+.radio-image-selector-disabled {
+  &:extend(.radio-image-selector);
+  img{
+    opacity: 0.1;
+  }
 }
 .radio-image-selector:hover{
   border-color: green;

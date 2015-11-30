@@ -6,6 +6,10 @@ var request = require('./../../../api').request,
 
 
 export function load() {
+    if(typeof(Storage) !== "undefined") {
+        localStorage.removeItem('politicianMissionLocationID');
+        localStorage.removeItem('politicianMissionLocationFilter');
+    }
     var $app = $(".app-sb");
     $app
         .on('click', '.radio-image-selector', function(event) {
@@ -22,21 +26,31 @@ export function load() {
                 document.getElementById('state-input').classList.add('hidden');
                 document.getElementById('pac-input').classList.remove('hidden');
                 document.getElementById('district-row').classList.add('hidden');
+                localStorage.setItem('politicianMissionLocationFilter', "local");
             } else if (this.id === "state-selection"){
                 document.getElementById('state-input').classList.remove('hidden');
                 document.getElementById('pac-input').classList.add('hidden');
                 document.getElementById('district-row').classList.remove('hidden');
+                localStorage.setItem('politicianMissionLocationFilter', "state");
             } else if (this.id === "federal-selection"){
                 document.getElementById('state-input').classList.remove('hidden');
                 document.getElementById('pac-input').classList.add('hidden');
                 document.getElementById('district-row').classList.remove('hidden');
+                localStorage.setItem('politicianMissionLocationFilter', "federal");
             } else if (this.id === "Senator") {
-                console.log('here')
+                if (localStorage.getItem('politicianMissionLocationFilter') === "state"){
+                    fillDistricts("state_upper");
+                } else {
+                    fillDistricts("federal");
+                }
             } else if (this.id === "House Representative") {
-                console.log('here')
+                if (localStorage.getItem('politicianMissionLocationFilter') === "state"){
+                    fillDistricts("state_lower");
+                } else {
+                    fillDistricts("federal");
+                }
             }
         });
-
     helpers.loadMap(initAutocomplete, "places");
 }
 
@@ -88,27 +102,30 @@ function initAutocomplete() {
             map.setCenter(place.geometry.location);
             map.setZoom(12);
         }
-
         request.post({url: '/v1/locations/cache/', data: JSON.stringify(place)});
     });
     function callback(results, status) {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
             var place = results[0];
             fillPositions(place.place_id);
-            fillDistricts(place.place_id);
             if (place.geometry.viewport) {
                 map.fitBounds(place.geometry.viewport);
             } else {
                 map.setCenter(place.geometry.location);
                 map.setZoom(12);
             }
+            localStorage.setItem('politicianMissionLocationID', place.place_id);
         }
     }
 }
 
-function fillDistricts(identifier, filter="") {
+function fillDistricts(filterParam) {
     "use strict";
+    var identifier = localStorage.getItem('politicianMissionLocationID');
     var url = "/v1/locations/" + identifier + "/district_names/?lookup=external_id";
+    if (filterParam !== "" && filterParam !== undefined){
+        url = url + "&filter=" + filterParam
+    }
     request.get({url: url})
         .done(function (data) {
             var context, districtList = [], name;

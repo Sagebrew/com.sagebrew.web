@@ -16,7 +16,7 @@ from neomodel import db
 from sb_quests.neo_models import Position
 from sb_quests.serializers import PositionSerializer
 
-from .utils import get_positions
+from .utils import get_positions, get_districts
 from .serializers import LocationSerializer, LocationManagerSerializer
 from .neo_models import Location
 
@@ -61,6 +61,70 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
         else:
             return Response({"status": status.HTTP_400_BAD_REQUEST},
                             status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticated,))
+    def position_names(self, request, object_uuid=None):
+        lookup = self.request.query_params.get('lookup', "object_uuid")
+        filter_param = self.request.query_params.get('filter', "federal")
+        if lookup in settings.NON_SAFE:
+            return Response({"status": status.HTTP_400_BAD_REQUEST},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {
+                "results": [row[0] for row in get_positions(
+                    object_uuid, filter_param=filter_param, lookup=lookup,
+                    distinct=True, property_name=".name")],
+                "status": status.HTTP_200_OK
+            }, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticated,))
+    def positions(self, request, object_uuid=None):
+        lookup = self.request.query_params.get('lookup', "object_uuid")
+        filter_param = self.request.query_params.get('filter', "federal")
+        if lookup in settings.NON_SAFE:
+            return Response({"status": status.HTTP_400_BAD_REQUEST},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {
+                "results": [PositionSerializer(Position.inflate(row[0])).data
+                            for row in get_positions(
+                        object_uuid, filter_param=filter_param, lookup=lookup)],
+                "status": status.HTTP_200_OK
+            }, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticated,))
+    def district_names(self, request, object_uuid=None):
+        lookup = self.request.query_params.get('lookup', "object_uuid")
+        filter_param = self.request.query_params.get('filter', "federal")
+        if lookup in settings.NON_SAFE:
+            return Response({"status": status.HTTP_400_BAD_REQUEST},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {
+                "results": [row[0] for row in get_districts(
+                    object_uuid, filter_param=filter_param, lookup=lookup,
+                    distinct=True, property_name=".name")],
+                "status": status.HTTP_200_OK
+            }, status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticated,))
+    def districts(self, request, object_uuid=None):
+        lookup = self.request.query_params.get('lookup', "object_uuid")
+        filter_param = self.request.query_params.get('filter', "federal")
+        if lookup in settings.NON_SAFE:
+            return Response({"status": status.HTTP_400_BAD_REQUEST},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {
+                "results": [LocationSerializer(Location.inflate(row[0])).data
+                            for row in get_districts(
+                        object_uuid, filter_param=filter_param, lookup=lookup)],
+                "status": status.HTTP_200_OK
+            }, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])

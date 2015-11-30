@@ -11,7 +11,7 @@
         </div>
         <div class="row block-container-radio">
             <div class="col-xs-12">
-                <h2>What level is it?</h2>
+                <h2>What level is it at?</h2>
             </div>
             <div class="col-xs-12 col-sm-4">
                 <div class="radio-image-selector" id="local-selection">
@@ -112,46 +112,15 @@
                 <h2>What are you running for?</h2>
             </div>
             <div id="js-position-selector">
-                <div class="col-xs-12 col-sm-4">
-                    <div class="radio-image-selector">
-                        <h4 class="sb-profile-not-friend-header">President</h4>
-                        <div class="row radio-image-selector-image-wrapper">
-                            <img class="radio-image-selector-image" src="{% static "images/executive.png" %}">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-4">
-                    <div class="radio-image-selector">
-                        <h4 class="sb-profile-not-friend-header">Senator</h4>
-                        <div class="row radio-image-selector-image-wrapper">
-                            <img class="radio-image-selector-image" src="{% static "images/senator.png" %}">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-4">
-                    <div class="radio-image-selector">
-                        <h4 class="sb-profile-not-friend-header">House Representative</h4>
-                        <div class="row radio-image-selector-image-wrapper">
-                            <img class="radio-image-selector-image" src="{% static "images/council.png" %}">
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-sm-4">
-                    <div class="radio-image-selector">
-                        <h4 class="sb-profile-not-friend-header">Other</h4>
-                        <div class="row radio-image-selector-image-wrapper">
-                            <img class="radio-image-selector-image" src="{% static "images/other.png" %}">
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </div>
-        <div class="row" id="district-row">
+        <div class="row hidden" id="district-row">
             <div class="col-xs-12">
                 <h2>What district are you running in?</h2>
             </div>
             <div class="col-xs-12">
-                <input id="district-selector" class="form-control mission-input" type="text" placeholder="Examples: 1, 2, 3?"/>
+                <input id="district-selector" disabled class="form-control mission-input" type="text" placeholder="Examples: 1, 2, 3?"/>
             </div>
         </div>
         <div class="row" id="start-row">

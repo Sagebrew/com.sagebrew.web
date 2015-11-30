@@ -141,7 +141,8 @@ def connect_related_element(location, element_id):
     return connection_node
 
 
-def get_positions(name, filter_param=""):
+def get_positions(identifier, filter_param="", lookup="name", distinct=False,
+                  property_name=""):
     if filter_param == "state":
         constructed_filter = 'WHERE p.level="state_upper" ' \
                              'OR p.level="state_lower"'
@@ -149,11 +150,42 @@ def get_positions(name, filter_param=""):
         constructed_filter = ''
     else:
         constructed_filter = 'WHERE p.level="%s"' % filter_param
-    query = 'MATCH (l:Location {name:"%s"})-[:ENCOMPASSES*..]->' \
+
+    if distinct:
+        distinct_string = "DISTINCT"
+    else:
+        distinct_string = ""
+    query = 'MATCH (l:Location {%s: "%s"})-[:ENCOMPASSES*..]->' \
             '(l2:Location)-[:POSITIONS_AVAILABLE]->(p:Position) %s ' \
-            'RETURN p UNION MATCH (l:Location {name:"%s"})' \
-            '-[:POSITIONS_AVAILABLE]->(p:Position) %s RETURN p' \
-            % (name, constructed_filter, name, constructed_filter)
+            'RETURN %s p%s UNION MATCH (l:Location {%s: "%s"})' \
+            '-[:POSITIONS_AVAILABLE]->(p:Position) %s RETURN %s p%s' \
+            % (lookup, identifier, constructed_filter, distinct_string,
+               property_name, lookup, identifier,
+               constructed_filter, distinct_string, property_name)
+    res, _ = db.cypher_query(query)
+    if not res.one:
+        return []
+    return res
+
+
+def get_districts(identifier, filter_param="", lookup="name", distinct=False,
+                  property_name=""):
+    if filter_param == "state":
+        constructed_filter = 'WHERE l.sector="state_upper" ' \
+                             'OR l.sector="state_lower"'
+    elif filter_param == '':
+        constructed_filter = ''
+    else:
+        constructed_filter = 'WHERE l.sector="%s"' % filter_param
+
+    if distinct:
+        distinct_string = "DISTINCT"
+    else:
+        distinct_string = ""
+    query = 'MATCH (l2:Location {%s: "%s"})-[:ENCOMPASSES*..]->' \
+            '(l:Location) %s RETURN %s l%s ORDER BY l.name' % (
+                lookup, identifier, constructed_filter, distinct_string,
+                property_name)
     res, _ = db.cypher_query(query)
     if not res.one:
         return []

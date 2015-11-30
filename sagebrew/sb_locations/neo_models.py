@@ -7,6 +7,11 @@ from api.neo_models import SBObject
 
 class Location(SBObject):
     name = StringProperty(index=True)
+    # Valid Sectors:
+    #     state_upper - State Senator Districts
+    #     state_lower - State House Representative Districts
+    #     federal - U.S. Federal Districts (House of Reps)
+    #     local - Everything else :)
     sector = StringProperty(default=None)
     geo_data = StringProperty(default=None)
 

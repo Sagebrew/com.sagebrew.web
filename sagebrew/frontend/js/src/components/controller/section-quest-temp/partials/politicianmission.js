@@ -1,7 +1,8 @@
 /*global google*/
 var request = require('./../../../api').request,
     radioSelector = require('./../../../common/radioimage').radioSelector,
-    helpers = require('./../../../common/helpers');
+    helpers = require('./../../../common/helpers'),
+    templates = require('./../../../template_build/templates');
 
 
 export function load() {
@@ -20,12 +21,15 @@ export function load() {
             if(this.id === "local-selection"){
                 document.getElementById('state-input').classList.add('hidden');
                 document.getElementById('pac-input').classList.remove('hidden');
+                document.getElementById('district-row').classList.add('hidden');
             } else if (this.id === "state-selection"){
                 document.getElementById('state-input').classList.remove('hidden');
                 document.getElementById('pac-input').classList.add('hidden');
+                document.getElementById('district-row').classList.remove('hidden');
             } else if (this.id === "federal-selection"){
                 document.getElementById('state-input').classList.remove('hidden');
                 document.getElementById('pac-input').classList.add('hidden');
+                document.getElementById('district-row').classList.remove('hidden');
             }
         })
         //
@@ -45,7 +49,9 @@ export function load() {
             $(this).fadeOut('fast');
             $(".sb-profile-not-friend-element-image").removeClass("active");
         });
-
+    var context = {name: "President", image_path: "https://sagebrew.local.dev/static/images/city.png"};
+    var template = templates.position_image_radio;
+    document.getElementById('js-position-selector').innerHTML = template(context);
     helpers.loadMap(initAutocomplete, "places");
 }
 

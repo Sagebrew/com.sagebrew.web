@@ -1,11 +1,14 @@
 var gulp = require('gulp'),
     path = require('path'),
+    handlebars = require('gulp-handlebars'),
     concat = require('gulp-concat'),
     browserify = require('browserify'),
     bulkify = require('bulkify'),
     globify = require('require-globify'),
     babelify = require("babelify"),
     less = require('gulp-less'),
+    wrap = require('gulp-wrap'),
+    declare = require('gulp-declare'),
     gulpif = require('gulp-if'),
     jshint = require('gulp-jshint'),
     uglify = require('gulp-uglify'),
@@ -46,6 +49,7 @@ var paths = {
         'bower_components/typeahead.js/dist/typeahead.bundle.min.js',
         'js/vendor/formvalidation/formValidation.min.js',
         'js/vendor/formvalidation/bootstrap.min.js',
+        '../sagebrew/static/js/vendor/spin.min.js',
         '../sagebrew/static/js/vendor/spin.min.js',
         '../sagebrew/static/js/vendor/jquery.spin.js',
         '../sagebrew/static/js/vendor/foggy.min.js',
@@ -101,10 +105,28 @@ gulp.task('lr-server', function() {
 //
 // App Scripts - Lint
 gulp.task('scripts:lint', function () {
-    return gulp.src(['js/src/**'])
+    return gulp.src(['js/src/**/*.js'])
             .pipe(gulpif(!production, jshint('.jshintrc')))
             .pipe(gulpif(!production, jshint.reporter('jshint-stylish')))
             .on('error', gutil.log);
+});
+
+//
+// Compile all templates
+gulp.task('templates', function(){
+  gulp.src('js/src/**/templates/*.hbs')
+    .pipe(handlebars({
+        handlebars: require('handlebars')
+    }))
+    .pipe(wrap('Handlebars.template(<%= contents %>)'))
+    .pipe(declare({
+        root: 'exports',
+        noRedeclare: true
+    }))
+    .pipe(concat('templates.js'))
+    // Add the Handlebars module in the final output
+    .pipe(wrap('var Handlebars = require("handlebars");\n <%= contents %>'))
+    .pipe(gulp.dest('js/src/components/template_build/'));
 });
 
 //
@@ -209,8 +231,8 @@ gulp.task('watch', function () {
 
 //
 // Build
-gulp.task('build', ['scripts', 'styles', 'images', 'fonts']);
+gulp.task('build', ['templates', 'scripts', 'styles', 'images', 'fonts']);
 
 //
 // Default task.
-gulp.task('default', ['watch', 'scripts', 'styles', 'images', 'fonts']);
+gulp.task('default', ['watch', 'templates', 'scripts', 'styles', 'images', 'fonts']);

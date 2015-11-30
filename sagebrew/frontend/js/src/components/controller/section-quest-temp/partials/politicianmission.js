@@ -30,28 +30,13 @@ export function load() {
                 document.getElementById('state-input').classList.remove('hidden');
                 document.getElementById('pac-input').classList.add('hidden');
                 document.getElementById('district-row').classList.remove('hidden');
+            } else if (this.id === "Senator") {
+                console.log('here')
+            } else if (this.id === "House Representative") {
+                console.log('here')
             }
-        })
-        //
-        // TODO repeat code as what we use in section-profile friends.js
-        .on('mouseenter', ".js-hover-overlay-activate", function(event) {
-            event.preventDefault();
-            var $this = $(this),
-            overlay = $this.parent().parent().find(".sb-overlay");
-            overlay.height($this.height());
-            overlay.fadeIn('fast');
-        })
-
-        //
-        // Remove overlay when mouse leaves card region
-        .on('mouseleave', '.sb-overlay', function(event) {
-            event.preventDefault();
-            $(this).fadeOut('fast');
-            $(".sb-profile-not-friend-element-image").removeClass("active");
         });
-    var context = {name: "President", image_path: "https://sagebrew.local.dev/static/images/city.png"};
-    var template = templates.position_image_radio;
-    document.getElementById('js-position-selector').innerHTML = template(context);
+
     helpers.loadMap(initAutocomplete, "places");
 }
 
@@ -79,11 +64,11 @@ function initAutocomplete() {
             } else {
                 query = query + ", United States";
             }
-            var request = {
+            var requestQuery = {
                 query: query
             };
             var service = new google.maps.places.PlacesService(map);
-            service.textSearch(request, callback);
+            service.textSearch(requestQuery, callback);
         });
 
     var autocomplete = new google.maps.places.Autocomplete(input);
@@ -91,6 +76,7 @@ function initAutocomplete() {
     autocomplete.bindTo('bounds', map);
     autocomplete.addListener('place_changed', function() {
         var place = autocomplete.getPlace();
+        fillPositions(place.place_id);
         if (!place.geometry) {
             window.alert("Autocomplete's returned place contains no geometry");
             return;
@@ -103,13 +89,13 @@ function initAutocomplete() {
             map.setZoom(12);
         }
 
-
-
         request.post({url: '/v1/locations/cache/', data: JSON.stringify(place)});
     });
     function callback(results, status) {
         if (status === google.maps.places.PlacesServiceStatus.OK) {
             var place = results[0];
+            fillPositions(place.place_id);
+            fillDistricts(place.place_id);
             if (place.geometry.viewport) {
                 map.fitBounds(place.geometry.viewport);
             } else {
@@ -118,5 +104,56 @@ function initAutocomplete() {
             }
         }
     }
+}
+
+function fillDistricts(identifier, filter="") {
+    "use strict";
+    var url = "/v1/locations/" + identifier + "/district_names/?lookup=external_id";
+    request.get({url: url})
+        .done(function (data) {
+            var context, districtList = [], name;
+            for(var i=0; i < data.results.length; i++) {
+                name = data.results[i];
+                context = {name: name};
+                districtList.push(context);
+            }
+            document.getElementById('js-district-selector').innerHTML = templates.district_options({districts: districtList});
+        });
+}
+
+function fillPositions (identifier, filter="") {
+    "use strict";
+    var url = "/v1/locations/" + identifier + "/position_names/?lookup=external_id";
+    console.log(url);
+    request.get({url:url})
+        .done(function(data) {
+            var context, positionList = [], name,
+                image_path;
+            for(var i=0; i < data.results.length; i++) {
+                name = data.results[i];
+                // TODO simplify with types rather than each position
+                if(name === "Senator"){
+                    image_path = "https://sagebrew.local.dev/static/images/council.png"
+                } else if (name === "House Representative"){
+                    image_path = "https://sagebrew.local.dev/static/images/council.png"
+                } else if (name === "President") {
+                    image_path = "https://sagebrew.local.dev/static/images/executive.png"
+                } else if (name === "Governor") {
+                    image_path = "https://sagebrew.local.dev/static/images/executive.png"
+                } else if (name === "City Council") {
+                    image_path = "https://sagebrew.local.dev/static/images/council.png"
+                } else if (name === "Mayor") {
+                    image_path = "https://sagebrew.local.dev/static/images/executive.png"
+                }
+                context = {
+                    name: name,
+                    image_path: image_path
+                };
+                positionList.push(context);
+            }
+            document.getElementById('js-position-selector').innerHTML = templates.position_image_radio({positions: positionList});
+        });
+
+
 }
 

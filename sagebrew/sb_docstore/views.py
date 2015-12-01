@@ -9,8 +9,11 @@ from .tasks import spawn_user_updates
 @api_view(["POST"])
 @permission_classes((IsAuthenticated,))
 def get_updates_from_dynamo(request):
+    from logging import getLogger
+    logger = getLogger('loggly_logs')
+    logger.info(request.data)
     spawn_task(task_func=spawn_user_updates, task_param={
         'username': request.user.username,
-        "object_uuids": request.data['object_uuids']})
+        'object_uuids': request.data['object_uuids']})
 
     return Response({'detail': 'success'}, status=200)

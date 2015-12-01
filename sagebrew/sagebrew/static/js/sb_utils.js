@@ -275,8 +275,7 @@ function voteObject(voteArea, resource) {
         localStorage.removeItem("objectUpdates");
         var objectUpdates = localStorage.getItem("objectUpdates");
         if (!objectUpdates) {
-            var newUpdates = [objectUuid];
-            localStorage.setItem("objectUpdates", JSON.stringify(newUpdates));
+            localStorage.setItem("objectUpdates", JSON.stringify([objectUuid]));
         } else {
             var jsonUpdates = JSON.parse(objectUpdates);
             if (jsonUpdates.indexOf(objectUuid) < 0) {

@@ -65,6 +65,11 @@ def custom_exception_handler(exc, context):
         logger.exception("%s Stripe API Connection Error" % context['view'])
         return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    if isinstance(exc, stripe.APIError):
+        data = errors.STRIPE_CONNECTION_ERROR
+        logger.exception("%s Stripe API Error" % context['view'])
+        return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     if isinstance(exc, DoesNotExist):
         request = context.get('request', None)
         if request is not None:

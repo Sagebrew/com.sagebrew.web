@@ -8,8 +8,8 @@ export const meta = {
     match_method: "path",
     check: [
        "^quest/mission/public_office",
-       "^quest/mission" // TODO this could be moved to a seperate controller/dir
-                        // based on the new layout @mwisner is working on in #720
+       "^quest/mission/select" // TODO this could be moved to a seperate controller/dir
+                               // based on the new layout @mwisner is working on in #720
     ]
 };
 

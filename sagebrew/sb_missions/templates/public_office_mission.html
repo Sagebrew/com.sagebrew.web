@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block title %} Profile Information {% endblock %}
+{% block title %} Public Office Mission {% endblock %}
 {% block content %}
     <div class="block registration">
         <div class="row">
@@ -14,15 +14,15 @@
                 <h2>What level is it at?</h2>
             </div>
             <div class="col-xs-12 col-sm-4">
-                <div class="radio-image-selector" id="local-selection">
+                <div class="radio-image-selector js-level" id="local-selection">
                     <h4 class="sb-profile-not-friend-header">Local</h4>
                     <div class="row radio-image-selector-image-wrapper">
                         <img class="radio-image-selector-image" src="{% static "images/city.png" %}">
                     </div>
                 </div>
             </div>
-            <div class="col-xs-12 col-sm-4 ">
-                <div class="radio-image-selector" id="state-selection">
+            <div class="col-xs-12 col-sm-4">
+                <div class="radio-image-selector js-level" id="state-selection">
                     <h4 class="sb-profile-not-friend-header">State</h4>
                     <div class="row radio-image-selector-image-wrapper">
                         <img class="radio-image-selector-image" src="{% static "images/michigan.png" %}">
@@ -30,7 +30,7 @@
                 </div>
             </div>
             <div class="col-xs-12 col-sm-4">
-                <div class="radio-image-selector" id="federal-selection">
+                <div class="radio-image-selector js-level" id="federal-selection">
                     <h4 class="sb-profile-not-friend-header">Federal</h4>
                     <div class="row radio-image-selector-image-wrapper">
                         <img class="radio-image-selector-image" src="{% static "images/federal.png" %}">
@@ -45,7 +45,7 @@
             <div class="col-xs-12">
                 <label for="state-input" hidden></label>
                 <select id="state-input" class="form-control mission-input" disabled>
-                    <option selected disabled value="NaN">Select State</option>
+                    <option selected disabled value="NaN">Select a State</option>
                     <option value="AL">Alabama</option>
                     <option value="AK">Alaska</option>
                     <option value="AZ">Arizona</option>
@@ -116,7 +116,7 @@
                     <div class="radio-image-selector-disabled">
                         <h4 class="sb-profile-not-friend-header"></h4>
                         <div class="row radio-image-selector-image-wrapper">
-                            <img class="radio-image-selector-image" src="https://sagebrew.local.dev/static/images/executive.png">
+                            <img class="radio-image-selector-image" src="{% static "images/executive.png" %}">
                         </div>
                     </div>
                 </div>
@@ -124,7 +124,7 @@
                     <div class="radio-image-selector-disabled">
                         <h4 class="sb-profile-not-friend-header"></h4>
                         <div class="row radio-image-selector-image-wrapper">
-                            <img class="radio-image-selector-image" src="https://sagebrew.local.dev/static/images/council.png">
+                            <img class="radio-image-selector-image" src="{% static "images/council.png" %}">
                         </div>
                     </div>
                 </div>
@@ -132,7 +132,7 @@
                     <div class="radio-image-selector-disabled">
                         <h4 class="sb-profile-not-friend-header"></h4>
                         <div class="row radio-image-selector-image-wrapper">
-                            <img class="radio-image-selector-image" src="https://sagebrew.local.dev/static/images/council.png">
+                            <img class="radio-image-selector-image" src="{% static "images/council.png" %}">
                         </div>
                     </div>
                 </div>
@@ -143,16 +143,25 @@
                 <h2>What district are you running in?</h2>
             </div>
             <div class="col-xs-12" id="js-district-selector">
+                <label for="district-select" hidden></label>
+                <select id="district-select" class="form-control mission-input" disabled>
+                    <option selected disabled value="NaN">Select a District</option>
+                </select>
             </div>
         </div>
         <div class="row" id="start-row">
             <div class="col-xs-6">
-                <button class="btn btn-primary sb_btn sb_btn_fill submit_question-action"
-                        disabled
-                   data-url="/v1/questions/">Start</button>
+                <button class="btn btn-primary sb_btn sb_btn_fill" id="js-start-btn" disabled data-url="#">Start</button>
             </div>
             <div class="col-xs-6">
-                <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove cancel_question-action">Cancel</button>
+                <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove">Cancel</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 quest-add-position">
+                <small>
+                    Can't find the position you're running for? Please <a href="#" onclick="Intercom('showNewMessage', 'Hi I would like to run but cannot find my position. Could you add [insert what you would like to run for :)...]')">let us know so we can add it.</a>
+                </small>
             </div>
         </div>
     </div>

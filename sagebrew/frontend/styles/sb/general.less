@@ -143,7 +143,7 @@ a {
 }
 .sb_question_summary{
   &:extend(.block);
-  background-color: @sb_grey_extra_light;
+  background-color: white;
   border: 1px solid @sb_grey;
   border-radius: @sb_common_radius;
   margin-left: 15px;
@@ -1762,6 +1762,8 @@ textarea.sb_comment_input{
 }
 .radio-image-selector-disabled {
   &:extend(.radio-image-selector);
+  background-color: #bdc3c7;
+  opacity: 0.7;
   img{
     opacity: 0.1;
   }
@@ -1793,6 +1795,9 @@ textarea.sb_comment_input{
 .mission-input {
   margin: 15px auto 15px auto;
   height: 52px;
+}
+#start-row {
+  margin-top: 15px;
 }
 .map-viewer-quest {
   width: 100%;

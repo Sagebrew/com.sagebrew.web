@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block title %} Profile Information {% endblock %}
+{% block title %} Mission Selection {% endblock %}
 {% block content %}
     <div class="block registration">
         <div class="row">
@@ -21,7 +21,7 @@
                             <div class="sb-overlay-text">
                                 <div>
                                     Are you running or planning to run
-                                    for a public seat? Find volunteers,
+                                    for public office? <br /><br />Find volunteers,
                                     crowdfund donations, connect with
                                     constituents, and gain support to win!
                                 </div>
@@ -47,7 +47,7 @@
                                     Do you have a cause you're passionate about?
                                     Are you leading a movement?
                                     Maybe you're a group focused on
-                                    advocating a certain set of principals?
+                                    advocating a certain set of principals?<br /><br />
                                     Gain grassroots support, crowdfund donations,
                                     and get your message heard to accomplish
                                     your goals!
@@ -67,9 +67,6 @@
         </div>
     </div>
 {% endblock %}
-{% block page-javascript %}
-    <script src="{% static 'js/mission_starter.js' %}"></script>
-{% endblock page-javascript %}
 {% block intercom %}
    Intercom('trackEvent', 'visited-quest-mission-starter');
 {% endblock %}

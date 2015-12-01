@@ -73,6 +73,11 @@ var controller_map = [
         controller: "section-quest-temp",
         match_method: "path",
         check: "^quest/mission/public_office"
+    },
+    {
+        controller: "section-quest-temp",
+        match_method: "path",
+        check: "^quest/mission/select"
     }
 ];
 

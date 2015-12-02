@@ -46,6 +46,13 @@ class Donation(SBObject):
     # child donations to accomplish this but through using `cause` as the
     # naming convention we should be able to define all methods at this level
     campaign = RelationshipTo('sb_quests.neo_models.Campaign', 'DONATED_TO')
+    mission = RelationshipTo('sb_mission.neo_models.Mission', "CONTRIBUTED_TO")
+
+
+    # DEPRECATIONS
+    # DEPRECATED: Rounds are deprecated and goals are no longer associated with
+    # them. They are instead associated with Missions but are not aggregated
+    # into rounds.
     associated_round = RelationshipTo('sb_goals.neo_models.Round',
                                       'ASSOCIATED_ROUND')
 

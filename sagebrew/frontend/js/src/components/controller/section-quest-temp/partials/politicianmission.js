@@ -1,4 +1,4 @@
-/*global google*/
+/*global google, Intercom*/
 var request = require('./../../../api').request,
     radioSelector = require('./../../../common/radioimage').radioSelector,
     helpers = require('./../../../common/helpers'),
@@ -17,6 +17,9 @@ export function load() {
         locationKey = 'politicianMissionLocationID',
         positionKey = 'politicianMissionPosition',
         districtKey = 'politicianMissionDistrict';
+    // We just loaded the app, jam in some place holders to look nice.
+    // Didn't include directly in the Django template so we don't have duplicate formatting
+    positionSelector.innerHTML = templates.position_holder();
     if(typeof(Storage) !== "undefined") {
         // Clear out all of the storage for the page, we're starting a new mission!
         localStorage.removeItem(locationKey);
@@ -65,15 +68,17 @@ export function load() {
                 } else if (this.id === "state-selection"){
                     // The state level was selected
                     districtSelection('state', stateInput, placeInput, districtRow,
-                        filterKey, locationKey, positionKey, districtKey, startBtn);
+                        filterKey, locationKey, positionKey, districtKey, startBtn,
+                        positionSelector);
 
                 } else if (this.id === "federal-selection"){
                     // The federal level was selected
                     if(localStorage.getItem(filterKey) === "local"){
-                        localStorage.removeItem(locationKey)
+                        localStorage.removeItem(locationKey);
                     }
                     districtSelection('federal', stateInput, placeInput, districtRow,
-                        filterKey, locationKey, positionKey, districtKey, startBtn);
+                        filterKey, locationKey, positionKey, districtKey, startBtn,
+                        positionSelector);
 
                 } else{
                     // We've selected a position
@@ -93,7 +98,7 @@ export function load() {
             localStorage.setItem(districtKey, this.options[this.selectedIndex].innerHTML);
             startBtn.disabled = false;
         })
-        .on('click', '.registration', function(event) {
+        .on('click', '.registration', function() {
             "use strict";
             // Some additional logic to ensure the startBtn only goes on when it should for both local and
             // Federal/State (district vs non-district)
@@ -116,7 +121,7 @@ export function load() {
 
 function districtSelection(level, stateInput, placeInput, districtRow,
                            filterKey, locationKey, positionKey, districtKey,
-                           startBtn) {
+                           startBtn, positionSelector) {
     "use strict";
     /**
      * If the user had previous selected local we need to clear out
@@ -183,7 +188,7 @@ function checkIfDistricts(identifier) {
             fillDistricts("federal");
         }
     } else if(identifier === "Other (Contact Us)") {
-        Intercom("showNewMessage", "Hi I would like to run but cannot find my position. Could you add [insert what you'd like to run for :)...]")
+        Intercom("showNewMessage", "Hi I would like to run but cannot find my position. Could you add [insert what you'd like to run for :)...]");
     }
 }
 

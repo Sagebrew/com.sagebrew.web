@@ -23,8 +23,13 @@ class Location(SBObject):
                                'POSITIONS_AVAILABLE')
     addresses = RelationshipTo('plebs.neo_models.Address',
                                'ENCOMPASSES_ADDRESS')
+    # Questions
     # Access Questions that are related to this location through:
     # Neomodel: focus_location Cypher: FOCUSED_ON
+
+    # Mission
+    # Access Missions that are related to this location through:
+    # Neomodel: location Cypher: WITHIN
 
     # optimizations
     # TODO these might be best moved to the Question or maybe lat, long to since

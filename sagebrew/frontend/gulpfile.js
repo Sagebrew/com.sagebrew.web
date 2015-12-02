@@ -111,21 +111,23 @@ gulp.task('scripts:lint', function () {
 });
 
 //
-// Compile all templates
-gulp.task('templates', function(){
-  gulp.src('js/src/**/templates/*.hbs')
-    .pipe(handlebars({
-        handlebars: require('handlebars')
-    }))
-    .pipe(wrap('Handlebars.template(<%= contents %>)'))
-    .pipe(declare({
-        root: 'exports',
-        noRedeclare: true
-    }))
-    .pipe(concat('templates.js'))
-    // Add the Handlebars module in the final output
-    .pipe(wrap('var Handlebars = require("handlebars");\n <%= contents %>'))
-    .pipe(gulp.dest('js/src/components/template_build/'));
+// App Templates - Templates
+gulp.task('scripts:templates', function(){
+    gulp.src('js/src/**/templates/*.hbs')
+        .pipe(handlebars({
+            handlebars: require('handlebars')
+        }))
+        .pipe(wrap('Handlebars.template(<%= contents %>)'))
+        .pipe(declare({
+            root: 'exports',
+            noRedeclare: true
+        }))
+        .pipe(concat('templates.js'))
+        // Add the Handlebars module in the final output
+        .pipe(wrap('var Handlebars = require("handlebars");\n <%= contents %>'))
+        .pipe(gulpif(production, uglify()))
+        .on('error', gutil.log)
+        .pipe(gulp.dest('js/src/components/template_build/'));
 });
 
 //
@@ -180,7 +182,8 @@ gulp.task('scripts:vendor', function () {
 
 //
 // JS
-gulp.task('scripts', ['scripts:lint', 'scripts:global', 'scripts:vendor']);
+gulp.task('scripts', ['scripts:lint', 'scripts:global', 'scripts:vendor',
+    'scripts:templates']);
 
 //
 // Styles
@@ -224,14 +227,15 @@ gulp.task('images', ['images:hotfix'], function() {
 gulp.task('watch', function () {
     'use strict';
     gulp.watch(paths.styles, ['styles']);
-    gulp.watch(['js/src/**'], ['scripts:lint', 'scripts:global']);
+    gulp.watch(['js/src/**'], ['scripts:lint', 'scripts:global',
+        'scripts:templates']);
 
 });
 
 //
 // Build
-gulp.task('build', ['templates', 'scripts', 'styles', 'images', 'fonts']);
+gulp.task('build', ['scripts', 'styles', 'images', 'fonts']);
 
 //
 // Default task.
-gulp.task('default', ['watch', 'templates', 'scripts', 'styles', 'images', 'fonts']);
+gulp.task('default', ['watch', 'scripts', 'styles', 'images', 'fonts']);

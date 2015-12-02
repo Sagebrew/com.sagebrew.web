@@ -6,6 +6,7 @@ from rest_framework.reverse import reverse
 from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
                       FloatProperty, DoesNotExist)
 
+from api.utils import deprecation
 from sb_base.neo_models import (VoteRelationship)
 from sb_search.neo_models import Searchable, SBObject
 
@@ -78,15 +79,16 @@ class Campaign(Searchable):
     last_four_soc = StringProperty()
 
     # Optimizations
-    position_name = StringProperty()
     location_name = StringProperty()
-    position_formal_name = StringProperty()
+    # Seat name and formal name have taken the place of position and are for
+    # storing the title of the seat a Quest currently holds.
+    seat_name = StringProperty()
+    seat_formal_name = StringProperty()
 
     # Relationships
     donations = RelationshipTo('sb_donations.neo_models.Donation',
                                'RECEIVED_DONATION')
-    goals = RelationshipTo('sb_goals.neo_models.Goal', "HAS_GOAL")
-    rounds = RelationshipTo('sb_goals.neo_models.Round', 'HAS_ROUND')
+
     updates = RelationshipTo('sb_updates.neo_models.Update', 'HAS_UPDATE')
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'WAGED_BY')
     # Will be an endpoint with the usernames of all the users that can edit
@@ -95,14 +97,32 @@ class Campaign(Searchable):
     editors = RelationshipTo('plebs.neo_models.Pleb', 'CAN_BE_EDITED_BY')
     accountants = RelationshipTo('plebs.neo_models.Pleb',
                                  'CAN_VIEW_MONETARY_DATA')
-    position = RelationshipTo('sb_quests.neo_models.Position',
-                              'RUNNING_FOR')
+
+    public_official = RelationshipTo(
+        'sb_public_official.neo_models.PublicOfficial', 'HAS_PUBLIC_OFFICIAL')
+    # Embarks on is a mission this Quest manages and is trying to accomplish.
+    # Donations to these missions come back to the Quest's account
+    missions = RelationshipTo('sb_mission.neo_models.Mission', "EMBARKS_ON")
+    # Endorses are missions the Quest is supporting. These should be linked to
+    # from the Quest page but are actively managed by other users/Quests.
+    # Donations to these missions do not come back to this Quest.
+    endorses = RelationshipTo('sb_mission.neo_models.Mission', "ENDORSES")
+
+    # DEPRECATIONS
+    # DEPRECATED: Rounds are now deprecated and should not be used
+    rounds = RelationshipTo('sb_goals.neo_models.Round', 'HAS_ROUND')
     active_round = RelationshipTo('sb_goals.neo_models.Round',
                                   "CURRENT_ROUND")
     upcoming_round = RelationshipTo('sb_goals.neo_models.Round',
                                     "UPCOMING_ROUND")
-    public_official = RelationshipTo(
-        'sb_public_official.neo_models.PublicOfficial', 'HAS_PUBLIC_OFFICIAL')
+    # DEPRECATED: Running for a position is now handled by an attached Mission
+    position = RelationshipTo('sb_quests.neo_models.Position',
+                              'RUNNING_FOR')
+    position_formal_name = StringProperty()
+    position_name = StringProperty()
+    # DEPRECATED: Goals are now associated with Missions rather than the Quest
+    # directly
+    goals = RelationshipTo('sb_goals.neo_models.Goal', "HAS_GOAL")
 
     @classmethod
     def get(cls, object_uuid):
@@ -162,6 +182,7 @@ class Campaign(Searchable):
 
     @classmethod
     def get_rounds(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         rounds = cache.get("%s_rounds" % object_uuid)
         if rounds is None:
             query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
@@ -175,6 +196,7 @@ class Campaign(Searchable):
 
     @classmethod
     def get_active_goals(cls, object_uuid):
+        deprecation("Goals should no longer be attached directly to a Quest")
         active_goals = cache.get("%s_active_goals" % object_uuid)
         if active_goals is None:
             query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
@@ -186,23 +208,9 @@ class Campaign(Searchable):
             cache.set("%s_active_goals" % object_uuid, active_goals)
         return active_goals
 
-    '''
-    @classmethod
-    def get_current_target_goal(cls, object_uuid):
-        target_goal = cache.get("%s_target_goal" % (object_uuid))
-        if target_goal is None:
-            query = "MATCH (c:`Campaign` {object_uuid:'%s'})-[:HAS_GOAL]->" \
-                    "(g:`Goal`) WHERE g.target=true RETURN g" % (object_uuid)
-            res, col = db.cypher_query(query)
-            try:
-                target_goal = res[0][0]
-            except IndexError:
-                target_goal = None
-        return target_goal
-    '''
-
     @classmethod
     def get_active_round(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         active_round = cache.get("%s_active_round" % object_uuid)
         if active_round is None:
             query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
@@ -218,6 +226,7 @@ class Campaign(Searchable):
 
     @classmethod
     def get_upcoming_round(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         upcoming_round = cache.get("%s_upcoming_round" % object_uuid)
         if upcoming_round is None:
             query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
@@ -245,6 +254,8 @@ class Campaign(Searchable):
 
     @classmethod
     def get_position(cls, object_uuid):
+        deprecation("Positions are now linked to a Mission rather than "
+                    "directly to the Quest")
         position = cache.get("%s_position" % object_uuid)
         if position is None:
             query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:RUNNING_FOR]->" \
@@ -276,6 +287,8 @@ class Campaign(Searchable):
     @classmethod
     def get_unassigned_goals(cls, object_uuid):
         from sb_goals.neo_models import Goal
+        deprecation("Goals are now attached to Missions and should not be "
+                    "associated directly with a Quest")
         query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:HAS_GOAL]->' \
                 '(g:Goal) WHERE NOT (g)-[:PART_OF]->(:Round) RETURN g ' \
                 'ORDER BY g.monetary_requirement' % object_uuid
@@ -284,6 +297,7 @@ class Campaign(Searchable):
 
     @classmethod
     def get_active_round_donation_total(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
                 '(r:Round)-[:HAS_DONATIONS]-(d:Donation) ' \
                 'RETURN sum(d.amount)' % object_uuid
@@ -309,6 +323,8 @@ class Campaign(Searchable):
 
     @classmethod
     def get_target_goal_donation_requirement(cls, object_uuid):
+        deprecation("Goals are now attached to Missions and should not be "
+                    "associated directly with a Quest")
         query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
                 '(r:Round)-[:STRIVING_FOR]->(g:Goal {target:true}) ' \
                 'RETURN g.total_required' \
@@ -318,6 +334,8 @@ class Campaign(Searchable):
 
     @classmethod
     def get_target_goal_pledge_vote_requirement(cls, object_uuid):
+        deprecation("Goals are now attached to Missions and should not be "
+                    "associated directly with a Quest")
         query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
                 '(r:Round)-[:STRIVING_FOR]->(g:Goal {target:true}) ' \
                 'RETURN g.pledged_vote_requirement' % object_uuid
@@ -326,6 +344,8 @@ class Campaign(Searchable):
 
     @classmethod
     def get_position_level(cls, object_uuid):
+        deprecation("Positions are now linked to a Mission rather than "
+                    "directly to the Quest")
         level = cache.get("%s_position_level" % object_uuid)
         if level is None:
             query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:RUNNING_FOR]->" \
@@ -338,6 +358,8 @@ class Campaign(Searchable):
 
     @classmethod
     def get_position_location(cls, object_uuid):
+        deprecation("Positions are now linked to a Mission rather than "
+                    "directly to the Quest")
         return Position.get_location(cls.get_position(object_uuid))
 
     @classmethod
@@ -383,6 +405,8 @@ class PoliticalCampaign(Campaign):
     # reps, and presidents that can be voted on by the different users.
     constituents = RelationshipTo('plebs.neo_models.Pleb',
                                   'POTENTIAL_REPRESENTATIVE_FOR')
+
+    # Seat
     # current_seat = RelationshipTo('sb_quests.neo_models.Seat', "CURRENT_SEAT")
     # Can access current_seat by using the relationship on seats:
     # CURRENTLY_HELD_BY going from the Seat to the Quest

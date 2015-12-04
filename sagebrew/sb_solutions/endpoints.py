@@ -47,6 +47,22 @@ class SolutionViewSet(viewsets.ModelViewSet):
         return Solution.nodes.get(
             object_uuid=self.kwargs[self.lookup_field])
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance).data
+        html = request.query_params.get('html', 'false').lower()
+        if html == 'true':
+            serializer['last_edited_on'] = parser.parse(
+                    serializer['last_edited_on']).replace(microsecond=0)
+            serializer['created'] = parser.parse(
+                serializer['created']).replace(microsecond=0)
+            return Response({"html": render_to_string("solution.html",
+                                                      serializer),
+                             "id": instance.object_uuid,
+                             "results": serializer},
+                            status=status.HTTP_200_OK)
+        return Response(serializer)
+
     def perform_destroy(self, instance):
         instance.content = ""
         instance.to_be_deleted = True

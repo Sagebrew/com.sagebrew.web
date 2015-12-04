@@ -68,6 +68,11 @@ var controller_map = [
         controller: "registration",
         match_method: "path",
         check: "^registration/profile_picture"
+    },
+    {
+        controller: "section-single-object-page",
+        match_method: "path",
+        check: "^questions|solutions|posts/([A-Za-z0-9.@_%+-]{36})"
     }
 ];
 

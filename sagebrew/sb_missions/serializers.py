@@ -36,10 +36,6 @@ class MissionSerializer(SBSerializer):
     href = serializers.SerializerMethodField()
     focused_on = serializers.SerializerMethodField()
     rendered_epic = serializers.SerializerMethodField()
-    # total_donation_amount = serializers.SerializerMethodField()
-    # total_pledge_vote_amount = serializers.SerializerMethodField()
-    # target_goal_donation_requirement = serializers.SerializerMethodField()
-    # target_goal_pledge_vote_requirement = serializers.SerializerMethodField()
 
     district = serializers.CharField(write_only=True, allow_null=True)
     level = serializers.ChoiceField(required=True, choices=[

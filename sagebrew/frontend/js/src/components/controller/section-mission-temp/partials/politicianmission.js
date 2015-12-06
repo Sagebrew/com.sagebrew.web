@@ -135,10 +135,6 @@ export function load() {
             } else {
                 location = localStorage.getItem(locationKey);
             }
-            console.log(location);
-            console.log(localStorage.getItem(levelKey));
-            console.log(localStorage.getItem(districtKey));
-            console.log(localStorage.getItem(positionKey));
             request.post({
                 url: "/v1/missions/",
                 data: JSON.stringify({

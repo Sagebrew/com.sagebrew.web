@@ -7,9 +7,6 @@ from django.conf import settings
 
 from .neo_models import Location
 
-from logging import getLogger
-logger = getLogger('loggly_logs')
-
 
 def parse_google_places(places, external_id):
     """
@@ -37,7 +34,6 @@ def google_maps_query(external_id):
               external_id, settings.GOOGLE_MAPS_API_SERVER)
     response = get(url, headers={
         "content-type": "application/json"})
-    logger.critical(response.json())
     return break_out_structure(response.json()['result']['address_components'])
 
 
@@ -65,7 +61,6 @@ def break_out_structure(places):
 
 
 def verify_structure(structure, external_id, verify=True):
-    logger.critical(structure)
     for idx, place in enumerate(structure):
         if place is None:
             # check to make sure we've actually hit the end and aren't just
@@ -95,7 +90,7 @@ def create_tree(structure, external_id):
         # the chain for this structure, and we may need to update it at a later
         # date.
         try:
-            name = unidecode(unicode(element['long_name'], "utf-8"))
+            name = unidecode(unicode(element['long_name']))
         except TypeError:
             # Handles cases where the name is already in unicode format
             name = unidecode(element['long_name'])
@@ -123,7 +118,6 @@ def create_tree(structure, external_id):
                         parent_node.object_uuid, name)
             res, _ = db.cypher_query(query)
 
-            logger.critical(element)
             if not res.one:
                 if 'locality' in element['types']:
                     sector = "local"

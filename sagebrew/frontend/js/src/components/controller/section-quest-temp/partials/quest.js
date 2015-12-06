@@ -1,3 +1,4 @@
+/*global StripeCheckout*/
 var request = require('./../../../api').request,
     templates = require('./../../../template_build/templates'),
     settings = require('./../../../settings').settings,
@@ -6,16 +7,16 @@ var request = require('./../../../api').request,
 export function load() {
     var $app = $(".app-sb"),
         missionList= document.getElementById('js-mission-list'),
-        endorsedList = document.getElementById('js-endorsed-list'),
         pageUser = helpers.args(1);
 
     request.get({url: '/v1/profiles/' + pageUser + '/missions/'})
         .done(function (data) {
             "use strict";
-            if(data.results.length == 0) {
+            if(data.results.length === 0) {
                 missionList.innerHTML = templates.position_holder();
             } else {
-                missionList.innerHTML = templates.mission_summary({missions: data.results});
+                missionList.innerHTML = templates.mission_summary(
+                    {missions: data.results});
             }
         });
     $app
@@ -31,29 +32,21 @@ export function load() {
      var donationAmount = 0,
         stripeKey = settings.api.stripe || $("#stripe-publishable").data("stripe_key");
 
-    handler = StripeCheckout.configure({
+    var handler = StripeCheckout.configure({
         key: stripeKey,
         image: $("#stripe_img").data('stripe_image'),
         token: function (token) {
             var campaignId = $("#campaign_id").data('object_uuid');
-            $.ajax({
-                xhrFields: {withCredentials: true},
-                type: "POST",
+            request.post({
                 url: "/v1/campaigns/" + campaignId + "/donations/",
                 data: JSON.stringify({
                     "amount": donationAmount,
                     "token": token.id
-                }),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function () {
-                    $("#donationModal").modal("hide");
-                    $.notify("Successfully Created Donation", {type: 'success'});
-                },
-                error: function (XMLHttpRequest) {
-                    $(this).removeAttr("disabled");
-                    errorDisplay(XMLHttpRequest);
-                }
+                })
+            }).done(function (){
+                "use strict";
+                $("#donationModal").modal("hide");
+                $.notify("Successfully Created Donation", {type: 'success'});
             });
         }
     });

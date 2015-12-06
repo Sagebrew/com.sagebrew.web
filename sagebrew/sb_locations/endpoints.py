@@ -105,8 +105,9 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
         return Response(
             {
                 "results": [PositionSerializer(Position.inflate(row[0])).data
-                            for row in get_positions(
-                        object_uuid, filter_param=filter_param, lookup=lookup)],
+                            for row in get_positions(object_uuid,
+                                                     filter_param=filter_param,
+                                                     lookup=lookup)],
                 "status": status.HTTP_200_OK
             }, status=status.HTTP_200_OK)
 
@@ -136,8 +137,8 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
         return Response(
             {
-                "results": [LocationSerializer(Location.inflate(row[0])).data
-                            for row in get_districts(
+                "results": [LocationSerializer(
+                    Location.inflate(row[0])).data for row in get_districts(
                         object_uuid, filter_param=filter_param, lookup=lookup)],
                 "status": status.HTTP_200_OK
             }, status=status.HTTP_200_OK)

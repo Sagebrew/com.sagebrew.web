@@ -22,7 +22,7 @@ def quest(request, username):
     serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
     serializer_data['description'] = "%s %s's Policies, Agenda, " \
                                      "and Platform." % (
-            serializer_data['first_name'], serializer_data['last_name'])
+        serializer_data['first_name'], serializer_data['last_name'])
     serializer_data['keywords'] = "Politics, Fundraising, Campaign, Quest,"
     return render(request, 'quest.html', serializer_data)
 

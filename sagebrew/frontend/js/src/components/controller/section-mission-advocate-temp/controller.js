@@ -1,12 +1,12 @@
 // TODO this could be split into seperate dirs within the quest section
 // based on the new layout @mwisner is working on in #720
-var politician = require('./partials/politicianmission');
+var advocate = require('./partials/advocatemission');
 
 export const meta = {
-    controller: "section-mission-temp",
+    controller: "section-mission-advocate-temp",
     match_method: "path",
     check: [
-       "^quest/mission/public_office"
+       "^quest/mission/advocate"
     ]
 };
 
@@ -23,7 +23,8 @@ export function init() {
  */
 export function load() {
     "use strict";
-    politician.load();
+    advocate.load();
+
 }
 
 /**

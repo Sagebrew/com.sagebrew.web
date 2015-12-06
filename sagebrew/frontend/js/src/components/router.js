@@ -75,7 +75,12 @@ var controller_map = [
         check: "^quest/mission/public_office"
     },
     {
-        controller: "section-mission-temp",
+        controller: "section-mission-advocate-temp",
+        match_method: "path",
+        check: "^quest/mission/advocate"
+    },
+    {
+        controller: "section-mission-select-temp",
         match_method: "path",
         check: "^quest/mission/select"
     },

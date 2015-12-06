@@ -21,5 +21,10 @@ export function load() {
             "use strict";
             event.preventDefault();
             window.location.href = "/quest/mission/public_office/";
+        })
+        .on('click', '#js-advocate', function(event) {
+            "use strict";
+            event.preventDefault();
+            window.location.href = "/quest/mission/advocate/";
         });
 }

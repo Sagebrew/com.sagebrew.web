@@ -1,7 +1,6 @@
 from json import loads
 from unidecode import unidecode
 
-from rest_framework import serializers
 from rest_framework.reverse import reverse
 from rest_framework import serializers
 

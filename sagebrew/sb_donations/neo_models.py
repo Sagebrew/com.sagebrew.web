@@ -48,7 +48,6 @@ class Donation(SBObject):
     campaign = RelationshipTo('sb_quests.neo_models.Campaign', 'DONATED_TO')
     mission = RelationshipTo('sb_missions.neo_models.Mission', "CONTRIBUTED_TO")
 
-
     # DEPRECATIONS
     # DEPRECATED: Rounds are deprecated and goals are no longer associated with
     # them. They are instead associated with Missions but are not aggregated

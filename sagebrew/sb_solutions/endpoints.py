@@ -5,11 +5,11 @@ from django.template.loader import render_to_string
 from django.template import RequestContext
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework import viewsets
+from rest_framework import (viewsets, status)
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.generics import (ListCreateAPIView)
+from rest_framework.reverse import reverse
 
 from neomodel import db
 
@@ -56,8 +56,8 @@ class SolutionViewSet(viewsets.ModelViewSet):
                     serializer['last_edited_on']).replace(microsecond=0)
             serializer['created'] = parser.parse(
                 serializer['created']).replace(microsecond=0)
-            return Response({"html": render_to_string("solution.html",
-                                                      serializer),
+            return Response({"html": render_to_string(
+                "solution.html", RequestContext(request, serializer)),
                              "id": instance.object_uuid,
                              "results": serializer},
                             status=status.HTTP_200_OK)
@@ -137,7 +137,9 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
             spawn_task(task_func=spawn_notifications, task_param={
                 "from_pleb": request.user.username,
                 "sb_object": serializer['object_uuid'],
-                "url": serializer['url'],
+                "url": reverse('single_solution_page',
+                               kwargs={"object_uuid":
+                                           serializer["object_uuid"]}),
                 # TODO discuss notifying all the people who have provided
                 # solutions on a given question.
                 "to_plebs": [question_owner.username, ],

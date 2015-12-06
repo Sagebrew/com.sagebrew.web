@@ -1,4 +1,4 @@
-/*global $, enableContentFunctionality, populateComment*/
+/*global $, enableContentFunctionality, populateComment, enableSolutionFunctionality*/
 var request = require('./../../../api').request,
     settings = require('./../../../settings').settings,
     helpers = require('./../../../common/helpers');
@@ -19,11 +19,12 @@ function loadSingleContent() {
         objectURL,
         objectType,
         formattedObjectType,
+        capitalizedOjbectType,
         parsed = (window.location.href).match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$/);
     objectURL = "/v1" + parsed[4] + parsed[6] + "?html=true";
     objectType = parsed[4].replace(/\//g, '');
     formattedObjectType = objectType.slice(0, -1);
-    wrapper.prepend('<h1>' + formattedObjectType.charAt(0).toUpperCase() + formattedObjectType.slice(1) + '</h1>');
+    capitalizedOjbectType = formattedObjectType.charAt(0).toUpperCase() + formattedObjectType.slice(1);
     wrapper.sb_contentLoader({
         emptyDataMessage: "Woops! We can't find this object!",
         url: objectURL,
@@ -45,12 +46,22 @@ function loadSingleContent() {
             return request.get({url:url});
         },
         renderCallback: function ($container, data) {
-            if (formattedObjectType === "solution" || formattedObjectType === "question") {
-                wrapper.append('<small><a href="' + data.results.url + '">View the full Conversation</a></small>');
+            console.log(data.results);
+            if (data.results.to_be_deleted) {
+                wrapper.append("<h1>Sorry this " + capitalizedOjbectType + " has been removed by the owner!</h1>");
+                if (formattedObjectType === "solution" || formattedObjectType === "question") {
+                    wrapper.append('<small><a href="' + data.results.url + '">You can still view the whole Conversation here.</a></small>');
+                }
+            } else {
+                wrapper.prepend('<h1>' + capitalizedOjbectType + '</h1>');
+                if (formattedObjectType === "solution" || formattedObjectType === "question") {
+                    wrapper.append('<small><a href="' + data.results.url + '">View the full Conversation</a></small>');
+                }
+                wrapper.append(data.html);
+                enableContentFunctionality(data.id, formattedObjectType);
+                populateComment(data.id, objectType);
             }
-            wrapper.append(data.html);
-            enableContentFunctionality(data.id, formattedObjectType);
-            populateComment(data.id, objectType);
+
         }
     });
 }

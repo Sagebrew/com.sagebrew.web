@@ -77,7 +77,8 @@ urlpatterns = patterns(
     (r'^posts/', include('sb_posts.urls')),
     (r'^solutions/', include('sb_solutions.urls')),
     url(r'^questions/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/',
-        TemplateView.as_view(template_name="single_object.html")),
+        TemplateView.as_view(template_name="single_object.html"),
+        name="single_question_page"),
     url(r'^sitemap\.xml$', sitemap,
         {'sitemaps': {
             'questions': QuestionSitemap,

@@ -128,6 +128,7 @@ class ContentSerializer(VotableContentSerializer):
     last_edited_on = serializers.DateTimeField(read_only=True)
     # Need to figure out how we want to handle these user specific items
     # Maybe if no user is provided we just return None or don't include?
+    to_be_deleted = serializers.BooleanField(read_only=True)
     flagged_by = serializers.SerializerMethodField()
     council_vote = serializers.SerializerMethodField()
     is_closed = serializers.BooleanField(read_only=True)

@@ -10,7 +10,7 @@ export const meta = {
     controller: "section-single-object-page",
     match_method: "path",
     check: [
-        "^questions|solutions|posts|comments/([A-Za-z0-9.@_%+-]{36})"
+        "^questions|solutions|posts/([A-Za-z0-9.@_%+-]{36})"
     ]
 };
 

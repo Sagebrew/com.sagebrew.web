@@ -16,13 +16,10 @@ var navbar = require('./partials/navbar').initNavbar,
  */
 function collectAuthedActions() {
     $(document).ready(function () {
-        "use strict";
         window.onbeforeunload = function () {
-            var objectList = [];
-            $(".js-page-object").each(function () {
-                objectList.push($(this).data('object_uuid'));
-            });
-            if (objectList.length) {
+            var objectList = JSON.parse(localStorage.getItem("objectUpdates"));
+            if (objectList) {
+                localStorage.removeItem("objectUpdates");
                 request.post({
                     async: false,
                     url: "/docstore/update_neo_api/",

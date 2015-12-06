@@ -214,3 +214,26 @@ class TestGetQuestionListView(APITestCase):
         question.owned_by.connect(self.pleb)
         res = self.client.get('/conversations/?_escaped_fragment_=')
         self.assertTrue(res.status_code, status.HTTP_200_OK)
+
+
+class TestSingleQuestionPage(APITestCase):
+    def setUp(self):
+        cache.clear()
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.pleb.first_name = 'Tyler'
+        self.pleb.last_name = 'Wiersing'
+        self.pleb.save()
+        self.question = Question(title=str(uuid1()),
+                                 content="some test content").save()
+
+    def test_get_single_page(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse("single_question_page",
+                      kwargs={"object_uuid": self.question.object_uuid})
+        res = self.client.get(url, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)

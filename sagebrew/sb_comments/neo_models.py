@@ -26,4 +26,3 @@ class Comment(TaggableContent):
                 'RETURN o' % object_uuid
         res, _ = db.cypher_query(query)
         return SBContent.inflate(res.one)
-

@@ -73,7 +73,6 @@ urlpatterns = patterns(
     (r'^quests/', include('sb_updates.urls')),
     (r'^quests/', include('sb_goals.urls')),
     (r'^council/', include('sb_council.urls')),
-    (r'^comments/', include('sb_comments.urls')),
     (r'^posts/', include('sb_posts.urls')),
     (r'^solutions/', include('sb_solutions.urls')),
     url(r'^questions/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/',

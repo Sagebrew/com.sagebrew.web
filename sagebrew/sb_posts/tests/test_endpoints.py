@@ -311,6 +311,14 @@ class PostsEndpointTests(APITestCase):
         self.assertTrue(post.url_content.is_connected(url_content))
         url_content.delete()
 
+    def test_get_html(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse(
+            "post-detail", kwargs={"object_uuid": self.post.object_uuid}) \
+            + "?html=true"
+        res = self.client.get(url, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
 
 class WallPostListCreateTest(APITestCase):
     def setUp(self):
@@ -717,3 +725,22 @@ class PostListCreateTest(APITestCase):
         url = "%s?wall=%s" % (reverse('post-list'), friend.username)
         response = self.client.get(url, format='json')
         self.assertGreater(response.data['count'], 0)
+
+
+class TestSinglePostPage(APITestCase):
+    def setUp(self):
+        self.unit_under_test_name = 'post'
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.post = Post(content="some dummy content").save()
+
+    def test_get_single_page(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('single_post_page',
+                      kwargs={'object_uuid': self.post.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

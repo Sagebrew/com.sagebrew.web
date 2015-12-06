@@ -16,5 +16,10 @@ export function load() {
             event.preventDefault();
             $(this).fadeOut('fast');
             $(".sb-profile-not-friend-element-image").removeClass("active");
+        })
+        .on('click', '#js-public-office', function(event) {
+            "use strict";
+            event.preventDefault();
+            window.location.href = "/quest/mission/public_office/";
         });
 }

@@ -4,11 +4,146 @@ from django.core.cache import cache
 from rest_framework.reverse import reverse
 
 from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
-                      FloatProperty, DoesNotExist)
+                      FloatProperty, DoesNotExist, RelationshipFrom)
 
 from api.utils import deprecation
 from sb_base.neo_models import (VoteRelationship)
 from sb_search.neo_models import Searchable, SBObject
+
+
+class Quest(Searchable):
+    """
+
+    """
+    stripe_id = StringProperty(index=True, default="Not Set")
+    stripe_customer_id = StringProperty()
+    stripe_subscription_id = StringProperty()
+    # A Quest is always active after the stripe account has been activated.
+    # A Quest must have a Mission to take donations towards.
+    # TODO can we remove active?
+    active = BooleanProperty(default=False)
+    facebook = StringProperty()
+    linkedin = StringProperty()
+    youtube = StringProperty()
+    twitter = StringProperty()
+    website = StringProperty()
+    # These are the wallpaper and profile specific to the campaign/action page
+    # That way they have separation between the campaign and their personal
+    # image.
+    wallpaper_pic = StringProperty()
+    profile_pic = StringProperty()
+    application_fee = FloatProperty(default=0.041)
+    last_four_soc = StringProperty()
+
+    # Optimizations
+    # Seat name and formal name have taken the place of position and are for
+    # storing the title of the seat a Quest currently holds.
+    seat_name = StringProperty()
+    seat_formal_name = StringProperty()
+
+    # Since a Quest can be associated with a group let's give them the option
+    # to set a title.
+    title = StringProperty()
+    # First and Last name are added to reduce potential additional queries
+    # when rendering potential representative html to a users profile page
+    first_name = StringProperty()
+    last_name = StringProperty()
+    owner_username = StringProperty()
+
+    # Relationships
+    # Since we currently only have one stripe account for a user we'll allow
+    # them to donate directly to the Quest rather than to a specific Mission.
+    donations = RelationshipTo('sb_donations.neo_models.Donation',
+                               'RECEIVED_DONATION')
+
+    updates = RelationshipTo('sb_updates.neo_models.Update', 'CREATED_AN')
+
+    # Pleb
+    # Access the Pleb that owns this Quest through:
+    # Neomodel: quest Cypher: IS_WAGING
+    # RelationshipTo('sb_plebs.neo_models.Pleb')
+
+    # Will be an endpoint with the usernames of all the users that can edit
+    # the page. That way we can easily check who has the right to modify
+    # the page. These names should not be public
+    editors = RelationshipFrom('plebs.neo_models.Pleb', 'EDITOR_OF')
+    moderators = RelationshipTo('plebs.neo_models.Pleb', 'MODERATOR_OF')
+
+    # Embarks on is a mission this Quest manages and is trying to accomplish.
+    # Donations to these missions come back to the Quest's account
+    missions = RelationshipTo('sb_missions.neo_models.Mission', "EMBARKS_ON")
+    # Endorses are missions the Quest is supporting. These should be linked to
+    # from the Quest page but are actively managed by other users/Quests.
+    # Donations to these missions do not come back to this Quest.
+    endorses = RelationshipTo('sb_missions.neo_models.Mission', "ENDORSES")
+    holds = RelationshipTo('sb_quests.neo_models.Seat', "HOLDS")
+
+    @classmethod
+    def get(cls, object_uuid):
+        campaign = cache.get("%s_quest" % object_uuid)
+        if campaign is None:
+            query = 'MATCH (c:Quest {object_uuid: "%s"}) RETURN c' % \
+                    object_uuid
+            res, col = db.cypher_query(query)
+            try:
+                campaign = cls.inflate(res[0][0])
+                cache.set("%s_quest" % object_uuid, campaign)
+                return campaign
+            except IndexError:
+                raise DoesNotExist("Quest does not exist")
+        return campaign
+
+    @classmethod
+    def get_editors(cls, object_uuid):
+        editors = cache.get("%s_editors" % object_uuid)
+        if editors is None:
+            query = 'MATCH (c:Quest {object_uuid: "%s"})<-' \
+                    '[:EDITOR_OF]-(p:Pleb) RETURN p.username' % (
+                        object_uuid)
+            res, col = db.cypher_query(query)
+            editors = [row[0] for row in res]
+            cache.set("%s_editors" % object_uuid, editors)
+        return editors
+
+    @classmethod
+    def get_accountants(cls, object_uuid):
+        accountants = cache.get("%s_accountants" % object_uuid)
+        if accountants is None:
+            query = 'MATCH (c:Quest {object_uuid: "%s"})<-' \
+                    '[:MODERATOR_OF]-(p:Pleb) RETURN p.username' \
+                    % object_uuid
+            res, col = db.cypher_query(query)
+            accountants = [row[0] for row in res]
+            cache.set("%s_accountants" % object_uuid, accountants)
+        return accountants
+
+    @classmethod
+    def get_quest_helpers(cls, object_uuid):
+        return cls.get_accountants(object_uuid) + cls.get_editors(object_uuid)
+
+    @classmethod
+    def get_url(cls, object_uuid, request):
+        query = 'MATCH (c:Quest {object_uuid:"%s"})<-' \
+                '[:IS_WAGING]-(p:Pleb) return p.username' % object_uuid
+        res, _ = db.cypher_query(query)
+        try:
+            return reverse('quest_saga',
+                           kwargs={"username": res.one},
+                           request=request)
+        except IndexError:
+            return None
+
+    @classmethod
+    def get_updates(cls, object_uuid):
+        updates = cache.get("%s_updates" % object_uuid)
+        if updates is None:
+            query = 'MATCH (c:Quest {object_uuid:"%s"})-[:CREATED_AN]->' \
+                    '(u:Update) WHERE u.to_be_deleted=false ' \
+                    'RETURN u.object_uuid' % object_uuid
+            res, col = db.cypher_query(query)
+            updates = [row[0] for row in res]
+            cache.set("%s_updates" % object_uuid, updates)
+        return updates
 
 
 class Campaign(Searchable):
@@ -102,11 +237,11 @@ class Campaign(Searchable):
         'sb_public_official.neo_models.PublicOfficial', 'HAS_PUBLIC_OFFICIAL')
     # Embarks on is a mission this Quest manages and is trying to accomplish.
     # Donations to these missions come back to the Quest's account
-    missions = RelationshipTo('sb_mission.neo_models.Mission', "EMBARKS_ON")
+    missions = RelationshipTo('sb_missions.neo_models.Mission', "EMBARKS_ON")
     # Endorses are missions the Quest is supporting. These should be linked to
     # from the Quest page but are actively managed by other users/Quests.
     # Donations to these missions do not come back to this Quest.
-    endorses = RelationshipTo('sb_mission.neo_models.Mission', "ENDORSES")
+    endorses = RelationshipTo('sb_missions.neo_models.Mission', "ENDORSES")
 
     # DEPRECATIONS
     # DEPRECATED: Rounds are now deprecated and should not be used

@@ -35,6 +35,8 @@ from sb_public_official.serializers import PublicOfficialSerializer
 from sb_public_official.neo_models import PublicOfficial
 from sb_donations.neo_models import Donation
 from sb_donations.serializers import DonationSerializer
+from sb_missions.neo_models import Mission
+from sb_missions.serializers import MissionSerializer
 from sb_quests.neo_models import PoliticalCampaign
 from sb_quests.serializers import PoliticalCampaignSerializer
 from sb_updates.neo_models import Update
@@ -493,6 +495,18 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(PoliticalCampaignSerializer(possible_presidents,
                                                     many=True).data,
                         status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def missions(self, request, username):
+        query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
+                '[:EMBARKS_ON]->(m:Mission) RETURN m' % username
+        res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
+        queryset = [Mission.inflate(row[0]) for row in res]
+        page = self.paginate_queryset(queryset)
+        serializer = MissionSerializer(page, many=True,
+                                       context={'request': request})
+        return self.get_paginated_response(serializer.data)
 
 
 class MeViewSet(mixins.UpdateModelMixin,

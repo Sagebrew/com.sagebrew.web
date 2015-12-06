@@ -70,14 +70,19 @@ var controller_map = [
         check: "^registration/profile_picture"
     },
     {
-        controller: "section-quest-temp",
+        controller: "section-mission-temp",
         match_method: "path",
         check: "^quest/mission/public_office"
     },
     {
-        controller: "section-quest-temp",
+        controller: "section-mission-temp",
         match_method: "path",
         check: "^quest/mission/select"
+    },
+    {
+        controller: "section-quest-temp",
+        match_method: "path",
+        check: "^quests\/([A-Za-z0-9.@_%+-]{2,36})"
     }
 ];
 

@@ -1,0 +1,10 @@
+{{#each positions}}
+<div class="col-xs-12 col-sm-4">
+    <div class="radio-image-selector js-position" id="{{ this.name }}">
+        <h4 class="sb-profile-not-friend-header">{{ this.name }}</h4>
+        <div class="row radio-image-selector-image-wrapper">
+            <img class="radio-image-selector-image" src="{{ this.image_path }}">
+        </div>
+    </div>
+</div>
+{{/each}}

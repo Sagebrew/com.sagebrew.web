@@ -16,6 +16,12 @@ class Mission(Searchable):
     #     State
     #     Federal
     level = StringProperty()
+    # Indicates what sector the Mission is set in. Valid options are:
+    #     state_upper
+    #     state_lower
+    #     federal
+    #     local
+    sector = StringProperty()
 
     # The mission may have seperate pages than the core Quest does
     facebook = StringProperty()
@@ -123,4 +129,11 @@ class Mission(Searchable):
                 return QuestionSerializerNeo(Question.inflate(res.one)).data
 
     def get_location(self):
-        return ""
+        from sb_locations.neo_models import Location
+        query = 'MATCH (a:Mission {object_uuid: "%s"})' \
+                '-[:WITHIN]->(b:Location) RETURN b' % self.object_uuid
+        res, _ = db.cypher_query(query)
+        if res.one:
+            return Location.inflate(res.one)
+        else:
+            return None

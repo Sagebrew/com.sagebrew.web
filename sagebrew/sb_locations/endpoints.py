@@ -17,7 +17,8 @@ from sb_quests.neo_models import Position
 from sb_quests.serializers import PositionSerializer
 
 from .utils import get_positions, get_districts
-from .serializers import LocationSerializer, LocationManagerSerializer
+from .serializers import (LocationSerializer, LocationManagerSerializer,
+                          LocationExternalIDSerializer)
 from .neo_models import Location
 
 
@@ -52,6 +53,21 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
                             status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @list_route(methods=['post'],
+                serializer_class=LocationExternalIDSerializer,
+                permission_classes=(IsAuthenticated,))
+    def async_add(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            cache.set(request.data['place_id'], request.data)
+            serializer.save()
+            return Response({"status": status.HTTP_201_CREATED,
+                             "detail": "Successfully launched async task"},
+                            status=status.HTTP_201_CREATED)
+        # Don't fail loud here as we don't inform the customer that
+        # we are sending off information to ourselves in the background
+        return Response(serializer.errors, status=status.HTTP_200_OK)
+
     @list_route(methods=['post'], permission_classes=(IsAuthenticated, ))
     def cache(self, request):
         if 'place_id' in request.data:
@@ -82,7 +98,7 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
                   permission_classes=(IsAuthenticated,))
     def positions(self, request, object_uuid=None):
         lookup = self.request.query_params.get('lookup', "object_uuid")
-        filter_param = self.request.query_params.get('filter', "federal")
+        filter_param = self.request.query_params.get('filter')
         if lookup in settings.NON_SAFE:
             return Response({"status": status.HTTP_400_BAD_REQUEST},
                             status=status.HTTP_400_BAD_REQUEST)

@@ -427,6 +427,7 @@ OPERATOR_DICT = {
     'coperator\ntruth\np0\n.': 'truth'
 }
 
+SUNLIGHT_FOUNDATION_KEY = environ.get("SUNLIGHT_FOUNDATION_KEY")
 OPENSTATES_DISTRICT_SEARCH_URL = "http://openstates.org/api/v1/legislators/" \
                                  "geo/?lat=%f&long=%f"
 

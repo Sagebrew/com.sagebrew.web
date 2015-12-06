@@ -1,15 +1,12 @@
 // TODO this could be split into seperate dirs within the quest section
 // based on the new layout @mwisner is working on in #720
-var politician = require('./partials/politicianmission'),
-    mission = require('./partials/missionselect');
+var quest = require('./partials/quest');
 
 export const meta = {
-    controller: "registration",
+    controller: "section-quest-temp",
     match_method: "path",
     check: [
-       "^quest/mission/public_office",
-       "^quest/mission/select" // TODO this could be moved to a seperate controller/dir
-                               // based on the new layout @mwisner is working on in #720
+       "^quests/\/([A-Za-z0-9.@_%+-]{2,36})"
     ]
 };
 
@@ -26,8 +23,7 @@ export function init() {
  */
 export function load() {
     "use strict";
-    mission.load();
-    politician.load();
+    quest.load();
 }
 
 /**

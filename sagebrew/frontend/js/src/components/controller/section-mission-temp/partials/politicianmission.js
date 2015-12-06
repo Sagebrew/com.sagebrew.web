@@ -2,7 +2,16 @@
 var request = require('./../../../api').request,
     radioSelector = require('./../../../common/radioimage').radioSelector,
     helpers = require('./../../../common/helpers'),
-    templates = require('./../../../template_build/templates');
+    templates = require('./../../../template_build/templates'),
+    settings = require('./../../../settings').settings,
+    filterKey = 'politicianMissionLocationFilter',
+    locationKey = 'politicianMissionLocationID',
+    locationName = "politicianMissionLocationName",
+    positionKey = 'politicianMissionPosition',
+    districtKey = 'politicianMissionDistrict',
+    sectorKey = 'politicianMissionSector',
+    stateUpper = "state_upper",
+    stateLower = "state_lower";
 
 
 export function load() {
@@ -12,11 +21,7 @@ export function load() {
         districtRow = document.getElementById('district-row'),
         startBtn = document.getElementById('js-start-btn'),
         districtSelector = document.getElementById('js-district-selector'),
-        positionSelector = document.getElementById('js-position-selector'),
-        filterKey = 'politicianMissionLocationFilter',
-        locationKey = 'politicianMissionLocationID',
-        positionKey = 'politicianMissionPosition',
-        districtKey = 'politicianMissionDistrict';
+        positionSelector = document.getElementById('js-position-selector');
     // We just loaded the app, jam in some place holders to look nice.
     // Didn't include directly in the Django template so we don't have duplicate formatting
     positionSelector.innerHTML = templates.position_holder();
@@ -26,6 +31,8 @@ export function load() {
         localStorage.removeItem(filterKey);
         localStorage.removeItem(positionKey);
         localStorage.removeItem(districtKey);
+        localStorage.removeItem(locationName);
+        localStorage.removeItem(sectorKey);
     }
     $app
         .on('click', '.radio-image-selector', function(event) {
@@ -36,7 +43,6 @@ export function load() {
                 // and clear the currently selected position and re-disable positions and districts
                 stateInput.disabled = true;
                 placeInput.disabled = true;
-                startBtn.disabled = true;
                 positionSelector.innerHTML = templates.position_holder();
                 districtSelector.innerHTML = templates.district_holder();
                 localStorage.removeItem(positionKey);
@@ -47,14 +53,12 @@ export function load() {
                 localStorage.removeItem(districtKey);
                 localStorage.removeItem(positionKey);
                 districtSelector.innerHTML = templates.district_holder();
-                startBtn.disabled = true;
             } else {
                 // If we select a level, enable the inputs
                 stateInput.disabled = false;
                 placeInput.disabled = false;
 
                 // A new level was selected, clear the positions and districts
-                startBtn.disabled = true;
                 localStorage.removeItem(positionKey);
                 localStorage.removeItem(districtKey);
                 if(this.id === "local-selection"){
@@ -67,25 +71,21 @@ export function load() {
                     placeInput.value = "";
                 } else if (this.id === "state-selection"){
                     // The state level was selected
-                    districtSelection('state', stateInput, placeInput, districtRow,
-                        filterKey, locationKey, positionKey, districtKey, startBtn,
-                        positionSelector);
+                    districtSelection('state', stateInput, placeInput, positionSelector);
 
                 } else if (this.id === "federal-selection"){
                     // The federal level was selected
+                    districtRow.classList.add('hidden');
                     if(localStorage.getItem(filterKey) === "local"){
                         localStorage.removeItem(locationKey);
                     }
-                    districtSelection('federal', stateInput, placeInput, districtRow,
-                        filterKey, locationKey, positionKey, districtKey, startBtn,
-                        positionSelector);
-
+                    districtSelection('federal', stateInput, placeInput, positionSelector);
                 } else{
                     // We've selected a position
                     // Since a position has been selected we can get the districts and enable the selector,
                     // if we need to.
                     localStorage.removeItem(districtKey);
-                    checkIfDistricts(this.id);
+                    checkIfDistricts(this.id, districtRow);
                 }
             }
             radioSelector(this);
@@ -96,6 +96,8 @@ export function load() {
             // enable the start button and store off the final item needed for
             // federal and state campaigns
             localStorage.setItem(districtKey, this.options[this.selectedIndex].innerHTML);
+            // Since after the selection a click event isn't raised we need to add this to ensure
+            // the user can move forward without needing to click somewhere
             startBtn.disabled = false;
         })
         .on('click', '.registration', function() {
@@ -103,8 +105,11 @@ export function load() {
             // Some additional logic to ensure the startBtn only goes on when it should for both local and
             // Federal/State (district vs non-district)
             if(localStorage.getItem(filterKey) === "local" && localStorage.getItem(positionKey) !== null){
+                // Local positions don't have districts so since a position has been selected enable the button
                 startBtn.disabled = false;
             } else if(localStorage.getItem(filterKey) === "local" && localStorage.getItem(positionKey) === null){
+                // We need to have a position selected before allowing the user to click the start button
+                // so since none has been selected disable it.
                 startBtn.disabled = true;
             }
 
@@ -112,16 +117,48 @@ export function load() {
             if(localStorage.getItem(filterKey) === "state" && localStorage.getItem(districtKey) === null) {
                 startBtn.disabled = true;
             }
-            if(localStorage.getItem(filterKey) === "federal" && localStorage.getItem(districtKey) === null) {
-                startBtn.disabled = true;
+            if(localStorage.getItem(filterKey) === "federal") {
+                if(localStorage.getItem(positionKey) === "Senator" || localStorage.getItem(positionKey) === "President") {
+                    // Presidents and Senators don't have districts so we can enable the start button
+                    startBtn.disabled = false;
+                } else if (localStorage.getItem(districtKey) === null){
+                    // If we're not talking about Presidents or Senators we need a district so diable the
+                    // start button until a district is selected.
+                    startBtn.disabled = true;
+                }
             }
+        })
+        .on('click', '#js-start-btn', function(){
+            "use strict";
+            var location;
+            if(localStorage.getItem(filterKey) !== "local"){
+                location = localStorage.getItem(locationName);
+            } else {
+                location = localStorage.getItem(locationKey);
+            }
+            request.post({
+                url: "/v1/missions/",
+                data: JSON.stringify({
+                    focus_name: localStorage.getItem(positionKey),
+                    district: localStorage.getItem(districtKey),
+                    level: localStorage.getItem(filterKey),
+                    location_name: location,
+                    focus_on_type: "position",
+                    sector: localStorage.getItem(sectorKey)
+                })
+            }).done(function () {
+                window.location.href = "/quests/" + settings.user.username + "/";
+            });
+        })
+        .on('click', '#js-cancel-btn', function(event){
+            "use strict";
+            event.preventDefault();
+            window.location.href = "/quests/" + settings.user.username;
         });
     helpers.loadMap(initAutocomplete, "places");
 }
 
-function districtSelection(level, stateInput, placeInput, districtRow,
-                           filterKey, locationKey, positionKey, districtKey,
-                           startBtn, positionSelector) {
+function districtSelection(level, stateInput, placeInput, positionSelector) {
     "use strict";
     /**
      * If the user had previous selected local we need to clear out
@@ -136,8 +173,6 @@ function districtSelection(level, stateInput, placeInput, districtRow,
     }
     stateInput.classList.remove('hidden');
     placeInput.classList.add('hidden');
-    districtRow.classList.remove('hidden');
-    startBtn.disabled = true;
     localStorage.removeItem(districtKey);
     localStorage.setItem(filterKey, level);
     if(localStorage.getItem(locationKey) !== null){
@@ -170,25 +205,36 @@ function districtSelection(level, stateInput, placeInput, districtRow,
     document.getElementById('js-district-selector').innerHTML = templates.district_holder();
 }
 
-function checkIfDistricts(identifier) {
+function checkIfDistricts(identifier, districtRow) {
     "use strict";
-    var filterKey = 'politicianMissionLocationFilter';
     if(identifier.indexOf('Senator') > -1) {
-        localStorage.setItem('politicianMissionPosition', "Senator");
+        localStorage.setItem(positionKey, identifier);
         if (localStorage.getItem(filterKey) === "state"){
-            fillDistricts("state_upper");
+            districtRow.classList.remove('hidden');
+            localStorage.setItem(sectorKey, stateUpper);
+            fillDistricts(stateUpper);
         } else {
-            fillDistricts("federal");
+            localStorage.setItem(sectorKey, "federal");
+            districtRow.classList.add('hidden');
         }
     } else if(identifier.indexOf("House Representative") > -1) {
-        localStorage.setItem('politicianMissionPosition', "House of Representative");
+        localStorage.setItem(positionKey, identifier);
+        districtRow.classList.remove('hidden');
         if (localStorage.getItem(filterKey) === "state"){
-            fillDistricts("state_lower");
+            localStorage.setItem(sectorKey, stateLower);
+            fillDistricts(stateLower);
         } else {
+            localStorage.setItem(sectorKey, "federal");
             fillDistricts("federal");
         }
     } else if(identifier === "Other (Contact Us)") {
+        localStorage.removeItem(sectorKey);
+        districtRow.classList.add('hidden');
         Intercom("showNewMessage", "Hi I would like to run but cannot find my position. Could you add [insert what you'd like to run for :)...]");
+    } else {
+        localStorage.setItem(positionKey, identifier);
+        localStorage.removeItem(sectorKey);
+        districtRow.classList.add('hidden');
     }
 }
 
@@ -211,6 +257,7 @@ function initAutocomplete() {
         .on('change', '#state-input', function() {
             "use strict";
             var query = this.options[this.selectedIndex].innerHTML;
+            localStorage.setItem(locationName, query);
             if (query === "New York") {
                 query = query + " State, United States";
             } else {
@@ -242,15 +289,16 @@ function initAutocomplete() {
             map.setZoom(12);
         }
         fillPositions(place.place_id);
-        localStorage.setItem('politicianMissionLocationID', place.place_id);
-        request.post({url: '/v1/locations/cache/', data: JSON.stringify(place)});
+        localStorage.setItem(locationKey, place.place_id);
+
         /**
          * If a location is selected the district should always be replaced by the holder and the position
          * removed from local storage
          * This selection always changes the positions and districts which is why this is necessary
          */
-        localStorage.removeItem('politicianMissionPosition');
+        localStorage.removeItem(positionKey);
         document.getElementById('js-district-selector').innerHTML = templates.district_holder();
+        request.post({url: '/v1/locations/async_add/', data: JSON.stringify(place)});
     });
 
     function callback(results, status) {
@@ -263,21 +311,22 @@ function initAutocomplete() {
                 map.setZoom(12);
             }
             fillPositions(place.place_id);
-            localStorage.setItem('politicianMissionLocationID', place.place_id);
+            localStorage.setItem(locationKey, place.place_id);
             /**
              * If a location is selected the district should always be replaced by the holder and the position
              * removed from local storage
              * This selection always changes the positions and districts which is why this is necessary
              */
-            localStorage.removeItem('politicianMissionPosition');
+            localStorage.removeItem(positionKey);
             document.getElementById('js-district-selector').innerHTML = templates.district_holder();
+            request.post({url: '/v1/locations/async_add/', data: JSON.stringify(place)});
         }
     }
 }
 
 function fillDistricts(filterParam) {
     "use strict";
-    var identifier = localStorage.getItem('politicianMissionLocationID');
+    var identifier = localStorage.getItem(locationKey);
     var url = "/v1/locations/" + identifier + "/district_names/?lookup=external_id";
     if (filterParam !== "" && filterParam !== undefined){
         url = url + "&filter=" + filterParam;
@@ -294,15 +343,14 @@ function fillDistricts(filterParam) {
         });
 }
 
-function fillPositions(identifier, filterParam="") {
+function fillPositions(identifier) {
     "use strict";
     var url = "/v1/locations/" + identifier + "/position_names/?lookup=external_id",
-        filterKey = 'politicianMissionLocationFilter',
         locality=localStorage.getItem(filterKey);
     // We're filling the position list with a new set of positions so remove the old one
-    localStorage.removeItem('politicianMissionPosition');
-    if (filterParam !== "" && filterParam !== undefined){
-        url = url + "&filter=" + filterParam;
+    localStorage.removeItem(positionKey);
+    if (locality !== "" && locality !== undefined){
+        url = url + "&filter=" + locality;
     }
     request.get({url:url})
         .done(function(data) {
@@ -311,9 +359,9 @@ function fillPositions(identifier, filterParam="") {
             for(var i=0; i < data.results.length; i++) {
                 name = data.results[i];
                 // TODO simplify with types rather than each position
-                if(name === "Senator"){
+                if(name.indexOf("Senator") > -1){
                     image_path = "https://sagebrew.local.dev/static/images/council.png";
-                } else if (name === "House Representative"){
+                } else if (name.indexOf("House Representative") > -1){
                     image_path = "https://sagebrew.local.dev/static/images/council.png";
                 } else if (name === "President") {
                     image_path = "https://sagebrew.local.dev/static/images/executive.png";
@@ -324,11 +372,21 @@ function fillPositions(identifier, filterParam="") {
                 } else if (name === "Mayor") {
                     image_path = "https://sagebrew.local.dev/static/images/executive.png";
                 }
-                if(locality === "state"){
-                    if(name === "House Representative" || name === "Senator"){
-                        name = "State " + name;
+                /**
+                    if(name === "Senator"){
+                        image_path = settings.static_url + "images/council.png";
+                    } else if (name === "House Representative"){
+                        image_path = settings.static_url + "images/council.png";
+                    } else if (name === "President") {
+                        image_path = settings.static_url + "images/executive.png";
+                    } else if (name === "Governor") {
+                        image_path = settings.static_url + "images/executive.png";
+                    } else if (name === "City Council") {
+                        image_path = settings.static_url + "images/council.png";
+                    } else if (name === "Mayor") {
+                        image_path = settings.static_url + "images/executive.png";
                     }
-                }
+                 */
                 context = {
                     name: name,
                     image_path: image_path

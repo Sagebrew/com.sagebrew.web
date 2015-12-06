@@ -20,6 +20,7 @@ from api.utils import spawn_task
 from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb
 
+from sb_quests.serializers import QuestSerializer
 from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,
                     LoginForm)
@@ -41,10 +42,15 @@ def signup_view(request):
 
 def quest_signup(request):
     if request.method == 'POST':
-        request.session['account_type'] = request.POST['account_type']
-        request.session.set_expiry(1800)
         if request.user.is_authenticated():
-            return redirect('rep_registration_page')
+            data = {"account_type": request.POST['account_type']}
+            serializer = QuestSerializer(data=data,
+                                         context={'request': request})
+            if serializer.is_valid():
+                quest = serializer.save()
+                return redirect('quest', username=quest.owner_username)
+            else:
+                return HttpResponseServerError("Unhandled Exception Occurred")
         return redirect('signup')
     return render(request, 'quest_details.html')
 

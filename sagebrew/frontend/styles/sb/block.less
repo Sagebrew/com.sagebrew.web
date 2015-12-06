@@ -4,9 +4,13 @@
 .block {
   margin-bottom:20px;
   padding:0;
+  border-radius: 2px;
   .block-title {
-    padding:20px 20px 0 20px;
-    margin:0;
+    padding:20px 0 6px 0;
+    margin:0 20px;
+    font-weight:300;
+    border-bottom:1px solid @sb_grey_dark;
+    font-size:1.3em;
   }
   .block-content {
     padding:20px;
@@ -15,4 +19,23 @@
 
 .block-content > ul.list-group {
   margin:0;
+}
+
+//
+// Nav block type
+
+.block.block-type-nav  {
+  ul.nav-list-vivid {
+    background: transparent;
+
+  }
+
+
+}
+
+//
+// Legacy overrides
+// -------------------------------------------------
+.block.sb_solution_news {
+  padding:15px 15px 0 15px;
 }

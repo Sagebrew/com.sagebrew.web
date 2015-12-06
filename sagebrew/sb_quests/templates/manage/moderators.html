@@ -1,16 +1,8 @@
-{% extends "layout/three-col.html" %}
+{% extends "manage/manage_base.html" %}
 {% load staticfiles %}
 {% block title %}
     Manage Moderators
 {% endblock title %}
-
-{% block sidebar_left %}
-    {% include "manage/quest_manage_nav.html" %}
-{% endblock %}
-
-{% block sidebar_right %}
-    {% include "manage/manage_right_sidebar.html" %}
-{% endblock %}
 
 {% comment %}
     This page doesn't scale very well. We to do some auto loading /filtering / searching.

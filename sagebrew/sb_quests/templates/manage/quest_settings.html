@@ -1,14 +1,6 @@
-{% extends "layout/three-col.html" %}
+{% extends "manage/manage_base.html" %}
 {% load staticfiles %}
 {% block title %}Quest Settings{% endblock title %}
-
-{% block sidebar_left %}
-    {% include "manage/quest_manage_nav.html" %}
-{% endblock %}
-
-{% block sidebar_right %}
-    {% include "manage/manage_right_sidebar.html" %}
-{% endblock %}
 
 {% block live %}
     <div class="block">
@@ -17,7 +9,6 @@
         </h3>
         <div class="block-content">
             <form id="socialForm">
-            {% if campaign.id %}
                 <div id="campaign_id" data-object_uuid="{{ campaign.id }}" style="display: none"></div>
                 <div id="stripe_key" data-key="{{ campaign.stripe_key }}" style="display: none"></div>
                 <div id="completed-stripe" data-completed_stripe="{{ campaign.completed_stripe }}"></div>
@@ -26,16 +17,6 @@
                 <div id="js-paid_account" class="sb_hidden" data-paid_account="{{ campaign.paid_account }}"></div>
                 <div id="js-active" class="sb_hidden" data-active="{{ campaign.active }}"></div>
                 <div id="js-taking_live" class="sb_hidden" data-taking_live=False></div>
-
-                <div class="form-group">
-                    <label for="">Quest Title</label>
-                    <input type="text"
-                       id="quest-title"
-                       name="title"
-                       placeholder="Quest title"
-                       value="{{ campaign.title|default_if_none:'' }}"
-                       class="form-control">
-                </div>
 
                 <div class="form-group">
                     <label for="">Short Description</label>
@@ -92,70 +73,6 @@
                        class="form-control">
                 </div>
 
-                <div class="row {% if campaign.active %}sb_hidden{% endif %}">
-                    <div class="col-lg-12 hidden-sm hidden-xs">
-                        <h5>Take Quest Live</h5>
-
-                        <div class="block sb_success_block">
-                            <p>
-                                Here you may take your Sagebrew Quest live for the world to see.
-                            </p>
-                            {% if not request_profile.is_verified %}
-                                <div class="btn sb_restricted sb_btn_disabled sb-restricted-btn-wrapper"
-                                     data-toggle="tooltip"
-                                     data-placement="top"
-                                     data-title="Please verify your account">
-                                    <button class="btn sb_restricted sb_btn_disabled" disabled="disabled">Take Quest
-                                        Live
-                                    </button>
-                                </div>
-                            {% else %}
-                                <button class="btn btn-primary sb_btn"
-                                        type="button"
-                                        data-toggle="modal"
-                                        data-target="#liveModal">Take Quest Live
-                                </button>
-                            {% endif %}
-                        </div>
-
-                        <!-- Modal -->
-                        <div class="modal fade" id="liveModal" tabindex="-1" role="dialog"
-                             aria-labelledby="authModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span></button>
-                                        <h4 class="modal-title" id="myModalLabel">Take it live!</h4>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>By continuing you are beginning your Sagebrew Quest! After it is live you
-                                            will be able
-                                            to start collecting donations and pledged votes from your supporters.</p>
-
-                                        <p><b>Please note</b> that if you wish to make any changes to your Goals that
-                                            you have setup please do so
-                                            before taking your Quest live as you will not be able to edit them after.
-                                        </p>
-
-                                        <p>You <b>must</b> also have a bank account set up, we will prompt you to set
-                                            this up should it not be done already. Also, if you are
-                                            part of our paid plan you will also need a credit card on file.</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <div class="col-md-6 col-md-offset-3">
-                                            <button type="button"
-                                                    id="take_live"
-                                                    class="btn btn-primary sb_btn" style="width: 100%;"
-                                                    data-dismiss="modal">Continue
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="row">
                     <div id="validation-errors"></div>
                     <div class="col-lg-4 col-md-6">
@@ -166,13 +83,6 @@
                     </div>
                 </div>
 
-            {% else %}
-                <div class="col-xs-12">
-                    <button id="register-for-quest" class="btn btn-primary sb_btn sb_btn_fill">
-                        Register for a Quest!
-                    </button>
-                </div>
-            {% endif %}
             </form>
             <div hidden id="address_data_block" data-address_validation={{ address_key }}></div>
         </div>

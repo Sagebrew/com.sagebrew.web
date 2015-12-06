@@ -1,12 +1,5 @@
-{% extends "layout/three-col.html" %}{% load staticfiles %}
-
-{% block sidebar_left %}
-{% include "manage/quest_manage_nav.html" %}
-{% endblock %}
-
-{% block sidebar_right %}
-    {% include "manage/manage_right_sidebar.html" %}
-{% endblock %}
+{% extends "manage/manage_base.html" %}
+{% load staticfiles %}
 
 {% block live %}
     <div class="block">

@@ -1,9 +1,6 @@
 from datetime import datetime
 import pytz
-import bleach
 import markdown
-
-from django.core.cache import cache
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -46,27 +43,27 @@ class MissionSerializer(SBSerializer):
 
     district = serializers.CharField(write_only=True, allow_null=True)
     level = serializers.ChoiceField(required=True, choices=[
-        ('local', "Local"), ('state', "State"),
-        ('federal', "Federal")])
-    sector = serializers.ChoiceField(required=True, choices=[
         ('local', "Local"), ('state_upper', "State Upper"),
         ('state_lower', "State Lower"),
-        ('federal', "Federal")], allow_null=True)
+        ('federal', "Federal")])
     location = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        from logging import getLogger
-        logger = getLogger("loggly_logs")
         request, _, _, _, _ = gather_request_data(self.context)
+        add_location = ""
+        add_district = ""
         focus_type = validated_data.get('focus_on_type')
         level = validated_data.get('level')
         location = validated_data.get('location_name')
         focused_on = validated_data.get('focus_name')
         district = validated_data.get('district')
-        sector = validated_data.get('sector', "")
         owner_username = request.user.username
-        mission = Mission(owner_username=owner_username, sector=sector,
-                          level=level).save()
+        mission = Mission(owner_username=owner_username, level=level).save()
+        within_query = 'MATCH (mission:Mission {object_uuid: "%s"})-' \
+                       '[:FOCUSED_ON]->(position:Position)' \
+                       '<-[:POSITIONS_AVAILABLE]-(location:Location) ' \
+                       'CREATE UNIQUE (mission)-[:WITHIN]->(location) ' \
+                       'RETURN mission' % mission.object_uuid
         if focus_type == "position":
             if level == "local":
                 query = 'MATCH (location:Location {external_id: "%s"})-' \
@@ -78,23 +75,22 @@ class MissionSerializer(SBSerializer):
                         'MATCH (quest:Quest {owner_username: "%s"}) ' \
                         'WITH position, location, mission, quest ' \
                         'CREATE UNIQUE (position)<-[:FOCUSED_ON]-' \
-                        '(mission)<-[:EMBARKS_ON]-(quest), ' \
-                        '(location)<-[:WITHIN]-(mission) RETURN mission' % (
+                        '(mission)<-[:EMBARKS_ON]-(quest) ' \
+                        'WITH location, mission ' \
+                        'CREATE UNIQUE (location)<-[:WITHIN]-(mission) ' \
+                        'RETURN mission' % (
                             location, focused_on, level, mission.object_uuid,
                             owner_username)
-                logger.critical(query)
-                logger.critical(level)
-                logger.critical(location)
-                logger.critical(district)
                 res, _ = db.cypher_query(query)
                 return Mission.inflate(res.one)
-            elif level == "state":
+            elif level == "state_upper" or level == "state_lower":
                 if district:
                     add_district = '-[:ENCOMPASSES]->' \
                                    '(c:Location {name: "%s", sector: "%s"})' \
-                                   '' % (district, sector)
-                else:
-                    add_district = ""
+                                   '' % (district, level)
+                # use sector for level input since we're talking about
+                # state_upper and state_lower with the position
+                # and level input here only has state, federal, and local
                 query = 'MATCH (a:Location {name: ' \
                         '"United States of America"})-[:ENCOMPASSES]->' \
                         '(b:Location {name: "%s"})%s-[:POSITIONS_AVAILABLE]->' \
@@ -104,26 +100,17 @@ class MissionSerializer(SBSerializer):
                         'WITH position, mission ' \
                         'MATCH (quest:Quest {owner_username: "%s"}) ' \
                         'WITH position, mission, quest' \
-                        'CREATE UNIQUE (position)' \
+                        ' CREATE UNIQUE (position)' \
                         '<-[:FOCUSED_ON]-(mission)<-[:EMBARKS_ON]-' \
                         '(quest) RETURN mission' % (
                             location, add_district, focused_on, level,
                             mission.object_uuid, owner_username)
-                logger.critical(query)
-                logger.critical(level)
-                logger.critical(location)
-                logger.critical(district)
                 res, _ = db.cypher_query(query)
                 # Since there the deepest location is dynamic I moved this out
                 # to reduce complexity on storing the location variable within
                 # the query and accessing it in the CREATE UNIQUE call.
                 # May be able to optimize and combine at some point.
-                query = 'MATCH (mission:Mission {object_uuid: "%s"})-' \
-                        '[:FOCUSED_ON]->(position:Position)' \
-                        '<-[:POSITIONS_AVAILABLE]-(location:Location) ' \
-                        'CREATE UNIQUE (mission)-[:WITHIN]->(location)' \
-                        'RETURN mission' % mission.object_uuid
-                res, _ = db.cypher_query(query)
+                res, _ = db.cypher_query(within_query)
                 return Mission.inflate(res.one)
             elif level == "federal":
                 if location and focused_on != "President":
@@ -132,15 +119,11 @@ class MissionSerializer(SBSerializer):
                     # USA
                     add_location = '-[:ENCOMPASSES]->' \
                                    '(b:Location {name: "%s"})' % location
-                else:
-                    add_location = ""
                 if district and focused_on != "President" and focused_on \
                         != "Senator":
                     add_district = '-[:ENCOMPASSES]->' \
                                    '(c:Location {name: "%s", sector: "%s"})' \
-                                   '' % (district, sector)
-                else:
-                    add_district = ""
+                                   '' % (district, level)
                 query = 'MATCH (a:Location {name: ' \
                         '"United States of America"})%s%s' \
                         '-[:POSITIONS_AVAILABLE]->' \
@@ -154,21 +137,12 @@ class MissionSerializer(SBSerializer):
                         '<-[:EMBARKS_ON]-(quest) RETURN mission' % (
                             add_location, add_district, focused_on, level,
                             owner_username, mission.object_uuid)
-                logger.critical(query)
-                logger.critical(level)
-                logger.critical(location)
-                logger.critical(district)
                 res, _ = db.cypher_query(query)
                 # Since there the deepest location is dynamic I moved this out
                 # to reduce complexity on storing the location variable within
                 # the query and accessing it in the CREATE UNIQUE call.
                 # May be able to optimize and combine at some point.
-                query = 'MATCH (mission:Mission {object_uuid: "%s"})-' \
-                        '[:FOCUSED_ON]->(position:Position)' \
-                        '<-[:POSITIONS_AVAILABLE]-(location:Location) ' \
-                        'CREATE UNIQUE (mission)-[:WITHIN]->(location) ' \
-                        'RETURN mission' % mission.object_uuid
-                res, _ = db.cypher_query(query)
+                res, _ = db.cypher_query(within_query)
                 return Mission.inflate(res.one)
         elif focus_type == "tag":
             # Need to handle potential district with location

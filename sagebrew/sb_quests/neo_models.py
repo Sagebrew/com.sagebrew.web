@@ -659,6 +659,11 @@ class PoliticalCampaign(Campaign):
 class Position(SBObject):
     name = StringProperty()
     full_name = StringProperty()
+    # Valid Levels:
+    #     state_upper - State Senator Districts
+    #     state_lower - State House Representative Districts
+    #     federal - U.S. Federal Districts (House of Reps)
+    #     local - Everything else :)
     level = StringProperty(default="federal")
 
     location = RelationshipTo('sb_locations.neo_models.Location',

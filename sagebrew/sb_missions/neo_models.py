@@ -12,16 +12,12 @@ class Mission(Searchable):
     biography = StringProperty()
     epic = StringProperty()
     # Indicates what level the Mission is set at. Valid options are:
-    #     Local
-    #     State
-    #     Federal
-    level = StringProperty()
-    # Indicates what sector the Mission is set in. Valid options are:
     #     state_upper
     #     state_lower
     #     federal
     #     local
-    sector = StringProperty()
+    # For filtering purposes we combine state_upper and state_lower into "state"
+    level = StringProperty()
 
     # The mission may have seperate pages than the core Quest does
     facebook = StringProperty()

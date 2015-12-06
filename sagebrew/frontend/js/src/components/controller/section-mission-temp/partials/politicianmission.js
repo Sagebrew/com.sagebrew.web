@@ -9,7 +9,7 @@ var request = require('./../../../api').request,
     locationName = "politicianMissionLocationName",
     positionKey = 'politicianMissionPosition',
     districtKey = 'politicianMissionDistrict',
-    sectorKey = 'politicianMissionSector',
+    levelKey = 'politicianMissionLevel',
     stateUpper = "state_upper",
     stateLower = "state_lower";
 
@@ -32,7 +32,7 @@ export function load() {
         localStorage.removeItem(positionKey);
         localStorage.removeItem(districtKey);
         localStorage.removeItem(locationName);
-        localStorage.removeItem(sectorKey);
+        localStorage.removeItem(levelKey);
     }
     $app
         .on('click', '.radio-image-selector', function(event) {
@@ -67,6 +67,7 @@ export function load() {
                     placeInput.classList.remove('hidden');
                     districtRow.classList.add('hidden');
                     localStorage.setItem(filterKey, "local");
+                    localStorage.setItem(levelKey, "local");
                     positionSelector.innerHTML = templates.position_holder();
                     placeInput.value = "";
                 } else if (this.id === "state-selection"){
@@ -76,9 +77,7 @@ export function load() {
                 } else if (this.id === "federal-selection"){
                     // The federal level was selected
                     districtRow.classList.add('hidden');
-                    if(localStorage.getItem(filterKey) === "local"){
-                        localStorage.removeItem(locationKey);
-                    }
+                    localStorage.setItem(levelKey, "federal");
                     districtSelection('federal', stateInput, placeInput, positionSelector);
                 } else{
                     // We've selected a position
@@ -136,15 +135,18 @@ export function load() {
             } else {
                 location = localStorage.getItem(locationKey);
             }
+            console.log(location);
+            console.log(localStorage.getItem(levelKey));
+            console.log(localStorage.getItem(districtKey));
+            console.log(localStorage.getItem(positionKey));
             request.post({
                 url: "/v1/missions/",
                 data: JSON.stringify({
                     focus_name: localStorage.getItem(positionKey),
                     district: localStorage.getItem(districtKey),
-                    level: localStorage.getItem(filterKey),
+                    level: localStorage.getItem(levelKey),
                     location_name: location,
-                    focus_on_type: "position",
-                    sector: localStorage.getItem(sectorKey)
+                    focus_on_type: "position"
                 })
             }).done(function () {
                 window.location.href = "/quests/" + settings.user.username + "/";
@@ -211,29 +213,28 @@ function checkIfDistricts(identifier, districtRow) {
         localStorage.setItem(positionKey, identifier);
         if (localStorage.getItem(filterKey) === "state"){
             districtRow.classList.remove('hidden');
-            localStorage.setItem(sectorKey, stateUpper);
+            localStorage.setItem(levelKey, stateUpper);
             fillDistricts(stateUpper);
         } else {
-            localStorage.setItem(sectorKey, "federal");
+            localStorage.setItem(levelKey, "federal");
             districtRow.classList.add('hidden');
         }
     } else if(identifier.indexOf("House Representative") > -1) {
         localStorage.setItem(positionKey, identifier);
         districtRow.classList.remove('hidden');
         if (localStorage.getItem(filterKey) === "state"){
-            localStorage.setItem(sectorKey, stateLower);
+            localStorage.setItem(levelKey, stateLower);
             fillDistricts(stateLower);
         } else {
-            localStorage.setItem(sectorKey, "federal");
+            localStorage.setItem(levelKey, "federal");
             fillDistricts("federal");
         }
     } else if(identifier === "Other (Contact Us)") {
-        localStorage.removeItem(sectorKey);
+        localStorage.removeItem(levelKey);
         districtRow.classList.add('hidden');
         Intercom("showNewMessage", "Hi I would like to run but cannot find my position. Could you add [insert what you'd like to run for :)...]");
     } else {
         localStorage.setItem(positionKey, identifier);
-        localStorage.removeItem(sectorKey);
         districtRow.classList.add('hidden');
     }
 }

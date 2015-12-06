@@ -46,7 +46,6 @@ function loadSingleContent() {
             return request.get({url:url});
         },
         renderCallback: function ($container, data) {
-            console.log(data.results);
             if (data.results.to_be_deleted) {
                 wrapper.append("<h1>Sorry this " + capitalizedOjbectType + " has been removed by the owner!</h1>");
                 if (formattedObjectType === "solution" || formattedObjectType === "question") {

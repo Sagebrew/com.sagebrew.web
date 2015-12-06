@@ -482,7 +482,6 @@ function editObject(editArea, url, objectUuid, dataArea) {
                 }),
                 dataType: "json",
                 success: function (data) {
-                    console.log(data);
                     $(editButton).removeAttr("disabled");
                     var contentContainer = $("#sb_content_" + objectUuid);
                     contentContainer.html(Autolinker.link(data.content).replace(/\n/g, "<br/>"));

@@ -28,7 +28,7 @@ class Command(BaseCommand):
             response = requests.get(
                 lookup_url,
                 headers={"content-type": 'application/json; charset=utf8'},
-                params={"api_key": settings.SUNLIGHT_FOUNDATION_KEY})
+                params={"apikey": settings.SUNLIGHT_FOUNDATION_KEY})
             try:
                 json_response = response.json()
             except JSONDecodeError:
@@ -71,7 +71,7 @@ class Command(BaseCommand):
             response = requests.get(
                 lookup_url,
                 headers={"content-type": 'application/json; charset=utf8'},
-                params={"api_key": "53f7bd2a41df42c082bb2f07bd38e6aa"})
+                params={"apikey": settings.SUNLIGHT_FOUNDATION_KEY})
             try:
                 json_response = response.json()
             except JSONDecodeError:

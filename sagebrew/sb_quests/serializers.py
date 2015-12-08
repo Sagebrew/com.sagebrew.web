@@ -85,6 +85,7 @@ class CampaignSerializer(SBSerializer):
 
     def update(self, instance, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        owner = Pleb.get(username=instance.owner_username)
         stripe_token = validated_data.pop('stripe_token', None)
         customer_token = validated_data.pop('customer_token', None)
         ein = validated_data.pop('ein', None)
@@ -103,7 +104,6 @@ class CampaignSerializer(SBSerializer):
         instance.biography = validated_data.get('biography',
                                                 instance.biography)
         instance.epic = validated_data.get('epic', instance.epic)
-        owner = Pleb.get(username=instance.owner_username)
         if customer_token is not None:
             customer = stripe.Customer.create(
                 description="Customer for %s quest" % instance.object_uuid,

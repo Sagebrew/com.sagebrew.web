@@ -7,6 +7,8 @@ from neomodel import db
 
 from api.permissions import IsAuthorizedAndVerified
 from sb_quests.neo_models import Campaign
+from plebs.neo_models import Pleb
+from plebs.serializers import PlebSerializerNeo
 
 from .neo_models import Donation
 from .serializers import DonationSerializer, SBDonationSerializer
@@ -84,9 +86,19 @@ class DonationListCreate(generics.ListCreateAPIView):
         return [Donation.inflate(row[0]) for row in res]
 
     def perform_create(self, serializer):
+
         campaign = Campaign.get(object_uuid=self.kwargs[self.lookup_field])
         serializer.save(campaign=campaign,
                         token=self.request.data.get('token', None))
+
+    def create(self, request, *args, **kwargs):
+        if not PlebSerializerNeo(
+                Pleb.get(request.user.username)).data["is_verified"]:
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "You are not authorized to access "
+                                       "this page."},
+                            status=status.HTTP_403_FORBIDDEN)
+        return super(DonationListCreate, self).create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         """

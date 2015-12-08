@@ -9,7 +9,7 @@ from django.core.cache import cache
 
 from rest_framework import serializers, status
 from rest_framework.reverse import reverse
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotAuthenticated
 
 from neomodel import db
 from neomodel.exception import DoesNotExist
@@ -162,6 +162,9 @@ class CampaignSerializer(SBSerializer):
         instance.refresh()
         if not active_prev and instance.active:
             if not Campaign.get_active_round(instance.object_uuid):
+                if not owner.is_verified:
+                    raise NotAuthenticated(detail="You may not take a Quest "
+                                                  "live unless you are a verified user.")
                 upcoming_round = Round.nodes.get(
                     object_uuid=Campaign.get_upcoming_round(
                         instance.object_uuid))

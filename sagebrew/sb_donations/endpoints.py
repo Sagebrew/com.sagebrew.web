@@ -92,8 +92,14 @@ class DonationListCreate(generics.ListCreateAPIView):
                         token=self.request.data.get('token', None))
 
     def create(self, request, *args, **kwargs):
-        if not PlebSerializerNeo(
-                Pleb.get(request.user.username)).data["is_verified"]:
+        pleb = Pleb.get(request.user.username)
+        if not pleb:
+            if not PlebSerializerNeo(pleb).data.get("is_verified", False):
+                return Response(
+                    {"detail": "You may not donate to a Quest "
+                               "unless you are verified.",
+                     "status_code": status.HTTP_401_UNAUTHORIZED},
+                    status=status.HTTP_401_UNAUTHORIZED)
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "You are not authorized to access "
                                        "this page."},
@@ -125,6 +131,14 @@ class DonationListCreate(generics.ListCreateAPIView):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def sagebrew_donation(request):
+    if not Pleb.get(request.user.username).is_verified:
+        return Response(
+            {
+                "detail": "You cannot donate to us unless you are verified.",
+                "status": status.HTTP_401_UNAUTHORIZED,
+                "developer_message": "A user may only donate on Sagebrew "
+                                     "if they are verified."},
+            status=status.HTTP_401_UNAUTHORIZED)
     serializer = SBDonationSerializer(data=request.data,
                                       context={'request': request})
     if serializer.is_valid():

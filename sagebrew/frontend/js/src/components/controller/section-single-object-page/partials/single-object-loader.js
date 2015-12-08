@@ -21,6 +21,18 @@ function loadSingleContent() {
         formattedObjectType,
         capitalizedOjbectType,
         parsed = (window.location.href).match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$/);
+    /*
+    parsed in an array of different strings which makes up the full url.
+    0: fully qualified url
+    1: protocol with ex. 'https:/'
+    2: protocol alone ex. 'https'
+    3: host ex. 'sagebrew.com'
+    4: url path ex. '/posts/'
+    5: file path ex. '/posts'
+    6: continued path ex. '8cd02e46-9ba6-11e5-9d85-080027242395/
+    7: query params ex. '?this=query_param'
+    8: hash params ex. '#this-is-my-anchor'
+     */
     objectURL = "/v1" + parsed[4] + parsed[6] + "?html=true";
     objectType = parsed[4].replace(/\//g, '');
     formattedObjectType = objectType.slice(0, -1);

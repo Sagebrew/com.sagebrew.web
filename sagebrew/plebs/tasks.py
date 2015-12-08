@@ -130,7 +130,7 @@ def connect_to_state_districts(object_uuid):
     try:
         lookup_url = settings.OPENSTATES_DISTRICT_SEARCH_URL % \
             (address.latitude, address.longitude) \
-            + "&api_key=53f7bd2a41df42c082bb2f07bd38e6aa"
+            + "&apikey=53f7bd2a41df42c082bb2f07bd38e6aa"
         print lookup_url
     except TypeError:
         # in case an address doesn't have a latitude or longitude

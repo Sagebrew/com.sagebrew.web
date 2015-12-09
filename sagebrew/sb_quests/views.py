@@ -19,6 +19,8 @@ def quest(request, username):
         return redirect("404_Error")
     serializer_data = QuestSerializer(
         quest_obj, context={'request': request}).data
+    # TODO think we can remove this and just use the stripe key coming through
+    # the context processor
     serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
     serializer_data['description'] = "%s %s's Policies, Agenda, " \
                                      "and Platform." % (

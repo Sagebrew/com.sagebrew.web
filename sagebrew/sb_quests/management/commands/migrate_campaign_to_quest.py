@@ -21,6 +21,7 @@ class Command(BaseCommand):
                 pass
             quest = Quest(
                 stripe_id=campaign.stripe_id,
+                about=campaign.biography,
                 stripe_customer_id=campaign.stripe_customer_id,
                 stripe_subscription_id=campaign.stripe_subscription_id,
                 active=campaign.active,

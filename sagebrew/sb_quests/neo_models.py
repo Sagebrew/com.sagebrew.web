@@ -28,6 +28,9 @@ class Quest(Searchable):
     youtube = StringProperty()
     twitter = StringProperty()
     website = StringProperty()
+    # About is a short string that allows the Quest to describe itself in 128
+    # characters
+    about = StringProperty()
     # These are the wallpaper and profile specific to the campaign/action page
     # That way they have separation between the campaign and their personal
     # image.
@@ -145,6 +148,26 @@ class Quest(Searchable):
             updates = [row[0] for row in res]
             cache.set("%s_updates" % object_uuid, updates)
         return updates
+
+    def get_public_official(self):
+        """
+        DEPRECATED
+        :return:
+        """
+        from sb_public_official.neo_models import PublicOfficial
+        public_official = cache.get("%s_public_official" % self.owner_username)
+        if public_official is None:
+            query = "MATCH (r:`Campaign` {object_uuid:'%s'})-" \
+                    "[:HAS_PUBLIC_OFFICIAL]->(p:`PublicOfficial`) RETURN p" \
+                    % self.owner_username
+            res, _ = db.cypher_query(query)
+            try:
+                public_official = PublicOfficial.inflate(res[0][0])
+                cache.set("%s_public_official" % self.owner_username,
+                          public_official)
+            except IndexError:
+                public_official = None
+        return public_official
 
 
 class Campaign(Searchable):

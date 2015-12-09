@@ -32,13 +32,19 @@
                 <h1>{{ first_name }} {{ last_name }}</h1>
             </div>
             <div class="col-sm-12">
-                <p>Council Member for the City of Wixom</p>
+                {% if public_official %}
+                    {% if public_official.title != "President" and public_official.title != "Vice President" %}
+                      <p>{{ public_official.title }} from {{ public_official.state }}</p>
+                    {% else %}
+                      <p>{{ public_official.title }}</p>
+                    {% endif %}
+                {% else %}
+                    <p>{{ seat_formal_name }}</p>
+                {% endif %}
             </div>
             <div class="col-sm-12">
                 <h3>About</h3>
-                <p>A short summary about the Quest Owner or Group in about 128
-                characters. We can increase or decrease the amount we enable
-                based on</p>
+                <p>{{ about|default_if_none:"A short summary about the Quest Owner or Group in about 128 characters. We can increase or decrease the amount we enable based on" }}</p>
             </div>
             <div class="col-sm-6">
                 <button class="btn btn-primary sb_btn_fill" id="js-donate-btn">Donate</button>

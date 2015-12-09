@@ -319,6 +319,8 @@ class CampaignSerializer(SBSerializer):
 
 class QuestSerializer(SBSerializer):
     active = serializers.BooleanField(required=False, read_only=True)
+    about = serializers.CharField(required=False, allow_blank=True,
+                                  max_length=128)
     facebook = serializers.CharField(required=False, allow_blank=True)
     linkedin = serializers.CharField(required=False, allow_blank=True)
     youtube = serializers.CharField(required=False, allow_blank=True)
@@ -337,6 +339,9 @@ class QuestSerializer(SBSerializer):
     is_accountant = serializers.SerializerMethodField()
     completed_stripe = serializers.SerializerMethodField()
     completed_customer = serializers.SerializerMethodField()
+
+    # DEPRECATED
+    public_official = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -507,20 +512,26 @@ class QuestSerializer(SBSerializer):
         request, _, _, _, _ = gather_request_data(self.context)
         if request is None:
             return None
-        return request.user.username in \
-            PoliticalCampaign.get_editors(obj.object_uuid)
+        return request.user.username in Quest.get_editors(obj.object_uuid)
 
     def get_is_accountant(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
         if request is None:
             return None
-        return request.user.username in \
-            PoliticalCampaign.get_accountants(obj.object_uuid)
+        return request.user.username in Quest.get_accountants(obj.object_uuid)
 
     def get_completed_customer(self, obj):
         if obj.stripe_customer_id is None:
             return False
         return True
+
+    def get_public_official(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        public_official = PublicOfficialSerializer(
+            obj.get_public_official()).data
+        if not public_official:
+            return None
+        return public_official
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):

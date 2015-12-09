@@ -5,11 +5,11 @@ from django.template.loader import render_to_string
 from django.template import RequestContext
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework import viewsets
+from rest_framework import (viewsets, status)
 from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
-from rest_framework import status
 from rest_framework.generics import (ListCreateAPIView)
+from rest_framework.reverse import reverse
 
 from neomodel import db
 
@@ -46,6 +46,23 @@ class SolutionViewSet(viewsets.ModelViewSet):
     def get_object(self):
         return Solution.nodes.get(
             object_uuid=self.kwargs[self.lookup_field])
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance).data
+        html = request.query_params.get('html', 'false').lower()
+        if html == 'true':
+            serializer['last_edited_on'] = parser.parse(
+                serializer['last_edited_on']).replace(microsecond=0)
+            serializer['created'] = parser.parse(
+                serializer['created']).replace(microsecond=0)
+            return Response(
+                {"html": render_to_string(
+                    "solution.html", RequestContext(request, serializer)),
+                 "id": instance.object_uuid,
+                 "results": serializer},
+                status=status.HTTP_200_OK)
+        return Response(serializer)
 
     def perform_destroy(self, instance):
         instance.content = ""
@@ -95,16 +112,10 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
-
-        if page is not None:
-            [row[0].pull() for row in page]
-            page = [Solution.inflate(row[0]) for row in page]
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-
-        queryset = [Solution.inflate(row[0]) for row in queryset]
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        [row[0].pull() for row in page]
+        page = [Solution.inflate(row[0]) for row in page]
+        serializer = self.get_serializer(page, many=True)
+        return self.get_paginated_response(serializer.data)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data,
@@ -121,7 +132,9 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
             spawn_task(task_func=spawn_notifications, task_param={
                 "from_pleb": request.user.username,
                 "sb_object": serializer['object_uuid'],
-                "url": serializer['url'],
+                "url": reverse(
+                    'single_solution_page',
+                    kwargs={"object_uuid": serializer["object_uuid"]}),
                 # TODO discuss notifying all the people who have provided
                 # solutions on a given question.
                 "to_plebs": [question_owner.username, ],

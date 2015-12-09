@@ -21,7 +21,6 @@ class UpdateSerializer(TitledContentSerializer):
     title = serializers.CharField(required=False,
                                   min_length=5, max_length=140)
     goals = serializers.SerializerMethodField()
-    campaign = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         # TODO we don't have a way currently to distinguish what a Update is
@@ -60,15 +59,6 @@ class UpdateSerializer(TitledContentSerializer):
     def get_goals(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
         return Update.get_goals(obj.object_uuid)
-
-    def get_campaign(self, obj):
-        request, _, _, relation, _ = gather_request_data(self.context)
-        campaign = Update.get_campaign(obj.object_uuid)
-        if campaign is not None and relation == 'hyperlink':
-            return reverse('campaign-detail',
-                           kwargs={'object_uuid': campaign},
-                           request=request)
-        return campaign
 
     def get_url(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)

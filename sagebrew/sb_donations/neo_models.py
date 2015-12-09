@@ -1,3 +1,4 @@
+from api.utils import deprecation
 from neomodel import (db, RelationshipTo, BooleanProperty, IntegerProperty,
                       StringProperty)
 
@@ -76,6 +77,8 @@ class Donation(SBObject):
 
     @classmethod
     def get_campaign(cls, object_uuid):
+        # DEPRECATED use get_mission or get_quest instead
+        deprecation('Campaigns are deprecated, use Missions or Quests instead')
         query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
                 '[:DONATED_TO]->(c:`Campaign`) RETURN c.object_uuid' % (
                     object_uuid)
@@ -84,6 +87,23 @@ class Donation(SBObject):
             return res[0][0]
         except IndexError:
             return None
+
+    @classmethod
+    def get_mission(cls, object_uuid):
+        query = 'MATCH (d:Donation {object_uuid: "%s"})-' \
+                '[:CONTRIBUTED_TO]->(mission:Mission) ' \
+                'RETURN mission.object_uuid' % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    @classmethod
+    def get_quest(cls, object_uuid):
+        query = 'MATCH (d:Donation {object_uuid: "%s"})-' \
+                '[:CONTRIBUTED_TO]->(mission:Mission)<-[:EMBARKS_ON]-' \
+                '(quest:Quest) ' \
+                'RETURN quest.object_uuid' % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
 
     @classmethod
     def get_owner(cls, object_uuid):

@@ -31,7 +31,7 @@ class DonationSerializer(SBSerializer):
     donated_for = serializers.SerializerMethodField()
     applied_to = serializers.SerializerMethodField()
     owned_by = serializers.SerializerMethodField()
-    campaign = serializers.SerializerMethodField()
+    quest = serializers.SerializerMethodField()
 
     def validate_amount(self, value):
         request = self.context.get('request', None)
@@ -161,17 +161,19 @@ class DonationSerializer(SBSerializer):
                            request=request)
         return obj.owner_username
 
-    def get_campaign(self, obj):
-        from sb_quests.neo_models import PoliticalCampaign
+    def get_mission(self, obj):
+        from sb_missions.neo_models import Mission
+        from sb_missions.serializers import MissionSerializer
         request, expand, _, relation, _ = gather_request_data(self.context)
-        campaign = Donation.get_campaign(obj.object_uuid)
+        mission = Donation.get_mission(obj.object_uuid)
         if expand == 'true':
-            return PoliticalCampaign.get(campaign)
-        if relation == "hyperlink" and campaign is not None:
-            return reverse('campaign-detail',
-                           kwargs={"object_uuid": campaign},
+            return MissionSerializer(Mission.get(
+                object_uuid=mission.object_uuid)).data
+        if relation == "hyperlink" and mission is not None:
+            return reverse('mission-detail',
+                           kwargs={"object_uuid": mission},
                            request=request)
-        return campaign
+        return mission.object_uuid
 
 
 class DonationExportSerializer(serializers.Serializer):

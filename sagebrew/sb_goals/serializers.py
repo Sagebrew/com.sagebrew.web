@@ -8,6 +8,7 @@ from rest_framework.reverse import reverse
 
 from neomodel import db
 
+from api.utils import deprecation
 from sb_base.serializers import CampaignAttributeSerializer
 from api.utils import gather_request_data
 from sb_quests.neo_models import PoliticalCampaign
@@ -89,6 +90,8 @@ class GoalSerializer(CampaignAttributeSerializer):
         return instance
 
     def get_campaign(self, obj):
+        # DEPRECATED use get_mission or get_quest instead
+        deprecation('Campaigns are deprecated, use Missions or Quests instead')
         request, _, _, relation, expedite = gather_request_data(self.context)
         if relation == 'hyperlink':
             return reverse('campaign-detail',

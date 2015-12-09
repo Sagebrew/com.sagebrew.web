@@ -31,7 +31,7 @@ class DonationSerializer(SBSerializer):
     donated_for = serializers.SerializerMethodField()
     applied_to = serializers.SerializerMethodField()
     owned_by = serializers.SerializerMethodField()
-    campaign = serializers.SerializerMethodField()
+    quest = serializers.SerializerMethodField()
 
     def validate_amount(self, value):
         request = self.context.get('request', None)
@@ -161,17 +161,38 @@ class DonationSerializer(SBSerializer):
                            request=request)
         return obj.owner_username
 
-    def get_campaign(self, obj):
-        from sb_quests.neo_models import PoliticalCampaign
+    def get_mission(self, obj):
+        from sb_missions.neo_models import Mission
+        from sb_missions.serializers import MissionSerializer
         request, expand, _, relation, _ = gather_request_data(self.context)
-        campaign = Donation.get_campaign(obj.object_uuid)
+        mission = Donation.get_mission(obj.object_uuid)
         if expand == 'true':
-            return PoliticalCampaign.get(campaign)
-        if relation == "hyperlink" and campaign is not None:
-            return reverse('campaign-detail',
-                           kwargs={"object_uuid": campaign},
+            return MissionSerializer(Mission.get(
+                object_uuid=mission.object_uuid)).data
+        if relation == "hyperlink" and mission is not None:
+            return reverse('mission-detail',
+                           kwargs={"object_uuid": mission},
                            request=request)
-        return campaign
+        return mission.object_uuid
+
+    def get_quest(self, obj):
+        from sb_quests.neo_models import Quest
+        from sb_quests.serializers import QuestSerializer
+        request, expand, _, relation, _ = gather_request_data(self.context)
+        query = 'MATCH (d:Donation {object_uuid: "%s"})-[:CONTRIBUTED_TO]->' \
+                '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
+                'RETURN quest' % obj.object_uuid
+        res, _ = db.cypher_query(query)
+        if res is None:
+            return None
+        quest = Quest.inflate(res.one)
+        if expand == 'true':
+            return QuestSerializer(quest).data
+        if relation == "hyperlink":
+            return reverse('quest-detail',
+                           kwargs={"object_uuid": quest.object_uuid},
+                           request=request)
+        return quest.owner_username
 
 
 class DonationExportSerializer(serializers.Serializer):

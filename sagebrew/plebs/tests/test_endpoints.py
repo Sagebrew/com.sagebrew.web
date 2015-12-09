@@ -909,7 +909,7 @@ class ProfileEndpointTests(APITestCase):
         for quest in self.pleb.quest.all():
             quest.delete()
         cache.clear()
-        quest = Quest(object_uuid=self.pleb.username).save()
+        quest = Quest(owner_username=self.pleb.username).save()
         self.pleb.quest.connect(quest)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-detail', kwargs={
@@ -3263,8 +3263,9 @@ class NewsfeedTests(APITestCase):
                          self.pleb.username)
 
     def test_get_quests(self):
-        for update in Update.nodes.all():
-            update.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         for quest in Quest.nodes.all():
             quest.delete()
         quest = Quest(
@@ -3378,6 +3379,9 @@ class NewsfeedTests(APITestCase):
                          self.pleb.username)
 
     def test_get_quest_updates(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         for update in Update.nodes.all():
             update.delete()
         for quest in Quest.nodes.all():
@@ -3460,7 +3464,6 @@ class NewsfeedTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true" % reverse('me-newsfeed')
         response = self.client.get(url, format='json')
-        print response.data
         self.assertTrue('html' in response.data['results'][0])
         self.assertTrue('html' in response.data['results'][1])
 

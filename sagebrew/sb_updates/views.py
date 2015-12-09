@@ -53,8 +53,9 @@ def updates(request, username):
         serializer_data['first_name'], serializer_data['last_name'])
     serializer_data['keywords'] = "Updates, Events, Fundraising, Volunteer, " \
                                   "Politics, Campaign, Quest, " \
-                                  "Candidate, Representative, %s, %s, %s" % (
-        serializer_data['position_formal_name'],
-        serializer_data['location_name'], serializer_data['position_name'])
+                                  "Candidate, Representative"
+    if serializer_data.get('seat_formal_name'):
+        serializer_data['keywords'] += ", %s" % serializer_data.get(
+            'seat_formal_name', "")
     serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
     return render(request, 'updates.html', serializer_data)

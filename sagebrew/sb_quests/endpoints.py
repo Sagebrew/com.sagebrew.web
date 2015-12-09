@@ -29,8 +29,228 @@ from plebs.neo_models import Pleb
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, AccountantSerializer,
                           PositionSerializer, PoliticalVoteSerializer,
-                          PositionManagerSerializer)
-from .neo_models import Campaign, PoliticalCampaign, Position
+                          PositionManagerSerializer, QuestSerializer)
+from .neo_models import Campaign, PoliticalCampaign, Position, Quest
+
+
+class QuestViewSet(viewsets.ModelViewSet):
+    serializer_class = QuestSerializer
+    lookup_field = "owner_username"
+    permission_classes = (IsAuthenticatedOrReadOnly,)
+
+    def get_queryset(self):
+        query = "MATCH (c:Quest) RETURN c"
+        res, col = db.cypher_query(query)
+        try:
+            [row[0].pull() for row in res]
+            return [Quest.inflate(row[0]) for row in res]
+        except IndexError:
+            return []
+
+    def get_object(self):
+        return Quest.get(owner_username=self.kwargs[self.lookup_field])
+
+    def create(self, request, *args, **kwargs):
+        raise Response({"detail": "Creation of Quests via the "
+                                  "API is not currenlty supported",
+                        "status": status.HTTP_501_NOT_IMPLEMENTED},
+                       status.HTTP_501_NOT_IMPLEMENTED)
+
+    def perform_update(self, serializer):
+        serializer.save()
+
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticated, IsOwnerOrEditor))
+    def editors(self, request, object_uuid=None):
+        """
+        This is a method on the endpoint because there should be no reason
+        for people other than the owner or editors to view the editors of
+        the page. We want to keep this information private so that no one
+        other than someone who is associated with the campaign knows who has
+        access to edit the campaign.
+
+        :param request:
+        :param object_uuid:
+        :return:
+        """
+        self.check_object_permissions(request, object_uuid)
+        return Response(Quest.get_editors(object_uuid),
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'],
+                  serializer_class=EditorSerializer,
+                  permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
+    def add_editors(self, request, object_uuid=None):
+        """
+        This method will take a list of usernames which will be added to the
+        editors of the campaign. Only to be used to add a list of editors to
+        the campaign. We are not fully modifying the list we are just adding
+        to it.
+
+        :param request:
+        :return:
+        """
+        serializer = self.get_serializer(self.get_object(), data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"detail": "Successfully added specified users "
+                                       "to your campaign.",
+                             "status": status.HTTP_200_OK,
+                             "developer_message": None},
+                            status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['post'],
+                  serializer_class=EditorSerializer,
+                  permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
+    def remove_editors(self, request, object_uuid=None):
+        """
+        This is a method which will only be used to remove the users
+        in the list posted to this endpoint from the list of allowed editors
+        of the campaign.
+
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        serializer = self.get_serializer(data=request.data)
+        queryset = self.get_object()
+        if serializer.is_valid():
+            # The profiles key here refers to a list of usernames
+            # not the actual user objects
+            serializer.remove_profiles(queryset)
+            return Response({"detail": "Successfully removed specified "
+                                       "editors from your campaign.",
+                             "status": status.HTTP_200_OK,
+                             "developer_message": None},
+                            status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['post'],
+                  serializer_class=AccountantSerializer,
+                  permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
+    def add_moderators(self, request, object_uuid=None):
+        """
+        This helper method will take a list of usernames which are to be added
+        to the list of accountants for the campaign and create the necessary
+        connections.
+
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        serializer = self.get_serializer(self.get_object(), data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"detail": "Successfully added specified users to"
+                                       " your campaign accountants.",
+                             "status": status.HTTP_200_OK,
+                             "developer_message": None},
+                            status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['post'],
+                  serializer_class=AccountantSerializer,
+                  permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
+    def remove_moderators(self, request, object_uuid=None):
+        """
+        This helper method will take a list of usernames which are to be
+        removed from the list of accountants for the campaign and remove
+        the connections.
+
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+
+        serializer = self.get_serializer(data=request.data)
+        queryset = self.get_object()
+        if serializer.is_valid():
+            serializer.remove_profiles(queryset)
+            return Response({"detail": "Successfully removed specified "
+                                       "accountants from your campaign.",
+                             "status": status.HTTP_200_OK,
+                             "developer_message": None},
+                            status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
+                                                       IsOwnerOrAccountant,))
+    def moderators(self, request, object_uuid=None):
+        """
+        This is a method on the endpoint because there should be no reason
+        for people other than the owner or accountants to view the accountants
+        of the page. We want to keep this information private so that no one
+        other than someone who is associated with the campaign knows who has
+        access to modify the campaign.
+
+        :param request:
+        :param object_uuid:
+        :return:
+        """
+        self.check_object_permissions(request, object_uuid)
+        return Response(Quest.get_accountants(object_uuid),
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
+                                                       IsOwnerOrAccountant,))
+    def donation_data(self, request, object_uuid=None):
+        """
+        This endpoint allows for the owner or accountants to get a .csv file
+        containing all of the data for donations given to the campaign.
+
+        :param request:
+        :param object_uuid:
+        :return:
+        """
+        self.check_object_permissions(request, object_uuid)
+        donation_info = [DonationExportSerializer(
+            Donation.inflate(donation)).data for donation in
+            Quest.get_donations(object_uuid)]
+        campaign = self.get_object()
+        # this loop merges the 'owned_by' and 'address' dictionaries into
+        # the top level dictionary, allows for simple writing to csv
+        try:
+            for donation in donation_info:
+                donation.update(donation.pop('owned_by', {}))
+                donation.update(donation.pop('address', {}))
+                application_fee = donation['amount'] * (
+                    campaign.application_fee +
+                    settings.STRIPE_TRANSACTION_PERCENT) + .3
+                donation['amount'] -= application_fee
+            keys = []
+            for key in donation_info[0].keys():
+                new_key = key.replace('_', ' ').title()
+                for donation in donation_info:
+                    donation[new_key] = donation[key]
+                    donation.pop(key, None)
+                keys.append(new_key)
+            # use of named temporary file here is to handle deletion of file
+            # after we return the file, after the new file object is evicted
+            # it gets deleted
+            # http://stackoverflow.com/questions/3582414/removing-tmp-file-after-return-httpresponse-in-django
+            newfile = NamedTemporaryFile(suffix='.csv', delete=False)
+            newfile.name = "%s_quest_donations.csv" % object_uuid
+            dict_writer = csv.DictWriter(newfile, keys)
+            dict_writer.writeheader()
+            dict_writer.writerows(donation_info)
+            # the HttpResponse use here allows us to do an automatic download
+            # upon hitting the button
+            newfile.seek(0)
+            wrapper = FileWrapper(newfile)
+            httpresponse = HttpResponse(wrapper,
+                                        content_type="text/csv")
+            httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
+                                                  % newfile.name
+            return httpresponse
+        except IndexError:
+            return Response({'detail': 'Unable to find any donation data',
+                             'status_code':
+                                 status.HTTP_404_NOT_FOUND},
+                            status=status.HTTP_404_NOT_FOUND)
 
 
 class CampaignViewSet(viewsets.ModelViewSet):

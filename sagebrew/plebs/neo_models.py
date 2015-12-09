@@ -14,7 +14,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DoesNotExist, MultipleNodesReturned)
 from neomodel import db
 
-from api.utils import flatten_lists, spawn_task
+from api.utils import flatten_lists, spawn_task, deprecation
 from api.neo_models import SBObject
 from sb_locations.neo_models import Location
 from sb_search.neo_models import Searchable, Impression
@@ -374,13 +374,15 @@ class Pleb(Searchable):
 
     def get_quest(self):
         query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Quest) ' \
-                'RETURN c.object_uuid' % self.username
+                'RETURN c.owner_username' % self.username
         res, _ = db.cypher_query(query)
         return res.one
 
     def get_campaign(self):
-        query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Quest) ' \
-                'RETURN c.object_uuid' % self.username
+        # DEPRECATED use get_quest instead
+        deprecation('Campaigns are deprecated, use Missions or Quests instead')
+        query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Campaign) ' \
+                'RETURN c.owner_username' % self.username
         res, _ = db.cypher_query(query)
         return res.one
 

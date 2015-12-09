@@ -171,6 +171,22 @@ class DonationEndpointTests(APITestCase):
 
         self.assertIsNone(response.data['campaign'])
 
+    def test_get_quest(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.get(url)
+
+        self.assertIsNone(response.data['quest'])
+
+    def test_get_mission(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('donation-detail',
+                      kwargs={'object_uuid': self.donation.object_uuid})
+        response = self.client.get(url)
+
+        self.assertIsNone(response.data['mission'])
+
     def test_put(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('donation-detail',

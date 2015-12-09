@@ -129,6 +129,8 @@ class Goal(SBObject):
 
     @classmethod
     def get_campaign(cls, object_uuid):
+        # DEPRECATED use get_mission or get_quest instead
+        deprecation('Campaigns are deprecated, use Missions or Quests instead')
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:ASSOCIATED_WITH]-' \
                 '(c:`Campaign`) RETURN c.object_uuid' % object_uuid
         res, _ = db.cypher_query(query)

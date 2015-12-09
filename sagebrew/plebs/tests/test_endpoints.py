@@ -236,25 +236,26 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_donations(self):
-        campaign = Quest(owner_username=str(uuid1())).save()
-        mission = Mission(owner_username=campaign.owner_username).save()
-        campaign.missions.connect(mission)
+        quest = Quest(owner_username=str(uuid1())).save()
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
         donation = Donation().save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
-        donation.mission.connect(campaign)
+        donation.mission.connect(mission)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-donations')
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_donations_html(self):
-        campaign = Quest(username=str(uuid1())).save()
+        quest = Quest(owner_username=str(uuid1())).save()
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
         donation = Donation().save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
-        donation.campaign.connect(campaign)
-        campaign.donations.connect(donation)
+        donation.mission.connect(mission)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-donations') + "?html=true"
         res = self.client.get(url)
@@ -904,18 +905,18 @@ class ProfileEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_get_pleb_campaign_expand(self):
-        for campaign in self.pleb.campaign.all():
-            campaign.delete()
+    def test_get_pleb_quest_expand(self):
+        for quest in self.pleb.quest.all():
+            quest.delete()
         cache.clear()
-        campaign = Quest(object_uuid=self.pleb.username).save()
-        campaign.owned_by.connect(self.pleb)
-        self.pleb.campaign.connect(campaign)
+        quest = Quest(object_uuid=self.pleb.username).save()
+        self.pleb.quest.connect(quest)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-detail', kwargs={
             'username': self.pleb.username}) + "?expand=true"
         response = self.client.get(url, format='json')
-        self.assertEqual(response.data['campaign']['id'], self.user.username)
+        self.assertEqual(response.data['quest']['owner_username'],
+                         self.user.username)
 
     def test_create_pleb(self):
         self.client.force_authenticate(user=self.user)
@@ -1705,12 +1706,13 @@ class PlebPresidentTest(APITestCase):
 
     def test_list_potential_presidents(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         position = Position(name="President").save()
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
 
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-possible-presidents',
@@ -1718,20 +1720,22 @@ class PlebPresidentTest(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        self.assertEqual(response.data[0]['type'], 'quest')
         self.assertEqual(response.data[0]['owner_username'],
                          self.pleb.username)
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_presidents_cached(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         position = Position(name="President").save()
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-possible-presidents',
                       kwargs={'username': self.pleb.username})
@@ -1740,21 +1744,23 @@ class PlebPresidentTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        self.assertEqual(response.data[0]['type'], 'quest')
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_presidents_not_active(self):
         cache.clear()
-        for campaign in Quest.nodes.all():
-            campaign.delete()
+        for quest in Quest.nodes.all():
+            quest.delete()
         for position in Position.nodes.all():
             position.delete()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username).save()
         position = Position(name="President").save()
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-possible-presidents',
                       kwargs={'username': self.pleb.username})
@@ -1764,20 +1770,22 @@ class PlebPresidentTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_presidents_html_no_presidents(self):
         cache.clear()
-        for campaign in Quest.nodes.all():
-            campaign.delete()
+        for quest in Quest.nodes.all():
+            quest.delete()
         for position in Position.nodes.all():
             position.delete()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username
         ).save()
         position = Position(name="President").save()
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true" % reverse('profile-possible-presidents',
                                        kwargs={'username': self.pleb.username})
@@ -1786,16 +1794,18 @@ class PlebPresidentTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue("Currently No Registered" in response.data)
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_presidents_html(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         position = Position(name="President").save()
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true" % reverse('profile-possible-presidents',
                                        kwargs={'username': self.pleb.username})
@@ -1804,7 +1814,8 @@ class PlebPresidentTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreater(len(response.data), 0)
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
 
 class PlebSenatorsTest(APITestCase):
@@ -1983,7 +1994,7 @@ class PlebSenatorsTest(APITestCase):
 
     def test_list_potential_senators(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="Test Location", sector="federal").save()
@@ -1995,8 +2006,9 @@ class PlebSenatorsTest(APITestCase):
         location2.encompasses.connect(location)
         location.encompassed_by.connect(location2)
         self.address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(self.address)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-possible-senators',
@@ -2004,17 +2016,18 @@ class PlebSenatorsTest(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        self.assertEqual(response.data[0]['type'], 'quest')
         self.assertEqual(response.data[0]['owner_username'],
                          self.pleb.username)
         location.delete()
         location2.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_senators_cached(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="Test Location", sector="federal").save()
@@ -2026,8 +2039,9 @@ class PlebSenatorsTest(APITestCase):
         location2.encompasses.connect(location)
         location.encompassed_by.connect(location2)
         self.address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(self.address)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-possible-senators',
@@ -2037,15 +2051,16 @@ class PlebSenatorsTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        self.assertEqual(response.data[0]['type'], 'quest')
         location.delete()
         location2.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_senators_not_active(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username).save()
         location = Location(name="Test Location", sector="federal").save()
         location2 = Location(name="Michigan", sector="federal").save()
@@ -2056,8 +2071,9 @@ class PlebSenatorsTest(APITestCase):
         location2.encompasses.connect(location)
         location.encompassed_by.connect(location2)
         self.address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(self.address)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-possible-senators',
@@ -2070,11 +2086,12 @@ class PlebSenatorsTest(APITestCase):
         location.delete()
         location2.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_senators_html_no_senators(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username).save()
         location = Location(name="Test Location", sector="federal").save()
         location2 = Location(name="Michigan", sector="federal").save()
@@ -2085,8 +2102,9 @@ class PlebSenatorsTest(APITestCase):
         location2.encompasses.connect(location)
         location.encompassed_by.connect(location2)
         self.address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(self.address)
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true" % reverse('profile-possible-senators',
@@ -2098,11 +2116,12 @@ class PlebSenatorsTest(APITestCase):
         location.delete()
         location2.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_senators_html(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="Test Location", sector="federal").save()
@@ -2114,8 +2133,9 @@ class PlebSenatorsTest(APITestCase):
         location2.encompasses.connect(location)
         location.encompassed_by.connect(location2)
         self.address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(self.address)
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true" % reverse('profile-possible-senators',
@@ -2127,7 +2147,8 @@ class PlebSenatorsTest(APITestCase):
         location.delete()
         location2.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
 
 class PlebHouseRepresentativeTest(APITestCase):
@@ -2305,7 +2326,7 @@ class PlebHouseRepresentativeTest(APITestCase):
         address.save()
         address.owned_by.connect(self.pleb)
         self.pleb.address.connect(address)
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="11", sector="federal").save()
@@ -2314,8 +2335,9 @@ class PlebHouseRepresentativeTest(APITestCase):
         position.location.connect(location)
         location.positions.connect(position)
         address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(address)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-possible-house-representatives',
@@ -2324,16 +2346,17 @@ class PlebHouseRepresentativeTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        self.assertEqual(response.data[0]['type'], 'quest')
         self.assertEqual(response.data[0]['owner_username'],
                          self.pleb.username)
         location.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_house_representative_cached(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="11", sector="federal").save()
@@ -2342,8 +2365,9 @@ class PlebHouseRepresentativeTest(APITestCase):
         position.location.connect(location)
         location.positions.connect(position)
         self.address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(self.address)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-possible-house-representatives',
@@ -2353,14 +2377,15 @@ class PlebHouseRepresentativeTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        self.assertEqual(response.data[0]['type'], 'quest')
         location.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_house_representative_not_active(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username).save()
         location = Location(name="11", sector="federal").save()
         position = Position(name="Test Position").save()
@@ -2368,8 +2393,9 @@ class PlebHouseRepresentativeTest(APITestCase):
         position.location.connect(location)
         location.positions.connect(position)
         self.address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(self.address)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-possible-house-representatives',
@@ -2381,11 +2407,12 @@ class PlebHouseRepresentativeTest(APITestCase):
         self.assertEqual(len(response.data), 0)
         location.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_house_representative_html_none(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username).save()
         location = Location(name="11").save()
         position = Position(name="Test Position").save()
@@ -2393,8 +2420,9 @@ class PlebHouseRepresentativeTest(APITestCase):
         position.location.connect(location)
         location.positions.connect(position)
         self.address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(self.address)
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true" % reverse('profile-possible-house-representatives',
@@ -2406,11 +2434,12 @@ class PlebHouseRepresentativeTest(APITestCase):
         self.assertTrue("Currently No Registered" in response.data)
         location.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_house_representative_html(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="11", sector="federal").save()
@@ -2419,8 +2448,9 @@ class PlebHouseRepresentativeTest(APITestCase):
         position.location.connect(location)
         location.positions.connect(position)
         self.address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(self.address)
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true" % reverse('profile-possible-house-representatives',
@@ -2431,7 +2461,8 @@ class PlebHouseRepresentativeTest(APITestCase):
         self.assertFalse("Currently No Registered" in response.data)
         location.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
 
 class PlebLocalRepresentativeTest(APITestCase):
@@ -2459,7 +2490,7 @@ class PlebLocalRepresentativeTest(APITestCase):
         address.save()
         address.owned_by.connect(self.pleb)
         self.pleb.address.connect(address)
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="Commerce Township", sector='local').save()
@@ -2468,8 +2499,9 @@ class PlebLocalRepresentativeTest(APITestCase):
         position.location.connect(location)
         location.positions.connect(position)
         address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(address)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-possible-local-representatives',
@@ -2478,16 +2510,17 @@ class PlebLocalRepresentativeTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        self.assertEqual(response.data[0]['type'], 'quest')
         self.assertEqual(response.data[0]['owner_username'],
                          self.pleb.username)
         location.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_local_representative_cached(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="Commerce Township", sector='local').save()
@@ -2496,8 +2529,9 @@ class PlebLocalRepresentativeTest(APITestCase):
         position.location.connect(location)
         location.positions.connect(position)
         self.address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(self.address)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-possible-local-representatives',
@@ -2507,14 +2541,15 @@ class PlebLocalRepresentativeTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'politicalcampaign')
+        self.assertEqual(response.data[0]['type'], 'quest')
         location.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_local_representative_not_active(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username).save()
         location = Location(name="Commerce Township", sector='local').save()
         position = Position(name="Test Position", level='local').save()
@@ -2522,8 +2557,9 @@ class PlebLocalRepresentativeTest(APITestCase):
         position.location.connect(location)
         location.positions.connect(position)
         self.address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(self.address)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-possible-local-representatives',
@@ -2535,11 +2571,12 @@ class PlebLocalRepresentativeTest(APITestCase):
         self.assertEqual(len(response.data), 0)
         location.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_local_representative_html_none(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username).save()
         location = Location(name="Commerce Township", sector='local').save()
         position = Position(name="Test Position", level='local').save()
@@ -2547,8 +2584,9 @@ class PlebLocalRepresentativeTest(APITestCase):
         position.location.connect(location)
         location.positions.connect(position)
         self.address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(self.address)
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true" % reverse('profile-possible-local-representatives',
@@ -2560,11 +2598,12 @@ class PlebLocalRepresentativeTest(APITestCase):
         self.assertTrue("Currently No Registered" in response.data)
         location.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
     def test_list_potential_local_representative_html(self):
         cache.clear()
-        campaign = Quest(
+        quest = Quest(
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="Commerce Township", sector='local').save()
@@ -2573,8 +2612,9 @@ class PlebLocalRepresentativeTest(APITestCase):
         position.location.connect(location)
         location.positions.connect(position)
         self.address.encompassed_by.connect(location)
-        campaign.position.connect(position)
-        position.campaigns.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        mission.position.connect(position)
         location.addresses.connect(self.address)
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true" % reverse('profile-possible-local-representatives',
@@ -2585,7 +2625,8 @@ class PlebLocalRepresentativeTest(APITestCase):
         self.assertFalse("Currently No Registered" in response.data)
         location.delete()
         position.delete()
-        campaign.delete()
+        mission.delete()
+        quest.delete()
 
 
 class AddressEndpointTests(APITestCase):
@@ -3221,115 +3262,114 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['results'][0]['profile'],
                          self.pleb.username)
 
-    def test_get_campaigns(self):
+    def test_get_quests(self):
         for update in Update.nodes.all():
             update.delete()
         for quest in Quest.nodes.all():
             quest.delete()
-        campaign = Quest(
+        quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
-        campaign.owned_by.connect(self.pleb)
-        self.pleb.campaign.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        self.pleb.quest.connect(quest)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         usa.positions.connect(pres)
         pres.location.connect(usa)
-        campaign.position.connect(pres)
-        pres.campaigns.connect(campaign)
+        mission.position.connect(pres)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 1)
 
-    def test_get_campaigns_website(self):
+    def test_get_quests_website(self):
         website = "www.sagebrew.com"
-        campaign = Quest(
+        quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website=website, owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
-        campaign.owned_by.connect(self.pleb)
-        self.pleb.campaign.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         usa.positions.connect(pres)
         pres.location.connect(usa)
-        campaign.position.connect(pres)
-        pres.campaigns.connect(campaign)
+        mission.position.connect(pres)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['website'], website)
 
-    def test_get_campaigns_rendered(self):
-        campaign = Quest(
+    def test_get_quests_rendered(self):
+        quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
-        campaign.owned_by.connect(self.pleb)
-        self.pleb.campaign.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        self.pleb.quest.connect(quest)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         usa.positions.connect(pres)
         pres.location.connect(usa)
-        campaign.position.connect(pres)
-        pres.campaigns.connect(campaign)
+        mission.position.connect(pres)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true" % reverse('me-newsfeed')
         response = self.client.get(url, format='json')
         self.assertTrue('html' in response.data['results'][0])
 
-    def test_get_campaigns_rendered_expedite(self):
-        campaign = Quest(
+    def test_get_quests_rendered_expedite(self):
+        quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
-        campaign.owned_by.connect(self.pleb)
-        self.pleb.campaign.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        self.pleb.quest.connect(quest)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         usa.positions.connect(pres)
         pres.location.connect(usa)
-        campaign.position.connect(pres)
-        pres.campaigns.connect(campaign)
+        mission.position.connect(pres)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
         response = self.client.get(url, format='json')
         self.assertTrue('html' in response.data['results'][0])
 
-    def test_get_campaigns_title(self):
-        campaign = Quest(
+    def test_get_quests_title(self):
+        quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
-        campaign.owned_by.connect(self.pleb)
-        self.pleb.campaign.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        self.pleb.quest.connect(quest)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         usa.positions.connect(pres)
         pres.location.connect(usa)
-        campaign.position.connect(pres)
-        pres.campaigns.connect(campaign)
+        mission.position.connect(pres)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
@@ -3337,12 +3377,12 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['results'][0]['owner_username'],
                          self.pleb.username)
 
-    def test_get_campaign_updates(self):
+    def test_get_quest_updates(self):
         for update in Update.nodes.all():
             update.delete()
         for quest in Quest.nodes.all():
             quest.delete()
-        campaign = Quest(
+        quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
@@ -3352,23 +3392,23 @@ class NewsfeedTests(APITestCase):
         update = Update(content="This is a new update",
                         title="This is a title",
                         owner_username=self.pleb.username).save()
-        campaign.owned_by.connect(self.pleb)
-        update.campaign.connect(campaign)
-        campaign.updates.connect(update)
-        self.pleb.campaign.connect(campaign)
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
+        update.about.connect(quest)
+        quest.updates.connect(update)
+        self.pleb.quest.connect(quest)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         usa.positions.connect(pres)
         pres.location.connect(usa)
-        campaign.position.connect(pres)
-        pres.campaigns.connect(campaign)
+        mission.position.connect(pres)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 2)
 
-    def test_get_campaign_update_content(self):
+    def test_get_quest_update_content(self):
         quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
@@ -3379,10 +3419,9 @@ class NewsfeedTests(APITestCase):
         mission = Mission(owner_username=quest.owner_username).save()
         quest.missions.connect(mission)
         content = "This is a new update"
-        update = Update(content=content,
-                        title="This is a title",
+        update = Update(content=content, title="This is a title",
                         owner_username=self.pleb.username).save()
-        update.quest.connect(quest)
+        update.about.connect(quest)
         quest.updates.connect(update)
         self.pleb.quest.connect(quest)
         usa = Location(name="United States of America").save()
@@ -3396,55 +3435,56 @@ class NewsfeedTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['content'], content)
 
-    def test_get_campaign_updates_rendered(self):
-        campaign = Quest(
+    def test_get_quest_updates_rendered(self):
+        quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
         update = Update(content="This is a new update",
                         title="This is a title",
                         owner_username=self.pleb.username).save()
-        campaign.owned_by.connect(self.pleb)
-        update.campaign.connect(campaign)
-        campaign.updates.connect(update)
-        self.pleb.campaign.connect(campaign)
+        update.quest.connect(quest)
+        quest.updates.connect(update)
+        self.pleb.quest.connect(quest)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         usa.positions.connect(pres)
         pres.location.connect(usa)
-        campaign.position.connect(pres)
-        pres.campaigns.connect(campaign)
+        mission.position.connect(pres)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true" % reverse('me-newsfeed')
         response = self.client.get(url, format='json')
+        print response.data
         self.assertTrue('html' in response.data['results'][0])
         self.assertTrue('html' in response.data['results'][1])
 
-    def test_get_campaign_updates_rendered_expedite(self):
-        campaign = Quest(
+    def test_get_quest_updates_rendered_expedite(self):
+        quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
         update = Update(content="This is a new update",
                         title="This is a title",
                         owner_username=self.pleb.username).save()
-        campaign.owned_by.connect(self.pleb)
-        update.campaign.connect(campaign)
-        campaign.updates.connect(update)
-        self.pleb.campaign.connect(campaign)
+        update.about.connect(quest)
+        quest.updates.connect(update)
+        self.pleb.quest.connect(quest)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         usa.positions.connect(pres)
         pres.location.connect(usa)
-        campaign.position.connect(pres)
-        pres.campaigns.connect(campaign)
+        mission.position.connect(pres)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
@@ -3453,27 +3493,27 @@ class NewsfeedTests(APITestCase):
         self.assertTrue('html' in response.data['results'][1])
 
     def test_get_update_title(self):
-        campaign = Quest(
+        quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
         title = "This is a title"
         update = Update(content="This is a new update",
                         title=title,
                         owner_username=self.pleb.username).save()
-        campaign.owned_by.connect(self.pleb)
-        update.campaign.connect(campaign)
-        campaign.updates.connect(update)
-        self.pleb.campaign.connect(campaign)
+        update.about.connect(quest)
+        quest.updates.connect(update)
+        self.pleb.quest.connect(quest)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         usa.positions.connect(pres)
         pres.location.connect(usa)
-        campaign.position.connect(pres)
-        pres.campaigns.connect(campaign)
+        mission.position.connect(pres)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')

@@ -14,7 +14,7 @@ from rest_framework import status
 from neomodel import db
 
 from sb_base.views import ObjectRetrieveUpdateDestroy
-from sb_quests.neo_models import Campaign
+from sb_quests.neo_models import Quest
 from sb_goals.neo_models import Goal
 
 from .serializers import UpdateSerializer
@@ -27,8 +27,8 @@ class UpdateListCreate(generics.ListCreateAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_queryset(self):
-        query = 'MATCH (c:`Campaign` {object_uuid:"%s"})-' \
-                '[:HAS_UPDATE]->(u:`Update`) return u ' \
+        query = 'MATCH (quest:Quest {owner_username:"%s"})-' \
+                '[:CREATED_AN]->(u:Update) return u ' \
                 'ORDER BY u.created DESC' % \
                 (self.kwargs[self.lookup_field])
         res, _ = db.cypher_query(query)
@@ -43,7 +43,7 @@ class UpdateListCreate(generics.ListCreateAPIView):
         # completed or not
         object_uuid = str(uuid1())
         serializer.save(
-            campaign=Campaign.get(object_uuid=self.kwargs[self.lookup_field]),
+            quest=Quest.get(owner_username=self.kwargs[self.lookup_field]),
             associated_goals=self.request.data.get('goals', []),
             url=reverse('quest_updates', kwargs={
                 'username': self.request.user.username}, request=self.request),
@@ -54,9 +54,9 @@ class UpdateListCreate(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         if not (request.user.username in
-                Campaign.get_editors(self.kwargs[self.lookup_field])
+                Quest.get_editors(self.kwargs[self.lookup_field])
                 or request.user.username in
-                Campaign.get_accountants(self.kwargs[self.lookup_field])):
+                Quest.get_accountants(self.kwargs[self.lookup_field])):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "You are not authorized to access "
                                        "this page."},

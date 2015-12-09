@@ -29,7 +29,7 @@ class Update(TitledContent):
 
     # Helper function that can be associated with the serializer and gets
     # the object the update is about.
-    about = RelationshipTo('sb_api.neo_models.SBObject', "ABOUT")
+    about = RelationshipTo('api.neo_models.SBObject', "ABOUT")
 
     # DEPRECATIONS
     # DEPRECATED: Goals are no longer the only thing that an update can be about

@@ -4,8 +4,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 from neomodel import DoesNotExist, CypherException
 
-from sb_quests.neo_models import PoliticalCampaign
-from sb_quests.serializers import PoliticalCampaignSerializer
+from sb_quests.neo_models import Quest
+from sb_quests.serializers import QuestSerializer
 
 from sb_registration.utils import verify_completed_registration
 
@@ -31,25 +31,24 @@ def edit_update(request, object_uuid=None, username=None):
                   login_url='/registration/profile_information')
 def create_update(request, username):
     try:
-        campaign = PoliticalCampaign.get(object_uuid=username)
-    except (PoliticalCampaign.DoesNotExist, DoesNotExist):
+        quest = Quest.get(owner_username=username)
+    except (Quest.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
     except (CypherException, IOError):
         return redirect("500_Error")
     return render(request, 'create_update.html',
-                  PoliticalCampaignSerializer(
-                      campaign, context={'request': request}).data)
+                  QuestSerializer(quest, context={'request': request}).data)
 
 
 def updates(request, username):
     try:
-        campaign = PoliticalCampaign.get(object_uuid=username)
-    except (PoliticalCampaign.DoesNotExist, DoesNotExist):
+        quest = Quest.get(owner_username=username)
+    except (Quest.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
     except (CypherException, IOError):
         return redirect("500_Error")
-    serializer_data = PoliticalCampaignSerializer(
-        campaign, context={'request': request}).data
+    serializer_data = QuestSerializer(
+        quest, context={'request': request}).data
     serializer_data['description'] = "Updates for %s %s's Quest" % (
         serializer_data['first_name'], serializer_data['last_name'])
     serializer_data['keywords'] = "Updates, Events, Fundraising, Volunteer, " \

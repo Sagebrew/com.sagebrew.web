@@ -13,7 +13,8 @@ from sb_search.neo_models import Searchable, SBObject
 
 class Quest(Searchable):
     """
-
+    A Quest is about the individual or group and tracking thier progress
+    over the years. See Missions for their specific endeavours.
     """
     stripe_id = StringProperty(index=True, default="Not Set")
     stripe_customer_id = StringProperty()

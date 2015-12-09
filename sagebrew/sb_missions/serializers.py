@@ -72,7 +72,7 @@ class MissionSerializer(SBSerializer):
                         'WITH position, location, mission, quest ' \
                         'CREATE UNIQUE (position)<-[:FOCUSED_ON]-' \
                         '(mission)<-[:EMBARKS_ON]-(quest) ' \
-                        'WITH location, mission ' \
+                        'WITH quest, location, mission, position ' \
                         'CREATE UNIQUE (location)<-[:WITHIN]-(mission) ' \
                         'RETURN mission' % (
                             location, focused_on, level, mission.object_uuid,

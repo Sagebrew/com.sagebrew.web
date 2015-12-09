@@ -6,10 +6,20 @@ var request = require('./../../../api').request,
     settings = require('./../../../settings').settings,
     locationKey = 'politicianMissionLocationID',
     locationName = "politicianMissionLocationName",
-    positionKey = 'politicianMissionPosition';
+    positionKey = 'politicianMissionPosition',
+    Bloodhound = require('bloodhound-js');
 
 
 export function load() {
+    var countries = new Bloodhound({
+        datumTokenizer: Bloodhound.tokenizers.whitespace,
+        queryTokenizer: Bloodhound.tokenizers.whitespace,
+        prefetch: 'https://sagebrew.local.dev/v1/tags/suggestion_engine_v2/'
+    });
+    $('#typeahead').typeahead(null, {
+        name: 'countries',
+        source: countries
+    });
     helpers.loadMap(initAutocomplete, "places");
 }
 

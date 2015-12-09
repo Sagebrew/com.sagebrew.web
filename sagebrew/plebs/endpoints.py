@@ -37,8 +37,8 @@ from sb_donations.neo_models import Donation
 from sb_donations.serializers import DonationSerializer
 from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
-from sb_quests.neo_models import PoliticalCampaign
-from sb_quests.serializers import PoliticalCampaignSerializer
+from sb_quests.neo_models import PoliticalCampaign, Quest
+from sb_quests.serializers import PoliticalCampaignSerializer, QuestSerializer
 from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
@@ -416,13 +416,14 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def possible_local_representatives(self, request, username=None):
         query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                 '(a:Address)-[:ENCOMPASSED_BY]->(l:Location {name: a.city, ' \
-                'sector:"local"})-[:POSITIONS_AVAILABLE]->(o:Position)-' \
-                '[:CAMPAIGNS]->(c:Campaign) WHERE c.active=true AND NOT ' \
-                'o.level="federal" RETURN DISTINCT c LIMIT 5' % \
+                'sector:"local"})-[:POSITIONS_AVAILABLE]->(o:Position)<-' \
+                '[:FOCUSED_ON]-(m:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
+                'WHERE quest.active=true AND NOT ' \
+                'o.level="federal" RETURN DISTINCT quest LIMIT 5' % \
                 username
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
-        possible_reps = [PoliticalCampaign.inflate(row[0]) for row in res]
+        possible_reps = [Quest.inflate(row[0]) for row in res]
         html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             if not possible_reps:
@@ -432,10 +433,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
             possible_rep_html = [
                 render_to_string('sb_home_section/sb_potential_rep.html',
                                  possible_rep) for possible_rep in
-                PoliticalCampaignSerializer(possible_reps, many=True).data]
+                QuestSerializer(possible_reps, many=True).data]
             return Response(possible_rep_html, status=status.HTTP_200_OK)
-        return Response(PoliticalCampaignSerializer(possible_reps,
-                                                    many=True).data,
+        return Response(QuestSerializer(possible_reps, many=True).data,
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
@@ -445,13 +445,13 @@ class ProfileViewSet(viewsets.ModelViewSet):
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(a:Address)-[:ENCOMPASSED_BY*..]->' \
                     '(l:Location {name: a.state, sector:"federal"})-' \
-                    '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
-                    '->(c:Campaign) WHERE c.active=true RETURN DISTINCT ' \
-                    'c LIMIT 5' % \
+                    '[:POSITIONS_AVAILABLE]->(o:Position)<-' \
+                    '[:FOCUSED_ON]-(m:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
+                    'WHERE quest.active=true RETURN DISTINCT ' \
+                    'quest LIMIT 5' % \
                     username
             res, _ = db.cypher_query(query)
-            possible_senators = [PoliticalCampaign.inflate(row[0])
-                                 for row in res]
+            possible_senators = [Quest.inflate(row[0]) for row in res]
             cache.set('%s_possible_senators' % username,
                       possible_senators, timeout=1800)
         html = self.request.query_params.get('html', 'false').lower()
@@ -463,21 +463,20 @@ class ProfileViewSet(viewsets.ModelViewSet):
             possible_senators_html = [
                 render_to_string('sb_home_section/sb_potential_rep.html',
                                  possible_sen) for possible_sen in
-                PoliticalCampaignSerializer(possible_senators, many=True).data]
+                QuestSerializer(possible_senators, many=True).data]
             return Response(possible_senators_html, status=status.HTTP_200_OK)
-        return Response(PoliticalCampaignSerializer(possible_senators,
-                                                    many=True).data,
+        return Response(QuestSerializer(possible_senators, many=True).data,
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def possible_presidents(self, request, username=None):
         possible_presidents = cache.get('possible_presidents')
         if possible_presidents is None:
-            query = 'MATCH (p:Position {name:"President"})-[:CAMPAIGNS]->' \
-                    '(c:Campaign) WHERE c.active=true RETURN c LIMIT 5'
+            query = 'MATCH (p:Position {name:"President"})<-[:FOCUSED_ON]-' \
+                    '(m:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
+                    'WHERE quest.active=true RETURN quest LIMIT 5'
             res, _ = db.cypher_query(query)
-            possible_presidents = [PoliticalCampaign.inflate(row[0])
-                                   for row in res]
+            possible_presidents = [Quest.inflate(row[0]) for row in res]
             cache.set("possible_presidents", possible_presidents, timeout=1800)
         html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
@@ -488,12 +487,11 @@ class ProfileViewSet(viewsets.ModelViewSet):
             possible_presidents_html = [
                 render_to_string('sb_home_section/sb_potential_rep.html',
                                  possible_pres)
-                for possible_pres in PoliticalCampaignSerializer(
+                for possible_pres in QuestSerializer(
                     possible_presidents, many=True).data]
             return Response(possible_presidents_html,
                             status=status.HTTP_200_OK)
-        return Response(PoliticalCampaignSerializer(possible_presidents,
-                                                    many=True).data,
+        return Response(QuestSerializer(possible_presidents, many=True).data,
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))

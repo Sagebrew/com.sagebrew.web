@@ -357,17 +357,17 @@ function fillPositions(identifier) {
                 name = data.results[i];
                 // TODO simplify with types rather than each position
                 if(name.indexOf("Senator") > -1){
-                    image_path = "https://sagebrew.local.dev/static/images/council.png";
+                    image_path = "https://sagebrew.local.dev/static/images/legislative_bw.png";
                 } else if (name.indexOf("House Representative") > -1){
-                    image_path = "https://sagebrew.local.dev/static/images/council.png";
+                    image_path = "https://sagebrew.local.dev/static/images/legislative_bw.png";
                 } else if (name === "President") {
-                    image_path = "https://sagebrew.local.dev/static/images/executive.png";
+                    image_path = "https://sagebrew.local.dev/static/images/executive_bw.png";
                 } else if (name === "Governor") {
-                    image_path = "https://sagebrew.local.dev/static/images/executive.png";
+                    image_path = "https://sagebrew.local.dev/static/images/executive_bw.png";
                 } else if (name === "City Council") {
-                    image_path = "https://sagebrew.local.dev/static/images/council.png";
+                    image_path = "https://sagebrew.local.dev/static/images/legislative_bw.png";
                 } else if (name === "Mayor") {
-                    image_path = "https://sagebrew.local.dev/static/images/executive.png";
+                    image_path = "https://sagebrew.local.dev/static/images/executive_bw.png";
                 }
                 /**
                     if(name === "Senator"){
@@ -392,7 +392,7 @@ function fillPositions(identifier) {
             }
             context = {
                 name: "Other (Contact Us)",
-                image_path:"https://sagebrew.local.dev/static/images/other.png"
+                image_path:"https://sagebrew.local.dev/static/images/glass_bw.png"
             };
             positionList.push(context);
             document.getElementById('js-position-selector').innerHTML = templates.position_image_radio({positions: positionList});

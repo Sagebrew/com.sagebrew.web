@@ -9,6 +9,10 @@ from sb_base.neo_models import VoteRelationship
 
 class Mission(Searchable):
     """
+    Missions are what a Quest is currently focused on doing. They encompass
+    what it is trying to achieve whether it be running for office or advocating
+    for something. A mission allows a Quest to take donations and for other
+    Quests to endorse another Quest's missions.
     """
     biography = StringProperty()
     epic = StringProperty()

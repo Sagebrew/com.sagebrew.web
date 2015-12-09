@@ -43,15 +43,19 @@ class Command(BaseCommand):
 
             for donation in campaign.donations.all():
                 quest.donations.connect(donation)
+                campaign.donations.disconnect(donation)
 
             for update in campaign.updates.all():
                 quest.updates.connect(update)
+                campaign.updates.disconnect(update)
 
             for editor in campaign.editors.all():
                 quest.editors.connect(editor)
+                campaign.editors.disconnect(editor)
 
             for moderator in campaign.accountants.all():
                 quest.moderators.connect(moderator)
+                campaign.accountants.disconnect(moderator)
 
             if campaign.epic != "" and campaign.epic is not None:
                 mission = Mission(
@@ -69,13 +73,18 @@ class Command(BaseCommand):
                 ).save()
                 for goal in campaign.goals.all():
                     mission.goals.connect(goal)
+                    campaign.goals.disconnect(goal)
 
                 for position in campaign.position.all():
                     mission.position.connect(position)
                     mission.focused_on.connect(position)
+                    campaign.position.disconnect(position)
 
                 for pledged_vote in campaign.pledged_votes.all():
                     mission.pledge_votes.connect(pledged_vote)
+                    campaign.pledged_votes.disconnect(pledged_vote)
+
+            campaign.delete()
 
     def handle(self, *args, **options):
         self.migrate_campaign_to_quest()

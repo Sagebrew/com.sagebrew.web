@@ -18,7 +18,12 @@ class Command(BaseCommand):
             usa = Location.nodes.get(name='United States of America')
         except (DoesNotExist, Location.DoesNotExist):
             usa = Location(name="United States of America").save()
-        if not usa.positions.all():
+        query = 'MATCH (a:Location {object_uuid: "%s"})-' \
+                '[:POSITIONS_AVAILABLE]->' \
+                '(p:Position) RETURN p.name' % usa.object_uuid
+        res, _ = db.cypher_query(query)
+        positions = [row[0] for row in res]
+        if "President" not in positions:
             pres = Position(name="President").save()
             usa.positions.connect(pres)
             pres.location.connect(usa)
@@ -39,7 +44,12 @@ class Command(BaseCommand):
                         continue
                     usa.encompasses.connect(state)
                     state.encompassed_by.connect(usa)
-                    if not state.positions.all():
+                    query = 'MATCH (a:Location {object_uuid: "%s"})-' \
+                            '[:POSITIONS_AVAILABLE]->' \
+                            '(p:Position) RETURN p.name' % state.object_uuid
+                    res, _ = db.cypher_query(query)
+                    positions = [row[0] for row in res]
+                    if "Senator" not in positions:
                         senator = Position(name='Senator').save()
                         senator.location.connect(state)
                         state.positions.connect(senator)
@@ -71,7 +81,13 @@ class Command(BaseCommand):
                             district.encompassed_by.connect(state_node)
                             usa.encompasses.connect(district)
                             state_node.encompasses.connect(district)
-                            if not district.positions.all():
+                            query = 'MATCH (a:Location {object_uuid: "%s"})-' \
+                                    '[:POSITIONS_AVAILABLE]->' \
+                                    '(p:Position) ' \
+                                    'RETURN p.name' % district.object_uuid
+                            res, _ = db.cypher_query(query)
+                            positions = [row[0] for row in res]
+                            if "House Representative" not in positions:
                                 house_rep = Position(
                                     name="House Representative").save()
                                 house_rep.location.connect(district)

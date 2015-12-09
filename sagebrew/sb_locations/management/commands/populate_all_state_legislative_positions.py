@@ -26,10 +26,24 @@ class Command(BaseCommand):
                 headers={"content-type": 'application/json; charset=utf8'})
             json_response = response.json()
             for district in json_response:
-                location = Location(
-                    name=district['name'], sector='state_upper').save()
-                position = Position(
-                    name="State Senator", level="state_upper").save()
+                query = 'MATCH (l:Location {object_uuid:"%s"}) WITH l ' \
+                        'OPTIONAL MATCH (l)-[:ENCOMPASSES]->(l2:Location ' \
+                        '{name:"%s", sector:"state_upper"}) WITH l, l2 ' \
+                        'OPTIONAL MATCH (l2)-[:POSITIONS_AVAILABLE]->' \
+                        '(p:Position {name:"State Senator", level:' \
+                        '"state_upper"}) RETURN l2, p' % \
+                        (state_node.object_uuid, district['name'])
+                res, _ = db.cypher_query(query)
+                try:
+                    location = Location.inflate(res[0].l2)
+                except (IndexError, AttributeError):
+                    location = Location(
+                        name=district['name'], sector='state_upper').save()
+                try:
+                    position = Position.inflate(res[0].p)
+                except (IndexError, AttributeError):
+                    position = Position(
+                        name="State Senator", level="state_upper").save()
                 if location not in state_node.encompasses:
                     state_node.encompasses.connect(location)
                 if state_node not in location.encompasses:
@@ -38,6 +52,10 @@ class Command(BaseCommand):
                     location.positions.connect(position)
                 if location not in position.location:
                     position.location.connect(location)
+                if not position.full_name:
+                    full_name = Position.get_full_name(position.object_uuid)
+                    position.full_name = full_name['full_name']
+                    position.save()
 
             lookup_url = base_url % (abbr, "lower")
             response = requests.get(
@@ -45,11 +63,25 @@ class Command(BaseCommand):
                 headers={"content-type": 'application/json; charset=utf8'})
             json_response = response.json()
             for district in json_response:
-                location = Location(
-                    name=district["name"], sector="state_lower").save()
-                position = Position(
-                    name="State House Representative",
-                    level="state_lower").save()
+                query = 'MATCH (l:Location {object_uuid:"%s"}) WITH l ' \
+                        'OPTIONAL MATCH (l)-[:ENCOMPASSES]->(l2:Location ' \
+                        '{name:"%s", sector:"state_lower"}) WITH l, l2 ' \
+                        'OPTIONAL MATCH (l2)-[:POSITIONS_AVAILABLE]->' \
+                        '(p:Position {name:"State House Representative", ' \
+                        'level:"state_lower"}) RETURN l2, p' % \
+                        (state_node.object_uuid, district['name'])
+                res, _ = db.cypher_query(query)
+                try:
+                    location = Location.inflate(res[0].l2)
+                except (IndexError, AttributeError):
+                    location = Location(
+                        name=district["name"], sector="state_lower").save()
+                try:
+                    position = Position.inflate(res[0].p)
+                except (IndexError, AttributeError):
+                    position = Position(
+                        name="State House Representative",
+                        level="state_lower").save()
                 if location not in state_node.encompasses:
                     state_node.encompasses.connect(location)
                 if state_node not in location.encompasses:
@@ -58,6 +90,10 @@ class Command(BaseCommand):
                     location.positions.connect(position)
                 if location not in position.location:
                     position.location.connect(location)
+                if not position.full_name:
+                    full_name = Position.get_full_name(position.object_uuid)
+                    position.full_name = full_name['full_name']
+                    position.save()
 
         return True
 

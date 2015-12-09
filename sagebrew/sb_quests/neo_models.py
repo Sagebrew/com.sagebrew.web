@@ -499,6 +499,7 @@ class PoliticalCampaign(Campaign):
 
 class Position(SBObject):
     name = StringProperty()
+    full_name = StringProperty()
     level = StringProperty(default="federal")
 
     location = RelationshipTo('sb_locations.neo_models.Location',
@@ -568,6 +569,13 @@ class Position(SBObject):
 
     @classmethod
     def get_full_name(cls, object_uuid):
+        '''
+        DEPRECATED
+        Use the full_name attribute on the Position node itself instead.
+
+        :param object_uuid:
+        :return:
+        '''
         full_name = cache.get("%s_full_name" % object_uuid)
         if full_name is None:
             query = 'MATCH (p:Position {object_uuid: "%s"})-' \
@@ -591,11 +599,8 @@ class Position(SBObject):
             # do an if to determine what position we are looking at, it allows
             # for generalization of the query.
             try:
-                if res[0][0] == 'House Representative':
-                    full_name = "%s for %s's %s district" % \
-                                (res[0].position_name, res[0].location_name2,
-                                 ordinal(res[0].location_name1))
-                elif res[0].position_level == "state_upper" \
+                if res[0][0] == 'House Representative' \
+                        or res[0].position_level == "state_upper" \
                         or res[0].position_level == "state_lower":
                     full_name = "%s for %s's %s district" % \
                                 (res[0].position_name, res[0].location_name2,

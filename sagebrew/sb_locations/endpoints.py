@@ -14,6 +14,7 @@ from neomodel import db
 
 from sb_quests.neo_models import Position
 
+from .utils import get_positions
 from .serializers import LocationSerializer, LocationManagerSerializer
 from .neo_models import Location
 
@@ -54,39 +55,16 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(['GET'])
-@permission_classes((IsAuthenticated,))
-def get_positions(request, name=None):
-    filter_param = request.query_params.get("filter", "")
-    if filter_param == "state":
-        constructed_filter = 'AND p.level="state_upper" ' \
-                             'OR p.level="state_lower"'
-    elif filter_param == '':
-        constructed_filter = ''
-    else:
-        constructed_filter = 'AND p.level="%s"' % filter_param
-    query = 'MATCH (l:Location {name:"%s"})-[:ENCOMPASSES*..]->' \
-            '(l2:Location) WITH collect(id(l))+collect(id(l2)) ' \
-            'AS collected_ids OPTIONAL MATCH (final_location:Location)-' \
-            '[:POSITIONS_AVAILABLE]->' \
-            '(p:Position) WHERE id(final_location) in collected_ids %s ' \
-            'RETURN collect(DISTINCT p.object_uuid) as uuids' \
-            % (name, constructed_filter)
-    res, _ = db.cypher_query(query)
-    if not res.one:
-        return Response([], status=status.HTTP_200_OK)
-    return Response(res[0].uuids, status=status.HTTP_200_OK)
-
-
 @api_view(["GET"])
 @permission_classes((IsAuthenticated,))
 def render_positions(request, name=None):
     return Response([render_to_string(
         'position_selector.html', {
-            'name': Position.get_full_name(
-                representative),
+            'name': Position.inflate(representative[0]).full_name,
+            'id': Position.inflate(representative[0]).object_uuid,
             "state_name": "".join(name.split())
         }, context_instance=RequestContext(request))
         for representative in get_positions(
-            request, urllib.unquote(name).decode('utf-8')).data],
+            urllib.unquote(name).decode('utf-8'),
+            request.query_params.get("filter", ""))],
         status=status.HTTP_200_OK)

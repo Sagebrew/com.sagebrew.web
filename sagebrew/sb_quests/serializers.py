@@ -548,10 +548,10 @@ class AccountantSerializer(serializers.Serializer):
 
 class PositionSerializer(SBSerializer):
     name = serializers.CharField()
+    full_name = serializers.CharField()
 
     href = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
-    full_name = serializers.SerializerMethodField()
     campaigns = serializers.SerializerMethodField()
 
     def get_href(self, obj):
@@ -577,9 +577,6 @@ class PositionSerializer(SBSerializer):
                            kwargs={'object_uuid': location},
                            request=request)
         return location
-
-    def get_full_name(self, obj):
-        return Position.get_full_name(obj.object_uuid)
 
 
 class PositionManagerSerializer(SBSerializer):
@@ -607,5 +604,6 @@ class PositionManagerSerializer(SBSerializer):
         if location is not None:
             location.positions.connect(position)
             position.location.connect(location)
-
+        position.full_name = Position.get_full_name(position.object_uuid)
+        position.save()
         return position

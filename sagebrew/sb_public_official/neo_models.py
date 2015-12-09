@@ -2,7 +2,6 @@ from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, db)
 
-from api.utils import deprecation
 from sb_search.neo_models import Searchable
 
 

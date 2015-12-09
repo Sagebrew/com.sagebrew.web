@@ -4,6 +4,7 @@ from django.core.cache import cache
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist)
 
 from sb_search.neo_models import Searchable
+from sb_base.neo_models import VoteRelationship
 
 
 class Mission(Searchable):
@@ -36,6 +37,9 @@ class Mission(Searchable):
 
     # Used to store off what one thing the mission is focused on. This eases
     # the inflation, handling, etc of the focused on object
+    # Valid options are:
+    #     position
+    #     advocacy
     focus_on_type = StringProperty()
 
     # If this is a political campaign these would be the title of the position
@@ -89,6 +93,13 @@ class Mission(Searchable):
     # in relation to locations but tags might be associated with multiple
     # locations.
     location = RelationshipTo('sb_locations.neo_models.Location', "WITHIN")
+
+    # DEPRECATED
+    # Pledge votes are from old campaigns. We're working on a new process
+    # for this
+    pledge_votes = RelationshipTo('plebs.neo_models.Pleb',
+                                  'RECEIVED_PLEDGED_VOTE',
+                                  model=VoteRelationship)
 
     @classmethod
     def get(cls, object_uuid):

@@ -147,6 +147,25 @@ class SolutionEndpointTests(APITestCase):
         res = self.client.get(url, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
+    def test_get(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse(
+            "solution-detail",
+            kwargs={"object_uuid": self.solution.object_uuid})
+        res = self.client.get(url, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_create_fail(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse("question-solutions",
+                      kwargs={'object_uuid': self.question.object_uuid})
+        data = {
+            "question": self.question.object_uuid,
+            "content": "a"
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class TestSolutionRenderer(APITestCase):
     def setUp(self):

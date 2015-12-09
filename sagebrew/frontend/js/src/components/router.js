@@ -28,18 +28,14 @@ function controllerMetaInfo() {
 }
 /**
  * @param match_method
- * @param check
+ * @param checks
  * TODO: Fix bug:
  *  -- The path generated strips out the trailing slash.
  */
-function matchController(match_method, check) {
+function matchController(match_method, checks) {
     // Support multiple checks.
-    var checks;
-    if (check instanceof Array) {
-        checks = check;
-    }
-    else {
-        checks = [check];
+    if (!(checks instanceof Array)) {
+        checks = [checks];
     }
 
     var path = helpers.args().join("/");

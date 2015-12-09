@@ -18,7 +18,8 @@
             <h1>Title XS</h1>
         </div>
         <div class="col-xs-12 col-sm-7 quest-wallpaper">
-            <img class="fill" src="http://globe-views.com/dcim/dreams/image/image-03.jpg">
+            {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
+            <img class="fill" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
         </div>
         <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
             <button class="btn btn-primary sb_btn_fill" id="js-donate-btn">Donate</button>
@@ -28,7 +29,7 @@
         </div>
         <div class="hidden-xs col-sm-5">
             <div class="col-sm-12">
-                <h1>Title XS</h1>
+                <h1>{{ first_name }} {{ last_name }}</h1>
             </div>
             <div class="col-sm-12">
                 <p>Council Member for the City of Wixom</p>

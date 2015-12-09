@@ -85,8 +85,10 @@ $(document).ready(function () {
         })
         .on('tokenfield:createdtoken', function (e) {
             var $filterWrapper = $(".sb-position-filter-wrapper"),
-                filterValue;
+                filterValue,
+                $positionWrapper = $("#position_wrapper");
             filterValue = $filterWrapper.find("input:checked").val();
+            $positionWrapper.append('<div class="loader position-selector-loader"></div>');
             $.ajax({
                 xhrFields: {withCredentials: true},
                 type: "GET",
@@ -94,6 +96,7 @@ $(document).ready(function () {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
+                    $(".position-selector-loader").remove();
                     $("#position_wrapper").append(data);
                     $(".sb_btn").off().on("click", function (event) { // http://stackoverflow.com/questions/14969960/jquery-click-events-firing-multiple-times reason for off
                         event.preventDefault();
@@ -110,12 +113,16 @@ $(document).ready(function () {
                             success: function (data) {
                                 window.location.href = data.url;
                             },
-                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            error: function (XMLHttpRequest) {
                                 errorDisplay(XMLHttpRequest);
                                 $(this).prop('disabled', false);
                             }
                         });
                     });
+                },
+                error: function (XMLHttpRequest) {
+                    errorDisplay(XMLHttpRequest);
+                    $(".position-selector-loader").remove();
                 }
             });
         })
@@ -132,7 +139,17 @@ $(document).ready(function () {
         var $positionWrapper = $("#position_wrapper"),
             $tokenField = $("#state"),
             tokens = $tokenField.tokenfield('getTokens'),
-            $this = $(this);
+            $this = $(this),
+            $presidentWrapper = $("#js-president-selector");
+        $positionWrapper.append('<div class="loader position-selector-loader"></div>');
+        if ($this.val() === "federal" || $this.val() === "") {
+            $presidentWrapper.show();
+        } else {
+            $presidentWrapper.hide();
+        }
+        if ($.isEmptyObject(tokens)) { // remove loader if tokens is empty
+            $(".loader").remove();
+        }
         $.each(tokens, function (index, value) {
             $("." + value.label.replace(/ /g, '')).remove();
             $.ajax({
@@ -142,6 +159,7 @@ $(document).ready(function () {
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (data) {
+                    $(".loader").remove();
                     $positionWrapper.append(data);
                     $(".sb_btn").off().on("click", function (event) { // http://stackoverflow.com/questions/14969960/jquery-click-events-firing-multiple-times reason for off
                         event.preventDefault();
@@ -158,12 +176,15 @@ $(document).ready(function () {
                             success: function (data) {
                                 window.location.href = data.url;
                             },
-                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            error: function (XMLHttpRequest) {
                                 errorDisplay(XMLHttpRequest);
                                 $(this).prop('disabled', false);
                             }
                         });
                     });
+                },
+                error: function (XMLHttpRequest) {
+                    errorDisplay(XMLHttpRequest);
                 }
             });
         });

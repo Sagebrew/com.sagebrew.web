@@ -185,12 +185,13 @@ class TestObjectVoteNotifications(TestCase):
         res = object_vote_notifications.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
-
         self.assertTrue(res.result)
         self.assertNotIsInstance(res.result, Exception)
 
     def test_initial_vote_create_private_comment(self):
+        post = Post().save()
         comment = Comment(content='test content', visibility="private").save()
+        comment.comment_on.connect(post)
         data = {
             "object_uuid": comment.object_uuid,
             "previous_vote_type": None,
@@ -200,7 +201,6 @@ class TestObjectVoteNotifications(TestCase):
         res = object_vote_notifications.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
-
         self.assertTrue(res.result)
         self.assertNotIsInstance(res.result, Exception)
 

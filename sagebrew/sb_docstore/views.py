@@ -11,6 +11,5 @@ from .tasks import spawn_user_updates
 def get_updates_from_dynamo(request):
     spawn_task(task_func=spawn_user_updates, task_param={
         'username': request.user.username,
-        "object_uuids": request.data['object_uuids']})
-
+        'object_uuids': request.data['object_uuids']})
     return Response({'detail': 'success'}, status=200)

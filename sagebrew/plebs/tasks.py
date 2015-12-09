@@ -1,4 +1,5 @@
 import us
+import requests
 from uuid import uuid1
 
 from django.core import signing
@@ -12,14 +13,14 @@ from elasticsearch import Elasticsearch, NotFoundError
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 
-from py2neo.cypher import ClientError
+from py2neo.cypher.error.transaction import ClientError, CouldNotCommit
 from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task, generate_oauth_user
 from api.tasks import add_object_to_search_index
 from sb_base.utils import defensive_exception
 from sb_wall.neo_models import Wall
-
+from sb_public_official.tasks import create_and_attach_state_level_reps
 from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
@@ -116,6 +117,58 @@ def update_address_location(object_uuid):
         raise update_address_location.retry(exc=e, countdown=3,
                                             max_retries=None)
     return True
+
+
+@shared_task()
+def connect_to_state_districts(object_uuid):
+    try:
+        address = Address.nodes.get(object_uuid=object_uuid)
+    except (DoesNotExist, Address.DoesNotExist, CypherException, IOError,
+            ClientError) as e:
+        raise connect_to_state_districts.retry(exc=e, countdown=3,
+                                               max_retries=None)
+    try:
+        lookup_url = settings.OPENSTATES_DISTRICT_SEARCH_URL % \
+            (address.latitude, address.longitude) \
+            + "&apikey=53f7bd2a41df42c082bb2f07bd38e6aa"
+    except TypeError:
+        # in case an address doesn't have a latitude or longitude
+        return False
+    response = requests.get(
+        lookup_url, headers={"content-type": 'application/json; charset=utf8'})
+    response_json = response.json()
+    try:
+        for rep in response_json:
+            try:
+                sector = 'state_%s' % rep['chamber']
+                query = 'MATCH (l:Location {name: "%s", sector:"federal"})-' \
+                        '[:ENCOMPASSES]->(district:Location {name:"%s", ' \
+                        'sector:"%s"}) RETURN district ' % \
+                        (us.states.lookup(address.state).name,
+                         rep['district'], sector)
+                res, _ = db.cypher_query(query)
+            except KeyError:
+                return False
+            try:
+                res = res[0]
+            except IndexError as e:
+                raise connect_to_state_districts.retry(exc=e, countdown=3,
+                                                       max_retries=None)
+            try:
+                state_district = Location.inflate(res.district)
+            except (CypherException, ClientError, IOError, CouldNotCommit) as e:
+                raise connect_to_state_districts.retry(exc=e, countdown=3,
+                                                       max_retries=None)
+            if state_district not in address.encompassed_by:
+                address.encompassed_by.connect(state_district)
+            if address not in state_district.addresses:
+                state_district.addresses.connect(address)
+        spawn_task(task_func=create_and_attach_state_level_reps,
+                   task_param={"rep_data": response_json})
+        return True
+    except (CypherException, IOError, ClientError, CouldNotCommit) as e:
+        raise connect_to_state_districts.retry(exc=e, countdown=3,
+                                               max_retries=None)
 
 
 @shared_task()

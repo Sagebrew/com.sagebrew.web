@@ -122,6 +122,7 @@ TEMPLATES = [{
         '%s/sagebrew/templates/' % PROJECT_DIR,
         '%s/sb_solutions/templates/' % PROJECT_DIR,
         '%s/sb_badges/templates/' % PROJECT_DIR,
+        '%s/sb_base/templates/' % PROJECT_DIR,
         '%s/sb_comments/templates/' % PROJECT_DIR,
         '%s/sb_council/templates' % PROJECT_DIR,
         '%s/sb_flag/templates/' % PROJECT_DIR,
@@ -422,6 +423,9 @@ OPERATOR_DICT = {
     'coperator\nis_\np0\n.': 'is',
     'coperator\ntruth\np0\n.': 'truth'
 }
+
+OPENSTATES_DISTRICT_SEARCH_URL = "http://openstates.org/api/v1/legislators/" \
+                                 "geo/?lat=%f&long=%f"
 
 CORS_ORIGIN_ALLOW_ALL = True
 

@@ -3,6 +3,7 @@ import time
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.template.response import TemplateResponse
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -138,6 +139,37 @@ class SolutionEndpointTests(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
+    def test_get_html(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse(
+            "solution-detail",
+            kwargs={"object_uuid": self.solution.object_uuid}) \
+            + "?html=true"
+        res = self.client.get(url, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn("html", res.data.keys())
+        self.assertIsNotNone(res.data['html'])
+
+    def test_get(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse(
+            "solution-detail",
+            kwargs={"object_uuid": self.solution.object_uuid})
+        res = self.client.get(url, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['id'], self.solution.object_uuid)
+
+    def test_create_fail(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse("question-solutions",
+                      kwargs={'object_uuid': self.question.object_uuid})
+        data = {
+            "question": self.question.object_uuid,
+            "content": "a"
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
 
 class TestSolutionRenderer(APITestCase):
     def setUp(self):
@@ -178,3 +210,27 @@ class TestSolutionRenderer(APITestCase):
                       kwargs={"object_uuid": self.question.object_uuid})
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+
+class TestSingleSolutionPage(APITestCase):
+    def setUp(self):
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.question = Question(content="Hey I'm a question",
+                                 title=str(uuid1()),
+                                 owner_username=self.pleb.username).save()
+        self.solution = Solution(content="This is a test solution",
+                                 owner_username=self.pleb.username).save()
+
+    def test_get_single_page(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse("single_solution_page",
+                      kwargs={"object_uuid": self.solution.object_uuid})
+        res = self.client.get(url, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(res, TemplateResponse)

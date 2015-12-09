@@ -4,6 +4,7 @@ import requests_mock
 from django.contrib.auth.models import User
 from django.test import RequestFactory
 from django.core.cache import cache
+from django.template.response import TemplateResponse
 
 from neomodel import db
 
@@ -237,3 +238,4 @@ class TestSingleQuestionPage(APITestCase):
                       kwargs={"object_uuid": self.question.object_uuid})
         res = self.client.get(url, format="json")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(res, TemplateResponse)

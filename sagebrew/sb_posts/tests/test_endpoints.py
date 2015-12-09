@@ -4,6 +4,7 @@ from dateutil import parser
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.template.response import TemplateResponse
 
 from neomodel import UniqueProperty
 
@@ -318,6 +319,8 @@ class PostsEndpointTests(APITestCase):
             + "?html=true"
         res = self.client.get(url, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn("html", res.data.keys())
+        self.assertIsNotNone(res.data['html'])
 
 
 class WallPostListCreateTest(APITestCase):
@@ -744,3 +747,4 @@ class TestSinglePostPage(APITestCase):
                       kwargs={'object_uuid': self.post.object_uuid})
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response, TemplateResponse)

@@ -3,6 +3,7 @@ import time
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.template.response import TemplateResponse
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -146,6 +147,8 @@ class SolutionEndpointTests(APITestCase):
             + "?html=true"
         res = self.client.get(url, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn("html", res.data.keys())
+        self.assertIsNotNone(res.data['html'])
 
     def test_get(self):
         self.client.force_authenticate(user=self.user)
@@ -154,6 +157,7 @@ class SolutionEndpointTests(APITestCase):
             kwargs={"object_uuid": self.solution.object_uuid})
         res = self.client.get(url, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['id'], self.solution.object_uuid)
 
     def test_create_fail(self):
         self.client.force_authenticate(user=self.user)
@@ -229,3 +233,4 @@ class TestSingleSolutionPage(APITestCase):
                       kwargs={"object_uuid": self.solution.object_uuid})
         res = self.client.get(url, format="json")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(res, TemplateResponse)

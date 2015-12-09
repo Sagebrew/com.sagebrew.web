@@ -994,3 +994,5 @@ class QuestionEndpointTests(APITestCase):
             + "?html=true"
         res = self.client.get(url, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn("html", res.data.keys())
+        self.assertIsNotNone(res.data['html'])

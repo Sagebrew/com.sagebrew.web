@@ -67,7 +67,7 @@ class Command(BaseCommand):
                     twitter=campaign.twitter,
                     website=campaign.website,
                     wallpaper_pic=campaign.wallpaper_pic,
-                    owner_username=campaign.owner_username,
+                    owner_username=campaign.object_uuid,
                     location_name=campaign.location_name,
                     focus_on_type="position"
                 ).save()

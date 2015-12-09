@@ -15,12 +15,11 @@ class Command(BaseCommand):
         for row in res:
             campaign = PoliticalCampaign.inflate(row[0])
             try:
-                Quest.nodes.get(object_uuid=campaign.object_uuid)
+                Quest.nodes.get(owner_username=campaign.owner_username)
                 continue
             except (DoesNotExist, Quest.DoesNotExist):
                 pass
             quest = Quest(
-                object_uuid=campaign.object_uuid,
                 stripe_id=campaign.stripe_id,
                 stripe_customer_id=campaign.stripe_customer_id,
                 stripe_subscription_id=campaign.stripe_subscription_id,
@@ -38,7 +37,7 @@ class Command(BaseCommand):
                 seat_formal_name=campaign.seat_formal_name,
                 first_name=campaign.first_name,
                 last_name=campaign.last_name,
-                owner_username=campaign.owner_username
+                owner_username=campaign.object_uuid
             ).save()
 
             for donation in campaign.donations.all():

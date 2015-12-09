@@ -80,15 +80,15 @@ class Quest(Searchable):
     holds = RelationshipTo('sb_quests.neo_models.Seat', "HOLDS")
 
     @classmethod
-    def get(cls, object_uuid):
-        campaign = cache.get("%s_quest" % object_uuid)
+    def get(cls, owner_username):
+        campaign = cache.get("%s_quest" % owner_username)
         if campaign is None:
-            query = 'MATCH (c:Quest {object_uuid: "%s"}) RETURN c' % \
-                    object_uuid
+            query = 'MATCH (c:Quest {owner_username: "%s"}) RETURN c' % \
+                    owner_username
             res, col = db.cypher_query(query)
             try:
                 campaign = cls.inflate(res[0][0])
-                cache.set("%s_quest" % object_uuid, campaign)
+                cache.set("%s_quest" % owner_username, campaign)
                 return campaign
             except IndexError:
                 raise DoesNotExist("Quest does not exist")

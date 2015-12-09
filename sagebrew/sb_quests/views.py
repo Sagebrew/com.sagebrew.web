@@ -13,12 +13,12 @@ from sb_quests.serializers import PoliticalCampaignSerializer, QuestSerializer
 
 def quest(request, username):
     try:
-        quest = Quest.get(object_uuid=username)
+        quest_obj = Quest.get(owner_username=username)
     except (CypherException, IOError, PoliticalCampaign.DoesNotExist,
             DoesNotExist):
         return redirect("404_Error")
     serializer_data = QuestSerializer(
-        quest, context={'request': request}).data
+        quest_obj, context={'request': request}).data
     serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
     serializer_data['description'] = "%s %s's Policies, Agenda, " \
                                      "and Platform." % (

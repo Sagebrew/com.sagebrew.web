@@ -37,8 +37,8 @@ from sb_donations.neo_models import Donation
 from sb_donations.serializers import DonationSerializer
 from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
-from sb_quests.neo_models import PoliticalCampaign, Quest
-from sb_quests.serializers import PoliticalCampaignSerializer, QuestSerializer
+from sb_quests.neo_models import Quest
+from sb_quests.serializers import QuestSerializer
 from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
@@ -390,11 +390,12 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     '(a:Address)-[:ENCOMPASSED_BY]->' \
                     '(l:Location {name: str(a.congressional_district), ' \
                     'sector:"federal"})-[:POSITIONS_AVAILABLE]->(o:Position)' \
-                    '-[:CAMPAIGNS]' \
-                    '->(c:Campaign) WHERE c.active=true AND o.level="federal"' \
-                    ' RETURN DISTINCT c LIMIT 5' % username
+                    '<-[:FOCUSED_ON]-(m:Mission)' \
+                    '<-[:EMBARKS_ON]-(quest:Quest) ' \
+                    'WHERE quest.active=true AND o.level="federal"' \
+                    ' RETURN DISTINCT quest LIMIT 5' % username
             res, _ = db.cypher_query(query)
-            possible_reps = [PoliticalCampaign.inflate(row[0]) for row in res]
+            possible_reps = [Quest.inflate(row[0]) for row in res]
             cache.set('%s_possible_house_representatives' % username,
                       possible_reps, timeout=1800)
         html = self.request.query_params.get('html', 'false').lower()
@@ -406,10 +407,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
             possible_rep_html = [
                 render_to_string('sb_home_section/sb_potential_rep.html',
                                  possible_rep) for possible_rep in
-                PoliticalCampaignSerializer(possible_reps, many=True).data]
+                QuestSerializer(possible_reps, many=True).data]
             return Response(possible_rep_html, status=status.HTTP_200_OK)
-        return Response(PoliticalCampaignSerializer(possible_reps,
-                                                    many=True).data,
+        return Response(QuestSerializer(possible_reps, many=True).data,
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
@@ -581,7 +581,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'WHERE questions.to_be_deleted = False AND questions.created > %s' \
             ' RETURN questions, NULL AS solutions, NULL AS posts, ' \
             'questions.created AS created, NULL AS s_question, ' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the current users solutions\n' \
             'MATCH (a:Pleb {username: "%s"})-' \
@@ -590,14 +590,14 @@ class MeViewSet(mixins.UpdateModelMixin,
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
             ' RETURN solutions, NULL AS questions, NULL AS posts, ' \
             'solutions.created AS created, s_question AS s_question,' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the current users posts\n' \
             'MATCH (a:Pleb {username: "%s"})-[:OWNS_POST]->(posts:Post) ' \
             'WHERE posts.to_be_deleted = False AND posts.created > %s ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
             'posts.created AS created, NULL AS s_question,' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the posts on the current users wall that are \n' \
             '// not owned by the current user \n' \
@@ -607,27 +607,28 @@ class MeViewSet(mixins.UpdateModelMixin,
             'posts.to_be_deleted = False AND posts.created > %s ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
             'posts.created AS created, NULL AS s_question,' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
-            '// Retrieve the campaigns affecting the given user\n' \
+            '// Retrieve the quests affecting the given user\n' \
             'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->(:Address)-' \
             '[:ENCOMPASSED_BY*..]->' \
-            '(:Location)-[:POSITIONS_AVAILABLE]->(:Position)-[:CAMPAIGNS]->' \
-            '(campaigns:Campaign) ' \
-            'WHERE campaigns.active = True AND campaigns.created > %s ' \
-            'RETURN campaigns, NULL AS solutions, NULL AS posts, ' \
-            'NULL AS questions, campaigns.created AS created, ' \
-            'NULL AS s_question, NULL AS updates, NULL AS q_campaigns UNION ' \
+            '(:Location)-[:POSITIONS_AVAILABLE]->(:Position)<-[:FOCUSED_ON]-' \
+            '(mission:Mission)<-[:EMBARKS_ON]-(quests:Quest) ' \
+            'WHERE quests.active = True AND quests.created > %s ' \
+            'RETURN quests, NULL AS solutions, NULL AS posts, ' \
+            'NULL AS questions, quests.created AS created, ' \
+            'NULL AS s_question, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
-            '// Retrieve the campaigns updates affecting the given user\n' \
+            '// Retrieve the quests updates affecting the given user\n' \
             'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->(:Address)-' \
             '[:ENCOMPASSED_BY*..]->' \
-            '(:Location)-[:POSITIONS_AVAILABLE]->(:Position)-[:CAMPAIGNS]->' \
-            '(q_campaigns:Campaign)-[:HAS_UPDATE]->(updates:Update) ' \
-            'WHERE q_campaigns.active = True AND updates.created > %s ' \
+            '(:Location)-[:POSITIONS_AVAILABLE]->(:Position)<-[:FOCUSED_ON]-' \
+            '(mission:Mission)<-[:EMBARKS_ON]-(q_quests:Quest)' \
+            '-[:CREATED_AN]->(updates:Update) ' \
+            'WHERE q_quests.active = True AND updates.created > %s ' \
             'RETURN updates, NULL AS solutions, NULL AS posts, ' \
             'NULL AS questions, updates.created AS created, ' \
-            'NULL AS s_question, NULL as campaigns, q_campaigns UNION ' \
+            'NULL AS s_question, NULL as quests, q_quests UNION ' \
             '' \
             "// Retrieve all the current user's friends posts on their \n" \
             '// walls\n' \
@@ -639,7 +640,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'AND posts.created > %s ' \
             'RETURN posts, NULL AS questions, NULL AS solutions, ' \
             'posts.created AS created, NULL AS s_question, ' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the current users friends and friends of friends' \
             '// questions \n' \
@@ -650,7 +651,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'questions.created > %s ' \
             'RETURN questions, NULL AS posts, NULL AS solutions, ' \
             'questions.created AS created, NULL AS s_question, ' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the current users friends and friends of friends' \
             '// solutions \n' \
@@ -662,7 +663,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
             ' RETURN solutions, NULL AS posts, NULL AS questions, ' \
             'solutions.created AS created, s_question AS s_question,' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the users questions that the current user is ' \
             '// following \n' \
@@ -672,8 +673,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             'questions.created > %s ' \
             'RETURN NULL AS solutions, NULL AS posts, ' \
             'questions AS questions, questions.created AS created, ' \
-            'NULL AS s_question, NULL AS campaigns, NULL AS updates, ' \
-            'NULL AS q_campaigns UNION ' \
+            'NULL AS s_question, NULL AS quests, NULL AS updates, ' \
+            'NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the users solutions that the current user is ' \
             '// following \n' \
@@ -684,8 +685,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             'solutions.created > %s ' \
             'RETURN solutions, NULL AS posts, ' \
             'NULL AS questions, solutions.created AS created, ' \
-            's_question as s_question, NULL AS campaigns, NULL AS updates, ' \
-            'NULL AS q_campaigns' \
+            's_question as s_question, NULL AS quests, NULL AS updates, ' \
+            'NULL AS q_quests' \
             % (
                 request.user.username, then,
                 request.user.username, then,
@@ -750,10 +751,10 @@ class MeViewSet(mixins.UpdateModelMixin,
                         news_article['created']).replace(microsecond=0)
                     article_html = render_to_string(
                         'post_news.html', RequestContext(request, news_article))
-            elif row.campaigns is not None:
-                row.campaigns.pull()
-                news_article = PoliticalCampaignSerializer(
-                    PoliticalCampaign.inflate(row.campaigns),
+            elif row.quests is not None:
+                row.quests.pull()
+                news_article = QuestSerializer(
+                    Quest.inflate(row.quests),
                     context={'request': request}).data
                 if html == "true":
                     news_article['created'] = parser.parse(
@@ -763,12 +764,12 @@ class MeViewSet(mixins.UpdateModelMixin,
                         RequestContext(request, news_article))
             elif row.updates is not None:
                 row.updates.pull()
-                row.q_campaigns.pull()
+                row.q_quests.pull()
                 news_article = UpdateSerializer(
                     Update.inflate(row.updates),
                     context={'request': request}).data
-                news_article['campaign'] = PoliticalCampaignSerializer(
-                    PoliticalCampaign.inflate(row.q_campaigns),
+                news_article['campaign'] = QuestSerializer(
+                    Quest.inflate(row.q_quests),
                     context={'request': request}).data
                 if html == "true":
                     news_article['last_edited_on'] = parser.parse(
@@ -791,7 +792,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                 permission_classes=(IsAuthenticated,))
     def donations(self, request):
         query = 'MATCH (a:Pleb {username:"%s"})-[:DONATIONS_GIVEN]->' \
-                '(d:Donation) WHERE (d)-[:DONATED_TO]->(:Campaign) RETURN d' % \
+                '(d:Donation) WHERE (d)-[:DONATED_TO]->(:Mission) RETURN d' % \
                 request.user.username
         res, _ = db.cypher_query(query)
         queryset = [Donation.inflate(row[0]) for row in res]

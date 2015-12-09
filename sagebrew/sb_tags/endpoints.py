@@ -30,6 +30,7 @@ class TagViewSet(viewsets.ModelViewSet):
             query_mod = "WHERE NOT t:AutoTag"
         query = "MATCH (t:Tag) %s RETURN t" % query_mod
         res, col = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [Tag.inflate(row[0]) for row in res]
 
     def create(self, request, *args, **kwargs):

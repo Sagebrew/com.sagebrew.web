@@ -25,6 +25,11 @@ class Update(TitledContent):
     goal = RelationshipTo('sb_goals.neo_models.Goal', "ABOUT")
     mission = RelationshipTo('sb_missions.neo_models.Mission', "ABOUT")
     seat = RelationshipTo('sb_quests.neo_models.Seat', "ABOUT")
+    quest = RelationshipTo('sb_quests.neo_models.Quest', "ABOUT")
+
+    # Helper function that can be associated with the serializer and gets
+    # the object the update is about.
+    about = RelationshipTo('sb_api.neo_models.SBObject', "ABOUT")
 
     # DEPRECATIONS
     # DEPRECATED: Goals are no longer the only thing that an update can be about

@@ -21,9 +21,10 @@ from sb_public_official.neo_models import PublicOfficial
 from plebs.neo_models import (Pleb, FriendRequest, Address, BetaUser,
                               PoliticalParty, ActivityInterest)
 from sb_privileges.neo_models import Privilege, SBAction
-from sb_quests.neo_models import Position, PoliticalCampaign
+from sb_quests.neo_models import Position, Quest
 from sb_updates.neo_models import Update
 from sb_locations.neo_models import Location
+from sb_missions.neo_models import Mission
 from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
 from sb_posts.neo_models import Post
@@ -235,19 +236,20 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_donations(self):
-        campaign = PoliticalCampaign(username=str(uuid1())).save()
+        campaign = Quest(owner_username=str(uuid1())).save()
+        mission = Mission(owner_username=campaign.owner_username).save()
+        campaign.missions.connect(mission)
         donation = Donation().save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
-        donation.campaign.connect(campaign)
-        campaign.donations.connect(donation)
+        donation.mission.connect(campaign)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-donations')
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_donations_html(self):
-        campaign = PoliticalCampaign(username=str(uuid1())).save()
+        campaign = Quest(username=str(uuid1())).save()
         donation = Donation().save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
@@ -906,7 +908,7 @@ class ProfileEndpointTests(APITestCase):
         for campaign in self.pleb.campaign.all():
             campaign.delete()
         cache.clear()
-        campaign = PoliticalCampaign(object_uuid=self.pleb.username).save()
+        campaign = Quest(object_uuid=self.pleb.username).save()
         campaign.owned_by.connect(self.pleb)
         self.pleb.campaign.connect(campaign)
         self.client.force_authenticate(user=self.user)
@@ -1703,8 +1705,8 @@ class PlebPresidentTest(APITestCase):
 
     def test_list_potential_presidents(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username,
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         position = Position(name="President").save()
         campaign.position.connect(position)
@@ -1724,8 +1726,8 @@ class PlebPresidentTest(APITestCase):
 
     def test_list_potential_presidents_cached(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username,
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         position = Position(name="President").save()
         campaign.position.connect(position)
@@ -1744,12 +1746,12 @@ class PlebPresidentTest(APITestCase):
 
     def test_list_potential_presidents_not_active(self):
         cache.clear()
-        for campaign in PoliticalCampaign.nodes.all():
+        for campaign in Quest.nodes.all():
             campaign.delete()
         for position in Position.nodes.all():
             position.delete()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username).save()
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
         position = Position(name="President").save()
         campaign.position.connect(position)
         position.campaigns.connect(campaign)
@@ -1766,12 +1768,12 @@ class PlebPresidentTest(APITestCase):
 
     def test_list_potential_presidents_html_no_presidents(self):
         cache.clear()
-        for campaign in PoliticalCampaign.nodes.all():
+        for campaign in Quest.nodes.all():
             campaign.delete()
         for position in Position.nodes.all():
             position.delete()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username
         ).save()
         position = Position(name="President").save()
         campaign.position.connect(position)
@@ -1788,8 +1790,8 @@ class PlebPresidentTest(APITestCase):
 
     def test_list_potential_presidents_html(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username,
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         position = Position(name="President").save()
         campaign.position.connect(position)
@@ -1981,8 +1983,8 @@ class PlebSenatorsTest(APITestCase):
 
     def test_list_potential_senators(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username,
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="Test Location", sector="federal").save()
         location2 = Location(name="Michigan", sector="federal").save()
@@ -2012,8 +2014,8 @@ class PlebSenatorsTest(APITestCase):
 
     def test_list_potential_senators_cached(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username,
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="Test Location", sector="federal").save()
         location2 = Location(name="Michigan", sector="federal").save()
@@ -2043,8 +2045,8 @@ class PlebSenatorsTest(APITestCase):
 
     def test_list_potential_senators_not_active(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username).save()
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
         location = Location(name="Test Location", sector="federal").save()
         location2 = Location(name="Michigan", sector="federal").save()
         position = Position(name="Test Position").save()
@@ -2072,8 +2074,8 @@ class PlebSenatorsTest(APITestCase):
 
     def test_list_potential_senators_html_no_senators(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username).save()
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
         location = Location(name="Test Location", sector="federal").save()
         location2 = Location(name="Michigan", sector="federal").save()
         position = Position(name="Test Position").save()
@@ -2100,8 +2102,8 @@ class PlebSenatorsTest(APITestCase):
 
     def test_list_potential_senators_html(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username,
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="Test Location", sector="federal").save()
         location2 = Location(name="Michigan", sector="federal").save()
@@ -2303,8 +2305,8 @@ class PlebHouseRepresentativeTest(APITestCase):
         address.save()
         address.owned_by.connect(self.pleb)
         self.pleb.address.connect(address)
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username,
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="11", sector="federal").save()
         position = Position(name="Test Position").save()
@@ -2331,8 +2333,8 @@ class PlebHouseRepresentativeTest(APITestCase):
 
     def test_list_potential_house_representative_cached(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username,
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="11", sector="federal").save()
         position = Position(name="Test Position").save()
@@ -2358,8 +2360,8 @@ class PlebHouseRepresentativeTest(APITestCase):
 
     def test_list_potential_house_representative_not_active(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username).save()
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
         location = Location(name="11", sector="federal").save()
         position = Position(name="Test Position").save()
 
@@ -2383,8 +2385,8 @@ class PlebHouseRepresentativeTest(APITestCase):
 
     def test_list_potential_house_representative_html_none(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username).save()
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
         location = Location(name="11").save()
         position = Position(name="Test Position").save()
 
@@ -2408,8 +2410,8 @@ class PlebHouseRepresentativeTest(APITestCase):
 
     def test_list_potential_house_representative_html(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username,
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="11", sector="federal").save()
         position = Position(name="Test Position").save()
@@ -2457,8 +2459,8 @@ class PlebLocalRepresentativeTest(APITestCase):
         address.save()
         address.owned_by.connect(self.pleb)
         self.pleb.address.connect(address)
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username,
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="Commerce Township", sector='local').save()
         position = Position(name="Test Position", level='local').save()
@@ -2485,8 +2487,8 @@ class PlebLocalRepresentativeTest(APITestCase):
 
     def test_list_potential_local_representative_cached(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username,
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="Commerce Township", sector='local').save()
         position = Position(name="Test Position", level='local').save()
@@ -2512,8 +2514,8 @@ class PlebLocalRepresentativeTest(APITestCase):
 
     def test_list_potential_local_representative_not_active(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username).save()
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
         location = Location(name="Commerce Township", sector='local').save()
         position = Position(name="Test Position", level='local').save()
 
@@ -2537,8 +2539,8 @@ class PlebLocalRepresentativeTest(APITestCase):
 
     def test_list_potential_local_representative_html_none(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username).save()
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
         location = Location(name="Commerce Township", sector='local').save()
         position = Position(name="Test Position", level='local').save()
 
@@ -2562,8 +2564,8 @@ class PlebLocalRepresentativeTest(APITestCase):
 
     def test_list_potential_local_representative_html(self):
         cache.clear()
-        campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username,
+        campaign = Quest(
+            about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         location = Location(name="Commerce Township", sector='local').save()
         position = Position(name="Test Position", level='local').save()
@@ -3222,11 +3224,11 @@ class NewsfeedTests(APITestCase):
     def test_get_campaigns(self):
         for update in Update.nodes.all():
             update.delete()
-        for quest in PoliticalCampaign.nodes.all():
+        for quest in Quest.nodes.all():
             quest.delete()
-        campaign = PoliticalCampaign(
-            active=True, biography="Hey there this is my campaign. "
-                                   "Feel free to drop me a line!",
+        campaign = Quest(
+            active=True, about="Hey there this is my campaign. "
+                               "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
@@ -3247,9 +3249,9 @@ class NewsfeedTests(APITestCase):
 
     def test_get_campaigns_website(self):
         website = "www.sagebrew.com"
-        campaign = PoliticalCampaign(
-            active=True, biography="Hey there this is my campaign. "
-                                   "Feel free to drop me a line!",
+        campaign = Quest(
+            active=True, about="Hey there this is my campaign. "
+                               "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website=website, owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
@@ -3269,9 +3271,9 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['results'][0]['website'], website)
 
     def test_get_campaigns_rendered(self):
-        campaign = PoliticalCampaign(
-            active=True, biography="Hey there this is my campaign. "
-                                   "Feel free to drop me a line!",
+        campaign = Quest(
+            active=True, about="Hey there this is my campaign. "
+                               "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
@@ -3291,9 +3293,9 @@ class NewsfeedTests(APITestCase):
         self.assertTrue('html' in response.data['results'][0])
 
     def test_get_campaigns_rendered_expedite(self):
-        campaign = PoliticalCampaign(
-            active=True, biography="Hey there this is my campaign. "
-                                   "Feel free to drop me a line!",
+        campaign = Quest(
+            active=True, about="Hey there this is my campaign. "
+                               "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
@@ -3313,9 +3315,9 @@ class NewsfeedTests(APITestCase):
         self.assertTrue('html' in response.data['results'][0])
 
     def test_get_campaigns_title(self):
-        campaign = PoliticalCampaign(
-            active=True, biography="Hey there this is my campaign. "
-                                   "Feel free to drop me a line!",
+        campaign = Quest(
+            active=True, about="Hey there this is my campaign. "
+                               "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
@@ -3338,11 +3340,11 @@ class NewsfeedTests(APITestCase):
     def test_get_campaign_updates(self):
         for update in Update.nodes.all():
             update.delete()
-        for quest in PoliticalCampaign.nodes.all():
+        for quest in Quest.nodes.all():
             quest.delete()
-        campaign = PoliticalCampaign(
-            active=True, biography="Hey there this is my campaign. "
-                                   "Feel free to drop me a line!",
+        campaign = Quest(
+            active=True, about="Hey there this is my campaign. "
+                               "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
@@ -3367,27 +3369,27 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['count'], 2)
 
     def test_get_campaign_update_content(self):
-        campaign = PoliticalCampaign(
-            active=True, biography="Hey there this is my campaign. "
-                                   "Feel free to drop me a line!",
+        quest = Quest(
+            active=True, about="Hey there this is my campaign. "
+                               "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
+        mission = Mission(owner_username=quest.owner_username).save()
+        quest.missions.connect(mission)
         content = "This is a new update"
         update = Update(content=content,
                         title="This is a title",
                         owner_username=self.pleb.username).save()
-        campaign.owned_by.connect(self.pleb)
-        update.campaign.connect(campaign)
-        campaign.updates.connect(update)
-        self.pleb.campaign.connect(campaign)
+        update.quest.connect(quest)
+        quest.updates.connect(update)
+        self.pleb.quest.connect(quest)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         usa.positions.connect(pres)
         pres.location.connect(usa)
-        campaign.position.connect(pres)
-        pres.campaigns.connect(campaign)
+        mission.position.connect(pres)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
@@ -3395,9 +3397,9 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['results'][0]['content'], content)
 
     def test_get_campaign_updates_rendered(self):
-        campaign = PoliticalCampaign(
-            active=True, biography="Hey there this is my campaign. "
-                                   "Feel free to drop me a line!",
+        campaign = Quest(
+            active=True, about="Hey there this is my campaign. "
+                               "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
@@ -3423,9 +3425,9 @@ class NewsfeedTests(APITestCase):
         self.assertTrue('html' in response.data['results'][1])
 
     def test_get_campaign_updates_rendered_expedite(self):
-        campaign = PoliticalCampaign(
-            active=True, biography="Hey there this is my campaign. "
-                                   "Feel free to drop me a line!",
+        campaign = Quest(
+            active=True, about="Hey there this is my campaign. "
+                               "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
@@ -3451,9 +3453,9 @@ class NewsfeedTests(APITestCase):
         self.assertTrue('html' in response.data['results'][1])
 
     def test_get_update_title(self):
-        campaign = PoliticalCampaign(
-            active=True, biography="Hey there this is my campaign. "
-                                   "Feel free to drop me a line!",
+        campaign = Quest(
+            active=True, about="Hey there this is my campaign. "
+                               "Feel free to drop me a line!",
             facebook="dbleibtrey", youtube="devonbleibtrey",
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,

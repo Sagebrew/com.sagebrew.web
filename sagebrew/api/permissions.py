@@ -60,7 +60,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 
 class IsOwnerOrEditorOrAccountant(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if (request.user.username in Campaign.get_campaign_helpers(obj)):
+        if request.user.username in Campaign.get_campaign_helpers(obj):
             return True
         else:
             return False
@@ -68,7 +68,7 @@ class IsOwnerOrEditorOrAccountant(permissions.BasePermission):
 
 class IsOwnerOrAccountant(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if (request.user.username in Campaign.get_accountants(obj)):
+        if request.user.username in Campaign.get_accountants(obj):
             return True
         else:
             return False
@@ -76,7 +76,7 @@ class IsOwnerOrAccountant(permissions.BasePermission):
 
 class IsOwnerOrEditor(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if (request.user.username in Campaign.get_editors(obj)):
+        if request.user.username in Campaign.get_editors(obj):
             return True
         else:
             return False

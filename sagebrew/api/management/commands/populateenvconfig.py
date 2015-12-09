@@ -319,4 +319,6 @@ def populate_general_values(data):
     data = data.replace("<QUEUE_PORT>", environ.get("QUEUE_PORT", ""))
     data = data.replace("<AWS_DEFAULT_REGION>",
                         environ.get("AWS_DEFAULT_REGION", ""))
+    data = data.replace("<SUNLIGHT_FOUNDATION_KEY>",
+                        environ.get("SUNLIGHT_FOUNDATION_KEY", ""))
     return data

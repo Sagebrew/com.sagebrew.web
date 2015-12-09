@@ -1,6 +1,9 @@
+from time import sleep
 import us
 import requests
+from simplejson.scanner import JSONDecodeError
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 
 from neomodel import db
@@ -21,10 +24,15 @@ class Command(BaseCommand):
             state_node = Location.inflate(res.one)
             abbr = state.abbr.lower()
             lookup_url = base_url % (abbr, "upper")
+            sleep(1)
             response = requests.get(
                 lookup_url,
-                headers={"content-type": 'application/json; charset=utf8'})
-            json_response = response.json()
+                headers={"content-type": 'application/json; charset=utf8'},
+                params={"apikey": settings.SUNLIGHT_FOUNDATION_KEY})
+            try:
+                json_response = response.json()
+            except JSONDecodeError:
+                print response.text
             for district in json_response:
                 query = 'MATCH (l:Location {object_uuid:"%s"}) WITH l ' \
                         'OPTIONAL MATCH (l)-[:ENCOMPASSES]->(l2:Location ' \
@@ -58,11 +66,18 @@ class Command(BaseCommand):
                     position.save()
 
             lookup_url = base_url % (abbr, "lower")
+            sleep(1)
+            print lookup_url
             response = requests.get(
                 lookup_url,
-                headers={"content-type": 'application/json; charset=utf8'})
-            json_response = response.json()
+                headers={"content-type": 'application/json; charset=utf8'},
+                params={"apikey": settings.SUNLIGHT_FOUNDATION_KEY})
+            try:
+                json_response = response.json()
+            except JSONDecodeError:
+                print response.text
             for district in json_response:
+
                 query = 'MATCH (l:Location {object_uuid:"%s"}) WITH l ' \
                         'OPTIONAL MATCH (l)-[:ENCOMPASSES]->(l2:Location ' \
                         '{name:"%s", sector:"state_lower"}) WITH l, l2 ' \

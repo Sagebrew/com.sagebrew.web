@@ -4,10 +4,170 @@ from django.core.cache import cache
 from rest_framework.reverse import reverse
 
 from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
-                      FloatProperty, DoesNotExist)
+                      FloatProperty, DoesNotExist, RelationshipFrom)
 
+from api.utils import deprecation
 from sb_base.neo_models import (VoteRelationship)
 from sb_search.neo_models import Searchable, SBObject
+
+
+class Quest(Searchable):
+    """
+    A Quest is about the individual or group and tracking thier progress
+    over the years. See Missions for their specific endeavours.
+    """
+    stripe_id = StringProperty(index=True, default="Not Set")
+    stripe_customer_id = StringProperty()
+    stripe_subscription_id = StringProperty()
+    # A Quest is always active after the stripe account has been activated.
+    # A Quest must have a Mission to take donations towards.
+    # TODO can we remove active?
+    active = BooleanProperty(default=False)
+    facebook = StringProperty()
+    linkedin = StringProperty()
+    youtube = StringProperty()
+    twitter = StringProperty()
+    website = StringProperty()
+    # About is a short string that allows the Quest to describe itself in 128
+    # characters
+    about = StringProperty()
+    # These are the wallpaper and profile specific to the campaign/action page
+    # That way they have separation between the campaign and their personal
+    # image.
+    wallpaper_pic = StringProperty()
+    profile_pic = StringProperty()
+    application_fee = FloatProperty(default=0.041)
+    last_four_soc = StringProperty()
+
+    # Optimizations
+    # Seat name and formal name have taken the place of position and are for
+    # storing the title of the seat a Quest currently holds.
+    seat_name = StringProperty()
+    seat_formal_name = StringProperty()
+
+    # Since a Quest can be associated with a group let's give them the option
+    # to set a title.
+    title = StringProperty()
+    # First and Last name are added to reduce potential additional queries
+    # when rendering potential representative html to a users profile page
+    first_name = StringProperty()
+    last_name = StringProperty()
+    owner_username = StringProperty()
+
+    # Relationships
+    # Since we currently only have one stripe account for a user we'll allow
+    # them to donate directly to the Quest rather than to a specific Mission.
+    donations = RelationshipTo('sb_donations.neo_models.Donation',
+                               'RECEIVED_DONATION')
+
+    updates = RelationshipTo('sb_updates.neo_models.Update', 'CREATED_AN')
+
+    # Pleb
+    # Access the Pleb that owns this Quest through:
+    # Neomodel: quest Cypher: IS_WAGING
+    # RelationshipTo('sb_plebs.neo_models.Pleb')
+
+    # Will be an endpoint with the usernames of all the users that can edit
+    # the page. That way we can easily check who has the right to modify
+    # the page. These names should not be public
+    editors = RelationshipFrom('plebs.neo_models.Pleb', 'EDITOR_OF')
+    moderators = RelationshipTo('plebs.neo_models.Pleb', 'MODERATOR_OF')
+
+    # Embarks on is a mission this Quest manages and is trying to accomplish.
+    # Donations to these missions come back to the Quest's account
+    missions = RelationshipTo('sb_missions.neo_models.Mission', "EMBARKS_ON")
+    # Endorses are missions the Quest is supporting. These should be linked to
+    # from the Quest page but are actively managed by other users/Quests.
+    # Donations to these missions do not come back to this Quest.
+    endorses = RelationshipTo('sb_missions.neo_models.Mission', "ENDORSES")
+    holds = RelationshipTo('sb_quests.neo_models.Seat', "HOLDS")
+
+    @classmethod
+    def get(cls, owner_username):
+        campaign = cache.get("%s_quest" % owner_username)
+        if campaign is None:
+            query = 'MATCH (c:Quest {owner_username: "%s"}) RETURN c' % \
+                    owner_username
+            res, col = db.cypher_query(query)
+            try:
+                campaign = cls.inflate(res[0][0])
+                cache.set("%s_quest" % owner_username, campaign)
+                return campaign
+            except IndexError:
+                raise DoesNotExist("Quest does not exist")
+        return campaign
+
+    @classmethod
+    def get_editors(cls, object_uuid):
+        editors = cache.get("%s_editors" % object_uuid)
+        if editors is None:
+            query = 'MATCH (c:Quest {object_uuid: "%s"})<-' \
+                    '[:EDITOR_OF]-(p:Pleb) RETURN p.username' % (
+                        object_uuid)
+            res, col = db.cypher_query(query)
+            editors = [row[0] for row in res]
+            cache.set("%s_editors" % object_uuid, editors)
+        return editors
+
+    @classmethod
+    def get_accountants(cls, object_uuid):
+        accountants = cache.get("%s_accountants" % object_uuid)
+        if accountants is None:
+            query = 'MATCH (c:Quest {object_uuid: "%s"})<-' \
+                    '[:MODERATOR_OF]-(p:Pleb) RETURN p.username' \
+                    % object_uuid
+            res, col = db.cypher_query(query)
+            accountants = [row[0] for row in res]
+            cache.set("%s_accountants" % object_uuid, accountants)
+        return accountants
+
+    @classmethod
+    def get_quest_helpers(cls, object_uuid):
+        return cls.get_accountants(object_uuid) + cls.get_editors(object_uuid)
+
+    @classmethod
+    def get_url(cls, object_uuid, request):
+        query = 'MATCH (c:Quest {object_uuid:"%s"})<-' \
+                '[:IS_WAGING]-(p:Pleb) return p.username' % object_uuid
+        res, _ = db.cypher_query(query)
+        try:
+            return reverse('quest_saga',
+                           kwargs={"username": res.one},
+                           request=request)
+        except IndexError:
+            return None
+
+    @classmethod
+    def get_updates(cls, object_uuid):
+        updates = cache.get("%s_updates" % object_uuid)
+        if updates is None:
+            query = 'MATCH (c:Quest {object_uuid:"%s"})-[:CREATED_AN]->' \
+                    '(u:Update) WHERE u.to_be_deleted=false ' \
+                    'RETURN u.object_uuid' % object_uuid
+            res, col = db.cypher_query(query)
+            updates = [row[0] for row in res]
+            cache.set("%s_updates" % object_uuid, updates)
+        return updates
+
+    def get_public_official(self):
+        """
+        DEPRECATED
+        :return:
+        """
+        from sb_public_official.neo_models import PublicOfficial
+        public_official = cache.get("%s_public_official" % self.owner_username)
+        if public_official is None:
+            query = "MATCH (r:`Campaign` {object_uuid:'%s'})-" \
+                    "[:HAS_PUBLIC_OFFICIAL]->(p:`PublicOfficial`) RETURN p" \
+                    % self.owner_username
+            res, _ = db.cypher_query(query)
+            try:
+                public_official = PublicOfficial.inflate(res[0][0])
+                cache.set("%s_public_official" % self.owner_username,
+                          public_official)
+            except IndexError:
+                public_official = None
+        return public_official
 
 
 class Campaign(Searchable):
@@ -78,15 +238,16 @@ class Campaign(Searchable):
     last_four_soc = StringProperty()
 
     # Optimizations
-    position_name = StringProperty()
     location_name = StringProperty()
-    position_formal_name = StringProperty()
+    # Seat name and formal name have taken the place of position and are for
+    # storing the title of the seat a Quest currently holds.
+    seat_name = StringProperty()
+    seat_formal_name = StringProperty()
 
     # Relationships
     donations = RelationshipTo('sb_donations.neo_models.Donation',
                                'RECEIVED_DONATION')
-    goals = RelationshipTo('sb_goals.neo_models.Goal', "HAS_GOAL")
-    rounds = RelationshipTo('sb_goals.neo_models.Round', 'HAS_ROUND')
+
     updates = RelationshipTo('sb_updates.neo_models.Update', 'HAS_UPDATE')
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'WAGED_BY')
     # Will be an endpoint with the usernames of all the users that can edit
@@ -95,14 +256,32 @@ class Campaign(Searchable):
     editors = RelationshipTo('plebs.neo_models.Pleb', 'CAN_BE_EDITED_BY')
     accountants = RelationshipTo('plebs.neo_models.Pleb',
                                  'CAN_VIEW_MONETARY_DATA')
-    position = RelationshipTo('sb_quests.neo_models.Position',
-                              'RUNNING_FOR')
+
+    public_official = RelationshipTo(
+        'sb_public_official.neo_models.PublicOfficial', 'HAS_PUBLIC_OFFICIAL')
+    # Embarks on is a mission this Quest manages and is trying to accomplish.
+    # Donations to these missions come back to the Quest's account
+    missions = RelationshipTo('sb_missions.neo_models.Mission', "EMBARKS_ON")
+    # Endorses are missions the Quest is supporting. These should be linked to
+    # from the Quest page but are actively managed by other users/Quests.
+    # Donations to these missions do not come back to this Quest.
+    endorses = RelationshipTo('sb_missions.neo_models.Mission', "ENDORSES")
+
+    # DEPRECATIONS
+    # DEPRECATED: Rounds are now deprecated and should not be used
+    rounds = RelationshipTo('sb_goals.neo_models.Round', 'HAS_ROUND')
     active_round = RelationshipTo('sb_goals.neo_models.Round',
                                   "CURRENT_ROUND")
     upcoming_round = RelationshipTo('sb_goals.neo_models.Round',
                                     "UPCOMING_ROUND")
-    public_official = RelationshipTo(
-        'sb_public_official.neo_models.PublicOfficial', 'HAS_PUBLIC_OFFICIAL')
+    # DEPRECATED: Running for a position is now handled by an attached Mission
+    position = RelationshipTo('sb_quests.neo_models.Position',
+                              'RUNNING_FOR')
+    position_formal_name = StringProperty()
+    position_name = StringProperty()
+    # DEPRECATED: Goals are now associated with Missions rather than the Quest
+    # directly
+    goals = RelationshipTo('sb_goals.neo_models.Goal', "HAS_GOAL")
 
     @classmethod
     def get(cls, object_uuid):
@@ -162,6 +341,7 @@ class Campaign(Searchable):
 
     @classmethod
     def get_rounds(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         rounds = cache.get("%s_rounds" % object_uuid)
         if rounds is None:
             query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
@@ -175,6 +355,7 @@ class Campaign(Searchable):
 
     @classmethod
     def get_active_goals(cls, object_uuid):
+        deprecation("Goals should no longer be attached directly to a Quest")
         active_goals = cache.get("%s_active_goals" % object_uuid)
         if active_goals is None:
             query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
@@ -186,23 +367,9 @@ class Campaign(Searchable):
             cache.set("%s_active_goals" % object_uuid, active_goals)
         return active_goals
 
-    '''
-    @classmethod
-    def get_current_target_goal(cls, object_uuid):
-        target_goal = cache.get("%s_target_goal" % (object_uuid))
-        if target_goal is None:
-            query = "MATCH (c:`Campaign` {object_uuid:'%s'})-[:HAS_GOAL]->" \
-                    "(g:`Goal`) WHERE g.target=true RETURN g" % (object_uuid)
-            res, col = db.cypher_query(query)
-            try:
-                target_goal = res[0][0]
-            except IndexError:
-                target_goal = None
-        return target_goal
-    '''
-
     @classmethod
     def get_active_round(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         active_round = cache.get("%s_active_round" % object_uuid)
         if active_round is None:
             query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
@@ -218,6 +385,7 @@ class Campaign(Searchable):
 
     @classmethod
     def get_upcoming_round(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         upcoming_round = cache.get("%s_upcoming_round" % object_uuid)
         if upcoming_round is None:
             query = "MATCH (c:`Campaign` {object_uuid:'%s'})-" \
@@ -245,6 +413,8 @@ class Campaign(Searchable):
 
     @classmethod
     def get_position(cls, object_uuid):
+        deprecation("Positions are now linked to a Mission rather than "
+                    "directly to the Quest")
         position = cache.get("%s_position" % object_uuid)
         if position is None:
             query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:RUNNING_FOR]->" \
@@ -276,6 +446,8 @@ class Campaign(Searchable):
     @classmethod
     def get_unassigned_goals(cls, object_uuid):
         from sb_goals.neo_models import Goal
+        deprecation("Goals are now attached to Missions and should not be "
+                    "associated directly with a Quest")
         query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:HAS_GOAL]->' \
                 '(g:Goal) WHERE NOT (g)-[:PART_OF]->(:Round) RETURN g ' \
                 'ORDER BY g.monetary_requirement' % object_uuid
@@ -284,6 +456,7 @@ class Campaign(Searchable):
 
     @classmethod
     def get_active_round_donation_total(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
                 '(r:Round)-[:HAS_DONATIONS]-(d:Donation) ' \
                 'RETURN sum(d.amount)' % object_uuid
@@ -309,6 +482,8 @@ class Campaign(Searchable):
 
     @classmethod
     def get_target_goal_donation_requirement(cls, object_uuid):
+        deprecation("Goals are now attached to Missions and should not be "
+                    "associated directly with a Quest")
         query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
                 '(r:Round)-[:STRIVING_FOR]->(g:Goal {target:true}) ' \
                 'RETURN g.total_required' \
@@ -318,6 +493,8 @@ class Campaign(Searchable):
 
     @classmethod
     def get_target_goal_pledge_vote_requirement(cls, object_uuid):
+        deprecation("Goals are now attached to Missions and should not be "
+                    "associated directly with a Quest")
         query = 'MATCH (c:Campaign {object_uuid:"%s"})-[:CURRENT_ROUND]->' \
                 '(r:Round)-[:STRIVING_FOR]->(g:Goal {target:true}) ' \
                 'RETURN g.pledged_vote_requirement' % object_uuid
@@ -326,6 +503,8 @@ class Campaign(Searchable):
 
     @classmethod
     def get_position_level(cls, object_uuid):
+        deprecation("Positions are now linked to a Mission rather than "
+                    "directly to the Quest")
         level = cache.get("%s_position_level" % object_uuid)
         if level is None:
             query = "MATCH (r:`Campaign` {object_uuid:'%s'})-[:RUNNING_FOR]->" \
@@ -338,6 +517,8 @@ class Campaign(Searchable):
 
     @classmethod
     def get_position_location(cls, object_uuid):
+        deprecation("Positions are now linked to a Mission rather than "
+                    "directly to the Quest")
         return Position.get_location(cls.get_position(object_uuid))
 
     @classmethod
@@ -383,6 +564,8 @@ class PoliticalCampaign(Campaign):
     # reps, and presidents that can be voted on by the different users.
     constituents = RelationshipTo('plebs.neo_models.Pleb',
                                   'POTENTIAL_REPRESENTATIVE_FOR')
+
+    # Seat
     # current_seat = RelationshipTo('sb_quests.neo_models.Seat', "CURRENT_SEAT")
     # Can access current_seat by using the relationship on seats:
     # CURRENTLY_HELD_BY going from the Seat to the Quest
@@ -500,6 +683,11 @@ class PoliticalCampaign(Campaign):
 class Position(SBObject):
     name = StringProperty()
     full_name = StringProperty()
+    # Valid Levels:
+    #     state_upper - State Senator Districts
+    #     state_lower - State House Representative Districts
+    #     federal - U.S. Federal Districts (House of Reps)
+    #     local - Everything else :)
     level = StringProperty(default="federal")
 
     location = RelationshipTo('sb_locations.neo_models.Location',

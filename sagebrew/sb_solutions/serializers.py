@@ -15,6 +15,7 @@ from .neo_models import Solution
 
 
 class SolutionSerializerNeo(MarkdownContentSerializer):
+    content = serializers.CharField(min_length=15)
     href = serializers.HyperlinkedIdentityField(view_name='solution-detail',
                                                 lookup_field="object_uuid")
     solution_to = serializers.SerializerMethodField()

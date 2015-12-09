@@ -68,6 +68,31 @@ var controller_map = [
         controller: "registration",
         match_method: "path",
         check: "^registration/profile_picture"
+    },
+    {
+        controller: "section-mission-temp",
+        match_method: "path",
+        check: "^quest/mission/public_office"
+    },
+    {
+        controller: "section-mission-advocate-temp",
+        match_method: "path",
+        check: "^quest/mission/advocate"
+    },
+    {
+        controller: "section-mission-select-temp",
+        match_method: "path",
+        check: "^quest/mission/select"
+    },
+    {
+        controller: "section-quest-temp",
+        match_method: "path",
+        check: "^quests\/([A-Za-z0-9.@_%+-]{2,36})"
+    },
+    {
+        controller: "section-single-object-page",
+        match_method: "path",
+        check: "^questions|solutions|posts/([A-Za-z0-9.@_%+-]{36})"
     }
 ];
 

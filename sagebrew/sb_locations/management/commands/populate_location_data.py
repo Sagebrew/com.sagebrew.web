@@ -2,7 +2,7 @@ import os
 import us
 from json import loads, dumps
 
-from neomodel import DoesNotExist, db
+from neomodel import DoesNotExist, db, MultipleNodesReturned
 
 from django.core.management.base import BaseCommand
 
@@ -35,6 +35,8 @@ class Command(BaseCommand):
                         state = Location(name=state_name,
                                          geo_data=dumps(
                                              file_data['coordinates'])).save()
+                    except MultipleNodesReturned:
+                        continue
                     usa.encompasses.connect(state)
                     state.encompassed_by.connect(usa)
                     if not state.positions.all():
@@ -49,8 +51,11 @@ class Command(BaseCommand):
                     state, district = district_data.split('-')
                     if not int(district):
                         district = 1
-                    state_node = Location.nodes.get(
-                        name=us.states.lookup(state).name)
+                    try:
+                        state_node = Location.nodes.get(
+                            name=us.states.lookup(state).name)
+                    except MultipleNodesReturned:
+                        continue
                     with open(root + "/shape.geojson") as geo_data:
                         file_data = loads(geo_data.read())
                         query = 'MATCH (l:Location {name:"%s"})-' \

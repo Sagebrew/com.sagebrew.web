@@ -22,7 +22,7 @@ from sb_public_official.serializers import PublicOfficialSerializer
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
 
-from .neo_models import (Campaign, PoliticalCampaign, Position)
+from .neo_models import (Campaign, PoliticalCampaign, Position, Quest)
 
 
 class AllowVoteValidator:
@@ -79,9 +79,6 @@ class CampaignSerializer(SBSerializer):
     total_pledge_vote_amount = serializers.SerializerMethodField()
     target_goal_donation_requirement = serializers.SerializerMethodField()
     target_goal_pledge_vote_requirement = serializers.SerializerMethodField()
-
-    def create(self, validated_data):
-        raise NotImplementedError
 
     def update(self, instance, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -318,6 +315,223 @@ class CampaignSerializer(SBSerializer):
         if obj.stripe_customer_id is None:
             return False
         return True
+
+
+class QuestSerializer(SBSerializer):
+    active = serializers.BooleanField(required=False, read_only=True)
+    about = serializers.CharField(required=False, allow_blank=True,
+                                  max_length=128)
+    facebook = serializers.CharField(required=False, allow_blank=True)
+    linkedin = serializers.CharField(required=False, allow_blank=True)
+    youtube = serializers.CharField(required=False, allow_blank=True)
+    twitter = serializers.CharField(required=False, allow_blank=True)
+    website = serializers.CharField(required=False, allow_blank=True)
+    wallpaper_pic = serializers.CharField(required=False)
+    profile_pic = serializers.CharField(required=False)
+    owner_username = serializers.CharField(read_only=True)
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
+
+    url = serializers.SerializerMethodField()
+    href = serializers.SerializerMethodField()
+    updates = serializers.SerializerMethodField()
+    is_editor = serializers.SerializerMethodField()
+    is_accountant = serializers.SerializerMethodField()
+    completed_stripe = serializers.SerializerMethodField()
+    completed_customer = serializers.SerializerMethodField()
+
+    # DEPRECATED
+    public_official = serializers.SerializerMethodField()
+
+    def create(self, validated_data):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        request = self.context.get('request', None)
+        account_type = validated_data.get('account_type', None)
+        owner = Pleb.get(username=request.user.username)
+        if account_type == 'paid':
+            validated_data['application_fee'] = 0.021
+
+        if owner.get_quest():
+            raise ValidationError(
+                detail={"detail": "You may only have one Quest!",
+                        "developer_message": "",
+                        "status_code": status.HTTP_400_BAD_REQUEST})
+        quest = Quest(first_name=owner.first_name, last_name=owner.last_name,
+                      owner_username=owner.username, object_uuid=owner.username,
+                      profile_pic=owner.profile_pic).save()
+
+        owner.quest.connect(quest)
+        quest.editors.connect(owner)
+        quest.moderators.connect(owner)
+        # TODO @tyler why do we store this on the Pleb?
+        if owner.stripe_account is None:
+            stripe_res = stripe.Account.create(managed=True, country="US",
+                                               email=owner.email)
+            owner.stripe_account = stripe_res['id']
+            owner.save()
+        account = stripe.Account.retrieve(owner.stripe_account)
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        account.legal_entity.additional_owners = []
+        account.tos_acceptance.ip = ip
+        account.tos_acceptance.date = int(time.time())
+        account.save()
+        # Potential optimization in combining these utilizing a transaction
+        # Added these to ensure that the user has intercom when they hit the
+        # Quest page for the first time. The privilege still is fired through
+        # the spawn_task as a backup and to ensure all connections are made
+        # correctly
+        epoch_date = datetime(1970, 1, 1, tzinfo=pytz.utc)
+        query = 'MATCH (a:Pleb { username: "%s" }),' \
+                '(b:Privilege {name: "quest"}) CREATE UNIQUE ' \
+                '(a)-[r:HAS {active: true, gained_on: %f}]->(b) RETURN r' % (
+                    owner.username, float((datetime.now(pytz.utc) -
+                                           epoch_date).total_seconds()))
+        db.cypher_query(query)
+        cache.set("%s_quest" % quest.object_uuid, quest)
+        cache.delete(owner.username)
+        cache.set("%s_privileges" % owner.username,
+                  owner.get_privileges(cache_buster=True))
+        cache.set("%s_actions" % owner.username,
+                  owner.get_actions(cache_buster=True))
+        spawn_task(task_func=check_privileges,
+                   task_param={"username": owner.username})
+        return quest
+
+    def update(self, instance, validated_data):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe_token = validated_data.pop('stripe_token', None)
+        customer_token = validated_data.pop('customer_token', None)
+        ein = validated_data.pop('ein', None)
+        ssn = validated_data.pop('ssn', None)
+        instance.active = validated_data.pop('activate', instance.active)
+        instance.facebook = validated_data.get('facebook', instance.facebook)
+        instance.linkedin = validated_data.get('linkedin', instance.linkedin)
+        instance.youtube = validated_data.get('youtube', instance.youtube)
+        instance.twitter = validated_data.get('twitter', instance.twitter)
+        instance.website = validated_data.get('website', instance.website)
+        instance.wallpaper_pic = validated_data.get('wallpaper_pic',
+                                                    instance.wallpaper_pic)
+        instance.profile_pic = validated_data.get('profile_pic',
+                                                  instance.profile_pic)
+        owner = Pleb.get(username=instance.owner_username)
+        if customer_token is not None:
+            customer = stripe.Customer.create(
+                description="Customer for %s Quest" % instance.object_uuid,
+                card=customer_token,
+                email=owner.email
+            )
+            instance.stripe_customer_id = customer['id']
+            sub = customer.subscriptions.create(plan='quest_premium')
+            instance.stripe_subscription_id = sub['id']
+        if stripe_token is not None:
+            if owner.stripe_account is None:
+                stripe_res = stripe.Account.create(managed=True, country="US",
+                                                   email=owner.email)
+                owner.stripe_account = stripe_res['id']
+                owner.save()
+            owner_address = owner.get_address()
+            instance.stripe_id = owner.stripe_account
+            account = stripe.Account.retrieve(owner.stripe_account)
+            account.external_accounts.create(external_account=stripe_token)
+            account.legal_entity.additional_owners = []
+            account.legal_entity.personal_id_number = ssn
+            if ein:
+                account.legal_entity.business_tax_id = ein
+            account.legal_entity.first_name = owner.first_name
+            account.legal_entity.last_name = owner.last_name
+            account.legal_entity.type = "company"
+            account.legal_entity.dob = dict(
+                day=owner.date_of_birth.day,
+                month=owner.date_of_birth.month,
+                year=owner.date_of_birth.year
+            )
+            account.legal_entity.address.line1 = owner_address.street
+            if owner_address.street_additional == "":
+                owner_address.street_additional = None
+            account.legal_entity.address.line2 = \
+                owner_address.street_additional
+            account.legal_entity.address.city = owner_address.city
+            account.legal_entity.address.state = owner_address.state
+            account.legal_entity.address.postal_code = \
+                owner_address.postal_code
+            account.legal_entity.address.country = "US"
+            account.legal_entity.personal_address.line1 = owner_address.street
+            if owner_address.street_additional == "":
+                owner_address.street_additional = None
+            account.legal_entity.personal_address.line2 = \
+                owner_address.street_additional
+            account.legal_entity.personal_address.city = owner_address.city
+            account.legal_entity.personal_address.state = owner_address.state
+            account.legal_entity.personal_address.postal_code = \
+                owner_address.postal_code
+            account.legal_entity.personal_address.country = \
+                owner_address.country
+            account.save()
+            instance.last_four_soc = ssn[-4:]
+        instance.save()
+        instance.refresh()
+        cache.set("%s_quest" % instance.object_uuid, instance)
+        return instance
+
+    def get_url(self, obj):
+        if obj.owner_username is not None and obj.owner_username != "":
+            # We need a try catch here as there are some campaigns that have
+            # username set but may not have a Pleb. This is only seen in tests
+            # and has not been observed in production.
+            username = obj.owner_username
+        else:
+            username = obj.object_uuid
+        return reverse('quest_saga',
+                       kwargs={"username": username},
+                       request=self.context.get('request', None))
+
+    def get_href(self, obj):
+        return reverse('campaign-detail',
+                       kwargs={'object_uuid': obj.object_uuid},
+                       request=self.context.get('request', None))
+
+    def get_updates(self, obj):
+        request, _, _, relation, _ = gather_request_data(self.context)
+        updates = Quest.get_updates(obj.object_uuid)
+        if relation == 'hyperlink':
+            return [reverse('update-detail',
+                            kwargs={'object_uuid': update},
+                            request=request) for update in updates]
+        return updates
+
+    def get_completed_stripe(self, obj):
+        if obj.stripe_id == "Not Set":
+            return False
+        return True
+
+    def get_is_editor(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return request.user.username in Quest.get_editors(obj.object_uuid)
+
+    def get_is_accountant(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return request.user.username in Quest.get_accountants(obj.object_uuid)
+
+    def get_completed_customer(self, obj):
+        if obj.stripe_customer_id is None:
+            return False
+        return True
+
+    def get_public_official(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        public_official = PublicOfficialSerializer(
+            obj.get_public_official()).data
+        if not public_official:
+            return None
+        return public_official
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):
@@ -581,11 +795,11 @@ class PositionSerializer(SBSerializer):
 
 class PositionManagerSerializer(SBSerializer):
     name = serializers.CharField()
-
-    location_name = serializers.CharField(
-        allow_blank=True)
-    location_uuid = serializers.CharField(
-        allow_blank=True)
+    level = serializers.ChoiceField(required=True, choices=[
+        ('local', "Local"), ('state', "State"),
+        ('federal', "Federal")])
+    location_name = serializers.CharField(allow_blank=True)
+    location_uuid = serializers.CharField(allow_blank=True)
 
     def create(self, validated_data):
         location = None

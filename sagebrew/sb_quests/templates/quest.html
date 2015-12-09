@@ -1,0 +1,120 @@
+{% extends "quest_base.html" %}
+{% load staticfiles %}
+{% block title %}
+    {{ first_name }}'s Quest
+{% endblock title %}
+{% block description %}
+    <meta name="description" content="{{ description }}">
+{% endblock description %}
+{% block keywords %}
+    {% if keywords %}
+        <meta name="keywords" content="{{ keywords }}">
+    {% endif %}
+    <meta name="author" content="{{ first_name }} {{ last_name }}">
+{% endblock keywords %}
+{% block content %}
+    <div class="row quest">
+        <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
+            <h1>Title XS</h1>
+        </div>
+        <div class="col-xs-12 col-sm-7 quest-wallpaper">
+            {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
+            <img class="fill" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+        </div>
+        <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
+            <button class="btn btn-primary sb_btn_fill" id="js-donate-btn">Donate</button>
+        </div>
+        <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
+            <button class="btn btn-primary sb_btn_fill" id="js-donate-btn">Follow</button>
+        </div>
+        <div class="hidden-xs col-sm-5">
+            <div class="col-sm-12">
+                <h1>{{ first_name }} {{ last_name }}</h1>
+            </div>
+            <div class="col-sm-12">
+                {% if public_official %}
+                    {% if public_official.title != "President" and public_official.title != "Vice President" %}
+                      <p>{{ public_official.title }} from {{ public_official.state }}</p>
+                    {% else %}
+                      <p>{{ public_official.title }}</p>
+                    {% endif %}
+                {% else %}
+                    <p>{{ seat_formal_name }}</p>
+                {% endif %}
+            </div>
+            <div class="col-sm-12">
+                <h3>About</h3>
+                <p>{{ about|default_if_none:"A short summary about the Quest Owner or Group in about 128 characters. We can increase or decrease the amount we enable based on" }}</p>
+            </div>
+            <div class="col-sm-6">
+                <button class="btn btn-primary sb_btn_fill" id="js-donate-btn">Donate</button>
+            </div>
+            <div class="col-sm-6">
+                <button class="btn btn-primary sb_btn_fill" id="js-donate-btn">Follow</button>
+            </div>
+        </div>
+    </div>
+    <div class="row quest-secondary-nav">
+        <div class="col-xs-2">
+            Missions
+        </div>
+        <div class="col-xs-2">
+            Updates
+        </div>
+        <div class="col-xs-2">
+            Conversations
+        </div>
+        <div class="col-xs-2">
+            Completed Missions
+        </div>
+        <div class="col-xs-2">
+            Political Information
+        </div>
+    </div>
+    <div class="row quest-header-temp">
+        <div class="col-xs-12">
+            <h2>Missions</h2>
+            <div class="deco-line-interests"></div>
+        </div>
+    </div>
+    <div class="row quest">
+        <div class="col-xs-12">
+            <div id="js-mission-list"></div>
+            <div class="col-xs-12 col-sm-4">
+                <div class="radio-image-selector js-position" id="js-add-mission">
+                    <h4 class="sb-profile-not-friend-header">Embark on a Mission</h4>
+                    <div class="row radio-image-selector-image-wrapper">
+                        <img class="radio-image-selector-image" src="{% static 'images/plus_bw.png' %}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row quest-header-temp">
+        <div class="col-xs-12">
+            <h2>Endorsed</h2>
+            <div class="deco-line-interests"></div>
+        </div>
+    </div>
+    <div class="row quest">
+        <div class="col-xs-12">
+            <div id="js-endorsed-list"></div>
+            <div class="col-xs-12 col-sm-4">
+                <div class="radio-image-selector js-position" id="{{ name }}">
+                    <h4 class="sb-profile-not-friend-header">Find a Mission to Endorse</h4>
+                    <div class="row radio-image-selector-image-wrapper">
+                        <img class="radio-image-selector-image" src="{% static 'images/glass_bw.png' %}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block scripts %}
+    {{ block.super }}
+{% endblock scripts %}
+{% block intercom %}
+    {% if request.user.username == id %}
+    Intercom('trackEvent', 'visited-own-quest');
+    {% endif %}
+{% endblock %}

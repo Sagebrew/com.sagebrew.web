@@ -1,3 +1,4 @@
+import warnings
 import time
 from logging import getLogger
 import pytz
@@ -101,7 +102,7 @@ def refresh_oauth_access_token(refresh_token, url, client_id=None,
         logger.critical("Debugging oauth refresh issue")
         logger.critical(dumps(data))
 
-    return
+    return json_response
 
 
 def check_oauth_needs_refresh(oauth_client):
@@ -274,3 +275,7 @@ def flatten_lists(unflattened_list):
                 yield sub
         else:
             yield element
+
+
+def deprecation(message):
+    warnings.warn(message, DeprecationWarning, stacklevel=2)

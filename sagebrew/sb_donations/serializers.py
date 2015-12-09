@@ -175,6 +175,25 @@ class DonationSerializer(SBSerializer):
                            request=request)
         return mission.object_uuid
 
+    def get_quest(self, obj):
+        from sb_quests.neo_models import Quest
+        from sb_quests.serializers import QuestSerializer
+        request, expand, _, relation, _ = gather_request_data(self.context)
+        query = 'MATCH (d:Donation {object_uuid: "%s"})-[:CONTRIBUTED_TO]->' \
+                '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
+                'RETURN quest' % obj.object_uuid
+        res, _ = db.cypher_query(query)
+        if res is None:
+            return None
+        quest = Quest.inflate(res.one)
+        if expand == 'true':
+            return QuestSerializer(quest).data
+        if relation == "hyperlink":
+            return reverse('quest-detail',
+                           kwargs={"object_uuid": quest.object_uuid},
+                           request=request)
+        return quest.owner_username
+
 
 class DonationExportSerializer(serializers.Serializer):
     completed = serializers.BooleanField(read_only=True)

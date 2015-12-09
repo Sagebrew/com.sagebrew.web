@@ -3460,7 +3460,6 @@ class NewsfeedTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true" % reverse('me-newsfeed')
         response = self.client.get(url, format='json')
-        print response.data
         self.assertTrue('html' in response.data['results'][0])
         self.assertTrue('html' in response.data['results'][1])
 

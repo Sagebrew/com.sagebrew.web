@@ -380,7 +380,7 @@ class Pleb(Searchable):
 
     def get_campaign(self):
         query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Quest) ' \
-                'RETURN c.object_uuid' % self.username
+                'RETURN c.owner_username' % self.username
         res, _ = db.cypher_query(query)
         return res.one
 

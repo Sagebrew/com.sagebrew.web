@@ -249,11 +249,11 @@ class PlebSerializerNeo(SBSerializer):
     def get_campaign(self, obj):
         request, expand, _, _, _ = gather_request_data(
             self.context, expand_param=self.context.get('expand', None))
-        campaign = obj.get_campaign()
-        if expand == 'true' and campaign is not None:
-            return QuestSerializer(Quest.get(campaign),
+        quest = obj.get_campaign()
+        if expand == 'true' and quest is not None:
+            return QuestSerializer(Quest.get(quest),
                                    context={'request': request}).data
-        return campaign
+        return quest
 
     def get_is_following(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)

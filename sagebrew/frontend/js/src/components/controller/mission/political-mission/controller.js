@@ -3,10 +3,10 @@
 var politician = require('./partials/politicianmission');
 
 export const meta = {
-    controller: "section-mission-temp",
+    controller: "mission/political-mission",
     match_method: "path",
     check: [
-       "^quest/mission/public_office"
+       "^quest/mission/public_office$"
     ]
 };
 

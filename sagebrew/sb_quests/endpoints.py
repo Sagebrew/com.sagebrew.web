@@ -56,9 +56,6 @@ class QuestViewSet(viewsets.ModelViewSet):
                         "status": status.HTTP_501_NOT_IMPLEMENTED},
                        status.HTTP_501_NOT_IMPLEMENTED)
 
-    def perform_update(self, serializer):
-        serializer.save()
-
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated, IsOwnerOrEditor))
     def editors(self, request, object_uuid=None):

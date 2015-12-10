@@ -2,13 +2,17 @@
 // based on the new layout @mwisner is working on in #720
 var quest = require('./partials/quest');
 
+/**
+ * Meta.
+ */
 export const meta = {
     controller: "section-quest-temp",
     match_method: "path",
     check: [
-       "^quests/\/([A-Za-z0-9.@_%+-]{2,36})"
+        "^quests\/[A-Za-z0-9.@_%+-]{2,36}$"
     ]
 };
+
 
 
 /**

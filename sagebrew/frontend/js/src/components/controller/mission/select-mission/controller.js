@@ -1,12 +1,12 @@
 // TODO this could be split into seperate dirs within the quest section
 // based on the new layout @mwisner is working on in #720
-var advocate = require('./partials/advocatemission');
+var missionSelect = require('./partials/missionselect');
 
 export const meta = {
-    controller: "section-mission-advocate-temp",
+    controller: "mission/select-mission",
     match_method: "path",
     check: [
-       "^quest/mission/advocate"
+       "^quest/mission/select$"
     ]
 };
 
@@ -23,7 +23,7 @@ export function init() {
  */
 export function load() {
     "use strict";
-    advocate.load();
+    missionSelect.load();
 
 }
 

@@ -1,8 +1,8 @@
 /*global StripeCheckout*/
-var request = require('./../../../api').request,
-    templates = require('./../../../template_build/templates'),
-    settings = require('./../../../settings').settings,
-    helpers = require('./../../../common/helpers');
+var request = require('api').request,
+    templates = require('template_build/templates'),
+    settings = require('settings').settings,
+    helpers = require('common/helpers');
 
 export function load() {
     var $app = $(".app-sb"),
@@ -11,7 +11,6 @@ export function load() {
 
     request.get({url: '/v1/profiles/' + pageUser + '/missions/'})
         .done(function (data) {
-            "use strict";
             if(data.results.length === 0) {
                 missionList.innerHTML = templates.position_holder();
             } else {
@@ -25,7 +24,6 @@ export function load() {
             window.location.href = "/quest/mission/select/";
         })
         .on('click', '#js-donate-btn', function() {
-            "use strict";
 
         });
 

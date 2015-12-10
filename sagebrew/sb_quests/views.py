@@ -1,21 +1,17 @@
 from django.shortcuts import redirect, render
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
-
 from neomodel import DoesNotExist, CypherException, db
-
 from sb_registration.utils import (verify_completed_registration)
-
 from api.utils import smart_truncate
 from sb_quests.neo_models import PoliticalCampaign, Quest
 from sb_quests.serializers import PoliticalCampaignSerializer, QuestSerializer
-
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-
 from py2neo.cypher import ClientError
+
 
 def quest(request, username):
     try:
@@ -30,7 +26,7 @@ def quest(request, username):
     serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
     serializer_data['description'] = "%s %s's Policies, Agenda, " \
                                      "and Platform." % (
-        serializer_data['first_name'], serializer_data['last_name'])
+                                         serializer_data['first_name'], serializer_data['last_name'])
     serializer_data['keywords'] = "Politics, Fundraising, Campaign, Quest,"
     return render(request, 'quest.html', serializer_data)
 
@@ -50,12 +46,12 @@ def saga(request, username):
     else:
         serializer_data['description'] = "%s %s's Policies, Agenda, " \
                                          "and Platform." % (
-            serializer_data['first_name'], serializer_data['last_name'])
+                                             serializer_data['first_name'], serializer_data['last_name'])
     serializer_data['keywords'] = "Politics, Fundraising, Campaign, Quest," \
                                   " Candidate, " \
                                   "Representative, %s, %s, %s" % (
-        serializer_data['position_formal_name'],
-        serializer_data['location_name'], serializer_data['position_name'])
+                                      serializer_data['position_formal_name'],
+                                      serializer_data['location_name'], serializer_data['position_name'])
     return render(request, 'saga.html', serializer_data)
 
 
@@ -139,8 +135,8 @@ def manage_settings(request, username):
                 request.user.username)
     try:
         res, col = db.cypher_query(query)
-        campaign = CampaignSerializer(Campaign.inflate(res[0][0]),
-                                      context={'request': request}).data
+        campaign = QuestSerializer(Quest.inflate(res[0][0]),
+                                   context={'request': request}).data
         campaign['stripe_key'] = settings.STRIPE_PUBLIC_KEY
     except(CypherException, ClientError):
         return redirect("500_Error")
@@ -148,7 +144,6 @@ def manage_settings(request, username):
         campaign = False
     return render(request, 'manage/quest_settings.html',
                   {"campaign": campaign})
-
 
 
 @login_required()
@@ -197,6 +192,7 @@ def quest_manage_banking(request, username):
         campaign = False
     return render(request, 'manage/quest_banking.html',
                   {"campaign": campaign})
+
 
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))

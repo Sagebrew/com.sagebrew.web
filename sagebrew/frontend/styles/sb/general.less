@@ -7,7 +7,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: @sb_dark_blue;
   word-wrap: break-word;
-  background-color: #D8D8D8;
+  background-color: #D8D8D8; // Potential alternatives b9b9b9
 }
 
 h1 {
@@ -108,9 +108,13 @@ a {
   padding-bottom: 15px;
   margin-bottom: 30px;
 }
+.provide-solution {
+  margin-top: 30px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
 .sb_solution{
   &:extend(.block);
-  margin-top: 30px;
   margin-bottom: 15px;
   textarea {
     margin-bottom: 25px;
@@ -123,6 +127,7 @@ a {
 .sb_solution_news{
   &:extend(.block);
   margin-bottom: 15px;
+  border: 1px solid @border-color;
   textarea {
     margin-bottom: 25px;
     border-radius: @sb_common_radius;
@@ -134,6 +139,7 @@ a {
 .sb_provide_solution{
   &:extend(.block);
   background-color: @sb_grey_light;
+  border: 2px solid @border-color;
 }
 .sb_question{
   &:extend(.block);
@@ -143,7 +149,7 @@ a {
 .sb_question_summary{
   &:extend(.block);
   background-color: white;
-  border: 1px solid @sb_grey;
+  border: 2px solid @border-color;
   border-radius: @sb_common_radius;
   margin-left: 15px;
   margin-right: 15px;
@@ -298,7 +304,7 @@ a {
 
 //wallpaper
 .sb_wallpaper{
-  background-color: @sb_grey_extra_light;
+  background-color: white;
   width: 100%;
   border-radius: 5px 5px 0 0;
 }
@@ -326,7 +332,7 @@ a {
 }
 // TODO Review and potentially change to just standard side_container
 .sb_questions_side_container{
-    background-color: @sb_green_wall;
+    background-color: white;
     margin-top: 30px;
     border-radius: 2px;
     height: auto;
@@ -346,7 +352,7 @@ a {
 }
 .sb_wall{
   height: auto;
-  background-color: @sb_green_wall;
+  background-color: white;
   padding: 15px 15px 15px 15px;
   border-radius: 2px;
   min-height: 575px;
@@ -359,6 +365,7 @@ a {
   &:extend(.sb_wall);
   margin-top: 30px;
   min-height: 500px;
+  background-color: white;
 }
 .sb_action_wall{
   &:extend(.sb_wall);
@@ -732,7 +739,7 @@ a {
 }
 .sb_secondary_nav_bar{
   &:extend(.sb_secondary_nav);
-  background-color: @sb_green_wall;
+  background-color: white;
   padding:0;
 }
 .sb_secondary_nav_transparent{
@@ -1031,6 +1038,7 @@ a {
   border-radius: 5px 5px 5px 5px;
   padding: @sb_common_padding_positive @sb_common_padding_positive 0;
   margin-bottom: 15px;
+  border: 1px solid @border-color;
 }
 
 
@@ -1101,7 +1109,7 @@ a {
   min-height: 65px;
   border-radius: @sb_common_radius;
   background-color: @sb_off_white;
-  border: 1px solid @sb_green_light;
+  border: 1px solid @border-color;
   word-wrap: break-word;
 }
 .sb-content-body-news{
@@ -1126,7 +1134,7 @@ a {
   min-height: 65px;
   border-radius: @sb_common_radius;
   background-color: @sb_off_white;
-  border: 1px solid @sb_green_light;
+  border: 1px solid @border-color;
   word-wrap: break-word;
   overflow: hidden;
 }
@@ -1137,6 +1145,7 @@ a {
 .sb_question_body{
   &:extend(.sb_post_body);
   margin-left: 0;
+  border: 2px solid @border-color;
 }
 .sb-question-title{
   padding-left: 18px;
@@ -1167,7 +1176,7 @@ a {
 }
 
 .app-post-create {
-  background-color: @sb_green_wall;
+  background-color: white;
   height:70px;
   padding: 10px @sb_common_padding_positive 0;
   border-radius: 2px;
@@ -1836,7 +1845,7 @@ textarea.sb_comment_input{
 }
 
 .conversation-meta {
-  background-color: @sb_green_wall;
+  background-color: white;
   margin-top: 30px;
   padding: 15px;
   font-size: 11pt;
@@ -1857,12 +1866,16 @@ textarea.sb_comment_input{
   }
 }
 .map-wrapper {
-  background-color: @sb_green_wall;
+  background-color: white;
   padding: 0 15px 15px 15px;
 }
 .question-header{
-  padding-top: 0;
+  padding-top: 0 !important;
 }
+.question {
+  margin-bottom: 30px;
+}
+
 #map {
   height: 100%;
 }
@@ -1886,7 +1899,7 @@ textarea.sb_comment_input{
   font-weight: 300;
 }
 .side-create-map{
-  background-color: @sb_green_wall;
+  background-color: white;
   margin-top: 30px;
   padding: 15px;
   width: 100%;

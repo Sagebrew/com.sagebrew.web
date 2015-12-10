@@ -54,7 +54,7 @@
                 <ul class="sb-not-friend-divider-wrapper"><li class="sb_divider"></li></ul>
                 <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
                     {% if page_profile.campaign %}
-                        <form action="{% url "quest_saga" page_profile.username %}">
+                        <form action="{% url "quest" page_profile.username %}">
                             <input class="btn btn-primary sb_btn" type="submit" value="View Quest">
                         </form>
                     {% else %}

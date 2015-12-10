@@ -73,6 +73,7 @@ class PublicOfficial(Searchable):
     current_term = RelationshipTo('govtrack.neo_models.Term', 'CURRENT_TERM')
     campaign = RelationshipTo('sb_quests.neo_models.PoliticalCampaign',
                               'HAS_CAMPAIGN')
+    quest = RelationshipTo('sb_quests.neo_models.Quest', 'IS_HOLDING')
 
     def get_campaign(self):
         from sb_quests.neo_models import PoliticalCampaign

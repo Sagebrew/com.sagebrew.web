@@ -23,9 +23,14 @@ class PublicOfficialSerializer(SBSerializer):
     title = serializers.SerializerMethodField()
     state = serializers.SerializerMethodField()
     terms = serializers.SerializerMethodField()
-    campaign = serializers.SerializerMethodField()
+
     full_name = serializers.SerializerMethodField()
     channel_wallpaper = serializers.SerializerMethodField()
+    quest = serializers.SerializerMethodField()
+
+    # DEPRECATED
+    # Still used for initial population of reps
+    campaign = serializers.SerializerMethodField()
 
     def get_type(self, obj):
         return "public_official"
@@ -62,6 +67,28 @@ class PublicOfficialSerializer(SBSerializer):
 
     def get_channel_wallpaper(self, obj):
         return None
+
+    def get_quest(self, obj):
+        from sb_quests.neo_models import Quest
+        from sb_quests.serializers import QuestSerializer
+        from logging import getLogger
+        logger = getLogger("loggly_logs")
+        # We use object_uuid here instead of owner_username as none of the
+        # public officials have a owner
+        quest = cache.get('%s_quest' % obj.object_uuid)
+        if quest is None:
+            query = 'MATCH (o:PublicOfficial {object_uuid: "%s"})-' \
+                    '[:IS_HOLDING]->(quest:Quest) ' \
+                    'RETURN quest' % obj.object_uuid
+            res, _ = db.cypher_query(query)
+            logger.critical(res.one)
+            logger.critical("here")
+            if res.one:
+                cache.set('%s_quest' % obj.object_uuid, quest)
+            quest = res.one
+        if quest is not None:
+            quest = QuestSerializer(Quest.inflate(quest)).data
+        return quest
 
     def get_campaign(self, obj):
         campaign = cache.get('%s_campaign' % obj.object_uuid)

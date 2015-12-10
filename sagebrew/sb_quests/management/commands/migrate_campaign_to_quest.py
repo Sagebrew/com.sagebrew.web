@@ -82,7 +82,6 @@ class Command(BaseCommand):
 
                 for position in campaign.position.all():
                     mission.position.connect(position)
-                    mission.focused_on.connect(position)
                     campaign.position.disconnect(position)
 
                 for pledged_vote in campaign.pledged_votes.all():

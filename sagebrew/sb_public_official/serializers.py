@@ -71,8 +71,6 @@ class PublicOfficialSerializer(SBSerializer):
     def get_quest(self, obj):
         from sb_quests.neo_models import Quest
         from sb_quests.serializers import QuestSerializer
-        from logging import getLogger
-        logger = getLogger("loggly_logs")
         # We use object_uuid here instead of owner_username as none of the
         # public officials have a owner
         quest = cache.get('%s_quest' % obj.object_uuid)
@@ -81,8 +79,6 @@ class PublicOfficialSerializer(SBSerializer):
                     '[:IS_HOLDING]->(quest:Quest) ' \
                     'RETURN quest' % obj.object_uuid
             res, _ = db.cypher_query(query)
-            logger.critical(res.one)
-            logger.critical("here")
             if res.one:
                 cache.set('%s_quest' % obj.object_uuid, quest)
             quest = res.one

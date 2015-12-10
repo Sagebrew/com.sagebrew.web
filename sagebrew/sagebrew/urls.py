@@ -50,6 +50,8 @@ urlpatterns = patterns(
         url='/help/terms/', permanent=False), name='terms_redirect'),
     url(r'^400/$', TemplateView.as_view(template_name="400.html"),
         name="400_Error"),
+    url(r'^401/$', TemplateView.as_view(template_name="401.html"),
+        name="500_Error"),
     url(r'^404/$', TemplateView.as_view(template_name="404.html"),
         name="404_Error"),
     url(r'^500/$', TemplateView.as_view(template_name="500.html"),

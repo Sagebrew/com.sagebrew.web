@@ -82,6 +82,26 @@ class Quest(Searchable):
     endorses = RelationshipTo('sb_missions.neo_models.Mission', "ENDORSES")
     holds = RelationshipTo('sb_quests.neo_models.Seat', "HOLDS")
 
+    @property
+    def ein(self):
+        # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
+        return None
+
+    @property
+    def ssn(self):
+        # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
+        return None
+
+    @property
+    def stripe_token(self):
+        # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
+        return None
+
+    @property
+    def customer_token(self):
+        # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
+        return None
+
     @classmethod
     def get(cls, owner_username):
         campaign = cache.get("%s_quest" % owner_username)

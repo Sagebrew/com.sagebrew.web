@@ -330,6 +330,10 @@ class QuestSerializer(SBSerializer):
     owner_username = serializers.CharField(read_only=True)
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
+    stripe_token = serializers.CharField(write_only=True, required=False)
+    customer_token = serializers.CharField(write_only=True, required=False)
+    ein = serializers.CharField(write_only=True, required=False)
+    ssn = serializers.CharField(max_length=9, write_only=True, required=False)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
@@ -400,9 +404,10 @@ class QuestSerializer(SBSerializer):
     def update(self, instance, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe_token = validated_data.pop('stripe_token', None)
-        customer_token = validated_data.pop('customer_token', None)
-        ein = validated_data.pop('ein', None)
-        ssn = validated_data.pop('ssn', None)
+        customer_token = validated_data.pop('customer_token',
+                                            instance.customer_token)
+        ein = validated_data.pop('ein', instance.ein)
+        ssn = validated_data.pop('ssn', instance.ssn)
         instance.active = validated_data.pop('activate', instance.active)
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)

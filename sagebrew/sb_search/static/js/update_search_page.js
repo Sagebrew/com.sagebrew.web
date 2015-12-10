@@ -84,7 +84,7 @@ $(document).ready(function () {
                             }
                         });
                     }
-                    if (item.type === 'public_official' || item.type === 'campaign' || item.type === 'politicalcampaign') {
+                    if (item.type === 'public_official' || item.type === 'campaign' || item.type === 'quest') {
                         var sagaUUID = item.object_uuid;
                         $.ajax({
                             xhrFields: {withCredentials: true},
@@ -93,7 +93,6 @@ $(document).ready(function () {
                             contentType: "application/json; charset=utf-8",
                             dataType: "json",
                             success: function (data) {
-
                                 searchResults.append(data.html);
                             }
                         });

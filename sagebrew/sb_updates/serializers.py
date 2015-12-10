@@ -21,29 +21,32 @@ class UpdateSerializer(TitledContentSerializer):
     title = serializers.CharField(required=False,
                                   min_length=5, max_length=140)
     goals = serializers.SerializerMethodField()
-    campaign = serializers.SerializerMethodField()
 
     def create(self, validated_data):
+        # TODO we don't have a way currently to distinguish what a Update is
+        # about. Think it'll be based on an attribute submitted by the front
+        # end. That will be based on where it's at (make update from Public
+        # Office Mission vs Advocate Mission vs Quest vs etc)
         request, _, _, _, _ = gather_request_data(self.context)
-        campaign = validated_data.pop('campaign', None)
+        quest = validated_data.pop('quest', None)
         associated_goals = validated_data.pop('associated_goals', [])
         validated_data['content'] = bleach.clean(validated_data.get(
             'content', ""))
         owner = Pleb.get(request.user.username)
         validated_data['owner_username'] = owner.username
         update = Update(**validated_data).save()
-        update.campaign.connect(campaign)
-        campaign.updates.connect(update)
+        quest.updates.connect(update)
         update.owned_by.connect(owner)
         for goal in associated_goals:
-            query = 'MATCH (c:Campaign {object_uuid:"%s"})-[CURRENT_ROUND]->' \
-                    '(r:Round)-[STRIVING_FOR]->(g:Goal {title:"%s"}) ' \
-                    'RETURN g' % (campaign.object_uuid, goal)
+            query = 'MATCH (c:Quest {object_uuid:"%s"})-[:EMBARKS_ON]->' \
+                    '(mission:Mission)-[:WORKING_TOWARDS]->' \
+                    '(g:Goal {title:"%s"}) ' \
+                    'RETURN g' % (quest.object_uuid, goal)
             res, _ = db.cypher_query(query)
             goal = Goal.inflate(res.one)
             update.goals.connect(goal)
             goal.updates.connect(update)
-        cache.delete("%s_updates" % campaign.object_uuid)
+        cache.delete("%s_updates" % quest.object_uuid)
         return update
 
     def update(self, instance, validated_data):
@@ -56,15 +59,6 @@ class UpdateSerializer(TitledContentSerializer):
     def get_goals(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
         return Update.get_goals(obj.object_uuid)
-
-    def get_campaign(self, obj):
-        request, _, _, relation, _ = gather_request_data(self.context)
-        campaign = Update.get_campaign(obj.object_uuid)
-        if campaign is not None and relation == 'hyperlink':
-            return reverse('campaign-detail',
-                           kwargs={'object_uuid': campaign},
-                           request=request)
-        return campaign
 
     def get_url(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)

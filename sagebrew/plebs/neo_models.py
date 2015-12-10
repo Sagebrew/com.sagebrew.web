@@ -14,7 +14,7 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DoesNotExist, MultipleNodesReturned)
 from neomodel import db
 
-from api.utils import flatten_lists, spawn_task
+from api.utils import flatten_lists, spawn_task, deprecation
 from api.neo_models import SBObject
 from sb_locations.neo_models import Location
 from sb_search.neo_models import Searchable, Impression
@@ -271,6 +271,19 @@ class Pleb(Searchable):
     # changes a little and they start being able to receive pledged votes and
     # there are more limitations on how donations occur.
     campaign = RelationshipTo('sb_quests.neo_models.Campaign', 'IS_WAGING')
+    quest = RelationshipTo('sb_quests.neo_models.Quest', 'IS_WAGING')
+
+    # Edits
+    # Access if this Pleb can edit a Quest through:
+    # Neomodel: editors Cypher: CAN_BE_EDITED_BY
+    # RelationshipTo('sb_quests.neo_models.Quest')
+
+    # Accountant
+    # Access if this Pleb can view financial data of a Quest through:
+    # Neomodel: accountants Cypher: CAN_VIEW_MONETARY_DATA
+    # RelationshipTo('sb_quests.neo_models.Quest')
+
+    # DEPRECATED - use quest editor and accountant instead
     campaign_editor = RelationshipTo('sb_quests.neo_models.Campaign',
                                      'CAN_EDIT')
     campaign_accountant = RelationshipTo('sb_quests.neo_models.Campaign',
@@ -359,9 +372,17 @@ class Pleb(Searchable):
                       (username, campaign_uuid), donation_amount)
         return donation_amount
 
+    def get_quest(self):
+        query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Quest) ' \
+                'RETURN c.owner_username' % self.username
+        res, _ = db.cypher_query(query)
+        return res.one
+
     def get_campaign(self):
+        # DEPRECATED use get_quest instead
+        deprecation('Campaigns are deprecated, use Missions or Quests instead')
         query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Campaign) ' \
-                'RETURN c.object_uuid' % self.username
+                'RETURN c.owner_username' % self.username
         res, _ = db.cypher_query(query)
         return res.one
 

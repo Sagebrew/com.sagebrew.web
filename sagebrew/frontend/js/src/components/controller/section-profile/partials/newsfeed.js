@@ -41,7 +41,7 @@ export function init () {
             for (var i = 0; i < data.results.length; i++) {
                 $container.append(Autolinker.link(data.results[i].html));
                 enableContentFunctionality(data.results[i].id, data.results[i].type);
-                if(data.results[i].type !== "politicalcampaign" && data.results[i].type !== "update"){
+                if(data.results[i].type !== "quest" && data.results[i].type !== "update"){
                     populateComments([data.results[i].id], data.results[i].type + "s");
                 }
 

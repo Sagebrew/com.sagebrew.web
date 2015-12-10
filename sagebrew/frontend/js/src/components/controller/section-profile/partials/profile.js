@@ -37,7 +37,6 @@ export function init () {
             }
 
             return request.get({url:url});
-
         },
         renderCallback: function($container, data) {
             $container.append(data.results.html);

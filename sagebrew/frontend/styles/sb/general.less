@@ -142,7 +142,7 @@ a {
 }
 .sb_question_summary{
   &:extend(.block);
-  background-color: @sb_grey_extra_light;
+  background-color: white;
   border: 1px solid @sb_grey;
   border-radius: @sb_common_radius;
   margin-left: 15px;
@@ -313,6 +313,16 @@ a {
   margin-top: 0;
   margin-bottom: 0;
   width: 100%;
+}
+
+.quest-wallpaper {
+  height: 400px;
+  overflow: hidden;
+  border-radius: 5px 5px 5px 5px;
+  position: relative;
+  //fixes gap at the bottom
+  margin-top: 0;
+  margin-bottom: 0;
 }
 // TODO Review and potentially change to just standard side_container
 .sb_questions_side_container{
@@ -860,7 +870,8 @@ a {
 }
 .registration {
   margin-top: 30px;
-  background-color: #fafcfa;
+  background-color: white;
+  padding: 15px 30px 15px 30px;
   h2{
     margin-bottom: 0;
   }
@@ -1286,6 +1297,7 @@ textarea.sb_comment_input{
   height: 200px;
   position: relative;
   border:1px solid #ccc;
+  background-color: white;
 }
 
 #cropProfilePageEyecandy{
@@ -1681,6 +1693,8 @@ textarea.sb_comment_input{
 
 .sb-profile-not-friend-container{
   &:extend(.sb_profile_container_wall);
+  height: auto !important;
+  min-height: 0 !important;
   margin: 0 15px 0 15px;
   position: relative;
 }
@@ -1694,6 +1708,59 @@ textarea.sb_comment_input{
   position: relative;
 }
 
+.block-container-radio{
+  border-radius: 2px;
+  position: relative;
+}
+.radio-image-selector {
+  &:extend(.sb-profile-not-friend-element);
+  border: 5px lightgrey solid;
+  background-color: #e4e4e4;
+}
+.radio-image-selector-disabled {
+  &:extend(.radio-image-selector);
+  background-color: #bdc3c7;
+  opacity: 0.7;
+  img{
+    opacity: 0.1;
+  }
+}
+.radio-image-selector:hover{
+  border-color: green;
+  background-color: white;
+}
+.radio-image-selector:active{
+  border-color: @sb_green_impressed;
+  background-color: white;
+}
+.radio-selected{
+  border-color: @sb_green;
+  background-color: white;
+}
+.radio-image-selector-image-wrapper{
+  text-align: center;
+}
+.radio-image-selector-image{
+  text-align: center;
+  width: 40%;
+  margin-bottom: 15px;
+}
+.radio-not-choosen{
+  background-color: grey;
+}
+.mission-input {
+  margin: 15px auto 15px auto;
+  height: 52px;
+}
+#start-row {
+  margin-top: 15px;
+}
+.map-viewer-quest {
+  width: 100%;
+  height: 300px;
+  margin: 15px auto 15px auto;
+  padding-left: 5px;
+}
 .sb-profile-not-friend-header{
   margin-bottom: 15px;
   text-align: center;
@@ -1703,10 +1770,10 @@ textarea.sb_comment_input{
   text-align: center;
 }
 
+
 .sb-profile-not-friend-element-image{
   text-align: center;
-  width: 80%;
-  height: 80%;
+  width: 40%;
   margin-bottom: 15px;
 }
 
@@ -1722,7 +1789,7 @@ textarea.sb_comment_input{
   opacity: 0.75;
   border-radius: 5px;
   h3{
-    margin-top: 50%;
+    margin-top: 30%;
     vertical-align: middle;
     line-height: normal;
     text-align: center;
@@ -1852,4 +1919,9 @@ textarea.sb_comment_input{
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
   }
+}
+
+.sb-single-object-wall {
+  &:extend(.sb_conversation_wall);
+  min-height: 150px;
 }

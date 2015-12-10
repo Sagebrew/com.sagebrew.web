@@ -1,5 +1,6 @@
 from neomodel import (db, RelationshipTo)
 
+from api.utils import deprecation
 from sb_base.neo_models import TitledContent
 
 
@@ -17,21 +18,46 @@ class Update(TitledContent):
     implemented.
     """
     # relationships
-    campaign = RelationshipTo('sb_quests.neo_models.Campaign',
-                              "ON_THE")
+    # Updates should be focused on one of these things which is why we
+    # are now using "ABOUT" for the relationship type for each of the
+    # properties. This is because only one ABOUT relationship should
+    # exist coming from an update.
+    goal = RelationshipTo('sb_goals.neo_models.Goal', "ABOUT")
+    mission = RelationshipTo('sb_missions.neo_models.Mission', "ABOUT")
+    seat = RelationshipTo('sb_quests.neo_models.Seat', "ABOUT")
+    quest = RelationshipTo('sb_quests.neo_models.Quest', "ABOUT")
+
+    # Helper function that can be associated with the serializer and gets
+    # the object the update is about.
+    about = RelationshipTo('api.neo_models.SBObject', "ABOUT")
+
+    # DEPRECATIONS
+    # DEPRECATED: Goals are no longer the only thing that an update can be about
+    # they may be about missions, seats, goals, etc. Updates should still be
+    # focused on one of these things which is why we are now using "ABOUT" for
+    # the relationship type for each of the properties. This is because only
+    # one ABOUT relationship should exist coming from an update.
     goals = RelationshipTo('sb_goals.neo_models.Goal', "FOR_A")
+
+    # DEPRECATED: This is an unnecessary relationship since the Quest already
+    # has a relationship to the Update which can be used in all cases.
+    # Access Quests (Campaigns) that are related to this Update through:
+    # Neomodel: updates Cypher: HAS_UPDATE
+    campaign = RelationshipTo('sb_quests.neo_models.Campaign', "ON_THE")
 
     @classmethod
     def get_goals(cls, object_uuid):
         query = 'MATCH (u:`Update` {object_uuid:"%s"})-[:FOR_A]-(g:`Goal`) ' \
-                'RETURN g.object_uuid' % (object_uuid)
+                'RETURN g.object_uuid' % object_uuid
         res, col = db.cypher_query(query)
         return [row[0] for row in res]
 
     @classmethod
     def get_campaign(cls, object_uuid):
+        deprecation("Quest references from the Campaign are deprecated. Please"
+                    "query from the Campaign to the Quest.")
         query = 'MATCH (u:`Update` {object_uuid:"%s"})-[:ON_THE]-' \
-                '(c:`Campaign`) RETURN c.object_uuid' % (object_uuid)
+                '(c:`Campaign`) RETURN c.object_uuid' % object_uuid
         res, col = db.cypher_query(query)
         try:
             return res[0][0]

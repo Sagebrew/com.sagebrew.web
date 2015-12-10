@@ -4,30 +4,28 @@ from uuid import uuid1
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.templatetags.static import static
 
 from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from neomodel import db, DoesNotExist
+from neomodel import db
 
 from sb_privileges.neo_models import SBAction, Privilege
-from plebs.neo_models import Pleb, Address
+from plebs.neo_models import Pleb
 from sb_updates.neo_models import Update
 from sb_goals.neo_models import Goal, Round
 from sb_registration.utils import create_user_util_test
-from sb_donations.neo_models import Donation
 from sb_locations.neo_models import Location
 
-from sb_quests.neo_models import PoliticalCampaign, Position
+from sb_quests.neo_models import Quest, Position
 
 
-class CampaignEndpointTests(APITestCase):
+class QuestEndpointTests(APITestCase):
     def setUp(self):
         query = "match (n)-[r]-() delete n,r"
         db.cypher_query(query)
-        self.unit_under_test_name = 'campaign'
+        self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -35,58 +33,54 @@ class CampaignEndpointTests(APITestCase):
         for camp in self.pleb.campaign.all():
             camp.delete()
         self.url = "http://testserver"
-        self.campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username).save()
-        self.round = Round().save()
-        self.campaign.upcoming_round.connect(self.round)
-        self.round.campaign.connect(self.campaign)
-        self.campaign.owned_by.connect(self.pleb)
-        self.campaign.accountants.connect(self.pleb)
-        self.campaign.editors.connect(self.pleb)
-        self.pleb.campaign_accountant.connect(self.campaign)
-        self.pleb.campaign_editor.connect(self.campaign)
+        self.quest = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
+        self.quest.editors.connect(self.pleb)
+        self.quest.moderators.connect(self.pleb)
+        self.pleb.campaign_accountant.connect(self.quest)
+        self.pleb.campaign_editor.connect(self.quest)
         cache.clear()
         self.stripe = stripe
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
 
     def test_unauthorized(self):
-        url = reverse('campaign-list')
+        url = reverse('quest-list')
         response = self.client.post(url, {}, format='json')
         self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
                                              status.HTTP_403_FORBIDDEN])
 
     def test_save_int_data(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
+        url = reverse('quest-list')
         response = self.client.post(url, 98897965, format='json')
         self.assertEqual(response.status_code,
                          status.HTTP_400_BAD_REQUEST)
 
     def test_save_string_data(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
+        url = reverse('quest-list')
         response = self.client.post(url, 'asfonosdnf', format='json')
         self.assertEqual(response.status_code,
                          status.HTTP_400_BAD_REQUEST)
 
     def test_save_list_data(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
+        url = reverse('quest-list')
         response = self.client.post(url, [], format='json')
         self.assertEqual(response.status_code,
                          status.HTTP_400_BAD_REQUEST)
 
     def test_save_float_data(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
+        url = reverse('quest-list')
         response = self.client.post(url, 1.010101010, format='json')
         self.assertEqual(response.status_code,
                          status.HTTP_400_BAD_REQUEST)
 
     def test_create_on_detail(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
         response = self.client.post(url, data={}, format='json')
         response_data = {
             'status_code': status.HTTP_405_METHOD_NOT_ALLOWED,
@@ -163,447 +157,39 @@ class CampaignEndpointTests(APITestCase):
         privilege.delete()
         self.assertEqual(Privilege.inflate(res.one).name, "quest")
 
-    def test_create_paid(self):
-        self.client.force_authenticate(user=self.user)
-        session = self.client.session
-        session['account_type'] = 'paid'
-        session.save()
-
-        position = Position(name="Senator").save()
-        url = reverse('campaign-list')
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        campaign = PoliticalCampaign.nodes.get(object_uuid=response.data['id'])
-        self.assertEqual(campaign.application_fee, 0.021)
-
-    def test_create_unpaid(self):
-        self.client.force_authenticate(user=self.user)
-
-        position = Position(name="Senator").save()
-        url = reverse('campaign-list')
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        campaign = PoliticalCampaign.nodes.get(object_uuid=response.data['id'])
-        self.assertEqual(campaign.application_fee, 0.041)
-
-    def test_create_active(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['active'], False)
-
-    def test_create_website(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['website'], "fake campaign website")
-
-    def test_create_profile_pic(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['profile_pic'],
-                         static('images/sage_coffee_grey-01.png'))
-
-    def test_create_wallpaper_pic(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['wallpaper_pic'], None)
-
-    def test_create_url(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['url'],
-                         'http://testserver/quests/' +
-                         response.data['id'] + '/')
-
-    def test_create_twitter(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['twitter'], "fake twitter link")
-
-    def test_create_youtube(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['youtube'], "fake youtube link")
-
-    def test_create_linkedin(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['linkedin'], "fake linkedin link")
-
-    def test_create_rounds(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['rounds'], [])
-
-    def test_create_upcoming_round(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['upcoming_round'],
-                         PoliticalCampaign.get_upcoming_round(
-                             response.data['id']))
-
-    def test_create_vote_count(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['vote_count'], 0)
-
-    def test_create_href(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['href'], self.url + reverse(
-            'campaign-detail', kwargs={'object_uuid': response.data['id']}))
-
-    def test_create_facebook(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['facebook'], "fake facebook link")
-
-    def test_create_owner_username(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['owner_username'], "test_test")
-
-    def test_create_position(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['position'], position.object_uuid)
-
-    def test_create_active_goals(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['active_goals'], [])
-
-    def test_create_type(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['type'], "politicalcampaign")
-
-    def test_create_biography(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['biography'], "this is a test bio")
-
-    def test_create_id(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['id'], response.data['id'])
-
-    def test_create_updates(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['updates'], [])
-
-    def test_create_current_seat(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
-        position = Position(name="Senator").save()
-        data = {
-            "biography": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
-            "position": position.object_uuid
-        }
-        response = self.client.post(url, data=data, format='json')
-        position.delete()
-        self.assertEqual(response.data['current_seat'], None)
-
     def test_detail(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-list')
+        url = reverse('quest-list')
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_take_quest_active(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        self.campaign.active = False
-        self.campaign.save()
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        self.quest.active = False
+        self.quest.save()
         cache.clear()
-        for active_round in self.campaign.active_round.all():
-            self.campaign.active_round.disconnect(active_round)
         data = {
             'activate': True,
         }
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(self.campaign.active_round.is_connected(self.round))
+        self.assertEqual(response.data['active'], True)
 
     def test_update_biography(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             "biography": "this is an update"
         }
@@ -613,8 +199,8 @@ class CampaignEndpointTests(APITestCase):
 
     def test_update_biography_too_long(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             "biography": "The first issues I encountered in my Quest was "
                          "with the short bio. The instructions in the text "
@@ -628,8 +214,8 @@ class CampaignEndpointTests(APITestCase):
 
     def test_update_facebook(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             "facebook": "this is an update"
         }
@@ -638,8 +224,8 @@ class CampaignEndpointTests(APITestCase):
 
     def test_update_linkedin(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             "linkedin": "this is an update"
         }
@@ -649,8 +235,8 @@ class CampaignEndpointTests(APITestCase):
 
     def test_update_youtube(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             "youtube": "this is an update"
         }
@@ -660,8 +246,8 @@ class CampaignEndpointTests(APITestCase):
 
     def test_update_twitter(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             "twitter": "this is an update"
         }
@@ -671,8 +257,8 @@ class CampaignEndpointTests(APITestCase):
 
     def test_update_website(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             "website": "this is an update"
         }
@@ -682,8 +268,8 @@ class CampaignEndpointTests(APITestCase):
 
     def test_update_wallpaper_pic(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             "wallpaper_pic": "this is an update"
         }
@@ -693,8 +279,8 @@ class CampaignEndpointTests(APITestCase):
 
     def test_update_profile_pic(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             "profile_pic": "this is an update"
         }
@@ -702,47 +288,33 @@ class CampaignEndpointTests(APITestCase):
 
         self.assertEqual(response.data['profile_pic'], data['profile_pic'])
 
-    def test_update_swap_round(self):
+    def test_moderators(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-detail',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            "activate": True
-        }
-        response = self.client.put(url, data=data, format='json')
-
-        self.assertEqual(response.data['active_round'], self.round.object_uuid)
-        self.assertTrue(response.data['upcoming_round'])
-        self.assertNotEqual(response.data['upcoming_round'],
-                            self.round.object_uuid)
-
-    def test_accountants(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-accountants',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-moderators',
+                      kwargs={'owner_username': self.quest.owner_username})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, ['test_test'])
 
-    def test_accountants_unauthorized(self):
+    def test_moderators_unauthorized(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-accountants',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        self.campaign.accountants.disconnect(self.pleb)
-        self.campaign.owner_username = ""
-        self.campaign.owned_by.disconnect(self.pleb)
-        self.campaign.save()
+        url = reverse('quest-moderators',
+                      kwargs={'owner_username': self.quest.owner_username})
+        self.quest.moderators.disconnect(self.pleb)
+        self.quest.owner_username = ""
+        self.quest.owned_by.disconnect(self.pleb)
+        self.quest.save()
         response = self.client.get(url)
 
         self.assertEqual(response.data['detail'], "You do not have permission "
                                                   "to perform this action.")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
-    def test_remove_accountants(self):
+    def test_remove_moderators(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-remove-accountants',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-remove-moderators',
+                      kwargs={'owner_username': self.quest.owner_username})
         new_pleb = Pleb(username=str(uuid1())).save()
         data = {
             "profiles": ['test_test', new_pleb.username]
@@ -751,14 +323,14 @@ class CampaignEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], 'Successfully removed '
-                                                  'specified accountants '
+                                                  'specified moderators '
                                                   'from your campaign.')
 
-    def test_add_accountants(self):
+    def test_add_moderators(self):
         self.client.force_authenticate(user=self.user)
         new_pleb = Pleb(username=str(uuid1())).save()
-        url = reverse('campaign-add-accountants',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-add-moderators',
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             "profiles": ['test_test', new_pleb.username]
         }
@@ -766,24 +338,24 @@ class CampaignEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], 'Successfully added '
                                                   'specified users to '
-                                                  'your campaign accountants.')
+                                                  'your campaign moderators.')
 
     def test_editors(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-editors',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-editors',
+                      kwargs={'owner_username': self.quest.owner_username})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, ['test_test'])
 
     def test_editors_unauthorized(self):
         self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-editors',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        self.campaign.editors.disconnect(self.pleb)
-        self.campaign.owner_username = ""
-        self.campaign.owned_by.disconnect(self.pleb)
-        self.campaign.save()
+        url = reverse('quest-editors',
+                      kwargs={'owner_username': self.quest.owner_username})
+        self.quest.editors.disconnect(self.pleb)
+        self.quest.owner_username = ""
+        self.quest.owned_by.disconnect(self.pleb)
+        self.quest.save()
         response = self.client.get(url)
 
         self.assertEqual(response.data['detail'], "You do not have permission "
@@ -793,8 +365,8 @@ class CampaignEndpointTests(APITestCase):
     def test_remove_editors(self):
         self.client.force_authenticate(user=self.user)
         new_pleb = Pleb(username=str(uuid1())).save()
-        url = reverse('campaign-remove-editors',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-remove-editors',
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             "profiles": ['test_test', new_pleb.username]
         }
@@ -808,8 +380,8 @@ class CampaignEndpointTests(APITestCase):
     def test_add_editors(self):
         self.client.force_authenticate(user=self.user)
         new_pleb = Pleb(username=str(uuid1())).save()
-        url = reverse('campaign-add-editors',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+        url = reverse('quest-add-editors',
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             "profiles": ['test_test', new_pleb.username]
         }
@@ -820,219 +392,10 @@ class CampaignEndpointTests(APITestCase):
                                                   'specified users '
                                                   'to your campaign.')
 
-    def test_vote_inside_area(self):
-        location = Location(name="Test Location").save()
-        position = Position(name="Test Position").save()
-        position.location.connect(location)
-        location.positions.connect(position)
-        address = Address().save()
-        self.pleb.address.connect(address)
-        self.campaign.position.connect(position)
-        address.encompassed_by.connect(location)
-        location.addresses.connect(address)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-vote',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'vote_type': 1
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data['detail'])
-        address.delete()
-        location.delete()
-        position.delete()
-
-    def test_vote_anonymous(self):
-        location = Location(name="Test Location").save()
-        position = Position(name="Test Position").save()
-        position.location.connect(location)
-        location.positions.connect(position)
-        address = Address().save()
-        self.pleb.address.connect(address)
-        self.campaign.position.connect(position)
-        address.encompassed_by.connect(location)
-        location.addresses.connect(address)
-        url = reverse('campaign-vote',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'vote_type': 1
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertTrue(response.data['detail'])
-        address.delete()
-        location.delete()
-        position.delete()
-
-    def test_vote_outside_area(self):
-        location = Location(name="Test Location").save()
-        location2 = Location(name="Test Location 2").save()
-        position = Position(name="Test Position").save()
-        position.location.connect(location)
-        location.positions.connect(position)
-        address = Address().save()
-        self.pleb.address.connect(address)
-        self.campaign.position.connect(position)
-        address.encompassed_by.connect(location2)
-        location2.addresses.connect(address)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-vote',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'vote_type': 1
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        address.delete()
-        location.delete()
-        location2.delete()
-        position.delete()
-
-    def test_vote_two_locations_away(self):
-        location = Location(name="Test Location").save()
-        location2 = Location(name="Test Location 2").save()
-        position = Position(name="Test Position").save()
-        position.location.connect(location)
-        location.positions.connect(position)
-        location2.encompassed_by.connect(location)
-        location.encompasses.connect(location2)
-        address = Address().save()
-        self.pleb.address.connect(address)
-        self.campaign.position.connect(position)
-        address.encompassed_by.connect(location2)
-        location2.addresses.connect(address)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-vote',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'vote_type': 1
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data['detail'])
-        address.delete()
-        location.delete()
-        location2.delete()
-        position.delete()
-
-    def test_vote_three_locations_away(self):
-        location = Location(name="Test Location").save()
-        location2 = Location(name="Test Location 2").save()
-        location3 = Location(name="Test Location 3").save()
-        position = Position(name="Test Position").save()
-        position.location.connect(location)
-        location.positions.connect(position)
-        location2.encompassed_by.connect(location)
-        location.encompasses.connect(location2)
-        location3.encompassed_by.connect(location2)
-        location2.encompasses.connect(location3)
-        address = Address().save()
-        self.pleb.address.connect(address)
-        self.campaign.position.connect(position)
-        address.encompassed_by.connect(location3)
-        location3.addresses.connect(address)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-vote',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'vote_type': 1
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data['detail'])
-        address.delete()
-        location.delete()
-        location2.delete()
-        location3.delete()
-        position.delete()
-
-    def test_vote_four_locations_away(self):
-        location = Location(name="Test Location").save()
-        location2 = Location(name="Test Location 2").save()
-        location3 = Location(name="Test Location 3").save()
-        location4 = Location(name="Test Location 4").save()
-        position = Position(name="Test Position").save()
-        position.location.connect(location)
-        location.positions.connect(position)
-        location2.encompassed_by.connect(location)
-        location.encompasses.connect(location2)
-        location3.encompassed_by.connect(location2)
-        location2.encompasses.connect(location3)
-        location4.encompassed_by.connect(location3)
-        location3.encompasses.connect(location4)
-        address = Address().save()
-        self.pleb.address.connect(address)
-        self.campaign.position.connect(position)
-        address.encompassed_by.connect(location4)
-        location4.addresses.connect(address)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-vote',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'vote_type': 1
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(response.data['detail'])
-        address.delete()
-        location.delete()
-        location2.delete()
-        location3.delete()
-        location4.delete()
-        position.delete()
-
-    def test_vote_five_locations_away(self):
-        location = Location(name="Test Location").save()
-        location2 = Location(name="Test Location 2").save()
-        location3 = Location(name="Test Location 3").save()
-        location4 = Location(name="Test Location 4").save()
-        location5 = Location(name="Test Location 5").save()
-        position = Position(name="Test Position").save()
-        position.location.connect(location)
-        location.positions.connect(position)
-        location2.encompasses.connect(location)
-        location.encompassed_by.connect(location2)
-        location3.encompasses.connect(location2)
-        location2.encompassed_by.connect(location3)
-        location4.encompasses.connect(location3)
-        location3.encompassed_by.connect(location4)
-        location5.encompasses.connect(location4)
-        location4.encompassed_by.connect(location5)
-        address = Address().save()
-        self.pleb.address.connect(address)
-        self.campaign.position.connect(position)
-        address.encompassed_by.connect(location5)
-        location5.addresses.connect(address)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-vote',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'vote_type': 1
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        address.delete()
-        location.delete()
-        location2.delete()
-        location3.delete()
-        location4.delete()
-        location5.delete()
-        position.delete()
-
-    def test_rounds(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('round-list',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        response = self.client.get(url)
-
-        self.assertEqual(response.data['results'], [])
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
     def test_updates(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('update-list',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+                      kwargs={'owner_username': self.quest.owner_username})
         response = self.client.get(url)
 
         self.assertEqual(response.data['results'], [])
@@ -1041,7 +404,7 @@ class CampaignEndpointTests(APITestCase):
     def test_goals(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('goal-list',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+                      kwargs={'owner_username': self.quest.owner_username})
         response = self.client.get(url)
 
         self.assertEqual(response.data['results'], [])
@@ -1051,7 +414,7 @@ class CampaignEndpointTests(APITestCase):
         cache.clear()
         self.client.force_authenticate(user=self.user)
         url = reverse('goal-list',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             'title': 'This is a test goal',
             'summary': 'This is a test summary',
@@ -1064,12 +427,11 @@ class CampaignEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_goals_create_unauthorized(self):
-        self.campaign.editors.disconnect(self.pleb)
-        self.campaign.owned_by.disconnect(self.pleb)
-        self.campaign.accountants.disconnect(self.pleb)
+        self.quest.editors.disconnect(self.pleb)
+        self.quest.moderators.disconnect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('goal-list',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             'title': 'This is a test goal',
             'summary': 'This is a test summary',
@@ -1088,7 +450,7 @@ class CampaignEndpointTests(APITestCase):
         cache.clear()
         self.client.force_authenticate(user=self.user)
         url = reverse('goal-list',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             'summary': 'This is a test summary',
             'description': 'This is a test description',
@@ -1100,294 +462,32 @@ class CampaignEndpointTests(APITestCase):
         self.assertEqual(response.data['title'], ['This field is required.'])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_donation_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-donation-data',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        response = self.client.get(url)
-
-        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
-
-    def test_donation_data_with_donations(self):
-        donation = Donation(amount=100, completed=False,
-                            owner_username=self.pleb.username).save()
-        self.campaign.donations.connect(donation)
-        donation.campaign.connect(self.campaign)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-donation-data',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        response = self.client.get(url)
-
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
-
-    def test_donations(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-donations',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        response = self.client.get(url)
-
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
-
-    def test_donation_create(self):
-        self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True).save()
-        target_goal = Goal(monetary_requirement=1000, target=True).save()
-        self.campaign.goals.connect(target_goal)
-        self.campaign.active_round.connect(active_round)
-        url = reverse('campaign-donations',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'amount': 1000
-        }
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_donation_create_value_too_high(self):
-        self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True).save()
-        target_goal = Goal(monetary_requirement=1000, target=True).save()
-        self.campaign.goals.connect(target_goal)
-        self.campaign.active_round.connect(active_round)
-        url = reverse('campaign-donations',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'amount': 2700000
-        }
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_donation_create_invalid_form(self):
-        self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True).save()
-        target_goal = Goal(monetary_requirement=1000, target=True).save()
-        self.campaign.goals.connect(target_goal)
-        self.campaign.active_round.connect(active_round)
-        url = reverse('campaign-donations',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'amount': 10.01
-        }
-        response = self.client.post(url, data=data, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['amount'],
-                         ['A valid integer is required.'])
-
-    def test_donation_create_two_goals(self):
-        self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True).save()
-        next_goal = Goal(monetary_requirement=3000, target=False,
-                         total_required=4000).save()
-        target_goal = Goal(monetary_requirement=1000, target=True,
-                           total_required=1000).save()
-        target_goal.next_goal.connect(next_goal)
-        next_goal.previous_goal.connect(target_goal)
-        active_round.goals.connect(target_goal)
-        active_round.goals.connect(next_goal)
-        self.campaign.goals.connect(next_goal)
-        self.campaign.goals.connect(target_goal)
-        self.campaign.active_round.connect(active_round)
-        url = reverse('campaign-donations',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'amount': 4000
-        }
-        response = self.client.post(url, data=data, format='json')
-        donation = self.campaign.donations.all()[0]
-        self.assertTrue(target_goal.donations.is_connected(donation))
-        self.assertTrue(next_goal.donations.is_connected(donation))
-        self.assertTrue(donation.applied_to.is_connected(target_goal))
-        self.assertTrue(donation.applied_to.is_connected(next_goal))
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_donation_create_three_goals(self):
-        self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True).save()
-        next_goal = Goal(monetary_requirement=3000, target=False,
-                         total_required=4000).save()
-        next_goal2 = Goal(monetary_requirement=60000, target=False,
-                          total_required=67000).save()
-        target_goal = Goal(monetary_requirement=1000, target=True,
-                           total_required=1000).save()
-        target_goal.next_goal.connect(next_goal)
-        next_goal.previous_goal.connect(target_goal)
-        next_goal.next_goal.connect(next_goal2)
-        next_goal2.previous_goal.connect(next_goal)
-        active_round.goals.connect(target_goal)
-        active_round.goals.connect(next_goal)
-        self.campaign.goals.connect(next_goal)
-        self.campaign.goals.connect(target_goal)
-        self.campaign.goals.connect(next_goal2)
-        self.campaign.active_round.connect(active_round)
-        url = reverse('campaign-donations',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'amount': 4000
-        }
-        response = self.client.post(url, data=data, format='json')
-        donation = self.campaign.donations.all()[0]
-        self.assertTrue(target_goal.donations.is_connected(donation))
-        self.assertTrue(next_goal.donations.is_connected(donation))
-        self.assertTrue(donation.applied_to.is_connected(target_goal))
-        self.assertTrue(donation.applied_to.is_connected(next_goal))
-        self.assertFalse(donation.applied_to.is_connected(next_goal2))
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_donation_create_local_quest(self):
-        position = Position(level="local").save()
-        self.campaign.position.connect(position)
-        position.campaigns.connect(self.campaign)
-        self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True).save()
-        target_goal = Goal(monetary_requirement=1000, target=True).save()
-        self.campaign.goals.connect(target_goal)
-        self.campaign.active_round.connect(active_round)
-        url = reverse('campaign-donations',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'amount': 1000
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_donation_connected_to_relevant_goals(self):
-        cache.clear()
-        goal = Goal(monetary_requirement=10000, total_required=1000).save()
-        active_round = Round(active=True).save()
-        self.campaign.active_round.connect(active_round)
-        active_round.campaign.connect(self.campaign)
-        active_round.goals.connect(goal)
-        goal.associated_round.connect(active_round)
-        self.campaign.goals.connect(goal)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-donations',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'amount': 1000
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIn(goal.object_uuid, response.data['applied_to'])
-
-    def test_donation_with_no_active_round(self):
-        self.client.force_authenticate(user=self.user)
-        self.assertFalse(
-            PoliticalCampaign.get_active_round(self.campaign.object_uuid))
-        url = reverse('campaign-donations',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'amount': 1000
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_donation_greater_than_five_thousand(self):
-        donation = Donation(amount=400000).save()
-        self.campaign.donations.connect(donation)
-        donation.campaign.connect(self.campaign)
-        active_round = Round(active=True).save()
-        self.campaign.active_round.connect(active_round)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-donations',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'amount': 250000
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_donation_create_over_270000(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-donations',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        cache.set(self.pleb.username, self.pleb)
-        data = {
-            'amount': 280000
-        }
-        response = self.client.post(url, data=data, format='json')
-        try:
-            donation = Donation.nodes.get(amount=28000)
-            self.assertFalse(donation.campaign.is_connected(self.campaign))
-        except (Donation.DoesNotExist, DoesNotExist) as e:
-            self.assertIsInstance(e, Exception)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_donation_goal_connection(self):
-        donation = Donation(amount=10).save()
-        self.campaign.donations.connect(donation)
-        donation.campaign.connect(self.campaign)
-        active_round = Round(active=True).save()
-        goal = Goal(total_required=1000, monetary_requirement=1000).save()
-        active_round.goals.connect(goal)
-        goal.associated_round.connect(active_round)
-        self.campaign.active_round.connect(active_round)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-donations',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'amount': 1000
-        }
-        response = self.client.post(url, data=data, format='json')
-        donation = Donation.nodes.get(object_uuid=response.data['id'])
-        self.assertTrue(donation.applied_to.is_connected(goal))
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-
-    def test_donation_create_negative_number(self):
-        self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True).save()
-        target_goal = Goal(monetary_requirement=1000, target=True).save()
-        self.campaign.goals.connect(target_goal)
-        self.campaign.active_round.connect(active_round)
-        url = reverse('campaign-donations',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'amount': -1000
-        }
-        response = self.client.post(url, data=data, format='json')
-        try:
-            donation = Donation.nodes.get(amount=-1000)
-            self.assertFalse(donation.campaign.is_connected(self.campaign))
-        except (Donation.DoesNotExist, DoesNotExist) as e:
-            self.assertIsInstance(e, Exception)
-        self.assertEqual(response.data['amount'],
-                         ["You cannot donate a negative amount "
-                          "of money to this campaign."])
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
     def test_update_create(self):
         self.client.force_authenticate(user=self.user)
         active_round = Round(active=True).save()
         target_goal = Goal(monetary_requirement=1000, target=True,
                            total_required=1000).save()
         active_round.goals.connect(target_goal)
-        self.campaign.goals.connect(target_goal)
-        self.campaign.active_round.connect(active_round)
         url = reverse('update-list',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             'content': 'Test Content for Update',
             'title': 'This is a test update'
         }
         response = self.client.post(url, data=data, format='json')
         update = Update.nodes.get(
-            object_uuid=PoliticalCampaign.get_updates(
-                self.campaign.object_uuid)[0])
+            object_uuid=Quest.get_updates(self.quest.owner_username)[0])
 
-        self.assertTrue(self.campaign.updates.is_connected(update))
+        self.assertTrue(self.quest.updates.is_connected(update))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_update_create_invalid(self):
         self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True).save()
         target_goal = Goal(monetary_requirement=1000, target=True,
                            total_required=1000).save()
-        active_round.goals.connect(target_goal)
-        self.campaign.goals.connect(target_goal)
-        self.campaign.active_round.connect(active_round)
+        self.quest.goals.connect(target_goal)
         url = reverse('update-list',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+                      kwargs={'owner_username': self.quest.owner_username})
         data = {
             'content': 'Test Content for Update',
             'title': 'too'
@@ -1399,9 +499,9 @@ class CampaignEndpointTests(APITestCase):
     def test_update_create_render(self):
         self.client.force_authenticate(user=self.user)
         update = Update(content='test content', title='test title').save()
-        self.campaign.updates.connect(update)
+        self.quest.updates.connect(update)
         url = reverse('update-render',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+                      kwargs={'owner_username': self.quest.owner_username})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -1410,23 +510,23 @@ class CampaignEndpointTests(APITestCase):
     def test_pledged_votes(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-pledged-votes-per-day',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+                      kwargs={'owner_username': self.quest.owner_username})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_unassigned_goals(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('campaign-unassigned-goals',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+                      kwargs={'owner_username': self.quest.owner_username})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_possible_helpers(self):
         self.client.force_authenticate(user=self.user)
-        self.campaign.object_uuid = self.pleb.username
-        self.campaign.save()
+        self.quest.owner_username = self.pleb.username
+        self.quest.save()
         url = reverse('campaign-possible-helpers',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
+                      kwargs={'owner_username': self.quest.owner_username})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -1439,25 +539,19 @@ class QuestUpdateTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
-        self.campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username).save()
-        self.campaign.owned_by.connect(self.pleb)
-        self.campaign.editors.connect(self.pleb)
-        self.campaign.accountants.connect(self.pleb)
-        self.pleb.campaign.connect(self.campaign)
-        self.active_round = Round().save()
+        self.quest = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
+        self.quest.editors.connect(self.pleb)
+        self.quest.moderators.connect(self.pleb)
+        self.pleb.quest.connect(self.quest)
         self.goal = Goal(title="This is my test goal").save()
-        self.campaign.active_round.connect(self.active_round)
-        self.active_round.campaign.connect(self.campaign)
-        self.active_round.goals.connect(self.goal)
-        self.goal.associated_round.connect(self.active_round)
 
     def test_create(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('update-list',
-                      kwargs={"object_uuid": self.campaign.object_uuid})
+                      kwargs={"object_uuid": self.quest.owner_username})
         data = {
-            "campaign": self.campaign.object_uuid,
+            "campaign": self.quest.owner_username,
             "goals": [self.goal.title],
             "title": "This is a test update",
             "content": "I repeat, this is a test update"
@@ -1471,12 +565,10 @@ class QuestUpdateTests(APITestCase):
     def test_create_multiple_goals(self):
         self.client.force_authenticate(user=self.user)
         goal2 = Goal(title='This is another test goal').save()
-        self.active_round.goals.connect(goal2)
-        goal2.associated_round.connect(self.active_round)
         url = reverse('update-list',
-                      kwargs={"object_uuid": self.campaign.object_uuid})
+                      kwargs={"object_uuid": self.quest.owner_username})
         data = {
-            "campaign": self.campaign.object_uuid,
+            "campaign": self.quest.owner_username,
             "goals": [self.goal.title, goal2.title],
             "title": "This is a test update",
             "content": "I repeat, this is a test update"
@@ -1491,15 +583,11 @@ class QuestUpdateTests(APITestCase):
     def test_create_three_goals(self):
         self.client.force_authenticate(user=self.user)
         goal2 = Goal(title='This is another test goal').save()
-        self.active_round.goals.connect(goal2)
-        goal2.associated_round.connect(self.active_round)
         goal3 = Goal(title='Yet another test goal').save()
-        self.active_round.goals.connect(goal3)
-        goal3.associated_round.connect(self.active_round)
         url = reverse('update-list',
-                      kwargs={"object_uuid": self.campaign.object_uuid})
+                      kwargs={"object_uuid": self.quest.owner_username})
         data = {
-            "campaign": self.campaign.object_uuid,
+            "campaign": self.quest.owner_username,
             "goals": [self.goal.title, goal2.title, goal3.title],
             "title": "This is a test update",
             "content": "I repeat, this is a test update"
@@ -1521,16 +609,13 @@ class PositionEndpointTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
-        self.campaign = PoliticalCampaign(
-            biography='Test Bio', owner_username=self.pleb.username).save()
-        self.campaign.owned_by.connect(self.pleb)
-        self.pleb.campaign.connect(self.campaign)
-        self.campaign.accountants.connect(self.pleb)
-        self.campaign.editors.connect(self.pleb)
-        self.pleb.campaign_accountant.connect(self.campaign)
-        self.pleb.campaign_editor.connect(self.campaign)
+        self.quest = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
+        self.pleb.quest.connect(self.quest)
+        self.quest.moderators.connect(self.pleb)
+        self.quest.editors.connect(self.pleb)
         self.position = Position(name="Senator").save()
-        self.position.campaigns.connect(self.campaign)
+        self.position.campaigns.connect(self.quest)
         for item in Location.nodes.all():
             item.delete()
         self.location = Location(name="Michigan").save()
@@ -1603,8 +688,7 @@ class PositionEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.position.object_uuid})
         response = self.client.get(url)
 
-        self.assertEqual(response.data['campaigns'],
-                         [])
+        self.assertEqual(response.data['campaigns'], [])
 
     def test_detail_href(self):
         self.client.force_authenticate(user=self.user)

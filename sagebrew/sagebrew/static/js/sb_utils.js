@@ -500,7 +500,7 @@ function editObject(editArea, url, objectUuid, dataArea) {
                         if (data.first_url_content && data.uploaded_objects[0].created < data.first_url_content.created) {
                             contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
                             var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
-                            $.each(data.uploaded_objects, function(index, value){
+                            $.each(data.uploaded_objects, function (index, value) {
                                 uploadContainer.append(value.html);
                             });
                         } else if (data.first_url_content && data.uploaded_objects[0].created > data.first_url_content.created && data.urlcontent_html) {
@@ -508,11 +508,11 @@ function editObject(editArea, url, objectUuid, dataArea) {
                         } else {
                             contentContainer.append('<div class="row sb-post-image-wrapper"><div>');
                             var uploadContainer = $(contentContainer).find(".sb-post-image-wrapper");
-                            $.each(data.uploaded_objects, function(index, value){
+                            $.each(data.uploaded_objects, function (index, value) {
                                 uploadContainer.append(value.html);
                             });
                         }
-                    } else if ((data.uploaded_objects.length <= 0) && data.urlcontent_html) {
+                    } else if ("uploaded_objects" in data && (data.uploaded_objects.length <= 0) && data.urlcontent_html) {
                         contentContainer.append(data.urlcontent_html);
                     }
                     $("#edit_container_" + objectUuid).hide();

@@ -7,8 +7,8 @@ from neomodel import DoesNotExist, CypherException, db
 from sb_registration.utils import (verify_completed_registration)
 
 from api.utils import smart_truncate
-from sb_quests.neo_models import PoliticalCampaign, Campaign
-from sb_quests.serializers import PoliticalCampaignSerializer, CampaignSerializer
+from sb_quests.neo_models import PoliticalCampaign, Quest
+from sb_quests.serializers import PoliticalCampaignSerializer, QuestSerializer
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -16,6 +16,23 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from py2neo.cypher import ClientError
+
+def quest(request, username):
+    try:
+        quest_obj = Quest.get(owner_username=username)
+    except (CypherException, IOError, PoliticalCampaign.DoesNotExist,
+            DoesNotExist):
+        return redirect("404_Error")
+    serializer_data = QuestSerializer(
+        quest_obj, context={'request': request}).data
+    # TODO think we can remove this and just use the stripe key coming through
+    # the context processor
+    serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
+    serializer_data['description'] = "%s %s's Policies, Agenda, " \
+                                     "and Platform." % (
+        serializer_data['first_name'], serializer_data['last_name'])
+    serializer_data['keywords'] = "Politics, Fundraising, Campaign, Quest,"
+    return render(request, 'quest.html', serializer_data)
 
 
 def saga(request, username):

@@ -228,14 +228,6 @@ class UpdateEndpointsTest(APITestCase):
 
         self.assertEqual(response.data['goals'], [])
 
-    def test_get_campaign(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('update-detail',
-                      kwargs={'object_uuid': self.update.object_uuid})
-        response = self.client.get(url)
-
-        self.assertEqual(response.data['campaign'], self.campaign.object_uuid)
-
     def test_put(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('update-detail',

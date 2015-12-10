@@ -1,11 +1,13 @@
 from django.conf.urls import patterns, url
 
-from .views import (saga, edit_epic, insights, moderators,
+from .views import (saga, edit_epic, insights, moderators, quest_list,
                     quest, manage_settings, delete_quest,
                     quest_delete_page, quest_manage_banking)
 
 urlpatterns = patterns(
     'sb_public_official.views',
+    url(r'^quests$', quest_list,
+        name='quest_list'),
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/$', quest,
         name='quest'),
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/$', saga,

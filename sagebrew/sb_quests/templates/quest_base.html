@@ -59,9 +59,6 @@
         <script src="{% static 'js/activate_tooltips.js' %}"></script>
     {% endif %}
     {% if active or request.user.username == id %}
-        {% if "moderators" not in request.path %}
-            <script src="{% static 'js/get_goals.js' %}"></script>
-        {% endif %}
         <script src="{% static 'js/create_donations.js' %}"></script>
         <script src="{% static 'js/donation_validator.js' %}"></script>
         {% if allow_vote %}

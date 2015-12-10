@@ -5,10 +5,10 @@
  * TODO refactor and include the above globals.
  *
  */
-var request = require('./../../../api').request,
-    helpers = require('./../../../common/helpers'),
-    settings = require('./../../../settings').settings,
-    content = require('./../../../common/content');
+var request = require('api').request,
+    helpers = require('common/helpers'),
+    settings = require('settings').settings,
+    content = require('common/content');
 
 
 

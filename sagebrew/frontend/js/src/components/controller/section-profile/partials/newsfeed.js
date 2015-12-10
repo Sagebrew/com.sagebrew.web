@@ -6,9 +6,10 @@
  * TODO refactor and include the above globals.
  *
  */
-var request = require('./../../../api').request,
+var request = require('api').request,
     Autolinker = require('autolinker');
-require('./../../../plugin/contentloader');
+
+require('plugin/contentloader');
 
 /**
  * These should really be called load or something.

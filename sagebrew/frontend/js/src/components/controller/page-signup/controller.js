@@ -3,7 +3,17 @@
  * @file
  * Signup Page... This is actually the homepage for anon users.
  */
-var request = require('./../../api').request;
+var request = require('api').request;
+
+/**
+ * Meta.
+ */
+export const meta = {
+    controller: "page-signup",
+    match_method: "path",
+    check: "^$"
+};
+
 
 function signupFormValidation() {
        $("#signupForm").formValidation({

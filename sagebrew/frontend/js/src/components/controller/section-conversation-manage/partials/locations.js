@@ -1,6 +1,7 @@
 /*global google*/
-var request = require('./../../../api').request,
-    helpers = require('./../../../common/helpers');
+var request = require('api').request,
+    settings = require('settings').settings,
+    helpers = require('common/helpers');
 
 function initAutocomplete() {
     if(typeof(Storage) !== "undefined") {

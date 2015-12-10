@@ -2,17 +2,9 @@
  * @file
  * Load reps onto page.
 */
-var request = require('./../../../api').request,
-    settings = require('./../../../settings').settings,
-    helpers = require('./../../../common/helpers');
-
-/**
- * Get the username of whoever owns the profile.
- * TODO: Come up with a better way to do this.
- */
-function getUsername() {
-
-}
+var request = require('api').request,
+    settings = require('settings').settings,
+    helpers = require('common/helpers');
 
 /**
  * TODO:turn reps into some sort of tree structure so that we can get all the

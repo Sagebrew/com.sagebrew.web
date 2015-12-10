@@ -1,40 +1,55 @@
-{% extends "base.html" %}
+{% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
-{% block content %}
-<div id="campaign_id" style="display: none" data-object_uuid="{{ id }}"></div>
-<div id="stripe-publishable" data-stripe_key="{{ stripe_key }}"></div>
-{% if active == True %}
-    {% include "quest_header.html" %}
-{% else %}
-    {% include "quest_header_disabled.html" %}
-{% endif %}
 
-{% include "action_nav.html" %}
-<div class="row saga-wrapper">
-    <div class="col-md-12 epic-wrapper">
-        <div>
-            {% block quest_wall %}
-            {% endblock quest_wall %}
-            {% if "moderators" not in request.path %}
-                <div class="col-md-4">
-                    <h5>Goals{% if is_editor or is_accountant %}<button class="btn btn-primary sb_btn_icon sb_btn_icon_green" id="manage_goals" style="margin-top: -5px;"><span class="fa fa-edit"></span></button>{% endif %}</h5>
-                    {% if active == True %}
-                        <div id="active_round" data-object_uuid="{{ active_round }}"></div>
-                        <div id="goal_wrapper" class="block sb_channel_block"></div>
-                    {% elif request.user.username == id %}
-                        <div id="active_round" data-object_uuid="{{ upcoming_round }}"></div>
-                        <div id="goal_wrapper" class="block sb_channel_block"></div>
-                    {% else %}
-                        {% include "goals_block_disabled.html" %}
-                    {% endif %}
-                </div>
-            {% endif %}
+{% block hero %}
+    <div id="campaign_id" data-object_uuid="{{ id }}"></div>
+    <div id="stripe-publishable" data-stripe_key="{{ stripe_key }}"></div>
+    {% include "quest_header.html" %}
+    {% comment %}
+    I'm not really sure what the difference is here,
+    but there is a lot of duplicate markup between the two files.
+    {% if active == True %}
+        {% include "quest_header.html" %}
+    {% else %}
+        {% include "quest_header_disabled.html" %}
+    {% endif %}
+    {% endcomment %}
+
+{% endblock %}
+
+{% block live %}
+{% endblock %}
+
+{% block sidebar_right %}
+
+    <div class="block">
+        <div class="block-content">
+            <a data-toggle="modal" data-target="#donationModal" class="btn btn-primary btn-block">Donate</a>
         </div>
     </div>
 
-</div>
-{% endblock %}
+    <div class="block">
+        <h3 class="block-title">
+            Goals
+            {% if is_editor or is_accountant %}
+            <a class="pull-right btn btn-primary btn-sm toggle_create_goal" href="{% url 'manage_goals' request.user %}"><span class="fa fa-edit"></span></a>
+            {% endif %}
+        </h3>
 
+        <div class="block-content">
+          {% if active == True %}
+                <div id="active_round" data-object_uuid="{{ active_round }}"></div>
+                <div id="goal_wrapper" class="block sb_channel_block"></div>
+          {% elif request.user.username == id %}
+            <div id="active_round" data-object_uuid="{{ upcoming_round }}"></div>
+            <div id="goal_wrapper" class="block sb_channel_block"></div>
+          {% else %}
+              {% include "goals_block_disabled.html" %}
+          {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
 
 {% block scripts %}
     {{ block.super }}

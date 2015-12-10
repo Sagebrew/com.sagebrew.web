@@ -3,7 +3,7 @@
  * TODO refactor and include the above globals.
  */
 var Autolinker = require('autolinker'),
-    request = require('./../../../api').request;
+    request = require('api').request;
 
 function loadSolutionCount(questionID) {
     "use strict";

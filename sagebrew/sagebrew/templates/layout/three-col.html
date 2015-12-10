@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block body_class %}{{ block.super }} layout-three-col{% endblock %}
+
+{% block content %}
+    <div class="row">
+
+        <div class="col-md-3"><div class="sidebar-left">
+            {% block sidebar_left %}
+            {% endblock %}
+        </div></div>
+
+        <div class="col-md-6"><div class="live">
+            {% block live %}
+            {% endblock %}
+        </div></div>
+
+        <div class="col-md-3"><div class="sidebar-right">
+            {% block sidebar_right %}
+            {% endblock %}
+        </div></div>
+
+    </div>
+{% endblock %}

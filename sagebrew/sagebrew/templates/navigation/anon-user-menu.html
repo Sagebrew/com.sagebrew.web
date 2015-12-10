@@ -1,3 +1,10 @@
+{% if request.path != "/" %}
+    <ul class="nav navbar-nav navbar-left sb_login sb-signup-btn">
+        <li>
+            <button class="btn btn-block btn-primary" id="js-sign-up">Signup</button>
+        </li>
+    </ul>
+{% endif %}
 {% if request.path != "/login/" %}
     <ul class="nav navbar-nav navbar-right sb_login">
         <li>

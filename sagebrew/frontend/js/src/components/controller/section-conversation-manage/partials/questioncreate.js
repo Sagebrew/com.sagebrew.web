@@ -1,5 +1,8 @@
-var request = require('./../../../api').request,
-    settings = require('./../../../settings').settings;
+/**
+ * @file
+ */
+var request = require('api').request,
+    settings = require('settings').settings;
 
 function sendQuestionRequest(url, title, content, tags, submitButton) {
     var placeID, latitude, longitude, affected_area;

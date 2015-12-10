@@ -10,7 +10,8 @@ function getSettingsData() {
         "ein": $("#ein").val(),
         "activate": $("#js-active").data("active"),
         "routing_number": $("#routing-number").val(),
-        "account_number": $("#account-number").val()
+        "account_number": $("#account-number").val(),
+        "biography": $("#biography").val()
     };
 }
 

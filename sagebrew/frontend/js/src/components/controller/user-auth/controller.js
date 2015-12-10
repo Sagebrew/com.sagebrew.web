@@ -24,21 +24,19 @@ export const meta = {
  *  They can't even start loading the next page until this is completed.
  */
 function collectAuthedActions() {
-    $(document).ready(function () {
-        window.onbeforeunload = function () {
-            var objectList = JSON.parse(localStorage.getItem("objectUpdates"));
-            if (objectList) {
-                localStorage.removeItem("objectUpdates");
-                request.post({
-                    async: false,
-                    url: "/docstore/update_neo_api/",
-                    data: JSON.stringify({
-                        'object_uuids': objectList
-                    })
-                });
-            }
-        };
-    });
+    window.onbeforeunload = function () {
+        var objectList = JSON.parse(localStorage.getItem("objectUpdates"));
+        if (objectList) {
+            localStorage.removeItem("objectUpdates");
+            request.post({
+                async: false,
+                url: "/docstore/update_neo_api/",
+                data: JSON.stringify({
+                    'object_uuids': objectList
+                })
+            });
+        }
+    };
 }
 
 

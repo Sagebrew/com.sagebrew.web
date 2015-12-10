@@ -6,7 +6,7 @@
 /**
  * Init Login
  */
-var request = require('./../../../api').request;
+var request = require('api').request;
 
 function loginform() {
     var submitArea = $("#submit_login");

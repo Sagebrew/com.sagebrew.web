@@ -144,10 +144,12 @@ gulp.task('scripts:global', function () {
         var bundler =  browserify({
             entries: [__dirname + "/" + entry],
             basedir: __dirname,
-            debug: debug
-            //transform: [bulkify, babelify]
+            debug: debug,
+            paths: [
+                './node_modules',
+                './js/src/components'
+            ]
         });
-
         bundler.transform(babelify);
         bundler.transform(globify);
 

@@ -7,8 +7,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
   color: @sb_dark_blue;
   word-wrap: break-word;
-  background-color: @sb_grey;
-
+  background-color: #D8D8D8;
 }
 
 h1 {
@@ -182,7 +181,6 @@ a {
   padding: 15px 0 15px 0;
   background-color: @sb_green_extra_light;
   border-radius: 0 0 5px 5px;
-  min-height: 150px;
   height: auto;
 }
 .sb_action_content_block{
@@ -654,7 +652,8 @@ a {
   border-bottom: solid @sb_grey;
   margin-bottom: @sb_common_margin_positive;
   ul {
-    padding-left: 0;
+    margin:0;
+    padding:0;
   }
   li {
     margin-right: 20px;
@@ -723,17 +722,7 @@ a {
     color: @sb_green;
   }
 }
-.sb_action_nav{
-  &:extend(.sb_secondary_nav);
-  background-color: @sb_green_extra_light;
-  margin: 60px 0 0 0;
-  border-radius: 2px 2px 0 0;
-  ul{
-    // TODO: Part time fix till PR #720
-    padding: 0 0 0 30px;
-    margin-bottom: 0;
-  }
-}
+
 .sb_search_nav{
   &:extend(.sb_secondary_nav);
   margin-top: 30px;
@@ -937,10 +926,10 @@ a {
   color: white;
 }
 .sb-signup-mission{
- h4{
-   color: white;
-   position: absolute;
- }
+  h4{
+    color: white;
+    position: absolute;
+  }
 }
 .intro-video-wrapper{
   display:inline-block;
@@ -978,13 +967,7 @@ a {
   margin-right: 0;
 }
 
-#sb_search_input{
-  width: 350px;
-  border-radius: 5px 0 0 5px;
-  border: 1px @sb_grey;
-  border-right-style: none;
-  margin-right: -8px;
-}
+
 .sb_btn_see_all{
   background-color: @sb_off_white;
   color: #838c92;
@@ -994,12 +977,12 @@ a {
   width: 100%;
   height: 40px;
   font-size: @sb_body_text;
-    &:active{
-      color: @sb_green;
-    }
-    &:hover{
-      color: @sb_green;
-    }
+  &:active{
+    color: @sb_green;
+  }
+  &:hover{
+    color: @sb_green;
+  }
 }
 
 // This is used as the css for collage plus after uploading images
@@ -1331,33 +1314,6 @@ textarea.sb_comment_input{
   margin-bottom: 0;
 }
 
-#cropQuestWallpaperPictureEyecandy{
-  &:extend(.sb_wallpaper_action);
-  position: relative;
-  //fixes gap at the bottom
-  margin-top: 0;
-  margin-bottom: 0;
-  height: 450px;
-  width: 100%;
-}
-
-#cropQuestProfilePictureEyecandy{
-  width: 100px;
-  height: 100px;
-  margin-top: -7px;
-  position: absolute;
-}
-.cropQuestProfilePictureEyecandy_imgUploadForm {
-  width: 0;
-}
-
-.cropControls{
-  margin-right: 5px;
-  margin-top: 5px;
-}
-#quest_profile_pic {
-  width: 100px;
-}
 
 .sb_notifier{
   background-color: @sb_dark_blue;
@@ -1388,10 +1344,6 @@ textarea.sb_comment_input{
   padding: 0 15px 15px 15px;
 }
 
-.sb_create_goal_wrapper {
-  padding-left: 15px;
-  padding-right: 15px;
-}
 
 .toggle_create_goal {
   margin-top: -5px;
@@ -1401,14 +1353,6 @@ textarea.sb_comment_input{
   margin-top: -15px;
 }
 
-#existing_goals {
-  min-height: 500px;
-}
-
-#current_goals {
-  &:extend(#existing_goals);
-  margin-top: 58px;
-}
 
 #sb_queue_switch {
   margin-top: 10px;
@@ -1953,6 +1897,28 @@ textarea.sb_comment_input{
 }
 .sb-position-filter-wrapper {
   margin-top: 8px;
+}
+.nav-list-vivid {
+  li {
+    a {
+      font-size: 18px;
+      line-height: 25px;
+      padding:15px;
+    }
+  }
+
+  li.active > a {
+    background-color: @sb_green;
+  }
+  li:last-child {
+    margin-bottom:0px;
+
+  }
+
+  li:last-child a {
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+  }
 }
 
 .sb-single-object-wall {

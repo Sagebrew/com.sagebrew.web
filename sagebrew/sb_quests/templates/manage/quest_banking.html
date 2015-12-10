@@ -1,0 +1,77 @@
+{% extends "manage/manage_base.html" %}
+{% load staticfiles %}
+{% block title %}Quest Banking{% endblock title %}
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">
+            Accounting
+        </h3>
+        <div class="block-content">
+            <div id="campaign_id" data-object_uuid="{{ campaign.id }}" style="display: none"></div>
+            <div id="stripe_key" data-key="{{ campaign.stripe_key }}" style="display: none"></div>
+            <div id="completed-stripe" data-completed_stripe="{{ campaign.completed_stripe }}"></div>
+            <div id="js-completed_customer" class="sb_hidden"
+                 data-completed_customer="{{ campaign.completed_customer }}"></div>
+            <div id="js-paid_account" class="sb_hidden" data-paid_account="{{ campaign.paid_account }}"></div>
+            <div id="js-active" class="sb_hidden" data-active="{{ campaign.active }}"></div>
+            <div id="js-taking_live" class="sb_hidden" data-taking_live=False></div>
+
+            <form id="js-banking-block" id="bankingForm">
+                <div class="form-group">
+                    <label for="">
+                        Social Security Number
+                    </label>
+                    <input type="text" class="form-control" name="socnumb">
+                    <p class="help-block">We don't store this.</p>
+                </div>
+                <div class="form-group">
+                    <label for="">
+                        EIN for political campaign committee (optional)
+                    </label>
+                    <input type="text" class="form-control" name="employernumb">
+                    <p class="help-block">We don't store this.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="">
+                        Routing Number
+                    </label>
+                    <input type="text" class="form-control" name="routingnumb">
+                    <p class="help-block">We don't store this.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="">
+                        Account Number
+                    </label>
+                    <input type="text" class="form-control" name="accountnumb">
+                    <p class="help-block">We don't store this.</p>
+                </div>
+            </form>
+
+
+            <div class="row">
+                <div id="validation-errors"></div>
+                <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
+                    <button class="btn btn-primary sb_btn sb_btn_fill"
+                            id="submit_settings">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
+    <script src="{% static 'js/submit_quest_settings.js' %}"></script>
+    <script src="{% static 'js/campaign_settings_validator.js' %}"></script>
+    {% if not request_profile.is_verified %}
+        <script src="{% static 'js/activate_tooltips.js' %}"></script>
+    {% endif %}
+{% endblock scripts %}

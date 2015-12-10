@@ -1,5 +1,6 @@
 from os import environ
 import json
+from django.conf import settings
 
 from neomodel import CypherException, DoesNotExist
 
@@ -10,6 +11,10 @@ from plebs.neo_models import Pleb
 def js_settings(request):
 
     data = {
+        'api': {
+            'google_maps': environ.get('GOOGLE_MAPS_JS'),
+            'stripe':  settings.STRIPE_PUBLIC_KEY
+        },
         'google_maps': environ.get('GOOGLE_MAPS_JS'),
         'user': {}
     }
@@ -29,10 +34,10 @@ def js_settings(request):
     except AttributeError:
         data['user']['type'] = "anon"
 
-    settings = "var SB_APP_SETTINGS = "
-    settings += json.dumps(data)
-    settings += ";"
+    js_settings_output = "var SB_APP_SETTINGS = "
+    js_settings_output += json.dumps(data)
+    js_settings_output += ";"
 
     return {
-        'js_settings': settings,
+        'js_settings': js_settings_output,
     }

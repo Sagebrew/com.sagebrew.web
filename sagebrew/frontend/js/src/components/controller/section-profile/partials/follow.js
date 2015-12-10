@@ -2,10 +2,9 @@
  * @file
  * Manage following and unfollowing users.
  */
-var request = require('./../../../api').request,
-    helpers = require('./../../../common/helpers');
+var request = require('api').request,
+    helpers = require('common/helpers');
 
-require('./../../../plugin/contentloader');
 
 export function init() {
     var $app = $(".sb-profile-not-friend-container"),
@@ -14,7 +13,6 @@ export function init() {
 
     // (Un)follow user bindings
     $app
-
         //
         // Follow user
         .on('click', '#js-follow', function (event) {

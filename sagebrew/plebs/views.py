@@ -24,8 +24,7 @@ from api.utils import spawn_task
 from plebs.neo_models import (Pleb, BetaUser, Address,
                               get_friend_requests_sent)
 from sb_registration.utils import (verify_completed_registration)
-from sb_quests.neo_models import Campaign
-from sb_quests.serializers import CampaignSerializer
+
 
 from .serializers import PlebSerializerNeo
 from .tasks import create_friend_request_task, send_email_task
@@ -123,37 +122,18 @@ def general_settings(request):
         return redirect("500_Error")
     except IndexError:
         address = False
-    return render(request, 'general_settings.html',
+    return render(request, 'settings/general_settings.html',
                   {"address": address, "address_key": address_key})
 
 
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
-def quest_settings(request):
+def delete_account(request):
     """
-    This view provides the necessary information for rendering a user's
-    Quest settings. If they have an ongoing Quest it provides the information
-    for that and if not it returns nothing and the template is expected to
-    provide a button for the user to start their Quest.
-
-    :param request:
-    :return:
+    Delete account page.
     """
-    query = 'MATCH (person:Pleb {username: "%s"})' \
-            '-[r:IS_WAGING]->(campaign:Campaign) RETURN campaign' % (
-                request.user.username)
-    try:
-        res, col = db.cypher_query(query)
-        campaign = CampaignSerializer(Campaign.inflate(res[0][0]),
-                                      context={'request': request}).data
-        campaign['stripe_key'] = settings.STRIPE_PUBLIC_KEY
-    except(CypherException, ClientError):
-        return redirect("500_Error")
-    except IndexError:
-        campaign = False
-    return render(request, 'quest_settings.html',
-                  {"campaign": campaign})
+    return render(request, 'settings/delete_account.html')
 
 
 @login_required()
@@ -169,7 +149,7 @@ def contribute_settings(request):
     :param request:
     :return:
     """
-    return render(request, 'contribute_settings.html',
+    return render(request, 'settings/contribute_settings.html',
                   {"stripe_key": settings.STRIPE_PUBLIC_KEY})
 
 
@@ -219,36 +199,6 @@ def get_user_search_view(request, pleb_username=""):
             status=200)
     else:
         return Response({'detail': 'error'}, 400)
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def delete_quest(request):
-    internal_data = {
-        "source": "support@sagebrew.com",
-        "to": [row[1] for row in settings.ADMINS],
-        "subject": "Quest Deletion",
-        "html_content": render_to_string(
-            "email_templates/email_internal_quest_deletion.html", {
-                "username": request.user.username,
-                "email": request.user.email
-            })
-    }
-    user_data = {
-        "source": "support@sagebrew.com",
-        "to": request.user.email,
-        "subject": "Quest Deletion Confirmation",
-        "html_content": render_to_string(
-            "email_templates/email_quest_deletion_confirmation.html", {
-                "first_name": request.user.first_name,
-                "last_name": request.user.last_name
-            })
-    }
-    spawn_task(task_func=send_email_task, task_param=internal_data)
-    spawn_task(task_func=send_email_task, task_param=user_data)
-    return Response({"detail": "We have sent a confirmation email to you "
-                               "and will be in contact soon to follow up!"},
-                    status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

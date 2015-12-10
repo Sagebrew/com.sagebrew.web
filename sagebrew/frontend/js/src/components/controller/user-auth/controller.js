@@ -3,8 +3,17 @@
  * Authed User Controller. Loaded on every page loaded by a logged in user.
  */
 var navbar = require('./partials/navbar').initNavbar,
-    request = require('./../../api').request;
+    request = require('api').request;
 
+
+/**
+ * Meta.
+ */
+export const meta = {
+    controller: "user-auth",
+    match_method: "user",
+    check: "auth"
+};
 
 
 /**
@@ -33,16 +42,17 @@ function collectAuthedActions() {
 }
 
 
-
-
-
+/**
+ * Init
+ */
 export function init() {
     collectAuthedActions();
-
-    $(document).ready(function() {
-        navbar();
-    });
-
 }
 
+/**
+ * Load
+ */
+export function load() {
+    navbar();
+}
 

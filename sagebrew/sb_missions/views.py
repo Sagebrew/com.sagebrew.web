@@ -11,18 +11,18 @@ from sb_registration.utils import (verify_completed_registration,
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def select_mission(request):
-    return render(request, 'mission_selector.html', {})
+    return render(request, 'mission_selector.html')
 
 
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def public_office_mission(request):
-    return render(request, 'public_office_mission.html', {})
+    return render(request, 'public_office_mission.html')
 
 
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def advocate_mission(request):
-    return render(request, 'advocate_mission.html', {})
+    return render(request, 'advocate_mission.html')

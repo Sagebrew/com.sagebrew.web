@@ -8,7 +8,7 @@ export const meta = {
     controller: "section-conversation-manage",
     match_method: "path",
     check: [
-        "^conversations\/questions\/([A-Za-z0-9.@_%+-]{36})\/edit",
+        "^conversations\/questions\/[A-Za-z0-9.@_%+-]{36}\/edit",
         "^conversations/submit_question"
     ]
 };

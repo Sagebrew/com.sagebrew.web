@@ -1,18 +1,9 @@
 /*global $, enableContentFunctionality, populateComment, enableSolutionFunctionality*/
-var request = require('./../../../api').request,
-    settings = require('./../../../settings').settings,
-    helpers = require('./../../../common/helpers');
+var request = require('api').request,
+    settings = require('settings').settings,
+    helpers = require('common/helpers');
 
-require('./../../../plugin/contentloader');
-
-
-export const meta = {
-    controller: "section-single-object-page",
-    match_method: "path",
-    check: [
-        "^questions|solutions|posts/([A-Za-z0-9.@_%+-]{36})"
-    ]
-};
+require('plugin/contentloader');
 
 function loadSingleContent() {
     var wrapper = $("#js-content-wrapper"),
@@ -79,5 +70,6 @@ function loadSingleContent() {
 
 
 export function init() {
+    console.log('here')
     loadSingleContent();
 }

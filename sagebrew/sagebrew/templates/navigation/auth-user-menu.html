@@ -20,7 +20,7 @@
         </a>
     </li>
     <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <a href="#" class="dropdown-toggle js-show-reputation" data-toggle="dropdown">
             <i class="fa fa-certificate"></i>
             {% if not request_profile.reputation_update_seen and request_profile.reputation_change != 0 %}
                 <span class="navbar-new sb_notifier" id="js-sb_friend_request_notifier">{{ request_profile.reputation_change }}</span>
@@ -34,7 +34,7 @@
         </ul>
     </li>
     <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <a href="#" class="dropdown-toggle js-show-friend-requests" data-toggle="dropdown">
             <i class="fa fa-user"></i>
             <span id="js-friend_request_notifier_wrapper"></span>
         </a>
@@ -48,7 +48,7 @@
         </ul>
     </li>
     <li class="dropdown">
-        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        <a href="#" class="dropdown-toggle js-show-notifications" data-toggle="dropdown">
             <i class="fa fa-eye"></i>
             <span id="js-notification_notifier_wrapper"></span>
         </a>

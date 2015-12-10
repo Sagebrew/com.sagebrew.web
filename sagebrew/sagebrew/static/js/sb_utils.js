@@ -273,7 +273,6 @@ function voteObject(voteArea, resource) {
         var voteDown = $(this).parents('div.vote_wrapper').find(".vote_down");
         var voteUp = $(this).parents('div.vote_wrapper').find(".vote_up");
         var objectUpdates = localStorage.getItem("objectUpdates");
-        localStorage.removeItem("objectUpdates");
         if (!objectUpdates) {
             localStorage.setItem("objectUpdates", JSON.stringify([objectUuid]));
         } else {

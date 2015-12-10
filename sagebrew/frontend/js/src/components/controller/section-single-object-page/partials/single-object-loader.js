@@ -70,6 +70,5 @@ function loadSingleContent() {
 
 
 export function init() {
-    console.log('here')
     loadSingleContent();
 }

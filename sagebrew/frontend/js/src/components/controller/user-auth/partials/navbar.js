@@ -53,10 +53,12 @@ function navbar() {
         // Shows the notifications when the notification icon is clicked
         // Notify backend user has viewed the notifications.
         .on('click', '.show_notifications-action', function() {
+            console.log("clicked")
             $("#notification_div").fadeToggle();
             if ($('#js-notification_notifier_wrapper').children().length > 0) {
-                request.get({url:  "/v1/me/notifications/?seen=true"})
-                    .then(function() {
+                request.get({url: "/v1/me/notifications/?seen=true"})
+                    .done(function () {
+                        console.log('here')
                         $('#js-sb_notifications_notifier').remove();
                 });
             }
@@ -79,7 +81,7 @@ function navbar() {
             $("#friend_request_div").fadeToggle();
             if ($('#js-sb_friend_request_notifier').length > 0) {
                 request.get({url: "/v1/me/friend_requests/?seen=true"})
-                .then(function() {
+                .done(function() {
                      $('#js-sb_friend_request_notifier').remove();
                 });
             }
@@ -94,7 +96,7 @@ function navbar() {
                 data: JSON.stringify({
                     'request_id': requestID
                 })
-            }).then(function() {
+            }).done(function() {
                 $('#friend_request_' + requestID).remove();
             });
         })
@@ -108,7 +110,7 @@ function navbar() {
                 data: JSON.stringify({
                     'request_id': requestID
                 })
-            }).then(function() {
+            }).done(function() {
                 $('#friend_request_' + requestID).remove();
             });
         })
@@ -122,7 +124,7 @@ function navbar() {
                 data: JSON.stringify({
                     'request_id': requestID
                 })
-            }).then(function() {
+            }).done(function() {
                 $('#friend_request_' + requestID).remove();
             });
         });

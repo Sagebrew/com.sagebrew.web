@@ -15,7 +15,7 @@
                 <small>
                     <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>
                     {% if profile.campaign %}
-                        <a href="{% url "quest_saga" profile.username %}"
+                        <a href="{% url "quest" profile.username %}"
                            data-toggle="tooltip"
                            data-placement="top"
                            data-title="View User's Quest!">

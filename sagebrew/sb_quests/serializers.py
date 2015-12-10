@@ -189,8 +189,7 @@ class CampaignSerializer(SBSerializer):
             username = obj.owner_username
         else:
             username = obj.object_uuid
-        return reverse('quest_saga',
-                       kwargs={"username": username},
+        return reverse('quest', kwargs={"username": username},
                        request=self.context.get('request', None))
 
     def get_href(self, obj):
@@ -340,9 +339,6 @@ class QuestSerializer(SBSerializer):
     completed_stripe = serializers.SerializerMethodField()
     completed_customer = serializers.SerializerMethodField()
 
-    # DEPRECATED
-    public_official = serializers.SerializerMethodField()
-
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         request = self.context.get('request', None)
@@ -485,13 +481,12 @@ class QuestSerializer(SBSerializer):
             username = obj.owner_username
         else:
             username = obj.object_uuid
-        return reverse('quest_saga',
-                       kwargs={"username": username},
+        return reverse('quest', kwargs={"username": username},
                        request=self.context.get('request', None))
 
     def get_href(self, obj):
-        return reverse('campaign-detail',
-                       kwargs={'object_uuid': obj.object_uuid},
+        return reverse('quest-detail',
+                       kwargs={'owner_username': obj.owner_username},
                        request=self.context.get('request', None))
 
     def get_updates(self, obj):
@@ -524,14 +519,6 @@ class QuestSerializer(SBSerializer):
         if obj.stripe_customer_id is None:
             return False
         return True
-
-    def get_public_official(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
-        public_official = PublicOfficialSerializer(
-            obj.get_public_official()).data
-        if not public_official:
-            return None
-        return public_official
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):

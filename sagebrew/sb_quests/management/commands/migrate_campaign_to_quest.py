@@ -57,6 +57,11 @@ class Command(BaseCommand):
                 quest.moderators.connect(moderator)
                 campaign.accountants.disconnect(moderator)
 
+            for public_official in campaign.public_official.all():
+                public_official.quest.connect(quest)
+                public_official.campaign.disconnect(campaign)
+                campaign.public_official.disconnect(public_official)
+
             if campaign.epic != "" and campaign.epic is not None:
                 mission = Mission(
                     biography=campaign.biography,
@@ -83,7 +88,6 @@ class Command(BaseCommand):
                 for pledged_vote in campaign.pledged_votes.all():
                     mission.pledge_votes.connect(pledged_vote)
                     campaign.pledged_votes.disconnect(pledged_vote)
-
             campaign.delete()
 
     def handle(self, *args, **options):

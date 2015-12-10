@@ -6,8 +6,6 @@ urlpatterns = patterns(
     'sb_public_official.views',
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/$', quest,
         name='quest'),
-    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/$', saga,
-        name='quest_saga'),
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/insights/$', insights,
         name='quest_stats'),
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/moderators/$', moderators,

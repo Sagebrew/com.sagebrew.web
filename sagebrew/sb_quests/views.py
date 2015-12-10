@@ -74,7 +74,7 @@ def edit_epic(request, username):
 def insights(request, username):
     if request.user.username not in \
             PoliticalCampaign.get_campaign_helpers(username):
-        return redirect('quest_saga', username)
+        return redirect('quest', username)
     try:
         campaign = PoliticalCampaign.get(object_uuid=username)
     except (PoliticalCampaign.DoesNotExist, DoesNotExist):
@@ -96,7 +96,7 @@ def insights(request, username):
                   login_url='/registration/profile_information')
 def moderators(request, username):
     if not request.user.username == username:
-        return redirect('quest_saga', username)
+        return redirect('quest', username)
     try:
         campaign = PoliticalCampaign.get(object_uuid=username)
     except (PoliticalCampaign.DoesNotExist, DoesNotExist):

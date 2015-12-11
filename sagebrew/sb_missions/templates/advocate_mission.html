@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block title %} Profile Information {% endblock %}
+{% block title %}Advocate Mission{% endblock %}
 {% block content %}
     <div class="block registration">
         <div class="row">
@@ -14,11 +14,7 @@
                 <h2>What are you advocating for?</h2>
             </div>
             <div class="col-xs-12">
-                <div id="bloodhound">
-                    <input id="typeahead" class="form-control mission-input" type="text" placeholder="States of USA">
-                </div>
-                <input id="advocacy-selector" class="form-control mission-input" type="text"
-                       placeholder="Examples: sidewalks, cure-for-cancer, education-reform, democratic-principles, republican-values?"/>
+                <input id="advocate-input" class="form-control mission-input" type="text" placeholder="Examples: sidewalks, cure-for-cancer, education-reform, democratic-principles, republican-values?">
             </div>
         </div>
         <div class="row">

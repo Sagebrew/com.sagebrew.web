@@ -133,6 +133,8 @@ class QuestionViewSet(viewsets.ModelViewSet):
                         'question.html',
                         RequestContext(request, single_object)),
                     "ids": [single_object["object_uuid"]],
+                    "id": single_object["object_uuid"],
+                    "results": single_object,
                     "solution_count": single_object['solution_count']
                 }, status=status.HTTP_200_OK)
 

@@ -10,6 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import (ListCreateAPIView)
+from rest_framework.reverse import reverse
 
 from neomodel import db
 
@@ -59,6 +60,22 @@ class PostsViewSet(viewsets.ModelViewSet):
         res, _ = db.cypher_query(query)
         return res
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance).data
+        if request.query_params.get('html', 'false').lower() == 'true':
+            serializer['last_edited_on'] = parser.parse(
+                serializer['last_edited_on']).replace(microsecond=0)
+            serializer['created'] = parser.parse(
+                serializer['created']).replace(microsecond=0)
+            return Response(
+                {"html": render_to_string("post.html",
+                                          RequestContext(request, serializer)),
+                 "id": instance.object_uuid,
+                 "results": serializer},
+                status=status.HTTP_200_OK)
+        return Response(serializer)
+
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
@@ -84,7 +101,9 @@ class PostsViewSet(viewsets.ModelViewSet):
             spawn_task(task_func=spawn_notifications, task_param={
                 "from_pleb": request.user.username,
                 "sb_object": serializer['object_uuid'],
-                "url": serializer['url'],
+                "url": reverse(
+                    'single_post_page',
+                    kwargs={"object_uuid": serializer["object_uuid"]}),
                 "to_plebs": [wall_pleb.username, ],
                 "notification_id": str(uuid1()),
                 "action_name": instance.action_name
@@ -161,7 +180,9 @@ class WallPostsListCreate(ListCreateAPIView):
             spawn_task(task_func=spawn_notifications, task_param={
                 "from_pleb": request.user.username,
                 "sb_object": serializer['object_uuid'],
-                "url": serializer['url'],
+                "url": reverse(
+                    'single_post_page',
+                    kwargs={"object_uuid": serializer["object_uuid"]}),
                 "to_plebs": [self.kwargs[self.lookup_field], ],
                 "notification_id": str(uuid1()),
                 "action_name": instance.action_name

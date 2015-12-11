@@ -164,7 +164,8 @@ class CampaignSerializer(SBSerializer):
             if not Campaign.get_active_round(instance.object_uuid):
                 if not owner.is_verified:
                     raise NotAuthenticated(detail="You may not take a Quest "
-                                                  "live unless you are a verified user.")
+                                                  "live unless you are a "
+                                                  "verified user.")
                 upcoming_round = Round.nodes.get(
                     object_uuid=Campaign.get_upcoming_round(
                         instance.object_uuid))

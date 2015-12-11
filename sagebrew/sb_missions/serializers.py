@@ -18,7 +18,7 @@ class MissionSerializer(SBSerializer):
     biography = serializers.CharField(required=False, max_length=255)
     epic = serializers.CharField(required=False, allow_blank=True)
     focus_on_type = serializers.ChoiceField(required=True, choices=[
-        ('position', "Public Office"), ('tag', "Advocacy"),
+        ('position', "Public Office"), ('advocacy', "Advocacy"),
         ('question', "Question")])
     facebook = serializers.CharField(required=False, allow_blank=True)
     linkedin = serializers.CharField(required=False, allow_blank=True)
@@ -38,7 +38,7 @@ class MissionSerializer(SBSerializer):
     rendered_epic = serializers.SerializerMethodField()
 
     district = serializers.CharField(write_only=True, allow_null=True)
-    level = serializers.ChoiceField(required=True, choices=[
+    level = serializers.ChoiceField(required=False, choices=[
         ('local', "Local"), ('state_upper', "State Upper"),
         ('state_lower', "State Lower"),
         ('federal', "Federal")])
@@ -54,7 +54,8 @@ class MissionSerializer(SBSerializer):
         focused_on = validated_data.get('focus_name')
         district = validated_data.get('district')
         owner_username = request.user.username
-        mission = Mission(owner_username=owner_username, level=level).save()
+        mission = Mission(owner_username=owner_username, level=level,
+                          focus_on_type=focus_type).save()
         within_query = 'MATCH (mission:Mission {object_uuid: "%s"})-' \
                        '[:FOCUSED_ON]->(position:Position)' \
                        '<-[:POSITIONS_AVAILABLE]-(location:Location) ' \
@@ -140,7 +141,7 @@ class MissionSerializer(SBSerializer):
                 # May be able to optimize and combine at some point.
                 res, _ = db.cypher_query(within_query)
                 return Mission.inflate(res.one)
-        elif focus_type == "tag":
+        elif focus_type == "advocacy":
             # Need to handle potential district with location
             pass
         elif focus_type == "question":

@@ -452,6 +452,8 @@ class PoliticalCampaign(Campaign):
             pleb = Pleb.get(username)
         except (Pleb.DoesNotExist, DoesNotExist):
             return False
+        if not pleb.is_verified:
+            return False
         address = pleb.get_address()
         position = PoliticalCampaign.get_position(object_uuid)
 

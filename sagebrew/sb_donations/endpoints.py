@@ -7,6 +7,8 @@ from neomodel import db
 
 from api.permissions import IsAuthorizedAndVerified
 from sb_quests.neo_models import Campaign
+from plebs.neo_models import Pleb
+from plebs.serializers import PlebSerializerNeo
 
 from .neo_models import Donation
 from .serializers import DonationSerializer, SBDonationSerializer
@@ -84,9 +86,25 @@ class DonationListCreate(generics.ListCreateAPIView):
         return [Donation.inflate(row[0]) for row in res]
 
     def perform_create(self, serializer):
+
         campaign = Campaign.get(object_uuid=self.kwargs[self.lookup_field])
         serializer.save(campaign=campaign,
                         token=self.request.data.get('token', None))
+
+    def create(self, request, *args, **kwargs):
+        pleb = Pleb.get(request.user.username)
+        if not pleb:
+            if not PlebSerializerNeo(pleb).data.get("is_verified", False):
+                return Response(
+                    {"detail": "You may not donate to a Quest "
+                               "unless you are verified.",
+                     "status_code": status.HTTP_401_UNAUTHORIZED},
+                    status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "You are not authorized to access "
+                                       "this page."},
+                            status=status.HTTP_403_FORBIDDEN)
+        return super(DonationListCreate, self).create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         """
@@ -113,6 +131,14 @@ class DonationListCreate(generics.ListCreateAPIView):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def sagebrew_donation(request):
+    if not Pleb.get(request.user.username).is_verified:
+        return Response(
+            {
+                "detail": "You cannot donate to us unless you are verified.",
+                "status": status.HTTP_401_UNAUTHORIZED,
+                "developer_message": "A user may only donate on Sagebrew "
+                                     "if they are verified."},
+            status=status.HTTP_401_UNAUTHORIZED)
     serializer = SBDonationSerializer(data=request.data,
                                       context={'request': request})
     if serializer.is_valid():

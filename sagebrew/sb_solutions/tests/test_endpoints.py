@@ -216,7 +216,7 @@ class TestSingleSolutionPage(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)

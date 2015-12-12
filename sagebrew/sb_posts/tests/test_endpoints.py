@@ -433,7 +433,7 @@ class WallPostListCreateTest(APITestCase):
     def test_list_with_items_not_friends(self):
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(email2)
+        res = create_user_util_test(email2, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         friend = Pleb.nodes.get(email=email2)
@@ -454,7 +454,7 @@ class WallPostListCreateTest(APITestCase):
     def test_list_with_items_friends(self):
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(email2)
+        res = create_user_util_test(email2, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         friend = Pleb.nodes.get(email=email2)
@@ -609,7 +609,7 @@ class PostListCreateTest(APITestCase):
     def test_create_on_friends_wall(self):
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(email2)
+        res = create_user_util_test(email2, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         friend = Pleb.nodes.get(email=email2)
@@ -626,7 +626,7 @@ class PostListCreateTest(APITestCase):
     def test_create_on_non_friends_wall(self):
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(email2)
+        res = create_user_util_test(email2, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         friend = Pleb.nodes.get(email=email2)
@@ -690,7 +690,7 @@ class PostListCreateTest(APITestCase):
     def test_list_with_items_not_friends(self):
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(email2)
+        res = create_user_util_test(email2, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         friend = Pleb.nodes.get(email=email2)
@@ -711,7 +711,7 @@ class PostListCreateTest(APITestCase):
     def test_list_with_items_friends(self):
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(email2)
+        res = create_user_util_test(email2, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         friend = Pleb.nodes.get(email=email2)
@@ -734,7 +734,7 @@ class TestSinglePostPage(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'post'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)

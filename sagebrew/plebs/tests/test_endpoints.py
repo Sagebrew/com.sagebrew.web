@@ -3767,7 +3767,7 @@ class TestFollowNewsfeed(APITestCase):
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2)
+        res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
@@ -3966,7 +3966,7 @@ class TestDeclineFriendRequest(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2)
+        res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
@@ -4060,7 +4060,7 @@ class TestBlockFriendRequest(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2)
+        res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)

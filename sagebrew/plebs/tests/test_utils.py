@@ -42,7 +42,7 @@ class TestPleb(TestCase):
 class TestCreateFriendRequestUtil(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb1 = Pleb.nodes.get(email=self.email)
         self.user1 = User.objects.get(email=self.email)

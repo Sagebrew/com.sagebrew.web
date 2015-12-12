@@ -19,6 +19,7 @@ from sb_goals.neo_models import Round
 from sb_goals.tasks import check_goal_completion_task
 from plebs.tasks import send_email_task
 from sb_privileges.tasks import check_privileges
+from sb_registration.utils import calc_age
 
 from .neo_models import Donation
 

@@ -428,7 +428,7 @@ class TestSignupView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -454,7 +454,7 @@ class TestSignupAPIView(TestCase):
         self.store = SessionStore()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -653,7 +653,7 @@ class TestLoginView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -672,7 +672,7 @@ class TestLoginAPIView(TestCase):
         self.store = SessionStore()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -807,7 +807,7 @@ class TestLogoutView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -833,7 +833,7 @@ class TestEmailVerificationView(TestCase):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -895,7 +895,7 @@ class TestResendEmailVerificationView(TestCase):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -935,7 +935,7 @@ class TestConfirmView(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -958,7 +958,7 @@ class TestAgeRestrictionView(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -981,7 +981,7 @@ class TestQuestSignup(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -1002,7 +1002,7 @@ class TestProfilePicture(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)

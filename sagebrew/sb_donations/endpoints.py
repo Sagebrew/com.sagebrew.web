@@ -1,5 +1,5 @@
 from rest_framework.response import Response
-from rest_framework import status, viewsets, generics, mixins
+from rest_framework import status, viewsets, generics, mixins, serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes
 
@@ -7,6 +7,8 @@ from neomodel import db
 
 from api.permissions import IsAuthorizedAndVerified
 from sb_quests.neo_models import Campaign
+from sb_registration.utils import calc_age
+from plebs.neo_models import Pleb
 
 from .neo_models import Donation
 from .serializers import DonationSerializer, SBDonationSerializer
@@ -87,6 +89,14 @@ class DonationListCreate(generics.ListCreateAPIView):
         campaign = Campaign.get(object_uuid=self.kwargs[self.lookup_field])
         serializer.save(campaign=campaign,
                         token=self.request.data.get('token', None))
+
+    def create(self, request, *args, **kwargs):
+        if calc_age(Pleb.get(request.user.username).date_of_birth) < 18:
+            return Response({"detail": "You may not donate to a Quest unless "
+                                       "you are 18 years of age or older.",
+                             "status_code": status.HTTP_401_UNAUTHORIZED},
+                            status=status.HTTP_401_UNAUTHORIZED)
+        return super(DonationListCreate, self).create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         """

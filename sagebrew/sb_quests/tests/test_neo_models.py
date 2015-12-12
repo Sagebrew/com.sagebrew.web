@@ -46,8 +46,10 @@ class TestPoliticalCampaignNeoModel(TestCase):
         self.donation = Donation(amount=5.0).save()
 
     def test_get_allow_vote_user_does_not_exist(self):
-        res = PoliticalCampaign.get_allow_vote(str(uuid1()), str(uuid1()))
+        res, detail = PoliticalCampaign.get_allow_vote(
+            str(uuid1()), str(uuid1()))
         self.assertFalse(res)
+        self.assertEqual(detail['detail'], 'This user does not exist.')
 
     def test_campaign_to_political_campaign(self):
         stripe_id = str(uuid1())

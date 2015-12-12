@@ -336,3 +336,29 @@ class TestSagebrewDonation(APITestCase):
         }
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_donation_create_user_is_not_verified(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('direct_donation')
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        self.pleb.stripe_customer_id = None
+        self.pleb.is_verified = False
+        self.pleb.save()
+        cache.clear()
+        token = stripe.Token.create(
+            card={
+                "number": "4242424242424242",
+                "exp_month": 12,
+                "exp_year": (datetime.datetime.now() + datetime.timedelta(
+                    days=3 * 365)).year,
+                "cvc": '123'
+            }
+        )
+        data = {
+            'amount': 1000,
+            'token': token['id']
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.pleb.is_verified = True
+        self.pleb.save()

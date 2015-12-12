@@ -12,6 +12,7 @@ from rest_framework.generics import (ListCreateAPIView)
 from api.utils import spawn_task
 from sb_base.views import ObjectRetrieveUpdateDestroy
 from sb_docstore.tasks import spawn_user_updates
+from plebs.neo_models import Pleb
 
 from .serializers import VoteSerializer
 from .neo_models import Vote
@@ -46,6 +47,13 @@ class ObjectVotesListCreate(ListCreateAPIView):
         vote_data = request.data
         serializer = self.get_serializer(data=vote_data,
                                          context={"request": request})
+        if not Pleb.get(request.user.username).is_verified:
+            return Response({
+                "detail": "Sorry, you cannot vote unless you are verified!",
+                "status": status.HTTP_401_UNAUTHORIZED,
+                "developer_message": "A user can only vote on content "
+                                     "if they are verified."
+            }, status=status.HTTP_401_UNAUTHORIZED)
         if serializer.is_valid():
             parent_object_uuid = self.kwargs[self.lookup_field]
 
@@ -80,7 +88,8 @@ class ObjectVotesListCreate(ListCreateAPIView):
                              "developer_message": "Appears we're having some "
                                                   "issues right now. Please "
                                                   "try posting the vote again "
-                                                  "in a few minutes."})
+                                                  "in a few minutes."},
+                            status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response(serializer.errors, status=400)
 

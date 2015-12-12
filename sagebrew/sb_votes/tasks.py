@@ -4,6 +4,8 @@ from celery import shared_task
 from django.template.loader import render_to_string
 from django.core.cache import cache
 
+from rest_framework.reverse import reverse
+
 from neomodel import CypherException, DoesNotExist
 from py2neo.cypher.error.statement import ClientError
 
@@ -13,6 +15,7 @@ from plebs.neo_models import Pleb
 from sb_base.neo_models import (get_parent_votable_content,
                                 get_parent_titled_content)
 from sb_notifications.tasks import spawn_notifications
+from sb_comments.neo_models import Comment
 
 from .neo_models import Vote
 
@@ -125,12 +128,21 @@ def object_vote_notifications(object_uuid, previous_vote_type, new_vote_type,
                                                         truncate_content))
             public = True
         if previous_vote_type != new_vote_type and new_vote_type != 2:
+            if sb_object.get_child_label().lower() == "comment":
+                comment_on = Comment.get_comment_on(sb_object.object_uuid)
+                page_type = comment_on.get_child_label().lower()
+                object_id = comment_on.object_uuid
+            else:
+                page_type = sb_object.get_child_label().lower()
+                object_id = sb_object.object_uuid
             res = spawn_task(spawn_notifications, task_param={
                 'from_pleb': current_pleb.username,
                 'to_plebs': [sb_object.owner_username],
                 'sb_object': sb_object.object_uuid,
                 'notification_id': str(uuid1()),
-                'url': sb_object.url,
+                'url': reverse(
+                    "single_%s_page" % page_type,
+                    kwargs={"object_uuid": object_id}),
                 'action_name': action_name,
                 'public': public
             })

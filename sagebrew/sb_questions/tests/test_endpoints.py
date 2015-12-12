@@ -985,3 +985,14 @@ class QuestionEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
+
+    def test_get_html(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse(
+            "question-detail",
+            kwargs={'object_uuid': self.question.object_uuid}) \
+            + "?html=true"
+        res = self.client.get(url, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn("html", res.data.keys())
+        self.assertIsNotNone(res.data['html'])

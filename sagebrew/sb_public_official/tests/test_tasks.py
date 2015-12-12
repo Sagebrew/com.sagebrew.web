@@ -26,7 +26,8 @@ class TestCreateStateDistricts(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
         self.headers = {"content-type": 'application/json; charset=utf8'}
         self.lookup_url = 'http://openstates.org/api/v1/legislators/geo/?' \
-                          'lat=42.532020&long=-83.496500'
+                          'lat=42.532020&long=-83.496500&apikey=' \
+                          '53f7bd2a41df42c082bb2f07bd38e6aa'
         self.mi = Location(name=us.states.lookup("MI").name,
                            sector="federal").save()
         self.lower = Location(name='38', sector='state_lower').save()

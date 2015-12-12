@@ -1,4 +1,3 @@
-import time
 import pytz
 import stripe
 from uuid import uuid1
@@ -46,8 +45,8 @@ class CampaignEndpointTests(APITestCase):
         self.campaign.editors.connect(self.pleb)
         self.pleb.campaign_accountant.connect(self.campaign)
         self.pleb.campaign_editor.connect(self.campaign)
-        self.pleb.date_of_birth = datetime.now(pytz.utc) \
-                                  - timedelta(days=18*365)
+        self.pleb.date_of_birth = \
+            datetime.now(pytz.utc) - timedelta(days=18 * 365)
         self.pleb.save()
         cache.clear()
         self.stripe = stripe
@@ -852,8 +851,8 @@ class CampaignEndpointTests(APITestCase):
         position = Position(name="Test Position").save()
         position.location.connect(location)
         location.positions.connect(position)
-        self.pleb.date_of_birth = datetime.now(pytz.utc) \
-                                  - timedelta(days=17*365)
+        self.pleb.date_of_birth = \
+            datetime.now(pytz.utc) - timedelta(days=17 * 365)
         self.pleb.save()
         cache.clear()
         address = Address().save()
@@ -1170,8 +1169,8 @@ class CampaignEndpointTests(APITestCase):
                          ['A valid integer is required.'])
 
     def test_donation_create_pleb_too_young(self):
-        self.pleb.date_of_birth = datetime.now(pytz.utc) \
-                                  - timedelta(days=17*365)
+        self.pleb.date_of_birth = \
+            datetime.now(pytz.utc) - timedelta(days=17 * 365)
         self.pleb.save()
         cache.set(self.pleb.username, self.pleb)
         self.client.force_authenticate(user=self.user)

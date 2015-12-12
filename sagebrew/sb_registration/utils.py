@@ -247,7 +247,7 @@ def create_user_util_test(email, first_name="test", last_name="test",
     :return:
     """
     if birthday is None:
-        birthday = datetime.now(pytz.utc) - timedelta(days=18*365)
+        birthday = datetime.now(pytz.utc) - timedelta(days=18 * 365)
     try:
         user = User.objects.get(email=email)
         username = user.username

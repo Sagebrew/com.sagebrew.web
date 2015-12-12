@@ -128,7 +128,6 @@ export function load() {
             }
         })
         .on('click', '#js-start-btn', function(){
-            "use strict";
             var location;
             if(localStorage.getItem(filterKey) !== "local"){
                 location = localStorage.getItem(locationName);
@@ -149,7 +148,6 @@ export function load() {
             });
         })
         .on('click', '#js-cancel-btn', function(event){
-            "use strict";
             event.preventDefault();
             window.location.href = "/quests/" + settings.user.username;
         });
@@ -268,7 +266,7 @@ function initAutocomplete() {
         });
 
     var autocomplete = new google.maps.places.Autocomplete(input);
-    autocomplete.setTypes(['(regions)']);
+    autocomplete.setTypes(['(cities)']);
     autocomplete.bindTo('bounds', map);
 
 

@@ -103,7 +103,7 @@ class MissionSerializer(SBSerializer):
                             location, add_district, focused_on, level,
                             mission.object_uuid, owner_username)
                 res, _ = db.cypher_query(query)
-                # Since there the deepest location is dynamic I moved this out
+                # Since the deepest location is dynamic I moved this out
                 # to reduce complexity on storing the location variable within
                 # the query and accessing it in the CREATE UNIQUE call.
                 # May be able to optimize and combine at some point.
@@ -142,8 +142,20 @@ class MissionSerializer(SBSerializer):
                 res, _ = db.cypher_query(within_query)
                 return Mission.inflate(res.one)
         elif focus_type == "advocacy":
-            # Need to handle potential district with location
-            pass
+            query = 'MATCH (tag:Tag {name: "%s"}) ' \
+                    'WITH tag ' \
+                    'MATCH (location:Location {external_id: "%s"}) ' \
+                    'WITH tag, location ' \
+                    'MATCH (quest:Quest {owner_username: "%s"}) ' \
+                    'WITH tag, location, quest ' \
+                    'MATCH (mission:Mission {object_uuid: "%s"}) ' \
+                    'WITH tag, location, quest, mission ' \
+                    'CREATE UNIQUE (tag)<-[:FOCUSED_ON]-(mission)' \
+                    '<-[:EMBARKS_ON]-(quest) ' \
+                    'RETURN mission' % (focused_on, location, owner_username,
+                                        mission.object_uuid)
+            res, _ = db.cypher_query(query)
+
         elif focus_type == "question":
             pass
         else:

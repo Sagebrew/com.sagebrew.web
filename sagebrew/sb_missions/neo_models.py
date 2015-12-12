@@ -19,6 +19,7 @@ class Mission(Searchable):
     # Indicates what level the Mission is set at. Valid options are:
     #     state_upper
     #     state_lower
+    #     state
     #     federal
     #     local
     # For filtering purposes we combine state_upper and state_lower into "state"
@@ -119,7 +120,7 @@ class Mission(Searchable):
                 raise DoesNotExist("Quest does not exist")
         return mission
 
-    def get_focused_on(self):
+    def get_focused_on(self, request=None):
         from api.neo_models import SBObject
         from sb_quests.neo_models import Position
         from sb_quests.serializers import PositionSerializer
@@ -127,17 +128,20 @@ class Mission(Searchable):
         from sb_tags.serializers import TagSerializer
         from sb_questions.neo_models import Question
         from sb_questions.serializers import QuestionSerializerNeo
-        query = 'MATCH (a:Mission {object_uuid: "%s"})-[FOCUSED_ON]->(b)' \
+        query = 'MATCH (a:Mission {object_uuid: "%s"})-[:FOCUSED_ON]->(b)' \
                 'RETURN b' % self.object_uuid
         res, _ = db.cypher_query(query)
         if res.one:
             child_label = SBObject.inflate(res.one).get_child_label()
             if child_label == "Position":
-                return PositionSerializer(Position.inflate(res.one)).data
+                return PositionSerializer(Position.inflate(res.one),
+                                          context={'request': request}).data
             elif child_label == "Tag":
-                return TagSerializer(Tag.inflate(res.one)).data
+                return TagSerializer(Tag.inflate(res.one),
+                                     context={'request': request}).data
             elif child_label == "Question":
-                return QuestionSerializerNeo(Question.inflate(res.one)).data
+                return QuestionSerializerNeo(Question.inflate(res.one),
+                                             context={'request': request}).data
 
     def get_location(self):
         from sb_locations.neo_models import Location

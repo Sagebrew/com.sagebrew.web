@@ -5,11 +5,12 @@ import markdown
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
 from api.utils import gather_request_data
 from api.serializers import SBSerializer
 from sb_locations.serializers import LocationSerializer
+from sb_tags.neo_models import Tag
 
 from .neo_models import Mission
 
@@ -41,7 +42,7 @@ class MissionSerializer(SBSerializer):
     level = serializers.ChoiceField(required=False, choices=[
         ('local', "Local"), ('state_upper', "State Upper"),
         ('state_lower', "State Lower"),
-        ('federal', "Federal")])
+        ('federal', "Federal"), ('state', "State")])
     location = serializers.SerializerMethodField()
 
     def create(self, validated_data):
@@ -55,7 +56,8 @@ class MissionSerializer(SBSerializer):
         district = validated_data.get('district')
         owner_username = request.user.username
         mission = Mission(owner_username=owner_username, level=level,
-                          focus_on_type=focus_type).save()
+                          focus_on_type=focus_type,
+                          focus_name=focused_on).save()
         within_query = 'MATCH (mission:Mission {object_uuid: "%s"})-' \
                        '[:FOCUSED_ON]->(position:Position)' \
                        '<-[:POSITIONS_AVAILABLE]-(location:Location) ' \
@@ -142,24 +144,98 @@ class MissionSerializer(SBSerializer):
                 res, _ = db.cypher_query(within_query)
                 return Mission.inflate(res.one)
         elif focus_type == "advocacy":
-            query = 'MATCH (tag:Tag {name: "%s"}) ' \
-                    'WITH tag ' \
-                    'MATCH (location:Location {external_id: "%s"}) ' \
-                    'WITH tag, location ' \
-                    'MATCH (quest:Quest {owner_username: "%s"}) ' \
-                    'WITH tag, location, quest ' \
-                    'MATCH (mission:Mission {object_uuid: "%s"}) ' \
-                    'WITH tag, location, quest, mission ' \
-                    'CREATE UNIQUE (tag)<-[:FOCUSED_ON]-(mission)' \
-                    '<-[:EMBARKS_ON]-(quest) ' \
-                    'RETURN mission' % (focused_on, location, owner_username,
-                                        mission.object_uuid)
-            res, _ = db.cypher_query(query)
-
+            focused_on = '-'.join(focused_on.lower().split())
+            try:
+                Tag.nodes.get(name=focused_on)
+            except (DoesNotExist, Tag.DoesNotExist):
+                Tag(name=focused_on).save()
+            if level == "local":
+                query = 'MATCH (tag:Tag {name: "%s"}) ' \
+                        'WITH tag ' \
+                        'MATCH (location:Location {external_id: "%s"}) ' \
+                        'WITH tag, location ' \
+                        'MATCH (quest:Quest {owner_username: "%s"}) ' \
+                        'WITH tag, location, quest ' \
+                        'MATCH (mission:Mission {object_uuid: "%s"}) ' \
+                        'WITH tag, location, quest, mission ' \
+                        'CREATE UNIQUE (tag)<-[:FOCUSED_ON]-(mission)' \
+                        '<-[:EMBARKS_ON]-(quest) WITH location, mission ' \
+                        'CREATE UNIQUE (mission)-[:WITHIN]->(location)' \
+                        'RETURN mission' % (focused_on, location,
+                                            owner_username, mission.object_uuid)
+                res, _ = db.cypher_query(query)
+                return Mission.inflate(res.one)
+            elif level == "state":
+                if district:
+                    loc_query = 'MATCH (:Location {name: ' \
+                                '"United States of America"})' \
+                                '-[:ENCOMPASSES]->(:Location {name: "%s"})' \
+                                '-[:ENCOMPASSES]->(location:Location ' \
+                                '{name: "%s", sector: "federal"}) ' \
+                                'WITH location, mission, ' \
+                                'tag, quest' % (location, district)
+                else:
+                    loc_query = 'MATCH (:Location {name: ' \
+                                '"United States of America"})' \
+                                '-[:ENCOMPASSES]->' \
+                                '(location:Location {name: "%s"}) ' \
+                                'WITH location, mission, ' \
+                                'tag, quest' % location
+                # TODO same as federal
+                query = 'MATCH (tag:Tag {name: "%s"}) ' \
+                        'WITH tag ' \
+                        'MATCH (quest:Quest {owner_username: "%s"}) ' \
+                        'WITH tag, quest ' \
+                        'MATCH (mission:Mission {object_uuid: "%s"}) ' \
+                        'WITH tag, quest, mission ' \
+                        '%s ' \
+                        'CREATE UNIQUE (tag)<-[:FOCUSED_ON]-(mission)' \
+                        '<-[:EMBARKS_ON]-(quest) ' \
+                        'WITH mission, location ' \
+                        'CREATE UNIQUE (mission)-[:WITHIN]->(location) ' \
+                        'RETURN mission' % (focused_on, owner_username,
+                                            mission.object_uuid, loc_query)
+                res, _ = db.cypher_query(query)
+                return Mission.inflate(res.one)
+            elif level == "federal":
+                if district:
+                    loc_query = 'MATCH (:Location {name: ' \
+                                '"United States of America"})' \
+                                '-[:ENCOMPASSES]->(:Location {name: "%s"})' \
+                                '-[:ENCOMPASSES]->(location:Location ' \
+                                '{name: "%s", sector: "federal"}) ' \
+                                'WITH location, mission, ' \
+                                'tag, quest' % (location, district)
+                elif location:
+                    loc_query = 'MATCH (:Location {name: ' \
+                                '"United States of America"})' \
+                                '-[:ENCOMPASSES]->' \
+                                '(location:Location {name: "%s"}) ' \
+                                'WITH location, mission, ' \
+                                'tag, quest' % location
+                else:
+                    loc_query = 'MATCH (location:Location {name: ' \
+                                '"United States of America"}) ' \
+                                'WITH location, mission, tag, quest'
+                # TODO same as state
+                query = 'MATCH (tag:Tag {name: "%s"}) ' \
+                        'WITH tag ' \
+                        'MATCH (quest:Quest {owner_username: "%s"}) ' \
+                        'WITH tag, quest ' \
+                        'MATCH (mission:Mission {object_uuid: "%s"}) ' \
+                        'WITH tag, quest, mission ' \
+                        '%s ' \
+                        'CREATE UNIQUE (tag)<-[:FOCUSED_ON]-(mission)' \
+                        '<-[:EMBARKS_ON]-(quest) ' \
+                        'WITH mission, location ' \
+                        'CREATE UNIQUE (mission)-[:WITHIN]->(location) ' \
+                        'RETURN mission' % (focused_on, owner_username,
+                                            mission.object_uuid, loc_query)
+                res, _ = db.cypher_query(query)
         elif focus_type == "question":
-            pass
+            return None
         else:
-            return False
+            return None
 
         return mission
 
@@ -185,11 +261,14 @@ class MissionSerializer(SBSerializer):
             return ""
 
     def get_location(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
         location = obj.get_location()
         if location is not None:
-            return LocationSerializer(location).data
+            return LocationSerializer(location,
+                                      context={'request': request}).data
         else:
             return None
 
     def get_focused_on(self, obj):
-        return obj.get_focused_on()
+        request, _, _, _, _ = gather_request_data(self.context)
+        return obj.get_focused_on(request=request)

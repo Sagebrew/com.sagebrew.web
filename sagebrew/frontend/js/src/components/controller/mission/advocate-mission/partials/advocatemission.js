@@ -7,7 +7,6 @@ var request = require('api').request,
     locationKey = 'advocateMissionLocationID',
     locationName = "advocateMissionLocationName",
     levelKey = 'advocateMissionLevel',
-    filterKey = 'advocateMissionLocationFilter',
     districtKey = 'advocateDistrict';
 
 
@@ -16,17 +15,22 @@ export function load() {
         placeInput = document.getElementById('pac-input'),
         stateInput = document.getElementById('state-input'),
         startBtn = document.getElementById('js-start-btn'),
-        districtSelector = document.getElementById('js-district-selector');
+        districtSelector = document.getElementById('js-district-selector'),
+        districtRow = document.getElementById('district-row'),
+        advocateInput = document.getElementById('advocate-input'),
+        stateRequired = stateInput.options[0];
     if(typeof(Storage) !== "undefined") {
         // Clear out all of the storage for the page, we're starting a new mission!
         localStorage.removeItem(locationKey);
-        localStorage.removeItem(filterKey);
         localStorage.removeItem(districtKey);
         localStorage.removeItem(locationName);
         localStorage.removeItem(levelKey);
     }
     var engine = new Bloodhound({
-        prefetch: "/v1/tags/suggestion_engine_v2/",
+        prefetch: {
+            url: "/v1/tags/suggestion_engine_v2/",
+            cache: false
+        },
         datumTokenizer: Bloodhound.tokenizers.whitespace,
         queryTokenizer: Bloodhound.tokenizers.whitespace
     });
@@ -53,20 +57,38 @@ export function load() {
                 placeInput.disabled = true;
                 districtSelector.innerHTML = templates.district_holder();
                 localStorage.removeItem(districtKey);
+                localStorage.removeItem(locationKey);
+                localStorage.removeItem(locationName);
+                localStorage.removeItem(levelKey);
+                stateInput.selectedIndex = 0;
+                districtRow.classList.add('hidden');
+                startBtn.disabled = true
             } else {
                 // TODO: REUSE
                 // If we select a level, enable the inputs
                 stateInput.disabled = false;
                 placeInput.disabled = false;
-
-                // A new level was selected, clear the positions and districts
-                localStorage.removeItem(districtKey);
                 if(this.id === "local-selection"){
                     // The local level was selected
                     stateInput.classList.add('hidden');
                     placeInput.classList.remove('hidden');
+                    districtRow.classList.add('hidden');
                     localStorage.setItem(levelKey, "local");
+                    // To the user we clear the place input so we need to
+                    // disable the start button and clear the locations
+                    startBtn.disabled = true;
                     placeInput.value = "";
+                    localStorage.removeItem(locationKey);
+                    localStorage.removeItem(locationName);
+                } else if (this.id === "state-selection"){
+                    // The state level was selected
+                    stateRequired.innerHTML = 'Select a State (Required)';
+                    districtRow.classList.remove('hidden');
+                    districtSelection('state', stateInput, placeInput, startBtn, districtRow);
+                } else if (this.id === "federal-selection"){
+                    // The federal level was selected
+                    stateRequired.innerHTML = 'Select a State (Optional)';
+                    districtSelection('federal', stateInput, placeInput, startBtn, districtRow);
                 }
             }
             radioSelector(this);
@@ -82,25 +104,43 @@ export function load() {
             startBtn.disabled = false;
         })
         .on('click', '.registration', function() {
-            // TODO REUSE
-            // Some additional logic to ensure the startBtn only goes on when it should for both local and
-            // Federal/State (district vs non-district)
-            if(localStorage.getItem(filterKey) === "local"){
-                // Local positions don't have districts so since a position has been selected enable the button
+            if(localStorage.getItem(levelKey) === "local" &&
+                    advocateInput.value.length > 0 &&
+                    localStorage.getItem(locationKey) !== null){
                 startBtn.disabled = false;
-            } else if(localStorage.getItem(filterKey) === "local" ){
-                // We need to have a position selected before allowing the user to click the start button
-                // so since none has been selected disable it.
+            } else if (localStorage.getItem(levelKey) === "state" &&
+                    advocateInput.value.length > 0 &&
+                    localStorage.getItem(locationKey) !== null) {
+                // If state is selected and no district then we connect up to state
+                // If a state and district are selected we follow a similiar approach
+                // as federal where we link up to the district
+                // Level of mission is set to state
+                startBtn.disabled = false;
+            } else if (localStorage.getItem(levelKey) === "federal" &&
+                    advocateInput.value.length > 0) {
+                // If no state is selected then federal defaults to United States of America
+                // If a state is selected and no district is defaults to the state
+                // If both a state and district are selected linked to district
+                // Level of mission is set to federal
+                startBtn.disabled = false;
+            } else {
                 startBtn.disabled = true;
             }
         })
         .on('click', '#js-start-btn', function(){
+            var location;
+            if(localStorage.getItem(levelKey) !== "local"){
+                location = localStorage.getItem(locationName);
+            } else {
+                location = localStorage.getItem(locationKey);
+            }
             request.post({
                 url: "/v1/missions/",
                 data: JSON.stringify({
-                    focus_name: $('#advocate-input').val(),
+                    focus_name: advocateInput.value,
                     district: localStorage.getItem(districtKey),
-                    location_name: localStorage.getItem(locationKey),
+                    level: localStorage.getItem(levelKey),
+                    location_name: location,
                     focus_on_type: "advocacy"
                 })
             }).done(function () {
@@ -114,27 +154,31 @@ export function load() {
     helpers.loadMap(initAutocomplete, "places");
 }
 
-function districtSelection(level, stateInput, placeInput) {
-    "use strict";
+function districtSelection(level, stateInput, placeInput, startBtn, districtRow) {
     /**
      * If the user had previous selected local we need to clear out
      * the running area since the location on the map now represents
      * what they had selected for local. This causes issues for grabbing
      * the position and districts as the place id is set to an incorrect location.
      */
-    if(localStorage.getItem(filterKey) === "local"){
+    if(localStorage.getItem(levelKey) === "local"){
+        // If the level was previously local and now we're changin it we need
+        // to remove the location key and reset the state input to 0.
         localStorage.removeItem(locationKey);
         stateInput.selectedIndex = 0;
+        startBtn.disabled = true;
     }
     stateInput.classList.remove('hidden');
     placeInput.classList.add('hidden');
-    localStorage.removeItem(districtKey);
-    localStorage.setItem(filterKey, level);
-
-    // We do this like this so we don't bind or try to change a element that is consistently
-    // changing. It enables us to bind to the parent div that remains stable and eliminates
-    // race conditions.
-    document.getElementById('js-district-selector').innerHTML = templates.district_holder();
+    localStorage.setItem(levelKey, level);
+    if(level === "federal") {
+        localStorage.removeItem(locationKey);
+        stateInput.selectedIndex = 0;
+        localStorage.removeItem(districtKey);
+        districtRow.classList.add('hidden');
+    } else if (level === "state") {
+        districtRow.classList.remove('hidden')
+    }
 }
 
 
@@ -145,17 +189,15 @@ function fillDistricts(filterParam) {
     if (filterParam !== "" && filterParam !== undefined){
         url = url + "&filter=" + filterParam;
     }
-    console.log(url);
     request.get({url: url})
         .done(function (data) {
-            console.log(data)
             var context, districtList = [], name;
             for(var i=0; i < data.results.length; i++) {
                 name = data.results[i];
                 context = {name: name};
                 districtList.push(context);
             }
-            document.getElementById('js-district-selector').innerHTML = templates.district_options({districts: districtList});
+            document.getElementById('js-district-selector').innerHTML = templates.district_options({districts: districtList, option_holder: "Select a District (Optional)"});
         });
 }
 
@@ -188,8 +230,17 @@ function initAutocomplete() {
             var requestQuery = {
                 query: query
             };
+            if(localStorage.getItem(levelKey) === "federal"){
+                document.getElementById('district-row').classList.remove('hidden');
+            }
+            if(localStorage.getItem(levelKey) === "state"){
+                // If we're looking at a state we can enable the start button
+                // because a user doesn't have to input a district
+                document.getElementById('js-start-btn').disabled = false;
+            }
             var service = new google.maps.places.PlacesService(map);
             service.textSearch(requestQuery, callback);
+
         });
     var autocomplete = new google.maps.places.Autocomplete(input);
     autocomplete.setTypes(['(cities)']);
@@ -217,6 +268,8 @@ function initAutocomplete() {
          * This selection always changes the positions and districts which is why this is necessary
          */
         request.post({url: '/v1/locations/async_add/', data: JSON.stringify(place)});
+        // This is a local city search, if we find something we should enable the start button
+        document.getElementById('js-start-btn').disabled = false;
     });
 
     function callback(results, status) {

@@ -47,6 +47,11 @@ export function load() {
                 districtSelector.innerHTML = templates.district_holder();
                 localStorage.removeItem(positionKey);
                 localStorage.removeItem(districtKey);
+                localStorage.removeItem(locationKey);
+                localStorage.removeItem(locationName);
+                localStorage.removeItem(levelKey);
+                stateInput.selectedIndex = 0;
+                startBtn.disabled = true;
             } else if(this.classList.contains("radio-selected") && this.classList.contains("js-position")) {
                 // If we select a position that was already selected we need to remove the districts and
                 // the stored off position. We also need to disable the start button until a district is selected
@@ -72,10 +77,14 @@ export function load() {
                     placeInput.value = "";
                 } else if (this.id === "state-selection"){
                     // The state level was selected
+                    // Don't set level key here because we need to determine if we're
+                    // in state upper or state lower
                     districtSelection('state', stateInput, placeInput, positionSelector);
 
                 } else if (this.id === "federal-selection"){
                     // The federal level was selected
+                    // Hide the district row since president and senator don't need it and
+                    // we want to ensure we cover hiding it if state was already selected.
                     districtRow.classList.add('hidden');
                     localStorage.setItem(levelKey, "federal");
                     districtSelection('federal', stateInput, placeInput, positionSelector);
@@ -163,6 +172,8 @@ function districtSelection(level, stateInput, placeInput, positionSelector) {
      * the position and districts as the place id is set to an incorrect location.
      */
     if(localStorage.getItem(filterKey) === "local"){
+        // If the level was previously local and now we're changin it we need
+        // to remove the location key and reset the state input to 0.
         localStorage.removeItem(locationKey);
         stateInput.selectedIndex = 0;
         positionSelector.innerHTML = templates.position_holder();
@@ -334,7 +345,7 @@ function fillDistricts(filterParam) {
                 context = {name: name};
                 districtList.push(context);
             }
-            document.getElementById('js-district-selector').innerHTML = templates.district_options({districts: districtList});
+            document.getElementById('js-district-selector').innerHTML = templates.district_options({districts: districtList, option_holder: "Select a District"});
         });
 }
 

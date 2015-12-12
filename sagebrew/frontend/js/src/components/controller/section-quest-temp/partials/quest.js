@@ -14,8 +14,11 @@ export function load() {
             if(data.results.length === 0) {
                 missionList.innerHTML = templates.position_holder();
             } else {
-                missionList.innerHTML = templates.mission_summary(
-                    {missions: data.results});
+                for(var i=0; i < data.results.length; i++){
+                    data.results[i].focused_on.name = data.results[i].focused_on.name.replace('-', ' ');
+                    data.results[i].focused_on.name = data.results[i].focused_on.name.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+                }
+                missionList.innerHTML = templates.mission_summary({missions: data.results});
             }
         });
     $app

@@ -9,6 +9,7 @@ from django.contrib.auth.models import User, AnonymousUser
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.core.cache import cache
 
 from sb_comments.neo_models import Comment
 from sb_posts.neo_models import Post
@@ -404,15 +405,18 @@ class TestSettingPages(TestCase):
         self.factory = APIRequestFactory()
         self.client = Client()
         self.email = "success@simulator.amazonses.com"
-        self.password = "testpassword"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
+        self.password = "test_test"
+        res = create_user_util_test(self.email, password=self.password,
+                                    task=True)
+        wait_util(res)
         self.assertNotEqual(res, False)
+        self.username = res["username"]
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
         self.pleb.email_verified = True
         self.pleb.save()
+        cache.clear()
 
     def test_settings_page(self):
         self.client.login(username=self.user.username, password=self.password)
@@ -440,17 +444,16 @@ class TestSettingPages(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_contribute(self):
+        cache.set(self.pleb.username, self.pleb)
         self.client.login(username=self.user.username, password=self.password)
         url = reverse("contribute_settings")
         response = self.client.get(url)
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class TestUserSearchView(APITestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        self.password = "testpassword"
         res = create_user_util_test(self.email, task=True)
         self.username = res["username"]
         self.pleb = Pleb.nodes.get(email=self.email)

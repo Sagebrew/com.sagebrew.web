@@ -26,7 +26,7 @@
                       <a href="{% url "question_page" %}">Conversation Cloud</a>
                     </li>
                     <li>
-                      <a href="#">Quests</a>
+                      <a href="{% url "quest_list" %}">Quests</a>
                     </li>
                 </ul>
                 <div class="navbar-right">
@@ -75,7 +75,6 @@
                         <li><a href="http://shop.sagebrew.com">Shop</a></li>
                         <li><a href="http://blog.sagebrew.com">Blog</a></li>
                         <li {% if "/help/" in request.path %}class="active"{% endif %}><a href="{% url 'help_center' %}">Help</a></li>
-
                     </ul>
                 </div>
             {% endif %}

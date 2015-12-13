@@ -1,4 +1,4 @@
-{% extends "layout/hero-three-col.html" %}
+{% extends "layout/hero-two-col-left.html" %}
 {% load staticfiles %}
 
 {% block hero %}
@@ -54,15 +54,24 @@
 
     {% endif %}
 
+    <div class="block block-type-title">
+        <div class="block-content clearfix">
+            <h1>Manage Quest</h1>
+            <ul class="nav nav-pills">
+                <li><a href="#">Quest Settings</a></li>
+                <li><a href="#">Updates</a></li>
+                <li><a href="#">Missions</a></li>
+            </ul>
+            <div class="title-important-actions">
+                <a href="{% url 'quest_saga' request.user %}" class="btn btn-primary btn-sm">View Quest</a>
+            </div>
 
+        </div>
+    </div>
 {% endblock %}
 
 {% block sidebar_left %}
     <div class="block block-type-nav">
-        <h3 class="block-title">
-            Manage Quest
-        </h3>
-
         <div class="block-content">
             <ul class="nav nav-list nav-list-vivid">
                 {% comment %} Not sure of a good way to make this active... {% endcomment %}
@@ -71,7 +80,7 @@
                         General
                     </a>
                 </li>
-
+                {% comment %}
                 <li class="{% if "/manage/goals/" in request.path %}active{% endif %}">
                     <a href="{% url 'manage_goals' request.user %}">
                         Goals
@@ -83,13 +92,13 @@
                         Epic
                     </a>
                 </li>
-                {% comment %}
-                    <li class="{% if "z/" in request.path %}active{% endif %}">
-                        <a  href="{% url 'quest_manage_settings' request.user %}">
-                            Updates
-                        </a>
-                    </li>
-                    {% endcomment %}
+
+                <li class="{% if "z/" in request.path %}active{% endif %}">
+                    <a  href="{% url 'quest_manage_settings' request.user %}">
+                        Updates
+                    </a>
+                </li>
+                {% endcomment %}
 
                 <li class="{% if "/manage/banking/" in request.path %}active{% endif %}">
                     <a href="{% url 'quest_manage_banking' request.user %}">

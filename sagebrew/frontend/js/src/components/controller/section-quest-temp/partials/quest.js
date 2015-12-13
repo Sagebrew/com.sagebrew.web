@@ -22,15 +22,15 @@ export function load() {
             }
         });
     $app
-        .on('click', '.radio-image-selector#js-add-mission', function() {
-            "use strict";
-            window.location.href = "/quest/mission/select/";
-        })
         .on('click', '.radio-image-selector#js-donate-btn', function() {
 
         })
         .on('click', '.js-position', function () {
-            window.location.href = "/quest/mission/" + this.id + "/"
+            if(this.id === "js-add-mission"){
+                window.location.href = "/quest/mission/select/";
+            } else {
+                window.location.href = "/missions/" + this.id + "/"
+            }
         });
 
      var donationAmount = 0,

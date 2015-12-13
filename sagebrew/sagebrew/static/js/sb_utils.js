@@ -272,7 +272,6 @@ function voteObject(voteArea, resource) {
         var voteType = $(this).hasClass('vote_up') ? true : false;
         var voteDown = $(this).parents('div.vote_wrapper').find(".vote_down");
         var voteUp = $(this).parents('div.vote_wrapper').find(".vote_up");
-        localStorage.removeItem("objectUpdates");
         var objectUpdates = localStorage.getItem("objectUpdates");
         if (!objectUpdates) {
             localStorage.setItem("objectUpdates", JSON.stringify([objectUuid]));
@@ -280,8 +279,8 @@ function voteObject(voteArea, resource) {
             var jsonUpdates = JSON.parse(objectUpdates);
             if (jsonUpdates.indexOf(objectUuid) < 0) {
                 jsonUpdates.push(objectUuid);
-                localStorage.setItem("objectUpdates", JSON.stringify(jsonUpdates));
             }
+            localStorage.setItem("objectUpdates", JSON.stringify(jsonUpdates));
         }
         if (voteType === true) {
             voteUp.attr("disabled", "disabled");

@@ -13,6 +13,7 @@ from sb_registration.forms import CustomPasswordResetForm
 from sb_questions.sitemap import QuestionSitemap, ConversationSitemap
 from sagebrew.sitemap import (StaticViewSitemap, SignupSitemap)
 from sb_quests.sitemap import QuestEpicSitemap, QuestUpdateSitemap
+from sb_missions.views import mission
 from help_center.sitemap import (AccountHelpSitemap, ConversationHelpSitemap,
                                  DonationsHelpSitemap, PoliciesHelpSitemap,
                                  PrivilegeHelpSitemap, QuestHelpSitemap,
@@ -74,6 +75,8 @@ urlpatterns = patterns(
     (r'^quests/', include('sb_quests.urls')),
     (r'^quests/', include('sb_updates.urls')),
     (r'^quests/', include('sb_goals.urls')),
+    url(r'^missions/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/$', mission,
+        name="mission"),
     (r'^quest/mission/', include('sb_missions.urls')),
     (r'^council/', include('sb_council.urls')),
     (r'^posts/', include('sb_posts.urls')),

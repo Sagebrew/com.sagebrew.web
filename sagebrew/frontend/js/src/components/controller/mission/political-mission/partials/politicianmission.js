@@ -24,7 +24,7 @@ export function load() {
         positionSelector = document.getElementById('js-position-selector');
     // We just loaded the app, jam in some place holders to look nice.
     // Didn't include directly in the Django template so we don't have duplicate formatting
-    positionSelector.innerHTML = templates.position_holder();
+    positionSelector.innerHTML = templates.position_holder({static_url: settings.static_url});
     if(typeof(Storage) !== "undefined") {
         // Clear out all of the storage for the page, we're starting a new mission!
         localStorage.removeItem(locationKey);
@@ -43,10 +43,15 @@ export function load() {
                 // and clear the currently selected position and re-disable positions and districts
                 stateInput.disabled = true;
                 placeInput.disabled = true;
-                positionSelector.innerHTML = templates.position_holder();
+                positionSelector.innerHTML = templates.position_holder({static_url: settings.static_url});
                 districtSelector.innerHTML = templates.district_holder();
                 localStorage.removeItem(positionKey);
                 localStorage.removeItem(districtKey);
+                localStorage.removeItem(locationKey);
+                localStorage.removeItem(locationName);
+                localStorage.removeItem(levelKey);
+                stateInput.selectedIndex = 0;
+                startBtn.disabled = true;
             } else if(this.classList.contains("radio-selected") && this.classList.contains("js-position")) {
                 // If we select a position that was already selected we need to remove the districts and
                 // the stored off position. We also need to disable the start button until a district is selected
@@ -68,14 +73,18 @@ export function load() {
                     districtRow.classList.add('hidden');
                     localStorage.setItem(filterKey, "local");
                     localStorage.setItem(levelKey, "local");
-                    positionSelector.innerHTML = templates.position_holder();
+                    positionSelector.innerHTML = templates.position_holder({static_url: settings.static_url});
                     placeInput.value = "";
                 } else if (this.id === "state-selection"){
                     // The state level was selected
+                    // Don't set level key here because we need to determine if we're
+                    // in state upper or state lower
                     districtSelection('state', stateInput, placeInput, positionSelector);
 
                 } else if (this.id === "federal-selection"){
                     // The federal level was selected
+                    // Hide the district row since president and senator don't need it and
+                    // we want to ensure we cover hiding it if state was already selected.
                     districtRow.classList.add('hidden');
                     localStorage.setItem(levelKey, "federal");
                     districtSelection('federal', stateInput, placeInput, positionSelector);
@@ -128,7 +137,6 @@ export function load() {
             }
         })
         .on('click', '#js-start-btn', function(){
-            "use strict";
             var location;
             if(localStorage.getItem(filterKey) !== "local"){
                 location = localStorage.getItem(locationName);
@@ -149,7 +157,6 @@ export function load() {
             });
         })
         .on('click', '#js-cancel-btn', function(event){
-            "use strict";
             event.preventDefault();
             window.location.href = "/quests/" + settings.user.username;
         });
@@ -165,9 +172,11 @@ function districtSelection(level, stateInput, placeInput, positionSelector) {
      * the position and districts as the place id is set to an incorrect location.
      */
     if(localStorage.getItem(filterKey) === "local"){
+        // If the level was previously local and now we're changin it we need
+        // to remove the location key and reset the state input to 0.
         localStorage.removeItem(locationKey);
         stateInput.selectedIndex = 0;
-        positionSelector.innerHTML = templates.position_holder();
+        positionSelector.innerHTML = templates.position_holder({static_url: settings.static_url});
     }
     stateInput.classList.remove('hidden');
     placeInput.classList.add('hidden');
@@ -268,7 +277,7 @@ function initAutocomplete() {
         });
 
     var autocomplete = new google.maps.places.Autocomplete(input);
-    autocomplete.setTypes(['(regions)']);
+    autocomplete.setTypes(['(cities)']);
     autocomplete.bindTo('bounds', map);
 
 
@@ -336,7 +345,7 @@ function fillDistricts(filterParam) {
                 context = {name: name};
                 districtList.push(context);
             }
-            document.getElementById('js-district-selector').innerHTML = templates.district_options({districts: districtList});
+            document.getElementById('js-district-selector').innerHTML = templates.district_options({districts: districtList, option_holder: "Select a District"});
         });
 }
 
@@ -355,35 +364,19 @@ function fillPositions(identifier) {
                 image_path;
             for(var i=0; i < data.results.length; i++) {
                 name = data.results[i];
-                // TODO simplify with types rather than each position
                 if(name.indexOf("Senator") > -1){
-                    image_path = "https://sagebrew.local.dev/static/images/legislative_bw.png";
+                    image_path = settings.static_url + "images/legislative_bw.png";
                 } else if (name.indexOf("House Representative") > -1){
-                    image_path = "https://sagebrew.local.dev/static/images/legislative_bw.png";
+                    image_path = settings.static_url + "images/legislative_bw.png";
                 } else if (name === "President") {
-                    image_path = "https://sagebrew.local.dev/static/images/executive_bw.png";
+                    image_path = settings.static_url + "images/executive_bw.png";
                 } else if (name === "Governor") {
-                    image_path = "https://sagebrew.local.dev/static/images/executive_bw.png";
+                    image_path = settings.static_url + "images/executive_bw.png";
                 } else if (name === "City Council") {
-                    image_path = "https://sagebrew.local.dev/static/images/legislative_bw.png";
+                    image_path = settings.static_url + "images/legislative_bw.png";
                 } else if (name === "Mayor") {
-                    image_path = "https://sagebrew.local.dev/static/images/executive_bw.png";
+                    image_path = settings.static_url + "images/executive_bw.png";
                 }
-                /**
-                    if(name === "Senator"){
-                        image_path = settings.static_url + "images/council.png";
-                    } else if (name === "House Representative"){
-                        image_path = settings.static_url + "images/council.png";
-                    } else if (name === "President") {
-                        image_path = settings.static_url + "images/executive.png";
-                    } else if (name === "Governor") {
-                        image_path = settings.static_url + "images/executive.png";
-                    } else if (name === "City Council") {
-                        image_path = settings.static_url + "images/council.png";
-                    } else if (name === "Mayor") {
-                        image_path = settings.static_url + "images/executive.png";
-                    }
-                 */
                 context = {
                     name: name,
                     image_path: image_path
@@ -392,7 +385,7 @@ function fillPositions(identifier) {
             }
             context = {
                 name: "Other (Contact Us)",
-                image_path:"https://sagebrew.local.dev/static/images/glass_bw.png"
+                image_path: settings.static_url + "images/glass_bw.png"
             };
             positionList.push(context);
             document.getElementById('js-position-selector').innerHTML = templates.position_image_radio({positions: positionList});

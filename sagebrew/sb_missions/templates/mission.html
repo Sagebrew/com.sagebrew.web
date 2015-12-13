@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+    <div class="block registration">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>{% if title %} {{ mission.title }} {% else %} {{ mission.focus_name }} {% endif %}</h1>
+                <h6>{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</h6>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 quest-wallpaper">
+            {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
+            <img class="fill" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+        </div>
+        <div class="row">
+            <div class="col-sm-3">
+                <button class="btn btn-primary sb_btn_fill" id="js-donate-btn">Donate</button>
+            </div>
+            <div class="col-sm-3">
+                <button class="btn btn-primary sb_btn_fill" id="js-follow-btn">Follow</button>
+            </div>
+            <div class="col-sm-3">
+                <button class="btn btn-primary sb_btn_fill" id="js-endorse-btn">Endorse</button>
+            </div>
+            <div class="col-sm-3">
+                <button class="btn btn-primary sb_btn_fill" id="js-share-btn">Share</button>
+            </div>
+        </div>
+        <div class="row quest-secondary-nav">
+            <div class="col-xs-2">
+                Saga
+            </div>
+            <div class="col-xs-2">
+                Updates
+            </div>
+            <div class="col-xs-2">
+                Conversations
+            </div>
+            <div class="col-xs-2">
+                Endorsements
+            </div>
+            <div class="col-xs-2">
+                Completed Goals
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-8">
+                <h1>Epic</h1>
+            </div>
+            <div class="col-xs-4">
+                <h1>Goals</h1>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block intercom %}
+   Intercom('trackEvent', 'mission-page');
+{% endblock %}

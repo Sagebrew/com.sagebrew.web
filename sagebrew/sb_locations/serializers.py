@@ -17,7 +17,9 @@ from .tasks import create_location_tree
 
 class LocationSerializer(SBSerializer):
     name = serializers.CharField()
-
+    sector = serializers.ChoiceField(choices=[
+        ('state_upper', "State Upper"), ('state_lower', "State Lower"),
+        ('federal', "Federal"), ('local', "Local")])
     encompasses = serializers.SerializerMethodField()
     encompassed_by = serializers.SerializerMethodField()
     positions = serializers.SerializerMethodField()

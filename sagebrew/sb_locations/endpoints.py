@@ -34,13 +34,21 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
         return [Location.inflate(row[0]) for row in res]
 
     def get_object(self):
-        if self.request.query_params.get('lookup', False) == "external_id":
-            try:
-                Location.nodes.get(external_id=self.kwargs[self.lookup_field])
-            except Location.DoesNotExist:
-                return None
+        lookup_value = self.request.query_params.get('lookup', 'object_uuid')
+        if lookup_value != "object_uuid" and lookup_value != "external_id" \
+                and lookup_value != "name":
+            lookup_value = "object_uuid"
+        if lookup_value == "name":
+            query_id = self.kwargs[self.lookup_field].title()
         else:
-            return Location.get(object_uuid=self.kwargs[self.lookup_field])
+            query_id = self.kwargs[self.lookup_field]
+        query = 'MATCH (location:Location {%s: "%s"}) RETURN location' % (
+            lookup_value, query_id)
+        res, _ = db.cypher_query(query)
+        if res.one:
+            return Location.inflate(res.one)
+        else:
+            return None
 
     @list_route(methods=['post'],
                 serializer_class=LocationManagerSerializer,

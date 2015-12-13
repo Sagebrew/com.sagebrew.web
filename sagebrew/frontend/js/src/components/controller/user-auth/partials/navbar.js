@@ -52,11 +52,10 @@ function navbar() {
     $navbar
         // Shows the notifications when the notification icon is clicked
         // Notify backend user has viewed the notifications.
-        .on('click', '.show_notifications-action', function() {
-            $("#notification_div").fadeToggle();
+        .on('click', '.js-show-notifications', function() {
             if ($('#js-notification_notifier_wrapper').children().length > 0) {
-                request.get({url:  "/v1/me/notifications/?seen=true"})
-                    .then(function() {
+                request.get({url: "/v1/me/notifications/?seen=true"})
+                    .done(function () {
                         $('#js-sb_notifications_notifier').remove();
                 });
             }
@@ -75,11 +74,10 @@ function navbar() {
         })
         //
         // Shows the friend requests when the friend request icon is clicked
-        .on('click', '.show_friend_request-action', function() {
-            $("#friend_request_div").fadeToggle();
+        .on('click', '.js-show-friend-requests', function() {
             if ($('#js-sb_friend_request_notifier').length > 0) {
                 request.get({url: "/v1/me/friend_requests/?seen=true"})
-                .then(function() {
+                .done(function() {
                      $('#js-sb_friend_request_notifier').remove();
                 });
             }
@@ -94,7 +92,7 @@ function navbar() {
                 data: JSON.stringify({
                     'request_id': requestID
                 })
-            }).then(function() {
+            }).done(function() {
                 $('#friend_request_' + requestID).remove();
             });
         })
@@ -108,7 +106,7 @@ function navbar() {
                 data: JSON.stringify({
                     'request_id': requestID
                 })
-            }).then(function() {
+            }).done(function() {
                 $('#friend_request_' + requestID).remove();
             });
         })
@@ -122,7 +120,7 @@ function navbar() {
                 data: JSON.stringify({
                     'request_id': requestID
                 })
-            }).then(function() {
+            }).done(function() {
                 $('#friend_request_' + requestID).remove();
             });
         });

@@ -10,7 +10,7 @@
     {% if keywords %}
         <meta name="keywords" content="{{ keywords }}">
     {% endif %}
-    <meta name="author" content="{{ first_name }} {{ last_name }}">
+    <meta name="author" content="{% if title %} {{ title }} {% else %}{{ first_name }} {{ last_name }} {% endif %}">
 {% endblock keywords %}
 {% block content %}
     <div class="row quest">
@@ -29,7 +29,7 @@
         </div>
         <div class="hidden-xs col-sm-5">
             <div class="col-sm-12">
-                <h1>{{ first_name }} {{ last_name }}</h1>
+                <h1>{% if title %} {{ title }} {% else %} {{ first_name }} {{ last_name }} {% endif %}</h1>
             </div>
             <div class="col-sm-12">
                 {% if public_official %}

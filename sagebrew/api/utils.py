@@ -242,9 +242,15 @@ def gather_request_data(context, expedite_param=None, expand_param=None):
             if html == 'true':
                 expand = 'true'
         except AttributeError:
-            expand = request.GET.get('expand', 'false').lower()
-            expedite = request.GET.get('expedite', 'false').lower()
-            relations = request.GET.get('relations', 'primaryKey').lower()
+            try:
+                expand = request.GET.get('expand', 'false').lower()
+                expedite = request.GET.get('expedite', 'false').lower()
+                relations = request.GET.get('relations', 'primaryKey').lower()
+            except AttributeError:
+                expand = 'false'
+                expedite = 'false',
+                relations = 'primaryKey'
+                request = None
             expand_array = []
     except KeyError:
         expand = 'false'

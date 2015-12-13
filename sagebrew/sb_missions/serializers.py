@@ -37,6 +37,7 @@ class MissionSerializer(SBSerializer):
     href = serializers.SerializerMethodField()
     focused_on = serializers.SerializerMethodField()
     rendered_epic = serializers.SerializerMethodField()
+    quest = serializers.SerializerMethodField()
 
     district = serializers.CharField(write_only=True, allow_null=True)
     level = serializers.ChoiceField(required=False, choices=[
@@ -272,3 +273,15 @@ class MissionSerializer(SBSerializer):
     def get_focused_on(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
         return obj.get_focused_on(request=request)
+
+    def get_quest(self, obj):
+        from sb_quests.neo_models import Quest
+        from sb_quests.serializers import QuestSerializer
+        request, _, _, _, _ = gather_request_data(self.context)
+        query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
+                '(:Mission {object_uuid: "%s"}) RETURN quest' % obj.object_uuid
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            return None
+        return QuestSerializer(Quest.inflate(res.one),
+                               context={'request': request}).data

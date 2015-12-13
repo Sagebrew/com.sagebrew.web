@@ -26,8 +26,11 @@ export function load() {
             "use strict";
             window.location.href = "/quest/mission/select/";
         })
-        .on('click', '#js-donate-btn', function() {
+        .on('click', '.radio-image-selector#js-donate-btn', function() {
 
+        })
+        .on('click', '.js-position', function () {
+            window.location.href = "/quest/mission/" + this.id + "/"
         });
 
      var donationAmount = 0,

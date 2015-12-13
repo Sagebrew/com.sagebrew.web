@@ -318,6 +318,7 @@ class CampaignSerializer(SBSerializer):
 
 class QuestSerializer(SBSerializer):
     active = serializers.BooleanField(required=False, read_only=True)
+    title = serializers.CharField(required=False, allow_blank=True)
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=128)
     facebook = serializers.CharField(required=False, allow_blank=True)

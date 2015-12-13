@@ -99,10 +99,10 @@ function populateComment(objectUuid, resource) {
             commentContainer.append(data.results.html);
             if (data.count > 3) {
                 // TODO this may break in IE
-                commentContainer.prepend(
+                commentContainer.append(
                         '<div class="row">' +
-                        '<div class="col-lg-5 col-lg-offset-1">' +
-                        '<a href="javascript:;" class="additional_comments" id="additional_comments_' + objectUuid + '">More Comments ...</a>' +
+                        '<div class="col-sm-5 col-sm-offset-1">' +
+                        '<a href="javascript:;" class="additional_comments" id="additional_comments_' + objectUuid + '">Show Older Comments ...</a>' +
                         '</div>' +
                         '</div>');
                 $('#additional_comments_' + objectUuid).click(function () {

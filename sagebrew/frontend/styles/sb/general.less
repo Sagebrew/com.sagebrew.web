@@ -116,6 +116,7 @@ a {
 .sb_solution{
   &:extend(.block);
   margin-bottom: 15px;
+  padding-bottom: 0;
   textarea {
     margin-bottom: 25px;
     border-radius: @sb_common_radius;
@@ -1146,6 +1147,7 @@ a {
 }
 .sb_question_body{
   &:extend(.sb_post_body);
+  min-height: 115px;
   margin-left: 0;
   border: 2px solid @border-color;
 }
@@ -1166,6 +1168,8 @@ a {
   &:extend(.sb_question_body);
   margin-right: -5px;
   margin-left: 0;
+  margin-bottom: 15px;
+  padding-bottom: 0;
 }
 .sb-solution-controls{
   padding-left: 20px;
@@ -1176,7 +1180,9 @@ a {
   border-color: @sb_grey;
   padding-bottom: 0;
 }
-
+.sb_comment_wrapper {
+  padding-right: 20px;
+}
 .app-post-create {
   background-color: white;
   height:70px;
@@ -1209,7 +1215,6 @@ a {
   font-size: @sb_body_text;
   padding: 15px 0 15px 0;
   hanging-punctuation: force-end;
-  max-height: 600px;
   height: auto;
   width: auto;
   background-color: @sb_grey_extra_light;
@@ -1498,6 +1503,11 @@ textarea.sb_comment_input{
   position: relative;
   overflow: hidden;
 }
+
+.sm-voting {
+  margin-bottom: 15px;
+}
+
 .sb-btn-file input[type=file] {
   position: absolute;
   top: 0;
@@ -1667,10 +1677,7 @@ textarea.sb_comment_input{
 .reputation-gain-notification{
   color: @sb_green;
 }
-.notification-info {
-  margin-bottom: 5px;
-  padding: 5px 5px 0;
-}
+
 .sb_notification_link{
   font-size: 16px;
   a{
@@ -1887,6 +1894,29 @@ textarea.sb_comment_input{
   width: 345px;
 }
 
+.notification-info {
+  margin-bottom: 5px;
+  padding: 5px 5px 0;
+}
+.solution-end {
+  margin-bottom: 70px;
+}
+.question-comments {
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+}
+.question-comment-input{
+  padding-left: 0;
+  padding-right: 0;
+}
+.created-time {
+  margin-top:-10px;
+}
+.title-by {
+  margin-top: -15px;
+  margin-bottom: 15px;
+  padding-left: 20px;
+}
 #pac-input {
   margin-bottom: 15px;
   height: 52px;
@@ -1941,4 +1971,42 @@ textarea.sb_comment_input{
 .sb-single-object-wall {
   &:extend(.sb_conversation_wall);
   min-height: 150px;
+}
+
+.comment-input{
+  width: 100%;
+  resize: vertical;
+  textarea{
+    height: 50px;
+    border: 1px solid @border-color !important;
+    border-radius: @sb_common_radius;
+    &:focus{
+      border-color: @link-color !important;
+    }
+  }
+}
+
+.comment-btn{
+  color: @sb_green;
+  height: 50px;
+  border: 1px solid @border-color !important;
+  border-left-width: 0 !important;
+  border-radius: 0 5px 5px 0;
+    &:hover{
+      background-color: @link-hover-color;
+    }
+    &:active{
+      background-color: @link-color;
+    }
+}
+.js-comment-container {
+  margin-bottom: 15px;
+}
+.js-comment-input {
+  margin-bottom: 60px;
+}
+
+.solution-comment-input {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }

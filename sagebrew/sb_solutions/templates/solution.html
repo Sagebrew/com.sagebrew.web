@@ -84,9 +84,24 @@
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-md-2 hidden-xs hidden-sm col-lg-offset-1">
-            {% if "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
+    <div class="solution-end js-comment-section"
+         data-id="{{ id }}"
+         data-type="{{ type }}">
+        <div class="col-xs-3 hidden-sm hidden-md hidden-lg sm-voting">
+            <a href="#" data-id="{{ id }}" class="js-xs-vote-up">
+                <small><span class="fa fa-chevron-up"></span> upvote</small>
+            </a>
+        </div>
+        <div class="col-xs-3 col-xs-offset-1 hidden-sm hidden-md hidden-lg sm-voting">
+            <a href="#" data-id="{{ id }}" class="js-xs-vote-down">
+                <small><span class="fa fa-chevron-down"></span> downvote</small>
+            </a>
+        </div>
+        <div class="col-xs-3 col-xs-offset-2 col-sm-offset-1 sm-voting">
+            {% if "comment" in request_profile.privileges and not is_closed and not request.user.is_anonymous %}
+                <a href="#" class="js-comment">
+                    <small><span class="fa fa-plus"></span> comment</small>
+                </a>
             {% elif request.user.is_anonymous %}
                 <div><small>
                     <span class="sb_comment_disabled" data-toggle="tooltip"
@@ -107,23 +122,9 @@
                 </small></div>
             {% endif %}
         </div>
-    </div>
-    <div id="sb_comments_container_{{ object_uuid }}">
-    </div>
-    {% comment %}
-        This area is for inputing a new comment. The include is needed for population of existing comments.
-    {% endcomment %}
-    <div class="row">
-        <div class="col-xs-3 col-xs-offset-1" style="margin-bottom: 30px;">
-            {% if "comment" in request_profile.privileges and not is_closed and not request.user.is_anonymous %}
-                <a href="#"><small><span class="fa fa-plus"></span> comment</small></a>
-            {% endif %}
+        <div class="js-comment-container" id="sb_comments_container_{{ id }}">
         </div>
-        <div class="col-xs-3 col-xs-offset-1 hidden-sm hidden-md hidden-lg">
-            <a href="#"><small><span class="fa fa-chevron-up"></span> upvote</small></a>
-        </div>
-        <div class="col-xs-3 col-xs-offset-1 hidden-sm hidden-md hidden-lg">
-            <a href="#"><small><span class="fa fa-chevron-down"></span> downvote</small></a>
+        <div class="col-xs-12 col-sm-11 col-sm-offset-1 solution-comment-input js-comment-input hidden" id="comment-input-{{ id }}">
         </div>
     </div>
 </div>

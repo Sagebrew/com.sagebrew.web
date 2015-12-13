@@ -1,6 +1,5 @@
 /*global google*/
 var request = require('api').request,
-    settings = require('settings').settings,
     helpers = require('common/helpers');
 
 function initAutocomplete() {

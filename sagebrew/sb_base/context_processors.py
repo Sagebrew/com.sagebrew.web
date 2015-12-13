@@ -16,7 +16,8 @@ def js_settings(request):
             'stripe':  settings.STRIPE_PUBLIC_KEY
         },
         'google_maps': environ.get('GOOGLE_MAPS_JS'),
-        'user': {}
+        'user': {},
+        'static_url': settings.STATIC_URL
     }
     try:
         if request.user.is_authenticated():

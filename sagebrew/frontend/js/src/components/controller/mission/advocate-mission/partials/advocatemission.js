@@ -1,4 +1,4 @@
-/*global google, Intercom*/
+/*global google, Bloodhound*/
 var request = require('api').request,
     radioSelector = require('common/radioimage').radioSelector,
     helpers = require('common/helpers'),
@@ -62,7 +62,7 @@ export function load() {
                 localStorage.removeItem(levelKey);
                 stateInput.selectedIndex = 0;
                 districtRow.classList.add('hidden');
-                startBtn.disabled = true
+                startBtn.disabled = true;
             } else {
                 // TODO: REUSE
                 // If we select a level, enable the inputs
@@ -177,7 +177,7 @@ function districtSelection(level, stateInput, placeInput, startBtn, districtRow)
         localStorage.removeItem(districtKey);
         districtRow.classList.add('hidden');
     } else if (level === "state") {
-        districtRow.classList.remove('hidden')
+        districtRow.classList.remove('hidden');
     }
 }
 

@@ -18,7 +18,7 @@ export function load() {
                     data.results[i].focused_on.name = data.results[i].focused_on.name.replace('-', ' ');
                     data.results[i].focused_on.name = data.results[i].focused_on.name.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
                 }
-                missionList.innerHTML = templates.mission_summary({missions: data.results});
+                missionList.innerHTML = templates.mission_summary({missions: data.results, static_url: settings.static_url});
             }
         });
     $app
@@ -29,7 +29,7 @@ export function load() {
             if(this.id === "js-add-mission"){
                 window.location.href = "/quest/mission/select/";
             } else {
-                window.location.href = "/missions/" + this.id + "/"
+                window.location.href = "/missions/" + this.id + "/";
             }
         });
 

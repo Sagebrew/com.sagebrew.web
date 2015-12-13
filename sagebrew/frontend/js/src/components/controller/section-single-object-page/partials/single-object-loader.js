@@ -1,7 +1,5 @@
-/*global $, enableContentFunctionality, populateComment, enableSolutionFunctionality*/
-var request = require('api').request,
-    settings = require('settings').settings,
-    helpers = require('common/helpers');
+/*global $, enableContentFunctionality, populateComment*/
+var request = require('api').request;
 
 require('plugin/contentloader');
 

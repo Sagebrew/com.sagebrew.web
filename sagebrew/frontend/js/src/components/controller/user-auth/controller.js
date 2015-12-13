@@ -15,6 +15,7 @@ var navbar = require('./partials/navbar').initNavbar,
  *  They can't even start loading the next page until this is completed.
  */
 function collectAuthedActions() {
+    /* Commenting this out as we no longer need this functionality.
     $(document).ready(function () {
         window.onbeforeunload = function () {
             var objectList = JSON.parse(localStorage.getItem("objectUpdates"));
@@ -30,6 +31,7 @@ function collectAuthedActions() {
             }
         };
     });
+    */
 }
 
 

@@ -58,38 +58,30 @@ class ObjectVotesListCreate(ListCreateAPIView):
             parent_object_uuid = self.kwargs[self.lookup_field]
 
             vote_status = int(serializer.validated_data['vote_type'])
-            res = handle_vote(parent_object_uuid, vote_status,
-                              request.user.username, now)
-            if res:
-                async_result = cache.get("%s_%s" % (request.user.username,
-                                                    object_uuid))
-                task_params = {
-                    "username": request.user.username,
-                    "object_uuids": [object_uuid]
-                }
-                if async_result is not None:
-                    # if there is already a task lined up,
-                    # revoke it and spawn a new one
-                    async_result.revoke()
+            handle_vote(parent_object_uuid, vote_status,
+                        request.user.username, now)
+            async_result = cache.get("%s_%s_vote" % (request.user.username,
+                                                     object_uuid))
+            task_params = {
+                "username": request.user.username,
+                "object_uuids": [object_uuid]
+            }
+            if async_result is not None:
+                # if there is already a task lined up,
+                # revoke it and spawn a new one
+                async_result.revoke()
 
-                # spawn a task which will execute 30 seconds from now
-                # potential improvement here is to have a way to detect if the
-                new_task = spawn_task(spawn_user_updates,
-                                      task_param=task_params,
-                                      countdown=30)
-                cache.set("%s_%s" % (request.user.username, object_uuid),
-                          new_task)
-                return Response({"detail": "Successfully created or modified "
-                                           "vote.",
-                                 "status": status.HTTP_200_OK,
-                                 "developer_message": None})
-            return Response({"detail": "Failed to place vote",
-                             "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                             "developer_message": "Appears we're having some "
-                                                  "issues right now. Please "
-                                                  "try posting the vote again "
-                                                  "in a few minutes."},
-                            status=status.HTTP_401_UNAUTHORIZED)
+            # spawn a task which will execute 30 seconds from now
+            # potential improvement here is to have a way to detect if the
+            new_task = spawn_task(spawn_user_updates,
+                                  task_param=task_params,
+                                  countdown=30)
+            cache.set("%s_%s_vote" % (request.user.username, object_uuid),
+                      new_task)
+            return Response({"detail": "Successfully created or modified "
+                                       "vote.",
+                             "status": status.HTTP_200_OK,
+                             "developer_message": None})
         else:
             return Response(serializer.errors, status=400)
 

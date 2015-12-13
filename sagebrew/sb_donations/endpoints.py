@@ -93,7 +93,7 @@ class DonationListCreate(generics.ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         pleb = Pleb.get(request.user.username)
-        if not pleb:
+        if pleb:
             if not PlebSerializerNeo(pleb).data.get("is_verified", False):
                 return Response(
                     {"detail": "You may not donate to a Quest "

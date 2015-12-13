@@ -18,6 +18,11 @@
             {{ title|linebreaksbr }}
         </h1>
     </div>
+    <div class="col-xs-12 hidden-sm hidden-md hidden-lg" style="margin-top: -15px; margin-bottom: 15px; padding-left: 20px;">
+        <small>
+            by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
+        </small>
+    </div>
     <div class="col-md-1 hidden-sm hidden-xs sb-solution-controls">
 
             {% if request.user.username == profile.username %}
@@ -59,7 +64,7 @@
 </div>
 <div class="row">
 
-    <div class="col-md-2 hidden-xs hidden-sm col-lg-offset-1">
+    <div class="col-xs-3 col-xs-offset-1">
         {% if request.user.is_anonymous %}
             <div><small>
                 <span class="sb_comment_disabled" data-toggle="tooltip"
@@ -70,6 +75,7 @@
                 </span>
             </small></div>
         {% elif "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
+                <a href="#"><small><span class="fa fa-plus"></span> comment</small></a>
         {% else %}
             <div><small>
                 <span class="sb_comment_disabled" data-toggle="tooltip"
@@ -81,14 +87,20 @@
             </small></div>
         {% endif %}
     </div>
-    <div class="col-md-1 hidden-sm hidden-xs col-md-offset-7 col-lg-offset-6"
+    <div class="col-xs-3 col-xs-offset-1 hidden-sm hidden-md hidden-lg">
+        <a href="#"><small><span class="fa fa-chevron-up"></span> upvote</small></a>
+    </div>
+    <div class="col-xs-3 col-xs-offset-1 hidden-sm hidden-md hidden-lg">
+        <a href="#"><small><span class="fa fa-chevron-down"></span> downvote</small></a>
+    </div>
+    <div class="col-md-1 hidden-xs hidden-sm col-md-offset-5"
              style="padding-right:0; margin-right: -10px">
         <div class="sb_thumbnail_xs thumbnail">
             {% static 'images/sage_coffee_grey-01.png' as default_profile %}
             <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>
         </div>
     </div>
-    <div class="col-md-2 hidden-sm hidden-xs sb-content-edited">
+    <div class="col-md-2 hidden-xs hidden-sm sb-content-edited">
         <div>
             <small>
                 <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>
@@ -110,9 +122,9 @@
             {% endif %}
         </div>
     </div>
-    <div class="hidden-lg hidden-md col-sm-11 col-xs-11">
+    <div class="col-sm-5 col-sm-offset-3 hidden-xs hidden-md hidden-lg">
         <small>
-            asked by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
+            by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
         </small>
     </div>
 </div>
@@ -128,20 +140,3 @@
     </div>
 {% endif %}
 
-<div class="row">
-    {% if not html_snapshot %}
-        {% if "comment" in request_profile.privileges and not is_closed and not request.user.is_anonymous %}
-            <form id="commentSubmitForm">
-            <div class="input-group sb_comment">
-                    <textarea class="input-group form-control sb_comment_input"
-                              id="post_comment_on_{{ object_uuid }}"
-                              rows="2"
-                              name="comment_content"
-                              placeholder="Help improve the Question by providing feedback or by requesting clarification..."></textarea>
-                    <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
-                       data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
-                </div>
-            </form>
-        {% endif %}
-    {% endif %}
-</div>

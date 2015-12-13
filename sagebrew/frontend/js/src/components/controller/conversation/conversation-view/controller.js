@@ -5,7 +5,7 @@ var mapLocation = require('./partials/map-location'),
  * Meta.
  */
 export const meta = {
-    controller: "section-conversation",
+    controller: "conversation/conversation-view",
     match_method: "path",
     check: "^conversations\/[A-Za-z0-9.@_%+-]{36}\/"
 };

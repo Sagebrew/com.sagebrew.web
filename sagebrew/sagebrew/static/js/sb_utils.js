@@ -31,17 +31,6 @@ function saveComment(commentArea, url, objectUuid) {
 }
 
 
-function enableExpandPostImage() {
-    /*
-    lightbox.option({
-        'resizeDuration': 200,
-        'wrapAround': true,
-        'alwaysShowNavOnTouchDevices': true
-    });
-    */
-}
-
-
 function saveComments(populatedIds, url) {
     if (typeof populatedIds !== 'undefined' && populatedIds.length > 0) {
         for (var i = 0; i < populatedIds.length; i += 1) {
@@ -578,153 +567,6 @@ function commentValidator() {
     });
 }
 
-function submitAction() {
-    $('#submit_action_form').click(function (event) {
-        event.preventDefault();
-        var data = {};
-        var form = $('#action_form_id').serializeArray();
-        $.each(form, function () {
-            if (data[this.name] !== undefined) {
-                if (!data[this.name].push) {
-                    data[this.name] = [data[this.name]];
-                }
-                data[this.name].push(this.value || '');
-            } else {
-                data[this.name] = this.value || '';
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/privilege/create/action/",
-            data: JSON.stringify(data),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function (data) {
-                $(".action_form").remove();
-                $(".get_action_form").removeAttr('disabled');
-            },
-            error: function (XMLHttpRequest) {
-                errorDisplay(XMLHttpRequest);
-            }
-        });
-    });
-}
-
-function submitRequirement() {
-    $('#submit_requirement_form').click(function (event) {
-        event.preventDefault();
-        var data = {};
-        var form = $('#requirement_form_id').serializeArray();
-        $.each(form, function () {
-            if (data[this.name] !== undefined) {
-                if (!data[this.name].push) {
-                    data[this.name] = [data[this.name]];
-                }
-                data[this.name].push(this.value || '');
-            } else {
-                data[this.name] = this.value || '';
-            }
-        });
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/privilege/create/requirement/",
-            data: JSON.stringify(data),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function () {
-                $(".requirement_form").remove();
-                $(".get_requirement_form").removeAttr('disabled');
-            },
-            error: function (XMLHttpRequest) {
-                errorDisplay(XMLHttpRequest);
-            }
-        });
-    });
-}
-
-function activateMontage() {
-    var $container = $('#container').imagesLoaded(function () {
-        $container.packery({
-            gutter: 0,
-            itemSelector: '.post_images',
-            transitionDuration: 0,
-            columnWidth: ".grid-sizer"
-        });
-    });
-}
-
-function respondFriendRequest() {
-    $(".respond_friend_request-accept-action").click(function (event) {
-        event.preventDefault();
-        var requestID = $(this).data('request_id');
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/v1/me/friend_requests/" + requestID + "/accept/",
-            data: JSON.stringify({
-                'request_id': requestID
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function () {
-                $('#friend_request_' + requestID).remove();
-            },
-            error: function (XMLHttpRequest) {
-                if (XMLHttpRequest.status === 500) {
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-    $(".respond_friend_request-decline-action").click(function (event) {
-        event.preventDefault();
-        var requestID = $(this).data('request_id');
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/v1/me/friend_requests/" + requestID + "/decline/",
-            data: JSON.stringify({
-                'request_id': requestID
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function () {
-                $('#friend_request_' + requestID).remove();
-            },
-            error: function (XMLHttpRequest) {
-                if (XMLHttpRequest.status === 500) {
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-    $(".respond_friend_request-block-action").click(function (event) {
-        event.preventDefault();
-        var requestID = $(this).data('request_id');
-        $.ajax({
-            xhrFields: {withCredentials: true},
-            type: "POST",
-            url: "/v1/me/friend_requests/" + requestID + "/block/",
-            data: JSON.stringify({
-                'request_id': requestID
-            }),
-            contentType: "application/json; charset=utf-8",
-            dataType: "json",
-            success: function () {
-                $('#friend_request_' + requestID).remove();
-            },
-            error: function (XMLHttpRequest) {
-                if (XMLHttpRequest.status === 500) {
-                    $("#server_error").show();
-                }
-            }
-        });
-    });
-}
-
-
 function enableObjectFunctionality(populatedIds) {
     readyFlags(populatedIds);
     readyVotes(populatedIds);
@@ -762,7 +604,6 @@ function enableSinglePostFunctionality(populatedIds) {
     voteObjects(populatedIds, "posts");
     editObjects("/v1/posts/", populatedIds);
     deleteObjects("/v1/posts/", populatedIds, 'post');
-    enableExpandPostImage();
 }
 
 function enableSolutionFunctionality(populatedIds) {

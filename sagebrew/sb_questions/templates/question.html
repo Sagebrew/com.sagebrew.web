@@ -67,6 +67,8 @@
     <div class="question-comments js-comment-section"
          data-id="{{ id }}"
          data-type="{{ type }}">
+        {% comment %}
+        Commenting out vote small for time being until after mission completion
         <div class="col-xs-3 hidden-sm hidden-md hidden-lg sm-voting">
             <a href="#" data-id="{{ id }}" class="js-xs-vote-up">
                 <small><span class="fa fa-chevron-up"></span> upvote</small>
@@ -78,6 +80,8 @@
             </a>
         </div>
         <div class="col-xs-3 col-xs-offset-2 col-sm-offset-1 sm-voting">
+        {% endcomment %}
+        <div class="col-xs-3 col-sm-offset-1 sm-voting">
             {% if "comment" in request_profile.privileges and not is_closed and not request.user.is_anonymous %}
                 <a href="#" class="js-comment">
                     <small><span class="fa fa-plus"></span> comment</small>

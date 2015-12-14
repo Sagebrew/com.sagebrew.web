@@ -58,30 +58,32 @@
             </div>
         </div>
     </div>
-    <div id="sb_comments_container_{{ object_uuid }}">
-    </div>
-    <div class="row">
-        {% if "comment" in request_profile.privileges and not is_closed %}
-            <form id="commentSubmitForm">
-                <div class="input-group sb_comment">
-                        <textarea class="input-group form-control sb_comment_input"
-                                  id="post_comment_on_{{ object_uuid }}"
-                                  rows="2"
-                                  name="comment_content"
-                                  placeholder="Help improve the Solution by providing feedback or by requesting clarification..."></textarea>
-                        <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
-                           data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
-                    </div>
-            </form>
-        {% else %}
-            <div><small>
-                <span class="sb_comment_disabled" data-toggle="tooltip"
-                      data-placement="top"
-                      data-title="Requirement: 20+ Rep"
-                      id="post_comment_on_{{ object_uuid }}">
-                    comment
-                </span>
-            </small></div>
-        {% endif %}
+    <div class="js-comment-section"
+         data-id="{{ id }}"
+         data-type="{{ type }}">
+        <div class="js-comment-container newsfeed-comment" id="sb_comments_container_{{ id }}">
+        </div>
+        <div class="row">
+            {% if "comment" in request_profile.privileges and not is_closed %}
+                <form id="commentSubmitForm">
+                    <div class="input-group sb_comment comment-input" id="comment-input-{{ id }}">
+                            <textarea class="input-group form-control sb_comment_input"
+                                      rows="2" name="comment_content"
+                                      placeholder="Help improve the Solution by providing feedback"></textarea>
+                            <a class="btn input-group-btn comment-btn"
+                               data-id="{{ id }}"><span class="fa fa-plus"></span></a>
+                        </div>
+                </form>
+            {% else %}
+                <div><small>
+                    <span class="sb_comment_disabled" data-toggle="tooltip"
+                          data-placement="top"
+                          data-title="Requirement: 20+ Rep"
+                          id="post_comment_on_{{ object_uuid }}">
+                        comment
+                    </span>
+                </small></div>
+            {% endif %}
+        </div>
     </div>
 </div>

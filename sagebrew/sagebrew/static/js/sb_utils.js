@@ -100,55 +100,12 @@ function populateComment(objectUuid, resource) {
             if (data.count > 3) {
                 // TODO this may break in IE
                 commentContainer.append(
-                        '<div class="row">' +
+                        '<div class="row" id="additional-comment-wrapper-' + objectUuid + '">' +
                         '<div class="col-sm-5 col-sm-offset-1">' +
-                        '<a href="javascript:;" class="additional_comments" id="additional_comments_' + objectUuid + '">Show Older Comments ...</a>' +
+                        '<a href="javascript:;" class="additional-comments" id="additional-comments-' + objectUuid + '">Show Older Comments ...</a>' +
                         '</div>' +
                         '</div>');
-                $('#additional_comments_' + objectUuid).click(function () {
-                    $.ajax({
-                        xhrFields: {withCredentials: true},
-                        type: "GET",
-                        url: "/v1/" + resource + "/" + objectUuid + "/comments/render/?expand=true&html=true&page_size=3&page=2",
-                        contentType: "application/json; charset=utf-8",
-                        dataType: "json",
-                        success: function (data) {
-                            var commentContainer = $('#sb_comments_container_' + objectUuid);
-                            $('#additional_comments_' + objectUuid).remove();
-                            commentContainer.prepend(data.results.html);
-                            if (data.next !== null) {
-                                queryComments(data.next, objectUuid);
-                            }
-                            enableCommentFunctionality(data.results.ids);
-                        },
-                        error: function (XMLHttpRequest) {
-                            errorDisplay(XMLHttpRequest);
-                        }
-                    });
-                });
-
             }
-            enableCommentFunctionality(data.results.ids);
-        },
-        error: function (XMLHttpRequest) {
-            errorDisplay(XMLHttpRequest);
-        }
-    });
-}
-
-function queryComments(url, objectUuid) {
-    $.ajax({
-        xhrFields: {withCredentials: true},
-        type: "GET",
-        url: url,
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data) {
-            if (data.next !== null) {
-                queryComments(data.next, objectUuid);
-            }
-            var commentContainer = $('#sb_comments_container_' + objectUuid);
-            commentContainer.prepend(data.results.html);
             enableCommentFunctionality(data.results.ids);
         },
         error: function (XMLHttpRequest) {

@@ -1,56 +1,84 @@
 {% extends "base.html" %}
 {% load staticfiles %}
-{% block title %}{{ title }}{% endblock %}
+{% block title %}{% if title %} {{ title }} {% else %} {{ focus_name_formatted }} {% endif %}{% endblock %}
 {% block content %}
-    <div class="block registration">
-        <div class="row">
+    {% comment %}
+        Transition to hero-two-col-right template
+    {% endcomment %}
+    <div class="row">
+        <div class="col-xs-12 quest" style="text-align:center">
+            <h1 style="margin-top: 0;">{% if title %} {{ title }} {% else %} {{ focus_name_formatted }} {% endif %}</h1>
+            <h6>By: {% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</h6>
+            <div class="wallpaper mission-wallpaper" style="margin-top: 15px;">
+                {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
+                <img class="fill" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+            </div>
+        </div>
+        <div class="col-xs-12 hidden-sm hidden-md hidden-lg quest">
+            <button class="btn btn-primary sb_btn_fill tall-btn" id="js-donate-btn">Donate</button>
+        </div>
+    </div>
+    <div class="row quest-secondary-nav">
+        <nav class="navbar navbar-default" >
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1" style="background-color: white !important;">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Saga <span class="sr-only">(current)</span></a></li>
+                    <li><a href="#" style="margin-left: 30px !important;">Updates</a></li>
+                </ul>
+                <button type="submit" class="btn btn-primary sb_btn pull-right mission-donate-btn">Donate</button>
+            </div>
+        </nav>
+    </div>
+    <div id="epic-sm" class="hidden-xs">
+        <div class="row" style="margin-top: 15px;">
+            <div class="col-sm-9" style="background-color: white; padding:0 15px 5px 15px;">
+                <div id="epic-wrapper" >
+                    <h2>Epic</h2>
+                    <div class="deco-line-interests"></div>
+                    <div style="margin-top: 15px; margin-bottom: 15px; min-height: 400px;" id="epic-parent">
+                        My epic story about my mission goes here
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-3" style="padding-right: 0;">
+                <div id="goal-wrapper" style="background-color: white; padding:15px 15px 5px 15px;">
+                    <h3>Goals</h3>
+                    <div class="deco-line-interests"></div>
+                    <div style="margin-top: 15px; margin-bottom: 15px; min-height: 100px;" id="goals-parent">
+                        <small>My goals go here</small>
+                    </div>
+                </div>
+                <div id="about-wrapper" style="background-color: white; padding:15px 15px 5px 15px; margin-top: 15px">
+                    <h3>About</h3>
+                    <div class="deco-line-interests"></div>
+                    <div style="margin-top: 15px; margin-bottom: 15px; min-height: 100px;" id="about-parent">
+                        <small>Some short about mission goes here</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="epic-xs" class="hidden-sm hidden-md hidden-lg">
+        <div class="row quest" style="margin-top: 15px;">
             <div class="col-xs-12">
-                <h1>{% if title %} {{ mission.title }} {% else %} {{ mission.focus_name }} {% endif %}</h1>
-                <h6>{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</h6>
+                <h2>Epic</h2>
+                <div class="deco-line-interests"></div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-xs-12 quest-wallpaper">
-            {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
-            <img class="fill" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
-        </div>
-        <div class="row">
-            <div class="col-sm-3">
-                <button class="btn btn-primary sb_btn_fill" id="js-donate-btn">Donate</button>
-            </div>
-            <div class="col-sm-3">
-                <button class="btn btn-primary sb_btn_fill" id="js-follow-btn">Follow</button>
-            </div>
-            <div class="col-sm-3">
-                <button class="btn btn-primary sb_btn_fill" id="js-endorse-btn">Endorse</button>
-            </div>
-            <div class="col-sm-3">
-                <button class="btn btn-primary sb_btn_fill" id="js-share-btn">Share</button>
+        <div class="row quest">
+            <div class="col-xs-12">
+                My epic story about my mission goes here
             </div>
         </div>
-        <div class="row quest-secondary-nav">
-            <div class="col-xs-2">
-                Saga
-            </div>
-            <div class="col-xs-2">
-                Updates
-            </div>
-            <div class="col-xs-2">
-                Conversations
-            </div>
-            <div class="col-xs-2">
-                Endorsements
-            </div>
-            <div class="col-xs-2">
-                Completed Goals
+        <div class="row quest" style="margin-top: 15px;">
+            <div class="col-xs-12">
+                <h2>Goals</h2>
+                <div class="deco-line-interests"></div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-xs-8">
-                <h1>Epic</h1>
-            </div>
-            <div class="col-xs-4">
-                <h1>Goals</h1>
+        <div class="row quest">
+            <div class="col-xs-12">
+                My goals go here
             </div>
         </div>
     </div>

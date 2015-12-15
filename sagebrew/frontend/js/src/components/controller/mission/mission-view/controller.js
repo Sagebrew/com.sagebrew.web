@@ -1,10 +1,10 @@
-var advocate = require('./partials/advocatemission');
+var mission = require('./partials/mission');
 
 export const meta = {
-    controller: "mission/advocate-mission",
+    controller: "mission/mission-view",
     match_method: "path",
     check: [
-       "^quest/mission/advocate$"
+       "^missions\/[A-Za-z0-9.@_%+-]{36}\/"
     ]
 };
 
@@ -21,8 +21,7 @@ export function init() {
  */
 export function load() {
     "use strict";
-    advocate.load();
-
+    mission.load();
 }
 
 /**

@@ -17,9 +17,9 @@
         <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
             <h1>Title XS</h1>
         </div>
-        <div class="col-xs-12 col-sm-7 quest-wallpaper">
+        <div class="col-xs-12 col-sm-7 wallpaper quest-wallpaper">
             {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
-            <img class="fill" src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+            <img src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
         </div>
         <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
             <button class="btn btn-primary sb_btn_fill" id="js-donate-btn">Donate</button>
@@ -60,15 +60,6 @@
         </div>
         <div class="col-xs-2">
             Updates
-        </div>
-        <div class="col-xs-2">
-            Conversations
-        </div>
-        <div class="col-xs-2">
-            Completed Missions
-        </div>
-        <div class="col-xs-2">
-            Political Information
         </div>
     </div>
     <div class="row quest-header-temp">

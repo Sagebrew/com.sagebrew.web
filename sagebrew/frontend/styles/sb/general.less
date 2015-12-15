@@ -324,15 +324,7 @@ a {
   width: 100%;
 }
 
-.quest-wallpaper {
-  height: 400px;
-  overflow: hidden;
-  border-radius: 5px 5px 5px 5px;
-  position: relative;
-  //fixes gap at the bottom
-  margin-top: 0;
-  margin-bottom: 0;
-}
+
 // TODO Review and potentially change to just standard side_container
 .sb_questions_side_container{
     background-color: white;
@@ -2012,4 +2004,35 @@ textarea.sb_comment_input{
 .solution-comment-input {
   padding-left: 0 !important;
   padding-right: 0 !important;
+}
+
+.wallpaper {
+  display: flex;
+  justify-content: center;
+  height: 350px; /* or other desired height */
+  overflow: hidden;
+  img {
+    flex: none;
+  }
+}
+
+.quest-wallpaper {
+  &:extend(.wallpaper);
+  @media (min-width: @screen-sm-min) {
+    margin-left: 15px;
+    margin-right: -15px;
+  }
+}
+
+.mission-wallpaper {
+  &:extend(.wallpaper);
+  height: 400px;
+}
+
+.tall-btn {
+  height: 55px !important;
+}
+
+.mission-donate-btn {
+  margin-top: 5px;
 }

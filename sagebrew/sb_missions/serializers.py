@@ -38,7 +38,7 @@ class MissionSerializer(SBSerializer):
     focused_on = serializers.SerializerMethodField()
     rendered_epic = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
-
+    focus_name_formatted = serializers.SerializerMethodField()
     district = serializers.CharField(write_only=True, allow_null=True)
     level = serializers.ChoiceField(required=False, choices=[
         ('local', "Local"), ('state_upper', "State Upper"),
@@ -285,3 +285,8 @@ class MissionSerializer(SBSerializer):
             return None
         return QuestSerializer(Quest.inflate(res.one),
                                context={'request': request}).data
+
+    def get_focus_name_formatted(self, obj):
+        if obj.focus_name is not None:
+            return obj.focus_name.title()
+        return obj.focus_name

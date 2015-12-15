@@ -9,7 +9,6 @@ from api.permissions import IsAuthorizedAndVerified
 from sb_quests.neo_models import Campaign
 from sb_registration.utils import calc_age
 from plebs.neo_models import Pleb
-from plebs.neo_models import Pleb
 from plebs.serializers import PlebSerializerNeo
 
 from .neo_models import Donation

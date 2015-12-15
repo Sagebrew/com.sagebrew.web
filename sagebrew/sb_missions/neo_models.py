@@ -152,3 +152,27 @@ class Mission(Searchable):
             return Location.inflate(res.one)
         else:
             return None
+
+    @classmethod
+    def get_editors(cls, object_uuid):
+        editors = cache.get("%s_editors" % object_uuid)
+        if editors is None:
+            query = 'MATCH (mission:Mission {object_uuid: "%s"})<-' \
+                    '[:EMBARKS_ON]-(quest:Quest)<-[:EDITOR_OF]-(pleb:pleb)' \
+                    ' RETURN pleb.username' % object_uuid
+            res, col = db.cypher_query(query)
+            editors = [row[0] for row in res]
+            cache.set("%s_editors" % object_uuid, editors)
+        return editors
+
+    @classmethod
+    def get_moderators(cls, object_uuid):
+        moderators = cache.get("%s_accountants" % object_uuid)
+        if moderators is None:
+            query = 'MATCH (mission:Mission {object_uuid: "%s"})<-' \
+                    '[:EMBARKS_ON]-(quest:Quest)<-[:MODERATOR_OF]' \
+                    '-(pleb:pleb) RETURN pleb.username' % object_uuid
+            res, col = db.cypher_query(query)
+            moderators = [row[0] for row in res]
+            cache.set("%s_accountants" % object_uuid, moderators)
+        return moderators

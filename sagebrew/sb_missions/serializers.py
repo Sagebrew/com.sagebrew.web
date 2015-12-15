@@ -37,6 +37,8 @@ class MissionSerializer(SBSerializer):
     href = serializers.SerializerMethodField()
     focused_on = serializers.SerializerMethodField()
     rendered_epic = serializers.SerializerMethodField()
+    is_editor = serializers.SerializerMethodField()
+    is_moderator = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
     focus_name_formatted = serializers.SerializerMethodField()
     district = serializers.CharField(write_only=True, allow_null=True)
@@ -290,3 +292,15 @@ class MissionSerializer(SBSerializer):
         if obj.focus_name is not None:
             return obj.focus_name.title().replace('-', ' ').replace('_', ' ')
         return obj.focus_name
+
+    def get_is_editor(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return request.user.username in Mission.get_editors(obj.object_uuid)
+
+    def get_is_moderator(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return request.user.username in Mission.get_moderators(obj.object_uuid)

@@ -27,7 +27,7 @@ export function load() {
         })
         .on('click', '.js-position', function () {
             if(this.id === "js-add-mission"){
-                window.location.href = "/quest/mission/select/";
+                window.location.href = "/missions/select/";
             } else {
                 window.location.href = "/missions/" + this.id + "/";
             }

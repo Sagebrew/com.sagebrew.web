@@ -4,7 +4,7 @@ export const meta = {
     controller: "mission/select-mission",
     match_method: "path",
     check: [
-       "^quest/mission/select$"
+       "^missions/select$"
     ]
 };
 

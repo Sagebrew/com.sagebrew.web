@@ -417,8 +417,8 @@
 .wallpaper {
   display: flex;
   justify-content: center;
-  height: 350px; /* or other desired height */
   overflow: hidden;
+  height: 450px;
   img {
     flex: none;
   }
@@ -426,15 +426,11 @@
 
 .quest-wallpaper {
   &:extend(.wallpaper);
-  @media (min-width: @screen-sm-min) {
 
-
-  }
 }
 
 .mission-wallpaper {
   &:extend(.wallpaper);
-  height: 400px;
   margin-top: 15px;
   margin-bottom: 15px;
 }
@@ -449,4 +445,20 @@
 
 #about-parent {
   line-height: 1px;
+}
+
+.block-holder-lg {
+  min-height: 400px;
+}
+
+.block-holder-sm {
+  min-height: 100px;
+}
+
+.block-padding-bottom-15 {
+  padding-bottom: 15px;
+}
+
+.block-right {
+  padding-right: 0;
 }

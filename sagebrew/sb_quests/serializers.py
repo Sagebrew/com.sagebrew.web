@@ -340,7 +340,7 @@ class QuestSerializer(SBSerializer):
     href = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
     is_editor = serializers.SerializerMethodField()
-    is_accountant = serializers.SerializerMethodField()
+    is_moderator = serializers.SerializerMethodField()
     completed_stripe = serializers.SerializerMethodField()
     completed_customer = serializers.SerializerMethodField()
 
@@ -515,11 +515,11 @@ class QuestSerializer(SBSerializer):
             return None
         return request.user.username in Quest.get_editors(obj.object_uuid)
 
-    def get_is_accountant(self, obj):
+    def get_is_moderator(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
         if request is None:
             return None
-        return request.user.username in Quest.get_accountants(obj.object_uuid)
+        return request.user.username in Quest.get_moderators(obj.object_uuid)
 
     def get_completed_customer(self, obj):
         if obj.stripe_customer_id is None:

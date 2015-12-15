@@ -1,0 +1,59 @@
+{% extends "manage/manage_base.html" %}
+{% load staticfiles %}
+{% block title %}Mission Settings{% endblock title %}
+
+{% block hero %}
+    <div class="block block-type-title">
+        <div class="block-content clearfix">
+            <h1>Manage Missions</h1>
+            <ul class="nav nav-pills">
+                <li><a href="#">Quest Settings</a></li>
+                <li><a href="#">Updates</a></li>
+                <li class="active"><a href="#">Missions</a></li>
+            </ul>
+            <div class="title-important-actions">
+                <a href="{% url 'quest' request.user.username %}" class="btn btn-primary btn-sm">View Quest</a>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+{% block sidebar_left %}
+    <div class="block block-type-nav">
+        <div class="block-content">
+            <ul class="nav nav-list nav-list-vivid">
+                <li class="{% if "manage/" == request.path %}active{% endif %}">
+                    <label for="mission-select" class="hidden"></label>
+                    <select id="mission-select" class="form-control mission-input">
+                    {% for mission in missions %}
+                        <option value="{{ mission.id }}">{% if mission.title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}</option>
+                    {% endfor %}
+                </select>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock sidebar_left %}
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">
+            Mission Settings
+        </h3>
+        <div class="block-content">
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
+    <script src="{% static 'js/submit_quest_settings.js' %}"></script>
+    <script src="{% static 'js/campaign_settings_validator.js' %}"></script>
+    {% if not request_profile.is_verified %}
+        <script src="{% static 'js/activate_tooltips.js' %}"></script>
+    {% endif %}
+{% endblock scripts %}

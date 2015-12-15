@@ -130,20 +130,20 @@ class Quest(Searchable):
         return editors
 
     @classmethod
-    def get_accountants(cls, object_uuid):
-        accountants = cache.get("%s_accountants" % object_uuid)
-        if accountants is None:
+    def get_moderators(cls, object_uuid):
+        moderators = cache.get("%s_moderators" % object_uuid)
+        if moderators is None:
             query = 'MATCH (c:Quest {object_uuid: "%s"})<-' \
                     '[:MODERATOR_OF]-(p:Pleb) RETURN p.username' \
                     % object_uuid
             res, col = db.cypher_query(query)
-            accountants = [row[0] for row in res]
-            cache.set("%s_accountants" % object_uuid, accountants)
-        return accountants
+            moderators = [row[0] for row in res]
+            cache.set("%s_moderators" % object_uuid, moderators)
+        return moderators
 
     @classmethod
     def get_quest_helpers(cls, object_uuid):
-        return cls.get_accountants(object_uuid) + cls.get_editors(object_uuid)
+        return cls.get_moderators(object_uuid) + cls.get_editors(object_uuid)
 
     @classmethod
     def get_url(cls, object_uuid, request):

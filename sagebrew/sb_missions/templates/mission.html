@@ -7,7 +7,7 @@
     {% endcomment %}
     <div class="row block">
         <div class="col-xs-12 text-center">
-            <h1 class="block-title">{% if title %} {{ title }} {% else %} {{ focus_name_formatted }} {% endif %}</h1>
+            <h1>{% if title %} {{ title }} {% else %} {{ focus_name_formatted }} {% endif %}</h1>
             <p>By: {% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</p>
             <div class="wallpaper mission-wallpaper">
                 {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
@@ -30,22 +30,42 @@
         <div class="row">
             <div class="col-sm-9 block">
                 <div id="epic-wrapper" >
-                    <h2 class="block-title">Epic</h2>
-                    <div class="block-content" style="min-height: 400px;" id="epic-parent">
-                        My epic story about my mission goes here
+                    <h2 class="block-title">Epic
+            <a  class="btn btn-primary sb_btn_icon_green pull-right" href="{% url 'mission_edit_epic' id slug %}"><span class="fa fa-edit"></span></a>
+        </h2>
+                    <div class="block-content block-holder-lg" id="epic-parent">
+                        {% if not rendered_epic and is_editor or is_accountant %}
+                            {% autoescape off %}
+                                {{ rendered_epic|default:'This is your Epic, we recommend using it to share your: <ul style="font-size: 14pt; "><li>Policies</li><li>Agenda</li><li>Vision</li></ul>' }}
+                            {% endautoescape %}
+                        {% else %}
+                            {% if active == True %}
+                                {% if rendered_epic %}
+                                    {% autoescape off %}
+                                        {{ rendered_epic }}
+                                    {% endautoescape %}
+                                {% endif %}
+                            {% else %}
+                                {% if public_official %}
+                                    <h4>This user has not yet embarked upon their Sagebrew Quest.</h4>
+                                {% else %}
+                                    <h4>{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} is still setting up this Mission, check back soon!</h4>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
                     </div>
                 </div>
             </div>
-            <div class="col-sm-3" style="padding-right: 0;">
+            <div class="col-sm-3 block-right">
                 <div class="block" id="goal-wrapper">
                     <h4 class="block-title">Goals</h4>
-                    <div class="block-content" style="min-height: 100px;" id="goals-parent">
+                    <div class="block-content block-holder-sm" id="goals-parent">
                         <small>My goals go here</small>
                     </div>
                 </div>
-                <div class="block" id="about-wrapper">
+                <div class="block block-right" id="about-wrapper">
                     <h4 class="block-title">About</h4>
-                    <div class="block-content" style="min-height: 100px;" id="about-parent">
+                    <div class="block-content block-holder-sm" id="about-parent">
                         <small>This mission is about getting shit done. It should be super awesome and successful</small>
                     </div>
                     {% if True %}
@@ -101,24 +121,18 @@
             </div>
         </div>
     </div>
-    <div id="epic-xs" class="hidden-sm hidden-md hidden-lg">
-        <div class="row">
-            <div class="col-xs-12 block">
-                <h2 class="block-title">Epic</h2>
-                <div class="block-content">My epic story about my mission goes here</div>
-            </div>
+    <div id="epic-xs" class="hidden-sm hidden-md hidden-lg row">
+        <div class="col-xs-12 block">
+            <h2 class="block-title">Epic</h2>
+            <div class="block-content">My epic story about my mission goes here</div>
         </div>
-        <div class="row">
-            <div class="col-xs-12 block">
-                <h2 class="block-title">Goals</h2>
-                <div class="block-content">My goals go here</div>
-            </div>
+        <div class="col-xs-12 block">
+            <h2 class="block-title">Goals</h2>
+            <div class="block-content">My goals go here</div>
         </div>
-        <div class="row">
-            <div class="col-xs-12 block">
-                <h2 class="block-title">About</h2>
-                <div class="block-content">This mission is about getting shit done. It should be super awesome and successful</div>
-            </div>
+        <div class="col-xs-12 block">
+            <h2 class="block-title">About</h2>
+            <div class="block-content">This mission is about getting shit done. It should be super awesome and successful</div>
         </div>
     </div>
 {% endblock %}

@@ -1159,7 +1159,7 @@ class CampaignEndpointTests(APITestCase):
         cache.clear()
         response = self.client.post(url, data=data, format='json')
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.pleb.is_verified = True
         self.pleb.save()
 

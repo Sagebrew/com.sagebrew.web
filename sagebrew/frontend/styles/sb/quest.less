@@ -412,3 +412,41 @@
   background-color: white;
   margin-top: 15px;
 }
+
+
+.wallpaper {
+  display: flex;
+  justify-content: center;
+  height: 350px; /* or other desired height */
+  overflow: hidden;
+  img {
+    flex: none;
+  }
+}
+
+.quest-wallpaper {
+  &:extend(.wallpaper);
+  @media (min-width: @screen-sm-min) {
+
+
+  }
+}
+
+.mission-wallpaper {
+  &:extend(.wallpaper);
+  height: 400px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.tall-btn {
+  height: 55px !important;
+}
+
+.mission-donate-btn {
+  margin-top: 5px;
+}
+
+#about-parent {
+  line-height: 1px;
+}

@@ -288,5 +288,5 @@ class MissionSerializer(SBSerializer):
 
     def get_focus_name_formatted(self, obj):
         if obj.focus_name is not None:
-            return obj.focus_name.title()
+            return obj.focus_name.title().replace('-', ' ').replace('_', ' ')
         return obj.focus_name

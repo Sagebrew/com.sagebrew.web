@@ -1021,6 +1021,7 @@ a {
   padding-top: 10px;
   border-width: 1px;
   resize: none;
+  border-radius: @sb_common_radius;
 }
 
 .sb_post_header_info{
@@ -1030,7 +1031,7 @@ a {
 .sb_post_header{
   width: auto;
   background-color: @sb_off_white;
-  border-radius: 5px 5px 5px 5px;
+  border-radius: 2px;
   padding: @sb_common_padding_positive @sb_common_padding_positive 0;
   margin-bottom: 15px;
   border: 1px solid @border-color;
@@ -1180,10 +1181,6 @@ a {
   height:70px;
   padding: 10px @sb_common_padding_positive 0;
   border-radius: 2px;
-  /*
-  margin-right: @sb_common_margin_negative;
-  margin-left: @sb_common_margin_negative;
-  */
   margin-bottom: @sb_common_margin_positive;
 }
 .sb_btn_post{
@@ -1222,7 +1219,7 @@ a {
   background-color: white;
   border: solid;
   border-width: 1px 0 1px 0;
-  border-radius: 0 0 5px 5px;
+  border-radius: 0 0 2px 2px;
   border-color: @sb_grey;
 }
 .sb_comment_input{
@@ -2004,35 +2001,4 @@ textarea.sb_comment_input{
 .solution-comment-input {
   padding-left: 0 !important;
   padding-right: 0 !important;
-}
-
-.wallpaper {
-  display: flex;
-  justify-content: center;
-  height: 350px; /* or other desired height */
-  overflow: hidden;
-  img {
-    flex: none;
-  }
-}
-
-.quest-wallpaper {
-  &:extend(.wallpaper);
-  @media (min-width: @screen-sm-min) {
-    margin-left: 15px;
-    margin-right: -15px;
-  }
-}
-
-.mission-wallpaper {
-  &:extend(.wallpaper);
-  height: 400px;
-}
-
-.tall-btn {
-  height: 55px !important;
-}
-
-.mission-donate-btn {
-  margin-top: 5px;
 }

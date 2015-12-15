@@ -13,8 +13,8 @@
     <meta name="author" content="{% if title %} {{ title }} {% else %}{{ first_name }} {{ last_name }} {% endif %}">
 {% endblock keywords %}
 {% block content %}
-    <div class="row quest">
-        <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
+    <div class="row block">
+        <div class="hidden-sm hidden-md hidden-lg block-title text-center" style="border-bottom: none;">
             <h1>Title XS</h1>
         </div>
         <div class="col-xs-12 col-sm-7 wallpaper quest-wallpaper">
@@ -54,14 +54,6 @@
             </div>
         </div>
     </div>
-    <div class="row quest-secondary-nav">
-        <div class="col-xs-2">
-            Missions
-        </div>
-        <div class="col-xs-2">
-            Updates
-        </div>
-    </div>
     <div class="row quest-header-temp">
         <div class="col-xs-12">
             <h2>Missions</h2>
@@ -76,25 +68,6 @@
                     <h4 class="sb-profile-not-friend-header">Embark on a Mission</h4>
                     <div class="row radio-image-selector-image-wrapper">
                         <img class="radio-image-selector-image" src="{% static 'images/plus_bw.png' %}">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row quest-header-temp">
-        <div class="col-xs-12">
-            <h2>Endorsed</h2>
-            <div class="deco-line-interests"></div>
-        </div>
-    </div>
-    <div class="row quest">
-        <div class="col-xs-12">
-            <div id="js-endorsed-list"></div>
-            <div class="col-xs-12 col-sm-4">
-                <div class="radio-image-selector js-position" id="{{ name }}">
-                    <h4 class="sb-profile-not-friend-header">Find a Mission to Endorse</h4>
-                    <div class="row radio-image-selector-image-wrapper">
-                        <img class="radio-image-selector-image" src="{% static 'images/glass_bw.png' %}">
                     </div>
                 </div>
             </div>

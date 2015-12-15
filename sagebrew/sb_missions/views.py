@@ -1,6 +1,8 @@
 from django.utils.text import slugify
+from django.views.generic import View
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.utils.decorators import method_decorator
 
 from py2neo.cypher.error import ClientError
 from neomodel import db, CypherException, DoesNotExist
@@ -10,6 +12,8 @@ from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
 from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
+from sb_quests.neo_models import Quest
+from sb_quests.serializers import QuestSerializer
 
 
 @login_required()
@@ -40,16 +44,10 @@ def mission_redirect_page(request, object_uuid=None):
         return redirect("404_Error")
     except (CypherException, ClientError, IOError):
         return redirect("500_Error")
-    if mission_obj.title:
-        title = mission_obj.title
-    else:
-        if mission_obj.focus_name:
-            title = mission_obj.focus_name.title().replace(
-                    '-', ' ').replace('_', ' ')
-        else:
-            title = None
+
     return redirect("mission", object_uuid=object_uuid,
-                    slug=slugify(title), permanent=True)
+                    slug=slugify(mission_obj.get_mission_title()),
+                    permanent=True)
 
 
 def mission(request, object_uuid, slug=None):
@@ -60,27 +58,8 @@ def mission(request, object_uuid, slug=None):
     except (CypherException, ClientError, IOError):
         return redirect("500_Error")
     mission_dict = MissionSerializer(mission_obj).data
-    mission_dict['slug'] = slug
+    mission_dict['slug'] = slugify(mission_obj.get_mission_title())
     return render(request, 'mission.html', mission_dict)
-
-
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def mission_settings(request):
-    query = 'MATCH (pleb:Pleb {username: "%s"})-[:IS_WAGING]->' \
-            '(quest:Quest)-[:EMBARKS_ON]->(missions:Mission) ' \
-            'RETURN missions ' \
-            'ORDER BY missions.created DESC' % request.user.username
-    res, _ = db.cypher_query(query)
-    if res.one is None:
-        return redirect("404_Error")
-    settings_info = {
-        "missions": [MissionSerializer(Mission.inflate(row[0])).data
-                     for row in res],
-        "selected": MissionSerializer(Mission.inflate(res.one)).data
-    }
-    return render(request, 'manage/mission_settings.html', settings_info)
 
 
 def mission_updates(request, object_uuid, slug=None):
@@ -96,18 +75,47 @@ def mission_updates(request, object_uuid, slug=None):
                   {"updates": [UpdateSerializer(
                           Update.inflate(row[0])).data for row in res],
                    "mission": MissionSerializer(mission_obj).data,
-                   "slug": slug})
+                   "slug": slugify(mission_obj.get_mission_title())})
 
 
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def edit_epic(request, object_uuid=None, slug=None):
-    try:
-        mission_obj = Mission.get(object_uuid=object_uuid)
-    except (Mission.DoesNotExist, DoesNotExist):
-        return redirect("404_Error")
-    except (CypherException, ClientError, IOError):
-        return redirect("500_Error")
-    return render(request, 'manage/edit_epic.html',
-                  MissionSerializer(mission_obj).data)
+class LoginRequiredMixin(View):
+    @classmethod
+    def as_view(cls, **initkwargs):
+        view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
+        return login_required(view)
+
+
+class MissionSettingsView(LoginRequiredMixin):
+    template_name = 'manage/mission_settings.html'
+
+    @method_decorator(user_passes_test(
+        verify_completed_registration,
+        login_url='/registration/profile_information'))
+    def dispatch(self, *args, **kwargs):
+        return super(MissionSettingsView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, object_uuid=None, slug=None):
+        query = 'MATCH (pleb:Pleb {username: "%s"})-[:IS_WAGING]->' \
+            '(quest:Quest)-[:EMBARKS_ON]->(missions:Mission) ' \
+            'RETURN missions, quest ' \
+            'ORDER BY missions.created DESC' % request.user.username
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            return redirect("404_Error")
+        if object_uuid is None:
+            # TODO handle if there aren't any missions yet
+            mission_obj = Mission.inflate(res[0].missions)
+            return redirect('mission_settings',
+                            object_uuid=mission_obj.object_uuid,
+                            slug=slugify(mission_obj.get_mission_title()))
+
+        mission_obj = Mission.get(object_uuid)
+        missions = [MissionSerializer(Mission.inflate(row.missions)).data
+                    for row in res]
+        quest = Quest.inflate(res.one.quest)
+        return render(request, self.template_name, {
+            "missions": missions,
+            "selected": MissionSerializer(mission_obj).data,
+            "quest": QuestSerializer(quest).data,
+            "slug": slugify(mission_obj.get_mission_title())
+        })

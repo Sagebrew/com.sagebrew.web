@@ -1,5 +1,5 @@
 from django.core.cache import cache
-
+from django.utils.text import slugify
 
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist)
 
@@ -176,3 +176,14 @@ class Mission(Searchable):
             moderators = [row[0] for row in res]
             cache.set("%s_accountants" % object_uuid, moderators)
         return moderators
+
+    def get_mission_title(self):
+        if self.title:
+            title = self.title
+        else:
+            if self.focus_name:
+                title = self.focus_name.title().replace(
+                        '-', ' ').replace('_', ' ')
+            else:
+                title = None
+        return title

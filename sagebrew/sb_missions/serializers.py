@@ -2,6 +2,8 @@ from datetime import datetime
 import pytz
 import markdown
 
+from django.utils.text import slugify
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -41,6 +43,7 @@ class MissionSerializer(SBSerializer):
     is_moderator = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
     focus_name_formatted = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField()
     district = serializers.CharField(write_only=True, allow_null=True)
     level = serializers.ChoiceField(required=False, choices=[
         ('local', "Local"), ('state_upper', "State Upper"),
@@ -304,3 +307,6 @@ class MissionSerializer(SBSerializer):
         if request is None:
             return None
         return request.user.username in Mission.get_moderators(obj.object_uuid)
+
+    def get_slug(self, obj):
+        return slugify(obj.get_mission_title())

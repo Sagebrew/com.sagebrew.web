@@ -22,6 +22,9 @@
                 <li><a href="{% url "mission_updates" id slug %}" style="margin-left: 30px !important;">Updates</a></li>
             </ul>
             <div class="title-important-actions">
+                {% if is_moderator or is_editor or request.user.username == quest.id %}
+                    <a class="btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' id slug %}">Settings</a>
+                {% endif %}
                 <a href="#" class="btn btn-primary btn-lg sb_btn">Donate</a>
             </div>
         </div>
@@ -30,9 +33,7 @@
         <div class="row">
             <div class="col-sm-9 block">
                 <div id="epic-wrapper" >
-                    <h2 class="block-title">Epic
-            <a  class="btn btn-primary sb_btn_icon_green pull-right" href="{% url 'mission_edit_epic' id slug %}"><span class="fa fa-edit"></span></a>
-        </h2>
+                    <h2 class="block-title">Epic</h2>
                     <div class="block-content block-holder-lg" id="epic-parent">
                         {% if not rendered_epic and is_editor or is_accountant %}
                             {% autoescape off %}

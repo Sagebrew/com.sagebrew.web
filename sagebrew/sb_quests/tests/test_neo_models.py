@@ -44,12 +44,23 @@ class TestPoliticalCampaignNeoModel(TestCase):
         create_user_util_test(self.email)
         self.campaigner = Pleb.nodes.get(email=self.email)
         self.donation = Donation(amount=5.0).save()
+        self.campaign = PoliticalCampaign().save()
 
     def test_get_allow_vote_user_does_not_exist(self):
         res, detail = PoliticalCampaign.get_allow_vote(
             str(uuid1()), str(uuid1()))
         self.assertFalse(res)
         self.assertEqual(detail['detail'], 'This user does not exist.')
+
+    def test_get_allow_vote_user_is_not_verified(self):
+        self.campaigner.is_verified = False
+        self.campaigner.save()
+        cache.clear()
+        res = PoliticalCampaign.get_allow_vote(self.campaign.object_uuid,
+                                               self.campaigner.username)
+        self.assertFalse(res)
+        self.campaigner.is_verified = True
+        self.campaigner.save()
 
     def test_campaign_to_political_campaign(self):
         stripe_id = str(uuid1())

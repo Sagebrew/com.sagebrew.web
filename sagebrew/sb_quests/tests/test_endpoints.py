@@ -1136,6 +1136,26 @@ class CampaignEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_donation_create_user_is_not_verified(self):
+        self.client.force_authenticate(user=self.user)
+        active_round = Round(active=True).save()
+        target_goal = Goal(monetary_requirement=1000, target=True).save()
+        self.campaign.goals.connect(target_goal)
+        self.campaign.active_round.connect(active_round)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 1000
+        }
+        self.pleb.is_verified = False
+        self.pleb.save()
+        cache.clear()
+        response = self.client.post(url, data=data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.pleb.is_verified = True
+        self.pleb.save()
+
     def test_donation_create_value_too_high(self):
         self.client.force_authenticate(user=self.user)
         active_round = Round(active=True).save()

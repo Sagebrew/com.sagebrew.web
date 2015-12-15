@@ -9,6 +9,8 @@ from api.permissions import IsAuthorizedAndVerified
 from sb_quests.neo_models import Campaign
 from sb_registration.utils import calc_age
 from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb
+from plebs.serializers import PlebSerializerNeo
 
 from .neo_models import Donation
 from .serializers import DonationSerializer, SBDonationSerializer
@@ -91,11 +93,23 @@ class DonationListCreate(generics.ListCreateAPIView):
                         token=self.request.data.get('token', None))
 
     def create(self, request, *args, **kwargs):
-        if calc_age(Pleb.get(request.user.username).date_of_birth) < 18:
+        pleb = Pleb.get(request.user.username)
+        if not pleb:
+            return Response({"status_code": status.HTTP_403_FORBIDDEN,
+                             "detail": "You are not authorized to access "
+                                       "this page."},
+                            status=status.HTTP_403_FORBIDDEN)
+        if calc_age(pleb.date_of_birth) < 18:
             return Response({"detail": "You may not donate to a Quest unless "
                                        "you are 18 years of age or older.",
                              "status_code": status.HTTP_401_UNAUTHORIZED},
                             status=status.HTTP_401_UNAUTHORIZED)
+        if not PlebSerializerNeo(pleb).data.get("is_verified", False):
+            return Response(
+                {"detail": "You may not donate to a Quest "
+                           "unless you are verified.",
+                 "status_code": status.HTTP_401_UNAUTHORIZED},
+                status=status.HTTP_401_UNAUTHORIZED)
         return super(DonationListCreate, self).create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
@@ -123,6 +137,14 @@ class DonationListCreate(generics.ListCreateAPIView):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def sagebrew_donation(request):
+    if not Pleb.get(request.user.username).is_verified:
+        return Response(
+            {
+                "detail": "You cannot donate to us unless you are verified.",
+                "status": status.HTTP_401_UNAUTHORIZED,
+                "developer_message": "A user may only donate on Sagebrew "
+                                     "if they are verified."},
+            status=status.HTTP_401_UNAUTHORIZED)
     serializer = SBDonationSerializer(data=request.data,
                                       context={'request': request})
     if serializer.is_valid():

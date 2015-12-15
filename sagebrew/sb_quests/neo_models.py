@@ -455,6 +455,10 @@ class PoliticalCampaign(Campaign):
         except (Pleb.DoesNotExist, DoesNotExist):
             return False, {"detail": "This user does not exist.",
                            "status_code": status.HTTP_404_NOT_FOUND}
+        if not pleb.is_verified:
+            return False, {"detail": "You must be a verified user to pledge a "
+                                     "vote to a Quest.",
+                           "status_code": status.HTTP_401_UNAUTHORIZED}
         if calc_age(pleb.date_of_birth) < 18:
             return False, {"detail": "You must be at 18 years of age or older "
                                      "to pledge a vote to a Quest.",

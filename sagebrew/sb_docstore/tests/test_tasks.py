@@ -32,7 +32,7 @@ class TestSpawnUserUpdates(TestCase):
     def test_spawn_user_updates(self):
         data = {
             "username": self.pleb.username,
-            "object_uuids": [self.question.object_uuid]
+            "object_uuid": self.question.object_uuid
         }
         res = spawn_user_updates.apply_async(kwargs=data)
         while not res.ready():
@@ -50,7 +50,7 @@ class TestSpawnUserUpdates(TestCase):
         }
         data = {
             "username": self.pleb.username,
-            "object_uuids": [self.question.object_uuid]
+            "object_uuid": self.question.object_uuid
         }
         res = add_object_to_table('votes', vote_data)
         self.assertTrue(res)

@@ -73,7 +73,7 @@ class VoteEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         task_params = {
             "username": self.user.username,
-            "object_uuids": [self.question.object_uuid]
+            "object_uuid": self.question.object_uuid
         }
         async_result = spawn_task(task_func=spawn_user_updates,
                                   task_param=task_params, countdown=30)

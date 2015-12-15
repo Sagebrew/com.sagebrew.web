@@ -64,7 +64,7 @@ class ObjectVotesListCreate(ListCreateAPIView):
                                                      object_uuid))
             task_params = {
                 "username": request.user.username,
-                "object_uuids": [object_uuid]
+                "object_uuid": object_uuid
             }
             if async_result is not None:
                 # if there is already a task lined up,

@@ -1,5 +1,4 @@
 from django.core.cache import cache
-from django.utils.text import slugify
 
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist)
 
@@ -14,7 +13,7 @@ class Mission(Searchable):
     for something. A mission allows a Quest to take donations and for other
     Quests to endorse another Quest's missions.
     """
-    biography = StringProperty()
+    about = StringProperty()
     epic = StringProperty()
     # Indicates what level the Mission is set at. Valid options are:
     #     state_upper

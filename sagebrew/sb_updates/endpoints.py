@@ -53,10 +53,8 @@ class UpdateListCreate(generics.ListCreateAPIView):
         )
 
     def create(self, request, *args, **kwargs):
-        if not (request.user.username in
-                Quest.get_editors(self.kwargs[self.lookup_field])
-                or request.user.username in
-                Quest.get_accountants(self.kwargs[self.lookup_field])):
+        quest = Quest.get(request.user.username)
+        if quest is None:
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "You are not authorized to access "
                                        "this page."},

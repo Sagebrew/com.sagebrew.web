@@ -76,12 +76,20 @@ def mission_updates(request, object_uuid, slug=None):
             'RETURN quest' % object_uuid
 
     quest_res, _ = db.cypher_query(query)
+    # Only need to check that at least one update exists here to mark that
+    # updates are available for this mission.
     query = 'MATCH (mission:Mission {object_uuid: "%s"})<-[:ABOUT]-' \
-            '(updates:Update) RETURN updates ORDER BY updates.created ' \
-            'DESC' % object_uuid
+            '(updates:Update) RETURN updates LIMIT 1' % object_uuid
     res, _ = db.cypher_query(query)
     if quest_res.one is None:
         return redirect("404_Error")
+    # Instead of doing inflation and serialization of all the updates here
+    # without pagination lets just indicate if we have any or not and then
+    # hit the endpoint to gather the actual updates.
+    if res.one:
+        updates = True
+    else:
+        updates = False
     try:
         mission_obj = Mission.get(object_uuid)
     except (Mission.DoesNotExist, DoesNotExist):
@@ -90,8 +98,7 @@ def mission_updates(request, object_uuid, slug=None):
         return redirect("500_Error")
     quest = Quest.inflate(quest_res.one)
     return render(request, 'mission_updates.html',
-                  {"updates": [UpdateSerializer(
-                          Update.inflate(row[0])).data for row in res],
+                  {"updates": updates,
                    "mission": MissionSerializer(mission_obj).data,
                    "slug": slugify(mission_obj.get_mission_title()),
                    "quest": QuestSerializer(quest).data})

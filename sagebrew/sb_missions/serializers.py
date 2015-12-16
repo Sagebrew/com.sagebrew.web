@@ -1,7 +1,6 @@
-from datetime import datetime
-import pytz
 import markdown
 
+from django.core.cache import cache
 from django.utils.text import slugify
 
 from rest_framework import serializers
@@ -18,7 +17,8 @@ from .neo_models import Mission
 
 
 class MissionSerializer(SBSerializer):
-    biography = serializers.CharField(required=False, max_length=255)
+    about = serializers.CharField(required=False, allow_blank=True,
+                                  max_length=255)
     epic = serializers.CharField(required=False, allow_blank=True)
     focus_on_type = serializers.ChoiceField(required=True, choices=[
         ('position', "Public Office"), ('advocacy', "Advocacy"),
@@ -247,9 +247,17 @@ class MissionSerializer(SBSerializer):
 
     def update(self, instance, validated_data):
         instance.title = validated_data.pop('title', instance.title)
-        instance.content = validated_data.pop('content', instance.content)
-        instance.last_edited_on = datetime.now(pytz.utc)
+        instance.about = validated_data.pop('about', instance.about)
+        instance.epic = validated_data.pop('epic', instance.epic)
+        instance.facebook = validated_data.pop('facebook', instance.facebook)
+        instance.linkedin = validated_data.pop('linkedin', instance.linkedin)
+        instance.youtube = validated_data.pop('youtube', instance.youtube)
+        instance.twitter = validated_data.pop('twitter', instance.twitter)
+        instance.website = validated_data.pop('website', instance.website)
+        instance.wallpaper_pic = validated_data.pop('wallpaper_pic',
+                                                    instance.wallpaper_pic)
         instance.save()
+        cache.set("%s_mission" % instance.object_uuid, instance)
         return instance
 
     def get_href(self, obj):

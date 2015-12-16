@@ -18,9 +18,13 @@ from .neo_models import Update
 
 
 class UpdateSerializer(TitledContentSerializer):
-    title = serializers.CharField(required=False,
-                                  min_length=5, max_length=140)
+    title = serializers.CharField(min_length=5, max_length=140)
     goals = serializers.SerializerMethodField()
+    about_type = serializers.ChoiceField(choices=[
+        ('mission', "Mission"), ('quest', "Quest"), ('seat', "Seat"),
+        ('goal', "Goal(s)")])
+    about_id = serializers.CharField(min_length=36, max_length=36)
+    about = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         # TODO we don't have a way currently to distinguish what a Update is

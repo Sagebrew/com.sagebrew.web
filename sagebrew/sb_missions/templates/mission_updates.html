@@ -4,25 +4,27 @@
 
 {% block live %}
     <div class="block">
-        <h2 class="block-title">Updates</h2>
         <div class="block-content block-holder-lg" id="epic-parent">
-            {% if not rendered_epic and is_editor or is_accountant %}
-                {% autoescape off %}
-                    {{ rendered_epic|default:'This is your Epic, we recommend using it to share your: <ul style="font-size: 14pt; "><li>Policies</li><li>Agenda</li><li>Vision</li></ul>' }}
-                {% endautoescape %}
+            {% if is_editor or is_moderator or request.user.username == quest.owner_username %}
+                {% if not updates %}
+                    <p>Updates are distributed to anyone that
+                    has donated to or pledged to vote for your
+                    Quest and will show up on their Newsfeed. We
+                    recommend using them to share:</p>
+                    <ul>
+                        <li>Progress regarding your Mission and Goals</li>
+                        <li>Information you'd like to bring attention to</li>
+                        <li>Upcoming events related to your Mission</li>
+                    </ul>
+                    <p>You can edit it in the <a href="{% url 'mission_update_settings' mission.id mission.slug %}">settings</a>.</p>
+                {% endif %}
             {% else %}
                 {% if active == True %}
-                    {% if rendered_epic %}
-                        {% autoescape off %}
-                            {{ rendered_epic }}
-                        {% endautoescape %}
-                    {% endif %}
+                    <div id="js-update-wrapper">
+
+                    </div>
                 {% else %}
-                    {% if public_official %}
-                        <h4>This user has not yet embarked upon their Sagebrew Quest.</h4>
-                    {% else %}
-                        <h4>{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} is still setting up this Mission, check back soon!</h4>
-                    {% endif %}
+                    <h4>{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} is still setting up this Mission, check back soon!</h4>
                 {% endif %}
             {% endif %}
         </div>

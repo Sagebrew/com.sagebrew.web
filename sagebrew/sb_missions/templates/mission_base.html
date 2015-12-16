@@ -5,7 +5,7 @@
 {% block hero %}
     <div class="block">
         <div class="col-xs-12 text-center">
-            <h1>{% if title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}</h1>
+            <h1>{% if mission.focus_on_type == "position" %}{{ mission.focused_on.full_name|title }}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}</h1>
             <a href="{% url "quest" quest.id %}">By: {% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</a>
             <div class="wallpaper mission-wallpaper">
                 {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
@@ -78,15 +78,17 @@
     <div class="block" id="about-wrapper">
         <h4 class="block-title">About</h4>
         <div class="block-content block-holder-sm" id="about-parent">
-            <small>This mission is about getting shit done. It should be super awesome and successful</small>
+            <small>{{ mission.about|default:"No information has been provided."|default_if_none:"No information has been provided." }}</small>
         </div>
         {% if True %}
             <div class="block-content" style="padding-bottom: 0;" id="website">
-                <small>Website: {{ mission.website }}</small>
+                {% if mission.website %}
+                    <small>Website: {{ mission.website|urlize }}</small>
+                {% endif %}
             </div>
         {% endif %}
         <div class="block-content" style="padding-top: 0;" id="social-media">
-            {% if  facebook %}
+            {% if  mission.facebook %}
                 <button onclick="location.href='http://facebook.com/{{ mission.facebook }}'"
                         class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                     <span class="fa fa-facebook"></span>
@@ -97,7 +99,29 @@
                     <span class="fa fa-facebook"></span>
                 </button>
             {% endif %}
-            {% if  linkedin %}
+            {% if mission.twitter %}
+                <button onclick="location.href='http://twitter.com/{{ mission.twitter }}'"
+                        class="btn btn-primary sb_btn_icon sb_btn_icon_green">
+                    <span class="fa fa-twitter"></span>
+                </button>
+            {% else %}
+                <button onclick="location.href='http://twitter.com/{{ mission.twitter }}'"
+                        class="btn btn-primary sb_btn_icon disabled">
+                    <span class="fa fa-twitter"></span>
+                </button>
+            {% endif %}
+            {% if mission.youtube %}
+                <button onclick="location.href='http://youtube.com/{{ mission.youtube }}'"
+                        class="btn btn-primary sb_btn_icon sb_btn_icon_green">
+                    <span class="fa fa-youtube-play"></span>
+                </button>
+            {% else %}
+                <button onclick="location.href='http://youtube.com/{{ mission.youtube }}'"
+                        class="btn btn-primary sb_btn_icon disabled">
+                    <span class="fa fa-youtube-play"></span>
+                </button>
+            {% endif %}
+            {% if  mission.linkedin %}
                 <button onclick="location.href='http://linkedin.com/{{ mission.linkedin }}'"
                         class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span
                         class="fa fa-linkedin"></span></button>
@@ -106,32 +130,6 @@
                         class="btn btn-primary sb_btn_icon disabled"><span
                         class="fa fa-linkedin"></span></button>
             {% endif %}
-            {% if youtube %}
-                <button onclick="location.href='http://youtube.com/{{ mission.youtube }}'"
-                        class="btn btn-primary sb_btn_icon sb_btn_icon_green">
-                    <span class="fa fa-youtube-play"></span>
-                </button>
-            {% else %}
-                <button onclick="location.href='http://youtube.com/{{ mission.youtube }}'"
-                        class="btn btn-primary sb_btn_icon disabled">
-                    <span class="fa fa-youtube-play"></span>
-                </button>
-            {% endif %}
-            {% if twitter %}
-                <button onclick="location.href='http://twitter.com/{{ mission.twitter }}'"
-                        class="btn btn-primary sb_btn_icon sb_btn_icon_green">
-                    <span class="fa fa-twitter"></span>
-                </button>
-            {% else %}
-                <button onclick="location.href='http://twitter.com/{{ mission.twitter }}'"
-                        class="btn btn-primary sb_btn_icon disabled">
-                    <span class="fa fa-twitter"></span>
-                </button>
-            {% endif %}
         </div>
     </div>
-{% endblock %}
-
-{% block intercom %}
-   Intercom('trackEvent', 'mission-page');
 {% endblock %}

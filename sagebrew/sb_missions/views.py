@@ -51,6 +51,11 @@ def mission_redirect_page(request, object_uuid=None):
 
 
 def mission(request, object_uuid, slug=None):
+    query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
+            '(mission:Mission {object_uuid: "%s"})' \
+            'RETURN quest' % object_uuid
+
+    res, _ = db.cypher_query(query)
     try:
         mission_obj = Mission.get(object_uuid)
     except (Mission.DoesNotExist, DoesNotExist):
@@ -59,23 +64,37 @@ def mission(request, object_uuid, slug=None):
         return redirect("500_Error")
     mission_dict = MissionSerializer(mission_obj).data
     mission_dict['slug'] = slugify(mission_obj.get_mission_title())
-    return render(request, 'mission.html', mission_dict)
+    return render(request, 'mission.html', {
+        "mission": mission_dict,
+        "quest": QuestSerializer(Quest.inflate(res.one)).data
+    })
 
 
 def mission_updates(request, object_uuid, slug=None):
-    query = 'MATCH (updates:Update) RETURN updates'
+    query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
+            '(mission:Mission {object_uuid: "%s"})' \
+            'RETURN quest' % object_uuid
+
+    quest_res, _ = db.cypher_query(query)
+    query = 'MATCH (mission:Mission {object_uuid: "%s"})<-[:ABOUT]-' \
+            '(updates:Update) RETURN updates ORDER BY updates.created ' \
+            'DESC' % object_uuid
     res, _ = db.cypher_query(query)
+    if quest_res.one is None:
+        return redirect("404_Error")
     try:
         mission_obj = Mission.get(object_uuid)
     except (Mission.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
     except (CypherException, ClientError, IOError):
         return redirect("500_Error")
+    quest = Quest.inflate(quest_res.one)
     return render(request, 'mission_updates.html',
                   {"updates": [UpdateSerializer(
                           Update.inflate(row[0])).data for row in res],
                    "mission": MissionSerializer(mission_obj).data,
-                   "slug": slugify(mission_obj.get_mission_title())})
+                   "slug": slugify(mission_obj.get_mission_title()),
+                   "quest": QuestSerializer(quest).data})
 
 
 class LoginRequiredMixin(View):

@@ -1,10 +1,10 @@
 {% extends "mission_base.html" %}
 {% load staticfiles %}
-{% block title %}{% if title %} {{ title }} {% else %} {{ focus_name_formatted }} {% endif %}{% endblock %}
+{% block title %}{% if title %} {{ title }} {% else %} {{ focus_name_formatted }} {% endif %} Updates{% endblock %}
 
 {% block live %}
     <div class="block">
-        <h2 class="block-title">Epic</h2>
+        <h2 class="block-title">Updates</h2>
         <div class="block-content block-holder-lg" id="epic-parent">
             {% if not rendered_epic and is_editor or is_accountant %}
                 {% autoescape off %}
@@ -29,7 +29,6 @@
     </div>
 {% endblock %}
 
-
 {% block intercom %}
-   Intercom('trackEvent', 'mission-page');
+   Intercom('trackEvent', 'mission-update-page');
 {% endblock %}

@@ -1945,6 +1945,7 @@ textarea.sb_comment_input{
 
   li.active > a {
     background-color: @sb_green;
+    color: white;
   }
   li:last-child {
     margin-bottom:0px;
@@ -1955,6 +1956,23 @@ textarea.sb_comment_input{
     border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
   }
+}
+.nav-pills {
+  li {
+    width: 150px;
+    text-align: center;
+    &:hover {
+      background-color: #eee;
+    }
+  }
+  li.active > a {
+    background-color: @sb_green;
+    border-radius: 0;
+    &:hover {
+      background-color: @sb_green;
+    }
+  }
+
 }
 
 .sb-single-object-wall {
@@ -2001,4 +2019,9 @@ textarea.sb_comment_input{
 .solution-comment-input {
   padding-left: 0 !important;
   padding-right: 0 !important;
+}
+
+.tight {
+  padding-bottom: 10px !important;
+  padding-top: 10px !important;
 }

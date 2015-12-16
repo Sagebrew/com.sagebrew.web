@@ -1,3 +1,5 @@
+from django.views.generic import View
+from django.utils.decorators import method_decorator
 from django.shortcuts import redirect, render
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -68,110 +70,6 @@ def insights(request, username):
     return render(request, 'insights.html', serializer_data)
 
 
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def moderators(request, username):
-    if not request.user.username == username:
-        return redirect('quest', username)
-    try:
-        quest_obj = Quest.get(username)
-    except (Quest.DoesNotExist, DoesNotExist):
-        return redirect("404_Error")
-    except (CypherException, IOError):
-        return redirect("500_Error")
-    serializer_data = QuestSerializer(
-        quest_obj, context={'request': request}).data
-
-    serializer_data['description'] = "Moderation Management for %s %s's " \
-                                     "Quest." % (serializer_data['first_name'],
-                                                 serializer_data['last_name'])
-    serializer_data['keywords'] = "Moderators, Admins, Accountants, Editors," \
-                                  " Quest"
-    serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
-    return render(request, 'manage/moderators.html', serializer_data)
-
-
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def manage_settings(request, username):
-    """
-    This view provides the necessary information for rendering a user's
-    Quest settings. If they have an ongoing Quest it provides the information
-    for that and if not it returns nothing and the template is expected to
-    provide a button for the user to start their Quest.
-
-    :param username:
-    :param request:
-    :return:
-    """
-    query = 'MATCH (person:Pleb {username: "%s"})' \
-            '-[r:IS_WAGING]->(quest:Quest) RETURN quest' % (
-                request.user.username)
-    try:
-        res, col = db.cypher_query(query)
-        quest_obj = QuestSerializer(Quest.inflate(res[0][0]),
-                                    context={'request': request}).data
-        quest_obj['stripe_key'] = settings.STRIPE_PUBLIC_KEY
-    except(CypherException, ClientError):
-        return redirect("500_Error")
-    except IndexError:
-        quest_obj = False
-    return render(request, 'manage/quest_settings.html',
-                  {"campaign": quest_obj})
-
-
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def quest_delete_page(request, username):
-    """
-    :param username:
-    :param request:
-    :return:
-    """
-    query = 'MATCH (person:Pleb {username: "%s"})' \
-            '-[r:IS_WAGING]->(quest:Quest) RETURN quest' % (
-                request.user.username)
-    try:
-        res, col = db.cypher_query(query)
-        quest_obj = QuestSerializer(Quest.inflate(res[0][0]),
-                                    context={'request': request}).data
-        quest_obj['stripe_key'] = settings.STRIPE_PUBLIC_KEY
-    except(CypherException, ClientError):
-        return redirect("500_Error")
-    except IndexError:
-        quest_obj = False
-    return render(request, 'manage/quest_delete.html',
-                  {"campaign": quest_obj})
-
-
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def quest_manage_banking(request, username):
-    """
-    :param username:
-    :param request:
-    :return:
-    """
-    query = 'MATCH (person:Pleb {username: "%s"})' \
-            '-[r:IS_WAGING]->(quest:Quest) RETURN quest' % (
-                request.user.username)
-    try:
-        res, col = db.cypher_query(query)
-        quest_obj = QuestSerializer(Quest.inflate(res[0][0]),
-                                    context={'request': request}).data
-        quest_obj['stripe_key'] = settings.STRIPE_PUBLIC_KEY
-    except(CypherException, ClientError):
-        return redirect("500_Error")
-    except IndexError:
-        quest_obj = False
-    return render(request, 'manage/quest_banking.html',
-                  {"campaign": quest_obj})
-
-
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def delete_quest(request):
@@ -200,3 +98,34 @@ def delete_quest(request):
     return Response({"detail": "We have sent a confirmation email to you "
                                "and will be in contact soon to follow up!"},
                     status=status.HTTP_200_OK)
+
+
+class LoginRequiredMixin(View):
+    @classmethod
+    def as_view(cls, **initkwargs):
+        view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
+        return login_required(view)
+
+
+class QuestSettingsView(LoginRequiredMixin):
+    template_name = 'manage/quest_settings.html'
+
+    @method_decorator(user_passes_test(
+        verify_completed_registration,
+        login_url='/registration/profile_information'))
+    def dispatch(self, *args, **kwargs):
+        return super(QuestSettingsView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, username=None):
+        query = 'MATCH (person:Pleb {username: "%s"})' \
+            '-[r:IS_WAGING]->(quest:Quest) RETURN quest' % (
+                request.user.username)
+        try:
+            res, _ = db.cypher_query(query)
+            if res.one is None:
+                return redirect("404_Error")
+        except(CypherException, ClientError):
+            return redirect("500_Error")
+        quest_obj = QuestSerializer(Quest.inflate(res.one),
+                                    context={'request': request}).data
+        return render(request, self.template_name, {"quest": quest_obj})

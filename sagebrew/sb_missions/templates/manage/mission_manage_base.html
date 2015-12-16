@@ -2,22 +2,9 @@
 {% load staticfiles %}
 {% block title %}Mission Settings{% endblock title %}
 
-{% block hero %}
-    <div class="block block-type-title">
-        <div class="block-content clearfix">
-            <h1>Manage Missions</h1>
-            <ul class="nav nav-pills">
-                <li><a href="{% url 'quest_manage_settings' quest.id %}">Quest Settings</a></li>
-                <li><a href="#">Updates</a></li>
-                <li class="active"><a href="#">Missions</a></li>
-            </ul>
-            <div class="title-important-actions">
-                <a href="{% url 'mission' selected.id selected.slug %}" class="btn btn-primary btn-sm">View Mission</a>
-            </div>
-
-        </div>
-    </div>
-{% endblock %}
+{% block important_actions %}
+    <a href="{% url 'mission' selected.id selected.slug %}" class="btn btn-primary btn-sm sb_btn">View Mission</a>
+{% endblock important_actions %}
 {% block sidebar_left %}
     <div class="block block-type-nav">
         <div class="block-content">

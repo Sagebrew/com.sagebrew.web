@@ -21,19 +21,24 @@
                     {% endfor %}
                 </select>
                 </li>
-                <li {% if "/settings/" in request.path %}class="active" {% endif %}>
+                <li {% if "/manage/general/" in request.path %}class="active" {% endif %}>
                     <a href="{% url "mission_settings" selected.id slug %}">
                         General
                     </a>
                 </li>
-                <li {% if "/edit_epic/" in request.path %}class="active" {% endif %}>
+                <li {% if "/manage/epic/" in request.path %}class="active" {% endif %}>
                     <a href="{% url "mission_edit_epic" selected.id slug %}">
                         Epic
                     </a>
                 </li>
-                <li {% if "/edit_goals/" in request.path %}class="active" {% endif %}>
+                <li {% if "/manage/goals/" in request.path %}class="active" {% endif %}>
                     <a href="{% url "mission_goals_settings" selected.id slug %}">
                         Goals
+                    </a>
+                </li>
+                <li {% if "/manage/updates/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_update_settings" selected.id slug %}">
+                        Updates
                     </a>
                 </li>
             </ul>

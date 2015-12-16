@@ -59,7 +59,6 @@
             <h1>Manage Quest</h1>
             <ul class="nav nav-pills">
                 <li {% if "/quests/" in request.path %}class="active"{% endif %}><a href="{% url 'quest_manage_settings' quest.id %}">Quest Settings</a></li>
-                <li><a href="#">Updates</a></li>
                 <li {% if "/missions/" in request.path %}class="active"{% endif %}><a href="{% url 'mission_settings_redirect' %}">Missions</a></li>
             </ul>
             <div class="title-important-actions">

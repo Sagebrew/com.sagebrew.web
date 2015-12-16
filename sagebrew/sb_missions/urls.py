@@ -15,14 +15,21 @@ urlpatterns = patterns(
         mission_redirect_page, name="mission_redirect"),
     url(r'^settings/$', MissionSettingsView.as_view(),
         name="mission_settings_redirect"),
-    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/settings/$',
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'manage/general/$',
         MissionSettingsView.as_view(), name="mission_settings"),
-    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/edit_epic/$',
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'manage/epic/$',
         MissionSettingsView.as_view(template_name='manage/epic.html'),
         name="mission_edit_epic"),
-    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/edit_goals/$',
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'manage/goals/$',
         MissionSettingsView.as_view(template_name='manage/goals.html'),
         name="mission_goals_settings"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'manage/updates/$',
+        MissionSettingsView.as_view(template_name='manage/updates.html'),
+        name="mission_update_settings"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/updates/$',
         mission_updates, name="mission_updates"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/$',

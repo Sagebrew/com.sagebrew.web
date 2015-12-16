@@ -14,6 +14,7 @@ from sb_goals.neo_models import Goal
 from api.utils import gather_request_data
 from sb_base.serializers import TitledContentSerializer
 
+
 from .neo_models import Update
 
 
@@ -22,7 +23,7 @@ class UpdateSerializer(TitledContentSerializer):
     goals = serializers.SerializerMethodField()
     about_type = serializers.ChoiceField(choices=[
         ('mission', "Mission"), ('quest', "Quest"), ('seat', "Seat"),
-        ('goal', "Goal(s)")])
+        ('goal', "Goal")])
     about_id = serializers.CharField(min_length=36, max_length=36)
     about = serializers.SerializerMethodField()
 
@@ -33,23 +34,29 @@ class UpdateSerializer(TitledContentSerializer):
         # Office Mission vs Advocate Mission vs Quest vs etc)
         request, _, _, _, _ = gather_request_data(self.context)
         quest = validated_data.pop('quest', None)
-        associated_goals = validated_data.pop('associated_goals', [])
+
         validated_data['content'] = bleach.clean(validated_data.get(
             'content', ""))
         owner = Pleb.get(request.user.username)
         validated_data['owner_username'] = owner.username
+        about = validated_data.pop('about', None)
+        about_type = validated_data.get('about_type')
         update = Update(**validated_data).save()
         quest.updates.connect(update)
-        update.owned_by.connect(owner)
-        for goal in associated_goals:
+        if validated_data.get('about_type') == "goal":
             query = 'MATCH (c:Quest {object_uuid:"%s"})-[:EMBARKS_ON]->' \
                     '(mission:Mission)-[:WORKING_TOWARDS]->' \
                     '(g:Goal {title:"%s"}) ' \
-                    'RETURN g' % (quest.object_uuid, goal)
+                    'RETURN g' % (quest.object_uuid,
+                                  validated_data.get('about_id'))
             res, _ = db.cypher_query(query)
             goal = Goal.inflate(res.one)
             update.goals.connect(goal)
             goal.updates.connect(update)
+        if about_type == 'mission':
+            update.mission.connect(about)
+        elif about_type == 'quest':
+            update.quest.connect(about)
         cache.delete("%s_updates" % quest.object_uuid)
         return update
 
@@ -78,3 +85,21 @@ class UpdateSerializer(TitledContentSerializer):
         return reverse(
             'update-detail', kwargs={'object_uuid': obj.object_uuid},
             request=request)
+
+    def get_about(self, obj):
+        from sb_missions.neo_models import Mission
+        from sb_missions.serializers import MissionSerializer
+        from sb_quests.neo_models import Quest
+        from sb_quests.serializers import QuestSerializer
+        query = 'MATCH (update:Update {object_uuid: "%s"})-[:ABOUT]' \
+                '->' % obj.object_uuid
+        if obj.about_type == "mission":
+            query += '(mission:Mission) RETURN mission'
+            res, _ = db.cypher_query(query)
+            return MissionSerializer(Mission.inflate(res.one)).data
+        elif obj.about_type == "quest":
+            query += '(quest:Quest) RETURN quest'
+            res, _ = db.cypher_query(query)
+            return QuestSerializer(Quest.inflate(res.one)).data
+        else:
+            return None

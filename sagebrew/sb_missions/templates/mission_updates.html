@@ -5,21 +5,19 @@
 {% block live %}
     <div class="block">
         <div class="block-content block-holder-lg" id="epic-parent">
-            {% if is_editor or is_moderator or request.user.username == quest.owner_username %}
-                {% if not updates %}
-                    <p>Updates are distributed to anyone that
-                    has donated to or pledged to vote for your
-                    Quest and will show up on their Newsfeed. We
-                    recommend using them to share:</p>
-                    <ul>
-                        <li>Progress regarding your Mission and Goals</li>
-                        <li>Information you'd like to bring attention to</li>
-                        <li>Upcoming events related to your Mission</li>
-                    </ul>
-                    <p>You can edit it in the <a href="{% url 'mission_update_settings' mission.id mission.slug %}">settings</a>.</p>
-                {% endif %}
+            {% if is_editor or is_moderator or request.user.username == quest.owner_username and not updates%}
+                <p>Updates are distributed to anyone that
+                has donated to or pledged to vote for your
+                Quest and will show up on their Newsfeed. We
+                recommend using them to share:</p>
+                <ul>
+                    <li>Progress regarding your Mission and Goals</li>
+                    <li>Information you'd like to bring attention to</li>
+                    <li>Upcoming events related to your Mission</li>
+                </ul>
+                <p>You can edit it in the <a href="{% url 'mission_update_settings' mission.id mission.slug %}">settings</a>.</p>
             {% else %}
-                {% if active == True %}
+                {% if updates %}
                     <div id="js-update-wrapper">
 
                     </div>

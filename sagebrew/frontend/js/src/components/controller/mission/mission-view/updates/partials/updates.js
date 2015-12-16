@@ -12,9 +12,10 @@ export function load() {
     if ($updateWrapper !== undefined && $updateWrapper !== null){
         $updateWrapper.sb_contentLoader({
             emptyDataMessage: '',
-            url: '/v1/missions/' + missionId + '/updates/render/?expand=true',
+            url: '/v1/missions/' + missionId + '/updates/render/',
             params: {
-                expand: 'true'
+                expand: 'true',
+                about_type: 'mission'
             },
             dataCallback: function(base_url, params) {
                 var urlParams = $.param(params);
@@ -29,8 +30,8 @@ export function load() {
 
             },
             renderCallback: function($container, data) {
-                for (var i = 0; i < data.results.length; i++) {
-                    $container.append(data.results[i]);
+                for (var i = 0; i < data.count; i++) {
+                    $container.append(data.results.html[i]);
                 }
             }
         });

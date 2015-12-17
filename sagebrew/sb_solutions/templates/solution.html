@@ -15,7 +15,7 @@
             <div>
                 <small>
                     <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>
-                    {% if profile.campaign %}
+                    {% if profile.quest %}
                         <a href="{% url "quest" profile.username %}"
                            data-toggle="tooltip"
                            data-placement="top"

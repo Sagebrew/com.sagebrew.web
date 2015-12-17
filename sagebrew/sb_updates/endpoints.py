@@ -60,8 +60,9 @@ class UpdateListCreate(generics.ListCreateAPIView):
         else:
             # If all else fails assume this update is about the Quest itself
             quest = Quest.get(self.kwargs[self.lookup_field])
-            url = reverse('quest_updates', kwargs={
-                'username': self.request.user.username}, request=self.request)
+            # TODO update quest url generation when we have an updates for
+            # quest
+            url = None
             about = quest
         serializer.save(
             quest=quest, about=about, url=url, object_uuid=object_uuid,

@@ -16,9 +16,7 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
                         role="menu" aria-labelledby="dropdown-menu">
-                        <li role="presentation"><a class="sb_post_dropdown_menu edit-update"
-                                                   data-object_uuid="{{ object_uuid }}"
-                                                   type="submit">Edit</a>
+                        <li role="presentation"><a href="{% url 'edit_update' id %}">Edit</a>
                         </li>
                     </ul>
                 {% endif %}
@@ -39,7 +37,7 @@
     </div>
     <div class="row">
         <div class="col-xs-12 sb-update-wrapper">
-            <div class="sb_question_body" id="sb_question_{{ object_uuid }}">
+            <div class="update-body">
                 <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
                     {% autoescape off %}
                         {{ html_content }}

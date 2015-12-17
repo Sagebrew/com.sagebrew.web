@@ -2,6 +2,7 @@ from datetime import datetime
 import pytz
 import bleach
 
+from django.utils.text import slugify
 from django.core.cache import cache
 
 from rest_framework import serializers
@@ -72,10 +73,21 @@ class UpdateSerializer(TitledContentSerializer):
         return Update.get_goals(obj.object_uuid)
 
     def get_url(self, obj):
+        from sb_missions.neo_models import Mission
+        from sb_quests.neo_models import Quest
         request, _, _, _, _ = gather_request_data(self.context)
-        return reverse('quest_updates',
-                       kwargs={'username': obj.owner_username},
-                       request=request)
+        if obj.about_type == "mission":
+            about = Mission.get(obj.about_id)
+            return reverse('mission_updates',
+                           kwargs={'object_uuid': about.object_uuid,
+                                   'slug': slugify(about.get_mission_title())},
+                           request=request)
+        elif obj.about_type == "quest":
+            about = Quest.get(obj.about_id)
+            return reverse('quest_updates',
+                           kwargs={'object_uuid': about.one}, request=request)
+        else:
+            return None
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(
@@ -91,15 +103,9 @@ class UpdateSerializer(TitledContentSerializer):
         from sb_missions.serializers import MissionSerializer
         from sb_quests.neo_models import Quest
         from sb_quests.serializers import QuestSerializer
-        query = 'MATCH (update:Update {object_uuid: "%s"})-[:ABOUT]' \
-                '->' % obj.object_uuid
         if obj.about_type == "mission":
-            query += '(mission:Mission) RETURN mission'
-            res, _ = db.cypher_query(query)
-            return MissionSerializer(Mission.inflate(res.one)).data
+            return MissionSerializer(Mission.get(obj.about_id)).data
         elif obj.about_type == "quest":
-            query += '(quest:Quest) RETURN quest'
-            res, _ = db.cypher_query(query)
-            return QuestSerializer(Quest.inflate(res.one)).data
+            return QuestSerializer(Quest.get(obj.about_id)).data
         else:
             return None

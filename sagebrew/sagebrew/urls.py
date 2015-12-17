@@ -72,7 +72,7 @@ urlpatterns = patterns(
     (r'^docstore/', include('sb_docstore.urls')),
     (r'^quests/', include('sb_public_official.urls')),
     (r'^quests/', include('sb_quests.urls')),
-    (r'^quests/', include('sb_updates.urls')),
+    (r'^updates/', include('sb_updates.urls')),
     (r'^quests/', include('sb_goals.urls')),
     (r'^missions/', include('sb_missions.urls')),
     (r'^council/', include('sb_council.urls')),

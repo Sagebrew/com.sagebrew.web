@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    $(".sb_border_question").append('<div class="loader" id="question-loader"></div>');
+    $(".js-question-list").append('<div class="loader" id="question-loader"></div>');
     function loadQuestionSummaries(url) {
         $.ajax({
             xhrFields: {withCredentials: true},

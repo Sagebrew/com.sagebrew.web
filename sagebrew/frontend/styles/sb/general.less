@@ -128,7 +128,7 @@ a {
 .sb_solution_news{
   &:extend(.block);
   margin-bottom: 15px;
-  border: 1px solid @border-color;
+  border: none;
   textarea {
     margin-bottom: 25px;
     border-radius: @sb_common_radius;
@@ -410,6 +410,7 @@ a {
     color: @sb_green;
   }
 }
+
 .sb_border_categories{
   &:extend(.sb_border);
   border-color: @sb_grey;
@@ -688,6 +689,7 @@ a {
 
 // TODO: Part time fix till PR #720
 .profile-nav-wrapper{
+  border: none;
   ul {
     margin:0;
     padding-top: 5px;
@@ -1034,7 +1036,7 @@ a {
   border-radius: 2px;
   padding: @sb_common_padding_positive @sb_common_padding_positive 0;
   margin-bottom: 15px;
-  border: 1px solid @border-color;
+  border: none;
 }
 
 
@@ -1144,6 +1146,10 @@ a {
   margin-left: 0;
   border: 2px solid @border-color;
 }
+.update-body {
+  &:extend(.sb_question_body);
+  border: none;
+}
 .sb-question-title{
   padding-left: 18px;
 }
@@ -1217,10 +1223,8 @@ a {
 .sb_comment{
   padding: 10px 15px 10px 15px;
   background-color: white;
-  border: solid;
-  border-width: 1px 0 1px 0;
-  border-radius: 0 0 2px 2px;
-  border-color: @sb_grey;
+  border: 0 solid @sb_grey;
+  border-top-width: 1px;
 }
 .sb_comment_input{
   border-width: 1px 0 1px 1px;
@@ -1934,6 +1938,13 @@ textarea.sb_comment_input{
 .sb-position-filter-wrapper {
   margin-top: 8px;
 }
+
+.js-question-list {
+  .active{
+    color: @sb_green;
+  }
+}
+
 .nav-list-vivid {
   li {
     a {

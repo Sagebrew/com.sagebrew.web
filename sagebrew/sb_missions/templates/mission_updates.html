@@ -3,7 +3,7 @@
 {% block title %}{% if title %} {{ title }} {% else %} {{ focus_name_formatted }} {% endif %} Updates{% endblock %}
 
 {% block live %}
-    <div class="block">
+    <div>
         <div class="block-content block-holder-lg" id="epic-parent">
             {% if is_editor or is_moderator or request.user.username == quest.owner_username and not updates%}
                 <p>Updates are distributed to anyone that
@@ -22,7 +22,9 @@
 
                     </div>
                 {% else %}
-                    <h4>{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} is still setting up this Mission, check back soon!</h4>
+                    <div class="block block-holder-lg sb_markdown">
+                        <h4 class="block-content">{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} is still setting up this Mission, check back soon!</h4>
+                    </div>
                 {% endif %}
             {% endif %}
         </div>

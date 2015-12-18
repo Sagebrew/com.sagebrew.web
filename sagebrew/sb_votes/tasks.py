@@ -41,6 +41,7 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
     if isinstance(sb_object, Exception) is True:
         raise vote_object_task.retry(exc=sb_object, countdown=10,
                                      max_retries=None)
+    query = 'MATCH (v:VotableContent {object_uuid:"%s"}), (p:Pleb {username:"%s"}) WITH v, p OPTIONAL MATCH '
     res = sb_object.vote_content(vote_type, current_pleb)
 
     if isinstance(res, Exception) is True:

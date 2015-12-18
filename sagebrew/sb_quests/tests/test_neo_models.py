@@ -58,7 +58,10 @@ class TestPoliticalCampaignNeoModel(TestCase):
         cache.clear()
         res = PoliticalCampaign.get_allow_vote(self.campaign.object_uuid,
                                                self.campaigner.username)
-        self.assertFalse(res)
+        self.assertFalse(res[0])
+        self.assertEqual(res[1]['detail'],
+                         'You must be a verified user to pledge a vote to '
+                         'a Quest.')
         self.campaigner.is_verified = True
         self.campaigner.save()
 

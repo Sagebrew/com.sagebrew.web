@@ -86,7 +86,6 @@ class DonationListCreate(generics.ListCreateAPIView):
         return [Donation.inflate(row[0]) for row in res]
 
     def perform_create(self, serializer):
-
         campaign = Campaign.get(object_uuid=self.kwargs[self.lookup_field])
         serializer.save(campaign=campaign,
                         token=self.request.data.get('token', None))

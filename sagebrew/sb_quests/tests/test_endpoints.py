@@ -1288,7 +1288,6 @@ class CampaignEndpointTests(APITestCase):
             'amount': 1000
         }
         response = self.client.post(url, data=data, format='json')
-        print response
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn(goal.object_uuid, response.data['applied_to'])
 

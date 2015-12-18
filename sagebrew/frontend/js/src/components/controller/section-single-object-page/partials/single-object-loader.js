@@ -1,4 +1,4 @@
-/*global $, enableContentFunctionality, populateComment, enableSolutionFunctionality, enableQuestionFunctionality, showEditSolution*/
+/*global $, enableContentFunctionality, populateComment, enableSolutionFunctionality, enableQuestionFunctionality*/
 var request = require('./../../../api').request,
     settings = require('./../../../settings').settings,
     helpers = require('./../../../common/helpers');

@@ -100,6 +100,7 @@ class DonationListCreate(generics.ListCreateAPIView):
                                "unless you are verified.",
                      "status_code": status.HTTP_401_UNAUTHORIZED},
                     status=status.HTTP_401_UNAUTHORIZED)
+        else:
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "You are not authorized to access "
                                        "this page."},

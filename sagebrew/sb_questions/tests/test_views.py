@@ -46,7 +46,7 @@ class TestGetQuestionSearchView(APITestCase):
 class TestGetQuestionView(APITestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -185,7 +185,7 @@ class TestGetQuestionListView(APITestCase):
     def setUp(self):
         cache.clear()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -221,7 +221,7 @@ class TestSingleQuestionPage(APITestCase):
     def setUp(self):
         cache.clear()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)

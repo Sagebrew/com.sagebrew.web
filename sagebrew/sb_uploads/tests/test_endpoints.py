@@ -319,7 +319,7 @@ class URLContentEndpointTests(APITestCase):
     def test_list_friend(self):
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(email2)
+        res = create_user_util_test(email2, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         friend = Pleb.nodes.get(email=email2)
@@ -335,7 +335,7 @@ class URLContentEndpointTests(APITestCase):
     def test_list_not_friend(self):
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(email2)
+        res = create_user_util_test(email2, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         friend = Pleb.nodes.get(email=email2)

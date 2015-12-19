@@ -57,8 +57,14 @@ function loadSingleContent() {
                 if (formattedObjectType === "solution" || formattedObjectType === "question") {
                     wrapper.append('<small><a href="' + data.results.url + '">View the full Conversation</a></small>');
                 }
-                wrapper.append(data.html);
-                enableContentFunctionality(data.id, formattedObjectType);
+                 wrapper.append(data.html);
+                if (formattedObjectType === "question") {
+                    enableQuestionFunctionality([data.id]);
+                } else if (formattedObjectType === "solution") {
+                    enableSolutionFunctionality([data.id]);
+                } else {
+                    enableContentFunctionality(data.id, formattedObjectType);
+                }
                 populateComment(data.id, objectType);
             }
 

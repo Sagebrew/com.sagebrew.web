@@ -16,7 +16,7 @@ class TestSearchResultView(TestCase):
         self.factory = APIRequestFactory()
         self.client = Client()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -26,13 +26,13 @@ class TestSearchResultView(TestCase):
         cache.clear()
 
     def test_search_result_view_success(self):
-        self.client.login(username=self.user.username, password="testpassword")
+        self.client.login(username=self.user.username, password="test_test")
         url = reverse("search_results")
         response = self.client.get(url, data={'q': 'test'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_search_result_view_no_query(self):
-        self.client.login(username=self.user.username, password="testpassword")
+        self.client.login(username=self.user.username, password="test_test")
         url = reverse("search_results")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
@@ -43,7 +43,7 @@ class TestSearchResultAPI(TestCase):
         self.client = APIClient()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -84,7 +84,7 @@ class TestSearchResultAPIReturns(TestCase):
         self.client = APIClient()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)

@@ -39,3 +39,18 @@ class VoteEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.question.object_uuid})
         res = self.client.post(url + "votes/", data=data, format="json")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_vote_create_pleb_is_not_verified(self):
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "vote_type": True
+        }
+        url = reverse("question-detail",
+                      kwargs={'object_uuid': self.question.object_uuid})
+        self.pleb.is_verified = False
+        self.pleb.save()
+        cache.clear()
+        res = self.client.post(url + "votes/", data=data, format="json")
+        self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.pleb.is_verified = True
+        self.pleb.save()

@@ -428,7 +428,7 @@ class TestSignupView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -442,7 +442,7 @@ class TestSignupView(TestCase):
         self.assertIn(response.status_code, [200, 302])
 
     def test_logged_in_user(self):
-        self.client.login(username=self.user.username, password='testpassword')
+        self.client.login(username=self.user.username, password='test_test')
         response = self.client.get(reverse('signup'))
 
         self.assertIn(response.status_code, [200, 302])
@@ -454,7 +454,7 @@ class TestSignupAPIView(TestCase):
         self.store = SessionStore()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -653,7 +653,7 @@ class TestLoginView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -672,7 +672,7 @@ class TestLoginAPIView(TestCase):
         self.store = SessionStore()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -682,7 +682,7 @@ class TestLoginAPIView(TestCase):
     def test_login_api_view_success(self):
         login_data = {
             'email': self.user.email,
-            'password': 'testpassword'
+            'password': 'test_test'
         }
 
         request = self.factory.post('/registration/login/api/', data=login_data,
@@ -701,7 +701,7 @@ class TestLoginAPIView(TestCase):
     def test_login_api_view_inactive_user(self):
         login_data = {
             'email': self.user.email,
-            'password': 'testpassword'
+            'password': 'test_test'
         }
         self.user.is_active = False
         self.user.save()
@@ -807,7 +807,7 @@ class TestLogoutView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -816,7 +816,7 @@ class TestLogoutView(TestCase):
 
     def test_logout_view_success(self):
         user = authenticate(username=self.user.username,
-                            password='testpassword')
+                            password='test_test')
         request = self.factory.request()
         s = SessionStore()
         s.save()
@@ -833,7 +833,7 @@ class TestEmailVerificationView(TestCase):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -843,7 +843,7 @@ class TestEmailVerificationView(TestCase):
     def test_email_verification_view_success(self):
         cache.clear()
         user = authenticate(username=self.user.username,
-                            password='testpassword')
+                            password='test_test')
         request = self.factory.request()
         s = SessionStore()
         s.save()
@@ -859,7 +859,7 @@ class TestEmailVerificationView(TestCase):
 
     def test_email_verification_view_incorrect_token(self):
         user = authenticate(username=self.user.username,
-                            password='testpassword')
+                            password='test_test')
         request = self.factory.request()
         s = SessionStore()
         s.save()
@@ -873,7 +873,7 @@ class TestEmailVerificationView(TestCase):
 
     def test_email_verification_view_pleb_does_not_exist(self):
         user = authenticate(username=self.user.username,
-                            password='testpassword')
+                            password='test_test')
         request = self.factory.request()
         s = SessionStore()
         s.save()
@@ -895,7 +895,7 @@ class TestResendEmailVerificationView(TestCase):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -904,7 +904,7 @@ class TestResendEmailVerificationView(TestCase):
 
     def test_resend_email_verification_view_success(self):
         user = authenticate(username=self.user.username,
-                            password='testpassword')
+                            password='test_test')
         request = self.factory.request()
         s = SessionStore()
         s.save()
@@ -918,7 +918,7 @@ class TestResendEmailVerificationView(TestCase):
 
     def test_resend_email_verification_view_failure_pleb_does_not_exist(self):
         user = authenticate(username=self.user.username,
-                            password='testpassword')
+                            password='test_test')
         request = self.factory.request()
         s = SessionStore()
         s.save()
@@ -935,7 +935,7 @@ class TestConfirmView(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -947,7 +947,7 @@ class TestConfirmView(TestCase):
 
     def test_logged_in_user(self):
         self.client.login(username=self.user.username,
-                          password='testpassword')
+                          password='test_test')
         response = self.client.get(reverse('confirm_view'), follow=True)
 
         self.assertEqual(response.status_code, 200)
@@ -958,7 +958,7 @@ class TestAgeRestrictionView(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -970,7 +970,7 @@ class TestAgeRestrictionView(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_logged_in_user(self):
-        self.client.login(username=self.user.username, password='testpassword')
+        self.client.login(username=self.user.username, password='test_test')
         response = self.client.get(reverse('age_restriction_13'), follow=True)
 
         self.assertEqual(response.status_code, 200)
@@ -981,11 +981,11 @@ class TestQuestSignup(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.client.login(username=self.user.username, password='testpassword')
+        self.client.login(username=self.user.username, password='test_test')
 
     def test_quest_signup_get(self):
         url = reverse('quest_info')
@@ -1002,7 +1002,7 @@ class TestProfilePicture(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
@@ -1010,7 +1010,7 @@ class TestProfilePicture(TestCase):
         self.pleb.email_verified = True
         self.pleb.save()
         cache.set(self.pleb.username, self.pleb)
-        self.client.login(username=self.user.username, password='testpassword')
+        self.client.login(username=self.user.username, password='test_test')
 
     def test_profile_picture(self):
         url = reverse("profile_picture")

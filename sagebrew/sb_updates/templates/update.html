@@ -35,14 +35,12 @@
             {% if goals %}<small> <i class="fa fa-bullseye"></i> {{ goals }} </small>{% endif %}
         </div>
     </div>
-    <div class="row">
-        <div class="col-xs-12 sb-update-wrapper">
-            <div class="update-body">
-                <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
-                    {% autoescape off %}
-                        {{ html_content }}
-                    {% endautoescape %}
-                </div>
+    <div class="sb-update-wrapper">
+        <div class="update-body">
+            <div class="sb_markdown" id="sb_content_{{ object_uuid }}">
+                {% autoescape off %}
+                    {{ html_content }}
+                {% endautoescape %}
             </div>
         </div>
     </div>

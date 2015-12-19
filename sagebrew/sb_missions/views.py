@@ -8,8 +8,6 @@ from py2neo.cypher.error import ClientError
 from neomodel import db, CypherException, DoesNotExist
 
 from sb_registration.utils import (verify_completed_registration)
-from sb_updates.neo_models import Update
-from sb_updates.serializers import UpdateSerializer
 from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
 from sb_quests.neo_models import Quest

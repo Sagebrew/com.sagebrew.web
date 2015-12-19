@@ -32,38 +32,14 @@
                 <li {% if "updates" in request.path %} class="active" {% endif %}><a href="{% url "mission_updates" mission.id mission.slug %}">Updates</a></li>
             </ul>
             <div class="title-important-actions tight">
+                {% if is_moderator or is_editor or request.user.username == quest.id and quest.active == False %}
+                    <a class="btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Activate</a>
+                {% endif %}
                 {% if is_moderator or is_editor or request.user.username == quest.id %}
                     <a class="btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
                 {% endif %}
                 <a href="#" class="btn btn-primary btn-lg sb_btn">Donate</a>
             </div>
-        </div>
-    </div>
-{% endblock %}
-
-{% block live %}
-    <div class="block">
-        <h2 class="block-title">Epic</h2>
-        <div class="block-content block-holder-lg" id="epic-parent">
-            {% if not rendered_epic and is_editor or is_accountant %}
-                {% autoescape off %}
-                    {{ mission.rendered_epic|default:'This is your Epic, we recommend using it to share your: <ul style="font-size: 14pt; "><li>Policies</li><li>Agenda</li><li>Vision</li></ul>' }}
-                {% endautoescape %}
-            {% else %}
-                {% if active == True %}
-                    {% if rendered_epic %}
-                        {% autoescape off %}
-                            {{ mission.rendered_epic }}
-                        {% endautoescape %}
-                    {% endif %}
-                {% else %}
-                    {% if public_official %}
-                        <h4>This user has not yet embarked upon their Sagebrew Quest.</h4>
-                    {% else %}
-                        <h4>{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} is still setting up this Mission, check back soon!</h4>
-                    {% endif %}
-                {% endif %}
-            {% endif %}
         </div>
     </div>
 {% endblock %}

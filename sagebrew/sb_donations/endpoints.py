@@ -8,7 +8,6 @@ from neomodel import db
 from api.permissions import IsAuthorizedAndVerified
 from sb_quests.neo_models import Campaign
 from plebs.neo_models import Pleb
-from plebs.serializers import PlebSerializerNeo
 
 from .neo_models import Donation
 from .serializers import DonationSerializer, SBDonationSerializer
@@ -93,7 +92,7 @@ class DonationListCreate(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         pleb = Pleb.get(request.user.username)
         if pleb:
-            if not PlebSerializerNeo(pleb).data.get("is_verified", False):
+            if not pleb.is_verified:
                 return Response(
                     {"detail": "You may not donate to a Quest "
                                "unless you are verified.",

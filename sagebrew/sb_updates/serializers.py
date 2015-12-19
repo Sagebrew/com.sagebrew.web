@@ -2,6 +2,7 @@ from datetime import datetime
 import pytz
 import bleach
 
+from django.utils.text import slugify
 from django.core.cache import cache
 
 from rest_framework import serializers
@@ -14,13 +15,18 @@ from sb_goals.neo_models import Goal
 from api.utils import gather_request_data
 from sb_base.serializers import TitledContentSerializer
 
+
 from .neo_models import Update
 
 
 class UpdateSerializer(TitledContentSerializer):
-    title = serializers.CharField(required=False,
-                                  min_length=5, max_length=140)
+    title = serializers.CharField(min_length=5, max_length=140)
     goals = serializers.SerializerMethodField()
+    about_type = serializers.ChoiceField(choices=[
+        ('mission', "Mission"), ('quest', "Quest"), ('seat', "Seat"),
+        ('goal', "Goal")])
+    about_id = serializers.CharField(min_length=36, max_length=36)
+    about = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         # TODO we don't have a way currently to distinguish what a Update is
@@ -29,23 +35,29 @@ class UpdateSerializer(TitledContentSerializer):
         # Office Mission vs Advocate Mission vs Quest vs etc)
         request, _, _, _, _ = gather_request_data(self.context)
         quest = validated_data.pop('quest', None)
-        associated_goals = validated_data.pop('associated_goals', [])
+
         validated_data['content'] = bleach.clean(validated_data.get(
             'content', ""))
         owner = Pleb.get(request.user.username)
         validated_data['owner_username'] = owner.username
+        about = validated_data.pop('about', None)
+        about_type = validated_data.get('about_type')
         update = Update(**validated_data).save()
         quest.updates.connect(update)
-        update.owned_by.connect(owner)
-        for goal in associated_goals:
+        if validated_data.get('about_type') == "goal":
             query = 'MATCH (c:Quest {object_uuid:"%s"})-[:EMBARKS_ON]->' \
                     '(mission:Mission)-[:WORKING_TOWARDS]->' \
                     '(g:Goal {title:"%s"}) ' \
-                    'RETURN g' % (quest.object_uuid, goal)
+                    'RETURN g' % (quest.object_uuid,
+                                  validated_data.get('about_id'))
             res, _ = db.cypher_query(query)
             goal = Goal.inflate(res.one)
             update.goals.connect(goal)
             goal.updates.connect(update)
+        if about_type == 'mission':
+            update.mission.connect(about)
+        elif about_type == 'quest':
+            update.quest.connect(about)
         cache.delete("%s_updates" % quest.object_uuid)
         return update
 
@@ -61,10 +73,21 @@ class UpdateSerializer(TitledContentSerializer):
         return Update.get_goals(obj.object_uuid)
 
     def get_url(self, obj):
+        from sb_missions.neo_models import Mission
+        from sb_quests.neo_models import Quest
         request, _, _, _, _ = gather_request_data(self.context)
-        return reverse('quest_updates',
-                       kwargs={'username': obj.owner_username},
-                       request=request)
+        if obj.about_type == "mission":
+            about = Mission.get(obj.about_id)
+            return reverse('mission_updates',
+                           kwargs={'object_uuid': about.object_uuid,
+                                   'slug': slugify(about.get_mission_title())},
+                           request=request)
+        elif obj.about_type == "quest":
+            about = Quest.get(obj.about_id)
+            return reverse('quest_updates',
+                           kwargs={'object_uuid': about.one}, request=request)
+        else:
+            return None
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(
@@ -74,3 +97,15 @@ class UpdateSerializer(TitledContentSerializer):
         return reverse(
             'update-detail', kwargs={'object_uuid': obj.object_uuid},
             request=request)
+
+    def get_about(self, obj):
+        from sb_missions.neo_models import Mission
+        from sb_missions.serializers import MissionSerializer
+        from sb_quests.neo_models import Quest
+        from sb_quests.serializers import QuestSerializer
+        if obj.about_type == "mission":
+            return MissionSerializer(Mission.get(obj.about_id)).data
+        elif obj.about_type == "quest":
+            return QuestSerializer(Quest.get(obj.about_id)).data
+        else:
+            return None

@@ -116,6 +116,7 @@ a {
 .sb_solution{
   &:extend(.block);
   margin-bottom: 15px;
+  padding-bottom: 0;
   textarea {
     margin-bottom: 25px;
     border-radius: @sb_common_radius;
@@ -127,7 +128,7 @@ a {
 .sb_solution_news{
   &:extend(.block);
   margin-bottom: 15px;
-  border: 1px solid @border-color;
+  border: none;
   textarea {
     margin-bottom: 25px;
     border-radius: @sb_common_radius;
@@ -323,15 +324,7 @@ a {
   width: 100%;
 }
 
-.quest-wallpaper {
-  height: 400px;
-  overflow: hidden;
-  border-radius: 5px 5px 5px 5px;
-  position: relative;
-  //fixes gap at the bottom
-  margin-top: 0;
-  margin-bottom: 0;
-}
+
 // TODO Review and potentially change to just standard side_container
 .sb_questions_side_container{
     background-color: white;
@@ -417,6 +410,7 @@ a {
     color: @sb_green;
   }
 }
+
 .sb_border_categories{
   &:extend(.sb_border);
   border-color: @sb_grey;
@@ -695,6 +689,7 @@ a {
 
 // TODO: Part time fix till PR #720
 .profile-nav-wrapper{
+  border: none;
   ul {
     margin:0;
     padding-top: 5px;
@@ -1028,6 +1023,7 @@ a {
   padding-top: 10px;
   border-width: 1px;
   resize: none;
+  border-radius: @sb_common_radius;
 }
 
 .sb_post_header_info{
@@ -1037,10 +1033,10 @@ a {
 .sb_post_header{
   width: auto;
   background-color: @sb_off_white;
-  border-radius: 5px 5px 5px 5px;
+  border-radius: 2px;
   padding: @sb_common_padding_positive @sb_common_padding_positive 0;
   margin-bottom: 15px;
-  border: 1px solid @border-color;
+  border: none;
 }
 
 
@@ -1146,8 +1142,13 @@ a {
 }
 .sb_question_body{
   &:extend(.sb_post_body);
+  min-height: 115px;
   margin-left: 0;
   border: 2px solid @border-color;
+}
+.update-body {
+  &:extend(.sb_question_body);
+  border: none;
 }
 .sb-question-title{
   padding-left: 18px;
@@ -1166,6 +1167,8 @@ a {
   &:extend(.sb_question_body);
   margin-right: -5px;
   margin-left: 0;
+  margin-bottom: 15px;
+  padding-bottom: 0;
 }
 .sb-solution-controls{
   padding-left: 20px;
@@ -1176,16 +1179,14 @@ a {
   border-color: @sb_grey;
   padding-bottom: 0;
 }
-
+.sb_comment_wrapper {
+  padding-right: 20px;
+}
 .app-post-create {
   background-color: white;
   height:70px;
   padding: 10px @sb_common_padding_positive 0;
   border-radius: 2px;
-  /*
-  margin-right: @sb_common_margin_negative;
-  margin-left: @sb_common_margin_negative;
-  */
   margin-bottom: @sb_common_margin_positive;
 }
 .sb_btn_post{
@@ -1209,7 +1210,6 @@ a {
   font-size: @sb_body_text;
   padding: 15px 0 15px 0;
   hanging-punctuation: force-end;
-  max-height: 600px;
   height: auto;
   width: auto;
   background-color: @sb_grey_extra_light;
@@ -1223,10 +1223,8 @@ a {
 .sb_comment{
   padding: 10px 15px 10px 15px;
   background-color: white;
-  border: solid;
-  border-width: 1px 0 1px 0;
-  border-radius: 0 0 5px 5px;
-  border-color: @sb_grey;
+  border: 0 solid @sb_grey;
+  border-top-width: 1px;
 }
 .sb_comment_input{
   border-width: 1px 0 1px 1px;
@@ -1291,7 +1289,7 @@ textarea.sb_comment_input{
   padding-bottom: 400px;
 }
 
-.additional_comments{
+.additional-comments{
   font-size: 13px;
 }
 
@@ -1498,6 +1496,11 @@ textarea.sb_comment_input{
   position: relative;
   overflow: hidden;
 }
+
+.sm-voting {
+  margin-bottom: 15px;
+}
+
 .sb-btn-file input[type=file] {
   position: absolute;
   top: 0;
@@ -1884,6 +1887,29 @@ textarea.sb_comment_input{
   width: 345px;
 }
 
+.notification-info {
+  margin-bottom: 5px;
+  padding: 5px 5px 0;
+}
+.solution-end {
+  margin-bottom: 70px;
+}
+.question-comments {
+  padding-left: 15px !important;
+  padding-right: 15px !important;
+}
+.question-comment-input{
+  padding-left: 0;
+  padding-right: 0;
+}
+.created-time {
+  margin-top:-10px;
+}
+.title-by {
+  margin-top: -15px;
+  margin-bottom: 15px;
+  padding-left: 20px;
+}
 #pac-input {
   margin-bottom: 15px;
   height: 52px;
@@ -1912,6 +1938,13 @@ textarea.sb_comment_input{
 .sb-position-filter-wrapper {
   margin-top: 8px;
 }
+
+.js-question-list {
+  .active{
+    color: @sb_green;
+  }
+}
+
 .nav-list-vivid {
   li {
     a {
@@ -1923,6 +1956,7 @@ textarea.sb_comment_input{
 
   li.active > a {
     background-color: @sb_green;
+    color: white;
   }
   li:last-child {
     margin-bottom:0px;
@@ -1934,8 +1968,75 @@ textarea.sb_comment_input{
     border-bottom-right-radius: 3px;
   }
 }
+.nav-pills {
+  li {
+    width: 150px;
+    text-align: center;
+    &:hover {
+      background-color: #eee;
+    }
+  }
+  li.active > a {
+    background-color: @sb_green;
+    border-radius: 0;
+    &:hover {
+      background-color: @sb_green;
+    }
+  }
+
+}
 
 .sb-single-object-wall {
   &:extend(.sb_conversation_wall);
   min-height: 150px;
+}
+
+.comment-input{
+  width: 100%;
+  resize: vertical;
+  textarea{
+    height: 50px;
+    border: 1px solid @border-color !important;
+    border-radius: @sb_common_radius;
+    &:focus{
+      border-color: @link-color !important;
+    }
+  }
+}
+
+.comment-btn{
+  color: @sb_green;
+  height: 50px;
+  border: 1px solid @border-color !important;
+  border-left-width: 0 !important;
+  border-radius: 0 5px 5px 0;
+    &:hover{
+      background-color: @link-hover-color;
+    }
+    &:active{
+      background-color: @link-color;
+    }
+}
+.js-comment-container {
+  margin-bottom: 15px;
+}
+.newsfeed-comment {
+  margin-bottom: 0;
+}
+.js-comment-input {
+  margin-bottom: 60px;
+}
+
+.solution-comment-input {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.tight {
+  padding-bottom: 10px !important;
+  padding-top: 10px !important;
+}
+
+.single-col-input-group {
+  margin-bottom: 15px;
 }

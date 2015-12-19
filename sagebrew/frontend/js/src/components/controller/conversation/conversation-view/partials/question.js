@@ -6,7 +6,6 @@ var Autolinker = require('autolinker'),
     request = require('api').request;
 
 function loadSolutionCount(questionID) {
-    "use strict";
     request.get({url: '/v1/questions/' + questionID + "/solution_count/"})
         .done(function (data) {
             var solutionCount = $('#solution_count');
@@ -21,9 +20,7 @@ function loadSolutionCount(questionID) {
         });
 }
 
-
 export function load () {
-    "use strict";
     var timeOutId = 0,
         questionID = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0];
     request.get({url: '/v1/questions/' + questionID + '/?html=true&expand=true&expedite=true'})
@@ -38,4 +35,5 @@ export function load () {
         .fail(function(){
             timeOutId = setTimeout(load, 1000);
         });
+
 }

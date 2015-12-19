@@ -332,7 +332,7 @@ class TestGooglePlaces(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)

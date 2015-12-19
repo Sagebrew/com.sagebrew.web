@@ -1,3 +1,5 @@
+/*global getSettingsData*/
+
 /**
  * @file
  */
@@ -30,12 +32,13 @@ export function load() {
             completedStripe = $("#completed-stripe").data("completed_stripe"),
             completedCustomer = $("#js-completed_customer").data("completed_customer"),
             paidAccount = $("#js-paid_account").data("paid_account"),
-            takingLive = $("#js-taking_live");
+            takingLive = $("#js-taking_live"),
+            greyPage = $('#sb-greyout-page');
         takingLive.data("taking_live", "True");
         if (completedStripe === "False") {
             if (settingsData.ssn && settingsData.routing_number && settingsData.account_number) {
-                $('#sb-greyout-page').show();
-                $("#sb-greyout-page").spin('large');
+                greyPage.show();
+                greyPage.spin('large');
                 $("#submit_settings").click();
             } else {
                 $("html, body").animate({scrollTop: 0}, "slow");
@@ -49,30 +52,23 @@ export function load() {
             });
         } else {
             $('#sb-greyout-page').show();
-            $.ajax({
-                xhrFields: {withCredentials: true},
-                type: "PATCH",
+            request.patch({
                 url: "/v1/campaigns/" + campaignId + "/",
                 data: JSON.stringify({
                     "activate": true
-                }),
-                contentType: "application/json; charset=utf-8",
-                dataType: "json",
-                success: function (data) {
-                    $('#sb-greyout-page').hide();
-                    if (data.active) {
-                        $("#js-active").attr("data-active", "True");
-                        window.location.href = data.url;
-                    } else {
-                        $("#js-active").attr("data-active", "False");
-                    }
-
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    $('#sb-greyout-page').hide();
-                    $('#sb-greyout-page').spin(false);
-                    errorDisplay(XMLHttpRequest);
+                })
+            }).done(function (data) {
+                $('#sb-greyout-page').hide();
+                if (data.active) {
+                    $("#js-active").attr("data-active", "True");
+                    window.location.href = data.url;
+                } else {
+                    $("#js-active").attr("data-active", "False");
                 }
+            }).fail(function () {
+                greyPage.hide();
+                greyPage.spin(false);
+                request.errorDisplay(XMLHttpRequest);
             });
         }
 

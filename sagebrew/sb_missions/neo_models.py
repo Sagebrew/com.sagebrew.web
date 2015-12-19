@@ -1,6 +1,5 @@
 from django.core.cache import cache
 
-
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist)
 
 from sb_search.neo_models import Searchable
@@ -14,7 +13,7 @@ class Mission(Searchable):
     for something. A mission allows a Quest to take donations and for other
     Quests to endorse another Quest's missions.
     """
-    biography = StringProperty()
+    about = StringProperty()
     epic = StringProperty()
     # Indicates what level the Mission is set at. Valid options are:
     #     state_upper
@@ -152,3 +151,38 @@ class Mission(Searchable):
             return Location.inflate(res.one)
         else:
             return None
+
+    @classmethod
+    def get_editors(cls, object_uuid):
+        editors = cache.get("%s_editors" % object_uuid)
+        if editors is None:
+            query = 'MATCH (mission:Mission {object_uuid: "%s"})<-' \
+                    '[:EMBARKS_ON]-(quest:Quest)<-[:EDITOR_OF]-(pleb:pleb)' \
+                    ' RETURN pleb.username' % object_uuid
+            res, col = db.cypher_query(query)
+            editors = [row[0] for row in res]
+            cache.set("%s_editors" % object_uuid, editors)
+        return editors
+
+    @classmethod
+    def get_moderators(cls, object_uuid):
+        moderators = cache.get("%s_accountants" % object_uuid)
+        if moderators is None:
+            query = 'MATCH (mission:Mission {object_uuid: "%s"})<-' \
+                    '[:EMBARKS_ON]-(quest:Quest)<-[:MODERATOR_OF]' \
+                    '-(pleb:pleb) RETURN pleb.username' % object_uuid
+            res, col = db.cypher_query(query)
+            moderators = [row[0] for row in res]
+            cache.set("%s_accountants" % object_uuid, moderators)
+        return moderators
+
+    def get_mission_title(self):
+        if self.title:
+            title = self.title
+        else:
+            if self.focus_name:
+                title = self.focus_name.title().replace(
+                    '-', ' ').replace('_', ' ')
+            else:
+                title = None
+        return title

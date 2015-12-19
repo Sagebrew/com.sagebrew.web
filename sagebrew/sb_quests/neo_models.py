@@ -2,6 +2,7 @@ from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.cache import cache
 
 from rest_framework.reverse import reverse
+from rest_framework import status
 
 from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
                       FloatProperty, DoesNotExist, RelationshipFrom)
@@ -130,20 +131,20 @@ class Quest(Searchable):
         return editors
 
     @classmethod
-    def get_accountants(cls, object_uuid):
-        accountants = cache.get("%s_accountants" % object_uuid)
-        if accountants is None:
+    def get_moderators(cls, object_uuid):
+        moderators = cache.get("%s_moderators" % object_uuid)
+        if moderators is None:
             query = 'MATCH (c:Quest {object_uuid: "%s"})<-' \
                     '[:MODERATOR_OF]-(p:Pleb) RETURN p.username' \
                     % object_uuid
             res, col = db.cypher_query(query)
-            accountants = [row[0] for row in res]
-            cache.set("%s_accountants" % object_uuid, accountants)
-        return accountants
+            moderators = [row[0] for row in res]
+            cache.set("%s_moderators" % object_uuid, moderators)
+        return moderators
 
     @classmethod
     def get_quest_helpers(cls, object_uuid):
-        return cls.get_accountants(object_uuid) + cls.get_editors(object_uuid)
+        return cls.get_moderators(object_uuid) + cls.get_editors(object_uuid)
 
     @classmethod
     def get_url(cls, object_uuid, request):
@@ -650,15 +651,27 @@ class PoliticalCampaign(Campaign):
     @classmethod
     def get_allow_vote(cls, object_uuid, username):
         from plebs.neo_models import Pleb
+        from sb_registration.utils import calc_age
         try:
             pleb = Pleb.get(username)
         except (Pleb.DoesNotExist, DoesNotExist):
-            return False
+            return False, {"detail": "This user does not exist.",
+                           "status_code": status.HTTP_404_NOT_FOUND}
+        if not pleb.is_verified:
+            return False, {"detail": "You must be a verified user to pledge a "
+                                     "vote to a Quest.",
+                           "status_code": status.HTTP_401_UNAUTHORIZED}
+        if calc_age(pleb.date_of_birth) < 18:
+            return False, {"detail": "You must be at 18 years of age or older "
+                                     "to pledge a vote to a Quest.",
+                           "status_code": status.HTTP_401_UNAUTHORIZED}
         address = pleb.get_address()
         position = PoliticalCampaign.get_position(object_uuid)
 
         if position is None or address is None:
-            return False
+            return False, {"detail": "Either your address or the position of "
+                                     "the Quest is invalid.",
+                           "status_code": status.HTTP_400_BAD_REQUEST}
         # This query attempts to match a given position and address via
         # location connections, the end result is ensuring that someone
         # who does not live in a location that a quest is running in may
@@ -670,8 +683,11 @@ class PoliticalCampaign(Campaign):
                 position, address.object_uuid))
 
         if res.one:
-            return True
-        return False
+            return True, {"detail": "Can pledge vote to this Quest.",
+                          "status_code": status.HTTP_200_OK}
+        return False, {"detail": "You cannot pledge vote to Quest outside "
+                                 "your area.",
+                       "status_code": status.HTTP_401_UNAUTHORIZED}
 
     @classmethod
     def get_current_seat(cls, object_uuid):

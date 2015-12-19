@@ -20,11 +20,11 @@ export function load() {
         .on('click', '#js-public-office', function(event) {
             "use strict";
             event.preventDefault();
-            window.location.href = "/quest/mission/public_office/";
+            window.location.href = "/missions/public_office/";
         })
         .on('click', '#js-advocate', function(event) {
             "use strict";
             event.preventDefault();
-            window.location.href = "/quest/mission/advocate/";
+            window.location.href = "/missions/advocate/";
         });
 }

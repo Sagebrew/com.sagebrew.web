@@ -12,7 +12,7 @@ export function load() {
     request.get({url: '/v1/profiles/' + pageUser + '/missions/'})
         .done(function (data) {
             if(data.results.length === 0) {
-                missionList.innerHTML = templates.position_holder();
+                missionList.innerHTML = templates.position_holder({static_url: settings.static_url});
             } else {
                 for(var i=0; i < data.results.length; i++){
                     data.results[i].focused_on.name = data.results[i].focused_on.name.replace('-', ' ');
@@ -27,7 +27,7 @@ export function load() {
         })
         .on('click', '.js-position', function () {
             if(this.id === "js-add-mission"){
-                window.location.href = "/quest/mission/select/";
+                window.location.href = "/missions/select/";
             } else {
                 window.location.href = "/missions/" + this.id + "/";
             }

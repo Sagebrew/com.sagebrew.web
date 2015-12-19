@@ -1,6 +1,7 @@
-from datetime import datetime
-import pytz
 import markdown
+
+from django.core.cache import cache
+from django.utils.text import slugify
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -16,7 +17,8 @@ from .neo_models import Mission
 
 
 class MissionSerializer(SBSerializer):
-    biography = serializers.CharField(required=False, max_length=255)
+    about = serializers.CharField(required=False, allow_blank=True,
+                                  max_length=255)
     epic = serializers.CharField(required=False, allow_blank=True)
     focus_on_type = serializers.ChoiceField(required=True, choices=[
         ('position', "Public Office"), ('advocacy', "Advocacy"),
@@ -37,8 +39,11 @@ class MissionSerializer(SBSerializer):
     href = serializers.SerializerMethodField()
     focused_on = serializers.SerializerMethodField()
     rendered_epic = serializers.SerializerMethodField()
+    is_editor = serializers.SerializerMethodField()
+    is_moderator = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
-
+    focus_name_formatted = serializers.SerializerMethodField()
+    slug = serializers.SerializerMethodField()
     district = serializers.CharField(write_only=True, allow_null=True)
     level = serializers.ChoiceField(required=False, choices=[
         ('local', "Local"), ('state_upper', "State Upper"),
@@ -242,9 +247,17 @@ class MissionSerializer(SBSerializer):
 
     def update(self, instance, validated_data):
         instance.title = validated_data.pop('title', instance.title)
-        instance.content = validated_data.pop('content', instance.content)
-        instance.last_edited_on = datetime.now(pytz.utc)
+        instance.about = validated_data.pop('about', instance.about)
+        instance.epic = validated_data.pop('epic', instance.epic)
+        instance.facebook = validated_data.pop('facebook', instance.facebook)
+        instance.linkedin = validated_data.pop('linkedin', instance.linkedin)
+        instance.youtube = validated_data.pop('youtube', instance.youtube)
+        instance.twitter = validated_data.pop('twitter', instance.twitter)
+        instance.website = validated_data.pop('website', instance.website)
+        instance.wallpaper_pic = validated_data.pop('wallpaper_pic',
+                                                    instance.wallpaper_pic)
         instance.save()
+        cache.set("%s_mission" % instance.object_uuid, instance)
         return instance
 
     def get_href(self, obj):
@@ -285,3 +298,23 @@ class MissionSerializer(SBSerializer):
             return None
         return QuestSerializer(Quest.inflate(res.one),
                                context={'request': request}).data
+
+    def get_focus_name_formatted(self, obj):
+        if obj.focus_name is not None:
+            return obj.focus_name.title().replace('-', ' ').replace('_', ' ')
+        return obj.focus_name
+
+    def get_is_editor(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return request.user.username in Mission.get_editors(obj.object_uuid)
+
+    def get_is_moderator(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return request.user.username in Mission.get_moderators(obj.object_uuid)
+
+    def get_slug(self, obj):
+        return slugify(obj.get_mission_title())

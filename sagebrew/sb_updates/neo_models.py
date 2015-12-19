@@ -1,4 +1,4 @@
-from neomodel import (db, RelationshipTo)
+from neomodel import (db, RelationshipTo, StringProperty)
 
 from api.utils import deprecation
 from sb_base.neo_models import TitledContent
@@ -30,6 +30,15 @@ class Update(TitledContent):
     # Helper function that can be associated with the serializer and gets
     # the object the update is about.
     about = RelationshipTo('api.neo_models.SBObject', "ABOUT")
+
+    # OPTIMIZATIONS
+    about_id = StringProperty()
+    # Valid Types Are:
+    #    mission
+    #    quest
+    #    seat
+    #    goal
+    about_type = StringProperty()
 
     # DEPRECATIONS
     # DEPRECATED: Goals are no longer the only thing that an update can be about

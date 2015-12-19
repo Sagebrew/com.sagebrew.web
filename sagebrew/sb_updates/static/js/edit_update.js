@@ -15,16 +15,12 @@ $(document).ready(function () {
                 "title": $("#title_id").val()
             }),
             success: function (data) {
-                window.location.href = "/quests/" + data.campaign + "/updates/";
+                window.location.href = $("#edit-update").data('url');
             },
             error: function (XMLHttpRequest) {
                 $("#edit-update").removeAttr("disabled");
                 errorDisplay(XMLHttpRequest);
             }
         });
-    });
-    $(".cancel_update-action").click(function (event) {
-        event.preventDefault();
-        window.location.href = "/quests/" + campaignId + "/updates/";
     });
 });

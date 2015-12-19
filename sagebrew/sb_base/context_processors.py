@@ -13,7 +13,7 @@ def js_settings(request):
     data = {
         'api': {
             'google_maps': environ.get('GOOGLE_MAPS_JS'),
-            'stripe':  settings.STRIPE_PUBLIC_KEY
+            'stripe': settings.STRIPE_PUBLIC_KEY
         },
         'google_maps': environ.get('GOOGLE_MAPS_JS'),
         'user': {},

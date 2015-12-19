@@ -53,7 +53,7 @@
                 </div>
                 <ul class="sb-not-friend-divider-wrapper"><li class="sb_divider"></li></ul>
                 <div class="sb_friend_btn_wrapper sb-profile-not-friend-image-wrapper">
-                    {% if page_profile.campaign %}
+                    {% if page_profile.quest %}
                         <form action="{% url "quest" page_profile.username %}">
                             <input class="btn btn-primary sb_btn" type="submit" value="View Quest">
                         </form>
@@ -69,13 +69,12 @@
                             When a user signs up to run for office or to run
                             an advocacy group they start a Quest. This will
                             take you to {{ page_profile.first_name }}
-                            {{ page_profile.last_name }}'s Quest for
-                            {{ page_profile.campaign.position_formal_name }}.
+                            {{ page_profile.last_name }}'s Quest.
 
                         </div>
                     </div>
                 </div>
-                {% if not page_profile.campaign %}
+                {% if not page_profile.quest %}
                     <div class="sb_coming_soon">
                         <h3>This user has not embarked on a Quest yet!</h3>
                     </div>

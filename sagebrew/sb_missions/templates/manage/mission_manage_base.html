@@ -1,0 +1,62 @@
+{% extends "manage/manage_base.html" %}
+{% load staticfiles %}
+{% block title %}Mission Settings{% endblock title %}
+
+{% block important_actions %}
+    <a href="{% url 'mission' selected.id selected.slug %}" class="btn btn-primary btn-sm sb_btn">View Mission</a>
+{% endblock important_actions %}
+{% block sidebar_left %}
+    <div class="block block-type-nav">
+        <div class="block-content">
+            <ul class="nav nav-list nav-list-vivid">
+                <li class="{% if "manage/" == request.path %}active{% endif %}">
+                    <label for="mission-select" class="hidden"></label>
+                    <select onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);" id="mission-select" class="form-control mission-input">
+                    {% for mission in missions %}
+                        {% if mission.id == selected.id %}
+                            <option selected value="{{ mission.id }}">{% if mission.title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}</option>
+                        {% else %}
+                            <option value="{% url "mission_settings" mission.id mission.slug %}">{% if mission.title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                </li>
+                <li {% if "/manage/general/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_settings" selected.id slug %}">
+                        General
+                    </a>
+                </li>
+                <li {% if "/manage/epic/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_edit_epic" selected.id slug %}">
+                        Epic
+                    </a>
+                </li>
+                <li {% if "/manage/goals/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_goals_settings" selected.id slug %}">
+                        Goals
+                    </a>
+                </li>
+                <li {% if "/manage/updates/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_update_settings" selected.id slug %}">
+                        Updates
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock sidebar_left %}
+
+{% block live %}
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
+    <script src="{% static 'js/submit_quest_settings.js' %}"></script>
+    <script src="{% static 'js/campaign_settings_validator.js' %}"></script>
+    {% if not request_profile.is_verified %}
+        <script src="{% static 'js/activate_tooltips.js' %}"></script>
+    {% endif %}
+{% endblock scripts %}

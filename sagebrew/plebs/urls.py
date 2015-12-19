@@ -8,7 +8,7 @@ from .views import (get_user_search_view, ProfileView,
 urlpatterns = patterns(
     'plebs.views',
     url(r'^settings/$', general_settings, name="general_settings"),
-    url(r'^settings/delete$', delete_account, name="settings_delete_account"),
+    url(r'^settings/delete/$', delete_account, name="settings_delete_account"),
 
     url(r'^contribute/$', contribute_settings, name="contribute_settings"),
     url(r'^deactivate_user/$', deactivate_user, name="deactivate_user"),

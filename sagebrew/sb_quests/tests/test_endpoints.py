@@ -14,7 +14,7 @@ from neomodel import db
 from sb_privileges.neo_models import SBAction, Privilege
 from plebs.neo_models import Pleb
 from sb_updates.neo_models import Update
-from sb_goals.neo_models import Goal, Round
+from sb_goals.neo_models import Goal
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 
@@ -27,8 +27,7 @@ class QuestEndpointTests(APITestCase):
         db.cypher_query(query)
         self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email, task=False)
         self.user = User.objects.get(email=self.email)
         for camp in self.pleb.campaign.all():
             camp.delete()
@@ -461,25 +460,6 @@ class QuestEndpointTests(APITestCase):
 
         self.assertEqual(response.data['title'], ['This field is required.'])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_update_create(self):
-        self.client.force_authenticate(user=self.user)
-        active_round = Round(active=True).save()
-        target_goal = Goal(monetary_requirement=1000, target=True,
-                           total_required=1000).save()
-        active_round.goals.connect(target_goal)
-        url = reverse('update-list',
-                      kwargs={'owner_username': self.quest.owner_username})
-        data = {
-            'content': 'Test Content for Update',
-            'title': 'This is a test update'
-        }
-        response = self.client.post(url, data=data, format='json')
-        update = Update.nodes.get(
-            object_uuid=Quest.get_updates(self.quest.owner_username)[0])
-
-        self.assertTrue(self.quest.updates.is_connected(update))
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_update_create_invalid(self):
         self.client.force_authenticate(user=self.user)

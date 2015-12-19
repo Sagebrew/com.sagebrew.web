@@ -9,7 +9,7 @@ from django.core.cache import cache
 
 from rest_framework import serializers, status
 from rest_framework.reverse import reverse
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, NotAuthenticated
 
 from neomodel import db
 from neomodel.exception import DoesNotExist
@@ -82,6 +82,7 @@ class CampaignSerializer(SBSerializer):
 
     def update(self, instance, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        owner = Pleb.get(username=instance.owner_username)
         stripe_token = validated_data.pop('stripe_token', None)
         customer_token = validated_data.pop('customer_token', None)
         ein = validated_data.pop('ein', None)
@@ -100,7 +101,6 @@ class CampaignSerializer(SBSerializer):
         instance.biography = validated_data.get('biography',
                                                 instance.biography)
         instance.epic = validated_data.get('epic', instance.epic)
-        owner = Pleb.get(username=instance.owner_username)
         if customer_token is not None:
             customer = stripe.Customer.create(
                 description="Customer for %s quest" % instance.object_uuid,
@@ -159,6 +159,10 @@ class CampaignSerializer(SBSerializer):
         instance.refresh()
         if not active_prev and instance.active:
             if not Campaign.get_active_round(instance.object_uuid):
+                if not owner.is_verified:
+                    raise NotAuthenticated(detail="You may not take a Quest "
+                                                  "live unless you are a "
+                                                  "verified user.")
                 upcoming_round = Round.nodes.get(
                     object_uuid=Campaign.get_upcoming_round(
                         instance.object_uuid))
@@ -340,7 +344,7 @@ class QuestSerializer(SBSerializer):
     href = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
     is_editor = serializers.SerializerMethodField()
-    is_accountant = serializers.SerializerMethodField()
+    is_moderator = serializers.SerializerMethodField()
     completed_stripe = serializers.SerializerMethodField()
     completed_customer = serializers.SerializerMethodField()
 
@@ -515,11 +519,11 @@ class QuestSerializer(SBSerializer):
             return None
         return request.user.username in Quest.get_editors(obj.object_uuid)
 
-    def get_is_accountant(self, obj):
+    def get_is_moderator(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
         if request is None:
             return None
-        return request.user.username in Quest.get_accountants(obj.object_uuid)
+        return request.user.username in Quest.get_moderators(obj.object_uuid)
 
     def get_completed_customer(self, obj):
         if obj.stripe_customer_id is None:
@@ -668,8 +672,9 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         request, _, _, _, _ = gather_request_data(self.context)
         if request is None:
             return False
-        return PoliticalCampaign.get_allow_vote(obj.object_uuid,
-                                                request.user.username)
+        check, _ = PoliticalCampaign.get_allow_vote(obj.object_uuid,
+                                                    request.user.username)
+        return check
 
     def get_current_seat(self, obj):
         return PoliticalCampaign.get_current_seat(obj.object_uuid)

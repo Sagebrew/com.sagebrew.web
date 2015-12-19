@@ -30,6 +30,8 @@
   border: none;
   margin-left: 15px;
   margin-right: 15px;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 
@@ -409,4 +411,45 @@
   // TODO reuse existing nav pattern for this
   background-color: white;
   margin-top: 15px;
+}
+
+
+.wallpaper {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  height: 450px;
+  img {
+    flex: none;
+  }
+}
+
+.quest-wallpaper {
+  &:extend(.wallpaper);
+
+}
+
+.mission-wallpaper {
+  &:extend(.wallpaper);
+  margin-top: 15px;
+}
+
+.tall-btn {
+  height: 55px !important;
+}
+
+.mission-donate-btn {
+  margin-top: 5px;
+}
+
+#about-parent {
+  line-height: 1px;
+}
+
+.block-padding-bottom-15 {
+  padding-bottom: 15px;
+}
+
+.block-right {
+  padding-right: 0;
 }

@@ -1,12 +1,10 @@
-// TODO this could be split into seperate dirs within the quest section
-// based on the new layout @mwisner is working on in #720
 var politician = require('./partials/politicianmission');
 
 export const meta = {
     controller: "mission/political-mission",
     match_method: "path",
     check: [
-       "^quest/mission/public_office$"
+       "^missions/public_office$"
     ]
 };
 

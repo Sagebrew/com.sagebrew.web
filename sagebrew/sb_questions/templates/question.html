@@ -18,7 +18,7 @@
             {{ title|linebreaksbr }}
         </h1>
     </div>
-    <div class="col-xs-12 hidden-sm hidden-md hidden-lg" style="margin-top: -15px; margin-bottom: 15px; padding-left: 20px;">
+    <div class="col-xs-12 hidden-sm hidden-md hidden-lg title-by">
         <small>
             by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
         </small>
@@ -50,7 +50,7 @@
 <div class="row">
     <div class="col-xs-12 col-sm-11 col-sm-offset-1">
         <div class="sb_question_body" id="sb_question_{{ object_uuid }}">
-            <div class="sb_markdown{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
+            <div class="sb_markdown {% if is_closed %}sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                 {% autoescape off %}
                     <div id="js-question-container">
                         {{ html_content }}
@@ -64,79 +64,88 @@
 </div>
 <div class="row">
 
-    <div class="col-xs-3 col-xs-offset-1">
-        {% if request.user.is_anonymous %}
-            <div><small>
-                <span class="sb_comment_disabled" data-toggle="tooltip"
-                      data-placement="top"
-                      data-title="Signup to Comment!"
-                      id="post_comment_on_{{ object_uuid }}">
-                    comment
-                </span>
-            </small></div>
-        {% elif "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
-                <a href="#"><small><span class="fa fa-plus"></span> comment</small></a>
-        {% else %}
-            <div><small>
-                <span class="sb_comment_disabled" data-toggle="tooltip"
-                      data-placement="top"
-                      data-title="Requirement: 20+ Rep"
-                      id="post_comment_on_{{ object_uuid }}">
-                    comment
-                </span>
-            </small></div>
-        {% endif %}
-    </div>
-    <div class="col-xs-3 col-xs-offset-1 hidden-sm hidden-md hidden-lg">
-        <a href="#"><small><span class="fa fa-chevron-up"></span> upvote</small></a>
-    </div>
-    <div class="col-xs-3 col-xs-offset-1 hidden-sm hidden-md hidden-lg">
-        <a href="#"><small><span class="fa fa-chevron-down"></span> downvote</small></a>
-    </div>
-    <div class="col-md-1 hidden-xs hidden-sm col-md-offset-5"
-             style="padding-right:0; margin-right: -10px">
-        <div class="sb_thumbnail_xs thumbnail">
-            {% static 'images/sage_coffee_grey-01.png' as default_profile %}
-            <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>
+    <div class="question-comments js-comment-section"
+         data-id="{{ id }}"
+         data-type="{{ type }}">
+        {% comment %}
+        Commenting out vote small for time being until after mission completion
+        <div class="col-xs-3 hidden-sm hidden-md hidden-lg sm-voting">
+            <a href="#" data-id="{{ id }}" class="js-xs-vote-up">
+                <small><span class="fa fa-chevron-up"></span> upvote</small>
+            </a>
         </div>
-    </div>
-    <div class="col-md-2 hidden-xs hidden-sm sb-content-edited">
-        <div>
-            <small>
-                <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>
-                {% if profile.campaign %}
-                    <a href="{% url "quest" profile.username %}"
-                       data-toggle="tooltip"
-                       data-placement="top"
-                       data-title="View User's Quest!">
-                        <span class="fa fa-rocket sb_btn_icon sb-quest-nav-rocket"></span>
-                    </a>
-                {% endif %}
-            </small>
+        <div class="col-xs-3 col-xs-offset-1 hidden-sm hidden-md hidden-lg sm-voting">
+            <a href="#" data-id="{{ id }}" class="js-xs-vote-down">
+                <small><span class="fa fa-chevron-down"></span> downvote</small>
+            </a>
         </div>
-        <div style="margin-top:-10px;">
-            {% if created != last_edited_on %}
-                <small>{{ last_edited_on|naturaltime }} · Edited</small>
+        <div class="col-xs-3 col-xs-offset-2 col-sm-offset-1 sm-voting">
+        {% endcomment %}
+        <div class="col-xs-3 col-sm-offset-1 sm-voting">
+            {% if "comment" in request_profile.privileges and not is_closed and not request.user.is_anonymous %}
+                <a href="#" class="js-comment">
+                    <small><span class="fa fa-plus"></span> comment</small>
+                </a>
+            {% elif request.user.is_anonymous %}
+                <div><small>
+                    <span class="sb_comment_disabled" data-toggle="tooltip"
+                          data-placement="top"
+                          data-title="Signup to Comment!"
+                          id="post_comment_on_{{ object_uuid }}">
+                        comment
+                    </span>
+                </small></div>
             {% else %}
-                <small>{{ created|naturaltime }}</small>
+                <div><small>
+                    <span class="sb_comment_disabled" data-toggle="tooltip"
+                          data-placement="top"
+                          data-title="Requirement: 20+ Rep"
+                          id="post_comment_on_{{ object_uuid }}">
+                        comment
+                    </span>
+                </small></div>
             {% endif %}
         </div>
-    </div>
-    <div class="col-sm-5 col-sm-offset-3 hidden-xs hidden-md hidden-lg">
-        <small>
-            by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
-        </small>
+
+
+        <div class="col-md-1 hidden-xs hidden-sm col-md-offset-5"
+                 style="padding-right:0; margin-right: -10px">
+            <div class="sb_thumbnail_xs thumbnail">
+                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
+                <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>
+            </div>
+        </div>
+        <div class="col-md-2 hidden-xs hidden-sm sb-content-edited">
+            <div>
+                <small>
+                    <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>
+                    {% if profile.quest %}
+                        <a href="{% url "quest" profile.username %}"
+                           data-toggle="tooltip"
+                           data-placement="top"
+                           data-title="View User's Quest!">
+                            <span class="fa fa-rocket sb_btn_icon sb-quest-nav-rocket"></span>
+                        </a>
+                    {% endif %}
+                </small>
+            </div>
+            <div class="created-time">
+                {% if created != last_edited_on %}
+                    <small>{{ last_edited_on|naturaltime }} · Edited</small>
+                {% else %}
+                    <small>{{ created|naturaltime }}</small>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-sm-5 col-sm-offset-3 hidden-xs hidden-md hidden-lg">
+            <small>
+                by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
+            </small>
+        </div>
+        <div class="js-comment-container" id="sb_comments_container_{{ id }}">
+        </div>
+        <div class="col-xs-12 col-sm-11 col-sm-offset-1 question-comment-input js-comment-input hidden" id="comment-input-{{ id }}">
+        </div>
     </div>
 </div>
-{% if html_snapshot %}
-    {% for comment in comments %}
-        {% include "comment_include.html" %}
-    {% endfor %}
-{% else %}
-    <div id="sb_comments_container_{{ object_uuid }}">
-        {% comment %}
-            Dynamically populated by JS to show existing comments.
-        {% endcomment %}
-    </div>
-{% endif %}
 

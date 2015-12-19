@@ -1,6 +1,10 @@
+var request = require('api').request;
 
 export function addMarkdown(markdownObj, sanatize) {
-    sanatize = typeof sanatize !== 'undefined' ? b : false;
+    var modalFooter = $(".modal-footer"),
+        imgURL = $("#img-url"),
+        imgUpload = $("#upload_image");
+    sanatize = typeof sanatize !== 'undefined' ? sanatize : false;
     markdownObj.pagedownBootstrap({
         "sanatize": sanatize,
         'editor_hooks': [
@@ -11,39 +15,30 @@ export function addMarkdown(markdownObj, sanatize) {
                         $('#fileModal').modal();
                         $("#insert_image_post").click(function (e) {
                             e.preventDefault();
-
-                            $(".modal-footer").spin('small');
-                            if ($("#upload_image").val().length > 1) {
+                            modalFooter.spin('small');
+                            if (imgUpload.val().length > 1) {
                                 var formdata = new FormData(),
                                     file = $("#upload_image")[0].files[0];
                                 formdata.append("file", file);
-                                $.ajax({
-                                    xhrFields: {withCredentials: true},
-                                    type: "POST",
-                                    url: "/v1/upload/",
-                                    contentType: false,
-                                    processData: false,
-                                    dataType: "json",
-                                    data: formdata,
-                                    success: function (data) {
+                                request.post({url: "/v1/upload/", data: formdata})
+                                    .done(function (data) {
                                         callback(data.url);
                                         $(".modal-footer").spin(false);
-                                        $("#upload_image").val("");
+                                        imgUpload.val("");
                                         $("#fileModal").modal('hide');
-                                    },
-                                    error: function (XMLHttpRequest) {
+                                    })
+                                    .fail(function () {
                                         callback(null);
-                                        $(".modal-footer").spin(false);
-                                        $("#upload_image").val("");
+                                        modalFooter.spin(false);
+                                        imgUpload.val("");
                                         $("#fileModal").modal('hide');
-                                        errorDisplay(XMLHttpRequest);
-                                    }
-                                });
+                                        request.errorDisplay(XMLHttpRequest);
+                                    });
                             } else {
-                                var image = $("#img-url").val();
+                                var image = imgURL.val();
                                 $(".modal-footer").spin(false);
                                 callback(image);
-                                $("#img-url").val("");
+                                imgURL.val("");
                                 $("#fileModal").modal('hide');
                             }
                         });

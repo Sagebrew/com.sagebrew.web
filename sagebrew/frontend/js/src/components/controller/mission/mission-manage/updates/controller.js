@@ -39,8 +39,8 @@ export function load() {
                   data[input.name] = input.value;
                 }
             }
-            data['about_type'] = "mission";
-            data['about_id'] = missionId;
+            data.about_type = "mission";
+            data.about_id = missionId;
             if('content' in data && 'title' in data){
                 request.post({url: "/v1/missions/" + missionId + "/updates/",
                     data: JSON.stringify(data)

@@ -182,7 +182,7 @@ class Mission(Searchable):
         else:
             if self.focus_name:
                 title = self.focus_name.title().replace(
-                        '-', ' ').replace('_', ' ')
+                    '-', ' ').replace('_', ' ')
             else:
                 title = None
         return title

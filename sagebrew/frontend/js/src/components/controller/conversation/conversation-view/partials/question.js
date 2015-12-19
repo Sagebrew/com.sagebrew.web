@@ -3,9 +3,7 @@
  * TODO refactor and include the above globals.
  */
 var Autolinker = require('autolinker'),
-    request = require('api').request,
-    templates = require('template_build/templates'),
-    helpers = require('common/helpers');
+    request = require('api').request;
 
 function loadSolutionCount(questionID) {
     request.get({url: '/v1/questions/' + questionID + "/solution_count/"})

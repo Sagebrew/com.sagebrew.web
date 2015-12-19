@@ -1,4 +1,4 @@
-/*global $, enableContentFunctionality, populateComment*/
+/*global $, enableContentFunctionality, enableQuestionFunctionality, enableSolutionFunctionality, populateComment*/
 var request = require('api').request;
 
 require('plugin/contentloader');
@@ -59,10 +59,13 @@ function loadSingleContent() {
                 }
                  wrapper.append(data.html);
                 if (formattedObjectType === "question") {
+                    // TODO refactor this
                     enableQuestionFunctionality([data.id]);
                 } else if (formattedObjectType === "solution") {
+                    // TODO refactor this
                     enableSolutionFunctionality([data.id]);
                 } else {
+                    // TODO refactor this
                     enableContentFunctionality(data.id, formattedObjectType);
                 }
                 populateComment(data.id, objectType);

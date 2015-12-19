@@ -45,7 +45,6 @@ function matchController(match_method, checks) {
             switch(match_method) {
                 case true:
                     return true;
-                    break;
                 case 'user': //Need to output app settings in python for this.
                     if(settings.user.type && settings.user.type === value) {
                         return true;

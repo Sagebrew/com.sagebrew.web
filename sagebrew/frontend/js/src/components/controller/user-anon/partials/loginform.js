@@ -1,3 +1,4 @@
+/* global getUrlParameter */
 /**
  * @file
  * handles the anon login form...

@@ -1,5 +1,3 @@
-var request = require('api').request,
-    markdown = require('common/markdown').addMarkdown;
 
 export const meta = {
     controller: "mission/mission-manage/updates",

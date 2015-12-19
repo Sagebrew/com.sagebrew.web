@@ -1,9 +1,8 @@
-/* global enableQuestionFunctionality, populateComments, loadSolutions */
+/* global enableCommentFunctionality */
 /**
  * TODO refactor and include the above globals.
  */
-var Autolinker = require('autolinker'),
-    request = require('api').request,
+var request = require('api').request,
     templates = require('template_build/templates'),
     helpers = require('common/helpers');
 
@@ -15,6 +14,8 @@ function queryComments(url, objectUuid) {
             }
             var commentContainer = $('#sb_comments_container_' + objectUuid);
             commentContainer.prepend(data.results.html);
+            // TODO refactor to have comment functionality applied on page load rather
+            // than dynamically with ajax loading.
             enableCommentFunctionality(data.results.ids);
         });
 }
@@ -35,8 +36,9 @@ export function load () {
                     return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
                 }) + " by providing feedback"
             });
-            var inputArea = document.getElementById('comment-input-' + parent.dataset.id);
-            var commentContainer = document.getElementById('sb_comments_container_' + parent.dataset.id);
+            var inputArea = document.getElementById('comment-input-' + parent.dataset.id),
+                commentContainer = document.getElementById(
+                    'sb_comments_container_' + parent.dataset.id);
             if (commentContainer.innerText.length > 0) {
                 $("body").scrollTop($(inputArea).offset().top - 250);
             }
@@ -47,8 +49,10 @@ export function load () {
             var parent = helpers.findAncestor(this, 'js-comment-section');
             request.get({url: "/v1/" + parent.dataset.type + "s/" + parent.dataset.id + "/comments/render/?expand=true&html=true&page_size=3&page=2"})
                 .done(function (data) {
-                    var commentContainer = document.getElementById('sb_comments_container_' + parent.dataset.id);
-                    var additionalCommentWrapper = document.getElementById('additional-comment-wrapper-' + parent.dataset.id)
+                    var commentContainer = document.getElementById(
+                        'sb_comments_container_' + parent.dataset.id);
+                    var additionalCommentWrapper = document.getElementById(
+                        'additional-comment-wrapper-' + parent.dataset.id);
                     if (additionalCommentWrapper !== null) {
                         additionalCommentWrapper.remove();
                     }
@@ -77,17 +81,18 @@ export function load () {
                 .done(function (data) {
                     var commentContainer = commentSection.getElementsByClassName('js-comment-container')[0];
                     commentContainer.innerHTML = commentContainer.innerHTML + data.html;
-                    var additionalCommentWrapper = document.getElementById('additional-comment-wrapper-' + commentSection.dataset.id);
+                    var additionalCommentWrapper = document.getElementById(
+                        'additional-comment-wrapper-' + commentSection.dataset.id);
                     if (additionalCommentWrapper !== null) {
                         additionalCommentWrapper.remove();
-                        commentContainer.innerHTML = commentContainer.innerHTML + templates.show_more_comments({id: commentSection.dataset.id})
+                        commentContainer.innerHTML = commentContainer.innerHTML + templates.show_more_comments({id: commentSection.dataset.id});
                     }
                     textArea.value = "";
                     $this.removeAttribute('disabled');
                 })
                 .fail(function () {
                     $this.removeAttribute('disabled');
-                    errorDisplay(XMLHttpRequest);
+                    request.errorDisplay(XMLHttpRequest);
                 });
         });
 }

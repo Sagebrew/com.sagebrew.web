@@ -6,13 +6,13 @@ from django.core.cache import cache
 
 from rest_framework.reverse import reverse
 
-from neomodel import CypherException, DoesNotExist
+from neomodel import CypherException, DoesNotExist, db
 from py2neo.cypher.error.statement import ClientError
 
 from api.utils import spawn_task, smart_truncate
 from plebs.tasks import update_reputation
 from plebs.neo_models import Pleb
-from sb_base.neo_models import (get_parent_votable_content,
+from sb_base.neo_models import (get_parent_votable_content, VotableContent,
                                 get_parent_titled_content)
 from sb_notifications.tasks import spawn_notifications
 from sb_comments.neo_models import Comment
@@ -37,13 +37,23 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
         current_pleb = Pleb.get(username=current_pleb)
     except (DoesNotExist, Pleb.DoesNotExist, CypherException, IOError) as e:
         raise vote_object_task.retry(exc=e, countdown=10, max_retries=None)
-    sb_object = get_parent_votable_content(object_uuid)
-    if isinstance(sb_object, Exception) is True:
-        raise vote_object_task.retry(exc=sb_object, countdown=10,
-                                     max_retries=None)
-    query = 'MATCH (v:VotableContent {object_uuid:"%s"}), (p:Pleb {username:"%s"}) WITH v, p OPTIONAL MATCH '
-    res = sb_object.vote_content(vote_type, current_pleb)
+    vote_active_string = "true"
+    if vote_type:
+        vote_type_string = "true"
+        if vote_type == 2:
+            vote_type_string = "false"
+            vote_active_string = "false"
+    else:
+        vote_type_string = "false"
 
+    query = 'MATCH (v:VotableContent {object_uuid:"%s"}), ' \
+            '(p:Pleb {username:"%s"}) WITH v, p CREATE UNIQUE ' \
+            '(v)<-[vote:PLEB_VOTES]-(p) WITH v, vote, p SET vote.active=%s, ' \
+            'vote.vote_type=%s RETURN v' % \
+            (object_uuid, current_pleb.username, vote_active_string,
+             vote_type_string)
+    res, _ = db.cypher_query(query)
+    sb_object = VotableContent.inflate(res.one)
     if isinstance(res, Exception) is True:
         raise vote_object_task.retry(exc=res, countdown=10, max_retries=None)
 

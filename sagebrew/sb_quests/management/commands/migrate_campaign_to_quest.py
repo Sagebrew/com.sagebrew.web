@@ -64,7 +64,7 @@ class Command(BaseCommand):
 
             if campaign.epic != "" and campaign.epic is not None:
                 mission = Mission(
-                    biography=campaign.biography,
+                    about=campaign.biography,
                     epic=campaign.epic,
                     facebook=campaign.facebook,
                     linkedin=campaign.linkedin,
@@ -76,9 +76,6 @@ class Command(BaseCommand):
                     location_name=campaign.location_name,
                     focus_on_type="position"
                 ).save()
-                for goal in campaign.goals.all():
-                    mission.goals.connect(goal)
-                    campaign.goals.disconnect(goal)
 
                 for position in campaign.position.all():
                     mission.position.connect(position)

@@ -20,6 +20,10 @@ class Quest(Searchable):
     stripe_id = StringProperty(index=True, default="Not Set")
     stripe_customer_id = StringProperty()
     stripe_subscription_id = StringProperty()
+    # Valid options are:
+    #     free
+    #     paid
+    account_type = StringProperty()
     # A Quest is always active after the stripe account has been activated.
     # A Quest must have a Mission to take donations towards.
     # TODO can we remove active?
@@ -56,10 +60,10 @@ class Quest(Searchable):
     owner_username = StringProperty()
 
     # Relationships
-    # Since we currently only have one stripe account for a user we'll allow
-    # them to donate directly to the Quest rather than to a specific Mission.
-    donations = RelationshipTo('sb_donations.neo_models.Donation',
-                               'RECEIVED_DONATION')
+    # Donations
+    # Access Donations that are related to this Quest through:
+    # Neomodel: quest Cypher: CONTRIBUTED_TO
+    # RelationshipTo('sb_donations.neo_models.Donation')
 
     updates = RelationshipTo('sb_updates.neo_models.Update', 'CREATED_AN')
 
@@ -72,7 +76,7 @@ class Quest(Searchable):
     # the page. That way we can easily check who has the right to modify
     # the page. These names should not be public
     editors = RelationshipFrom('plebs.neo_models.Pleb', 'EDITOR_OF')
-    moderators = RelationshipTo('plebs.neo_models.Pleb', 'MODERATOR_OF')
+    moderators = RelationshipFrom('plebs.neo_models.Pleb', 'MODERATOR_OF')
 
     # Embarks on is a mission this Quest manages and is trying to accomplish.
     # Donations to these missions come back to the Quest's account
@@ -119,27 +123,27 @@ class Quest(Searchable):
         return campaign
 
     @classmethod
-    def get_editors(cls, object_uuid):
-        editors = cache.get("%s_editors" % object_uuid)
+    def get_editors(cls, owner_username):
+        editors = cache.get("%s_editors" % owner_username)
         if editors is None:
-            query = 'MATCH (c:Quest {object_uuid: "%s"})<-' \
+            query = 'MATCH (c:Quest {owner_username: "%s"})<-' \
                     '[:EDITOR_OF]-(p:Pleb) RETURN p.username' % (
-                        object_uuid)
+                        owner_username)
             res, col = db.cypher_query(query)
             editors = [row[0] for row in res]
-            cache.set("%s_editors" % object_uuid, editors)
+            cache.set("%s_editors" % owner_username, editors)
         return editors
 
     @classmethod
-    def get_moderators(cls, object_uuid):
-        moderators = cache.get("%s_moderators" % object_uuid)
+    def get_moderators(cls, owner_username):
+        moderators = cache.get("%s_moderators" % owner_username)
         if moderators is None:
-            query = 'MATCH (c:Quest {object_uuid: "%s"})<-' \
+            query = 'MATCH (c:Quest {owner_username: "%s"})<-' \
                     '[:MODERATOR_OF]-(p:Pleb) RETURN p.username' \
-                    % object_uuid
+                    % owner_username
             res, col = db.cypher_query(query)
             moderators = [row[0] for row in res]
-            cache.set("%s_moderators" % object_uuid, moderators)
+            cache.set("%s_moderators" % owner_username, moderators)
         return moderators
 
     @classmethod

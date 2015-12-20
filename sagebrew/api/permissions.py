@@ -1,7 +1,6 @@
 from rest_framework import permissions
 
-from sb_quests.neo_models import Campaign
-from sb_goals.neo_models import Goal
+from sb_quests.neo_models import Quest
 
 
 class IsOwnerOrAdmin(permissions.BasePermission):
@@ -60,15 +59,16 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 
 class IsOwnerOrEditorOrAccountant(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.user.username in Campaign.get_campaign_helpers(obj):
+        if request.user.username in Quest.get_quest_helpers(obj):
             return True
         else:
             return False
 
 
-class IsOwnerOrAccountant(permissions.BasePermission):
+class IsOwnerOrModerator(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.user.username in Campaign.get_accountants(obj):
+        if request.user.username in Quest.get_moderators(obj) or \
+                        request.user.username == obj:
             return True
         else:
             return False
@@ -76,16 +76,8 @@ class IsOwnerOrAccountant(permissions.BasePermission):
 
 class IsOwnerOrEditor(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.user.username in Campaign.get_editors(obj):
-            return True
-        else:
-            return False
-
-
-class IsGoalOwnerOrEditor(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if (request.user.username in
-                Campaign.get_editors(Goal.get_campaign(obj))):
+        if request.user.username in Quest.get_editors(obj) or \
+                        request.user.username == obj:
             return True
         else:
             return False

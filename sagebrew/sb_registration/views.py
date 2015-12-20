@@ -47,8 +47,6 @@ def quest_signup(request):
         res, _ = db.cypher_query(query)
         if res.one:
             return redirect('quest', username=request.user.username)
-    else:
-        return redirect('quest', username=request.user.username)
     if request.method == 'POST':
         if request.user.is_authenticated():
             data = {"account_type": request.POST['account_type']}

@@ -21,7 +21,7 @@ class DonationViewSet(viewsets.ReadOnlyModelViewSet, mixins.DestroyModelMixin):
     permission_classes = (IsAuthenticated,)
 
     def get_object(self):
-        query = 'MATCH (d:`Donation` {object_uuid: "%s"}) RETURN d' % \
+        query = 'MATCH (d:Donation {object_uuid: "%s"}) RETURN d' % \
                 (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         res[0][0].pull()
@@ -35,7 +35,7 @@ class DonationViewSet(viewsets.ReadOnlyModelViewSet, mixins.DestroyModelMixin):
         """
         return Response({'detail': "Sorry, we currently do not allow for "
                                    "users to query all donations for every "
-                                   "campaign.",
+                                   "quest.",
                          'status_code': status.HTTP_405_METHOD_NOT_ALLOWED},
                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
@@ -79,9 +79,13 @@ class DonationListCreate(generics.ListCreateAPIView):
     permission_classes = (IsAuthorizedAndVerified,)
 
     def get_queryset(self):
-        query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
-                '[:RECEIVED_DONATION]->(d:`Donation`) RETURN d' % \
-                (self.kwargs[self.lookup_field])
+        query = 'MATCH (quest:Quest {owner_username: "%s"})<-' \
+                '[:CONTRIBUTED_TO]-(donation:Donation) RETURN donation ' \
+                'UNION ' \
+                'MATCH (quest:Quest {owner_username: "%s"})-[:EMBARKS_ON]->' \
+                '(mission:Mission)<-[:CONTRIBUTED_TO]-(donation:Donation) ' \
+                'RETURN donation' % \
+                (self.kwargs[self.lookup_field], self.kwargs[self.lookup_field])
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Donation.inflate(row[0]) for row in res]

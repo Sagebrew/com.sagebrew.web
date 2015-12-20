@@ -86,7 +86,7 @@ class DonationEndpointTests(APITestCase):
 
         self.assertEqual(response.data['detail'],
                          "Sorry, we currently do not allow for users to "
-                         "query all donations for every campaign.")
+                         "query all donations for every quest.")
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
@@ -163,14 +163,6 @@ class DonationEndpointTests(APITestCase):
         self.assertEqual(response.data['owned_by'],
                          self.donation.owner_username)
 
-    def test_get_campaign(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('donation-detail',
-                      kwargs={'object_uuid': self.donation.object_uuid})
-        response = self.client.get(url)
-
-        self.assertIsNone(response.data['campaign'])
-
     def test_get_quest(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('donation-detail',
@@ -184,7 +176,6 @@ class DonationEndpointTests(APITestCase):
         url = reverse('donation-detail',
                       kwargs={'object_uuid': self.donation.object_uuid})
         response = self.client.get(url)
-
         self.assertIsNone(response.data['mission'])
 
     def test_put(self):

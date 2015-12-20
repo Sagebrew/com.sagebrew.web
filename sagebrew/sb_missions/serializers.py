@@ -266,7 +266,10 @@ class MissionSerializer(SBSerializer):
                        request=self.context.get('request', None))
 
     def get_url(self, obj):
-        return ""
+        return reverse('mission',
+                       kwargs={'object_uuid': obj.object_uuid,
+                               'slug': slugify(obj.get_mission_title())},
+                       request=self.context.get('request', None))
 
     def get_rendered_epic(self, obj):
         if obj.epic is not None:

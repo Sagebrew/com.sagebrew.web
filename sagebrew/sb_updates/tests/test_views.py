@@ -32,16 +32,14 @@ class ProfilePageTest(TestCase):
 
     def test_edit_update(self):
         self.client.login(username=self.user.username, password=self.password)
-        url = reverse("update-edit",
-                      kwargs={"username": self.pleb.username,
-                              "object_uuid": self.update.object_uuid})
+        url = reverse("edit_update",
+                      kwargs={"object_uuid": self.update.object_uuid})
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_edit_update_doesnt_exist(self):
         self.client.login(username=self.user.username, password=self.password)
-        url = reverse("update-edit",
-                      kwargs={"username": self.pleb.username,
-                              "object_uuid": str(uuid1())})
+        url = reverse("edit_update",
+                      kwargs={"object_uuid": str(uuid1())})
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)

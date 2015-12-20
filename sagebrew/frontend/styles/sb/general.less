@@ -108,11 +108,6 @@ a {
   padding-bottom: 15px;
   margin-bottom: 30px;
 }
-.provide-solution {
-  margin-top: 30px;
-  padding-left: 15px;
-  padding-right: 15px;
-}
 .sb_solution{
   &:extend(.block);
   margin-bottom: 15px;
@@ -1146,10 +1141,7 @@ a {
   margin-left: 0;
   border: 2px solid @border-color;
 }
-.update-body {
-  &:extend(.sb_question_body);
-  border: none;
-}
+
 .sb-question-title{
   padding-left: 18px;
 }
@@ -1179,9 +1171,7 @@ a {
   border-color: @sb_grey;
   padding-bottom: 0;
 }
-.sb_comment_wrapper {
-  padding-right: 20px;
-}
+
 .app-post-create {
   background-color: white;
   height:70px;
@@ -1287,10 +1277,6 @@ textarea.sb_comment_input{
 .error_page{
   padding-top: 100px;
   padding-bottom: 400px;
-}
-
-.additional-comments{
-  font-size: 13px;
 }
 
 .sb_restricted{
@@ -2032,11 +2018,27 @@ textarea.sb_comment_input{
   padding-right: 0 !important;
 }
 
-.tight {
-  padding-bottom: 10px !important;
-  padding-top: 10px !important;
-}
-
 .single-col-input-group {
   margin-bottom: 15px;
+}
+
+.markdown-body {
+  min-height: 115px;
+  margin-left: 0;
+  border: 2px solid @border-color;
+}
+.no-border{
+  border: none !important;
+}
+.padding-right-20 {
+  padding-right: 20px;
+}
+.row-no-margin {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+// Used in JS
+.additional-comments{
+  font-size: 13px;
 }

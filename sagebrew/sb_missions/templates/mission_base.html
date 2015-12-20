@@ -3,6 +3,7 @@
 {% block title %}{% if title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}{% endblock %}
 
 {% block hero %}
+    {% include "manage/activate_partial.html" %}
     <div class="block">
         <div class="col-xs-12 text-center">
             <h1>{% if mission.focus_on_type == "position" %}{{ mission.focused_on.full_name|title }}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}</h1>
@@ -32,9 +33,6 @@
                 <li {% if "updates" in request.path %} class="active" {% endif %}><a href="{% url "mission_updates" mission.id mission.slug %}">Updates</a></li>
             </ul>
             <div class="title-important-actions tight">
-                {% if is_moderator or is_editor or request.user.username == quest.id and quest.active == False %}
-                    <a class="btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Activate</a>
-                {% endif %}
                 {% if is_moderator or is_editor or request.user.username == quest.id %}
                     <a class="btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
                 {% endif %}
@@ -45,12 +43,6 @@
 {% endblock %}
 
 {% block sidebar_right %}
-    <div class="block" id="goal-wrapper">
-        <h4 class="block-title">Goals</h4>
-        <div class="block-content block-holder-sm" id="goals-parent">
-            <small>My goals go here</small>
-        </div>
-    </div>
     <div class="block" id="about-wrapper">
         <h4 class="block-title">About</h4>
         <div class="block-content block-holder-sm" id="about-parent">

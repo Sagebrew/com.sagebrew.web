@@ -8,13 +8,13 @@
     </div>
     <div class="col-sm-2 hidden-lg">
         <div class="thumbnail thumbnail-md-sm">
-              <a href="{% url 'quest' username=quest.owner_username  %}"><img src="https://d2m0mj9tyf6rjw.cloudfront.net/representative_images/225x275/{{ bioguideid }}.jpg"> </a>{% comment %} Link to their S3 public image{% endcomment %}
+              <a href="{% url 'quest' username=quest.owner_username %}"><img src="https://d2m0mj9tyf6rjw.cloudfront.net/representative_images/225x275/{{ bioguideid }}.jpg"> </a>{% comment %} Link to their S3 public image{% endcomment %}
         </div>
     </div>
     <div class="hidden-sm hidden-md col-lg-8 vertical_nav">
         <ul>
             <li>
-                <a href="{% url 'quest' username=quest.owner_username  %}">{{ full_name }}</a>
+                <a href="{% url 'quest' username=quest.owner_username %}">{{ full_name }}</a>
             </li>
             <li class="sb_rep_info">{{ terms|ordinal }} term</li>
         </ul>
@@ -22,7 +22,7 @@
     <div class="col-xs-9 hidden-lg vertical_nav">
         <ul>
             <li>
-                <small><a href="{% url 'quest' username=quest.owner_username  %}">{{ full_name }}</a></small>
+                <small><a href="{% url 'quest' username=quest.owner_username %}">{{ full_name }}</a></small>
             </li>
             <li class="sb_rep_info"><small>{{ terms|ordinal }} term</small></li>
         </ul>

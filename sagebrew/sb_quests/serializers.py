@@ -193,7 +193,7 @@ class CampaignSerializer(SBSerializer):
             username = obj.owner_username
         else:
             username = obj.object_uuid
-        return reverse('quest', kwargs={"username": username},
+        return reverse('campaign', kwargs={"username": username},
                        request=self.context.get('request', None))
 
     def get_href(self, obj):
@@ -321,7 +321,7 @@ class CampaignSerializer(SBSerializer):
 
 
 class QuestSerializer(SBSerializer):
-    active = serializers.BooleanField(required=False, read_only=True)
+    active = serializers.BooleanField(required=False)
     title = serializers.CharField(required=False, allow_blank=True)
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=128)
@@ -339,6 +339,9 @@ class QuestSerializer(SBSerializer):
     customer_token = serializers.CharField(write_only=True, required=False)
     ein = serializers.CharField(write_only=True, required=False)
     ssn = serializers.CharField(max_length=9, write_only=True, required=False)
+    account_type = serializers.ChoiceField(
+        required=False, write_only=True,
+        choices=[('paid', "Paid"), ('free', "Free")])
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
@@ -351,7 +354,7 @@ class QuestSerializer(SBSerializer):
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         request = self.context.get('request', None)
-        account_type = validated_data.get('account_type', None)
+        account_type = validated_data.get('account_type', "free")
         owner = Pleb.get(username=request.user.username)
         if account_type == 'paid':
             validated_data['application_fee'] = 0.021
@@ -368,7 +371,6 @@ class QuestSerializer(SBSerializer):
         owner.quest.connect(quest)
         quest.editors.connect(owner)
         quest.moderators.connect(owner)
-        # TODO @tyler why do we store this on the Pleb?
         if owner.stripe_account is None:
             stripe_res = stripe.Account.create(managed=True, country="US",
                                                email=owner.email)
@@ -390,11 +392,17 @@ class QuestSerializer(SBSerializer):
         # the spawn_task as a backup and to ensure all connections are made
         # correctly
         epoch_date = datetime(1970, 1, 1, tzinfo=pytz.utc)
-        query = 'MATCH (a:Pleb { username: "%s" }),' \
-                '(b:Privilege {name: "quest"}) CREATE UNIQUE ' \
-                '(a)-[r:HAS {active: true, gained_on: %f}]->(b) RETURN r' % (
-                    owner.username, float((datetime.now(pytz.utc) -
-                                           epoch_date).total_seconds()))
+        current_time = float((datetime.now(pytz.utc) -
+                              epoch_date).total_seconds())
+        query = 'MATCH (pleb:Pleb {username: "%s"}) WITH pleb ' \
+                'MATCH (privilege:Privilege {name: "quest"}) WITH ' \
+                'pleb, privilege ' \
+                'MATCH (action:SBAction {resource: "intercom", ' \
+                'permission: "write"}) WITH ' \
+                'pleb, privilege, action CREATE UNIQUE ' \
+                '(action)<-[:CAN {active: true, gained_on: %f}]-(pleb)' \
+                '-[r:HAS {active: true, gained_on: %f}]->(privilege) ' \
+                'RETURN r' % (owner.username, current_time, current_time)
         db.cypher_query(query)
         cache.set("%s_quest" % quest.object_uuid, quest)
         cache.delete(owner.username)
@@ -413,12 +421,16 @@ class QuestSerializer(SBSerializer):
                                             instance.customer_token)
         ein = validated_data.pop('ein', instance.ein)
         ssn = validated_data.pop('ssn', instance.ssn)
-        instance.active = validated_data.pop('activate', instance.active)
+        # If the quest isn't active check if we should activate it. Otherwise
+        # don't allow someone to take a quest inactive through this interface.
+        if not instance.active:
+            instance.active = validated_data.pop('active', instance.active)
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
         instance.youtube = validated_data.get('youtube', instance.youtube)
         instance.twitter = validated_data.get('twitter', instance.twitter)
         instance.website = validated_data.get('website', instance.website)
+        instance.about = validated_data.get('about', instance.about)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
         instance.profile_pic = validated_data.get('profile_pic',
@@ -712,21 +724,45 @@ class EditorSerializer(serializers.Serializer):
         :param validated_data:
         :return:
         """
-        current_editors = cache.get("%s_editors" % (instance.object_uuid), [])
+        current_editors = cache.get("%s_editors" % instance.object_uuid, [])
         for profile in \
                 list(set(validated_data['profiles']) - set(current_editors)):
             profile_pleb = Pleb.get(username=profile)
             instance.editors.connect(profile_pleb)
-            profile_pleb.campaign_editor.connect(instance)
-        cache.delete("%s_editors" % (instance.object_uuid))
+        cache.delete("%s_editors" % instance.owner_username)
         return instance
 
     def remove_profiles(self, instance):
         for profile in self.data['profiles']:
             profile_pleb = Pleb.get(username=profile)
             instance.editors.disconnect(profile_pleb)
-            profile_pleb.campaign_editor.disconnect(instance)
-        cache.delete("%s_editors" % (instance.object_uuid))
+        cache.delete("%s_editors" % instance.owner_username)
+        return instance
+
+
+class ModeratorSerializer(serializers.Serializer):
+    # profiles is expected to be a list of pleb usernames, not the entire pleb
+    # object
+    profiles = serializers.ListField(
+        child=serializers.CharField(max_length=30)
+    )
+
+    def update(self, instance, validated_data):
+        current_moderators = cache.get("%s_moderators" %
+                                       instance.owner_username, [])
+        for profile in \
+                list(set(validated_data['profiles']) - set(
+                     current_moderators)):
+            profile_pleb = Pleb.get(username=profile)
+            instance.moderators.connect(profile_pleb)
+        cache.delete("%s_moderators" % instance.owner_username)
+        return instance
+
+    def remove_profiles(self, instance):
+        for profile in self.data['profiles']:
+            profile_pleb = Pleb.get(username=profile)
+            instance.moderators.disconnect(profile_pleb)
+        cache.delete("%s_moderators" % instance.owner_username)
         return instance
 
 

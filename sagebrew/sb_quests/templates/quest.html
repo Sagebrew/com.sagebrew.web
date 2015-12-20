@@ -1,7 +1,7 @@
-{% extends "quest_base.html" %}
+{% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
 {% block title %}
-    {{ first_name }}'s Quest
+    {{ quest.first_name }}'s Quest
 {% endblock title %}
 {% block description %}
     <meta name="description" content="{{ description }}">
@@ -10,71 +10,18 @@
     {% if keywords %}
         <meta name="keywords" content="{{ keywords }}">
     {% endif %}
-    <meta name="author" content="{% if title %} {{ title }} {% else %}{{ first_name }} {{ last_name }} {% endif %}">
+    <meta name="author" content="{% if quest.title %} {{ quest.title }} {% else %}{{ quest.first_name }} {{ quest.last_name }} {% endif %}">
 {% endblock keywords %}
 {% block content %}
     {% comment %} TODO need some assistance transitioning this over to hero-one-col {% endcomment %}
-    {% if not campaign.active and request.user.username == owner_username %}
-        <div class="row">
-            <div class="alert alert-success">
-                <button type="button" class="close" data-dismiss="alert"><i class="fa fa-close"></i></button>
-                    <h4>Your quest is not currently active!</h4>
-                    <p>You must complete your quest setup before taking it live.</p>
-                    <button class="btn btn-primary sb_btn"
-                            data-toggle="modal"
-                            data-target="#liveModal">Take Quest Live
-                    </button>
-                    <a href="{% url 'quest_manage_settings' id %}" class="btn btn-primary sb_btn"
-                            data-toggle="modal">Settings
-                    </a>
-            </div>
-        </div>
-        <!-- Modal -->
-        <div class="modal fade" id="liveModal" tabindex="-1" role="dialog"
-             aria-labelledby="authModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="myModalLabel">Take it live!</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>By continuing you are beginning your Sagebrew Quest! After it is live you
-                            will be able
-                            to start collecting donations and pledged votes from your supporters.</p>
-
-                        <p><b>Please note</b> that if you wish to make any changes to your Goals that
-                            you have setup please do so
-                            before taking your Quest live as you will not be able to edit them after.
-                        </p>
-
-                        <p>You <b>must</b> also have a bank account set up, we will prompt you to set
-                            this up should it not be done already. Also, if you are
-                            part of our paid plan you will also need a credit card on file.</p>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="col-md-6 col-md-offset-3">
-                            <button type="button"
-                                    id="take_live"
-                                    class="btn btn-primary sb_btn" style="width: 100%;"
-                                    data-dismiss="modal">Continue
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-    {% endif %}
-    <div class="row block">
+    {% include "manage/activate_partial.html" %}
+    <div class="row block row-no-margin">
         <div class="hidden-sm hidden-md hidden-lg block-title text-center no-underline">
             <h1>Title XS</h1>
         </div>
         <div class="col-xs-12 col-sm-7 wallpaper quest-wallpaper">
             {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
-            <img src="{{ wallpaper_pic|default_if_none:default_wallpaper }}">
+            <img src="{{ quest.wallpaper_pic|default_if_none:default_wallpaper }}">
         </div>
         <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
             <button class="btn btn-primary sb_btn_fill" id="js-donate-btn">Donate</button>
@@ -85,20 +32,20 @@
         <div class="hidden-xs col-sm-5">
             <div class="block">
                 <div class="block-title no-underline">
-                    <h1 >{% if title %} {{ title }} {% else %} {{ first_name }} {{ last_name }} {% endif %}</h1>
+                    <h1 >{% if quest.title %} {{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</h1>
                 </div>
-                {% if public_official %}
+                {% if quest.public_official %}
                     <div class="block-content">
-                        {% if public_official.title != "President" and public_official.title != "Vice President" %}
-                          <p>{{ public_official.title }} from {{ public_official.state }}</p>
+                        {% if quest.public_official.title != "President" and quest.public_official.title != "Vice President" %}
+                          <p>{{ quest.public_official.title }} from {{ quest.public_official.state }}</p>
                         {% else %}
-                          <p>{{ public_official.title }}</p>
+                          <p>{{ quest.public_official.title }}</p>
                         {% endif %}
                     </div>
                 {% else %}
-                    {% if seat_formal_name %}
+                    {% if quest.seat_formal_name %}
                         <div class="block-content">
-                            <p>{{ seat_formal_name }}</p>
+                            <p>{{ quest.seat_formal_name }}</p>
                         </div>
                     {% endif %}
                 {% endif %}
@@ -108,7 +55,7 @@
                     <h4 class="tight">About</h4>
                 </div>
                 <div class="block-content">
-                    <p>{{ about|default_if_none:"A short summary about the Quest Owner or Group in about 128 characters. We can increase or decrease the amount we enable based on" }}</p>
+                    <p>{{ quest.about|default_if_none:"A short summary about the Quest Owner or Group in about 128 characters. We can increase or decrease the amount we enable based on" }}</p>
                 </div>
             </div>
             <div class="col-sm-6">
@@ -119,7 +66,7 @@
             </div>
         </div>
     </div>
-    <div class="row block block-padding-bottom-15">
+    <div class="row block block-padding-bottom-15 row-no-margin">
         <div class="col-xs-12">
             <h2 class="block-title">Missions</h2>
             <div id="js-mission-list"></div>

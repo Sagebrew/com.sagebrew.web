@@ -1,10 +1,6 @@
-import urllib
 from django.core.cache import cache
-from django.template import RequestContext
-from django.template.loader import render_to_string
 from django.conf import settings
 
-from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
@@ -28,7 +24,7 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        query = 'MATCH (l:`Location`) RETURN l'
+        query = 'MATCH (l:Location) RETURN l'
         res, col = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Location.inflate(row[0]) for row in res]
@@ -150,18 +146,3 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
                         object_uuid, filter_param=filter_param, lookup=lookup)],
                 "status": status.HTTP_200_OK
             }, status=status.HTTP_200_OK)
-
-
-@api_view(["GET"])
-@permission_classes((IsAuthenticated,))
-def render_positions(request, name=None):
-    return Response([render_to_string(
-        'position_selector.html', {
-            'name': Position.inflate(representative[0]).full_name,
-            'id': Position.inflate(representative[0]).object_uuid,
-            "state_name": "".join(name.split())
-        }, context_instance=RequestContext(request))
-        for representative in get_positions(
-            urllib.unquote(name).decode('utf-8'),
-            request.query_params.get("filter", ""))],
-        status=status.HTTP_200_OK)

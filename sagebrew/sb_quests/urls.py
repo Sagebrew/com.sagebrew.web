@@ -5,10 +5,8 @@ from .views import (insights, quest_list, quest, delete_quest,
 
 urlpatterns = patterns(
     'sb_public_official.views',
-    url(r'^quests$', quest_list,
-        name='quest_list'),
-    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/$', quest,
-        name='quest'),
+    url(r'^$', quest_list, name='quest_list'),
+    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/$', quest, name='quest'),
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/insights/$', insights,
         name='quest_stats'),
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/manage/moderators/$',

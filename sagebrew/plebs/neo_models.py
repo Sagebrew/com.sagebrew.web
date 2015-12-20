@@ -275,12 +275,12 @@ class Pleb(Searchable):
 
     # Edits
     # Access if this Pleb can edit a Quest through:
-    # Neomodel: editors Cypher: CAN_BE_EDITED_BY
+    # Neomodel: editors Cypher: EDITOR_OF
     # RelationshipTo('sb_quests.neo_models.Quest')
 
-    # Accountant
+    # Moderator
     # Access if this Pleb can view financial data of a Quest through:
-    # Neomodel: accountants Cypher: CAN_VIEW_MONETARY_DATA
+    # Neomodel: moderators Cypher: MODERATOR_OF
     # RelationshipTo('sb_quests.neo_models.Quest')
 
     # DEPRECATED - use quest editor and accountant instead

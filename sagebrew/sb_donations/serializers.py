@@ -32,6 +32,7 @@ class DonationSerializer(SBSerializer):
     applied_to = serializers.SerializerMethodField()
     owned_by = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
+    mission = serializers.SerializerMethodField()
 
     def validate_amount(self, value):
         request = self.context.get('request', None)
@@ -166,6 +167,8 @@ class DonationSerializer(SBSerializer):
         from sb_missions.serializers import MissionSerializer
         request, expand, _, relation, _ = gather_request_data(self.context)
         mission = Donation.get_mission(obj.object_uuid)
+        if mission is None:
+            return None
         if expand == 'true':
             return MissionSerializer(Mission.get(
                 object_uuid=mission.object_uuid)).data
@@ -183,7 +186,7 @@ class DonationSerializer(SBSerializer):
                 '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
                 'RETURN quest' % obj.object_uuid
         res, _ = db.cypher_query(query)
-        if res is None:
+        if res.one is None:
             return None
         quest = Quest.inflate(res.one)
         if expand == 'true':

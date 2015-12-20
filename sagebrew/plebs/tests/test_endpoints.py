@@ -1098,6 +1098,9 @@ class ProfileContentMethodTests(APITestCase):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
             content="This is the content for my question.",
@@ -1978,13 +1981,16 @@ class PlebSenatorsTest(APITestCase):
         self.client.force_authenticate(user=self.user)
         senator1 = PublicOfficial(first_name="Debbie", last_name="Stab",
                                   state="Michigan", bioguideid=shortuuid.uuid(),
-                                  full_name="Debbie Stab [Dem]")
-        senator1.save()
+                                  full_name="Debbie Stab [Dem]").save()
         senator2 = PublicOfficial(first_name="Tester", last_name="Test",
-                                  state="MI", bioguideid=shortuuid.uuid())
-        senator2.save()
+                                  state="MI",
+                                  bioguideid=shortuuid.uuid()).save()
         for senator in self.pleb.senators.all():
             self.pleb.senators.disconnect(senator)
+        quest = Quest(owner_username=senator1.object_uuid).save()
+        senator1.quest.connect(quest)
+        quest2 = Quest(owner_username=senator2.object_uuid).save()
+        senator2.quest.connect(quest2)
         self.pleb.senators.connect(senator1)
         self.pleb.senators.connect(senator2)
         url = "%s?html=true" % reverse('profile-senators',
@@ -2305,7 +2311,9 @@ class PlebHouseRepresentativeTest(APITestCase):
         house_representative = PublicOfficial(
             first_name="Debbie", last_name="Stab",
             state="MI", bioguideid=shortuuid.uuid(),
-            full_name="Debbie Stab [Dem]", district=11)
+            full_name="Debbie Stab [Dem]", district=11).save()
+        quest = Quest(owner_username=self.pleb.username).save()
+        house_representative.quest.connect(quest)
         house_representative.save()
         for house_rep in self.pleb.house_rep.all():
             self.pleb.house_rep.disconnect(house_rep)
@@ -3178,6 +3186,9 @@ class NewsfeedTests(APITestCase):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         post = Post(content="Hey I'm a post",
                     owner_username=self.pleb.username,
                     wall_owner_username=self.pleb.username).save()
@@ -3266,8 +3277,9 @@ class NewsfeedTests(APITestCase):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
-        for quest in Quest.nodes.all():
-            quest.delete()
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
@@ -3384,8 +3396,9 @@ class NewsfeedTests(APITestCase):
         res, _ = db.cypher_query(query)
         for update in Update.nodes.all():
             update.delete()
-        for quest in Quest.nodes.all():
-            quest.delete()
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
@@ -3572,6 +3585,9 @@ class NewsfeedTests(APITestCase):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         content = "This is the content for my question."
         title = str(uuid1())
         question = Question(
@@ -3669,6 +3685,9 @@ class NewsfeedTests(APITestCase):
     def test_get_solution_multiple(self):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
         content = 'this is fake content'
         question = Question(

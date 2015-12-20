@@ -1,6 +1,7 @@
 from django.core.cache import cache
 
-from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist)
+from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist,
+                      BooleanProperty)
 
 from sb_search.neo_models import Searchable
 from sb_base.neo_models import VoteRelationship
@@ -13,6 +14,18 @@ class Mission(Searchable):
     for something. A mission allows a Quest to take donations and for other
     Quests to endorse another Quest's missions.
     """
+    # Whether the owner has taken the mission live or not. If the quest is not
+    # live it will not show up as a donation option on the quest and will not
+    # be selectable by normal users in any of the interfaces.
+    active = BooleanProperty(default=False)
+    # The owner is able to mark a mission as completed after it has started
+    # this is basically saying the mission is over and they have either
+    # succeeded or failed. The system can also mark political quests completed
+    # upon election cycle completion. This fxn does not yet exist though
+    completed = BooleanProperty(default=False)
+    # TODO should be have people indicate if a mission was a success or a
+    # failure?
+    successful = BooleanProperty()
     about = StringProperty()
     epic = StringProperty()
     # Indicates what level the Mission is set at. Valid options are:

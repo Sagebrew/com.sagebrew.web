@@ -31,11 +31,6 @@
                         Epic
                     </a>
                 </li>
-                <li {% if "/manage/goals/" in request.path %}class="active" {% endif %}>
-                    <a href="{% url "mission_goals_settings" selected.id slug %}">
-                        Goals
-                    </a>
-                </li>
                 <li {% if "/manage/updates/" in request.path %}class="active" {% endif %}>
                     <a href="{% url "mission_update_settings" selected.id slug %}">
                         Updates

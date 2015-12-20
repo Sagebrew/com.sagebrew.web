@@ -27,7 +27,6 @@ class PublicOfficialSerializer(SBSerializer):
     full_name = serializers.SerializerMethodField()
     channel_wallpaper = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
-
     # DEPRECATED
     # Still used for initial population of reps
     campaign = serializers.SerializerMethodField()

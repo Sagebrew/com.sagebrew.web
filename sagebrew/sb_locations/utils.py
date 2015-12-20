@@ -90,7 +90,11 @@ def create_tree(structure, external_id):
         # the chain for this structure, and we may need to update it at a later
         # date.
         try:
-            name = unidecode(unicode(element['long_name']))
+            # Don't listen to pycharm, "utf-8" needs to be passed or this will
+            # throw:
+            # UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in
+            # position 2: ordinal not in range(128)
+            name = unidecode(unicode(element['long_name'], "utf-8"))
         except TypeError:
             # Handles cases where the name is already in unicode format
             name = unidecode(element['long_name'])

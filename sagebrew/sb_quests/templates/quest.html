@@ -1,4 +1,4 @@
-{% extends "quest_base.html" %}
+{% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
 {% block title %}
     {{ quest.first_name }}'s Quest
@@ -15,7 +15,7 @@
 {% block content %}
     {% comment %} TODO need some assistance transitioning this over to hero-one-col {% endcomment %}
     {% include "manage/activate_partial.html" %}
-    <div class="row block">
+    <div class="row block row-no-margin">
         <div class="hidden-sm hidden-md hidden-lg block-title text-center no-underline">
             <h1>Title XS</h1>
         </div>
@@ -66,7 +66,7 @@
             </div>
         </div>
     </div>
-    <div class="row block block-padding-bottom-15">
+    <div class="row block block-padding-bottom-15 row-no-margin">
         <div class="col-xs-12">
             <h2 class="block-title">Missions</h2>
             <div id="js-mission-list"></div>

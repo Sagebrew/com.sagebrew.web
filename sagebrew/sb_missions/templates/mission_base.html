@@ -3,7 +3,7 @@
 {% block title %}{% if title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}{% endblock %}
 
 {% block hero %}
-
+    {% include "manage/activate_partial.html" %}
     <div class="block">
         <div class="col-xs-12 text-center">
             <h1>{% if mission.focus_on_type == "position" %}{{ mission.focused_on.full_name|title }}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}</h1>

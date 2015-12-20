@@ -17,6 +17,8 @@ from .neo_models import Mission
 
 
 class MissionSerializer(SBSerializer):
+    active = serializers.BooleanField()
+    completed = serializers.BooleanField()
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=255)
     epic = serializers.CharField(required=False, allow_blank=True)
@@ -246,6 +248,8 @@ class MissionSerializer(SBSerializer):
         return mission
 
     def update(self, instance, validated_data):
+        instance.active = validated_data.pop('active', instance.active)
+        instance.completed = validated_data.pop('completed', instance.completed)
         instance.title = validated_data.pop('title', instance.title)
         instance.about = validated_data.pop('about', instance.about)
         instance.epic = validated_data.pop('epic', instance.epic)

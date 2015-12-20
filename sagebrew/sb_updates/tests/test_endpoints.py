@@ -183,8 +183,8 @@ class UpdateEndpointsTest(APITestCase):
                       kwargs={'object_uuid': self.update.object_uuid})
         response = self.client.get(url)
 
-        self.assertEqual(response.data['url'],  "%s/missions/%s/none/"
-                                                "updates/" % (
+        self.assertEqual(response.data['url'], "%s/missions/%s/none/"
+                                               "updates/" % (
             self.url, self.mission.object_uuid))
 
     def test_get_last_edited_on(self):

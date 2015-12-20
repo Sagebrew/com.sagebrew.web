@@ -13,8 +13,6 @@ from neomodel import db
 
 from sb_privileges.neo_models import SBAction, Privilege
 from plebs.neo_models import Pleb
-from sb_updates.neo_models import Update
-from sb_goals.neo_models import Goal
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission

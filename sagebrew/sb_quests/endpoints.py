@@ -1,7 +1,6 @@
 import csv
 
 from django.conf import settings
-from django.core.cache import cache
 from django.http import HttpResponse
 from django.core.files.temp import NamedTemporaryFile
 from django.core.servers.basehttp import FileWrapper
@@ -28,7 +27,7 @@ from plebs.neo_models import Pleb
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, ModeratorSerializer,
-                          PositionSerializer, PoliticalVoteSerializer,
+                          PositionSerializer,
                           PositionManagerSerializer, QuestSerializer,
                           AccountantSerializer)
 from .neo_models import Campaign, PoliticalCampaign, Position, Quest
@@ -395,7 +394,6 @@ class CampaignViewSet(viewsets.ModelViewSet):
                              "developer_message": None},
                             status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class PoliticalCampaignViewSet(CampaignViewSet):

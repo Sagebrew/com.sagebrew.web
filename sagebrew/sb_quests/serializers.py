@@ -340,8 +340,8 @@ class QuestSerializer(SBSerializer):
     ein = serializers.CharField(write_only=True, required=False)
     ssn = serializers.CharField(max_length=9, write_only=True, required=False)
     account_type = serializers.ChoiceField(
-            required=False, write_only=True,
-            choices=[('paid', "Paid"), ('free', "Free")])
+        required=False, write_only=True,
+        choices=[('paid', "Paid"), ('free', "Free")])
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()

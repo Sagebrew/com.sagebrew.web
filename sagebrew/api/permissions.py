@@ -68,7 +68,7 @@ class IsOwnerOrEditorOrAccountant(permissions.BasePermission):
 class IsOwnerOrModerator(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.user.username in Quest.get_moderators(obj) or \
-                        request.user.username == obj:
+                request.user.username == obj:
             return True
         else:
             return False
@@ -77,7 +77,7 @@ class IsOwnerOrModerator(permissions.BasePermission):
 class IsOwnerOrEditor(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.user.username in Quest.get_editors(obj) or \
-                        request.user.username == obj:
+                request.user.username == obj:
             return True
         else:
             return False

@@ -25,21 +25,22 @@ def quest(request, username):
         quest_obj = Quest.get(owner_username=username)
     except (CypherException, IOError, Quest.DoesNotExist, DoesNotExist):
         return redirect("404_Error")
-    serializer_data = QuestSerializer(
-        quest_obj, context={'request': request}).data
+    serializer_data = {
+        "quest": QuestSerializer(quest_obj, context={'request': request}).data,
+        "stripe_key": settings.STRIPE_PUBLIC_KEY,
+        "keywords": "Politics, Fundraising, Campaign, Quest, Activism"
+    }
     # TODO think we can remove this and just use the stripe key coming through
     # the context processor
-    serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
-    if serializer_data['about'] is not None:
+    if serializer_data['quest']['about'] is not None:
         serializer_data['description'] = serializer_data['about']
     else:
         serializer_data['description'] = "%s %s's Policies, Agenda, " \
                                          "and Platform." % (
-                                             serializer_data['first_name'],
-                                             serializer_data['last_name'])
-    serializer_data['keywords'] = "Politics, Fundraising, Campaign, Quest, " \
-                                  "Activism"
-    serializer_data['keywords'] = "Politics, Fundraising, Campaign, Quest,"
+                                             serializer_data['quest'][
+                                                 'first_name'],
+                                             serializer_data['quest'][
+                                                 'last_name'])
     return render(request, 'quest.html', serializer_data)
 
 

@@ -1,0 +1,103 @@
+{% extends "layout/hero-two-col-right.html" %}
+{% load staticfiles %}
+{% block title %}{% if title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}{% endblock %}
+
+{% block hero %}
+    {% include "manage/activate_partial.html" %}
+    <div class="block">
+        <div class="col-xs-12 text-center">
+            <h1>{% if mission.focus_on_type == "position" %}{{ mission.focused_on.full_name|title }}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}</h1>
+            <a href="{% url "quest" quest.id %}">By: {% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</a>
+            <div class="wallpaper mission-wallpaper">
+                {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
+                <img src="{{ mission.wallpaper_pic|default_if_none:default_wallpaper }}">
+            </div>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-content ">
+            <ul class="nav">
+                {% comment %}
+                    For some reason if I remove this ul all the background color goes away
+                    for the hero section...
+                {% endcomment %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+{% block secondary_nav %}
+    <div class="block block-type-title">
+        <div class="block-content ">
+            <ul class="nav nav-pills">
+                <li {% if "updates" not in request.path %} class="active" {% endif %}><a href="{% url 'mission' mission.id mission.slug %}">Saga <span class="sr-only">(current)</span></a></li>
+                <li {% if "updates" in request.path %} class="active" {% endif %}><a href="{% url "mission_updates" mission.id mission.slug %}">Updates</a></li>
+            </ul>
+            <div class="title-important-actions tight">
+                {% if is_moderator or is_editor or request.user.username == quest.id %}
+                    <a class="btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
+                {% endif %}
+                <a href="#" class="btn btn-primary btn-lg sb_btn">Donate</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block sidebar_right %}
+    <div class="block" id="about-wrapper">
+        <h4 class="block-title">About</h4>
+        <div class="block-content block-holder-sm" id="about-parent">
+            <small>{{ mission.about|default:"No information has been provided."|default_if_none:"No information has been provided." }}</small>
+        </div>
+        {% if True %}
+            <div class="block-content" style="padding-bottom: 0;" id="website">
+                {% if mission.website %}
+                    <small>Website: {{ mission.website|urlize }}</small>
+                {% endif %}
+            </div>
+        {% endif %}
+        <div class="block-content" style="padding-top: 0;" id="social-media">
+            {% if  mission.facebook %}
+                <button onclick="location.href='http://facebook.com/{{ mission.facebook }}'"
+                        class="btn btn-primary sb_btn_icon sb_btn_icon_green">
+                    <span class="fa fa-facebook"></span>
+                </button>
+            {% else %}
+                <button onclick="location.href='http://facebook.com/{{ mission.facebook }}'"
+                        class="btn btn-primary sb_btn_icon disabled">
+                    <span class="fa fa-facebook"></span>
+                </button>
+            {% endif %}
+            {% if mission.twitter %}
+                <button onclick="location.href='http://twitter.com/{{ mission.twitter }}'"
+                        class="btn btn-primary sb_btn_icon sb_btn_icon_green">
+                    <span class="fa fa-twitter"></span>
+                </button>
+            {% else %}
+                <button onclick="location.href='http://twitter.com/{{ mission.twitter }}'"
+                        class="btn btn-primary sb_btn_icon disabled">
+                    <span class="fa fa-twitter"></span>
+                </button>
+            {% endif %}
+            {% if mission.youtube %}
+                <button onclick="location.href='http://youtube.com/{{ mission.youtube }}'"
+                        class="btn btn-primary sb_btn_icon sb_btn_icon_green">
+                    <span class="fa fa-youtube-play"></span>
+                </button>
+            {% else %}
+                <button onclick="location.href='http://youtube.com/{{ mission.youtube }}'"
+                        class="btn btn-primary sb_btn_icon disabled">
+                    <span class="fa fa-youtube-play"></span>
+                </button>
+            {% endif %}
+            {% if  mission.linkedin %}
+                <button onclick="location.href='http://linkedin.com/{{ mission.linkedin }}'"
+                        class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span
+                        class="fa fa-linkedin"></span></button>
+            {% else %}
+                <button onclick="location.href='http://linkedin.com/{{ mission.linkedin }}'"
+                        class="btn btn-primary sb_btn_icon disabled"><span
+                        class="fa fa-linkedin"></span></button>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block body_class %}{{ block.super }} layout-two-col-left{% endblock %}
+
+{% block content %}
+    <div class="row">
+
+        <div class="col-md-3"><div class="sidebar-left">
+            {% block sidebar_left %}
+            {% endblock %}
+        </div></div>
+
+        <div class="col-md-9"><div class="live">
+            {% block live %}
+            {% endblock %}
+        </div></div>
+    </div>
+{% endblock %}

@@ -3,8 +3,17 @@
  * Authed User Controller. Loaded on every page loaded by a logged in user.
  */
 var navbar = require('./partials/navbar').initNavbar,
-    request = require('./../../api').request;
+    request = require('api').request;
 
+
+/**
+ * Meta.
+ */
+export const meta = {
+    controller: "user-auth",
+    match_method: "user",
+    check: "auth"
+};
 
 
 /**
@@ -15,34 +24,33 @@ var navbar = require('./partials/navbar').initNavbar,
  *  They can't even start loading the next page until this is completed.
  */
 function collectAuthedActions() {
-    $(document).ready(function () {
-        window.onbeforeunload = function () {
-            var objectList = JSON.parse(localStorage.getItem("objectUpdates"));
-            if (objectList) {
-                localStorage.removeItem("objectUpdates");
-                request.post({
-                    async: false,
-                    url: "/docstore/update_neo_api/",
-                    data: JSON.stringify({
-                        'object_uuids': objectList
-                    })
-                });
-            }
-        };
-    });
+    window.onbeforeunload = function () {
+        var objectList = JSON.parse(localStorage.getItem("objectUpdates"));
+        if (objectList) {
+            localStorage.removeItem("objectUpdates");
+            request.post({
+                async: false,
+                url: "/docstore/update_neo_api/",
+                data: JSON.stringify({
+                    'object_uuids': objectList
+                })
+            });
+        }
+    };
 }
 
 
-
-
-
+/**
+ * Init
+ */
 export function init() {
     collectAuthedActions();
-
-    $(document).ready(function() {
-        navbar();
-    });
-
 }
 
+/**
+ * Load
+ */
+export function load() {
+    navbar();
+}
 

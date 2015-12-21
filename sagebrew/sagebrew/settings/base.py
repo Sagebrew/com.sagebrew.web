@@ -65,7 +65,8 @@ STATICFILES_DIRS = (
     '%s/help_center/static/' % PROJECT_DIR,
     '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
-    '%s/sb_solutions/static/' % PROJECT_DIR,
+    '%s/sb_missions/static/' % PROJECT_DIR,  # TODO Need to remove this and move
+    # info over to new arch
     '%s/sb_notifications/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
@@ -73,6 +74,7 @@ STATICFILES_DIRS = (
     '%s/sb_registration/static/' % PROJECT_DIR,
     '%s/sb_public_official/static/' % PROJECT_DIR,
     '%s/sb_search/static/' % PROJECT_DIR,
+    '%s/sb_solutions/static/' % PROJECT_DIR,
     '%s/sb_tags/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
     '%s/sb_updates/static/' % PROJECT_DIR,
@@ -127,6 +129,7 @@ TEMPLATES = [{
         '%s/sb_council/templates' % PROJECT_DIR,
         '%s/sb_flag/templates/' % PROJECT_DIR,
         '%s/sb_goals/templates/' % PROJECT_DIR,
+        '%s/sb_missions/templates/' % PROJECT_DIR,
         '%s/sb_notifications/templates/' % PROJECT_DIR,
         '%s/sb_posts/templates/' % PROJECT_DIR,
         '%s/sb_privileges/templates/' % PROJECT_DIR,
@@ -199,6 +202,7 @@ INSTALLED_APPS = (
     'sb_flags',
     'sb_goals',
     'sb_locations',
+    'sb_missions',
     'sb_notifications',
     'sb_posts',
     'sb_privileges',
@@ -424,6 +428,7 @@ OPERATOR_DICT = {
     'coperator\ntruth\np0\n.': 'truth'
 }
 
+SUNLIGHT_FOUNDATION_KEY = environ.get("SUNLIGHT_FOUNDATION_KEY")
 OPENSTATES_DISTRICT_SEARCH_URL = "http://openstates.org/api/v1/legislators/" \
                                  "geo/?lat=%f&long=%f"
 

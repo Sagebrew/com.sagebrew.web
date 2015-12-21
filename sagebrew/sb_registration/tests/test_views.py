@@ -25,6 +25,7 @@ from sb_registration.views import (profile_information,
 from sb_registration.models import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util_test, generate_username
 from plebs.neo_models import Pleb, Address
+from sb_quests.neo_models import Quest
 
 
 class InterestsTest(TestCase):
@@ -869,7 +870,7 @@ class TestEmailVerificationView(TestCase):
 
         res = email_verification(request, 'this is a fake token')
 
-        self.assertEqual(res.status_code, 401)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
     def test_email_verification_view_pleb_does_not_exist(self):
         user = authenticate(username=self.user.username,
@@ -981,11 +982,8 @@ class TestQuestSignup(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.client.login(username=self.user.username, password='test_test')
+        self.pleb = create_user_util_test(self.email)
+        self.client.login(username=self.pleb.username, password='test_test')
 
     def test_quest_signup_get(self):
         url = reverse('quest_info')
@@ -994,6 +992,9 @@ class TestQuestSignup(TestCase):
 
     def test_quest_signup_post(self):
         url = reverse('quest_info')
+        for quest in Quest.nodes.all():
+            quest.delete()
+        cache.clear()
         res = self.client.post(url, data={"account_type": "paid"})
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 

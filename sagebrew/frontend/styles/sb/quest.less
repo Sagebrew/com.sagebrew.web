@@ -1,3 +1,21 @@
+.quest-hero-wallpaper {
+
+}
+
+.quest-hero-content {
+  padding:10px;
+  margin:0 0 30px 0;
+  background-color: @sb_green_extra_light;
+  border-radius:0;
+}
+
+.quest-hero-actions-wrap {
+  text-align: right;
+  .quest-hero-social {
+      margin-top:26px;
+  }
+}
+
 .sb-quest-block{
   &:extend(.sb_post_header);
   padding-top: 15px;
@@ -9,8 +27,11 @@
 }
 .sb_question_header{
   &:extend(.sb_post_header);
+  border: none;
   margin-left: 15px;
   margin-right: 15px;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 
@@ -330,4 +351,105 @@
   &:hover{
     background-color: #2889BF;
   }
+}
+
+
+#cropQuestWallpaperPictureEyecandy{
+  &:extend(.sb_wallpaper_action);
+  position: relative;
+  //fixes gap at the bottom
+  margin-top: 0;
+  margin-bottom: 0;
+  height: 450px;
+  width: 100%;
+}
+
+#cropQuestProfilePictureEyecandy{
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+.cropQuestProfilePictureEyecandy_imgUploadForm {
+  width: 0;
+}
+
+.cropControls{
+  margin-right: 5px;
+  margin-top: 5px;
+}
+#quest_profile_pic {
+  width: 100px;
+}
+
+
+.sb_action_nav{
+  &:extend(.sb_secondary_nav);
+  background-color: @sb_green_extra_light;
+  border-radius:0 0 5px 5px;
+  padding:0 10px;
+  margin:0 0 60px 0;
+  border-top:2px solid #bebebe;
+  a {
+    padding: 2px 0 4px 0;
+  }
+
+}
+
+
+.quest {
+  background-color: white;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  height: auto !important;
+}
+.quest-secondary-nav {
+  // TODO reuse existing nav pattern for this
+  &:extend(.quest);
+  margin-top: 15px !important;
+}
+.quest-header-temp {
+  // TODO reuse existing nav pattern for this
+  background-color: white;
+  margin-top: 15px;
+}
+
+
+.wallpaper {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  height: 450px;
+  img {
+    flex: none;
+  }
+}
+
+.quest-wallpaper {
+  &:extend(.wallpaper);
+
+}
+
+.mission-wallpaper {
+  &:extend(.wallpaper);
+  margin-top: 15px;
+}
+
+.tall-btn {
+  height: 55px !important;
+}
+
+.mission-donate-btn {
+  margin-top: 5px;
+}
+
+#about-parent {
+  line-height: 1px;
+}
+
+.block-padding-bottom-15 {
+  padding-bottom: 15px;
+}
+
+.block-right {
+  padding-right: 0;
 }

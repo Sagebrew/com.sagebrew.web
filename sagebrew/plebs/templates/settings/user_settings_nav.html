@@ -1,0 +1,22 @@
+<div class="block block-type-nav">
+    <h3 class="block-title">Account Settings</h3>
+    <div class="block-content">
+        <ul class="nav nav-list nav-list-vivid">
+            <li class="{% if "/user/settings/" in request.path and 'delete' not in request.path %}active{% endif %}">
+                <a  href="{% url 'general_settings' %}">
+                    General
+                </a>
+            </li>
+            <li class="{% if "/user/contribute/" in request.path %}active{% endif %}">
+                <a  href="{% url 'contribute_settings' %}">
+                    Contribute
+                </a>
+            </li>
+            <li class="{% if "/user/settings/delete/" in request.path %}active{% endif %}">
+                <a  href="{% url 'settings_delete_account' %}">
+                    Delete Account
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>

@@ -1,18 +1,7 @@
-/*global $, enableContentFunctionality, populateComment, enableSolutionFunctionality, enableQuestionFunctionality*/
-var request = require('./../../../api').request,
-    settings = require('./../../../settings').settings,
-    helpers = require('./../../../common/helpers');
+/*global $, enableContentFunctionality, enableQuestionFunctionality, enableSolutionFunctionality, populateComment*/
+var request = require('api').request;
 
-require('./../../../plugin/contentloader');
-
-
-export const meta = {
-    controller: "section-single-object-page",
-    match_method: "path",
-    check: [
-        "^questions|solutions|posts/([A-Za-z0-9.@_%+-]{36})"
-    ]
-};
+require('plugin/contentloader');
 
 function loadSingleContent() {
     var wrapper = $("#js-content-wrapper"),
@@ -70,10 +59,13 @@ function loadSingleContent() {
                 }
                  wrapper.append(data.html);
                 if (formattedObjectType === "question") {
+                    // TODO refactor this
                     enableQuestionFunctionality([data.id]);
                 } else if (formattedObjectType === "solution") {
+                    // TODO refactor this
                     enableSolutionFunctionality([data.id]);
                 } else {
+                    // TODO refactor this
                     enableContentFunctionality(data.id, formattedObjectType);
                 }
                 populateComment(data.id, objectType);

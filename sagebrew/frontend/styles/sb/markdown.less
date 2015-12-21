@@ -81,7 +81,11 @@
   }
   video {
     border-radius: @sb_common_radius;
-    width: 100%;
+    width: auto;
+    max-width: 100%;
+  }
+  iframe {
+    max-width: 100%;
   }
   blockquote{
 // This is how you would add the quotes next to the quote however does not work
@@ -110,7 +114,7 @@
   &:extend(.sb_markdown);
   padding: @sb_common_padding_positive @sb_common_padding_positive 50px;
   border-radius: @sb_common_radius;
-  background-color: @sb_green_wall;
+  background-color: white;
   margin-right: 0;
 
 }
@@ -156,12 +160,7 @@
 .sb_help_center{
   height: 100%;
   background-color: @sb_off_white;
-  padding-top: @sb_common_padding_positive;
-  padding-left: @sb_common_padding_positive;
-  padding-right: @sb_common_padding_positive;
+  padding: 15px 15px auto 15px;
   border-radius: @sb_common_radius;
-  margin-top: 30px;
   margin-left: 50px;
-  padding-bottom: 40px;
-
 }

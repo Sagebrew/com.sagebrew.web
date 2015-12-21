@@ -1,0 +1,10 @@
+{{#each missions}}
+<div class="col-xs-12 col-sm-4">
+    <div class="radio-image-selector js-position" id="{{ this.id }}">
+        <h4 class="sb-profile-not-friend-header">{{ this.focused_on.name }}</h4>
+        <div class="row radio-image-selector-image-wrapper">
+            <img class="radio-image-selector-image" src="{{ ../static_url }}images/legislative_bw.png">
+        </div>
+    </div>
+</div>
+{{/each}}

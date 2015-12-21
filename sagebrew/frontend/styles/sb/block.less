@@ -1,0 +1,91 @@
+//
+// Blocks
+// -------------------------------------------------
+.block {
+  margin-bottom:20px;
+  padding:0;
+  border-radius: 2px;
+  .block-title {
+    padding:20px 0 6px 0;
+    margin:0 20px;
+    font-weight:300;
+    border-bottom:1px solid #A2A2A2;
+    font-size:1.3em;
+  }
+  .no-underline {
+    border-bottom: none;
+  }
+  .center-title {
+    padding-bottom: 20px;
+  }
+  .tight {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  .block-content {
+    padding:20px;
+  }
+  .block-holder-lg {
+  min-height: 400px;
+  }
+
+  .block-holder-md {
+    min-height: 250px;
+  }
+
+  .block-holder-sm {
+    min-height: 100px;
+  }
+}
+
+.block-content > ul.list-group {
+  margin:0;
+}
+
+//
+// Nav block type
+.block.block-type-nav  {
+  ul.nav-list-vivid {
+    background: transparent;
+
+  }
+}
+
+//
+// Title block type
+.block.block-type-title {
+  .block-content {
+    padding:0;
+  }
+  h1 {
+    display:inline-block;
+    font-weight:300;
+    font-size:1.5em;
+    margin:0;
+    padding:20px;
+    vertical-align: middle;
+
+
+  }
+  ul.nav {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left:30px;
+    li > a {
+      padding:19px 8px;
+    }
+  }
+  .title-important-actions {
+    padding:16px 20px;
+    float:right;
+    display: inline-block;
+  }
+}
+
+//
+// Legacy overrides
+// -------------------------------------------------
+.block.sb_solution_news {
+  padding:15px 15px 0 15px;
+}
+

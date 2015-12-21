@@ -1,0 +1,96 @@
+{% extends "layout/hero-two-col-left.html" %}
+{% load staticfiles %}
+
+{% block hero %}
+    {% include "manage/activate_partial.html" %}
+    <div class="block block-type-title">
+        <div class="block-content clearfix">
+            <h1>Manage Quest</h1>
+            <ul class="nav nav-pills">
+                <li {% if "/quests/" in request.path %}class="active"{% endif %}><a href="{% url 'quest_manage_settings' quest.id %}">Quest Settings</a></li>
+                <li {% if "/missions/" in request.path %}class="active"{% endif %}><a href="{% url 'mission_settings_redirect' %}">Missions</a></li>
+            </ul>
+            <div class="title-important-actions">
+                {% block important_actions %}
+                    <a href="{% url 'quest' request.user.username %}" class="btn btn-primary btn-sm sb_btn">View Quest</a>
+                {% endblock important_actions %}
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block sidebar_left %}
+    <div class="block block-type-nav">
+        <div class="block-content">
+            <ul class="nav nav-list nav-list-vivid">
+                {% comment %} Not sure of a good way to make this active... {% endcomment %}
+                <li {% if "/general/" in request.path %}class="active"{% endif %}>
+                    <a href="{% url 'quest_manage_settings' quest.id %}">
+                        General
+                    </a>
+                </li>
+                {% comment %}
+                <li class="{% if "/manage/goals/" in request.path %}active{% endif %}">
+                    <a href="{% url 'manage_goals' request.user %}">
+                        Goals
+                    </a>
+                </li>
+
+                <li class="{% if "manage/epic/" in request.path %}active{% endif %}">
+                    <a href="{% url 'quest_epic' request.user %}">
+                        Epic
+                    </a>
+                </li>
+
+                <li class="{% if "z/" in request.path %}active{% endif %}">
+                    <a  href="{% url 'quest_manage_settings' request.user %}">
+                        Updates
+                    </a>
+                </li>
+                {% endcomment %}
+
+                <li class="{% if "/manage/banking/" in request.path %}active{% endif %}">
+                    <a href="{% url 'quest_manage_banking' request.user %}">
+                        Accounting
+                    </a>
+                </li>
+                {% comment %}TODO: Check permissions
+                <li class="{% if "/manage/moderators/" in request.path %}active{% endif %}">
+                    <a href="{% url 'quest_moderators' request.user %}">
+                        Moderators
+                    </a>
+                </li>
+                {% endcomment %}
+                {% comment %}TODO: Check permissions{% endcomment %}
+                <li class="{% if "/manage/delete/" in request.path %}active{% endif %}">
+                    <a href="{% url 'quest_delete_page' request.user %}">
+                        Delete Quest
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block sidebar_right %}
+    <div class="block">
+        <div class="block-content">
+            <a href="{% url 'quest' request.user.username %}" class="btn btn-primary btn-block">View Quest</a>
+        </div>
+    </div>
+
+    <div class="block">
+        <h3 class="block-title">
+            Setup Progress
+        </h3>
+
+        <div class="block-content">
+            <ul class="list-group">
+                <li class="list-group-item list-group-item-info">1) Edit your epic</li>
+                <li class="list-group-item list-group-item-info">2) Add banking info</li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}

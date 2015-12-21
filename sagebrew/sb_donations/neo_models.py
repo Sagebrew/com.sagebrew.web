@@ -1,3 +1,4 @@
+from api.utils import deprecation
 from neomodel import (db, RelationshipTo, BooleanProperty, IntegerProperty,
                       StringProperty)
 
@@ -42,12 +43,17 @@ class Donation(SBObject):
     # cover multiple goals based on the donation amount.
     applied_to = RelationshipTo('sb_goals.neo_models.Goal', 'APPLIED_TO')
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'DONATED_FROM')
-    # Every donation must have a cause that it's donating to. We'll utilize
-    # child donations to accomplish this but through using `cause` as the
-    # naming convention we should be able to define all methods at this level
-    campaign = RelationshipTo('sb_quests.neo_models.Campaign', 'DONATED_TO')
+
+    mission = RelationshipTo('sb_missions.neo_models.Mission', "CONTRIBUTED_TO")
+    quest = RelationshipTo('sb_quests.neo_models.Quest', "CONTRIBUTED_TO")
+
+    # DEPRECATIONS
+    # DEPRECATED: Rounds are deprecated and goals are no longer associated with
+    # them. They are instead associated with Missions but are not aggregated
+    # into rounds.
     associated_round = RelationshipTo('sb_goals.neo_models.Round',
                                       'ASSOCIATED_ROUND')
+    campaign = RelationshipTo('sb_quests.neo_models.Campaign', 'DONATED_TO')
 
     @classmethod
     def get_donated_for(cls, object_uuid):
@@ -70,6 +76,8 @@ class Donation(SBObject):
 
     @classmethod
     def get_campaign(cls, object_uuid):
+        # DEPRECATED use get_mission or get_quest instead
+        deprecation('Campaigns are deprecated, use Missions or Quests instead')
         query = 'MATCH (d:`Donation` {object_uuid: "%s"})-' \
                 '[:DONATED_TO]->(c:`Campaign`) RETURN c.object_uuid' % (
                     object_uuid)
@@ -78,6 +86,23 @@ class Donation(SBObject):
             return res[0][0]
         except IndexError:
             return None
+
+    @classmethod
+    def get_mission(cls, object_uuid):
+        query = 'MATCH (d:Donation {object_uuid: "%s"})-' \
+                '[:CONTRIBUTED_TO]->(mission:Mission) ' \
+                'RETURN mission.object_uuid' % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    @classmethod
+    def get_quest(cls, object_uuid):
+        query = 'MATCH (d:Donation {object_uuid: "%s"})-' \
+                '[:CONTRIBUTED_TO]->(mission:Mission)<-[:EMBARKS_ON]-' \
+                '(quest:Quest) ' \
+                'RETURN quest.object_uuid' % object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one
 
     @classmethod
     def get_owner(cls, object_uuid):

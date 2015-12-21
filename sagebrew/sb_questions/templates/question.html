@@ -7,61 +7,86 @@
     render template.
 {% endcomment %}
 <div class="js-page-object" data-object_uuid="{{ object_uuid }}" style="display: None"></div>
-<div class="sb_question_header">
-    <div class="row">
-        <div class="vote_count_large">
-            <div class="col-sm-1 hidden-xs sb_vote_wrapper_solution">
-                {% include "vote.html" %}
-            </div>
+<div class="row">
+    <div class="vote_count_large">
+        <div class="col-sm-1 hidden-xs sb_vote_wrapper_solution">
+            {% include "vote.html" %}
         </div>
-        <div class="col-lg-10 col-sm-10 col-xs-12 sb-question-title">
-            <h1 style="font-size:32px;">
-                {{ title|linebreaksbr }}
-            </h1>
-        </div>
-        <div class="col-md-1 hidden-sm hidden-xs sb-solution-controls">
+    </div>
+    <div class="col-lg-10 col-sm-10 col-xs-12 sb-question-title">
+        <h1 style="font-size:32px;">
+            {{ title|linebreaksbr }}
+        </h1>
+    </div>
+    <div class="col-xs-12 hidden-sm hidden-md hidden-lg title-by">
+        <small>
+            by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
+        </small>
+    </div>
+    <div class="col-md-1 hidden-sm hidden-xs sb-solution-controls">
 
-                {% if request.user.username == profile.username %}
-                    <button class="btn dropdown-toggle sb_btn_icon" type="button"
-                            data-toggle="dropdown">
-                        <span class="fa fa-cog sb_btn_icon_green_hover"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
-                        role="menu" aria-labelledby="dropdown-menu">
-                        <li role="presentation"><a class="sb_post_dropdown_menu show_edit_question-action"
-                                                   data-object_uuid="{{ object_uuid }}"
-                                                   type="submit">Edit</a>
-                        </li>
-                    </ul>
+            {% if request.user.username == profile.username %}
+                <button class="btn dropdown-toggle sb_btn_icon" type="button"
+                        data-toggle="dropdown">
+                    <span class="fa fa-cog sb_btn_icon_green_hover"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
+                    role="menu" aria-labelledby="dropdown-menu">
+                    <li role="presentation"><a class="sb_post_dropdown_menu show_edit_question-action"
+                                               data-object_uuid="{{ object_uuid }}"
+                                               type="submit">Edit</a>
+                    </li>
+                </ul>
+            {% else %}
+                {% if "flag" in request_profile.privileges %}
+                    {% include "flag.html" %}
                 {% else %}
-                    {% if "flag" in request_profile.privileges %}
-                        {% include "flag.html" %}
-                    {% else %}
-                        {% include "flag_restriction.html" %}
-                    {% endif %}
+                    {% include "flag_restriction.html" %}
                 {% endif %}
+            {% endif %}
 
-        </div>
     </div>
-    <div class="row">
-        <div class="col-xs-12 col-sm-11 col-sm-offset-1">
-            <div class="sb_question_body" id="sb_question_{{ object_uuid }}">
-                <div class="sb_markdown{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
-                    {% autoescape off %}
-                        <div id="js-question-container">
-                            {{ html_content }}
-                        </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-sm-11 col-sm-offset-1">
+        <div class="sb_question_body" id="sb_question_{{ object_uuid }}">
+            <div class="sb_markdown {% if is_closed %}sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
+                {% autoescape off %}
+                    <div id="js-question-container">
+                        {{ html_content }}
+                    </div>
 
-                    {% endautoescape %}
-                </div>
+                {% endautoescape %}
             </div>
         </div>
-
     </div>
-    <div class="row">
 
-        <div class="col-md-2 hidden-xs hidden-sm col-lg-offset-1">
-            {% if request.user.is_anonymous %}
+</div>
+<div class="row">
+
+    <div class="question-comments js-comment-section"
+         data-id="{{ id }}"
+         data-type="{{ type }}">
+        {% comment %}
+        Commenting out vote small for time being until after mission completion
+        <div class="col-xs-3 hidden-sm hidden-md hidden-lg sm-voting">
+            <a href="#" data-id="{{ id }}" class="js-xs-vote-up">
+                <small><span class="fa fa-chevron-up"></span> upvote</small>
+            </a>
+        </div>
+        <div class="col-xs-3 col-xs-offset-1 hidden-sm hidden-md hidden-lg sm-voting">
+            <a href="#" data-id="{{ id }}" class="js-xs-vote-down">
+                <small><span class="fa fa-chevron-down"></span> downvote</small>
+            </a>
+        </div>
+        <div class="col-xs-3 col-xs-offset-2 col-sm-offset-1 sm-voting">
+        {% endcomment %}
+        <div class="col-xs-3 col-sm-offset-1 sm-voting">
+            {% if "comment" in request_profile.privileges and not is_closed and not request.user.is_anonymous %}
+                <a href="#" class="js-comment">
+                    <small><span class="fa fa-plus"></span> comment</small>
+                </a>
+            {% elif request.user.is_anonymous %}
                 <div><small>
                     <span class="sb_comment_disabled" data-toggle="tooltip"
                           data-placement="top"
@@ -70,7 +95,6 @@
                         comment
                     </span>
                 </small></div>
-            {% elif "comment" in request_profile.privileges or "beta_user" in request_profile.privileges %}
             {% else %}
                 <div><small>
                     <span class="sb_comment_disabled" data-toggle="tooltip"
@@ -82,19 +106,21 @@
                 </small></div>
             {% endif %}
         </div>
-        <div class="col-md-1 hidden-sm hidden-xs col-md-offset-7 col-lg-offset-6"
+
+
+        <div class="col-md-1 hidden-xs hidden-sm col-md-offset-5"
                  style="padding-right:0; margin-right: -10px">
             <div class="sb_thumbnail_xs thumbnail">
                 {% static 'images/sage_coffee_grey-01.png' as default_profile %}
                 <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>
             </div>
         </div>
-        <div class="col-md-2 hidden-sm hidden-xs sb-content-edited">
+        <div class="col-md-2 hidden-xs hidden-sm sb-content-edited">
             <div>
                 <small>
                     <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>
-                    {% if profile.campaign %}
-                        <a href="{% url "quest_saga" profile.username %}"
+                    {% if profile.quest %}
+                        <a href="{% url "quest" profile.username %}"
                            data-toggle="tooltip"
                            data-placement="top"
                            data-title="View User's Quest!">
@@ -103,7 +129,7 @@
                     {% endif %}
                 </small>
             </div>
-            <div style="margin-top:-10px;">
+            <div class="created-time">
                 {% if created != last_edited_on %}
                     <small>{{ last_edited_on|naturaltime }} · Edited</small>
                 {% else %}
@@ -111,39 +137,15 @@
                 {% endif %}
             </div>
         </div>
-        <div class="hidden-lg hidden-md col-sm-11 col-xs-11">
+        <div class="col-sm-5 col-sm-offset-3 hidden-xs hidden-md hidden-lg">
             <small>
-                asked by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
+                by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
             </small>
         </div>
-    </div>
-    {% if html_snapshot %}
-        {% for comment in comments %}
-            {% include "comment_include.html" %}
-        {% endfor %}
-    {% else %}
-        <div id="sb_comments_container_{{ object_uuid }}">
-            {% comment %}
-                Dynamically populated by JS to show existing comments.
-            {% endcomment %}
+        <div class="js-comment-container" id="sb_comments_container_{{ id }}">
         </div>
-    {% endif %}
-
-    <div class="row">
-        {% if not html_snapshot %}
-            {% if "comment" in request_profile.privileges and not is_closed and not request.user.is_anonymous %}
-                <form id="commentSubmitForm">
-                <div class="input-group sb_comment">
-                        <textarea class="input-group form-control sb_comment_input"
-                                  id="post_comment_on_{{ object_uuid }}"
-                                  rows="2"
-                                  name="comment_content"
-                                  placeholder="Help improve the Question by providing feedback or by requesting clarification..."></textarea>
-                        <a class="btn input-group-btn sb_btn_comment_icon comment-action comment_{{ object_uuid }}"
-                           data-object_uuid="{{ object_uuid }}"><span class="fa fa-plus"></span></a>
-                    </div>
-                </form>
-            {% endif %}
-        {% endif %}
+        <div class="col-xs-12 col-sm-11 col-sm-offset-1 question-comment-input js-comment-input hidden" id="comment-input-{{ id }}">
+        </div>
     </div>
 </div>
+

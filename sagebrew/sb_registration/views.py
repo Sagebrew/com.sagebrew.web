@@ -2,7 +2,6 @@ from django.core.cache import cache
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.exceptions import MultipleObjectsReturned
-from django.http import (HttpResponse, HttpResponseServerError)
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
@@ -14,18 +13,18 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-from neomodel import (DoesNotExist, CypherException)
+from neomodel import (DoesNotExist, CypherException, db)
 
 from api.utils import spawn_task
 from plebs.tasks import send_email_task
 from plebs.neo_models import Pleb
-from sb_quests.neo_models import Position
 
+from sb_quests.serializers import QuestSerializer
 from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm, SignupForm,
                     LoginForm)
 from .utils import (verify_completed_registration, verify_verified_email,
-                    create_user_util, verify_no_campaign)
+                    create_user_util)
 from .models import token_gen
 from .tasks import update_interests, store_address
 
@@ -41,18 +40,30 @@ def signup_view(request):
 
 
 def quest_signup(request):
+    quest = cache.get('%s_quest' % request.user.username)
+    if quest is None:
+        query = 'MATCH (pleb:Pleb {username: "%s"})-' \
+                '[:IS_WAGING]->(q:Quest) RETURN q' % request.user.username
+        res, _ = db.cypher_query(query)
+        if res.one:
+            return redirect('quest', username=request.user.username)
     if request.method == 'POST':
-        request.session['account_type'] = request.POST['account_type']
-        request.session.set_expiry(1800)
         if request.user.is_authenticated():
-            return redirect('rep_registration_page')
+            data = {"account_type": request.POST['account_type']}
+            serializer = QuestSerializer(data=data,
+                                         context={'request': request})
+            if serializer.is_valid():
+                quest = serializer.save()
+                return redirect('quest', username=quest.owner_username)
+            else:
+                return redirect('500_Error')
         return redirect('signup')
     return render(request, 'quest_details.html')
 
 
 @api_view(['POST'])
 def signup_view_api(request):
-    quest_registration = request.session.get('account_type', None)
+    quest_registration = request.session.get('account_type')
     try:
         signup_form = SignupForm(request.data)
         valid_form = signup_form.is_valid()
@@ -148,7 +159,7 @@ def resend_email_verification(request):
         except(Pleb.DoesNotExist, DoesNotExist):
             return render(request, 'login.html')
         except (CypherException, IOError):
-            return HttpResponse('Server Error', status=500)
+            return redirect('500_Error')
 
     template_dict = {
         'full_name': request.user.get_full_name(),
@@ -166,8 +177,7 @@ def resend_email_verification(request):
                  "source": "support@sagebrew.com"}
     spawned = spawn_task(task_func=send_email_task, task_param=task_data)
     if isinstance(spawned, Exception):
-        # TODO need to replace this with an actual view
-        return HttpResponseServerError("Unhandled Exception Occurred")
+        return redirect('500_Error')
     return redirect("confirm_view")
 
 
@@ -228,13 +238,11 @@ def email_verification(request, confirmation):
             cache.set(profile.username, profile)
             return redirect('profile_info')
         else:
-            # TODO Ensure to link up to a real redirect page
-            return HttpResponse('Unauthorized', status=401)
+            return redirect('401_Error')
     except (Pleb.DoesNotExist, DoesNotExist):
         return redirect('logout')
     except(CypherException, IOError):
-        # TODO Actually redirect to 500 page
-        return HttpResponse('Server Error', status=500)
+        return redirect('500_Error')
 
 
 @login_required
@@ -255,6 +263,7 @@ def profile_information(request):
     the addresses in a different order we can use the same address
     we provided the user previously based on the previous
     smarty streets ordering.
+    :param request:
     """
     address_key = settings.ADDRESS_AUTH_ID
     address_information_form = AddressInfoForm(request.POST or None)
@@ -266,7 +275,7 @@ def profile_information(request):
         except(Pleb.DoesNotExist, DoesNotExist):
             return render(request, 'login.html')
         except (CypherException, IOError):
-            return HttpResponse('Server Error', status=500)
+            return redirect('500_Error')
     if citizen.completed_profile_info:
         return redirect("interests")
     if address_information_form.is_valid():
@@ -278,19 +287,15 @@ def profile_information(request):
                                  {"username": request.user.username,
                                   "address_clean": address_clean})
             if isinstance(success, Exception):
-                return HttpResponseServerError('Server Error')
+                return redirect('500_Error')
             try:
                 citizen.completed_profile_info = True
                 citizen.save()
                 citizen.refresh()
                 cache.set(citizen.username, citizen)
             except (CypherException, IOError):
-                # TODO instead of going to 500 we should instead repopulate the
-                # page with the forms and make an alert or notification that
-                # indicates we're sorry but there was an error communicating
-                # with the server.
-                return HttpResponseServerError('Server Error')
-            account_type = request.session.get('account_type', None)
+                return redirect('500_Error')
+            account_type = request.session.get('account_type')
             if account_type is not None:
                 return redirect('rep_registration_page')
             return redirect('interests')
@@ -330,7 +335,7 @@ def interests(request):
                 "interests": interest_form.cleaned_data}
         success = spawn_task(update_interests, data)
         if isinstance(success, Exception):
-            return HttpResponse('Server Error', status=500)
+            return redirect('500_Error')
         return redirect('profile_picture')
 
     return render(request, 'interests.html', {'interest_form': interest_form})
@@ -359,7 +364,7 @@ def profile_picture(request):
         except(Pleb.DoesNotExist, DoesNotExist):
             return render(request, 'login.html')
         except (CypherException, IOError):
-            return HttpResponse('Server Error', status=500)
+            return redirect('500_Error')
     profile_picture_form = ProfilePictureForm()
     return render(
         request, 'profile_picture.html',
@@ -367,14 +372,3 @@ def profile_picture(request):
             'profile_picture_form': profile_picture_form,
             'pleb': profile
         })
-
-
-@login_required()
-@user_passes_test(verify_verified_email,
-                  login_url='/registration/signup/confirm/')
-def quest_position_selector(request):
-    if verify_no_campaign(request.user):
-        return redirect('quest_saga', username=request.user.username)
-    president = Position.nodes.get(name="President")
-    return render(request, 'position_selection.html',
-                  {'president': president.object_uuid})

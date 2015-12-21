@@ -9,12 +9,12 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.reverse import reverse
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
 from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data
-from sb_quests.serializers import CampaignSerializer
-from sb_quests.neo_models import Campaign
+from sb_quests.serializers import QuestSerializer
+from sb_quests.neo_models import Quest
 
 from .neo_models import Address, Pleb
 from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
@@ -184,8 +184,8 @@ class PlebSerializerNeo(SBSerializer):
     sagebrew_donations = serializers.SerializerMethodField()
     actions = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
-    campaign = serializers.SerializerMethodField()
     is_following = serializers.SerializerMethodField()
+    quest = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         pass
@@ -246,14 +246,16 @@ class PlebSerializerNeo(SBSerializer):
     def get_sagebrew_donations(self, obj):
         return obj.get_sagebrew_donations()
 
-    def get_campaign(self, obj):
+    def get_quest(self, obj):
         request, expand, _, _, _ = gather_request_data(
             self.context, expand_param=self.context.get('expand', None))
-        campaign = obj.get_campaign()
-        if expand == 'true' and campaign is not None:
-            return CampaignSerializer(
-                Campaign.get(campaign), context={'request': request}).data
-        return campaign
+        try:
+            quest = Quest.get(owner_username=obj.username)
+        except(Quest.DoesNotExist, DoesNotExist):
+            return None
+        if expand == 'true' and quest is not None:
+            return QuestSerializer(quest, context={'request': request}).data
+        return quest.owner_username
 
     def get_is_following(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)

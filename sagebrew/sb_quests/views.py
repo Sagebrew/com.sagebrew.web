@@ -27,13 +27,10 @@ def quest(request, username):
         return redirect("404_Error")
     serializer_data = {
         "quest": QuestSerializer(quest_obj, context={'request': request}).data,
-        "stripe_key": settings.STRIPE_PUBLIC_KEY,
         "keywords": "Politics, Fundraising, Campaign, Quest, Activism"
     }
-    # TODO think we can remove this and just use the stripe key coming through
-    # the context processor
     if serializer_data['quest']['about'] is not None:
-        serializer_data['description'] = serializer_data['about']
+        serializer_data['description'] = serializer_data['quest']['about']
     else:
         serializer_data['description'] = "%s %s's Policies, Agenda, " \
                                          "and Platform." % (
@@ -67,7 +64,6 @@ def insights(request, username):
                                      "Quest." % (serializer_data['first_name'],
                                                  serializer_data['last_name'])
     serializer_data['keywords'] = "Statistics, Insights, Quest"
-    serializer_data['stripe_key'] = settings.STRIPE_PUBLIC_KEY
     return render(request, 'insights.html', serializer_data)
 
 
@@ -130,3 +126,8 @@ class QuestSettingsView(LoginRequiredMixin):
         quest_obj = QuestSerializer(Quest.inflate(res.one),
                                     context={'request': request}).data
         return render(request, self.template_name, {"quest": quest_obj})
+
+
+# DEPRECATED
+def saga(request, username):
+    return render(request, 'quest.html', {})

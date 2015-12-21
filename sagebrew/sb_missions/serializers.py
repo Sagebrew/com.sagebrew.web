@@ -17,8 +17,8 @@ from .neo_models import Mission
 
 
 class MissionSerializer(SBSerializer):
-    active = serializers.BooleanField()
-    completed = serializers.BooleanField()
+    active = serializers.BooleanField(required=False)
+    completed = serializers.BooleanField(required=False)
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=255)
     epic = serializers.CharField(required=False, allow_blank=True)
@@ -31,7 +31,7 @@ class MissionSerializer(SBSerializer):
     twitter = serializers.CharField(required=False, allow_blank=True)
     website = serializers.CharField(required=False, allow_blank=True)
     wallpaper_pic = serializers.CharField(required=False)
-    title = serializers.CharField(required=False)
+    title = serializers.CharField(required=False, allow_blank=True)
     owner_username = serializers.CharField(read_only=True)
     location_name = serializers.CharField()
     focus_name = serializers.CharField()

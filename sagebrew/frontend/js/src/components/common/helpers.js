@@ -129,3 +129,19 @@ export function determineZoom(affectedArea){
 
     return zoomLevel;
 }
+
+
+export function getFormData(form) {
+    var data = {};
+    for (var i = 0, ii = form.length; i < ii; ++i) {
+        var input = form[i];
+        // Don't check the value because if the use has entered a value
+        // we prepopulate it. So if they remove it we want to set it to
+        // an empty string in the backend.
+        if (input.name) {
+          data[input.name] = input.value;
+        }
+    }
+
+    return data;
+}

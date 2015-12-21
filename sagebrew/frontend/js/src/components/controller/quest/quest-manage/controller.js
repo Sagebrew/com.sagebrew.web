@@ -3,7 +3,8 @@
 /**
  * @file
  */
-var request = require('api').request;
+var request = require('api').request,
+    helpers = require('common/helpers');
 
 /**
  * Meta.
@@ -21,7 +22,6 @@ export const meta = {
  * Load.
  */
 export function load() {
-    console.log("quest-manage");
 
     //
     // Go live

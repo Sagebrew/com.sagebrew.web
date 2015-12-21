@@ -24,32 +24,11 @@
     <div class="block block-type-nav">
         <div class="block-content">
             <ul class="nav nav-list nav-list-vivid">
-                {% comment %} Not sure of a good way to make this active... {% endcomment %}
                 <li {% if "/general/" in request.path %}class="active"{% endif %}>
                     <a href="{% url 'quest_manage_settings' quest.id %}">
                         General
                     </a>
                 </li>
-                {% comment %}
-                <li class="{% if "/manage/goals/" in request.path %}active{% endif %}">
-                    <a href="{% url 'manage_goals' request.user %}">
-                        Goals
-                    </a>
-                </li>
-
-                <li class="{% if "manage/epic/" in request.path %}active{% endif %}">
-                    <a href="{% url 'quest_epic' request.user %}">
-                        Epic
-                    </a>
-                </li>
-
-                <li class="{% if "z/" in request.path %}active{% endif %}">
-                    <a  href="{% url 'quest_manage_settings' request.user %}">
-                        Updates
-                    </a>
-                </li>
-                {% endcomment %}
-
                 <li class="{% if "/manage/banking/" in request.path %}active{% endif %}">
                     <a href="{% url 'quest_manage_banking' request.user %}">
                         Accounting
@@ -88,8 +67,10 @@
 
         <div class="block-content">
             <ul class="list-group">
-                <li class="list-group-item list-group-item-info">1) Edit your epic</li>
-                <li class="list-group-item list-group-item-info">2) Add banking info</li>
+                <li class="list-group-item list-group-item-info">1) Add banking info</li>
+                <li class="list-group-item list-group-item-info">2) Create a Mission</li>
+                <li class="list-group-item list-group-item-info">3) Fill out your Mission's Epic</li>
+                <li class="list-group-item list-group-item-info">4) Link up all of your other social medias</li>
             </ul>
         </div>
     </div>

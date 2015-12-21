@@ -10,17 +10,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import (api_view, permission_classes)
 
-from neomodel import DoesNotExist, CypherException
-
 from api.alchemyapi import AlchemyAPI
 from api.utils import (spawn_task)
-from plebs.neo_models import Pleb
-from sb_questions.utils import prepare_question_search_html
 from sb_registration.utils import verify_completed_registration
 
 from .tasks import update_search_query
 from .utils import process_search_result
-from .forms import SearchForm
 
 
 @login_required()
@@ -28,42 +23,9 @@ from .forms import SearchForm
                   login_url='/registration/profile_information')
 def search_result_view(request):
     """
-    This view serves the page that holds the search results.
 
-    :param request:
-    :param query_param:
-    :param display_num:
-    :param page:
-    :param range_start:
-    :param range_end:
-    :return:
     """
-    # TODO Need to make sure responses return an actual page if necessary
-    try:
-        pleb = Pleb.get(username=request.user.username)
-    except(Pleb.DoesNotExist, DoesNotExist):
-        return Response(status=404)
-    except (CypherException, IOError):
-        return Response(status=500)
-    query_param = request.GET.get('q', "")
-    page = request.GET.get('page', 1)
-    search_filter = request.GET.get('filter', 'general')
-    display_num = request.GET.get('max_page_size', 10)
-    if int(display_num) > 100:
-        display_num = 100
-    search_data = {'query_param': query_param, 'page': page, 'display_num':
-                   display_num}
-    search_form = SearchForm(search_data)
-    if search_form.is_valid():
-        return render(
-            request, 'search.html',
-            {
-                'search_param': search_form.cleaned_data['query_param'],
-                'page': search_form.cleaned_data['page'],
-                'pleb_info': pleb, 'filter': search_filter
-            }, status=200)
-    else:
-        return render(request, 'search.html', {'pleb_info': pleb}, status=400)
+    return render(request, 'search.html')
 
 
 @api_view(['GET'])
@@ -116,7 +78,10 @@ def search_result_api(request):
             body={
                 "query": {
                     "query_string": {
-                        "query": query_param
+                        "fields": ["username", "first_name", "last_name",
+                                   "content", "title", "tags", "full_name"],
+                        "query": query_param,
+                        "phrase_slop": 2
                     }
                 }
             })
@@ -127,7 +92,10 @@ def search_result_api(request):
             body={
                 "query": {
                     "query_string": {
-                        "query": query_param
+                        "fields": ["username", "first_name", "last_name",
+                                   "content", "title", "tags", "full_name"],
+                        "query": query_param,
+                        "phrase_slop": 2
                     }
                 }
             })
@@ -150,26 +118,10 @@ def search_result_api(request):
         page = paginator.page(1)
     except EmptyPage:
         page = paginator.page(paginator.num_pages)
-    if current_page == 1:
-        results = [process_search_result(item) for item in page.object_list]
-        results = sorted(results, key=itemgetter('temp_score'),
-                         reverse=True)
-    elif current_page > 1:
-        for item in page.object_list:
-            # TODO Can we generalize this any further?
-            # TODO Handle spawned response correctly
-            # TODO these may have some issues at the moment due to updating
-            # the search database with new information not being completely
-            # defined yet.
-            if item['_type'] == 'question':
-                results.append(prepare_question_search_html(
-                    item['_source']['object_uuid']))
-            elif item['_type'] == 'profile':
-                results.append(render_to_string("user_search_block.html",
-                                                item['_source']))
-            elif item['_type'] == 'public_official':
-                results.append(render_to_string("saga_search_block.html",
-                                                item['_source']))
+    results = [process_search_result(item) for item in page.object_list]
+    results = sorted(results, key=itemgetter('temp_score'),
+                     reverse=True)
+
     try:
         next_page_num = page.next_page_number()
     except EmptyPage:

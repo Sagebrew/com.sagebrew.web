@@ -73,6 +73,11 @@ var controller_map = [
         controller: "section-single-object-page",
         match_method: "path",
         check: "^questions|solutions|posts/([A-Za-z0-9.@_%+-]{36})"
+    },
+    {
+        controlled: "section-search",
+        match_method: "path",
+        check: "^search"
     }
 ];
 

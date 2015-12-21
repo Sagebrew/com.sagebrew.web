@@ -2,9 +2,12 @@ import logging
 from urllib2 import HTTPError
 from django.conf import settings
 
+from django.template.loader import render_to_string
+
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import TransportError, NotFoundError
 
+from sb_questions.utils import prepare_question_search_html
 logger = logging.getLogger('loggly_logs')
 
 """
@@ -48,34 +51,17 @@ def process_search_result(item):
     :return:
     """
     if 'sb_score' not in item['_source']:
-            item['_source']['sb_score'] = 0
+        item['_source']['sb_score'] = 0
+    item['temp_score'] = item['_source']['sb_score'] * item['_score']
     if item['_type'] == 'question':
-        return {
-            "question_uuid": item['_source']['id'],
-            "type": "question",
-            "temp_score": item['_score'] * item['_source']['sb_score'],
-            "score": item['_score']
-        }
+        item['search_html'] = prepare_question_search_html(item['_source'])
     elif item['_type'] == 'profile':
-        return {
-            "username": item['_source']['id'],
-            "type": "profile",
-            "temp_score": item['_score'] * item['_source']['sb_score'],
-            "score": item['_score']
-        }
-    elif item['_type'] == 'campaign' or item['_type'] == 'politicalcampaign':
-        # We decided that it would be cleaner and quicker to reindex all
-        # campaigns as a serialized campaign instead of a serialized public
-        # official. This will future-proof ourselves for when we decide to
-        # allow users to sign up for a campaign that is not for a official
-        # position such as senator, house rep, president.
-        return {
-            "object_uuid": item['_source']['id'],
-            'type': 'public_official', 'temp_score': item['_score'],
-            'score': item['_score']
-        }
-    else:
-        return {'temp_score': 0}
+        item['search_html'] = render_to_string("user_search_block.html",
+                                               item['_source'])
+    elif item['_type'] == 'public_official':
+        item['search_html'] = render_to_string("saga_search_block.html",
+                                               item['_source'])
+    return item
 
 
 def update_campaign_search(campaign_data):

@@ -21,7 +21,6 @@
         </div>
         <div class="sb_wall sb_search_wall">
             <div id="search_result_div">
-                <div id="search_param" data-search_param="{{ search_param }}" data-search_page="{{ page }}" data-filter="{{ filter }}"></div>
             </div>
         </div>
     </div>
@@ -29,6 +28,5 @@
 {% endblock %}
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'js/update_search_page.js' %}"></script>
     <script src="{% static 'js/update_filter.js' %}"></script>
 {% endblock %}

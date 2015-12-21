@@ -31,7 +31,6 @@ $(document).ready(function () {
         });
     }
     var searchResults = $('#search_result_div'),
-        searchId = $('#search_param'),
         searchParam = searchId.data('search_param'),
         searchPage = searchId.data('search_page'),
         filter = searchId.data('filter'),
@@ -47,6 +46,7 @@ $(document).ready(function () {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
+            console.log(data);
             if (data.next === null) {
                 searchResults.append(data.html);
             } else {
@@ -55,20 +55,6 @@ $(document).ready(function () {
                 }
                 var dataList = data.html;
                 $.each(dataList, function (i, item) {
-                    if (item.type === 'question') {
-                        var objectUUID = item.question_uuid;
-
-                        $.ajax({
-                            xhrFields: {withCredentials: true},
-                            type: "GET",
-                            url: "/conversations/search/" + objectUUID + '/',
-                            contentType: "application/json; charset=utf-8",
-                            dataType: "json",
-                            success: function (data) {
-                                searchResults.append(data.html);
-                            }
-                        });
-                    }
                     if (item.type === 'profile') {
                         var username = item.username;
 

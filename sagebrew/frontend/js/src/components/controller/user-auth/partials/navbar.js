@@ -12,7 +12,7 @@ var settings = require('settings').settings;
  *  Scope - User Authed
  *  All things relating to the navbar.
  */
-function navbar() {
+export function navbar() {
     var $navbar = $(".app-navbar");
 
     //
@@ -63,7 +63,7 @@ function navbar() {
         })
         //
         // Show Rep
-        .on('click', '.show-reputation-action', function() {
+        .on('click', '.js-show-reputation', function() {
             request.put({
                 url: "/v1/me/",
                 data: JSON.stringify({

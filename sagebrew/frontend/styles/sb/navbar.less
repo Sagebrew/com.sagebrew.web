@@ -32,6 +32,12 @@
 .navbar-brand {
   padding: 7px 21px;
   color: white;
+  @media only screen and (max-width: 768px){
+    font-size: 32px;
+  }
+  @media only screen and (min-width: 768px){
+    font-size: 24px;
+  }
   > img {
     display: inline-block;
   }
@@ -56,6 +62,7 @@
 .navbar-form {
   display: inline-block;
   margin:0;
+  padding: 9px 0 9px 0;
   .input-group-btn .btn {
     border:0;
   }

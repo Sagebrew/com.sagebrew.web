@@ -1,3 +1,5 @@
-/**
- * Created by devonbleibtrey on 12/13/15.
- */
+var addMarkdown = require('common/markdown').addMarkdown;
+
+export function load () {
+    addMarkdown($('#solution_content_id'));
+}

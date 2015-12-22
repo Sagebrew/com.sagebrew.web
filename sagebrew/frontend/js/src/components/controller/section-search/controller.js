@@ -1,4 +1,5 @@
-var interests = require('../common/helpers.js');
+var interests = require('common/helpers.js'),
+    submitSearch = require('./partials/search').submitSearch;
 
 export const meta = {
     controller: "section-search",
@@ -13,14 +14,13 @@ export const meta = {
  * Init
  */
 export function init() {
-
 }
 
 /**
  * Load
  */
 export function load() {
-    interests.load();
+    submitSearch()
 }
 
 /**

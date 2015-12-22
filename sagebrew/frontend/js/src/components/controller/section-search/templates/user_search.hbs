@@ -1,0 +1,31 @@
+<div class="block sb_search_block">
+    <div class="row">
+        <div class="col-xs-4">
+            <div class="thumbnail sb_thumbnail_md sb_thumbnail_search">
+              <a href="{{ url }}"><img src="{{ profile_pic }}"></a>
+            </div>
+        </div>
+        <div class="col-xs-8">
+            <h6><a href="{{ url }}">{{ first_name }} {{ last_name }}</a></h6>
+            {{#ifCond 'this' '==' username}}
+                <p>This is you :)</p>
+                {{#if is_friend}}
+                    {{#if reputation }}
+                        <div>Reputation: {{ reputation }}</div>
+                    {{else}}
+                        <div>Reputation: --</div>
+                    {{/if }}
+                {{elif friend_request_sent}}
+                    <div class="btn btn-primary sb_btn sb_btn_fill send_friend_request-action_{{ username }}"
+                            data-from_username="{{ request.user.username }}"
+                            data-to_username="{{ username }}">
+                        Request Friend
+                    </div>
+                {{else}}
+                    <div><small>Friend Request Pending</small></div>
+                {{/if }}
+            {{/ifCond }}
+          <div style="display: None;" id="js-friend-request-sent_{{ username }}"><small>Friend Request Sent</small></div>
+        </div>
+    </div>
+</div>

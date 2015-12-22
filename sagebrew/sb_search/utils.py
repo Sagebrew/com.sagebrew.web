@@ -40,30 +40,6 @@ def update_search_index_doc_script(document_id, index, field, update_value,
 """
 
 
-def process_search_result(item):
-    """
-    This util is called to process the search results returned from
-    elasticsearch and render them to a hidden <div> element. The hidden
-    div element is then accessed by javascript which uses the data in the
-    element to create the div which will be displayed to users.
-
-    :param item:
-    :return:
-    """
-    if 'sb_score' not in item['_source']:
-        item['_source']['sb_score'] = 0
-    item['temp_score'] = item['_source']['sb_score'] * item['_score']
-    if item['_type'] == 'question':
-        item['search_html'] = prepare_question_search_html(item['_source'])
-    elif item['_type'] == 'profile':
-        item['search_html'] = render_to_string("user_search_block.html",
-                                               item['_source'])
-    elif item['_type'] == 'public_official':
-        item['search_html'] = render_to_string("saga_search_block.html",
-                                               item['_source'])
-    return item
-
-
 def update_campaign_search(campaign_data):
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)

@@ -1,77 +1,63 @@
 /*global args*/
-var request = require('./../../../api').request,
-    settings = require('./../../../settings').settings,
-    helpers = require('./../../../common/helpers');
+var request = require('api').request,
+    settings = require('settings').settings,
+    getArgs = require('common/helpers').getQueryParam,
+    moment = require('moment'),
+    templates = require('template_build/templates'),
+    Handlebars = require('handlebars');
 
 
-export const meta = {
-    controller: "section-search",
-    match_method: "path",
-    check: [
-        "^search"
-    ]
-};
-
-
-function submitSearch() {
-    var searchResults = $('#search_result_div'),
-        scrolled = false,
-        next;
+export function submitSearch() {
+    console.log(Handlebars);
+    Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
+        switch (operator) {
+            case '==':
+                return (v1 == v2) ? options.fn(this) : options.inverse(this);
+            case '===':
+                return (v1 === v2) ? options.fn(this) : options.inverse(this);
+            case '<':
+                return (v1 < v2) ? options.fn(this) : options.inverse(this);
+            case '<=':
+                return (v1 <= v2) ? options.fn(this) : options.inverse(this);
+            case '>':
+                return (v1 > v2) ? options.fn(this) : options.inverse(this);
+            case '>=':
+                return (v1 >= v2) ? options.fn(this) : options.inverse(this);
+            case '&&':
+                return (v1 && v2) ? options.fn(this) : options.inverse(this);
+            case '||':
+                return (v1 || v2) ? options.fn(this) : options.inverse(this);
+            default:
+                return options.inverse(this);
+        }
+    });
+    var searchResults = $('#search_result_div');
 
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
-        url: "/search/api/?q=" + args('q') + "&page=" + args('page') + "&filter=" + args('filter'),
+        url: "/v1/search/?query=" + getArgs('q') + "&filter=" + getArgs('filter'),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
             console.log(data);
-            if (data.next === null) {
-                searchResults.append(data.html);
-            } else {
-                if (data.next !== 0) {
-                    searchResults.append("<div class='load_next_page' style='display: none' data-next='" + data.next + " data-filter='" + args('filter') + "'></div>");
+            $.each(data.results, function(index, value) {
+                if (value._type === 'question') {
+                    console.log(value);
+                    value._source.created = moment.parseZone(value._source.created).fromNow();
+                    value._source.last_edited_on = moment.parseZone(value._source.last_edited_on).fromNow();
+                    value._source.
+                    console.log(value);
+                    searchResults.append(templates.question_search(value._source));
+                } else if (value._type === 'profile') {
+                    console.log(value);
+                    searchResults.append(templates.user_search(value._source));
+                } else if (value._type === 'campaign') {
+                    searchResults.append(templates.quest_search(value._source));
                 }
-                next = data.next;
-                var dataList = data.html;
-                $.each(dataList, function (i, item) {
-                    console.log(i);
-                    console.log(item);
-                });
-            }
+            });
         }
     });
-    $(window).scroll(function () {
-        if (scrolled === false) {
-            if ($(window).scrollTop() + $(window).height() > ($(document).height() - $(document).height() * 0.5)) {
-                scrolled = true;
-                var loadNextPage = $('.load_next_page'),
-                    nextPage = loadNextPage.data('next');
-                loadNextPage.spin("small");
-                $.ajax({
-                    xhrFields: {withCredentials: true},
-                    type: "GET",
-                    url: "/search/api/?q=" + args('q') + "&page=" + next + "&filter=" + args('filter'),
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (data) {
-                        scrolled = false;
-                        loadNextPage.spin(false);
-                        loadNextPage.remove();
-                        if (data.next !== 0 && data.next !== null) {
-                            searchResults.append('<div class="load_next_page" style="display: none" data-next="' + data.next + ' data-filter="' + args('filter') + '"></div>');
-                        }
-                        searchResults.append(data.html);
-                    }
-                });
-            }
-        }
-    });
-}
-
-
-export function init() {
-    submitSearch();
 }
 
 

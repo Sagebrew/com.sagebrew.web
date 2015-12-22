@@ -70,6 +70,21 @@ export function args(arg) {
 
 }
 
+
+/**
+ * Get URL Query Paramereters
+ * If no url is passed, use current url
+ * If no parameter is found return null
+ * @returns {string}
+ */
+export function getQueryParam(paramKey, url) {
+    var href = url ? url : window.location.href,
+        regex = new RegExp('[?&]' + paramKey + '=([^&#]*)', 'i'),
+        string = regex.exec(href);
+    return string ? string[1] : null;
+
+}
+
 /**
  * Generate a uuid
  */

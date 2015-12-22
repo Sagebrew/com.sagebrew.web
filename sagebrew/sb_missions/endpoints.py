@@ -1,4 +1,4 @@
-from rest_framework.permissions import (IsAuthenticatedOrReadOnly)
+from api.permissions import (IsOwnerOrModeratorOrReadOnly)
 
 from neomodel import db
 from rest_framework import viewsets
@@ -10,7 +10,7 @@ from .neo_models import Mission
 class MissionViewSet(viewsets.ModelViewSet):
     serializer_class = MissionSerializer
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsOwnerOrModeratorOrReadOnly,)
 
     def get_queryset(self):
         query = 'MATCH (a:Mission) RETURN a'

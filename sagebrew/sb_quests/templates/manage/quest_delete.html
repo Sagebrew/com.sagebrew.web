@@ -1,20 +1,61 @@
 {% extends "manage/manage_base.html" %}
 {% load staticfiles %}
-{% block title %}Quest Settings{% endblock title %}
+{% block title %}Quest Delete{% endblock title %}
 
 {% block live %}
+    <div class="block">
+        <h3 class="block-title">Deactivate Quest</h3>
+        <div class="block-content">
+            <p>
+               Deactivating your Quest will:
+            </p>
+            <ul>
+                <li>
+                    Make your Quest private (take it offline)
+                </li>
+                <li>
+                    Stop donations
+                </li>
+                <li>
+                    Retain all of your historical information
+                </li>
+                <li>
+                    Give you the opportunity in the future to take your Quest live again
+                </li>
+            </ul>
+            {% if quest.active == False %}<p><small><em>Your Quest is already in the deactivated state</em></small></p>{% endif %}
+            <button class="btn btn-primary btn-warning" {% if quest.active == False %}disabled {% endif %}
+                    id="deactivate-quest">Deactivate
+            </button>
+        </div>
+    </div>
     <div class="block">
         <h3 class="block-title">Delete Quest</h3>
 
         <div class="block-content">
-           <p>
-                After you confirm you wish to delete your Quest we will send you a confirmation email
-                and call you shortly after to begin the process of closing your Quest account.
+            <p>
+               Deleting your Quest will:
             </p>
+            <ul>
+                <li>
+                    Remove everything associated with your quest
+                    <ul>
+                        <li>Updates</li>
+                        <li>Missions</li>
+                        <li>Records associated with the Quest (donations, votes, endoresments)</li>
+                    </ul>
+                </li>
+                <li>
+                    Stop donations
+                </li>
+                <li>
+                    Never give you the opportunity to recover this Quest (you'll have to start a new one)
+                </li>
+            </ul>
             <button class="btn btn-primary btn-danger"
                     id="delete-quest"
                     data-toggle="modal"
-                    data-target="#myModal">Delete Account
+                    data-target="#myModal">Delete
             </button>
         </div>
     </div>
@@ -44,7 +85,7 @@
                         <button type="button" style="width: 100%;"
                                 class="btn btn-primary btn-danger"
                                 data-dismiss="modal"
-                                id="delete_button">DELETE
+                                id="delete-button">DELETE
                         </button>
                     </div>
                 </div>

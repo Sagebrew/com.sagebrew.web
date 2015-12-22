@@ -356,6 +356,7 @@ class QuestSerializer(SBSerializer):
     is_moderator = serializers.SerializerMethodField()
     completed_stripe = serializers.SerializerMethodField()
     completed_customer = serializers.SerializerMethodField()
+    missions = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -372,7 +373,8 @@ class QuestSerializer(SBSerializer):
                         "status_code": status.HTTP_400_BAD_REQUEST})
         quest = Quest(first_name=owner.first_name, last_name=owner.last_name,
                       owner_username=owner.username, object_uuid=owner.username,
-                      profile_pic=owner.profile_pic).save()
+                      profile_pic=owner.profile_pic,
+                      account_type=account_type).save()
 
         owner.quest.connect(quest)
         quest.editors.connect(owner)
@@ -428,11 +430,9 @@ class QuestSerializer(SBSerializer):
         ein = validated_data.pop('ein', instance.ein)
         ssn = validated_data.pop('ssn', instance.ssn)
         # Remove any dashses from the ssn input.
-        ssn = ssn.replace('-', "")
-        # If the quest isn't active check if we should activate it. Otherwise
-        # don't allow someone to take a quest inactive through this interface.
-        if not instance.active:
-            instance.active = validated_data.pop('active', instance.active)
+        if ssn is not None:
+            ssn = ssn.replace('-', "")
+        instance.active = validated_data.pop('active', instance.active)
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
         instance.youtube = validated_data.get('youtube', instance.youtube)
@@ -568,6 +568,19 @@ class QuestSerializer(SBSerializer):
         if obj.stripe_customer_id is None:
             return False
         return True
+
+    def get_missions(self, obj):
+        from sb_missions.neo_models import Mission
+        query = 'MATCH (quest:Quest {owner_username: "%s"})-[:EMBARKS_ON]->' \
+                '(mission:Mission) RETURN mission' % obj.owner_username
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            return None
+        return [reverse('mission-detail',
+                        kwargs={
+                            'object_uuid': Mission.inflate(row[0]).object_uuid
+                        }, request=self.context.get('request', None))
+                for row in res]
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):
@@ -740,7 +753,7 @@ class EditorSerializer(serializers.Serializer):
     # profiles is expected to be a list of pleb usernames, not the entire pleb
     # object
     profiles = serializers.ListField(
-        child=serializers.CharField(max_length=30)
+        child=serializers.CharField(max_length=36)
     )
 
     def update(self, instance, validated_data):
@@ -771,7 +784,7 @@ class ModeratorSerializer(serializers.Serializer):
     # profiles is expected to be a list of pleb usernames, not the entire pleb
     # object
     profiles = serializers.ListField(
-        child=serializers.CharField(max_length=30)
+        child=serializers.CharField(max_length=36)
     )
 
     def update(self, instance, validated_data):

@@ -27,14 +27,6 @@ export function load() {
     // Go live
     $("#take_live").click(function (event) {
         event.preventDefault();
-        var settingsData = getSettingsData(),
-            campaignId = $("#campaign_id").data('object_uuid'),
-            completedStripe = $("#completed-stripe").data("completed_stripe"),
-            completedCustomer = $("#js-completed_customer").data("completed_customer"),
-            paidAccount = $("#js-paid_account").data("paid_account"),
-            takingLive = $("#js-taking_live"),
-            greyPage = $('#sb-greyout-page');
-        takingLive.data("taking_live", "True");
         if (completedStripe === "False") {
             if (settingsData.ssn && settingsData.routing_number && settingsData.account_number) {
                 greyPage.show();

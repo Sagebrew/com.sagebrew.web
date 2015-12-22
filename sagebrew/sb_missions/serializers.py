@@ -2,9 +2,11 @@ import markdown
 
 from django.core.cache import cache
 from django.utils.text import slugify
+from django.conf import settings
 
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.reverse import reverse
+from rest_framework.exceptions import ValidationError
 
 from neomodel import db, DoesNotExist
 
@@ -54,7 +56,21 @@ class MissionSerializer(SBSerializer):
     location = serializers.SerializerMethodField()
 
     def create(self, validated_data):
+        from sb_quests.neo_models import Quest
         request, _, _, _, _ = gather_request_data(self.context)
+        query = 'MATCH (quest:Quest {owner_username: "%s"})-[:EMBARKS_ON]->' \
+                '(mission:Mission) ' \
+                'RETURN quest, ' \
+                'count(mission) as mission_count' % request.user.username
+        res, _ = db.cypher_query(query)
+        quest = Quest.inflate(res.one['quest'])
+        if quest.account_type != "paid":
+            if res.one['mission_count'] >= settings.FREE_MISSIONS:
+                raise ValidationError(
+                    detail={"detail": "Sorry free Quests can only "
+                                      "have 5 Missions.",
+                            "developer_message": "",
+                            "status_code": status.HTTP_400_BAD_REQUEST})
         add_location = ""
         add_district = ""
         focus_type = validated_data.get('focus_on_type')
@@ -62,6 +78,7 @@ class MissionSerializer(SBSerializer):
         location = validated_data.get('location_name')
         focused_on = validated_data.get('focus_name')
         district = validated_data.get('district')
+        # TODO what happens if a moderator makes the mission?
         owner_username = request.user.username
         mission = Mission(owner_username=owner_username, level=level,
                           focus_on_type=focus_type,
@@ -315,13 +332,14 @@ class MissionSerializer(SBSerializer):
         request, _, _, _, _ = gather_request_data(self.context)
         if request is None:
             return None
-        return request.user.username in Mission.get_editors(obj.object_uuid)
+        return request.user.username in Mission.get_editors(obj.owner_username)
 
     def get_is_moderator(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
         if request is None:
             return None
-        return request.user.username in Mission.get_moderators(obj.object_uuid)
+        return request.user.username in Mission.get_moderators(
+                obj.owner_username)
 
     def get_slug(self, obj):
         return slugify(obj.get_mission_title())

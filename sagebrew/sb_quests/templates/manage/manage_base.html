@@ -29,8 +29,13 @@
                         General
                     </a>
                 </li>
+                <li {% if "/manage/billing/" in request.path %}class="active"{% endif %}>
+                    <a href="{% url 'quest_manage_billing' quest.id %}">
+                        Billing
+                    </a>
+                </li>
                 <li class="{% if "/manage/banking/" in request.path %}active{% endif %}">
-                    <a href="{% url 'quest_manage_banking' request.user %}">
+                    <a href="{% url 'quest_manage_banking' quest.id %}">
                         Accounting
                     </a>
                 </li>
@@ -43,7 +48,7 @@
                 {% endcomment %}
                 {% comment %}TODO: Check permissions{% endcomment %}
                 <li class="{% if "/manage/delete/" in request.path %}active{% endif %}">
-                    <a href="{% url 'quest_delete_page' request.user %}">
+                    <a href="{% url 'quest_delete_page' quest.id %}">
                         Delete Quest
                     </a>
                 </li>

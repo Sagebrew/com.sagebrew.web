@@ -65,6 +65,22 @@ class IsOwnerOrEditorOrAccountant(permissions.BasePermission):
             return False
 
 
+class IsOwnerOrModeratorOrReadOnly(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if request.user.username in \
+                Quest.get_moderators(obj.owner_username) or \
+                request.user.username == obj.owner_username:
+            # Only allow the owner of the quest delete it
+            if request.method == 'DELETE' and \
+                            request.user.username != obj.owner_username:
+                return False
+            return True
+        else:
+            return False
+
+
 class IsOwnerOrModerator(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.user.username in Quest.get_moderators(obj) or \

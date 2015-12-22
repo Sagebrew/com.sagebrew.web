@@ -118,15 +118,19 @@
         <div class="col-xs-12">
             <h2 class="block-title">Missions</h2>
             <div id="js-mission-list"></div>
-            {% if quest.owner_username == request.user.username or quest.is_moderator %}
-                <div class="col-xs-12 col-sm-4">
-                    <div class="radio-image-selector js-position" id="js-add-mission">
-                        <h4 class="sb-profile-not-friend-header">Embark on a Mission</h4>
-                        <div class="row radio-image-selector-image-wrapper">
-                            <img class="radio-image-selector-image" src="{% static 'images/plus_bw.png' %}">
+            {% if quest.owner_username == request.user.username %}
+                {% if quest.account_type != "paid" and quest.missions|length >= free_missions %}
+                    {% comment %} TODO need to add button to upgrade account to pro account {% endcomment %}
+                {% else %}
+                    <div class="col-xs-12 col-sm-4">
+                        <div class="radio-image-selector js-position" id="js-add-mission">
+                            <h4 class="sb-profile-not-friend-header">Embark on a Mission</h4>
+                            <div class="row radio-image-selector-image-wrapper">
+                                <img class="radio-image-selector-image" src="{% static 'images/plus_bw.png' %}">
+                            </div>
                         </div>
                     </div>
-                </div>
+                {% endif %}
             {% endif %}
         </div>
     </div>

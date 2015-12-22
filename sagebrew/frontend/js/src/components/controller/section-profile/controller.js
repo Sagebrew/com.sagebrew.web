@@ -51,7 +51,7 @@ export function load() {
             event.preventDefault();
             request.post({url: "/v1/quests/", data: {}})
                 .done(function () {
-                    window.location.href("/quests/" + settings.user.username)
+                    window.location.href = "/quests/" + settings.user.username
                 });
         });
 }

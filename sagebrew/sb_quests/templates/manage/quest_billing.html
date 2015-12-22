@@ -1,0 +1,36 @@
+{% extends "manage/manage_base.html" %}
+{% load staticfiles %}
+{% block title %}Quest Billing{% endblock title %}
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">
+            Billing Overview
+        </h3>
+        <div class="block-content">
+           <p>Plan: {{ quest.account_type|default:"free"|title }} - Using {{ quest.missions|length }}/{% if quest.account_type == "paid" %}Unlimited{% else %}{{ free_missions }}{% endif %}</p>
+            <small>Active Missions</small>
+            <div class="progress">
+                {% if quest.account_type == "paid" %}
+                    <div class="progress-bar" style="width: 0;"></div>
+                {% else %}
+                    <div class="progress-bar" style="width: {% widthratio quest.missions|length free_missions 100 %}%;"></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="block">
+        <h3 class="block-title">Payment Information</h3>
+        <div class="block-content">
+            <form id="billingForm">
+            </form>
+        </div>
+    </div>
+    <div class="block">
+        <h3 class="block-title">Payment History</h3>
+        <div class="block-content">
+            <div id="js-billing-history"></div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -19,17 +19,14 @@ class SearchViewSet(ListAPIView):
 
     def get_queryset(self, filter_type=None):
         query_param = self.request.query_params.get('query', "")
-
         search_type_dict = dict(settings.SEARCH_TYPES)
         alchemyapi = AlchemyAPI()
-
         response = alchemyapi.keywords("text", query_param)
         # this .get on a dict is a temporary work around for the alchemyapi
         # package not having any exception handling, this will keep us safe
         # from key errors caused by us hitting the alchemy endpoint too much
         # and using up our allowed requests
         keywords = response.get('keywords', [])
-
         # TODO surround ES query with proper exception handling and ensure
         # each one is handled correctly
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
@@ -64,16 +61,13 @@ class SearchViewSet(ListAPIView):
                         }
                     }
                 })
-        res = res['hits']['hits']
         task_param = {"pleb": self.request.user.username, "query_param": query_param,
                       "keywords": keywords}
         spawned = spawn_task(task_func=update_search_query,
                              task_param=task_param)
         if isinstance(spawned, Exception) is True:
             return Response({'detail': "server error"}, status=500)
-
-        # sort returned results after adding the 'temp_score' key
-        return res
+        return res['hits']['hits']
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()

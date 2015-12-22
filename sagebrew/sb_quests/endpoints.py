@@ -1,5 +1,5 @@
 import csv
-
+import stripe
 from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponse
@@ -10,6 +10,7 @@ from django.templatetags.static import static
 
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
                                         IsAuthenticated, IsAdminUser)
+from rest_framework.exceptions import ValidationError
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
@@ -52,6 +53,40 @@ class QuestViewSet(viewsets.ModelViewSet):
         return Quest.get(owner_username=self.kwargs[self.lookup_field])
 
     def perform_destroy(self, instance):
+        # Delete all Stripe information
+        # Make sure there are no pending transfers left to complete
+        in_transit = stripe.Transfer.all(recipient=instance.stripe_id,
+                                         status="in_transit")
+        if len(in_transit['data']) > 0:
+            raise ValidationError(
+                    detail={"detail": "Sorry you cannot delete your Quest "
+                                      "while there are donations in transit. "
+                                      "Please deactivate your Quest if it "
+                                      "isn't already and wait for all "
+                                      "donations to complete.",
+                            "status_code": status.HTTP_400_BAD_REQUEST})
+        pending = stripe.Transfer.all(recipient=instance.stripe_id,
+                                      status="pending")
+        if len(pending['data']) > 0:
+            raise ValidationError(
+                    detail={"detail": "Sorry you cannot delete your Quest "
+                                      "while there are donations pending. "
+                                      "Please deactivate your Quest if it "
+                                      "isn't already and wait for all "
+                                      "donations to complete.",
+                            "status_code": status.HTTP_400_BAD_REQUEST})
+        # Delete credit card info associated with a Quest that had a
+        # subscription
+        if instance.stripe_customer_id is not None:
+            customer = stripe.Customer.retrieve(instance.stripe_customer_id)
+            if instance.stripe_subscription_id is not None:
+                customer.subscriptions.retrieve(
+                        instance.stripe_subscription_id).delete()
+            customer.delete()
+        # Delete the managed account associated with a Quest.
+        if instance.stripe_id is not None:
+            account = stripe.Account.retrieve(instance.stripe_id)
+            account.delete()
         # Clear the cache of all missions that the Quest has
         query = 'MATCH (:Quest {owner_username: "%s"})-[r:EMBARKS_ON]->' \
                 '(mission:Mission) ' \
@@ -82,7 +117,6 @@ class QuestViewSet(viewsets.ModelViewSet):
         cache.delete("%s_editors" % instance.owner_username)
         cache.delete("%s_moderators" % instance.owner_username)
         cache.delete("%s_quest" % instance.owner_username)
-
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated, IsOwnerOrEditor))

@@ -22,7 +22,6 @@ export const meta = {
  */
 export function load() {
     var $app = $(".app-sb"),
-        questID = helpers.args(1),
         loadingSpinner = $('#sb-greyout-page');
     Stripe.setPublishableKey(settings.api.stripe);
     $app

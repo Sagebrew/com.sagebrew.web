@@ -250,6 +250,8 @@ class TestSagebrewDonation(APITestCase):
         self.url = "http://testserver"
         self.donation = Donation(completed=False, amount=1000,
                                  owner_username=self.user.username).save()
+        self.pleb.is_verified = True
+        self.pleb.save()
         cache.set(self.pleb.username, self.pleb)
 
     def test_unauthorized(self):

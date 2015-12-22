@@ -1,11 +1,10 @@
 from django.conf.urls import patterns, url
 
-from .views import (insights, quest_list, quest, delete_quest,
+from .views import (insights, quest, delete_quest,
                     QuestSettingsView, saga)
 
 urlpatterns = patterns(
     'sb_quests.views',
-    url(r'^$', quest_list, name='quest_list'),
     # DEPRECATED
     url(r'^/deprecated/(?P<username>[A-Za-z0-9.@_%+-]{2,36})/$', saga,
         name='quest_saga'),
@@ -22,6 +21,9 @@ urlpatterns = patterns(
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/manage/billing/$',
         QuestSettingsView.as_view(template_name="manage/quest_billing.html"),
         name="quest_manage_billing"),
+    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/manage/add_payment/$',
+        QuestSettingsView.as_view(template_name="manage/payment.html"),
+        name="quest_add_payment"),
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/manage/delete/$',
         QuestSettingsView.as_view(template_name="manage/quest_delete.html"),
         name="quest_delete_page"),

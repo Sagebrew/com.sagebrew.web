@@ -40,18 +40,3 @@
         </div>
     </div>
 {% endblock sidebar_left %}
-
-{% block live %}
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
-    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
-    <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
-    <script src="{% static 'js/submit_quest_settings.js' %}"></script>
-    <script src="{% static 'js/campaign_settings_validator.js' %}"></script>
-    {% if not request_profile.is_verified %}
-        <script src="{% static 'js/activate_tooltips.js' %}"></script>
-    {% endif %}
-{% endblock scripts %}

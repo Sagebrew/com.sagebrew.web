@@ -1,10 +1,8 @@
-/*global Stripe*/
 /**
  * @file
  */
 var request = require('api').request,
-    helpers = require('common/helpers'),
-    settings = require('settings').settings;
+    helpers = require('common/helpers');
 /**
  * Meta.
  */
@@ -22,8 +20,7 @@ export const meta = {
  */
 export function load() {
     var $app = $(".app-sb"),
-        questID = helpers.args(1),
-        loadingSpinner = $('#sb-greyout-page');
+        questID = helpers.args(1);
     $app
         .on('click', '#deactivate-quest', function (event) {
             event.preventDefault();
@@ -38,5 +35,5 @@ export function load() {
             request.remove({url: "/v1/quests/" + questID + "/"}).done(function (){
                 window.location.href = "/user/";
             });
-        })
+        });
 }

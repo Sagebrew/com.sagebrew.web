@@ -74,7 +74,7 @@ class IsOwnerOrModeratorOrReadOnly(permissions.BasePermission):
                 request.user.username == obj.owner_username:
             # Only allow the owner of the quest delete it
             if request.method == 'DELETE' and \
-                            request.user.username != obj.owner_username:
+                    request.user.username != obj.owner_username:
                 return False
             return True
         else:

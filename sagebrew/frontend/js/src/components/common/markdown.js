@@ -20,7 +20,8 @@ export function addMarkdown(markdownObj, sanatize) {
                                 var formdata = new FormData(),
                                     file = $("#upload_image")[0].files[0];
                                 formdata.append("file", file);
-                                request.post({url: "/v1/upload/", data: formdata})
+                                request.post({url: "/v1/upload/", data: formdata,
+                                    processData: false, contentType: false})
                                     .done(function (data) {
                                         callback(data.url);
                                         $(".modal-footer").spin(false);

@@ -17,9 +17,14 @@ class Quest(Searchable):
     A Quest is about the individual or group and tracking thier progress
     over the years. See Missions for their specific endeavours.
     """
+    # Stripe managed account id
     stripe_id = StringProperty(index=True, default="Not Set")
+    # Stripe customer id (used to charge subscriptions against)
     stripe_customer_id = StringProperty()
+    # Subscription ID for retrieving and managing subscription
     stripe_subscription_id = StringProperty()
+    # The credit card associated with the customer
+    stripe_default_card_id = StringProperty()
 
     # Valid options are:
     #     free

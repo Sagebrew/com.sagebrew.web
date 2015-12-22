@@ -2,9 +2,14 @@ import pytz
 import logging
 from datetime import datetime
 
-from py2neo.cypher.error import ClientError
+from django.conf import settings
+
 from celery import shared_task
+from elasticsearch import Elasticsearch
+from py2neo.cypher.error import ClientError
 from neomodel import DoesNotExist, CypherException
+from elasticsearch.exceptions import (ElasticsearchException, TransportError,
+                                      ConflictError, RequestError)
 
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
@@ -100,3 +105,36 @@ def create_keyword(text, relevance, query_param):
     except (CypherException, IOError, ClientError) as e:
         logger.exception("Cypher Exception: ")
         raise create_keyword.retry(exc=e, countdown=3, max_retries=None)
+
+
+@shared_task()
+def update_search_object(object_uuid, instance, object_data=None,
+                         index="full-search-base"):
+    from plebs.serializers import PlebSerializerNeo
+    from sb_quests.serializers import QuestSerializer
+    from sb_missions.serializers import MissionSerializer
+    from sb_questions.serializers import QuestionSerializerNeo
+    if object_data is None:
+        child_label = instance.get_child_label().lower()
+        if child_label == 'quest':
+            object_data = QuestSerializer(instance).data
+        elif child_label == 'mission':
+            object_data = MissionSerializer(instance).data
+        elif child_label == 'question':
+            object_data = QuestionSerializerNeo(instance).data
+        elif child_label == 'pleb':
+            object_data = PlebSerializerNeo(instance).data
+        else:
+            return False
+    try:
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        res = es.index(index=index, doc_type=object_data['type'],
+                       id=object_uuid, body=object_data)
+    except (ElasticsearchException, TransportError,
+            ConflictError, RequestError) as e:
+        logger.exception("Failed to connect to Elasticsearch")
+        raise update_search_object.retry(exc=e, countdown=5, max_retries=None)
+    except KeyError:
+        return False
+
+    return res

@@ -1,5 +1,5 @@
 var interests = require('common/helpers.js'),
-    submitSearch = require('./partials/search').submitSearch;
+    searchFunc = require('./partials/search');
 
 export const meta = {
     controller: "section-search",
@@ -20,7 +20,8 @@ export function init() {
  * Load
  */
 export function load() {
-    submitSearch()
+    searchFunc.submitSearch();
+    searchFunc.switchSearchFilter();
 }
 
 /**

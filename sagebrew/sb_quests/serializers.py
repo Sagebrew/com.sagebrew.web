@@ -518,7 +518,7 @@ class QuestSerializer(SBSerializer):
         instance.save()
         instance.refresh()
         cache.set("%s_quest" % instance.object_uuid, instance)
-        return instance
+        return super(QuestSerializer, self).update(instance, validated_data)
 
     def get_url(self, obj):
         if obj.owner_username is not None and obj.owner_username != "":

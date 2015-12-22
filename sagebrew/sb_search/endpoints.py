@@ -17,8 +17,9 @@ from .tasks import update_search_query
 class SearchViewSet(ListAPIView):
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get_queryset(self, filter_type=None):
-        query_param = self.request.query_params.get('query', "")
+    def get_queryset(self):
+        filter_type = self.request.query_params.get("filter", "general")
+        query_param = self.request.query_params.get("query", "")
         search_type_dict = dict(settings.SEARCH_TYPES)
         alchemyapi = AlchemyAPI()
         response = alchemyapi.keywords("text", query_param)
@@ -39,10 +40,11 @@ class SearchViewSet(ListAPIView):
                 index='full-search-base', size=50,
                 body={
                     "query": {
-                        "query_string": {
+                        "multi_match": {
                             "fields": ["username", "first_name", "last_name",
                                        "content", "title", "tags", "full_name"],
                             "query": query_param,
+                            "fuzziness": "AUTO",
                             "phrase_slop": 2
                         }
                     }
@@ -53,10 +55,11 @@ class SearchViewSet(ListAPIView):
                 doc_type=search_type_dict[filter_type],
                 body={
                     "query": {
-                        "query_string": {
+                        "multi_match": {
                             "fields": ["username", "first_name", "last_name",
                                        "content", "title", "tags", "full_name"],
                             "query": query_param,
+                            "fuzziness": "AUTO",
                             "phrase_slop": 2
                         }
                     }

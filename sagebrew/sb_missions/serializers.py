@@ -10,10 +10,11 @@ from rest_framework.exceptions import ValidationError
 
 from neomodel import db, DoesNotExist
 
-from api.utils import gather_request_data
+from api.utils import gather_request_data, spawn_task
 from api.serializers import SBSerializer
 from sb_locations.serializers import LocationSerializer
 from sb_tags.neo_models import Tag
+from api.tasks import add_object_to_search_index
 
 from .neo_models import Mission
 
@@ -261,7 +262,11 @@ class MissionSerializer(SBSerializer):
             return None
         else:
             return None
-
+        task_param = {
+            "object_uuid": mission.object_uuid,
+            "object_data": MissionSerializer(mission).data
+        }
+        spawn_task(task_func=add_object_to_search_index, task_param=task_param)
         return mission
 
     def update(self, instance, validated_data):
@@ -279,7 +284,7 @@ class MissionSerializer(SBSerializer):
                                                     instance.wallpaper_pic)
         instance.save()
         cache.set("%s_mission" % instance.object_uuid, instance)
-        return instance
+        return super(MissionSerializer, self).update(self, instance, bal)
 
     def get_href(self, obj):
         return reverse('mission-detail',

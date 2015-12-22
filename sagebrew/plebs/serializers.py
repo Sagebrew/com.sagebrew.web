@@ -214,7 +214,7 @@ class PlebSerializerNeo(SBSerializer):
         instance.save()
         instance.refresh()
         cache.set(instance.username, instance)
-        return instance
+        return super(PlebSerializerNeo, self).update(instance, validated_data)
 
     def get_id(self, obj):
         return obj.username

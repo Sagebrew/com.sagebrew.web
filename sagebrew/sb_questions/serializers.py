@@ -217,7 +217,8 @@ class QuestionSerializerNeo(TitledContentSerializer):
             "object_uuid": instance.object_uuid})
         spawn_task(task_func=update_search_index, task_param={
             "object_uuid": instance.object_uuid})
-        return instance
+        return super(QuestionSerializerNeo, self).update(
+            instance, validated_data)
 
     def get_url(self, obj):
         return obj.get_url(request=self.context.get('request', None))

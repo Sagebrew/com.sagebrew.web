@@ -33,7 +33,7 @@ export function submitSearch() {
         }
     });
     var searchResults = $('#search_result_div');
-
+    searchResults.append('<div class="loader"></div>');
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
@@ -41,24 +41,35 @@ export function submitSearch() {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            console.log(data);
+            $(".loader").remove();
+            if (data.results.length === 0) {
+                searchResults.append(templates.search_empty());
+            }
             $.each(data.results, function(index, value) {
                 if (value._type === 'question') {
-                    console.log(value);
                     value._source.created = moment.parseZone(value._source.created).fromNow();
                     value._source.last_edited_on = moment.parseZone(value._source.last_edited_on).fromNow();
                     value._source.current_username = settings.user.username;
-                    console.log(value);
                     searchResults.append(templates.question_search(value._source));
                 } else if (value._type === 'profile') {
-                    console.log(value);
                     value._source.current_username = settings.user.username;
                     searchResults.append(templates.user_search(value._source));
-                } else if (value._type === 'campaign' || value._type === 'politicalcampaign') {
+                } else if (value._type === 'campaign' || value._type === 'politicalcampaign' || value._type === "quest") {
                     searchResults.append(templates.quest_search(value._source));
+                } else if (value._type === 'mission') {
+                    searchResults.append(templates.mission_search(value._source));
                 }
             });
         }
+    });
+}
+
+export function switchSearchFilter() {
+    $(".filter_button").click(function(e){
+        e.preventDefault();
+        var search_param = getArgs('q'),
+            filter = $(this).data("filter");
+        window.location.href = "/search/?q=" + search_param + "&page=1&filter=" + filter;
     });
 }
 

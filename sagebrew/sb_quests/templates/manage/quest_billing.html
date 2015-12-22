@@ -5,10 +5,10 @@
 {% block live %}
     <div class="block">
         <h3 class="block-title">
-            Billing Overview
+            Plan
         </h3>
         <div class="block-content">
-           <p>Plan: {{ quest.account_type|default:"free"|title }} - Using {{ quest.missions|length }}/{% if quest.account_type == "paid" %}Unlimited{% else %}{{ free_missions }}{% endif %} Available Missions</p>
+           <p>{{ quest.account_type|default:"free"|title }} - Using {{ quest.missions|length }}/{% if quest.account_type == "paid" %}Unlimited{% else %}{{ free_missions }}{% endif %} Available Missions</p>
             <small>Active Missions</small>
             <div class="progress">
                 {% if quest.account_type == "paid" %}
@@ -17,20 +17,29 @@
                     <div class="progress-bar" style="width: {% widthratio quest.missions|length free_missions 100 %}%;"></div>
                 {% endif %}
             </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 col-xs-12">
+                    <button class="btn btn-primary sb_btn sb_btn_fill" id="submit">
+                        Update Plan
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="block">
-        <h3 class="block-title">Payment Information</h3>
-        <div class="block-content">
-            <form id="billingForm">
-            </form>
-        </div>
-    </div>
+    <div id="js-payment-info-block"></div>
     <div class="block">
         <h3 class="block-title">Payment History</h3>
         <div class="block-content">
-            <div id="js-billing-history"></div>
+            <div id="js-billing-history">
+                <p>You don't have any previous bills</p>
+            </div>
         </div>
     </div>
 
 {% endblock %}
+
+
+{% block scripts %}
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    {{ block.super }}
+{% endblock scripts %}

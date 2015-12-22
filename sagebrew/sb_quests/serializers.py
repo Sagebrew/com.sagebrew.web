@@ -113,6 +113,8 @@ class CampaignSerializer(SBSerializer):
             sub = customer.subscriptions.create(plan='quest_premium')
             instance.stripe_subscription_id = sub['id']
         if stripe_token is not None:
+            # TODO should the stripe account be associated with the quest rather
+            # than the user?
             if owner.stripe_account is None:
                 stripe_res = stripe.Account.create(managed=True, country="US",
                                                    email=owner.email)
@@ -340,6 +342,9 @@ class QuestSerializer(SBSerializer):
     last_name = serializers.CharField(read_only=True)
     stripe_token = serializers.CharField(write_only=True, required=False)
     customer_token = serializers.CharField(write_only=True, required=False)
+    stripe_default_card_id = serializers.CharField(write_only=True,
+                                                   required=False,
+                                                   allow_blank=True)
     ein = serializers.CharField(write_only=True, required=False,
                                 allow_blank=True)
     routing_number = serializers.CharField(write_only=True, required=False)
@@ -437,8 +442,8 @@ class QuestSerializer(SBSerializer):
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
         instance.youtube = validated_data.get('youtube', instance.youtube)
         instance.twitter = validated_data.get('twitter', instance.twitter)
+
         website = validated_data.get('website', instance.website)
-        # TODO @tyler do we already have something like this somewhere?
         if website is None:
             instance.website = website
         elif "https://" in website or "http://" in website:
@@ -448,6 +453,7 @@ class QuestSerializer(SBSerializer):
                 instance.website = website
             else:
                 instance.website = "http://" + website
+
         instance.about = validated_data.get('about', instance.about)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
@@ -455,22 +461,45 @@ class QuestSerializer(SBSerializer):
                                                   instance.profile_pic)
         owner = Pleb.get(username=instance.owner_username)
         if customer_token is not None:
-            customer = stripe.Customer.create(
-                description="Customer for %s Quest" % instance.object_uuid,
-                card=customer_token,
-                email=owner.email
-            )
-            instance.stripe_customer_id = customer['id']
-            sub = customer.subscriptions.create(plan='quest_premium')
-            instance.stripe_subscription_id = sub['id']
+            # Customers must provide a credit card for us to create a customer
+            # with stripe. Get the credit card # and create a customer instance
+            # so we can charge it in the future.
+            if instance.stripe_customer_id is None:
+                customer = stripe.Customer.create(
+                    description="Customer for %s Quest" % instance.object_uuid,
+                    card=customer_token,
+                    email=owner.email
+                )
+                instance.stripe_customer_id = customer['id']
+                instance.stripe_default_card_id = customer[
+                    'sources']['data'][0]['id']
+            else:
+                customer = stripe.Customer.retrieve(instance.stripe_customer_id)
+                card = customer.sources.create(source=customer_token)
+                instance.stripe_default_card_id = card['id']
+        instance.account_type = validated_data.get('account_type',
+                                                   instance.account_type)
+        if instance.account_type == "paid":
+            # if paid gets submitted create a subscription if it doesn't already
+            # exist
+            if instance.stripe_subscription_id is not None:
+                customer = stripe.Customer.retrieve(instance.stripe_customer_id)
+                sub = customer.subscriptions.create(plan='quest_premium')
+                instance.stripe_subscription_id = sub['id']
+        elif instance.account_type == "free":
+            # if we get a free submission and the subscription is already set
+            # cancel it.
+            if instance.stripe_subscription_id is not None:
+                customer = stripe.Customer.retrieve(instance.stripe_customer_id)
+                customer.subscriptions.retrieve(
+                        instance.stripe_subscription_id).delete()
+                instance.stripe_subscription_id = None
         if stripe_token is not None:
-            if owner.stripe_account is None:
+            if instance.stripe_id is None:
                 stripe_res = stripe.Account.create(managed=True, country="US",
                                                    email=owner.email)
-                owner.stripe_account = stripe_res['id']
-                owner.save()
+                instance.stripe_id = stripe_res['id']
             owner_address = owner.get_address()
-            instance.stripe_id = owner.stripe_account
             account = stripe.Account.retrieve(owner.stripe_account)
             try:
                 account.external_accounts.create(external_account=stripe_token)

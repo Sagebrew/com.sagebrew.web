@@ -8,7 +8,7 @@
             Billing Overview
         </h3>
         <div class="block-content">
-           <p>Plan: {{ quest.account_type|default:"free"|title }} - Using {{ quest.missions|length }}/{% if quest.account_type == "paid" %}Unlimited{% else %}{{ free_missions }}{% endif %}</p>
+           <p>Plan: {{ quest.account_type|default:"free"|title }} - Using {{ quest.missions|length }}/{% if quest.account_type == "paid" %}Unlimited{% else %}{{ free_missions }}{% endif %} Available Missions</p>
             <small>Active Missions</small>
             <div class="progress">
                 {% if quest.account_type == "paid" %}

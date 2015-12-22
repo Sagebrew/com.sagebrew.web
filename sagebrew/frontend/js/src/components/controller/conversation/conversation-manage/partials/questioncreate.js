@@ -2,7 +2,8 @@
  * @file
  */
 var request = require('api').request,
-    settings = require('settings').settings;
+    settings = require('settings').settings,
+    addMarkdown = require('common/markdown').addMarkdown;
 
 function sendQuestionRequest(url, title, content, tags, submitButton) {
     var placeID, latitude, longitude, affected_area;
@@ -64,7 +65,7 @@ function createQuestion() {
 
 export function init() {
     var $app = $(".app-sb");
-
+    addMarkdown($('#question_content_id'));
     $app
         .on('click', ".submit_question-action", function(event) {
             event.preventDefault();

@@ -1,11 +1,10 @@
 from django.conf.urls import patterns, url
 
-from .views import (insights, quest_list, quest, delete_quest,
+from .views import (insights, quest, delete_quest,
                     QuestSettingsView, saga)
 
 urlpatterns = patterns(
     'sb_quests.views',
-    url(r'^$', quest_list, name='quest_list'),
     # DEPRECATED
     url(r'^/deprecated/(?P<username>[A-Za-z0-9.@_%+-]{2,36})/$', saga,
         name='quest_saga'),

@@ -63,14 +63,15 @@ class MissionSerializer(SBSerializer):
                 'RETURN quest, ' \
                 'count(mission) as mission_count' % request.user.username
         res, _ = db.cypher_query(query)
-        quest = Quest.inflate(res.one['quest'])
-        if quest.account_type != "paid":
-            if res.one['mission_count'] >= settings.FREE_MISSIONS:
-                raise ValidationError(
-                    detail={"detail": "Sorry free Quests can only "
-                                      "have 5 Missions.",
-                            "developer_message": "",
-                            "status_code": status.HTTP_400_BAD_REQUEST})
+        if res.one is not None:
+            quest = Quest.inflate(res.one['quest'])
+            if quest.account_type != "paid":
+                if res.one['mission_count'] >= settings.FREE_MISSIONS:
+                    raise ValidationError(
+                        detail={"detail": "Sorry free Quests can only "
+                                          "have 5 Missions.",
+                                "developer_message": "",
+                                "status_code": status.HTTP_400_BAD_REQUEST})
         add_location = ""
         add_district = ""
         focus_type = validated_data.get('focus_on_type')
@@ -80,9 +81,11 @@ class MissionSerializer(SBSerializer):
         district = validated_data.get('district')
         # TODO what happens if a moderator makes the mission?
         owner_username = request.user.username
+        title = focused_on.title().replace('-', ' ').replace('_', ' ')
         mission = Mission(owner_username=owner_username, level=level,
                           focus_on_type=focus_type,
-                          focus_name=focused_on).save()
+                          focus_name=focused_on,
+                          title=title).save()
         within_query = 'MATCH (mission:Mission {object_uuid: "%s"})-' \
                        '[:FOCUSED_ON]->(position:Position)' \
                        '<-[:POSITIONS_AVAILABLE]-(location:Location) ' \
@@ -169,7 +172,7 @@ class MissionSerializer(SBSerializer):
                 res, _ = db.cypher_query(within_query)
                 return Mission.inflate(res.one)
         elif focus_type == "advocacy":
-            focused_on = '-'.join(focused_on.lower().split())
+            focused_on = '-'.join(focused_on.replace('_', '-').lower().split())
             try:
                 Tag.nodes.get(name=focused_on)
             except (DoesNotExist, Tag.DoesNotExist):

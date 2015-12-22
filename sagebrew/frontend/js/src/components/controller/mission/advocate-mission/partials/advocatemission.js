@@ -143,8 +143,8 @@ export function load() {
                     location_name: location,
                     focus_on_type: "advocacy"
                 })
-            }).done(function () {
-                window.location.href = "/quests/" + settings.user.username + "/";
+            }).done(function (data) {
+                window.location.href = "/missions/" + data.id + "/";
             });
         })
         .on('click', '#js-cancel-btn', function(event){

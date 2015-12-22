@@ -1,6 +1,7 @@
 /*global $, ajaxSecurity, Bloodhound*/
 $(document).ready(function () {
     var engine = new Bloodhound({
+        cache: false,
         prefetch: "/v1/tags/suggestion_engine_v2/",
         datumTokenizer: Bloodhound.tokenizers.whitespace,
         queryTokenizer: Bloodhound.tokenizers.whitespace

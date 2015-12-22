@@ -1,3 +1,4 @@
+/*global Bloodhound*/
 /**
  * @file
  */
@@ -66,6 +67,23 @@ function createQuestion() {
 export function init() {
     var $app = $(".app-sb");
     addMarkdown($('#question_content_id'));
+    var engine = new Bloodhound({
+        prefetch: {
+            url: "/v1/tags/suggestion_engine_v2/",
+            cache: false
+        },
+        datumTokenizer: Bloodhound.tokenizers.whitespace,
+        queryTokenizer: Bloodhound.tokenizers.whitespace
+    });
+    engine.initialize();
+    $('#sb_tag_box').tokenfield({
+        limit: 5,
+        typeahead: [null, {source: engine.ttAdapter()}],
+        delimiter: [",", " ", "'", ".", "*", "_"]
+    });
+    $("#sb_tag_box-tokenfield").attr("name", "tag_box");
+    $(".token-input.tt-hint").addClass('tag_input');
+
     $app
         .on('click', ".submit_question-action", function(event) {
             event.preventDefault();

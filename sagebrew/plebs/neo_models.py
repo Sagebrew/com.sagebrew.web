@@ -177,7 +177,7 @@ class Pleb(Searchable):
     email_verified = BooleanProperty(default=False)
     populated_personal_index = BooleanProperty(default=False)
     initial_verification_email_sent = BooleanProperty(default=False)
-    stripe_account = StringProperty()
+
     stripe_customer_id = StringProperty()
     # last_counted_vote_node is the node we want to query on to get
     # reputation change over time
@@ -288,6 +288,8 @@ class Pleb(Searchable):
                                      'CAN_EDIT')
     campaign_accountant = RelationshipTo('sb_quests.neo_models.Campaign',
                                          'CAN_MANAGE_FINANCES')
+    # Use stripe_account on quest instead
+    stripe_account = StringProperty()
     # Can this just be a vote? Have it set like we do with votable content
     # with the assumption we can
     # utilize a different serializer that only enables up/off votes rather than

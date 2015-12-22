@@ -12,16 +12,16 @@ var settings = require('settings').settings;
  *  Scope - User Authed
  *  All things relating to the navbar.
  */
-function navbar() {
+export function navbar() {
     var $navbar = $(".app-navbar");
 
     //
     // Load navbar count(s)
     var notifications = request.get({url: "/v1/me/notifications/render/"}),
-        rep = request.get({url: "/v1/profiles/" + settings.user.username + "/reputation/"}),
         friends = request.get({url: "/v1/me/friend_requests/render/"});
-
-    $.when(notifications, rep, friends).done(function(notificationData, repData, friendsData) {
+    //Rep
+    $("#reputation_total").append(settings.profile.reputation);
+    $.when(notifications, friends).done(function(notificationData, friendsData) {
 
         //Notifications
         if (notificationData[0].count) {
@@ -32,9 +32,6 @@ function navbar() {
         } else {
             $('#notification_wrapper').append("No new notifications.");
         }
-
-        //Rep
-        $("#reputation_total").append(repData[0].reputation);
 
         //Friends
         if (friendsData[0].count) {
@@ -63,7 +60,7 @@ function navbar() {
         })
         //
         // Show Rep
-        .on('click', '.show-reputation-action', function() {
+        .on('click', '.js-show-reputation', function() {
             request.put({
                 url: "/v1/me/",
                 data: JSON.stringify({

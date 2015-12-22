@@ -22,7 +22,7 @@ from sb_wall.neo_models import Wall
 class TestCreatePlebTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -60,7 +60,7 @@ class TestCreatePlebTask(TestCase):
 class TestCreateWallTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -136,7 +136,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
     def setUp(self):
         self.email2 = 'suppressionlist@simulator.amazonses.com'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -191,7 +191,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
 class TestSendEmailTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -237,13 +237,13 @@ class TestSendEmailTask(TestCase):
 class TestCreateFriendRequestTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb1 = Pleb.nodes.get(email=self.email)
         self.user1 = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2)
+        res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
@@ -285,7 +285,7 @@ class TestCreateFriendRequestTask(TestCase):
 class TestPlebUserUpdate(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -311,7 +311,7 @@ class TestPlebUserUpdate(TestCase):
 class TestDeterminePlebReps(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -334,7 +334,7 @@ class TestDeterminePlebReps(TestCase):
 class TestCreateBetaUser(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -357,7 +357,7 @@ class TestCreateBetaUser(TestCase):
 class TestUpdateReputation(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -380,7 +380,7 @@ class TestUpdateReputation(TestCase):
 class TestCreateStateDistricts(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)

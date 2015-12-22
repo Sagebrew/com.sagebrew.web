@@ -2,6 +2,7 @@ from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.cache import cache
 
 from rest_framework.reverse import reverse
+from rest_framework import status
 
 from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
                       FloatProperty, DoesNotExist)
@@ -448,17 +449,27 @@ class PoliticalCampaign(Campaign):
     @classmethod
     def get_allow_vote(cls, object_uuid, username):
         from plebs.neo_models import Pleb
+        from sb_registration.utils import calc_age
         try:
             pleb = Pleb.get(username)
         except (Pleb.DoesNotExist, DoesNotExist):
-            return False
+            return False, {"detail": "This user does not exist.",
+                           "status_code": status.HTTP_404_NOT_FOUND}
         if not pleb.is_verified:
-            return False
+            return False, {"detail": "You must be a verified user to pledge a "
+                                     "vote to a Quest.",
+                           "status_code": status.HTTP_401_UNAUTHORIZED}
+        if calc_age(pleb.date_of_birth) < 18:
+            return False, {"detail": "You must be at 18 years of age or older "
+                                     "to pledge a vote to a Quest.",
+                           "status_code": status.HTTP_401_UNAUTHORIZED}
         address = pleb.get_address()
         position = PoliticalCampaign.get_position(object_uuid)
 
         if position is None or address is None:
-            return False
+            return False, {"detail": "Either your address or the position of "
+                                     "the Quest is invalid.",
+                           "status_code": status.HTTP_400_BAD_REQUEST}
         # This query attempts to match a given position and address via
         # location connections, the end result is ensuring that someone
         # who does not live in a location that a quest is running in may
@@ -470,8 +481,11 @@ class PoliticalCampaign(Campaign):
                 position, address.object_uuid))
 
         if res.one:
-            return True
-        return False
+            return True, {"detail": "Can pledge vote to this Quest.",
+                          "status_code": status.HTTP_200_OK}
+        return False, {"detail": "You cannot pledge vote to Quest outside "
+                                 "your area.",
+                       "status_code": status.HTTP_401_UNAUTHORIZED}
 
     @classmethod
     def get_current_seat(cls, object_uuid):

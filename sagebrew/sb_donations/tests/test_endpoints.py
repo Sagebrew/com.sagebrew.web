@@ -209,7 +209,7 @@ class DonationEndpointTests(APITestCase):
 
     def test_delete_not_owner(self):
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2)
+        res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)

@@ -343,7 +343,7 @@ class MissionSerializer(SBSerializer):
         if request is None:
             return None
         return request.user.username in Mission.get_moderators(
-                obj.owner_username)
+            obj.owner_username)
 
     def get_slug(self, obj):
         return slugify(obj.get_mission_title())

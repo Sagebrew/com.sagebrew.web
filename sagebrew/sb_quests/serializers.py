@@ -476,10 +476,10 @@ class QuestSerializer(SBSerializer):
                 account.external_accounts.create(external_account=stripe_token)
             except InvalidRequestError:
                 raise ValidationError(
-                        detail={"detail": "Looks like we're having server "
-                                          "issus, please contact us using the "
-                                          "bubble in the bottom right",
-                                "status_code": status.HTTP_400_BAD_REQUEST})
+                    detail={"detail": "Looks like we're having server "
+                                      "issus, please contact us using the "
+                                      "bubble in the bottom right",
+                            "status_code": status.HTTP_400_BAD_REQUEST})
             account.legal_entity.additional_owners = []
             account.legal_entity.personal_id_number = ssn
             if ein:

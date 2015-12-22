@@ -1,5 +1,6 @@
 var mapLocation = require('./partials/map-location'),
-    question = require('./partials/question');
+    question = require('./partials/question'),
+    solution = require('./partials/solution');
 
 /**
  * Meta.
@@ -17,6 +18,7 @@ export const meta = {
 export function load() {
     // Sidebar
     question.load();
+    solution.load();
     mapLocation.init();
 }
 

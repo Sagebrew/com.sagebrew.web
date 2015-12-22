@@ -75,8 +75,8 @@
             </div>
         </div>
         <div class="col-xs-12 col-sm-11">
-            <div class="sb-solution-body">
-                <div class="sb_markdown{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
+            <div>
+                <div class="sb_markdown conversation-content{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
                     {% autoescape off %}
                         {{ html_content }}
                     {% endautoescape %}

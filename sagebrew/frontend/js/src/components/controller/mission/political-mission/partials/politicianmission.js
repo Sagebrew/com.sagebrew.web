@@ -152,8 +152,8 @@ export function load() {
                     location_name: location,
                     focus_on_type: "position"
                 })
-            }).done(function () {
-                window.location.href = "/quests/" + settings.user.username + "/";
+            }).done(function (data) {
+                window.location.href = "/missions/" + data.id + "/";
             });
         })
         .on('click', '#js-cancel-btn', function(event){

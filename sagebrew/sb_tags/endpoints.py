@@ -73,7 +73,7 @@ class TagViewSet(viewsets.ModelViewSet):
 
     @list_route(methods=['get'])
     def suggestion_engine_v2(self, request, *args, **kwargs):
-        query = "MATCH (a:Tag) RETURN a.name"
+        query = "MATCH (a:Tag) WHERE NOT a:AutoTag RETURN a.name"
         res, _ = db.cypher_query(query)
         return Response([row[0] for row in res],
                         status=status.HTTP_200_OK)

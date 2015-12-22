@@ -83,7 +83,6 @@ class QuestViewSet(viewsets.ModelViewSet):
         cache.delete("%s_moderators" % instance.owner_username)
         cache.delete("%s_quest" % instance.owner_username)
 
-
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated, IsOwnerOrEditor))
     def editors(self, request, owner_username=None):

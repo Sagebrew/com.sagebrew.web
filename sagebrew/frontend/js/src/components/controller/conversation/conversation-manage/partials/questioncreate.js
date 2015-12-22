@@ -1,8 +1,11 @@
+/*global Bloodhound*/
 /**
  * @file
  */
 var request = require('api').request,
-    settings = require('settings').settings;
+    settings = require('settings').settings,
+    addMarkdown = require('common/markdown').addMarkdown,
+    helpers = require('common/helpers');
 
 function sendQuestionRequest(url, title, content, tags, submitButton) {
     var placeID, latitude, longitude, affected_area;
@@ -63,7 +66,25 @@ function createQuestion() {
 
 
 export function init() {
-    var $app = $(".app-sb");
+    var $app = $(".app-sb"),
+        questionID = helpers.args(2);
+    addMarkdown($('#question_content_id'));
+    var engine = new Bloodhound({
+        prefetch: {
+            url: "/v1/tags/suggestion_engine_v2/",
+            cache: false
+        },
+        datumTokenizer: Bloodhound.tokenizers.whitespace,
+        queryTokenizer: Bloodhound.tokenizers.whitespace
+    });
+    engine.initialize();
+    $('#sb_tag_box').tokenfield({
+        limit: 5,
+        typeahead: [null, {source: engine.ttAdapter()}],
+        delimiter: [",", " ", "'", ".", "*", "_"]
+    });
+    $("#sb_tag_box-tokenfield").attr("name", "tag_box");
+    $(".token-input.tt-hint").addClass('tag_input');
 
     $app
         .on('click', ".submit_question-action", function(event) {
@@ -73,7 +94,7 @@ export function init() {
 
         .on('click', '.cancel_question-action', function(event) {
             event.preventDefault();
-            window.location.href = "/conversations/";
+            window.location.href = "/conversations/" + questionID + "/";
         })
 
         .on('click', '#sb_tag_box-tokenfield', function(event) {

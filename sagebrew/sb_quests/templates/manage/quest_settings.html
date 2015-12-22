@@ -9,67 +9,60 @@
         </h3>
         <div class="block-content">
             <form id="socialForm">
-                <div id="campaign_id" data-object_uuid="{{ campaign.id }}" style="display: none"></div>
-                <div id="stripe_key" data-key="{{ campaign.stripe_key }}" style="display: none"></div>
-                <div id="completed-stripe" data-completed_stripe="{{ campaign.completed_stripe }}"></div>
-                <div id="js-completed_customer" class="sb_hidden"
-                     data-completed_customer="{{ campaign.completed_customer }}"></div>
-                <div id="js-paid_account" class="sb_hidden" data-paid_account="{{ campaign.paid_account }}"></div>
-                <div id="js-active" class="sb_hidden" data-active="{{ campaign.active }}"></div>
-                <div id="js-taking_live" class="sb_hidden" data-taking_live=False></div>
-
                 <div class="form-group">
-                    <label for="">Short Description</label>
-                    <textarea class="form-control" rows="3" name="short_bio">{{ campaign.biography|default_if_none:'' }}</textarea>
+                    <label for="about">About</label>
+                    <textarea id="about" class="form-control" rows="3"
+                              placeholder="Describe yourself or your group in 128 characters or less"
+                              name="about">{{ quest.about|default_if_none:'' }}</textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="">Website URL</label>
+                    <label for="website">Website URL</label>
                     <input type="text"
-                       id="personal-social-address"
-                       name="weburl"
-                       placeholder="Website URL"
-                       value="{{ campaign.website|default_if_none:'' }}"
+                       id="website"
+                       name="website"
+                       placeholder="https://"
+                       value="{{ quest.website|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="">Facebook URL</label>
+                    <label for="facebook-social-address">Facebook Username</label>
                     <input type="text"
                        id="facebook-social-address"
                        name="facebook"
                        placeholder="Facebook Username"
-                       value="{{ campaign.facebook|default_if_none:'' }}"
+                       value="{{ quest.facebook|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="">Twitter URL</label>
+                    <label for="twitter-social-address">Twitter ID</label>
                     <input type="text"
                        id="twitter-social-address"
                        name="twitter"
                        placeholder="Twitter ID"
-                       value="{{ campaign.twitter|default_if_none:'' }}"
+                       value="{{ quest.twitter|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="">LinkedIn URL</label>
+                    <label for="linkedin-social-address">LinkedIn Username</label>
                     <input type="text"
                        name="linkedin"
                        id="linkedin-social-address"
                        placeholder="LinkedIn Username"
-                       value="{{ campaign.linkedin|default_if_none:'' }}"
+                       value="{{ quest.linkedin|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="">YouTube URL</label>
+                    <label for="youtube-social-address">YouTube Username</label>
                     <input type="text"
                        name="youtube"
                        id="youtube-social-address"
                        placeholder="Youtube Username"
-                       value="{{ campaign.youtube|default_if_none:'' }}"
+                       value="{{ quest.youtube|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
@@ -77,27 +70,12 @@
                     <div id="validation-errors"></div>
                     <div class="col-lg-4 col-md-6">
                         <button class="btn btn-primary sb_btn sb_btn_fill"
-                                id="submit_settings">
+                                id="submit">
                             Save Changes
                         </button>
                     </div>
                 </div>
-
             </form>
-            <div hidden id="address_data_block" data-address_validation={{ address_key }}></div>
         </div>
     </div>
-
 {% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
-    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
-    <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
-    <script src="{% static 'js/submit_quest_settings.js' %}"></script>
-    <script src="{% static 'js/campaign_settings_validator.js' %}"></script>
-    {% if not request_profile.is_verified %}
-        <script src="{% static 'js/activate_tooltips.js' %}"></script>
-    {% endif %}
-{% endblock scripts %}

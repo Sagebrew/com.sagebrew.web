@@ -1,6 +1,7 @@
 import csv
 
 from django.conf import settings
+from django.core.cache import cache
 from django.http import HttpResponse
 from django.core.files.temp import NamedTemporaryFile
 from django.core.servers.basehttp import FileWrapper
@@ -18,7 +19,7 @@ from neomodel import db
 from elasticsearch import Elasticsearch
 
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrModerator,
-                             IsOwnerOrEditor)
+                             IsOwnerOrEditor, IsOwnerOrModeratorOrReadOnly)
 from sb_goals.serializers import GoalSerializer
 from sb_donations.neo_models import Donation
 from sb_donations.serializers import DonationExportSerializer
@@ -36,7 +37,7 @@ from .neo_models import Campaign, PoliticalCampaign, Position, Quest
 class QuestViewSet(viewsets.ModelViewSet):
     serializer_class = QuestSerializer
     lookup_field = "owner_username"
-    permission_classes = (IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsOwnerOrModeratorOrReadOnly,)
 
     def get_queryset(self):
         query = "MATCH (c:Quest) RETURN c"
@@ -49,6 +50,39 @@ class QuestViewSet(viewsets.ModelViewSet):
 
     def get_object(self):
         return Quest.get(owner_username=self.kwargs[self.lookup_field])
+
+    def perform_destroy(self, instance):
+        # Clear the cache of all missions that the Quest has
+        query = 'MATCH (:Quest {owner_username: "%s"})-[r:EMBARKS_ON]->' \
+                '(mission:Mission) ' \
+                'RETURN mission.object_uuid' % instance.owner_username
+        res, _ = db.cypher_query(query)
+        if res.one is not None:
+            [cache.delete("%s_mission" % mission) for mission in res.one]
+        # Delete all missions associated with the Quest
+        query = 'MATCH (:Quest {owner_username: "%s"})-[r:EMBARKS_ON]->' \
+                '(mission:Mission)-[r2]-() ' \
+                'DELETE r, r2, mission' % instance.owner_username
+        db.cypher_query(query)
+        # Delete all updates associated with the Quest
+        query = 'MATCH (:Quest {owner_username: "%s"})-[r:CREATED_AN]->' \
+                '(update:Update) ' \
+                'DELETE r, update' % instance.owner_username
+        db.cypher_query(query)
+        # Delete all endorsements associated with the Quest
+        query = 'MATCH (:Quest {owner_username: "%s"})-[r:ENDORSES]->' \
+                '(:Mission) ' \
+                'DELETE r' % instance.owner_username
+        db.cypher_query(query)
+        # Delete all other relationships and the quest itself
+        query = 'MATCH (quest:Quest {owner_username: "%s"})-[r]-() ' \
+                'DELETE r, quest' % instance.owner_username
+        db.cypher_query(query)
+        cache.delete("%s_moderators" % instance.owner_username)
+        cache.delete("%s_editors" % instance.owner_username)
+        cache.delete("%s_moderators" % instance.owner_username)
+        cache.delete("%s_quest" % instance.owner_username)
+
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated, IsOwnerOrEditor))
@@ -68,7 +102,7 @@ class QuestViewSet(viewsets.ModelViewSet):
         return Response(Quest.get_editors(owner_username),
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'],
+    @detail_route(methods=['put'],
                   serializer_class=EditorSerializer,
                   permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
     def add_editors(self, request, owner_username=None):
@@ -92,7 +126,7 @@ class QuestViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @detail_route(methods=['post'],
+    @detail_route(methods=['put'],
                   serializer_class=EditorSerializer,
                   permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
     def remove_editors(self, request, owner_username=None):
@@ -118,7 +152,7 @@ class QuestViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @detail_route(methods=['post'],
+    @detail_route(methods=['put'],
                   serializer_class=ModeratorSerializer,
                   permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
     def add_moderators(self, request, owner_username=None):
@@ -141,7 +175,7 @@ class QuestViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @detail_route(methods=['post'],
+    @detail_route(methods=['put'],
                   serializer_class=ModeratorSerializer,
                   permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
     def remove_moderators(self, request, owner_username=None):

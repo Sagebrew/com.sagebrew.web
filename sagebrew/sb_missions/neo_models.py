@@ -166,27 +166,31 @@ class Mission(Searchable):
             return None
 
     @classmethod
-    def get_editors(cls, object_uuid):
-        editors = cache.get("%s_editors" % object_uuid)
+    def get_editors(cls, owner_username):
+        from sb_quests.neo_models import Quest
+        quest = Quest.get(owner_username)
+        editors = cache.get("%s_editors" % quest.owner_username)
         if editors is None:
-            query = 'MATCH (mission:Mission {object_uuid: "%s"})<-' \
-                    '[:EMBARKS_ON]-(quest:Quest)<-[:EDITOR_OF]-(pleb:pleb)' \
-                    ' RETURN pleb.username' % object_uuid
+            query = 'MATCH (quest:Quest {owner_username: "%s")<-' \
+                    '[:EDITOR_OF]-(pleb:pleb) ' \
+                    'RETURN pleb.username' % quest
             res, col = db.cypher_query(query)
             editors = [row[0] for row in res]
-            cache.set("%s_editors" % object_uuid, editors)
+            cache.set("%s_editors" % quest.owner_username, editors)
         return editors
 
     @classmethod
-    def get_moderators(cls, object_uuid):
-        moderators = cache.get("%s_accountants" % object_uuid)
+    def get_moderators(cls, owner_username):
+        from sb_quests.neo_models import Quest
+        quest = Quest.get(owner_username)
+        moderators = cache.get("%s_moderators" % quest.owner_username)
         if moderators is None:
-            query = 'MATCH (mission:Mission {object_uuid: "%s"})<-' \
-                    '[:EMBARKS_ON]-(quest:Quest)<-[:MODERATOR_OF]' \
-                    '-(pleb:pleb) RETURN pleb.username' % object_uuid
+            query = 'MATCH (quest:Quest {owner_username: "%s")<-' \
+                    '[:MODERATOR_OF]-(pleb:pleb) ' \
+                    'RETURN pleb.username' % quest
             res, col = db.cypher_query(query)
             moderators = [row[0] for row in res]
-            cache.set("%s_accountants" % object_uuid, moderators)
+            cache.set("%s_moderators" % quest.owner_username, moderators)
         return moderators
 
     def get_mission_title(self):

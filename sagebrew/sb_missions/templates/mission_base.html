@@ -1,6 +1,6 @@
 {% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
-{% block title %}{% if title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}{% endblock %}
+{% block title %}{% if mission.title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}{% endblock %}
 
 {% block hero %}
     {% include "manage/activate_partial.html" %}
@@ -33,7 +33,7 @@
                 <li {% if "updates" in request.path %} class="active" {% endif %}><a href="{% url "mission_updates" mission.id mission.slug %}">Updates</a></li>
             </ul>
             <div class="title-important-actions tight">
-                {% if is_moderator or is_editor or request.user.username == quest.id %}
+                {% if quest.is_moderator or quest.is_editor or request.user.username == quest.id %}
                     <a class="btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
                 {% endif %}
                 <a href="#" class="btn btn-primary btn-lg sb_btn">Donate</a>
@@ -48,12 +48,10 @@
         <div class="block-content block-holder-sm" id="about-parent">
             <small>{{ mission.about|default:"No information has been provided."|default_if_none:"No information has been provided." }}</small>
         </div>
-        {% if True %}
-            <div class="block-content" style="padding-bottom: 0;" id="website">
-                {% if mission.website %}
-                    <small>Website: {{ mission.website|urlize }}</small>
-                {% endif %}
-            </div>
+        {% if mission.website %}
+        <div class="block-content" style="padding-bottom: 0;" id="website">
+                <small>Website: {{ mission.website|urlize }}</small>
+        </div>
         {% endif %}
         <div class="block-content" style="padding-top: 0;" id="social-media">
             {% if  mission.facebook %}

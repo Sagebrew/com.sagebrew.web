@@ -369,7 +369,8 @@ SEARCH_TYPES = [
     ("general", "general"),
     ("conversations", "question"),
     ("people", "profile"),
-    ("quests", ["campaign", "politicalcampaign"])
+    ("quests", ["campaign", "politicalcampaign"]),
+    ("missions", "missions")
 ]
 
 

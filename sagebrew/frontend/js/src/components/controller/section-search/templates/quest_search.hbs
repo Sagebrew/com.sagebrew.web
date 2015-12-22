@@ -1,33 +1,29 @@
 <div class="block sb_search_block">
     <div class="row">
-       {% url "quest" username=id as the_url %}
         <div class="col-xs-4">
             <div class="thumbnail sb_thumbnail_md sb_thumbnail_search">
-                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
-                <a href="{{ the_url }}"><img src="{{ profile_pic }}"></a>
+                <a href="{{ url }}"><img src="{{ profile_pic }}"></a>
             </div>
         </div>
         <div class="col-xs-4">
-            <h6><a href="{{ the_url }}">{{ first_name }} {{ last_name }}</a></h6>
+            <h6><a href="{{ url }}">{{ first_name }} {{ last_name }}</a></h6>
         </div>
         <div class="col-xs-8">
-            {% if public_official %}
+            {{#if public_official }}
                 <p>{{ public_official.state }} - {{ public_official.title }}</p>
-            {% else %}
-                {% if position_name == "Senator" %}
+            {{ else }}
+                {{#ifCond position_name '==' "Senator" }}
                     <p>Quest: Running to be a {{ position_name }} of {{ location_name }}</p>
-                {% elif position_name == "President" %}
-                    <p>Quest: Running for {{ position_name }} of the {{ location_name }}</p>
-                {% elif position_name == "House Representative" %}
-                    <p>Quest: Running to be {{ position_formal_name }}</p>
-                {% else %}
-                    <p>Quest: Running for {{ position_name }} of {{ location_name }}</p>
-                {% endif %}
-            {% endif %}
-            {% comment %}
-            <p>Office Running for</p>
-            <p>2.54K pledged votes</p>
-            {% endcomment %}
+                {{else}}
+                    {{#ifCond position_name '==' "President" }}
+                        <p>Quest: Running for {{ position_name }} of the {{ location_name }}</p>
+                    {{else}}
+                        {{#ifCond position_name '==' "House Representative" }}
+                            <p>Quest: Running to be {{ position_formal_name }}</p>
+                        {{else}}
+                            <p>Quest: Running for {{ position_name }} of {{ location_name }}</p>
+                {{/ifCond }}{{/ifCond }}{{/ifCond }}
+            {{/if }}
         </div>
       </div>
 </div>

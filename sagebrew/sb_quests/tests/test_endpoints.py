@@ -302,7 +302,7 @@ class QuestEndpointTests(APITestCase):
         data = {
             "profiles": ['test_test', new_pleb.username]
         }
-        response = self.client.post(url, data=data)
+        response = self.client.put(url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], 'Successfully removed '
@@ -317,7 +317,7 @@ class QuestEndpointTests(APITestCase):
         data = {
             "profiles": ['test_test', new_pleb.username]
         }
-        response = self.client.post(url, data=data)
+        response = self.client.put(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], 'Successfully added '
                                                   'specified users to '
@@ -348,7 +348,7 @@ class QuestEndpointTests(APITestCase):
         data = {
             "profiles": ['test_test', new_pleb.username]
         }
-        response = self.client.post(url, data=data)
+        response = self.client.put(url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], 'Successfully removed '
@@ -363,7 +363,7 @@ class QuestEndpointTests(APITestCase):
         data = {
             "profiles": ['test_test', new_pleb.username]
         }
-        response = self.client.post(url, data=data)
+        response = self.client.put(url, data=data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], 'Successfully added '

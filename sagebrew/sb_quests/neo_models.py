@@ -20,6 +20,7 @@ class Quest(Searchable):
     stripe_id = StringProperty(index=True, default="Not Set")
     stripe_customer_id = StringProperty()
     stripe_subscription_id = StringProperty()
+
     # Valid options are:
     #     free
     #     paid
@@ -104,6 +105,16 @@ class Quest(Searchable):
 
     @property
     def customer_token(self):
+        # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
+        return None
+
+    @property
+    def routing_number(self):
+        # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
+        return None
+
+    @property
+    def account_number(self):
         # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
         return None
 

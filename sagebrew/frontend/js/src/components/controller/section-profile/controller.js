@@ -9,7 +9,9 @@ var representatives = require('./partials/representatives'),
     postcreate = require('./partials/postcreate'),
     profile = require('./partials/profile'),
     newsfeed = require('./partials/newsfeed'),
-    follow = require('./partials/follow');
+    follow = require('./partials/follow'),
+    request = require('api').request,
+    settings = require('settings').settings;
 
 /**
  * Meta.
@@ -31,6 +33,7 @@ export function init() {
  * Load
  */
 export function load() {
+    var $app = $(".app-sb");
     // Sidebar
     representatives.init();
     // Friends Page
@@ -43,6 +46,14 @@ export function load() {
     newsfeed.init();
     // Follow functionality
     follow.init();
+    $app
+        .on('click', '#js-quest-signup', function(event) {
+            event.preventDefault();
+            request.post({url: "/v1/quests/", data: {}})
+                .done(function () {
+                    window.location.href = "/quests/" + settings.user.username
+                });
+        });
 }
 
 /**

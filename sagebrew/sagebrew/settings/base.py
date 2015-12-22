@@ -415,6 +415,8 @@ QUERY_OPERATIONS = {
     "gt": ">",
 }
 
+FREE_MISSIONS = 5
+
 OPERATOR_DICT = {
     'coperator\neq\np0\n.': 'equal to',
     'coperator\nle\np0\n.': 'at most',

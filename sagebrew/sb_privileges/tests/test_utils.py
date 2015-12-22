@@ -4,9 +4,12 @@ from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.core.cache import cache
 
 from rest_framework import status
 from rest_framework.test import APITestCase
+
+from neomodel import db
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
@@ -18,12 +21,9 @@ from sb_requirements.neo_models import Requirement
 
 class TestManagePrivilegeRelation(APITestCase):
     def setUp(self):
-        for privilege in Privilege.nodes.all():
-            for req in privilege.requirements.all():
-                req.delete()
-            for action in privilege.actions.all():
-                action.delete()
-            privilege.delete()
+        query = "match (n)-[r]-() delete n,r"
+        db.cypher_query(query)
+        cache.clear()
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
         res = create_user_util_test(self.email, task=True)
@@ -80,7 +80,7 @@ class TestManagePrivilegeRelation(APITestCase):
         self.assertTrue(response)
 
     @requests_mock.mock()
-    def test_lose_and_regainprivilege(self, m):
+    def test_lose_and_regain_privilege(self, m):
         self.client.force_authenticate(user=self.user)
         m.get("%s/v1/profiles/%s/reputation/" % (self.test_url,
                                                  self.user.username),

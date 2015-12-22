@@ -4,6 +4,8 @@ import time
 import stripe
 import markdown
 
+from stripe.error import InvalidRequestError
+
 from django.conf import settings
 from django.core.cache import cache
 
@@ -193,7 +195,8 @@ class CampaignSerializer(SBSerializer):
             username = obj.owner_username
         else:
             username = obj.object_uuid
-        return reverse('campaign', kwargs={"username": username},
+        return reverse('quest_saga',
+                       kwargs={"username": username},
                        request=self.context.get('request', None))
 
     def get_href(self, obj):
@@ -337,8 +340,11 @@ class QuestSerializer(SBSerializer):
     last_name = serializers.CharField(read_only=True)
     stripe_token = serializers.CharField(write_only=True, required=False)
     customer_token = serializers.CharField(write_only=True, required=False)
-    ein = serializers.CharField(write_only=True, required=False)
-    ssn = serializers.CharField(max_length=9, write_only=True, required=False)
+    ein = serializers.CharField(write_only=True, required=False,
+                                allow_blank=True)
+    routing_number = serializers.CharField(write_only=True, required=False)
+    account_number = serializers.CharField(write_only=True, required=False)
+    ssn = serializers.CharField(write_only=True, required=False)
     account_type = serializers.ChoiceField(
         required=False, write_only=True,
         choices=[('paid', "Paid"), ('free', "Free")])
@@ -350,6 +356,7 @@ class QuestSerializer(SBSerializer):
     is_moderator = serializers.SerializerMethodField()
     completed_stripe = serializers.SerializerMethodField()
     completed_customer = serializers.SerializerMethodField()
+    missions = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -366,7 +373,8 @@ class QuestSerializer(SBSerializer):
                         "status_code": status.HTTP_400_BAD_REQUEST})
         quest = Quest(first_name=owner.first_name, last_name=owner.last_name,
                       owner_username=owner.username, object_uuid=owner.username,
-                      profile_pic=owner.profile_pic).save()
+                      profile_pic=owner.profile_pic,
+                      account_type=account_type).save()
 
         owner.quest.connect(quest)
         quest.editors.connect(owner)
@@ -421,15 +429,25 @@ class QuestSerializer(SBSerializer):
                                             instance.customer_token)
         ein = validated_data.pop('ein', instance.ein)
         ssn = validated_data.pop('ssn', instance.ssn)
-        # If the quest isn't active check if we should activate it. Otherwise
-        # don't allow someone to take a quest inactive through this interface.
-        if not instance.active:
-            instance.active = validated_data.pop('active', instance.active)
+        # Remove any dashses from the ssn input.
+        if ssn is not None:
+            ssn = ssn.replace('-', "")
+        instance.active = validated_data.pop('active', instance.active)
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
         instance.youtube = validated_data.get('youtube', instance.youtube)
         instance.twitter = validated_data.get('twitter', instance.twitter)
-        instance.website = validated_data.get('website', instance.website)
+        website = validated_data.get('website', instance.website)
+        # TODO @tyler do we already have something like this somewhere?
+        if website is None:
+            instance.website = website
+        elif "https://" in website or "http://" in website:
+            instance.website = website
+        else:
+            if website.strip() == "":
+                instance.website = website
+            else:
+                instance.website = "http://" + website
         instance.about = validated_data.get('about', instance.about)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
@@ -454,7 +472,14 @@ class QuestSerializer(SBSerializer):
             owner_address = owner.get_address()
             instance.stripe_id = owner.stripe_account
             account = stripe.Account.retrieve(owner.stripe_account)
-            account.external_accounts.create(external_account=stripe_token)
+            try:
+                account.external_accounts.create(external_account=stripe_token)
+            except InvalidRequestError:
+                raise ValidationError(
+                        detail={"detail": "Looks like we're having server "
+                                          "issus, please contact us using the "
+                                          "bubble in the bottom right",
+                                "status_code": status.HTTP_400_BAD_REQUEST})
             account.legal_entity.additional_owners = []
             account.legal_entity.personal_id_number = ssn
             if ein:
@@ -521,6 +546,8 @@ class QuestSerializer(SBSerializer):
         return updates
 
     def get_completed_stripe(self, obj):
+        # Whether or not stripe has verified the account information and
+        # the Quest can start accepting donations.
         if obj.stripe_id == "Not Set":
             return False
         return True
@@ -541,6 +568,19 @@ class QuestSerializer(SBSerializer):
         if obj.stripe_customer_id is None:
             return False
         return True
+
+    def get_missions(self, obj):
+        from sb_missions.neo_models import Mission
+        query = 'MATCH (quest:Quest {owner_username: "%s"})-[:EMBARKS_ON]->' \
+                '(mission:Mission) RETURN mission' % obj.owner_username
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            return None
+        return [reverse('mission-detail',
+                        kwargs={
+                            'object_uuid': Mission.inflate(row[0]).object_uuid
+                        }, request=self.context.get('request', None))
+                for row in res]
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):
@@ -713,7 +753,7 @@ class EditorSerializer(serializers.Serializer):
     # profiles is expected to be a list of pleb usernames, not the entire pleb
     # object
     profiles = serializers.ListField(
-        child=serializers.CharField(max_length=30)
+        child=serializers.CharField(max_length=36)
     )
 
     def update(self, instance, validated_data):
@@ -744,7 +784,7 @@ class ModeratorSerializer(serializers.Serializer):
     # profiles is expected to be a list of pleb usernames, not the entire pleb
     # object
     profiles = serializers.ListField(
-        child=serializers.CharField(max_length=30)
+        child=serializers.CharField(max_length=36)
     )
 
     def update(self, instance, validated_data):

@@ -495,7 +495,7 @@ class QuestSerializer(SBSerializer):
                         instance.stripe_subscription_id).delete()
                 instance.stripe_subscription_id = None
         if stripe_token is not None:
-            if instance.stripe_id is None:
+            if instance.stripe_id is None or instance.stripe_id == "Not Set":
                 stripe_res = stripe.Account.create(managed=True, country="US",
                                                    email=owner.email)
                 instance.stripe_id = stripe_res['id']

@@ -10,7 +10,8 @@ var templates = require('template_build/templates'),
 export function load() {
     var $app = $(".app-sb"),
         questID = helpers.args(1),
-        paymentForm = document.getElementById('js-add-payment-form');
+        paymentForm = document.getElementById('js-add-payment-form'),
+        greyPage = document.getElementById('sb-greyout-page');
     Stripe.setPublishableKey(settings.api.stripe);
     paymentForm.innerHTML = templates.add_payment();
 
@@ -43,6 +44,7 @@ export function load() {
     $app
         .on('submit', '#payment-form', function(event) {
             event.preventDefault();
+            greyPage.classList.remove('sb_hidden');
             var $form = $(this);
 
             // Disable the submit button to prevent repeated clicks
@@ -70,12 +72,14 @@ export function load() {
 
 function stripeResponseHandler(status, response) {
     var $form = $('#payment-form'),
-        questID = helpers.args(1);
+        questID = helpers.args(1),
+        greyPage = document.getElementById('sb-greyout-page');
     if (response.error) {
         var errorMsg = response.error.message;
         if(response.error.message === "You must supply either a card, customer, or bank account to create a token.") {
             errorMsg = "You must supply card information prior to saving."
         }
+        greyPage.classList.add('sb_hidden');
         $form.find('.payment-errors').text(errorMsg);
         $form.find('.payment-errors').removeAttr('hidden');
         $form.find('button').prop('disabled', false);
@@ -84,6 +88,9 @@ function stripeResponseHandler(status, response) {
             customer_token: response.id
         })}).done(function () {
             window.location.href = "/quests/" + questID + "/manage/billing/";
-        })
+        }).fail(function (XMLHttpRequest) {
+            request.errorDisplay(XMLHttpRequest);
+            greyPage.classList.add('sb_hidden');
+        });
     }
 }

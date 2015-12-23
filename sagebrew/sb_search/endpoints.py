@@ -66,14 +66,12 @@ class SearchViewSet(ListAPIView):
         task_param = {"pleb": self.request.user.username,
                       "query_param": query_param,
                       "keywords": keywords}
-        spawned = spawn_task(task_func=update_search_query,
-                             task_param=task_param)
-        if isinstance(spawned, Exception) is True:
-            return Response(errors.CELERY_CONNECTION_ERROR, status=500)
+        # we do not notify users if this task fails to spawn because it is
+        # just for us later down the line
+        spawn_task(task_func=update_search_query, task_param=task_param)
         return res['hits']['hits']
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         page = self.paginate_queryset(queryset)
         return self.get_paginated_response(page)
-

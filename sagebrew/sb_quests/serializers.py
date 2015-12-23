@@ -392,7 +392,9 @@ class QuestSerializer(SBSerializer):
             stripe_res = stripe.Account.create(managed=True, country="US",
                                                email=owner.email)
             quest.stripe_id = stripe_res['id']
-        account = stripe.Account.retrieve(owner.stripe_account)
+        # TODO is this necessary or can we use the repsonse from the
+        # creation?
+        account = stripe.Account.retrieve(quest.stripe_id)
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]
@@ -507,7 +509,9 @@ class QuestSerializer(SBSerializer):
                                                    email=owner.email)
                 instance.stripe_id = stripe_res['id']
             owner_address = owner.get_address()
-            account = stripe.Account.retrieve(owner.stripe_account)
+            # TODO is this necessary or can we use the repsonse from the
+            # creation?
+            account = stripe.Account.retrieve(instance.stripe_id)
             try:
                 account.external_accounts.create(external_account=stripe_token)
             except InvalidRequestError:
@@ -561,8 +565,13 @@ class QuestSerializer(SBSerializer):
             account.legal_entity.personal_address.country = \
                 owner_address.country
             account = account.save()
-            instance.account_verified = account[
-                'legal_entity']['verification']['status']
+            # Default to pending to make sure customer doesn't think nothing
+            # is happening on a slow update from Stripe. We can revert back
+            # to unverified if Stripe alerts us to it.
+            verification = "pending"
+            if account['legal_entity']['verification']['status'] == "verified":
+                verification = account['legal_entity']['verification']['status']
+            instance.account_verified = verification
             instance.last_four_soc = ssn[-4:]
         instance.save()
         instance.refresh()

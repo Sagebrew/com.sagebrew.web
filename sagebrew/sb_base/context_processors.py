@@ -3,6 +3,7 @@ import json
 import stripe
 
 from django.conf import settings
+from django.core.cache import cache
 
 from neomodel import CypherException, DoesNotExist
 
@@ -36,6 +37,7 @@ def js_settings(request):
                 data['profile']['stripe_customer_id'] = pleb.stripe_account
                 if data['profile']['quest'] is not None:
                     quest = Quest.get(pleb.username)
+                    stripe.api_key = settings.STRIPE_SECRET_KEY
                     if "quest" in request.path:
                         # If we're in a place where we're telling the user
                         # that their quest is inactive lets indicate that the
@@ -46,9 +48,18 @@ def js_settings(request):
                             data['profile']['quest']['card_on_file'] = False
                         data['profile']['quest'][
                             'account_type'] = quest.account_type
+                    if "manage/banking" in request.path and \
+                            quest.account_verified != "verified":
+                        # TODO This is a interim solution while we create
+                        # a webhook to accept updates from stripe on the
+                        # verification process
+                        account = stripe.Account.retrieve(quest.stripe_id)
+                        quest.account_verified = account[
+                            'legal_entity']['verification']['status']
+                        quest.save()
+                        cache.set('%s_quest' % quest.owner_username, quest)
                     if "quest" in request.path and "billing" in request.path:
                         # Private not available in the serializer
-                        stripe.api_key = settings.STRIPE_SECRET_KEY
                         data['profile']['quest']['card'] = None
                         data['profile']['quest']['subscription'] = None
                         if quest.stripe_customer_id:

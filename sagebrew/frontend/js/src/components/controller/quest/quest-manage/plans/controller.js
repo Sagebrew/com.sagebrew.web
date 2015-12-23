@@ -1,7 +1,6 @@
 /*global Stripe*/
 var templates = require('template_build/templates'),
     helpers = require('common/helpers'),
-    settings = require('settings').settings,
     request = require('api').request;
 
 export const meta = {

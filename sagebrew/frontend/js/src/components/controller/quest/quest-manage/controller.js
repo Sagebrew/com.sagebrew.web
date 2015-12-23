@@ -4,7 +4,8 @@
  * @file
  */
 var request = require('api').request,
-    helpers = require('common/helpers');
+    helpers = require('common/helpers'),
+    settings = require('settings').settings;
 
 /**
  * Meta.
@@ -22,47 +23,31 @@ export const meta = {
  * Load.
  */
 export function load() {
-
+    var greyPage = document.getElementById('sb-greyout-page'),
+        $app = $(".app-sb"),
+        questID = helpers.args(1);
     //
     // Go live
-    $("#take_live").click(function (event) {
-        event.preventDefault();
-        if (completedStripe === "False") {
-            if (settingsData.ssn && settingsData.routing_number && settingsData.account_number) {
-                greyPage.show();
-                greyPage.spin('large');
-                $("#submit_settings").click();
+    $app
+        .on('click', '#take-live', function () {
+            event.preventDefault();
+            if (settings.profile.quest.completed_stripe === false) {
+                $.notify("You must add a bank account prior to taking your Quest live so we can get you your donations", {type: "danger"})
+            } else if (settings.profile.quest.account_type === "paid" && !settings.profile.quest.card_on_file) {
+                $.notify("You must add a credit card or change your account to free prior to taking the Quest active", {type: "danger"})
             } else {
-                $("html, body").animate({scrollTop: 0}, "slow");
-                $.notify("Please fill in the banking information portion of this page. You may only take your Quest active after that.", {type: "info"});
+                greyPage.classList.remove('sb_hidden');
+                request.patch({
+                    url: "/v1/quests/" + questID + "/",
+                    data: JSON.stringify({
+                        active: true
+                    })
+                }).done(function () {
+                    window.location.reload();
+                }).fail(function (XMLHttpRequest) {
+                    greyPage.classList.add('sb_hidden');
+                    request.errorDisplay(XMLHttpRequest);
+                });
             }
-        } else if (completedCustomer === "False" && paidAccount === "True") {
-            handler.open({
-                name: "Sagebrew LLC",
-                description: "Sagebrew Quest Subscription",
-                panelLabel: "Subscribe"
-            });
-        } else {
-            $('#sb-greyout-page').show();
-            request.patch({
-                url: "/v1/campaigns/" + campaignId + "/",
-                data: JSON.stringify({
-                    "activate": true
-                })
-            }).done(function (data) {
-                $('#sb-greyout-page').hide();
-                if (data.active) {
-                    $("#js-active").attr("data-active", "True");
-                    window.location.href = data.url;
-                } else {
-                    $("#js-active").attr("data-active", "False");
-                }
-            }).fail(function () {
-                greyPage.hide();
-                greyPage.spin(false);
-                request.errorDisplay(XMLHttpRequest);
-            });
-        }
-
-    });
+        });
 }

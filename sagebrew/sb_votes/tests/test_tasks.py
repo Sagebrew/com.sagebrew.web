@@ -27,7 +27,7 @@ class TestVoteObjectTask(TestCase):
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
 
-    def test_vote_object_task_success(self):
+    def test_vote_object_task_success_true_vote(self):
         question = Question(object_uuid=str(uuid1()),
                             title=str(uuid1())).save()
         question.owned_by.connect(self.pleb)
@@ -35,6 +35,36 @@ class TestVoteObjectTask(TestCase):
             'object_uuid': question.object_uuid,
             'current_pleb': self.pleb.username,
             'vote_type': True
+        }
+        res = vote_object_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertIsInstance(res.result, VotableContent)
+
+    def test_vote_object_task_success_false_vote(self):
+        question = Question(object_uuid=str(uuid1()),
+                            title=str(uuid1())).save()
+        question.owned_by.connect(self.pleb)
+        task_data = {
+            'object_uuid': question.object_uuid,
+            'current_pleb': self.pleb.username,
+            'vote_type': False
+        }
+        res = vote_object_task.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertIsInstance(res.result, VotableContent)
+
+    def test_vote_object_task_success_2_vote(self):
+        question = Question(object_uuid=str(uuid1()),
+                            title=str(uuid1())).save()
+        question.owned_by.connect(self.pleb)
+        task_data = {
+            'object_uuid': question.object_uuid,
+            'current_pleb': self.pleb.username,
+            'vote_type': 2
         }
         res = vote_object_task.apply_async(kwargs=task_data)
         while not res.ready():

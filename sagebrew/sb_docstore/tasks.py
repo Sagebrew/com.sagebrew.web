@@ -8,21 +8,20 @@ from .utils import (add_object_to_table, get_user_updates)
 
 
 @shared_task()
-def spawn_user_updates(username, object_uuids):
+def spawn_user_updates(username, object_uuid):
     from sb_votes.tasks import vote_object_task
     vote_res = []
-    for object_uuid in object_uuids:
-        try:
-            vote_res.append(get_user_updates(username=username,
-                                             object_uuid=object_uuid,
-                                             table_name='votes'))
-        except JSONResponseError as e:
-            raise spawn_user_updates.retry(exc=e, countdown=10,
-                                           max_retries=None)
-        except(TypeError, IOError, BotoClientError,
-               BotoServerError, AWSConnectionError, Exception) as e:
-            raise spawn_user_updates.retry(exc=e, countdown=45,
-                                           max_retries=None)
+    try:
+        vote_res.append(get_user_updates(username=username,
+                                         object_uuid=object_uuid,
+                                         table_name='votes'))
+    except JSONResponseError as e:
+        raise spawn_user_updates.retry(exc=e, countdown=10,
+                                       max_retries=None)
+    except(TypeError, IOError, BotoClientError,
+           BotoServerError, AWSConnectionError, Exception) as e:
+        raise spawn_user_updates.retry(exc=e, countdown=45,
+                                       max_retries=None)
     for item in vote_res:
         try:
             item['status'] = int(item['status'])

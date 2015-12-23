@@ -65,12 +65,12 @@ class QuestViewSet(viewsets.ModelViewSet):
                                              status="in_transit")
             if len(in_transit['data']) > 0:
                 raise ValidationError(
-                        detail={"detail": "Sorry you cannot delete your Quest "
-                                          "while there are donations in "
-                                          "transit. Please deactivate your "
-                                          "Quest if it isn't already and "
-                                          "wait for all donations to complete.",
-                                "status_code": status.HTTP_400_BAD_REQUEST})
+                    detail={"detail": "Sorry you cannot delete your Quest "
+                                      "while there are donations in "
+                                      "transit. Please deactivate your "
+                                      "Quest if it isn't already and "
+                                      "wait for all donations to complete.",
+                            "status_code": status.HTTP_400_BAD_REQUEST})
         except InvalidRequestError:
             pass
         try:
@@ -78,12 +78,12 @@ class QuestViewSet(viewsets.ModelViewSet):
                                           status="pending")
             if len(pending['data']) > 0:
                 raise ValidationError(
-                        detail={"detail": "Sorry you cannot delete your Quest "
-                                          "while there are donations pending. "
-                                          "Please deactivate your Quest if it "
-                                          "isn't already and wait for all "
-                                          "donations to complete.",
-                                "status_code": status.HTTP_400_BAD_REQUEST})
+                    detail={"detail": "Sorry you cannot delete your Quest "
+                                      "while there are donations pending. "
+                                      "Please deactivate your Quest if it "
+                                      "isn't already and wait for all "
+                                      "donations to complete.",
+                            "status_code": status.HTTP_400_BAD_REQUEST})
         except InvalidRequestError:
             pass
         # Delete credit card info associated with a Quest that had a
@@ -92,7 +92,7 @@ class QuestViewSet(viewsets.ModelViewSet):
             customer = stripe.Customer.retrieve(instance.stripe_customer_id)
             if instance.stripe_subscription_id is not None:
                 customer.subscriptions.retrieve(
-                        instance.stripe_subscription_id).delete()
+                    instance.stripe_subscription_id).delete()
             try:
                 customer.delete()
             except InvalidRequestError:

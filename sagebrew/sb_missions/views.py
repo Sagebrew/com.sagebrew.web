@@ -130,7 +130,7 @@ class MissionSettingsView(LoginRequiredMixin):
             'ORDER BY missions.created DESC' % request.user.username
         res, _ = db.cypher_query(query)
         if res.one is None:
-            return redirect("404_Error")
+            return redirect("select_mission")
         if object_uuid is None:
             # TODO handle if there aren't any missions yet
             mission_obj = Mission.inflate(res[0].missions)

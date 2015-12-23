@@ -499,7 +499,7 @@ class QuestSerializer(SBSerializer):
             if instance.stripe_subscription_id is not None:
                 customer = stripe.Customer.retrieve(instance.stripe_customer_id)
                 customer.subscriptions.retrieve(
-                        instance.stripe_subscription_id).delete()
+                    instance.stripe_subscription_id).delete()
                 instance.stripe_subscription_id = None
         if stripe_token is not None:
             if instance.stripe_id is None or instance.stripe_id == "Not Set":

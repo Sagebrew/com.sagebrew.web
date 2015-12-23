@@ -8,7 +8,7 @@
             Plan
         </h3>
         <div class="block-content">
-           <p>{{ quest.account_type|default:"free"|title }} - Using {{ quest.missions|length }}/{% if quest.account_type == "paid" %}Unlimited{% else %}{{ free_missions }}{% endif %} Available Missions</p>
+           <p>{{ quest.account_type|default:"free"|title }} - Using {{ quest.missions|length }} of {% if quest.account_type == "paid" %}&infin;{% else %}{{ free_missions }}{% endif %} Available Missions</p>
             <small>Active Missions</small>
             <div class="progress">
                 {% if quest.account_type == "paid" %}
@@ -19,9 +19,9 @@
             </div>
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-xs-12">
-                    <button class="btn btn-primary sb_btn sb_btn_fill" id="submit">
+                    <a class="btn btn-primary sb_btn sb_btn_fill" href="/quests/{{ quest.id }}/manage/plan/">
                         Update Plan
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>

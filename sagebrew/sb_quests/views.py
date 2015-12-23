@@ -118,9 +118,11 @@ class QuestSettingsView(LoginRequiredMixin):
                 return redirect("404_Error")
         except(CypherException, ClientError):
             return redirect("500_Error")
-        quest_obj = QuestSerializer(Quest.inflate(res.one),
+        quest_obj = Quest.inflate(res.one)
+        quest_ser = QuestSerializer(quest_obj,
                                     context={'request': request}).data
-        return render(request, self.template_name, {"quest": quest_obj})
+        quest_ser['account_type'] = quest_obj.account_type
+        return render(request, self.template_name, {"quest": quest_ser})
 
 
 # DEPRECATED

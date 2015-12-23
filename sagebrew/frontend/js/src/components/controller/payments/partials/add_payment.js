@@ -60,6 +60,10 @@ export function load() {
 
             // Prevent the form from submitting with the default action
             return false;
+        })
+        .on('click', '#js-cancel', function(event) {
+            event.preventDefault();
+            window.history.back()
         });
 }
 

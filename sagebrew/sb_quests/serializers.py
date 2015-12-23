@@ -482,7 +482,7 @@ class QuestSerializer(SBSerializer):
         if instance.account_type == "paid":
             # if paid gets submitted create a subscription if it doesn't already
             # exist
-            if instance.stripe_subscription_id is not None:
+            if instance.stripe_subscription_id is None:
                 customer = stripe.Customer.retrieve(instance.stripe_customer_id)
                 sub = customer.subscriptions.create(plan='quest_premium')
                 instance.stripe_subscription_id = sub['id']

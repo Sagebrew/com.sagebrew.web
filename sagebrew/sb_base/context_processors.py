@@ -30,7 +30,7 @@ def js_settings(request):
             try:
                 pleb = Pleb.get(request.user.username)
                 data['profile'] = PlebSerializerNeo(
-                        pleb, context={"request": request, "expand": True}).data
+                    pleb, context={"request": request, "expand": True}).data
                 # Private not available in the serializer
                 data['profile']['stripe_account'] = pleb.stripe_account
                 data['profile']['stripe_customer_id'] = pleb.stripe_account
@@ -53,10 +53,10 @@ def js_settings(request):
                         data['profile']['quest']['subscription'] = None
                         if quest.stripe_customer_id:
                             customer = stripe.Customer.retrieve(
-                                    quest.stripe_customer_id)
+                                quest.stripe_customer_id)
                             if quest.stripe_default_card_id:
                                 credit_card = customer.sources.retrieve(
-                                        quest.stripe_default_card_id)
+                                    quest.stripe_default_card_id)
                                 data['profile']['quest']['card'] = {
                                     "brand": credit_card['brand'],
                                     "last4": credit_card['last4'],
@@ -65,7 +65,7 @@ def js_settings(request):
                                 }
                             if quest.stripe_subscription_id:
                                 subscription = customer.subscriptions.retrieve(
-                                        quest.stripe_subscription_id)
+                                    quest.stripe_subscription_id)
 
                                 data['profile']['quest']['subscription'] = {
                                     "current_period_end": subscription[

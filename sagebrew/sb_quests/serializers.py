@@ -572,9 +572,6 @@ class QuestSerializer(SBSerializer):
             if account['legal_entity']['verification']['status'] == "verified":
                 verification = account['legal_entity']['verification']['status']
             instance.account_verified = verification
-            from logging import getLogger
-            logger = getLogger("loggly_logs")
-            logger.critical(account)
             instance.last_four_soc = ssn[-4:]
         instance.save()
         instance.refresh()

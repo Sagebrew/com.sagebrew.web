@@ -92,7 +92,6 @@ export function load () {
                 })
                 .fail(function () {
                     $this.removeAttribute('disabled');
-                    request.errorDisplay(XMLHttpRequest);
                 });
         });
 }

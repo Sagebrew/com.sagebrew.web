@@ -33,7 +33,8 @@ export function init() {
  * Load
  */
 export function load() {
-    var $app = $(".app-sb");
+    var $app = $(".app-sb"),
+        greyPage = document.getElementById('sb-greyout-page');
     // Sidebar
     representatives.init();
     // Friends Page
@@ -49,6 +50,7 @@ export function load() {
     $app
         .on('click', '#js-quest-signup', function(event) {
             event.preventDefault();
+            greyPage.classList.remove('sb_hidden');
             request.post({url: "/v1/quests/", data: {}})
                 .done(function () {
                     window.location.href = "/quests/" + settings.user.username;

@@ -1,9 +1,18 @@
 <div class="block">
-    <h3 class="block-title">Add Payment Method</h3>
+    <h3 class="block-title">Payment Details</h3>
     <div class="block-content card">
 
     </div>
     <div class="block-content">
+        {{#if addWarning }}
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="alert alert-warning">
+                        {{ warningMsg }}
+                    </div>
+                </div>
+            </div>
+        {{/if}}
         <form id="payment-form" action="" method="POST">
              <div class="row">
                 <div class="col-xs-12">
@@ -29,8 +38,14 @@
                     <input id="cc-cvc" type="tel" class="input-lg form-control cc-cvc" autocomplete="off" placeholder="•••" required>
                 </div>
             </div>
-            <button type="submit" class="btn btn-lg btn-primary sb_btn">Save Card</button>
-
+            <div class="row form-group">
+                <div class="col-xs-6">
+                    <button type="submit" class="btn btn-lg btn-primary sb_btn sb_btn_fill">Save Card</button>
+                </div>
+                <div class="col-xs-6">
+                    <button id="js-cancel" class="btn btn-lg btn-primary sb_btn sb_btn_remove sb_btn_fill">Cancel</button>
+                </div>
+            </div>
             <h2 class="validation"></h2>
         </form>
     </div>

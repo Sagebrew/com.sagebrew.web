@@ -35,7 +35,6 @@ function sendQuestionRequest(url, title, content, tags, submitButton) {
         })
         .fail(function () {
             submitButton.removeAttr("disabled");
-            request.errorDisplay(XMLHttpRequest);
         });
 }
 

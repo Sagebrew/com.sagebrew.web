@@ -51,7 +51,6 @@ export function load() {
             })
             .fail(function () {
                 $("#submit").removeAttr("disabled");
-                request.errorDisplay(XMLHttpRequest);
             });
         })
         .on('click', '#cancel', function (event) {

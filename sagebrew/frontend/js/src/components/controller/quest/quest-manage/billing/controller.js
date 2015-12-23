@@ -34,8 +34,19 @@ export function load() {
             brand: settings.profile.quest.card.brand,
             dynamic_last4: settings.profile.quest.card.last4,
             exp_month: settings.profile.quest.card.exp_month,
-            exp_year: settings.profile.quest.card.exp_year,
-            next_due_date: "12/29/2015",
+            exp_year: settings.profile.quest.card.exp_year
+        };
+        if(settings.profile.quest.subscription !== null) {
+            paymentData.next_due_date = settings.profile.quest.subscription.current_period_end;
+            paymentData.bill_rate = settings.profile.quest.subscription.amount / 100;
+        } else {
+            paymentData.next_due_date = "Never";
+            paymentData.bill_rate = "0.00";
+        }
+    } else if (settings.profile.quest.account_type === "paid") {
+        paymentData = {
+            card_on_file: false,
+            next_due_date: "You need to add a payment method",
             bill_rate: "100.00"
         };
     } else {
@@ -53,21 +64,7 @@ export function load() {
     $app
         .on('click', '#js-payment-method', function(event) {
             event.preventDefault();
-            window.location.href = "/quests/" + questID + "/manage/add_payment/"
-        })
-        .on('click', '#deactivate-quest', function (event) {
-            event.preventDefault();
-            request.patch({url: "/v1/quests/" + questID + "/",
-                data: JSON.stringify({"active": false})
-            }).done(function (){
-                window.location.reload();
-            });
-        })
-        .on('click', '#delete-button', function (event) {
-            event.preventDefault();
-            request.remove({url: "/v1/quests/" + questID + "/"}).done(function (){
-                window.location.href = "/user/";
-            });
+            window.location.href = "/quests/" + questID + "/manage/add_payment/";
         });
 }
 

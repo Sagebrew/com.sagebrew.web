@@ -1,6 +1,5 @@
-import time
 import pytz
-import stripe
+import time
 from uuid import uuid1
 from datetime import datetime
 
@@ -8,45 +7,30 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 
+from neomodel import UniqueProperty
 from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-
-from neomodel import db
 from elasticsearch import Elasticsearch
+from elasticsearch.exceptions import TransportError
 
-from sb_privileges.neo_models import SBAction, Privilege
-from plebs.neo_models import Pleb
+from plebs.serializers import PlebSerializerNeo
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
-from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
-
-from sb_quests.neo_models import Quest, Position
+from sb_missions.serializers import MissionSerializer
+from sb_quests.neo_models import Quest
+from sb_quests.serializers import QuestSerializer
 
 
 class SearchEndpointTests(APITestCase):
     def setUp(self):
-        query = "match (n)-[r]-() delete n,r"
-        db.cypher_query(query)
-        self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"
-        self.email2 = "success2@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
-        self.pleb2 = create_user_util_test(self.email2)
         self.user = User.objects.get(email=self.email)
-        self.user2 = User.objects.get(email=self.email2)
-        for camp in self.pleb.campaign.all():
-            camp.delete()
         self.url = "http://testserver"
-        self.quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username).save()
-        self.quest.editors.connect(self.pleb)
-        self.quest.moderators.connect(self.pleb)
         cache.clear()
-        self.stripe = stripe
-        self.stripe.api_key = settings.STRIPE_SECRET_KEY
         self.q1dict = {'title': 'Are current battery-powered '
                                 'cars really more eco-friendly '
                                 'than cars that run '
@@ -84,6 +68,30 @@ class SearchEndpointTests(APITestCase):
                                            'what can we do to reduce the '
                                            'amount of NO2 being placed '
                                            'into the atmosphere? '}
+        try:
+            self.question = Question(object_uuid=str(uuid1()),
+                                     title=self.q1dict['title'],
+                                     content=self.q1dict['question_content'],
+                                     is_closed=False, solution_count=0,
+                                     last_edited_on=datetime.now(pytz.utc),
+                                     upvotes=0,
+                                     downvotes=0,
+                                     created=datetime.now(pytz.utc)).save()
+        except UniqueProperty:
+            self.question = Question.nodes.get(title=self.q1dict['title'])
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        try:
+            es.indices.create(index="full-search-base")
+        except TransportError:
+            pass
+
+    def tearDown(self):
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        es.indices.delete(index="full-search-base")
+        try:
+            es.indices.create(index="full-search-base")
+        except TransportError:
+            pass
 
     def test_unauthorized(self):
         url = reverse('search-list')
@@ -94,25 +102,105 @@ class SearchEndpointTests(APITestCase):
     def test_returns_expected(self):
         self.client.force_authenticate(user=self.user)
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        question1 = Question(object_uuid=str(uuid1()),
-                             title=self.q1dict['title'],
-                             content=self.q1dict['question_content'],
-                             is_closed=False, solution_count=0,
-                             last_edited_on=datetime.now(pytz.utc),
-                             upvotes=0,
-                             downvotes=0,
-                             created=datetime.now(pytz.utc))
-        question1.save()
-        question1.owned_by.connect(self.pleb)
         index_res = es.index(index='full-search-base',
                              doc_type='question',
-                             body=QuestionSerializerNeo(question1).data)
+                             body=QuestionSerializerNeo(self.question).data)
+        time.sleep(1)
         self.assertTrue(index_res['created'])
-        time.sleep(2)
         url = reverse('search-list') + "?query=battery-powered"
         response = self.client.get(url, format='json')
         self.assertGreaterEqual(response.data['count'], 1)
-        self.assertContains(response, question1.object_uuid,
+        self.assertContains(response, self.question.object_uuid,
+                            status_code=status.HTTP_200_OK)
+        self.question.delete()
+
+    def test_fuzzy(self):
+        self.client.force_authenticate(user=self.user)
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        index_res = es.index(index='full-search-base',
+                             doc_type='question',
+                             body=QuestionSerializerNeo(self.question).data)
+        time.sleep(1)
+        self.assertTrue(index_res['created'])
+        url = reverse('search-list') + "?query=battery-powed"
+        response = self.client.get(url, format='json')
+        self.assertGreaterEqual(response.data['count'], 1)
+        self.assertContains(response, self.question.object_uuid,
+                            status_code=status.HTTP_200_OK)
+        self.question.delete()
+
+    def test_sloppy(self):
+        self.client.force_authenticate(user=self.user)
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        index_res = es.index(index='full-search-base',
+                             doc_type='question',
+                             body=QuestionSerializerNeo(self.question).data)
+        time.sleep(1)
+        self.assertTrue(index_res['created'])
+        url = reverse('search-list') + "?query=levels of"
+        response = self.client.get(url, format='json')
+        self.assertGreaterEqual(response.data['count'], 1)
+        self.assertContains(response, self.question.object_uuid,
+                            status_code=status.HTTP_200_OK)
+        self.question.delete()
+
+    def test_filter(self):
+        self.client.force_authenticate(user=self.user)
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        index_res = es.index(index='full-search-base',
+                             doc_type='question',
+                             body=QuestionSerializerNeo(self.question).data)
+        time.sleep(1)
+        self.assertTrue(index_res['created'])
+        url = reverse('search-list') + \
+              "?query=battery-powered&filter=conversations"
+        response = self.client.get(url, format='json')
+        self.assertGreaterEqual(response.data['count'], 1)
+        self.assertContains(response, self.question.object_uuid,
+                            status_code=status.HTTP_200_OK)
+        self.question.delete()
+
+    def test_quest(self):
+        self.client.force_authenticate(user=self.user)
+        quest = Quest(owner_username=self.pleb.username,
+                      first_name="Tyler", last_name="Wiersing").save()
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        index_res = es.index(index='full-search-base',
+                             doc_type='quest',
+                             body=QuestSerializer(quest).data)
+        time.sleep(1)
+        self.assertTrue(index_res['created'])
+        url = reverse('search-list') + "?query=tyler&filter=quests"
+        response = self.client.get(url, format='json')
+        self.assertGreaterEqual(response.data['count'], 1)
+        self.assertContains(response, quest.object_uuid,
                             status_code=status.HTTP_200_OK)
 
-    def test_
+    def test_mission(self):
+        self.client.force_authenticate(user=self.user)
+        mission = Mission(owner_username=self.pleb.username).save()
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        index_res = es.index(index='full-search-base',
+                             doc_type='mission',
+                             body=MissionSerializer(mission).data)
+        time.sleep(1)
+        self.assertTrue(index_res['created'])
+        url = reverse('search-list') + "?query=test_test&filter=missions"
+        response = self.client.get(url, format='json')
+        self.assertGreaterEqual(response.data['count'], 1)
+        self.assertContains(response, mission.object_uuid,
+                            status_code=status.HTTP_200_OK)
+
+    def test_pleb(self):
+        self.client.force_authenticate(user=self.user)
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        index_res = es.index(index='full-search-base',
+                             doc_type='profile',
+                             body=PlebSerializerNeo(self.pleb).data)
+        time.sleep(1)
+        self.assertTrue(index_res['created'])
+        url = reverse('search-list') + "?query=test&filter=people"
+        response = self.client.get(url, format='json')
+        self.assertGreaterEqual(response.data['count'], 1)
+        self.assertContains(response, self.pleb.username,
+                            status_code=status.HTTP_200_OK)

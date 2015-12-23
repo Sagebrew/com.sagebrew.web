@@ -370,7 +370,7 @@ SEARCH_TYPES = [
     ("conversations", "question"),
     ("people", "profile"),
     ("quests", ["campaign", "politicalcampaign", "quest"]),
-    ("missions", "missions")
+    ("missions", "mission")
 ]
 
 

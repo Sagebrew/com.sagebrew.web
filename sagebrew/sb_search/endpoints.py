@@ -42,7 +42,8 @@ class SearchViewSet(ListAPIView):
                     "query": {
                         "multi_match": {
                             "fields": ["username", "first_name", "last_name",
-                                       "content", "title", "tags", "full_name"],
+                                       "content", "title", "tags", "full_name",
+                                       "owner_username", "focused_on"],
                             "query": query_param,
                             "fuzziness": "AUTO",
                             "phrase_slop": 2
@@ -57,7 +58,8 @@ class SearchViewSet(ListAPIView):
                     "query": {
                         "multi_match": {
                             "fields": ["username", "first_name", "last_name",
-                                       "content", "title", "tags", "full_name"],
+                                       "content", "title", "tags", "full_name",
+                                       "owner_username", "focused_on"],
                             "query": query_param,
                             "fuzziness": "AUTO",
                             "phrase_slop": 2

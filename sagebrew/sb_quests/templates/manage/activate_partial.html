@@ -7,6 +7,9 @@
                     data-toggle="modal"
                     data-target="#liveModal">Take Quest Live
             </button>
+            {% if "manage" not in request.path %}
+                <a class="btn btn-primary sb_btn" href="/quests/{{ quest.id }}/manage/general/">Settings</a>
+            {% endif %}
     </div>
 
     <!-- Modal -->

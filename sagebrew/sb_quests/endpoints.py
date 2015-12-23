@@ -1,5 +1,7 @@
 import csv
 import stripe
+from stripe.error import InvalidRequestError
+
 from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponse
@@ -55,26 +57,35 @@ class QuestViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         # Delete all Stripe information
         # Make sure there are no pending transfers left to complete
-        in_transit = stripe.Transfer.all(recipient=instance.stripe_id,
-                                         status="in_transit")
-        if len(in_transit['data']) > 0:
-            raise ValidationError(
-                    detail={"detail": "Sorry you cannot delete your Quest "
-                                      "while there are donations in transit. "
-                                      "Please deactivate your Quest if it "
-                                      "isn't already and wait for all "
-                                      "donations to complete.",
-                            "status_code": status.HTTP_400_BAD_REQUEST})
-        pending = stripe.Transfer.all(recipient=instance.stripe_id,
-                                      status="pending")
-        if len(pending['data']) > 0:
-            raise ValidationError(
-                    detail={"detail": "Sorry you cannot delete your Quest "
-                                      "while there are donations pending. "
-                                      "Please deactivate your Quest if it "
-                                      "isn't already and wait for all "
-                                      "donations to complete.",
-                            "status_code": status.HTTP_400_BAD_REQUEST})
+        # TODO not sure if in_transit and pending actually work. Need to
+        # test these.
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        try:
+            in_transit = stripe.Transfer.all(recipient=instance.stripe_id,
+                                             status="in_transit")
+            if len(in_transit['data']) > 0:
+                raise ValidationError(
+                        detail={"detail": "Sorry you cannot delete your Quest "
+                                          "while there are donations in "
+                                          "transit. Please deactivate your "
+                                          "Quest if it isn't already and "
+                                          "wait for all donations to complete.",
+                                "status_code": status.HTTP_400_BAD_REQUEST})
+        except InvalidRequestError:
+            pass
+        try:
+            pending = stripe.Transfer.all(recipient=instance.stripe_id,
+                                          status="pending")
+            if len(pending['data']) > 0:
+                raise ValidationError(
+                        detail={"detail": "Sorry you cannot delete your Quest "
+                                          "while there are donations pending. "
+                                          "Please deactivate your Quest if it "
+                                          "isn't already and wait for all "
+                                          "donations to complete.",
+                                "status_code": status.HTTP_400_BAD_REQUEST})
+        except InvalidRequestError:
+            pass
         # Delete credit card info associated with a Quest that had a
         # subscription
         if instance.stripe_customer_id is not None:
@@ -82,11 +93,19 @@ class QuestViewSet(viewsets.ModelViewSet):
             if instance.stripe_subscription_id is not None:
                 customer.subscriptions.retrieve(
                         instance.stripe_subscription_id).delete()
-            customer.delete()
+            try:
+                customer.delete()
+            except InvalidRequestError:
+                # appears the customer has already been deleted
+                pass
         # Delete the managed account associated with a Quest.
-        if instance.stripe_id is not None:
+        if instance.stripe_id is not None and instance.stripe_id != "Not Set":
             account = stripe.Account.retrieve(instance.stripe_id)
-            account.delete()
+            try:
+                account.delete()
+            except InvalidRequestError:
+                # appears the account has already been deleted
+                pass
         # Clear the cache of all missions that the Quest has
         query = 'MATCH (:Quest {owner_username: "%s"})-[r:EMBARKS_ON]->' \
                 '(mission:Mission) ' \

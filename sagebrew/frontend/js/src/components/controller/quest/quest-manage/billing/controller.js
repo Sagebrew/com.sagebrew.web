@@ -43,6 +43,12 @@ export function load() {
             paymentData.next_due_date = "Never";
             paymentData.bill_rate = "0.00";
         }
+    } else if (settings.profile.quest.account_type === "paid") {
+        paymentData = {
+            card_on_file: false,
+            next_due_date: "You need to add a payment method",
+            bill_rate: "100.00"
+        };
     } else {
         paymentData = {
             card_on_file: false,
@@ -58,8 +64,8 @@ export function load() {
     $app
         .on('click', '#js-payment-method', function(event) {
             event.preventDefault();
-            window.location.href = "/quests/" + questID + "/manage/add_payment/"
-        })
+            window.location.href = "/quests/" + questID + "/manage/add_payment/";
+        });
 }
 
 /**

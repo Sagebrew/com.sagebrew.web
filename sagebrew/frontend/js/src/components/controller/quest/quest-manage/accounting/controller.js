@@ -66,14 +66,12 @@ function stripeBankHandler(status, response){
         var questID = helpers.args(1),
             data = helpers.getFormData(document.getElementById('bankingForm'));
         data.stripe_token = response.id;
-        console.log(data);
         request.patch({url: "/v1/quests/" + questID + "/",
             data: JSON.stringify(data)
         }).done(function (){
             window.location.reload();
-        }).fail(function (XMLHttpRequest) {
+        }).fail(function () {
             greyPage.classList.add('sb_hidden');
-            request.errorDisplay(XMLHttpRequest);
         });
     }
 }

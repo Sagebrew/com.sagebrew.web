@@ -1,7 +1,6 @@
-/*global Stripe*/
-var templates = require('template_build/templates'),
-    helpers = require('common/helpers'),
-    request = require('api').request;
+var helpers = require('common/helpers'),
+    request = require('api').request,
+    settings = require('settings').settings;
 
 export const meta = {
     controller: "quest/quest-manage/plans",
@@ -29,26 +28,29 @@ export function load() {
     $app
         .on('click', '#js-paid-account', function () {
             greyPage.classList.remove('sb_hidden');
-            request.patch({url: "/v1/quests/" + questID + "/", data: JSON.stringify({
-                account_type: "paid"
-            })}).done(function () {
-                window.location.href = "/quests/" + questID + "/manage/billing/"
-            }).fail(function (XMLHttpRequest) {
-                request.errorDisplay(XMLHttpRequest);
-                greyPage.classList.add('sb_hidden');
-            });
+            if(settings.profile.quest.card_on_file === true){
+                request.patch({url: "/v1/quests/" + questID + "/", data: JSON.stringify({
+                    account_type: "paid"
+                })}).done(function () {
+                    window.location.href = "/quests/" + questID + "/manage/billing/";
+                }).fail(function () {
+                    greyPage.classList.add('sb_hidden');
+                });
+            } else {
+                localStorage.setItem('quest_account', 'upgrade');
+                window.location.href = "/quests/" + questID +"/manage/add_payment/";
+            }
         })
         .on('click', '#js-free-account', function () {
             greyPage.classList.remove('sb_hidden');
             request.patch({url: "/v1/quests/" + questID + "/", data: JSON.stringify({
                 account_type: "free"
             })}).done(function () {
-                window.location.href = "/quests/" + questID + "/manage/billing/"
-            }).fail(function (XMLHttpRequest) {
-                request.errorDisplay(XMLHttpRequest);
+                window.location.href = "/quests/" + questID + "/manage/billing/";
+            }).fail(function () {
                 greyPage.classList.add('sb_hidden');
             });
-        })
+        });
 }
 
 /**

@@ -1,4 +1,3 @@
-/*global Stripe*/
 var addPayment = require('./partials/add_payment');
 
 export const meta = {
@@ -22,7 +21,7 @@ export function init() {
  * Load
  */
 export function load() {
-    addPayment.load()
+    addPayment.load();
 }
 
 /**

@@ -1,5 +1,3 @@
-/*global getSettingsData*/
-
 /**
  * @file
  */
@@ -14,7 +12,7 @@ export const meta = {
     controller: "quest/quest-manage",
     match_method: "path",
     check: [
-       "^quests\/[A-Za-z0-9.@_%+-]{1,36}\/manage"
+       "^quests\/[A-Za-z0-9.@_%+-]{1,36}"
     ]
 };
 
@@ -26,15 +24,13 @@ export function load() {
     var greyPage = document.getElementById('sb-greyout-page'),
         $app = $(".app-sb"),
         questID = helpers.args(1);
-    //
-    // Go live
     $app
         .on('click', '#take-live', function () {
             event.preventDefault();
-            if (settings.profile.quest.completed_stripe === false) {
-                $.notify("You must add a bank account prior to taking your Quest live so we can get you your donations", {type: "danger"})
-            } else if (settings.profile.quest.account_type === "paid" && !settings.profile.quest.card_on_file) {
-                $.notify("You must add a credit card or change your account to free prior to taking the Quest active", {type: "danger"})
+            if (settings.profile.quest.account_verified !== "verified") {
+                $.notify("You must add a bank account prior to taking your Quest live so we can get you your donations", {type: "danger"});
+            } else if (settings.profile.quest.account_type === "paid" && settings.profile.quest.card_on_file !== true) {
+                $.notify("You must add a credit card or change your account to free prior to taking the Quest live", {type: "danger"});
             } else {
                 greyPage.classList.remove('sb_hidden');
                 request.patch({
@@ -44,9 +40,8 @@ export function load() {
                     })
                 }).done(function () {
                     window.location.reload();
-                }).fail(function (XMLHttpRequest) {
+                }).fail(function () {
                     greyPage.classList.add('sb_hidden');
-                    request.errorDisplay(XMLHttpRequest);
                 });
             }
         });

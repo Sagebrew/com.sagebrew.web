@@ -36,13 +36,16 @@ def js_settings(request):
                 data['profile']['stripe_customer_id'] = pleb.stripe_account
                 if data['profile']['quest'] is not None:
                     quest = Quest.get(pleb.username)
-                    if "quest" in request.path and "manage" in request.path:
-                        # If we're in the management area lets mark that the
+                    if "quest" in request.path:
+                        # If we're in a place where we're telling the user
+                        # that their quest is inactive lets indicate that the
                         # quest has a card on file so they can activate
                         if quest.stripe_default_card_id is not None:
                             data['profile']['quest']['card_on_file'] = True
                         else:
                             data['profile']['quest']['card_on_file'] = False
+                        data['profile']['quest'][
+                            'account_type'] = quest.account_type
                     if "quest" in request.path and "billing" in request.path:
                         # Private not available in the serializer
                         stripe.api_key = settings.STRIPE_SECRET_KEY

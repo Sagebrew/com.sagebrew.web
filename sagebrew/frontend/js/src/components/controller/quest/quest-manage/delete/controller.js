@@ -20,7 +20,8 @@ export const meta = {
  */
 export function load() {
     var $app = $(".app-sb"),
-        questID = helpers.args(1);
+        questID = helpers.args(1),
+        greyPage = document.getElementById('sb-greyout-page');
     $app
         .on('click', '#deactivate-quest', function (event) {
             event.preventDefault();
@@ -32,8 +33,13 @@ export function load() {
         })
         .on('click', '#delete-button', function (event) {
             event.preventDefault();
-            request.remove({url: "/v1/quests/" + questID + "/"}).done(function (){
-                window.location.href = "/user/";
-            });
+            greyPage.classList.remove('sb_hidden');
+            request.remove({url: "/v1/quests/" + questID + "/"})
+                .done(function (){
+                    window.location.href = "/user/";
+                })
+                .fail(function() {
+                    greyPage.classList.add('sb_hidden');
+                });
         });
 }

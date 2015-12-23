@@ -207,9 +207,8 @@ export function init () {
                         newImage.css({top: styleAddition.newTop, left: styleAddition.newLeft, position: 'absolute'});
                     });
                 },
-                error: function (XMLHttpRequest) {
+                error: function () {
                     jsImageWrapper.remove(".loader");
-                    request.errorDisplay(XMLHttpRequest);
                 }
             });
         }

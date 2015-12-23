@@ -33,7 +33,6 @@ export function addMarkdown(markdownObj, sanatize) {
                                         modalFooter.spin(false);
                                         imgUpload.val("");
                                         $("#fileModal").modal('hide');
-                                        request.errorDisplay(XMLHttpRequest);
                                     });
                             } else {
                                 var image = imgURL.val();

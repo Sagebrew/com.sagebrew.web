@@ -135,11 +135,9 @@
         </div>
     </div>
 {% endblock %}
-{% block scripts %}
-    {{ block.super }}
-{% endblock scripts %}
+
 {% block intercom %}
     {% if request.user.username == id %}
-    Intercom('trackEvent', 'visited-own-quest');
+        Intercom('trackEvent', 'visited-own-quest');
     {% endif %}
 {% endblock %}

@@ -1,0 +1,70 @@
+{% extends "manage/manage_base.html" %}
+{% load staticfiles %}
+{% block title %}Quest Plans{% endblock title %}
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">Plans</h3>
+        <div class="block-content">
+            <table class="table table-striped">
+                <tr>
+                    <th>
+                        Plan
+                    </th>
+                    <th>
+                        Price
+                    </th>
+                    <th>
+                        Missions
+                    </th>
+                    <th>
+                        Contribution Rate
+                    </th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td>
+                        Pro
+                    </td>
+                    <td>
+                        $100/month
+                    </td>
+                    <td>
+                        Unlimited
+                    </td>
+                    <td>
+                        5% + 30&cent;
+                    </td>
+                    <td>
+                        {% if quest.account_type == "paid" %}
+                            <i class="fa fa-check"></i> Your plan
+                        {% else %}
+                            <button class="btn btn-primary btn-sm sb_btn" id="js-paid-account">Upgrade</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Free
+                    </td>
+                    <td>
+                        $0/month
+                    </td>
+                    <td>
+                        5
+                    </td>
+                    <td>
+                        7% + 30&cent;
+                    </td>
+                    <td>
+                        {% if quest.account_type == "free" %}
+                            <i class="fa fa-check"></i> Your plan
+                        {% else %}
+                            <button class="btn btn-primary btn-sm sb_btn" id="js-free-account">Change</button>
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+{% endblock %}

@@ -22,21 +22,20 @@ export const meta = {
  */
 export function load() {
     var $app = $(".app-sb"),
-        loadingSpinner = $('#sb-greyout-page');
+        greyPage = document.getElementById('sb-greyout-page');
     Stripe.setPublishableKey(settings.api.stripe);
     $app
         .on('click', '#submit', function(event) {
             event.preventDefault();
             var data = helpers.getFormData(document.getElementById('bankingForm'));
             if (data.ssn && data.routing_number && data.account_number) {
-                loadingSpinner.show();
-                loadingSpinner.spin('large');
+                greyPage.classList.remove('sb_hidden');
                 Stripe.bankAccount.createToken({
                     country: "US",
                     currency: "USD",
                     routing_number: data.routing_number,
                     account_number: data.account_number
-                }, stripeResponseHandler);
+                }, stripeBankHandler);
             } else {
                 if(!data.ssn){
                     $.notify("Social Security Number is Required", {type: "danger"});
@@ -52,8 +51,8 @@ export function load() {
 }
 
 
-function stripeResponseHandler(status, response){
-    var loadingSpinner = $('#sb-greyout-page');
+function stripeBankHandler(status, response){
+    var greyPage = document.getElementById('sb-greyout-page');
     if (response.error) {
         // This should be done in the first place before sending off to stripe
         // Maybe we want to pre-empt the user with a warning popup if they click
@@ -61,9 +60,8 @@ function stripeResponseHandler(status, response){
         // delays in their donations being processed.
         if ($("#completed-stripe").data("completed_stripe") !== "True") {
                 $.notify(response.error.message, {type: 'danger'});
-                loadingSpinner.hide();
-                loadingSpinner.spin(false);
             }
+        greyPage.classList.add('sb_hidden');
     } else {
         var questID = helpers.args(1),
             data = helpers.getFormData(document.getElementById('bankingForm'));
@@ -72,6 +70,8 @@ function stripeResponseHandler(status, response){
             data: JSON.stringify(data)
         }).done(function (){
             window.location.reload();
+        }).fail(function () {
+            greyPage.classList.add('sb_hidden');
         });
     }
 }

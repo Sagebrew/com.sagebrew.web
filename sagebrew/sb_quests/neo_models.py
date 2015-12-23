@@ -25,6 +25,17 @@ class Quest(Searchable):
     stripe_subscription_id = StringProperty()
     # The credit card associated with the customer
     stripe_default_card_id = StringProperty()
+    # Did the user accept the Stripe Terms of Service?
+    tos_acceptance = BooleanProperty(default=False)
+    # Has stripe verified the account we are managing for the Quest yet?
+    # TODO this should get set by a callback listener that watches for
+    # Stripe to send back a verified notification. Then if stripe say it's
+    # not verified we can alert the user to the issue
+    # Valid options are:
+    #     unverified
+    #     pending
+    #     verified
+    account_verified = StringProperty(default="unverified")
 
     # Valid options are:
     #     free

@@ -342,6 +342,7 @@ class QuestSerializer(SBSerializer):
     last_name = serializers.CharField(read_only=True)
     stripe_token = serializers.CharField(write_only=True, required=False)
     customer_token = serializers.CharField(write_only=True, required=False)
+    tos_acceptance = serializers.BooleanField(read_only=True)
     stripe_default_card_id = serializers.CharField(write_only=True,
                                                    required=False,
                                                    allow_blank=True)
@@ -353,7 +354,10 @@ class QuestSerializer(SBSerializer):
     account_type = serializers.ChoiceField(
         required=False, write_only=True,
         choices=[('paid', "Paid"), ('free', "Free")])
-
+    account_verified = serializers.ChoiceField(
+        read_only=True,
+        choices=[('unverified', "Unverified"), ('pending', "Pending"),
+                 ('verified', "Verified")])
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
@@ -384,20 +388,24 @@ class QuestSerializer(SBSerializer):
         owner.quest.connect(quest)
         quest.editors.connect(owner)
         quest.moderators.connect(owner)
-        if owner.stripe_account is None:
+        if quest.stripe_id is None or quest.stripe_id == "Not Set":
             stripe_res = stripe.Account.create(managed=True, country="US",
                                                email=owner.email)
-            owner.stripe_account = stripe_res['id']
-            owner.save()
-        account = stripe.Account.retrieve(owner.stripe_account)
+            quest.stripe_id = stripe_res['id']
+        # TODO is this necessary or can we use the repsonse from the
+        # creation?
+        account = stripe.Account.retrieve(quest.stripe_id)
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]
         else:
             ip = request.META.get('REMOTE_ADDR')
         account.legal_entity.additional_owners = []
-        account.tos_acceptance.ip = ip
-        account.tos_acceptance.date = int(time.time())
+        if "quest/" in request.path:
+            account.tos_acceptance.ip = ip
+            account.tos_acceptance.date = int(time.time())
+            quest.tos_acceptance = True
+            quest.save()
         account.save()
         # Potential optimization in combining these utilizing a transaction
         # Added these to ensure that the user has intercom when they hit the
@@ -482,7 +490,8 @@ class QuestSerializer(SBSerializer):
         if instance.account_type == "paid":
             # if paid gets submitted create a subscription if it doesn't already
             # exist
-            if instance.stripe_subscription_id is not None:
+            if instance.stripe_subscription_id is None and \
+                    instance.stripe_customer_id is not None:
                 customer = stripe.Customer.retrieve(instance.stripe_customer_id)
                 sub = customer.subscriptions.create(plan='quest_premium')
                 instance.stripe_subscription_id = sub['id']
@@ -492,15 +501,17 @@ class QuestSerializer(SBSerializer):
             if instance.stripe_subscription_id is not None:
                 customer = stripe.Customer.retrieve(instance.stripe_customer_id)
                 customer.subscriptions.retrieve(
-                        instance.stripe_subscription_id).delete()
+                    instance.stripe_subscription_id).delete()
                 instance.stripe_subscription_id = None
         if stripe_token is not None:
-            if instance.stripe_id is None:
+            if instance.stripe_id is None or instance.stripe_id == "Not Set":
                 stripe_res = stripe.Account.create(managed=True, country="US",
                                                    email=owner.email)
                 instance.stripe_id = stripe_res['id']
             owner_address = owner.get_address()
-            account = stripe.Account.retrieve(owner.stripe_account)
+            # TODO is this necessary or can we use the repsonse from the
+            # creation?
+            account = stripe.Account.retrieve(instance.stripe_id)
             try:
                 account.external_accounts.create(external_account=stripe_token)
             except InvalidRequestError:
@@ -509,6 +520,17 @@ class QuestSerializer(SBSerializer):
                                       "issus, please contact us using the "
                                       "bubble in the bottom right",
                             "status_code": status.HTTP_400_BAD_REQUEST})
+            if not instance.tos_acceptance:
+                request = self.context.get('request', None)
+                if request is not None:
+                    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+                    if x_forwarded_for:
+                        ip = x_forwarded_for.split(',')[0]
+                    else:
+                        ip = request.META.get('REMOTE_ADDR')
+                    account.tos_acceptance.ip = ip
+                    account.tos_acceptance.date = int(time.time())
+                    instance.tos_acceptance = True
             account.legal_entity.additional_owners = []
             account.legal_entity.personal_id_number = ssn
             if ein:
@@ -542,7 +564,14 @@ class QuestSerializer(SBSerializer):
                 owner_address.postal_code
             account.legal_entity.personal_address.country = \
                 owner_address.country
-            account.save()
+            account = account.save()
+            # Default to pending to make sure customer doesn't think nothing
+            # is happening on a slow update from Stripe. We can revert back
+            # to unverified if Stripe alerts us to it.
+            verification = "pending"
+            if account['legal_entity']['verification']['status'] == "verified":
+                verification = account['legal_entity']['verification']['status']
+            instance.account_verified = verification
             instance.last_four_soc = ssn[-4:]
         instance.save()
         instance.refresh()

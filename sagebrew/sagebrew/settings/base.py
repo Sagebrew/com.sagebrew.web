@@ -373,6 +373,11 @@ SEARCH_TYPES = [
     ("missions", "mission")
 ]
 
+SEARCH_FIELDS = [
+    "username", "first_name", "last_name", "content", "title", "tags",
+    "full_name", "owner_username", "focused_on"
+]
+
 
 BASE_REP_TYPES = [
     ("f2729db2-9da8-11e4-9233-080027242395",

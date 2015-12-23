@@ -13,21 +13,6 @@ from .serializers import QuestionSerializerNeo
 from .neo_models import Question
 
 
-@apply_defense
-def prepare_question_search_html(serialized_question):
-    from logging import getLogger
-    logger = getLogger('loggly_logs')
-    logger.info(serialized_question)
-    serialized_question['last_edited_on'] = parser.parse(
-        serialized_question['last_edited_on']).replace(microsecond=0)
-    serialized_question['created'] = parser.parse(
-        serialized_question['created']).replace(microsecond=0)
-    logger.info(serialized_question['last_edited_on'])
-    rendered = render_to_string('conversation_block.html', serialized_question)
-
-    return rendered
-
-
 def question_html_snapshot(request, question, question_uuid, tags,
                            description):
     single_object = QuestionSerializerNeo(

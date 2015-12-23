@@ -70,3 +70,11 @@ STRIPE_CONNECTION_ERROR = {
                          "this is often caused under heavy load, please "
                          "try again in a bit."
 }
+
+CELERY_CONNECTION_ERROR = {
+    "detail": "Sorry, looks like we're having some problems connecting to one "
+              "of our services. Please try again in a bit.",
+    "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+    "developer_message": "We experienced an error connecting to one of our "
+                         "task workers."
+}

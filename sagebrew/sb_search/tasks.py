@@ -126,6 +126,7 @@ def update_search_object(object_uuid, instance, object_data=None,
             object_data = PlebSerializerNeo(instance).data
         else:
             return False
+
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         res = es.index(index=index, doc_type=object_data['type'],

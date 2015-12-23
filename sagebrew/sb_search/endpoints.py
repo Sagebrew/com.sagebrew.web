@@ -8,6 +8,7 @@ from rest_framework.generics import ListAPIView
 
 from elasticsearch import Elasticsearch
 
+from sagebrew import errors
 from api.utils import (spawn_task)
 from api.alchemyapi import AlchemyAPI
 
@@ -41,9 +42,7 @@ class SearchViewSet(ListAPIView):
                 body={
                     "query": {
                         "multi_match": {
-                            "fields": ["username", "first_name", "last_name",
-                                       "content", "title", "tags", "full_name",
-                                       "owner_username", "focused_on"],
+                            "fields": settings.SEARCH_FIELDS,
                             "query": query_param,
                             "fuzziness": "AUTO",
                             "phrase_slop": 2
@@ -57,21 +56,20 @@ class SearchViewSet(ListAPIView):
                 body={
                     "query": {
                         "multi_match": {
-                            "fields": ["username", "first_name", "last_name",
-                                       "content", "title", "tags", "full_name",
-                                       "owner_username", "focused_on"],
+                            "fields": settings.SEARCH_FIELDS,
                             "query": query_param,
                             "fuzziness": "AUTO",
                             "phrase_slop": 2
                         }
                     }
                 })
-        task_param = {"pleb": self.request.user.username, "query_param": query_param,
+        task_param = {"pleb": self.request.user.username,
+                      "query_param": query_param,
                       "keywords": keywords}
         spawned = spawn_task(task_func=update_search_query,
                              task_param=task_param)
         if isinstance(spawned, Exception) is True:
-            return Response({'detail': "server error"}, status=500)
+            return Response(errors.CELERY_CONNECTION_ERROR, status=500)
         return res['hits']['hits']
 
     def list(self, request, *args, **kwargs):

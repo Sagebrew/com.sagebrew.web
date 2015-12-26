@@ -41,7 +41,7 @@ export function load() {
         afterImgUploadCallback: afterImgUploadCallback,
         afterAfterImgCropCallback: afterAfterImgCropCallback
     };
-    var croppicContainer = addCroppic(croppicContainerOptions);
+    addCroppic(croppicContainerOptions);
 }
 
 

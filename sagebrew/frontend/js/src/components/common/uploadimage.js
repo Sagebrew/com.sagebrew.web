@@ -1,3 +1,4 @@
+/* global Croppic*/
 var helpers = require('common/helpers'),
     requests = require('api').request;
 
@@ -70,7 +71,7 @@ function resetCallback(wrapperDivID, imageID, imageClassList, uploadProperty,
                 }
             });
         });
-    document.getElementById('sb-greyout-page').classList.add('sb_hidden')
+    document.getElementById('sb-greyout-page').classList.add('sb_hidden');
 }
 
 function croppicOptions(wrapperDivID, imageID, interfaceUrl, uploadProperty,
@@ -108,9 +109,10 @@ function croppicOptions(wrapperDivID, imageID, interfaceUrl, uploadProperty,
             resetCallback(wrapperDivID, imageID, imageClassList, uploadProperty,
                     interfaceUrl, fileName);
 
-            if(afterResetCallback !== null)
+            if(afterResetCallback !== null){
                 afterResetCallback(wrapperDivID, imageID, imageClassList, uploadProperty,
                     interfaceUrl, fileName);
+            }
         },
         onBeforeImgUpload: function () {
             document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
@@ -132,7 +134,7 @@ function baseOptions() {
         beforeBeforeImgCropCallback: null,
         afterBeforeImgCropCallback: null,
         modal: false
-    }
+    };
 }
 
 export function addCroppic(croppicObj) {

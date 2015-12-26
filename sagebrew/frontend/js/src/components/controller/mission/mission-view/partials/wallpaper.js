@@ -23,5 +23,5 @@ export function load() {
             loaderHTML: '<div class="loader quest-wallpaper-loader"></div>',
             afterAfterImgCropCallback: afterAfterImgCropCallback
         };
-    var croppicContainer = addCroppic(croppicContainerOptions);
+    addCroppic(croppicContainerOptions);
 }

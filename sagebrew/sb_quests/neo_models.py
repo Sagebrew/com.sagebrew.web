@@ -5,7 +5,8 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 
 from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
-                      FloatProperty, DoesNotExist, RelationshipFrom)
+                      FloatProperty, DoesNotExist, RelationshipFrom,
+                      DateTimeProperty)
 
 from api.utils import deprecation
 from sb_base.neo_models import (VoteRelationship)
@@ -36,6 +37,7 @@ class Quest(Searchable):
     #     pending
     #     verified
     account_verified = StringProperty(default="unverified")
+    account_verified_date = DateTimeProperty()
 
     # Valid options are:
     #     free

@@ -11,7 +11,8 @@ from django.core.cache import cache
 from django.template import RequestContext
 from django.conf import settings
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
@@ -494,7 +495,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(QuestSerializer(possible_presidents, many=True).data,
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticatedOrReadOnly,))
     def missions(self, request, username):
         query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
                 '[:EMBARKS_ON]->(m:Mission) RETURN m' % username

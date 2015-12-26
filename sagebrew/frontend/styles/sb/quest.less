@@ -424,9 +424,28 @@
   }
 }
 
-.quest-wallpaper {
+.quest-wallpaper{
   &:extend(.wallpaper);
   height: 500px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.quest-wallpaper-cropping {
+  display: inline;
+  justify-content: flex-start;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.mission-wallpaper-cropping {
+  display: block;
+}
+
+.quest-wallpaper-loader {
+  position: absolute;
+  margin-left: 375px;
+  margin-top: 200px;
 }
 
 .mission-wallpaper {

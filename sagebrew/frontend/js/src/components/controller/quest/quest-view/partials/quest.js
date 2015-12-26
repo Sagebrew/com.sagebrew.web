@@ -1,7 +1,8 @@
 var request = require('api').request,
     templates = require('template_build/templates'),
     settings = require('settings').settings,
-    helpers = require('common/helpers');
+    helpers = require('common/helpers'),
+    addCroppic = require('common/uploadimage').addCroppic;
 
 export function load() {
     var $app = $(".app-sb"),
@@ -31,4 +32,25 @@ export function load() {
                 window.location.href = "/missions/" + this.id + "/";
             }
         });
+    var croppicContainerOptions = {
+        wrapperDivID: "js-croppic-wrapper-div-id",
+        imageID: "js-croppic-img-id",
+        interfaceUrl: "/v1/quests/" + pageUser + "/",
+        uploadProperty: "wallpaper_pic",
+        imageClassList: "wallpaper quest-wallpaper",
+        afterImgUploadCallback: afterImgUploadCallback,
+        afterAfterImgCropCallback: afterAfterImgCropCallback
+    };
+    var croppicContainer = addCroppic(croppicContainerOptions);
+}
+
+
+function afterImgUploadCallback(){
+    var wrapperElement = document.getElementById("js-croppic-wrapper-div-id");
+    wrapperElement.classList.add('quest-wallpaper-cropping');
+}
+
+function afterAfterImgCropCallback(){
+    var wrapperElement = document.getElementById("js-croppic-wrapper-div-id");
+    wrapperElement.classList.remove('quest-wallpaper-cropping');
 }

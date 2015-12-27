@@ -12,6 +12,7 @@ from plebs.neo_models import Pleb
 from sb_docstore.tasks import spawn_user_updates
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
+from sb_search.tasks import update_search_object
 
 
 class VoteEndpointTests(APITestCase):
@@ -89,6 +90,28 @@ class VoteEndpointTests(APITestCase):
                                   task_param=task_params, countdown=30)
         cache.set("%s_%s_vote" % (self.user.username,
                                   self.question.object_uuid), async_result)
+        data = {
+            "vote_type": True
+        }
+        url = reverse("question-detail",
+                      kwargs={'object_uuid': self.question.object_uuid})
+        res = self.client.post(url + "votes/", data=data, format="json")
+        # PENDING denotes a tack which either is waiting for execution or
+        # unknown, if a task does not exist(has been revoked) state == PENDING
+        # http://docs.celeryproject.org/en/latest/userguide/tasks.html#pending
+        self.assertEqual(async_result.state, "PENDING")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_search_update_in_cache(self):
+        self.client.force_authenticate(user=self.user)
+        task_params = {
+            "object_uuid": self.question.object_uuid,
+            "instance": self.question
+        }
+        async_result = spawn_task(task_func=update_search_object,
+                                  task_param=task_params, countdown=30)
+        cache.set("%s_vote_search_update" % self.question.object_uuid,
+                  async_result)
         data = {
             "vote_type": True
         }

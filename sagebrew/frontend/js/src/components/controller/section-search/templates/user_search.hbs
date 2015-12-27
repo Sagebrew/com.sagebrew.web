@@ -1,19 +1,19 @@
 <div class="block sb_search_block">
     <div class="row">
-        <div class="col-xs-4">
+        <div class="col-xs-4 col-sm-3">
             <div class="thumbnail sb_thumbnail_md sb_thumbnail_search">
               <a href="{{ url }}"><img src="{{ profile_pic }}"></a>
             </div>
         </div>
-        <div class="col-xs-8">
+        <div class="col-xs-8 sb_search_content_block">
             <h6><a href="{{ url }}">{{ first_name }} {{ last_name }}</a></h6>
             {{#ifCond current_username '==' username}}
                 <p>This is you :)</p>
             {{/ifCond }}
             {{#ifCond reputation '==' 0 }}
-                <div>Reputation: --</div>
+                <p>Reputation: --</p>
             {{else}}
-                <div>Reputation: {{ reputation }}</div>
+                <p>Reputation: {{ reputation }}</p>
             {{/ifCond }}
         </div>
     </div>

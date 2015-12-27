@@ -1,10 +1,10 @@
-from operator import itemgetter
-
 from django.conf import settings
 
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
+from rest_framework.exceptions import ValidationError
 
 from elasticsearch import Elasticsearch
 
@@ -50,19 +50,23 @@ class SearchViewSet(ListAPIView):
                     }
                 })
         else:
-            res = es.search(
-                index='full-search-base', size=50,
-                doc_type=search_type_dict[filter_type],
-                body={
-                    "query": {
-                        "multi_match": {
-                            "fields": settings.SEARCH_FIELDS,
-                            "query": query_param,
-                            "fuzziness": "AUTO",
-                            "phrase_slop": 2
+            try:
+                res = es.search(
+                    index='full-search-base', size=50,
+                    doc_type=search_type_dict[filter_type],
+                    body={
+                        "query": {
+                            "multi_match": {
+                                "fields": settings.SEARCH_FIELDS,
+                                "query": query_param,
+                                "fuzziness": "AUTO",
+                                "phrase_slop": 2
+                            }
                         }
-                    }
-                })
+                    })
+            except KeyError:
+                raise ValidationError("Invalid filter parameter")
+
         task_param = {"pleb": self.request.user.username,
                       "query_param": query_param,
                       "keywords": keywords}
@@ -72,6 +76,10 @@ class SearchViewSet(ListAPIView):
         return res['hits']['hits']
 
     def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
+        try:
+            queryset = self.get_queryset()
+        except ValidationError:
+            return Response(errors.QUERY_DETERMINATION_EXCEPTION,
+                            status=status.HTTP_400_BAD_REQUEST)
         page = self.paginate_queryset(queryset)
         return self.get_paginated_response(page)

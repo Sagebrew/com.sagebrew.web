@@ -205,7 +205,7 @@ class TestUpdateSearchObject(TestCase):
         settings.CELERY_ALWAYS_EAGER = True
         self.es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
 
-    def test_update_search_object_question(self):
+    def test_question(self):
         question = Question(title=str(uuid1()),
                             content="some test content",).save()
         self.pleb.questions.connect(question)
@@ -231,7 +231,7 @@ class TestUpdateSearchObject(TestCase):
         self.assertEqual('this is post save content that will be tested',
                          res['_source']['content'])
 
-    def test_update_search_object_pleb(self):
+    def test_pleb(self):
         object_data = PlebSerializerNeo(self.pleb).data
         self.es.index(index='full-search-base', doc_type='profile',
                       id=self.pleb.username, body=object_data)
@@ -250,7 +250,7 @@ class TestUpdateSearchObject(TestCase):
 
         self.assertEqual(self.pleb.profile_pic, res['_source']['profile_pic'])
 
-    def test_update_search_object_quest(self):
+    def test_quest(self):
         quest = Quest().save()
         self.pleb.quest.connect(quest)
         quest.owner_username = self.pleb.username
@@ -276,7 +276,7 @@ class TestUpdateSearchObject(TestCase):
 
         self.assertEqual(quest.profile_pic, res['_source']['profile_pic'])
 
-    def test_update_search_object_mission(self):
+    def test_mission(self):
         mission = Mission().save()
         mission.owner_username = self.pleb.username
         object_data = MissionSerializer(mission).data
@@ -301,7 +301,7 @@ class TestUpdateSearchObject(TestCase):
 
         self.assertEqual(mission.about, res['_source']['about'])
 
-    def test_update_search_object_not_valid(self):
+    def test_not_valid(self):
         request = RequestFactory().get('')
         request.user = self.user
         solution = Solution().save()
@@ -318,6 +318,57 @@ class TestUpdateSearchObject(TestCase):
         task_data = {
             "object_uuid": solution.object_uuid,
             "instance": solution
+        }
+        res = update_search_object.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertFalse(res.result)
+
+    def test_no_instance(self):
+        request = RequestFactory().get('')
+        request.user = self.user
+        question = Question(title=str(uuid1()),
+                            owner_username=self.pleb.username).save()
+        object_data = QuestionSerializerNeo(question,
+                                            context={"request": request}).data
+        res = self.es.index(index='full-search-base',
+                            doc_type=object_data['type'],
+                            id=question.object_uuid,
+                            body=object_data)
+        self.assertTrue(res['created'])
+        question.content = str(uuid1())
+        question.save()
+        task_data = {
+            "object_uuid": question.object_uuid
+        }
+        res = update_search_object.apply_async(kwargs=task_data)
+        while not res.ready():
+            time.sleep(1)
+
+        self.assertTrue(res.result)
+        res = self.es.get(index="full-search-base", doc_type="question",
+                          id=question.object_uuid)
+
+        self.assertEqual(question.content,
+                         res['_source']['content'])
+
+    def test_no_instance_not_question(self):
+        request = RequestFactory().get('')
+        request.user = self.user
+        solution = Solution().save()
+        solution.owner_username = self.pleb.username
+        object_data = SolutionSerializerNeo(solution,
+                                            context={"request": request}).data
+        res = self.es.index(index='full-search-base',
+                            doc_type=object_data['type'],
+                            id=solution.object_uuid,
+                            body=object_data)
+        self.assertTrue(res['created'])
+        solution.content = str(uuid1())
+        solution.save()
+        task_data = {
+            "object_uuid": solution.object_uuid
         }
         res = update_search_object.apply_async(kwargs=task_data)
         while not res.ready():

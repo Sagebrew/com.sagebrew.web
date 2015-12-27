@@ -3,16 +3,18 @@ import logging
 from datetime import datetime
 
 from django.conf import settings
+from django.core.cache import cache
 
 from celery import shared_task
 from elasticsearch import Elasticsearch
 from py2neo.cypher.error import ClientError
-from neomodel import DoesNotExist, CypherException
+from neomodel import DoesNotExist, CypherException, db
 from elasticsearch.exceptions import (ElasticsearchException, TransportError,
                                       ConflictError, RequestError)
 
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
+from sb_questions.neo_models import Question
 
 from .neo_models import SearchQuery, KeyWord
 
@@ -108,13 +110,32 @@ def create_keyword(text, relevance, query_param):
 
 
 @shared_task()
-def update_search_object(object_uuid, instance, object_data=None,
+def update_search_object(object_uuid, instance=None, object_data=None,
                          index="full-search-base"):
     from plebs.serializers import PlebSerializerNeo
     from sb_quests.serializers import QuestSerializer
     from sb_missions.serializers import MissionSerializer
     from sb_questions.serializers import QuestionSerializerNeo
-    if object_data is None:
+    from sb_base.neo_models import get_parent_votable_content
+    if instance is None:
+        votable = get_parent_votable_content(object_uuid)
+        label = votable.get_child_label()
+        query = 'MATCH (a:%s {object_uuid:"%s"}) RETURN a' % \
+                (label, object_uuid)
+        res, _ = db.cypher_query(query)
+        if label == "Question":
+            try:
+                instance = Question.inflate(res.one)
+            except (CypherException, ClientError, IOError) as e:
+                raise update_search_object.retry(exc=e, countdown=5,
+                                                 max_retries=None)
+        else:
+            # Currently we only need this functionality for Questions as
+            # they are the only objects in search that we display votes
+            # for in the search interface.
+            return False
+
+    if object_data is None and instance is not None:
         child_label = instance.get_child_label().lower()
         if child_label == 'quest':
             object_data = QuestSerializer(instance).data
@@ -138,4 +159,5 @@ def update_search_object(object_uuid, instance, object_data=None,
     except KeyError:
         return False
 
+    cache.delete("%s_vote_search_update" % object_uuid)
     return res

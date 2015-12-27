@@ -152,8 +152,8 @@ class SearchEndpointTests(APITestCase):
                              body=QuestionSerializerNeo(self.question).data)
         time.sleep(1)
         self.assertTrue(index_res['created'])
-        url = reverse('search-list') + \
-              "?query=battery-powered&filter=conversations"
+        url = reverse('search-list') + "?query=battery-powered&" \
+                                       "filter=conversations"
         response = self.client.get(url, format='json')
         self.assertGreaterEqual(response.data['count'], 1)
         self.assertContains(response, self.question.object_uuid,
@@ -204,3 +204,20 @@ class SearchEndpointTests(APITestCase):
         self.assertGreaterEqual(response.data['count'], 1)
         self.assertContains(response, self.pleb.username,
                             status_code=status.HTTP_200_OK)
+
+    def test_invalid_filter(self):
+        self.client.force_authenticate(user=self.user)
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        index_res = es.index(index='full-search-base',
+                             doc_type='question',
+                             body=QuestionSerializerNeo(self.question).data)
+        time.sleep(1)
+        self.assertTrue(index_res['created'])
+        url = reverse('search-list') + "?query=battery-powered&" \
+                                       "filter=" + str(uuid1())
+        response = self.client.get(url, format='json')
+
+        self.assertContains(response, "We currently have limited support for "
+                                      "filter operations.",
+                            status_code=status.HTTP_400_BAD_REQUEST)
+        self.question.delete()

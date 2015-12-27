@@ -1,4 +1,3 @@
-/*global args*/
 var request = require('api').request,
     settings = require('settings').settings,
     getArgs = require('common/helpers').getQueryParam,
@@ -39,17 +38,27 @@ export function submitSearch() {
                 searchResults.innerHTML += templates.search_empty();
             }
             $.each(data.results, function(index, value) {
+                var source = value._source;
                 if (value._type === 'question') {
-                    value._source.created = moment.parseZone(value._source.created).fromNow();
-                    value._source.last_edited_on = moment.parseZone(value._source.last_edited_on).fromNow();
-                    value._source.current_username = settings.user.username;
+                    source.created = moment.parseZone(value._source.created).fromNow();
+                    source.last_edited_on = moment.parseZone(value._source.last_edited_on).fromNow();
+                    source.current_username = settings.user.username;
                     searchResults.innerHTML += templates.question_search(value._source);
                 } else if (value._type === 'profile') {
-                    value._source.current_username = settings.user.username;
-                    searchResults.innerHTML += templates.user_search(value._source);
+                    source.current_username = settings.user.username;
+                    searchResults.innerHTML += templates.user_search(source);
                 } else if (value._type === 'campaign' || value._type === 'politicalcampaign' || value._type === "quest") {
+                    if (!source.title) {
+                        source.title = source.first_name + " " + source.last_name;
+                    }
                     searchResults.innerHTML += templates.quest_search(value._source);
                 } else if (value._type === 'mission') {
+                    if (!source.profile_pic) {
+                        source.profile_pic = source.quest.profile_pic;
+                    }
+                    if (!source.quest.title) {
+                        source.quest.title = source.quest.first_name + " " + source.quest.last_name;
+                    }
                     searchResults.innerHTML += templates.mission_search(value._source);
                 }
             });

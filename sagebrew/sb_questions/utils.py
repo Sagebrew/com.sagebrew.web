@@ -1,16 +1,10 @@
 from dateutil import parser
 
-from django.template.loader import render_to_string
-from django.core.cache import cache
+from neomodel import db
 
-from neomodel import DoesNotExist, CypherException, db
-
-from sb_base.decorators import apply_defense
-from plebs.neo_models import Pleb
 from sb_comments.serializers import CommentSerializer
 from sb_comments.neo_models import Comment
 from .serializers import QuestionSerializerNeo
-from .neo_models import Question
 
 
 def question_html_snapshot(request, question, question_uuid, tags,

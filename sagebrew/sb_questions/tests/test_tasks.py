@@ -10,8 +10,7 @@ from sb_registration.utils import create_user_util_test
 
 from sb_questions.neo_models import Question
 from sb_questions.tasks import (add_auto_tags_to_question_task,
-                                add_question_to_indices_task,
-                                update_search_index)
+                                add_question_to_indices_task)
 
 
 class TestAddQuestionToIndicesTask(TestCase):
@@ -90,32 +89,3 @@ class TestAddAutoTagsToQuestionTask(TestCase):
         while not res.ready():
             time.sleep(1)
         self.assertIsInstance(res.result, Exception)
-
-
-class TestUpdateSearchIndex(TestCase):
-    def setUp(self):
-        settings.CELERY_ALWAYS_EAGER = True
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.question = Question(object_uuid=str(uuid1()),
-                                 content="This is some test content "
-                                         "that I just created.",
-                                 owner_username=self.pleb.username,
-                                 title=str(uuid1())).save()
-        self.question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(self.question)
-
-    def tearDown(self):
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_update_search_index(self):
-        data = {
-            "object_uuid": self.question.object_uuid
-        }
-        res = update_search_index.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        self.assertTrue(res.result)

@@ -7,11 +7,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 from neomodel import db, DoesNotExist
 
-from rest_framework.decorators import (api_view, permission_classes)
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
-
 from api.utils import smart_truncate
 from sb_registration.utils import verify_completed_registration
 from sb_quests.neo_models import PoliticalCampaign

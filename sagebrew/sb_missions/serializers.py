@@ -288,7 +288,7 @@ class MissionSerializer(SBSerializer):
                                                     instance.wallpaper_pic)
         instance.save()
         cache.set("%s_mission" % instance.object_uuid, instance)
-        return super(MissionSerializer, self).update(self, instance, bal)
+        return super(MissionSerializer, self).update(instance, validated_data)
 
     def get_href(self, obj):
         return reverse('mission-detail',

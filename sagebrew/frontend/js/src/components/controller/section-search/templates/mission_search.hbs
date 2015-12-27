@@ -1,29 +1,15 @@
 <div class="block sb_search_block">
     <div class="row">
-        <div class="col-xs-4">
+        <div class="col-xs-5">
             <div class="thumbnail sb_thumbnail_md sb_thumbnail_search">
                 <a href="{{ url }}"><img src="{{ profile_pic }}"></a>
             </div>
         </div>
-        <div class="col-xs-4">
-            <h6><a href="{{ url }}">{{ first_name }} {{ last_name }}</a></h6>
+        <div class="col-xs-7">
+            <h6><a href="{{ url }}">{{title}}</a></h6>
         </div>
-        <div class="col-xs-8">
-            {{#if public_official }}
-                <p>{{ public_official.state }} - {{ public_official.title }}</p>
-            {{ else }}
-                {{#ifCond position_name '==' "Senator" }}
-                    <p>Quest: Running to be a {{ position_name }} of {{ location_name }}</p>
-                {{else}}
-                    {{#ifCond position_name '==' "President" }}
-                        <p>Quest: Running for {{ position_name }} of the {{ location_name }}</p>
-                    {{else}}
-                        {{#ifCond position_name '==' "House Representative" }}
-                            <p>Quest: Running to be {{ position_formal_name }}</p>
-                        {{else}}
-                            <p>Quest: Running for {{ position_name }} of {{ location_name }}</p>
-                {{/ifCond }}{{/ifCond }}{{/ifCond }}
-            {{/if }}
+        <div class="col-xs-7">
+            <small>Started by: {{quest.title}}</small>
         </div>
       </div>
 </div>

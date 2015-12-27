@@ -23,6 +23,7 @@ from sb_goals.neo_models import Round, Goal
 from sb_public_official.serializers import PublicOfficialSerializer
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
+from sb_search.utils import remove_search_object
 
 from .neo_models import (Campaign, PoliticalCampaign, Position, Quest)
 
@@ -436,21 +437,27 @@ class QuestSerializer(SBSerializer):
         return quest
 
     def update(self, instance, validated_data):
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe_token = validated_data.pop('stripe_token', None)
         customer_token = validated_data.pop('customer_token',
                                             instance.customer_token)
+        initial_state = instance.active
         ein = validated_data.pop('ein', instance.ein)
         ssn = validated_data.pop('ssn', instance.ssn)
         # Remove any dashses from the ssn input.
         if ssn is not None:
             ssn = ssn.replace('-', "")
-        instance.active = validated_data.pop('active', instance.active)
+        active = validated_data.pop('active', instance.active)
+        instance.active = active
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
         instance.youtube = validated_data.get('youtube', instance.youtube)
         instance.twitter = validated_data.get('twitter', instance.twitter)
-
+        logger.info({"init": initial_state, "curr": active})
+        if initial_state is True and active is False:
+            remove_search_object(instance.object_uuid, "quest")
         website = validated_data.get('website', instance.website)
         if website is None:
             instance.website = website
@@ -576,7 +583,9 @@ class QuestSerializer(SBSerializer):
         instance.save()
         instance.refresh()
         cache.set("%s_quest" % instance.object_uuid, instance)
-        return super(QuestSerializer, self).update(instance, validated_data)
+        if instance.active:
+            return super(QuestSerializer, self).update(instance, validated_data)
+        return instance
 
     def get_url(self, obj):
         if obj.owner_username is not None and obj.owner_username != "":

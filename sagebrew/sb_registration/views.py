@@ -63,6 +63,8 @@ def quest_signup(request):
 
 @api_view(['POST'])
 def signup_view_api(request):
+    # DEPRECATED please use Profile Create method and Update Method in
+    # plebs/serializers from now on
     quest_registration = request.session.get('account_type')
     try:
         signup_form = SignupForm(request.data)

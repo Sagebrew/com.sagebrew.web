@@ -1,4 +1,5 @@
-var helpers = require('common/helpers'),
+var requests = require('api').request,
+    helpers = require('common/helpers'),
     settings = require('settings').settings,
     validators = require('common/validators');
 
@@ -28,7 +29,11 @@ export function load() {
         congressionalKey = "addressCongressionalDistrict",
         validKey = "addressValid",
         originalKey = "addressOriginal",
+        occupationKey = "occupationKey",
+        employerKey = "employerKey",
         $app = $(".app-sb"),
+        missionID = helpers.args(1),
+        missionSlug = helpers.args(2),
         accountForm = document.getElementById('account-info'),
         addressForm = document.getElementById('address'),
         addressValidationForm = $("#address"),
@@ -42,10 +47,37 @@ export function load() {
         })
         .on('click', '#js-continue-btn', function (event) {
             event.preventDefault();
+            document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
             var accountData = helpers.getSuccessFormData(accountForm);
             var addressData = helpers.getSuccessFormData(addressForm);
-            console.log(accountData);
-            console.log(addressData);
+
+            // Add the additional address fields we get dynamically from smarty
+            // streets
+            var verify = localStorage.getItem(validKey),
+                validated;
+            validated = verify === "valid";
+            addressData.validated = validated;
+            addressData.latitude = localStorage.getItem(latitudeKey);
+            addressData.longitude = localStorage.getItem(longitudeKey);
+            addressData.country = localStorage.getItem(countryKey);
+            addressData.congressional_district = localStorage.getItem(congressionalKey);
+
+            // If employment and occupation info is available add it to the account info
+            accountData.employer_name = localStorage.getItem(employerKey);
+            accountData.occupation_name = localStorage.getItem(occupationKey);
+
+            // The backend doesn't care about the user's password matching so
+            // delete the second password input we use to help ensure the user
+            // doesn't put int a password they don't mean to.
+            delete accountData["password2"];
+            requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
+                .done(function () {
+                    requests.post({url: "/v1/addresses/", data: JSON.stringify(addressData)})
+                        .done(function () {
+                            window.location.href = "/missions/" + missionID + "/" +
+                                missionSlug + "/donate/payment/";
+                        })
+                });
         });
     var liveaddress = $.LiveAddress({
         key: settings.api.liveaddress,

@@ -131,6 +131,10 @@ export function addressValidator(addressVal) {
                 validators: {
                     notEmpty: {
                         message: "Address is required"
+                    },
+                    stringLength: {
+                        max: 128,
+                        message: "Address info must be shorter than 128 chars"
                     }
                 }
             },
@@ -156,6 +160,10 @@ export function addressValidator(addressVal) {
                 validators: {
                     notEmpty: {
                         message: "State is required"
+                    },
+                    stringLength: {
+                        max: 2,
+                        message: "Additional street info must be shorter than 128 chars"
                     }
                 }
             },
@@ -164,6 +172,10 @@ export function addressValidator(addressVal) {
                 validators: {
                     notEmpty: {
                         message: "Zip Code is required"
+                    },
+                    stringLength: {
+                        max: 15,
+                        message: "Zip Code must be shorter than 128 chars"
                     }
                 }
             }

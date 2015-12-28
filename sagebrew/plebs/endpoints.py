@@ -23,7 +23,8 @@ from neomodel import db
 
 from sagebrew import errors
 
-from api.permissions import IsSelfOrReadOnly, IsSelf
+from api.permissions import (IsSelfOrReadOnly, IsSelf,
+                             IsAnonCreateReadOnlyOrIsAuthenticated)
 from sb_base.utils import get_filter_params
 from sb_base.neo_models import SBContent
 from sb_base.serializers import MarkdownContentSerializer
@@ -152,22 +153,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = PlebSerializerNeo
     lookup_field = "username"
     queryset = Pleb.nodes.all()
-    permission_classes = (IsAuthenticated, IsSelfOrReadOnly)
+    permission_classes = (IsAnonCreateReadOnlyOrIsAuthenticated, )
 
     def get_object(self):
         return Pleb.get(self.kwargs[self.lookup_field])
-
-    def create(self, request, *args, **kwargs):
-        """
-        Currently a profile is generated for a user when the base user is
-        created. We currently don't support creating a profile through an
-        endpoint due to the confirmation process and links that need to be
-        made.
-        :param request:
-        :return:
-        """
-        return Response({"detail": "TBD"},
-                        status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def destroy(self, request, *args, **kwargs):
         return Response({"detail": "TBD"},

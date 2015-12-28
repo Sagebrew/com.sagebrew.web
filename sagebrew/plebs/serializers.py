@@ -95,6 +95,7 @@ class UserSerializer(SBSerializer):
     profile = serializers.SerializerMethodField()
 
     def create(self, validated_data):
+        # DEPRECATED use profile create instead
         username = generate_username(validated_data['first_name'],
                                      validated_data['last_name'])
         birthday = validated_data.pop('birthday', None)
@@ -121,6 +122,7 @@ class UserSerializer(SBSerializer):
         return user
 
     def update(self, instance, validated_data):
+        # DEPRECATED use profile update instead
         instance.first_name = validated_data.get('first_name',
                                                  instance.first_name)
         instance.last_name = validated_data.get('last_name',
@@ -157,9 +159,21 @@ class UserSerializer(SBSerializer):
 
 
 class PlebSerializerNeo(SBSerializer):
-    first_name = serializers.CharField(read_only=True)
-    last_name = serializers.CharField(read_only=True)
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
     username = serializers.CharField(read_only=True)
+    password = serializers.CharField(max_length=128, required=True,
+                                     write_only=True,
+                                     style={'input_type': 'password'})
+    new_password = serializers.CharField(max_length=128, required=False,
+                                         write_only=True,
+                                         style={'input_type': 'password'})
+    email = serializers.EmailField(required=True, write_only=True,
+                                   validators=[UniqueValidator(
+                                       queryset=User.objects.all(),
+                                       message="Sorry looks like that email is "
+                                               "already taken.")],)
+    birthday = serializers.DateTimeField(required=True, write_only=True)
     occupation_name = serializers.CharField(required=False, allow_null=True)
     employer_name = serializers.CharField(required=False, allow_null=True)
     is_verified = serializers.BooleanField(read_only=True)
@@ -190,7 +204,29 @@ class PlebSerializerNeo(SBSerializer):
     quest = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        pass
+        username = generate_username(validated_data['first_name'],
+                                     validated_data['last_name'])
+        birthday = validated_data.pop('birthday', None)
+
+        user = User.objects.create_user(
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            email=validated_data['email'],
+            password=validated_data['password'], username=username)
+        user.save()
+        pleb = Pleb(email=user.email,
+                    first_name=user.first_name,
+                    last_name=user.last_name,
+                    username=user.username,
+                    date_of_birth=birthday)
+        pleb.occupation_name = validated_data.get('occupation_name', None)
+        pleb.employer_name = validated_data.get('employer_name', None)
+        pleb.save()
+        spawn_task(task_func=create_pleb_task,
+                   task_param={
+                       "user_instance": user, "birthday": birthday,
+                       "password": validated_data['password']})
+        return user
 
     def update(self, instance, validated_data):
         """
@@ -205,6 +241,24 @@ class PlebSerializerNeo(SBSerializer):
         """
         request, _, _, _, _ = gather_request_data(self.context)
         update_time = request.data.get('update_time', False)
+        first_name = validated_data.get('first_name', instance.first_name)
+        last_name = validated_data.get('last_name', instance.last_name)
+        email = validated_data.get('email', instance.email)
+        user_obj = User.objects.get(username=instance.username)
+        if first_name != instance.first_name:
+            instance.first_name = first_name
+            user_obj.first_name = first_name
+        if last_name != instance.last_name:
+            instance.last_name = last_name
+            user_obj.last_name = last_name
+        if email != instance.email:
+            instance.email = email
+            user_obj.email = email
+        if user_obj.check_password(validated_data.get('password', "")) is True:
+            user_obj.set_password(validated_data.get(
+                'new_password', validated_data.get('password', "")))
+            update_session_auth_hash(self.context['request'], user_obj)
+        user_obj.save()
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
@@ -218,8 +272,17 @@ class PlebSerializerNeo(SBSerializer):
         if update_time:
             instance.last_counted_vote_node = instance.vote_from_last_refresh
         instance.save()
+        instance.update_campaign()
         instance.refresh()
         cache.set(instance.username, instance)
+        # TODO @tyler once we have the updated search logic integrated with
+        # this PR we should be able to either remove this task spawn or spawn
+        # a task specifically for updating the search DB.
+        spawn_task(task_func=pleb_user_update, task_param={
+            "username": instance.username,
+            "first_name": instance.first_name,
+            "last_name": instance.last_name, "email": instance.email
+        })
         return instance
 
     def get_id(self, obj):
@@ -273,17 +336,17 @@ class PlebSerializerNeo(SBSerializer):
 class AddressSerializer(SBSerializer):
     object_uuid = serializers.CharField(read_only=True)
     href = serializers.SerializerMethodField()
-    street = serializers.CharField(max_length=125)
+    street = serializers.CharField(max_length=128)
     street_additional = serializers.CharField(required=False, allow_blank=True,
-                                              allow_null=True, max_length=125)
+                                              allow_null=True, max_length=128)
     city = serializers.CharField(max_length=150)
-    state = serializers.CharField(max_length=50)
+    state = serializers.CharField(max_length=2)
     postal_code = serializers.CharField(max_length=15)
     country = serializers.CharField(allow_null=True, required=False)
     latitude = serializers.FloatField()
     longitude = serializers.FloatField()
     congressional_district = serializers.IntegerField()
-    validated = serializers.BooleanField(required=False, read_only=True)
+    validated = serializers.BooleanField(required=False)
 
     def create(self, validated_data):
         validated_data['state'] = us.states.lookup(validated_data['state']).name

@@ -127,7 +127,9 @@ export function loadMap(callbackFxn, libraries = "places") {
     "use strict";
     var s = document.createElement("script");
     s.type = "text/javascript";
-    s.src  = "https://maps.googleapis.com/maps/api/js?key=" + settings.google_maps + "&libraries=" + libraries + "&callback=setupAutoSearchMaps";
+    s.src  = "https://maps.googleapis.com/maps/api/js?key=" +
+        settings.google_maps + "&libraries=" +
+        libraries + "&callback=setupAutoSearchMaps";
     window.setupAutoSearchMaps = function(){
         callbackFxn();
     };
@@ -155,6 +157,13 @@ export function determineZoom(affectedArea){
 }
 
 
+/**
+ * Gather all of the form data associated with the given form. This will build
+ * a dictionary using the name associated with the input field as the key and
+ * the value provided by the user as the value.
+ * @param form
+ * @returns {{}}
+ */
 export function getFormData(form) {
     var data = {};
     for (var i = 0, ii = form.length; i < ii; ++i) {
@@ -170,6 +179,13 @@ export function getFormData(form) {
     return data;
 }
 
+/**
+ * Gather all of the form data for inputs that have successfully been verified.
+ * This function requires that you use a formValidation validator on the form
+ * or manage adding has-success manually.
+ * @param form
+ * @returns {{}}
+ */
 export function getSuccessFormData(form) {
     var data = {}, parent, input;
     for (var i = 0, ii = form.length; i < ii; ++i) {
@@ -183,4 +199,26 @@ export function getSuccessFormData(form) {
         }
     }
     return data;
+}
+
+/**
+ * Determine if all the forms in a given array have been filled out
+ * successfully.
+ * This function requires that you use a formValidation validator on the form
+ * or manage adding has-success to validated fields manually. If all forms are
+ * fully validated it returns true and if they are not it returns false.
+ * @param forms
+ * @returns {boolean}
+ */
+export function verifyContinue(forms) {
+    var formData;
+    for(var i = 0; i < forms.length; i++){
+        formData = getSuccessFormData(forms[i]);
+        // Subtract one because for some reason the form length is one longer
+        // than the actual amount of inputs.
+        if (Object.keys(formData).length !== forms[i].length - 1) {
+            return false;
+        }
+    }
+    return true;
 }

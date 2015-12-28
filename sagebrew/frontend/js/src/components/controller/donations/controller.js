@@ -1,4 +1,3 @@
-    /*global google, Intercom*/
 var amount = require('./partials/amount').amount;
 
 export const meta = {

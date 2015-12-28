@@ -1,7 +1,8 @@
 var requests = require('api').request,
     helpers = require('common/helpers'),
     settings = require('settings').settings,
-    validators = require('common/validators');
+    validators = require('common/validators'),
+    moment = require('moment');
 
 export const meta = {
     controller: "donations/signup",
@@ -70,6 +71,7 @@ export function load() {
             // delete the second password input we use to help ensure the user
             // doesn't put int a password they don't mean to.
             delete accountData["password2"];
+            accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
             requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
                 .done(function () {
                     requests.post({url: "/v1/addresses/", data: JSON.stringify(addressData)})

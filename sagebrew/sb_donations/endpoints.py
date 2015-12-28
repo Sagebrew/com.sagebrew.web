@@ -9,7 +9,6 @@ from api.permissions import IsAuthorizedAndVerified
 from sb_missions.neo_models import Mission
 from sb_registration.utils import calc_age
 from plebs.neo_models import Pleb
-from plebs.serializers import PlebSerializerNeo
 
 from .neo_models import Donation
 from .serializers import DonationSerializer, SBDonationSerializer
@@ -117,8 +116,8 @@ class DonationListCreate(generics.ListCreateAPIView):
         :param kwargs:
         :return:
         """
-        if not (request.user.username in Campaign.get_accountants
-                (self.kwargs[self.lookup_field])):
+        if not (request.user.username in Mission.get_moderators(
+                self.kwargs[self.lookup_field])):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "You are not authorized to access "
                                        "this page."},

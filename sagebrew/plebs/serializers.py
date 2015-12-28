@@ -173,7 +173,7 @@ class PlebSerializerNeo(SBSerializer):
                                        queryset=User.objects.all(),
                                        message="Sorry looks like that email is "
                                                "already taken.")],)
-    birthday = serializers.DateTimeField(required=True, write_only=True)
+    date_of_birth = serializers.DateTimeField(required=True, write_only=True)
     occupation_name = serializers.CharField(required=False, allow_null=True)
     employer_name = serializers.CharField(required=False, allow_null=True)
     is_verified = serializers.BooleanField(read_only=True)
@@ -206,7 +206,7 @@ class PlebSerializerNeo(SBSerializer):
     def create(self, validated_data):
         username = generate_username(validated_data['first_name'],
                                      validated_data['last_name'])
-        birthday = validated_data.pop('birthday', None)
+        birthday = validated_data.pop('date_of_birth', None)
 
         user = User.objects.create_user(
             first_name=validated_data['first_name'],
@@ -226,7 +226,7 @@ class PlebSerializerNeo(SBSerializer):
                    task_param={
                        "user_instance": user, "birthday": birthday,
                        "password": validated_data['password']})
-        return user
+        return pleb
 
     def update(self, instance, validated_data):
         """

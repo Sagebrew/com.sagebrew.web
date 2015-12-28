@@ -1,15 +1,7 @@
 from django.views.generic import View
 from django.utils.text import slugify
-from django.utils.decorators import method_decorator
-from django.shortcuts import redirect, render
-from django.conf import settings
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.template.loader import render_to_string
 
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
+from django.shortcuts import redirect, render
 
 from py2neo.cypher import ClientError
 from neomodel import DoesNotExist, CypherException, db

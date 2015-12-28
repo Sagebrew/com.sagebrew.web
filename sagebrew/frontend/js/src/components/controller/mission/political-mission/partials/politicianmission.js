@@ -99,7 +99,6 @@ export function load() {
             radioSelector(this);
         })
         .on('change', '#js-district-selector select', function() {
-            "use strict";
             // A district has been selected, we're at the bottom of the page
             // enable the start button and store off the final item needed for
             // federal and state campaigns
@@ -109,7 +108,6 @@ export function load() {
             startBtn.disabled = false;
         })
         .on('click', '.registration', function() {
-            "use strict";
             // Some additional logic to ensure the startBtn only goes on when it should for both local and
             // Federal/State (district vs non-district)
             if(localStorage.getItem(filterKey) === "local" && localStorage.getItem(positionKey) !== null){
@@ -164,7 +162,6 @@ export function load() {
 }
 
 function districtSelection(level, stateInput, placeInput, positionSelector) {
-    "use strict";
     /**
      * If the user had previous selected local we need to clear out
      * the running area since the location on the map now represents
@@ -213,7 +210,6 @@ function districtSelection(level, stateInput, placeInput, positionSelector) {
 }
 
 function checkIfDistricts(identifier, districtRow) {
-    "use strict";
     if(identifier.indexOf('Senator') > -1) {
         localStorage.setItem(positionKey, identifier);
         if (localStorage.getItem(filterKey) === "state"){
@@ -261,7 +257,6 @@ function initAutocomplete() {
 
     $app
         .on('change', '#state-input', function() {
-            "use strict";
             var query = this.options[this.selectedIndex].innerHTML;
             localStorage.setItem(locationName, query);
             if (query === "New York") {
@@ -331,7 +326,6 @@ function initAutocomplete() {
 }
 
 function fillDistricts(filterParam) {
-    "use strict";
     var identifier = localStorage.getItem(locationKey);
     var url = "/v1/locations/" + identifier + "/district_names/?lookup=external_id";
     if (filterParam !== "" && filterParam !== undefined){
@@ -350,7 +344,6 @@ function fillDistricts(filterParam) {
 }
 
 function fillPositions(identifier) {
-    "use strict";
     var url = "/v1/locations/" + identifier + "/position_names/?lookup=external_id",
         locality=localStorage.getItem(filterKey);
     // We're filling the position list with a new set of positions so remove the old one

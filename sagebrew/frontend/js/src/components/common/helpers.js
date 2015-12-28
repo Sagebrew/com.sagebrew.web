@@ -27,6 +27,30 @@ export function getCookie(name) {
     return cookieValue;
 }
 
+export function birthdayInputManager(jsElement, event) {
+    var temp;
+    if (event.keyCode !== 193 && event.keyCode !== 111) {
+        if (event.keyCode !== 8) {
+            if ($(jsElement).val().length === 2) {
+                $(jsElement).val($(jsElement).val() + "/");
+            } else if ($(jsElement).val().length === 5) {
+                $(jsElement).val($(jsElement).val() + "/");
+            }
+        } else {
+            temp = $(jsElement).val();
+            if ($(jsElement).val().length === 5) {
+                $(jsElement).val(temp.substring(0, 4));
+            } else if ($(jsElement).val().length === 2) {
+                $(jsElement).val(temp.substring(0, 1));
+            }
+        }
+    } else {
+        temp = $(jsElement).val();
+        var tam = $(jsElement).val().length;
+        $(jsElement).val(temp.substring(0, tam-1));
+    }
+}
+
 /**
  * Check if HTTP method requires CSRF.
  * @param method
@@ -139,9 +163,24 @@ export function getFormData(form) {
         // we prepopulate it. So if they remove it we want to set it to
         // an empty string in the backend.
         if (input.name) {
-          data[input.name] = input.value;
+            data[input.name] = input.value;
         }
     }
 
+    return data;
+}
+
+export function getSuccessFormData(form) {
+    var data = {}, parent, input;
+    for (var i = 0, ii = form.length; i < ii; ++i) {
+        input = form[i];
+        // Don't check the value because if the use has entered a value
+        // we prepopulate it. So if they remove it we want to set it to
+        // an empty string in the backend.
+        parent = findAncestor(input, "form-group");
+        if (input.name && parent.classList.contains('has-success')) {
+          data[input.name] = input.value;
+        }
+    }
     return data;
 }

@@ -1,0 +1,143 @@
+{% extends "donations/base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Information
+{% endblock title %}
+
+{% block description %}
+{% endblock description %}
+
+{% block keywords %}
+{% endblock keywords %}
+
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">
+            Personal Information
+        </h3>
+        <div class="block-content">
+            <form id="unauthedUser">
+                    <div class="form-group">
+                        <label for="">Title</label>
+                        <input type="text"
+                           name="title"
+                           placeholder="Mission Title (Defaults to the position you're running for or the focus of your advocacy)"
+                           value="{{ selected.title|default_if_none:'' }}"
+                           class="form-control">
+                    </div>
+                <div class="form-group">
+                    <label for="">Website URL</label>
+                    <input type="text"
+                       name="website"
+                       placeholder="Website URL"
+                       value="{{ selected.website|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="">Facebook Username</label>
+                    <input type="text"
+                       name="facebook"
+                       placeholder="Facebook Username"
+                       value="{{ selected.facebook|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="">Twitter ID</label>
+                    <input type="text"
+                       name="twitter"
+                       placeholder="Twitter ID"
+                       value="{{ selected.twitter|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="">LinkedIn Username</label>
+                    <input type="text"
+                       name="linkedin"
+                       placeholder="LinkedIn Username"
+                       value="{{ selected.linkedin|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="">YouTube Username</label>
+                    <input type="text"
+                       name="youtube"
+                       placeholder="Youtube Username"
+                       value="{{ selected.youtube|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+            </form>
+            <form id="authedUser">
+                    <div class="form-group">
+                        <label for="">Title</label>
+                        <input type="text"
+                           name="title"
+                           placeholder="Mission Title (Defaults to the position you're running for or the focus of your advocacy)"
+                           value="{{ selected.title|default_if_none:'' }}"
+                           class="form-control">
+                    </div>
+                <div class="form-group">
+                    <label for="">Website URL</label>
+                    <input type="text"
+                       name="website"
+                       placeholder="Website URL"
+                       value="{{ selected.website|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="">Facebook Username</label>
+                    <input type="text"
+                       name="facebook"
+                       placeholder="Facebook Username"
+                       value="{{ selected.facebook|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="">Twitter ID</label>
+                    <input type="text"
+                       name="twitter"
+                       placeholder="Twitter ID"
+                       value="{{ selected.twitter|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="">LinkedIn Username</label>
+                    <input type="text"
+                       name="linkedin"
+                       placeholder="LinkedIn Username"
+                       value="{{ selected.linkedin|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="">YouTube Username</label>
+                    <input type="text"
+                       name="youtube"
+                       placeholder="Youtube Username"
+                       value="{{ selected.youtube|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+            </form>
+            <div class="row">
+                <div class="col-md-6 col-lg-4">
+                    <button id="js-continue-btn" disabled type="submit" class="btn btn-primary sb_btn sb_btn_fill">Continue</button>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <a href="{% if selected != None %}{% url "mission" selected.id selected.slug %}{% else %}{% url "quest" quest.owner_username %}{% endif %}" class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove"
+                    >Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-donation-payment');
+{% endblock %}

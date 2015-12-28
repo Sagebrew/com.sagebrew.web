@@ -1,0 +1,67 @@
+{% extends "layout/hero-two-col-left.html" %}
+{% load staticfiles %}
+{% block title %}
+{% endblock title %}
+
+{% block description %}
+{% endblock description %}
+
+{% block keywords %}
+{% endblock keywords %}
+{% block hero %}
+    <div class="block">
+        <div class="col-xs-12 text-center">
+            <h1>{% if selected.focus_on_type == "position" %}{{ selected.focused_on.full_name|title }}{% else %}{% if selected.title %}{{ selected.title|title }}{% else %} {{ selected.focus_name_formatted|title }} {% endif %}{% endif %}</h1>
+            <a href="{% url "quest" quest.id %}">By: {% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</a>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-content">
+            <ul class="nav">
+                {% comment %}
+                    For some reason if I remove this ul all the background color goes away
+                    for the hero section...
+                {% endcomment %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+{% block secondary_nav %}
+    <div class="block block-type-title">
+        <div class="block-content clearfix">
+            <h1>Donate</h1>
+            <ul class="nav nav-pills">
+                <li {% if "/donate/amount/" in request.path %}class="active" {% endif %}>
+                    <a href="{% if "/donate/amount/" in request.path %}#{% else %}{% url "mission_donation_amount" selected.id selected.slug %}{% endif %}">
+                        Amount
+                    </a>
+                </li>
+                {% if request.user.is_authenticated == False %}
+                    <li {% if "/donate/amount" in request.path %}class="disabled" {% elif "/donate/name/" in request.path %}class="active" {% endif %}>
+                        <a href="{% if "/donate/name/" in request.path or "/donate/amount/" in request.path %}#{% else %}{% url "mission_donation_name" selected.id selected.slug %}{% endif %}">
+                            Sign Up
+                        </a>
+                    </li>
+                {% endif %}
+                <li {% if "/donate/amount" in request.path or "/donate/name/" in request.path %}class="disabled" {% elif "/donate/payment/" in request.path %}class="active" {% endif %}>
+                    <a href="{% if "/donate/payment/" in request.path or "/donate/amount/" in request.path or "/donate/name/" in request.path %}#{% else %}{% url "mission_donation_payment" selected.id selected.slug %}{% endif %}">
+                        Payment
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+{% block sidebar_left %}
+    <div class="block block-type-nav">
+        <div class="donation-img-wrapper">
+            {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
+            <img src="{{ selected.wallpaper_pic|default_if_none:default_wallpaper }}">
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-content">
+            <small>{{ selected.about|default:"No information has been provided."|default_if_none:"No information has been provided." }}</small>
+        </div>
+    </div>
+{% endblock %}

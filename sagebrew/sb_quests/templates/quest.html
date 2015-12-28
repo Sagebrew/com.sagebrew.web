@@ -146,7 +146,7 @@
 {% endblock %}
 
 {% block intercom %}
-    {% if request.user.username == id %}
+    {% if request.user.username == quest.owner_username %}
         Intercom('trackEvent', 'visited-own-quest');
     {% endif %}
 {% endblock %}

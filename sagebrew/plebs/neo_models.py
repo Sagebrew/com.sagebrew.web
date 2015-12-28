@@ -172,6 +172,11 @@ class Pleb(Searchable):
     is_verified = BooleanProperty(default=True)
     search_index = StringProperty()
     reputation_update_seen = BooleanProperty(default=True)
+    # Placeholders that enable us to gather a user's employer and
+    # occupation if they are donating to a political campaign mission
+    # We'll eventually be transitioning these to a node of their own.
+    employer_name = StringProperty()
+    occupation_name = StringProperty()
     # base_index_id is the plebs id in the base elasticsearch index
     base_index_id = StringProperty()
     email_verified = BooleanProperty(default=False)

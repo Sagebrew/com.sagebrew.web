@@ -1963,6 +1963,10 @@ textarea.sb_comment_input{
   li {
     width: 150px;
     text-align: center;
+    @media only screen and (max-width: 768px){
+      font-size: 14px;
+      width: 95px;
+    }
     &:hover {
       background-color: #eee;
     }
@@ -1970,11 +1974,23 @@ textarea.sb_comment_input{
   li.active > a {
     background-color: @sb_green;
     border-radius: 0;
+    @media only screen and (max-width: 768px){
+      height: 100% !important;
+    }
     &:hover {
       background-color: @sb_green;
     }
   }
-
+  li.disabled > a {
+    &:hover {
+      background-color: transparent;
+      text-decoration: none;
+      @media only screen and (max-width: 768px){
+        height: 100% !important;
+      }
+    }
+    color: grey;
+  }
 }
 
 .sb-single-object-wall {
@@ -2097,6 +2113,41 @@ textarea.sb_comment_input{
 .centered-loader-quest {
   &:extend(.centered-loader);
   left: 30% !important;
+}
+
+.radio-button-selector {
+  ul {
+    text-align:justify;
+    margin-bottom: 0;
+    padding-bottom: 0 !important;
+    li {
+      display:inline-block;
+      width: 24%;
+      .radio-image-selector {
+        min-height: 56px;
+      }
+      h4 {
+        min-height: 0;
+        @media only screen and (max-width: 768px){
+          font-size: 17px;
+        }
+      }
+    }
+  }
+  ul:after {
+    content:' ';
+    display:inline-block;
+    width: 100%;
+    height: 0;
+  }
+}
+
+.has-success .form-control {
+  color: inherit;
+  border-color: @border-color;
+}
+.has-feedback label~.form-control-feedback {
+  top: 50px;
 }
 
 // Used in JS

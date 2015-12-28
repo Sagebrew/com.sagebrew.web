@@ -43,7 +43,7 @@
                 {% if quest.is_moderator or quest.is_editor or request.user.username == quest.id %}
                     <a class="btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
                 {% endif %}
-                <a href="#" class="btn btn-primary btn-lg sb_btn">Donate</a>
+                <a href="{% url 'mission_donation_amount' mission.id mission.slug %}" class="btn btn-primary btn-lg sb_btn">Donate</a>
             </div>
         </div>
     </div>

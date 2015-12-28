@@ -160,6 +160,8 @@ class PlebSerializerNeo(SBSerializer):
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
     username = serializers.CharField(read_only=True)
+    occupation_name = serializers.CharField(required=False, allow_null=True)
+    employer_name = serializers.CharField(required=False, allow_null=True)
     is_verified = serializers.BooleanField(read_only=True)
     email_verified = serializers.BooleanField(read_only=True)
     completed_profile_info = serializers.BooleanField(read_only=True)
@@ -207,6 +209,10 @@ class PlebSerializerNeo(SBSerializer):
                                                   instance.profile_pic)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
+        instance.occupation_name = validated_data('occupation_name',
+                                                  instance.occupation_name)
+        instance.employer_name = validated_data('employer_name',
+                                                instance.employer_name)
         instance.reputation_update_seen = validated_data.get(
             'reputation_update_seen', instance.reputation_update_seen)
         if update_time:

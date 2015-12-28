@@ -1,0 +1,111 @@
+{% extends "donations/base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Empower Your Movement
+{% endblock title %}
+{% block description %}
+
+{% endblock description %}
+{% block keywords %}
+
+{% endblock keywords %}
+
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">
+            Contribution Amount
+        </h3>
+        <div class="radio-button-selector">
+            <ul class="block-content block-container-radio block-float-background">
+                <li>
+                    <div class="radio-image-selector js-contribution" id="500">
+                        <h4 class="sb-profile-not-friend-header">$5</h4>
+                    </div>
+                </li>
+                <li>
+                    <div class="radio-image-selector js-contribution" id="1000">
+                        <h4 class="sb-profile-not-friend-header">$10</h4>
+                    </div>
+                </li>
+                <li>
+                    <div class="radio-image-selector js-contribution" id="2500">
+                        <h4 class="sb-profile-not-friend-header">$25</h4>
+                    </div>
+                </li>
+                <li>
+                    <div class="radio-image-selector js-contribution" id="5000">
+                        <h4 class="sb-profile-not-friend-header">$50</h4>
+                    </div>
+                </li>
+                <li>
+                    <div class="radio-image-selector js-contribution" id="10000">
+                        <h4 class="sb-profile-not-friend-header">$100</h4>
+                    </div>
+                </li>
+                <li>
+                    <div class="radio-image-selector js-contribution" id="25000">
+                        <h4 class="sb-profile-not-friend-header">$250</h4>
+                    </div>
+                </li>
+                <li>
+                    <div class="radio-image-selector js-contribution" id="50000">
+                        <h4 class="sb-profile-not-friend-header">$500</h4>
+                    </div>
+                </li>
+                <li>
+                    <div class="radio-image-selector js-contribution js-custom-contribution"
+                        id="js-custom-contribution">
+                        <h4 class="sb-profile-not-friend-header">Custom</h4>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div id="custom-amount-wrapper" class="sb_hidden">
+            <h3 class="block-title">Custom Amount</h3>
+            <div class="block-content">
+                <div class="alert alert-danger sb_hidden" id="error-wrong-format">
+                    Please enter a valid amount in the form of 10.00
+                </div>
+                <div class="form-group">
+                    <div class="input-group">
+                      <span class="input-group-addon">$</span>
+                      <input type="text" id="custom-contribution" name="custom_contribution" class="form-control" placeholder="" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if request.user.is_authenticated and request_profile.occupation_name == None and selected.focus_on_type == "position" %}
+        {% include "donations/campaign_finance.html" %}
+    {% endif %}
+    <div class="block">
+        <h3 class="block-title">
+            Donation Subscription
+        </h3>
+        <div class="block-content">
+            <label class="radio">
+                <input id="one-time-donation" class="js-subscription" type="radio" name="group1" value="1" data-toggle="radio" checked>
+                One-time Donation
+            </label>
+
+            <label class="radio">
+                <input id="monthly-subscription" class="js-subscription" type="radio" name="group1" value="2" data-toggle="radio">
+                Donate Monthly
+            </label>
+            <div class="row">
+                <div class="col-md-6 col-lg-4">
+                    <button id="js-continue-btn" disabled type="submit" class="btn btn-primary sb_btn sb_btn_fill">Continue</button>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <a href="{% if selected != None %}{% url "mission" selected.id selected.slug %}{% else %}{% url "quest" quest.owner_username %}{% endif %}" class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove"
+                    >Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-donation-amount');
+{% endblock %}

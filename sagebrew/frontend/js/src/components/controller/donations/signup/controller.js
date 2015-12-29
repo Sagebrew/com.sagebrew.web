@@ -72,6 +72,7 @@ export function load() {
             // doesn't put int a password they don't mean to.
             delete accountData["password2"];
             accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
+            console.log(addressData);
             requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
                 .done(function () {
                     requests.post({url: "/v1/addresses/", data: JSON.stringify(addressData)})

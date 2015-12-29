@@ -48,7 +48,7 @@ urlpatterns = patterns(
         name="mission_donation_name"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'donate/payment/$',
-        MissionSettingsView.as_view(template_name='donations/payment.html'),
+        DonationMissionView.as_view(template_name='donations/payment.html'),
         name="mission_donation_payment"),
 
     # View

@@ -4,6 +4,7 @@ from unidecode import unidecode
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.contrib.auth import login, logout, authenticate
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
@@ -204,6 +205,7 @@ class PlebSerializerNeo(SBSerializer):
     quest = serializers.SerializerMethodField()
 
     def create(self, validated_data):
+        request, _, _, _, _ = gather_request_data(self.context)
         username = generate_username(validated_data['first_name'],
                                      validated_data['last_name'])
         birthday = validated_data.pop('date_of_birth', None)
@@ -222,6 +224,11 @@ class PlebSerializerNeo(SBSerializer):
         pleb.occupation_name = validated_data.get('occupation_name', None)
         pleb.employer_name = validated_data.get('employer_name', None)
         pleb.save()
+        cache.set(pleb.username, pleb)
+        if not request.user.is_authenticated():
+            user = authenticate(username=user.username,
+                                password=validated_data['password'])
+            login(request, user)
         spawn_task(task_func=create_pleb_task,
                    task_param={
                        "user_instance": user, "birthday": birthday,
@@ -263,10 +270,10 @@ class PlebSerializerNeo(SBSerializer):
                                                   instance.profile_pic)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
-        instance.occupation_name = validated_data('occupation_name',
-                                                  instance.occupation_name)
-        instance.employer_name = validated_data('employer_name',
-                                                instance.employer_name)
+        instance.occupation_name = validated_data.get('occupation_name',
+                                                      instance.occupation_name)
+        instance.employer_name = validated_data.get('employer_name',
+                                                    instance.employer_name)
         instance.reputation_update_seen = validated_data.get(
             'reputation_update_seen', instance.reputation_update_seen)
         if update_time:
@@ -340,7 +347,7 @@ class AddressSerializer(SBSerializer):
     street_additional = serializers.CharField(required=False, allow_blank=True,
                                               allow_null=True, max_length=128)
     city = serializers.CharField(max_length=150)
-    state = serializers.CharField(max_length=2)
+    state = serializers.CharField(max_length=50)
     postal_code = serializers.CharField(max_length=15)
     country = serializers.CharField(allow_null=True, required=False)
     latitude = serializers.FloatField()
@@ -350,6 +357,8 @@ class AddressSerializer(SBSerializer):
 
     def create(self, validated_data):
         validated_data['state'] = us.states.lookup(validated_data['state']).name
+        if not validated_data.get('country', False):
+            validated_data['country'] = "USA"
         address = Address(**validated_data).save()
         address.set_encompassing()
         return address

@@ -72,6 +72,7 @@ def custom_exception_handler(exc, context):
 
     if isinstance(exc, DoesNotExist):
         request = context.get('request', None)
+        logger.exception("%s Does Not Exist" % context['view'])
         if request is not None:
             if request.method == 'DELETE':
                 return Response({"detail": None,

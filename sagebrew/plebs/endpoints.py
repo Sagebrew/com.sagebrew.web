@@ -71,7 +71,6 @@ class AddressViewSet(viewsets.ModelViewSet):
     """
     serializer_class = AddressSerializer
     lookup_field = 'object_uuid'
-
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
@@ -89,10 +88,12 @@ class AddressViewSet(viewsets.ModelViewSet):
         return Address.inflate(res[0][0])
 
     def perform_create(self, serializer):
-        pleb = Pleb.get(self.request.user.username)
         instance = serializer.save()
+        pleb = Pleb.get(self.request.user.username)
         instance.owned_by.connect(pleb)
         pleb.address.connect(instance)
+        pleb.completed_profile_info = True
+        pleb.save()
         pleb.refresh()
         cache.set(pleb.username, pleb)
         return instance

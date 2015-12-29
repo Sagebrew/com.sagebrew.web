@@ -269,15 +269,12 @@ def profile_information(request):
     """
     address_key = settings.ADDRESS_AUTH_ID
     address_information_form = AddressInfoForm(request.POST or None)
-    citizen = cache.get(request.user.username)
-    if citizen is None:
-        try:
-            citizen = Pleb.nodes.get(username=request.user.username)
-            cache.set(request.user.username, citizen)
-        except(Pleb.DoesNotExist, DoesNotExist):
-            return render(request, 'login.html')
-        except (CypherException, IOError):
-            return redirect('500_Error')
+    try:
+        citizen = Pleb.get(request.user.username)
+    except(Pleb.DoesNotExist, DoesNotExist):
+        return render(request, 'login.html')
+    except (CypherException, IOError):
+        return redirect('500_Error')
     if citizen.completed_profile_info:
         return redirect("interests")
     if address_information_form.is_valid():

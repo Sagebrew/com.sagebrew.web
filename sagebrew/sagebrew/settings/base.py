@@ -75,10 +75,7 @@ STATICFILES_DIRS = (
     '%s/sb_public_official/static/' % PROJECT_DIR,
     '%s/sb_search/static/' % PROJECT_DIR,
     '%s/sb_solutions/static/' % PROJECT_DIR,
-    '%s/sb_tags/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
-    '%s/sb_updates/static/' % PROJECT_DIR,
-
 )
 
 HELP_DOCS_PATH = "%s/help_center/rendered_docs/" % PROJECT_DIR

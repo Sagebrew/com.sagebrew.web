@@ -7,7 +7,7 @@ var templates = require('template_build/templates'),
 /**
  * Load
  */
-export function load() {
+export function addPayment() {
     var $app = $(".app-sb"),
         paymentForm = document.getElementById('js-add-payment-form'),
         greyPage = document.getElementById('sb-greyout-page'),

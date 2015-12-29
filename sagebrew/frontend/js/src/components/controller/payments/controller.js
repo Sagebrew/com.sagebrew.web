@@ -1,4 +1,4 @@
-var addPayment = require('./partials/add_payment');
+var addPayment = require('common/payment').addPayment;
 
 export const meta = {
     controller: "payments",

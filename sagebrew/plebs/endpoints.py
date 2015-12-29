@@ -87,17 +87,6 @@ class AddressViewSet(viewsets.ModelViewSet):
         res, col = db.cypher_query(query)
         return Address.inflate(res[0][0])
 
-    def perform_create(self, serializer):
-        instance = serializer.save()
-        pleb = Pleb.get(self.request.user.username)
-        instance.owned_by.connect(pleb)
-        pleb.address.connect(instance)
-        pleb.completed_profile_info = True
-        pleb.save()
-        pleb.refresh()
-        cache.set(pleb.username, pleb)
-        return instance
-
 
 class UserViewSet(viewsets.ModelViewSet):
     """

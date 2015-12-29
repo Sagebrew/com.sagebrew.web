@@ -356,11 +356,25 @@ class AddressSerializer(SBSerializer):
     validated = serializers.BooleanField(required=False)
 
     def create(self, validated_data):
+        request = self.context.get('request', None)
         validated_data['state'] = us.states.lookup(validated_data['state']).name
         if not validated_data.get('country', False):
             validated_data['country'] = "USA"
         address = Address(**validated_data).save()
         address.set_encompassing()
+        pleb = Pleb.get(request.user.username)
+        address.owned_by.connect(pleb)
+        pleb.address.connect(address)
+        pleb.completed_profile_info = True
+        pleb.determine_reps()
+        pleb.save()
+        pleb.refresh()
+        cache.set(pleb.username, pleb)
+        spawn_task(task_func=determine_pleb_reps, task_param={
+            "username": self.context['request'].user.username,
+        })
+        spawn_task(task_func=update_address_location,
+                   task_param={"object_uuid": address.object_uuid})
         return address
 
     def update(self, instance, validated_data):

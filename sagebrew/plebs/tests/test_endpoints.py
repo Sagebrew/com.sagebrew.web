@@ -231,7 +231,7 @@ class MeEndpointTests(APITestCase):
             "wallpaper_pic": "http://example.com/",
             "profile_pic": "http://example.com/"
         }
-        res = self.client.put(url, data)
+        res = self.client.patch(url, data)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 

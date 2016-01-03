@@ -1,9 +1,11 @@
 import us
+import stripe
 
 from unidecode import unidecode
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.contrib.auth import login, authenticate
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
@@ -95,6 +97,7 @@ class UserSerializer(SBSerializer):
     profile = serializers.SerializerMethodField()
 
     def create(self, validated_data):
+        # DEPRECATED use profile create instead
         username = generate_username(validated_data['first_name'],
                                      validated_data['last_name'])
         birthday = validated_data.pop('birthday', None)
@@ -121,6 +124,7 @@ class UserSerializer(SBSerializer):
         return user
 
     def update(self, instance, validated_data):
+        # DEPRECATED use profile update instead
         instance.first_name = validated_data.get('first_name',
                                                  instance.first_name)
         instance.last_name = validated_data.get('last_name',
@@ -157,12 +161,30 @@ class UserSerializer(SBSerializer):
 
 
 class PlebSerializerNeo(SBSerializer):
-    first_name = serializers.CharField(read_only=True)
-    last_name = serializers.CharField(read_only=True)
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
     username = serializers.CharField(read_only=True)
+    password = serializers.CharField(max_length=128, required=True,
+                                     write_only=True,
+                                     style={'input_type': 'password'})
+    new_password = serializers.CharField(max_length=128, required=False,
+                                         write_only=True,
+                                         style={'input_type': 'password'})
+    email = serializers.EmailField(required=True, write_only=True,
+                                   validators=[UniqueValidator(
+                                       queryset=User.objects.all(),
+                                       message="Sorry looks like that email is "
+                                               "already taken.")],)
+    date_of_birth = serializers.DateTimeField(required=True, write_only=True)
+    occupation_name = serializers.CharField(required=False, allow_null=True)
+    employer_name = serializers.CharField(required=False, allow_null=True)
     is_verified = serializers.BooleanField(read_only=True)
     email_verified = serializers.BooleanField(read_only=True)
     completed_profile_info = serializers.BooleanField(read_only=True)
+    customer_token = serializers.CharField(write_only=True, required=False)
+    stripe_default_card_id = serializers.CharField(write_only=True,
+                                                   required=False,
+                                                   allow_blank=True)
     # determine whether to show a notification about reputation change
     reputation_update_seen = serializers.BooleanField(
         required=False, validators=[ReputationNotificationValidator()])
@@ -188,7 +210,35 @@ class PlebSerializerNeo(SBSerializer):
     quest = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        pass
+        request, _, _, _, _ = gather_request_data(self.context)
+        username = generate_username(validated_data['first_name'],
+                                     validated_data['last_name'])
+        birthday = validated_data.pop('date_of_birth', None)
+
+        user = User.objects.create_user(
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+            email=validated_data['email'],
+            password=validated_data['password'], username=username)
+        user.save()
+        pleb = Pleb(email=user.email,
+                    first_name=user.first_name,
+                    last_name=user.last_name,
+                    username=user.username,
+                    date_of_birth=birthday)
+        pleb.occupation_name = validated_data.get('occupation_name', None)
+        pleb.employer_name = validated_data.get('employer_name', None)
+        pleb.save()
+        cache.set(pleb.username, pleb)
+        if not request.user.is_authenticated():
+            user = authenticate(username=user.username,
+                                password=validated_data['password'])
+            login(request, user)
+        spawn_task(task_func=create_pleb_task,
+                   task_param={
+                       "user_instance": user, "birthday": birthday,
+                       "password": validated_data['password']})
+        return pleb
 
     def update(self, instance, validated_data):
         """
@@ -203,17 +253,69 @@ class PlebSerializerNeo(SBSerializer):
         """
         request, _, _, _, _ = gather_request_data(self.context)
         update_time = request.data.get('update_time', False)
+        first_name = validated_data.get('first_name', instance.first_name)
+        last_name = validated_data.get('last_name', instance.last_name)
+        customer_token = validated_data.pop('customer_token',
+                                            instance.customer_token)
+        email = validated_data.get('email', instance.email)
+        user_obj = User.objects.get(username=instance.username)
+        if first_name != instance.first_name:
+            instance.first_name = first_name
+            user_obj.first_name = first_name
+        if last_name != instance.last_name:
+            instance.last_name = last_name
+            user_obj.last_name = last_name
+        if email != instance.email:
+            instance.email = email
+            user_obj.email = email
+        if user_obj.check_password(validated_data.get('password', "")) is True:
+            user_obj.set_password(validated_data.get(
+                'new_password', validated_data.get('password', "")))
+            update_session_auth_hash(self.context['request'], user_obj)
+        user_obj.save()
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
+        instance.occupation_name = validated_data.get('occupation_name',
+                                                      instance.occupation_name)
+        instance.employer_name = validated_data.get('employer_name',
+                                                    instance.employer_name)
         instance.reputation_update_seen = validated_data.get(
             'reputation_update_seen', instance.reputation_update_seen)
+        if customer_token is not None:
+            # Customers must provide a credit card for us to create a customer
+            # with stripe. Get the credit card # and create a customer instance
+            # so we can charge it in the future.
+            if instance.stripe_customer_id is None:
+                customer = stripe.Customer.create(
+                    description="Customer %s" % instance.username,
+                    card=customer_token,
+                    email=instance.email
+                )
+                instance.stripe_customer_id = customer['id']
+                instance.stripe_default_card_id = customer[
+                    'sources']['data'][0]['id']
+            else:
+                customer = stripe.Customer.retrieve(instance.stripe_customer_id)
+                card = customer.sources.create(source=customer_token)
+                instance.stripe_default_card_id = card['id']
+        instance.stripe_default_card_id = validated_data.get(
+            'stripe_default_card_id', instance.stripe_default_card_id)
         if update_time:
             instance.last_counted_vote_node = instance.vote_from_last_refresh
         instance.save()
+        instance.update_campaign()
         instance.refresh()
         cache.set(instance.username, instance)
+        # TODO @tyler once we have the updated search logic integrated with
+        # this PR we should be able to either remove this task spawn or spawn
+        # a task specifically for updating the search DB.
+        spawn_task(task_func=pleb_user_update, task_param={
+            "username": instance.username,
+            "first_name": instance.first_name,
+            "last_name": instance.last_name, "email": instance.email
+        })
         return super(PlebSerializerNeo, self).update(instance, validated_data)
 
     def get_id(self, obj):
@@ -267,9 +369,9 @@ class PlebSerializerNeo(SBSerializer):
 class AddressSerializer(SBSerializer):
     object_uuid = serializers.CharField(read_only=True)
     href = serializers.SerializerMethodField()
-    street = serializers.CharField(max_length=125)
+    street = serializers.CharField(max_length=128)
     street_additional = serializers.CharField(required=False, allow_blank=True,
-                                              allow_null=True, max_length=125)
+                                              allow_null=True, max_length=128)
     city = serializers.CharField(max_length=150)
     state = serializers.CharField(max_length=50)
     postal_code = serializers.CharField(max_length=15)
@@ -277,12 +379,28 @@ class AddressSerializer(SBSerializer):
     latitude = serializers.FloatField()
     longitude = serializers.FloatField()
     congressional_district = serializers.IntegerField()
-    validated = serializers.BooleanField(required=False, read_only=True)
+    validated = serializers.BooleanField(required=False)
 
     def create(self, validated_data):
+        request = self.context.get('request', None)
         validated_data['state'] = us.states.lookup(validated_data['state']).name
+        if not validated_data.get('country', False):
+            validated_data['country'] = "USA"
         address = Address(**validated_data).save()
         address.set_encompassing()
+        pleb = Pleb.get(request.user.username)
+        address.owned_by.connect(pleb)
+        pleb.address.connect(address)
+        pleb.completed_profile_info = True
+        pleb.determine_reps()
+        pleb.save()
+        pleb.refresh()
+        cache.set(pleb.username, pleb)
+        spawn_task(task_func=determine_pleb_reps, task_param={
+            "username": self.context['request'].user.username,
+        })
+        spawn_task(task_func=update_address_location,
+                   task_param={"object_uuid": address.object_uuid})
         return address
 
     def update(self, instance, validated_data):

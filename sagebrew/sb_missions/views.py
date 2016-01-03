@@ -54,11 +54,6 @@ def mission_redirect_page(request, object_uuid=None):
 
 
 def mission(request, object_uuid, slug=None):
-    query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
-            '(mission:Mission {object_uuid: "%s"})' \
-            'RETURN quest' % object_uuid
-
-    res, _ = db.cypher_query(query)
     try:
         mission_obj = Mission.get(object_uuid)
     except (Mission.DoesNotExist, DoesNotExist):
@@ -69,7 +64,7 @@ def mission(request, object_uuid, slug=None):
     mission_dict['slug'] = slugify(mission_obj.get_mission_title())
     return render(request, 'mission.html', {
         "mission": mission_dict,
-        "quest": QuestSerializer(Quest.inflate(res.one)).data
+        "quest": QuestSerializer(Quest.get(mission_obj.owner_username)).data
     })
 
 
@@ -144,7 +139,7 @@ class MissionSettingsView(LoginRequiredMixin):
         quest = Quest.inflate(res.one.quest)
         return render(request, self.template_name, {
             "missions": missions,
-            "selected": MissionSerializer(mission_obj).data,
+            "mission": MissionSerializer(mission_obj).data,
             "quest": QuestSerializer(quest).data,
             "slug": slugify(mission_obj.get_mission_title())
         })

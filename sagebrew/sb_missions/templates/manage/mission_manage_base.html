@@ -3,7 +3,7 @@
 {% block title %}Mission Settings{% endblock title %}
 
 {% block important_actions %}
-    <a href="{% url 'mission' selected.id selected.slug %}" class="btn btn-primary btn-sm sb_btn">View Mission</a>
+    <a href="{% url 'mission' mission.id mission.slug %}" class="btn btn-primary btn-sm sb_btn">View Mission</a>
 {% endblock important_actions %}
 {% block sidebar_left %}
     <div class="block block-type-nav">
@@ -12,27 +12,27 @@
                 <li class="{% if "manage/" == request.path %}active{% endif %}">
                     <label for="mission-select" class="hidden"></label>
                     <select onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);" id="mission-select" class="form-control mission-input">
-                    {% for mission in missions %}
-                        {% if mission.id == selected.id %}
-                            <option selected value="{{ mission.id }}">{% if mission.title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}</option>
+                    {% for other_mission in missions %}
+                        {% if other_mission.id == mission.id %}
+                            <option selected value="{{ other_mission.id }}">{% if other_mission.title %} {{ other_mission.title }} {% else %} {{ other_mission.focus_name_formatted }} {% endif %}</option>
                         {% else %}
-                            <option value="{% url "mission_settings" mission.id mission.slug %}">{% if mission.title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}</option>
+                            <option value="{% url "mission_settings" other_mission.id other_mission.slug %}">{% if other_mission.title %} {{ other_mission.title }} {% else %} {{ other_mission.focus_name_formatted }} {% endif %}</option>
                         {% endif %}
                     {% endfor %}
                 </select>
                 </li>
                 <li {% if "/manage/general/" in request.path %}class="active" {% endif %}>
-                    <a href="{% url "mission_settings" selected.id slug %}">
+                    <a href="{% url "mission_settings" mission.id slug %}">
                         General
                     </a>
                 </li>
                 <li {% if "/manage/epic/" in request.path %}class="active" {% endif %}>
-                    <a href="{% url "mission_edit_epic" selected.id slug %}">
+                    <a href="{% url "mission_edit_epic" mission.id slug %}">
                         Epic
                     </a>
                 </li>
                 <li {% if "/manage/updates/" in request.path %}class="active" {% endif %}>
-                    <a href="{% url "mission_update_settings" selected.id slug %}">
+                    <a href="{% url "mission_update_settings" mission.id slug %}">
                         Updates
                     </a>
                 </li>

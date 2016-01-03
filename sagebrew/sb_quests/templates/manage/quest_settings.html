@@ -10,6 +10,14 @@
         <div class="block-content">
             <form id="socialForm">
                 <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text"
+                       id="title"
+                       name="title" class="form-control"
+                       placeholder="Name of your group, organization, or what you'd like to be called instead of your first and last name."
+                       value="{% if quest.title %}{{ quest.title }}{% endif %}">
+                </div>
+                <div class="form-group">
                     <label for="about">About</label>
                     <textarea id="about" class="form-control" rows="3"
                               placeholder="Describe yourself or your group in 128 characters or less"

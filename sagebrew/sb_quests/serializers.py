@@ -449,6 +449,12 @@ class QuestSerializer(SBSerializer):
             ssn = ssn.replace('-', "")
         active = validated_data.pop('active', instance.active)
         instance.active = active
+        title = validated_data.pop('title', instance.title)
+        if title is not None:
+            title = title.strip()
+            if title == "":
+                title = None
+        instance.title = title
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
         instance.youtube = validated_data.get('youtube', instance.youtube)
@@ -462,11 +468,15 @@ class QuestSerializer(SBSerializer):
             instance.website = website
         else:
             if website.strip() == "":
-                instance.website = website
+                instance.website = None
             else:
                 instance.website = "http://" + website
-
-        instance.about = validated_data.get('about', instance.about)
+        about = validated_data.get('about', instance.about)
+        if about is not None:
+            about = about.strip()
+            if about == "":
+                about = None
+        instance.about = about
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
         instance.profile_pic = validated_data.get('profile_pic',

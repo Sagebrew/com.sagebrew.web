@@ -1,3 +1,4 @@
+import stripe
 import pytz
 from datetime import datetime, timedelta
 from dateutil import parser
@@ -11,7 +12,8 @@ from django.core.cache import cache
 from django.template import RequestContext
 from django.conf import settings
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
@@ -22,7 +24,8 @@ from neomodel import db
 
 from sagebrew import errors
 
-from api.permissions import IsSelfOrReadOnly, IsSelf
+from api.permissions import (IsSelfOrReadOnly, IsSelf,
+                             IsAnonCreateReadOnlyOrIsAuthenticated)
 from sb_base.utils import get_filter_params
 from sb_base.neo_models import SBContent
 from sb_base.serializers import MarkdownContentSerializer
@@ -69,7 +72,6 @@ class AddressViewSet(viewsets.ModelViewSet):
     """
     serializer_class = AddressSerializer
     lookup_field = 'object_uuid'
-
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
@@ -85,15 +87,6 @@ class AddressViewSet(viewsets.ModelViewSet):
                     self.request.user.username, self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return Address.inflate(res[0][0])
-
-    def perform_create(self, serializer):
-        pleb = Pleb.get(self.request.user.username)
-        instance = serializer.save()
-        instance.owned_by.connect(pleb)
-        pleb.address.connect(instance)
-        pleb.refresh()
-        cache.set(pleb.username, pleb)
-        return instance
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -151,22 +144,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = PlebSerializerNeo
     lookup_field = "username"
     queryset = Pleb.nodes.all()
-    permission_classes = (IsAuthenticated, IsSelfOrReadOnly)
+    permission_classes = (IsAnonCreateReadOnlyOrIsAuthenticated, )
 
     def get_object(self):
         return Pleb.get(self.kwargs[self.lookup_field])
-
-    def create(self, request, *args, **kwargs):
-        """
-        Currently a profile is generated for a user when the base user is
-        created. We currently don't support creating a profile through an
-        endpoint due to the confirmation process and links that need to be
-        made.
-        :param request:
-        :return:
-        """
-        return Response({"detail": "TBD"},
-                        status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def destroy(self, request, *args, **kwargs):
         return Response({"detail": "TBD"},
@@ -473,8 +454,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
         possible_presidents = cache.get('possible_presidents')
         if possible_presidents is None:
             query = 'MATCH (p:Position {name:"President"})<-[:FOCUSED_ON]-' \
-                    '(m:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
-                    'WHERE quest.active=true RETURN quest LIMIT 5'
+                    '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
+                    'WHERE quest.active=true AND mission.active=true' \
+                    ' RETURN quest LIMIT 5'
             res, _ = db.cypher_query(query)
             possible_presidents = [Quest.inflate(row[0]) for row in res]
             cache.set("possible_presidents", possible_presidents, timeout=1800)
@@ -494,7 +476,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(QuestSerializer(possible_presidents, many=True).data,
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticatedOrReadOnly,))
     def missions(self, request, username):
         query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
                 '[:EMBARKS_ON]->(m:Mission) RETURN m' % username
@@ -808,6 +791,31 @@ class MeViewSet(mixins.UpdateModelMixin,
                                                    context))
             return self.get_paginated_response(html_array)
         return self.get_paginated_response(serializer.data)
+
+    @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def payment_methods(self, request):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        pleb = Pleb.get(username=request.user.username)
+        cards = []
+        if pleb.stripe_customer_id is not None:
+            account = stripe.Customer.retrieve(pleb.stripe_customer_id)
+            for card in account.sources.data:
+                cards.append({
+                    "id": card.id,
+                    "brand": card.brand,
+                    "exp_month": card.exp_month,
+                    "exp_year": card.exp_year,
+                    "last4": card.last4,
+                    "default":
+                        True
+                        if card.id == pleb.stripe_default_card_id else False,
+                })
+        return Response({
+            "count": len(cards),
+            "next": None,
+            "previous": None,
+            "results": cards
+        }, status=status.HTTP_200_OK)
 
     @list_route(methods=['post'], serializer_class=PoliticalPartySerializer,
                 permission_classes=(IsAuthenticated,))

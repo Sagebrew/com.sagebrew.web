@@ -32,12 +32,10 @@ from .utils import create_friend_request_util
 @shared_task()
 def pleb_user_update(username, first_name, last_name, email):
     from .serializers import PlebSerializerNeo
-    pleb = cache.get(username)
-    if pleb is None:
-        try:
-            pleb = Pleb.nodes.get(username=username)
-        except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
-            raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
+    try:
+        pleb = Pleb.get(username=username)
+    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
+        raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
 
     try:
         pleb.first_name = first_name
@@ -292,7 +290,7 @@ def create_pleb_task(user_instance=None, birthday=None, password=None):
     if user_instance is None:
         return None
     try:
-        Pleb.nodes.get(username=user_instance.username)
+        Pleb.get(username=user_instance.username)
     except (Pleb.DoesNotExist, DoesNotExist) as e:
         raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
     except(CypherException, IOError) as e:

@@ -7,8 +7,7 @@ from neomodel import (db, StringProperty, IntegerProperty, DoesNotExist,
                       CypherException)
 
 from api.neo_models import SBObject
-from api.utils import spawn_task, deprecation
-from sb_quests.tasks import release_funds_task
+from api.utils import deprecation
 
 
 class Goal(SBObject):
@@ -299,8 +298,8 @@ class Round(SBObject):
                     goal_node.completed = True
                     goal_node.completed_date = datetime.now(pytz.utc)
                     goal_node.save()
-                    spawn_task(task_func=release_funds_task,
-                               task_param={"goal_uuid": goal_node.object_uuid})
+                    # spawn_task(task_func=release_funds_task,
+                    #           task_param={"goal_uuid": goal_node.object_uuid})
                     try:
                         next_goal = Goal.nodes.get(
                             object_uuid=Goal.get_next_goal(

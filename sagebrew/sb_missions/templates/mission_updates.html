@@ -12,11 +12,11 @@
                     Quest and will show up on their Newsfeed. We
                     recommend using them to share:</p>
                     <ul>
-                        <li>Progress regarding your Mission and Goals</li>
+                        <li>Progress regarding your Mission</li>
                         <li>Information you'd like to bring attention to</li>
                         <li>Upcoming events related to your Mission</li>
                     </ul>
-                    <p>You can edit it in the <a href="{% url 'mission_update_settings' mission.id mission.slug %}">settings</a>.</p>
+                    <p>You can add updates in your <a href="{% url 'mission_update_settings' mission.id mission.slug %}">settings</a>.</p>
                 </div>
             </div>
         {% else %}
@@ -25,7 +25,7 @@
                 </div>
             {% else %}
                 <div class="block block-holder-lg sb_markdown">
-                    <h4 class="block-content">{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} is still setting up this Mission, check back soon!</h4>
+                    <h4 class="block-content block-holder-lg">{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} is still setting up this Mission, check back soon!</h4>
                 </div>
             {% endif %}
         {% endif %}

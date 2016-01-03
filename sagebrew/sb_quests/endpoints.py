@@ -27,6 +27,8 @@ from sb_donations.neo_models import Donation
 from sb_donations.serializers import DonationExportSerializer
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
+from sb_missions.neo_models import Mission
+from sb_missions.serializers import MissionSerializer
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, ModeratorSerializer,
@@ -326,6 +328,19 @@ class QuestViewSet(viewsets.ModelViewSet):
                              'status_code':
                                  status.HTTP_404_NOT_FOUND},
                             status=status.HTTP_404_NOT_FOUND)
+
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticatedOrReadOnly,))
+    def missions(self, request, owner_username):
+        query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
+                '[:EMBARKS_ON]->(m:Mission) RETURN m' % owner_username
+        res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
+        queryset = [Mission.inflate(row[0]) for row in res]
+        page = self.paginate_queryset(queryset)
+        serializer = MissionSerializer(page, many=True,
+                                       context={'request': request})
+        return self.get_paginated_response(serializer.data)
 
 
 class CampaignViewSet(viewsets.ModelViewSet):

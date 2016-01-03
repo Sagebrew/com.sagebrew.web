@@ -88,7 +88,8 @@ function baseOptions() {
             }
         },
         error: function (XMLHttpRequest) {
-          errorDisplay(XMLHttpRequest);
+            document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+            errorDisplay(XMLHttpRequest);
         }
     };
 }

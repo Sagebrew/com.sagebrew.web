@@ -50,7 +50,7 @@ class DonationQuestView(View):
         except (CypherException, ClientError, IOError):
             return redirect("500_Error")
         query = 'MATCH (quest:Quest {object_uuid: "%s"})-[:EMBARKS_ON]->' \
-                '(missions:Mission) RETURN missions, quest' \
+                '(missions:Mission) RETURN missions, quest ' \
                 'ORDER BY missions.created DESC' % quest.object_uuid
         res, _ = db.cypher_query(query)
         if res.one is None:
@@ -59,8 +59,8 @@ class DonationQuestView(View):
         missions = [MissionSerializer(Mission.inflate(row.missions)).data
                     for row in res]
         return render(request, self.template_name, {
-            "selected": None,
-            "quest": quest,
+            "selected": QuestSerializer(quest).data,
+            "quest": QuestSerializer(quest).data,
             "slug": None,
             "missions": missions,
         })

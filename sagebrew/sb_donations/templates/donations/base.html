@@ -11,8 +11,8 @@
 {% block hero %}
     <div class="block">
         <div class="col-xs-12 text-center">
-            <h1>{% if selected.focus_on_type == "position" %}{{ selected.focused_on.full_name|title }}{% else %}{% if selected.title %}{{ selected.title|title }}{% else %} {{ selected.focus_name_formatted|title }} {% endif %}{% endif %}</h1>
-            <a href="{% url "quest" quest.id %}">By: {% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</a>
+            <h1>{% if selected.type == "mission" %}{% if selected.focus_on_type == "position" %}{% if selected.focused_on.full_name %}{{ selected.focused_on.full_name|title }}{% else %}{{ selected.focus_name_formatted }}{% endif %}{% else %}{% if selected.title %}{{ selected.title|title }}{% else %} {{ selected.focus_name_formatted|title }} {% endif %}{% endif %}{% else %} {% if quest.title %} {{ quest.title|title }} {% else %} {{ quest.first_name }} {{ quest.last_name }}{% endif %}{% endif %}</h1>
+            {% if selected.type == "mission" %}<a href="{% url "quest" username=quest.id %}">By: {% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</a> {% endif %}
         </div>
     </div>
     <div class="block">
@@ -31,20 +31,25 @@
         <div class="block-content clearfix">
             <h1>Donate</h1>
             <ul class="nav nav-pills">
-                <li {% if "/donate/amount/" in request.path %}class="active" {% endif %}>
-                    <a href="{% if "/donate/amount/" in request.path %}#{% else %}{% url "mission_donation_amount" selected.id selected.slug %}{% endif %}">
+                <li {% if "/donate/choose/" in request.path %}class="active" {% endif %}>
+                    <a href="{% if "/donate/choose/" in request.path %}#{% else %}{% url "donation_choose" quest.id %}{% endif %}">
+                        Choose
+                    </a>
+                </li>
+                <li {% if "/donate/choose/" in request.path %}class="disabled" {% elif "/donate/amount/" in request.path %}class="active" {% endif %}>
+                    <a href="{% if "donate/choose/" in request.path or "/donate/amount/" in request.path %}#{% else %}{% url "mission_donation_amount" selected.id selected.slug %}{% endif %}">
                         Amount
                     </a>
                 </li>
                 {% if request.user.is_authenticated == False %}
-                    <li {% if "/donate/amount" in request.path %}class="disabled" {% elif "/donate/name/" in request.path %}class="active" {% endif %}>
-                        <a href="{% if "/donate/name/" in request.path or "/donate/amount/" in request.path %}#{% else %}{% url "mission_donation_name" selected.id selected.slug %}{% endif %}">
+                    <li {% if "donate/choose/" in request.path or "/donate/amount/" in request.path %}class="disabled" {% elif "/donate/name/" in request.path %}class="active" {% endif %}>
+                        <a href="{% if "donate/choose/" in request.path or "/donate/name/" in request.path or "/donate/amount/" in request.path %}#{% else %}{% url "mission_donation_name" selected.id selected.slug %}{% endif %}">
                             Sign Up
                         </a>
                     </li>
                 {% endif %}
-                <li {% if "/donate/amount" in request.path or "/donate/name/" in request.path %}class="disabled" {% elif "/donate/payment/" in request.path %}class="active" {% endif %}>
-                    <a href="{% if "/donate/payment/" in request.path or "/donate/amount/" in request.path or "/donate/name/" in request.path %}#{% else %}{% url "mission_donation_payment" selected.id selected.slug %}{% endif %}">
+                <li {% if "donate/choose/" in request.path or "/donate/amount" in request.path or "/donate/name/" in request.path %}class="disabled" {% elif "/donate/payment/" in request.path %}class="active" {% endif %}>
+                    <a href="{% if "donate/choose/" in request.path or "/donate/payment/" in request.path or "/donate/amount/" in request.path or "/donate/name/" in request.path %}#{% else %}{% url "mission_donation_payment" selected.id selected.slug %}{% endif %}">
                         Payment
                     </a>
                 </li>

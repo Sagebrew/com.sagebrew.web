@@ -7,6 +7,7 @@ from neomodel import db
 
 from api.permissions import IsAuthorizedAndVerified
 from sb_missions.neo_models import Mission
+from sb_quests.neo_models import Quest
 from sb_registration.utils import calc_age
 from plebs.neo_models import Pleb
 
@@ -78,17 +79,26 @@ class DonationListCreate(generics.ListCreateAPIView):
     permission_classes = (IsAuthorizedAndVerified,)
 
     def get_queryset(self):
-        query = 'MATCH (mission:Mission {object_uuid: "%s"})' \
-                '<-[:CONTRIBUTED_TO]-(donation:Donation) ' \
-                'RETURN donation' % self.kwargs[self.lookup_field]
+        if "/v1/missions/" in self.request.path:
+            query = 'MATCH (mission:Mission {object_uuid: "%s"})' \
+                    '<-[:CONTRIBUTED_TO]-(donation:Donation) ' \
+                    'RETURN donation' % self.kwargs[self.lookup_field]
+        else:
+            query = 'MATCH (quest:Quest {owner_username: "%s"})' \
+                    '<-[:CONTRIBUTED_TO]-(donation:Donation) ' \
+                    'RETURN donation' % self.kwargs[self.lookup_field]
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Donation.inflate(row[0]) for row in res]
 
     def perform_create(self, serializer):
-        mission = Mission.get(object_uuid=self.kwargs[self.lookup_field])
         donor = Pleb.get(self.request.user.username)
-        quest = Mission.get_quest(object_uuid=self.kwargs[self.lookup_field])
+        if "/v1/missions/" in self.request.path:
+            mission = Mission.get(object_uuid=self.kwargs[self.lookup_field])
+            quest = Mission.get_quest(object_uuid=self.kwargs[self.lookup_field])
+        else:
+            mission = None
+            quest = Quest.get(owner_username=self.kwargs[self.lookup_field])
         serializer.save(mission=mission, donor=donor, quest=quest,
                         owner_username=donor.username)
 
@@ -114,9 +124,14 @@ class DonationListCreate(generics.ListCreateAPIView):
         :param kwargs:
         :return:
         """
-        mission = Mission.get(object_uuid=self.kwargs[self.lookup_field])
+        if "mission" in self.request.path:
+            moderators = Mission.get(
+                    object_uuid=self.kwargs[self.lookup_field])
+        else:
+            moderators = Quest.get(
+                    owner_username=self.kwargs[self.lookup_field])
         if not (request.user.username in
-                Mission.get_moderators(mission.owner_username)):
+                moderators.get_moderators(moderators.owner_username)):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "You are not authorized to access "
                                        "this page."},

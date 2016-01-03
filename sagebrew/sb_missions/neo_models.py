@@ -160,6 +160,8 @@ class Mission(Searchable):
             elif child_label == "Question":
                 return QuestionSerializerNeo(Question.inflate(res.one),
                                              context={'request': request}).data
+        else:
+            return None
 
     def get_location(self):
         from sb_locations.neo_models import Location

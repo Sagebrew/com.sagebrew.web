@@ -1,12 +1,12 @@
 {% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
-{% block title %}{% if mission.title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}{% endblock %}
+{% block title %}{% if mission.focus_on_type == "position" %}{% if mission.focused_on.full_name %}{{ mission.focused_on.full_name|title }}{% else %}{{ mission.focus_name_formatted }}{% endif %}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}{% endblock %}
 
 {% block hero %}
     {% include "manage/activate_partial.html" %}
     <div class="block">
         <div class="col-xs-12 text-center">
-            <h1>{% if mission.focus_on_type == "position" %}{{ mission.focus_name_formatted }}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}</h1>
+            <h1>{% if mission.focus_on_type == "position" %}{% if mission.focused_on.full_name %}{{ mission.focused_on.full_name|title }}{% else %}{{ mission.focus_name_formatted }}{% endif %}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}</h1>
             <a href="{% url "quest" quest.id %}">By: {% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</a>
             {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
             {%  if request.user.username == quest.owner_username %}
@@ -45,8 +45,8 @@
                 {% endif %}
                 <a href="{% url 'mission_donation_amount' mission.id mission.slug %}"
                    class="btn btn-primary btn-lg sb_btn" {% if mission.active == False%}disabled{% endif %}
-                   data-toggle="tooltip"
-                   data-original-title="You must take your mission live before people can donate.">Donate</a>
+                   {% if mission.active == False%}data-toggle="tooltip"
+                   data-original-title="You must take your mission live before people can donate."{% endif %}>Donate</a>
             </div>
         </div>
     </div>

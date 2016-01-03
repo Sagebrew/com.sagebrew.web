@@ -8,7 +8,7 @@ export const meta = {
     controller: "donations/signup",
     match_method: "path",
     check: [
-       "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/donate\/name"
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/donate\/name"
     ]
 };
 
@@ -33,8 +33,9 @@ export function load() {
         occupationKey = "occupationKey",
         employerKey = "employerKey",
         $app = $(".app-sb"),
-        missionID = helpers.args(1),
+        donateToID = helpers.args(1),
         missionSlug = helpers.args(2),
+        donationType = helpers.args(0),
         accountForm = document.getElementById('account-info'),
         addressForm = document.getElementById('address'),
         addressValidationForm = $("#address"),
@@ -72,12 +73,11 @@ export function load() {
             // doesn't put int a password they don't mean to.
             delete accountData["password2"];
             accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
-            console.log(addressData);
             requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
                 .done(function () {
                     requests.post({url: "/v1/addresses/", data: JSON.stringify(addressData)})
                         .done(function () {
-                            window.location.href = "/missions/" + missionID + "/" +
+                            window.location.href = "/missions/" + donateToID + "/" +
                                 missionSlug + "/donate/payment/";
                         })
                 });

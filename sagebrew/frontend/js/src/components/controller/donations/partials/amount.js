@@ -9,10 +9,9 @@ export function amount() {
         customInputWrapper = document.getElementById('custom-amount-wrapper'),
         errorFormatWrapper = document.getElementById('error-wrong-format'),
         errorMinDonationWrapper = document.getElementById('error-min-donation'),
-        missionID = helpers.args(1),
-        missionSlug = helpers.args(2),
-        contributionKey = missionID + 'contributionAmount',
-        subscriptionKey = missionID + 'subscriptionType';
+        donateToID = helpers.args(1),
+        contributionKey = donateToID + 'contributionAmount',
+        subscriptionKey = donateToID + 'subscriptionType';
     $(':radio').radiocheck();
     $(':checkbox').radiocheck();
     if(typeof(Storage) !== "undefined") {
@@ -96,11 +95,11 @@ export function amount() {
         .on('click', '#js-continue-btn', function(event){
             event.preventDefault();
             if(settings.user.type === "anon"){
-                window.location.href = "/missions/" + missionID + "/" +
-                    missionSlug + "/donate/name/";
+                window.location.href = "/missions/" + donateToID + "/" +
+                    helpers.args(2) + "/donate/name/";
             } else {
-                window.location.href = "/missions/" + missionID + "/" +
-                    missionSlug + "/donate/payment/";
+                window.location.href = "/missions/" + donateToID + "/" +
+                    helpers.args(2) + "/donate/payment/";
             }
         });
 }

@@ -454,8 +454,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
         possible_presidents = cache.get('possible_presidents')
         if possible_presidents is None:
             query = 'MATCH (p:Position {name:"President"})<-[:FOCUSED_ON]-' \
-                    '(m:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
-                    'WHERE quest.active=true RETURN quest LIMIT 5'
+                    '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
+                    'WHERE quest.active=true AND mission.active=true' \
+                    ' RETURN quest LIMIT 5'
             res, _ = db.cypher_query(query)
             possible_presidents = [Quest.inflate(row[0]) for row in res]
             cache.set("possible_presidents", possible_presidents, timeout=1800)

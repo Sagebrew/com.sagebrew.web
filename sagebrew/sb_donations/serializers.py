@@ -73,7 +73,7 @@ class DonationSerializer(SBSerializer):
 
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
-
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         mission = validated_data.pop('mission', None)
         quest = validated_data.pop('quest', None)
         donor = validated_data.pop('donor', None)
@@ -82,12 +82,11 @@ class DonationSerializer(SBSerializer):
 
         donor.donations.connect(donation)
         donation.mission.connect(mission)
-        mission_desc = mission.title \
-            if mission.title else mission.focus_name_formatted
 
         quest_desc = quest.title \
             if quest.title else "%s %s" % (quest.first_name, quest.last_name)
-
+        mission_desc = mission.title \
+            if mission.title else mission.focus_name_formatted
         description = "Donation to %s's mission for %s" % (quest_desc,
                                                            mission_desc)
         payment_method = payment_method if payment_method is not None \
@@ -107,6 +106,7 @@ class DonationSerializer(SBSerializer):
         donation.completed = True
         donation.save()
         cache.delete("%s_total_donated" % mission.object_uuid)
+        cache.delete("%s_total_donated" % quest.object_uuid)
         return donation
 
     def get_mission(self, obj):
@@ -129,7 +129,8 @@ class DonationSerializer(SBSerializer):
         from sb_quests.neo_models import Quest
         from sb_quests.serializers import QuestSerializer
         request, expand, _, relation, _ = gather_request_data(self.context)
-        query = 'MATCH (d:Donation {object_uuid: "%s"})-[:CONTRIBUTED_TO]->' \
+        query = 'MATCH (d:Donation {object_uuid: "%s"})-' \
+                '[:CONTRIBUTED_TO]->' \
                 '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
                 'RETURN quest' % obj.object_uuid
         res, _ = db.cypher_query(query)

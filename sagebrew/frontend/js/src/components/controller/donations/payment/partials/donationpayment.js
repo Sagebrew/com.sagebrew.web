@@ -31,13 +31,14 @@ export function donationCancelRedirect() {
 }
 
 export function usePaymentCallback(paymentID) {
-    var missionID = helpers.args(1),
+    var donationToID = helpers.args(1),
+        donationType = helpers.args(0),
         greyPage = document.getElementById('sb-greyout-page'),
-        contributionKey = missionID + 'contributionAmount',
-        subscriptionKey = missionID + 'subscriptionType',
+        contributionKey = donationToID + 'contributionAmount',
+        subscriptionKey = donationToID + 'subscriptionType',
         paymentMethodKey = "selectedPaymentMethod";
     greyPage.classList.remove('sb_hidden');
-    request.post({url: "/v1/missions/" + missionID + "/donations/", data: JSON.stringify({
+    request.post({url: "/v1/" + donationType + "/" + donationToID + "/donations/", data: JSON.stringify({
         amount: localStorage.getItem(contributionKey),
         payment_method: paymentID || null,
         subscription: localStorage.getItem(subscriptionKey) === "monthly-subscription"
@@ -46,6 +47,6 @@ export function usePaymentCallback(paymentID) {
             localStorage.removeItem(contributionKey);
             localStorage.removeItem(subscriptionKey);
             localStorage.removeItem(paymentMethodKey);
-            window.location.href = "/missions/" + missionID + "/";
+            window.location.href = "/" + donationType + "/" + donationToID + "/";
         })
 }

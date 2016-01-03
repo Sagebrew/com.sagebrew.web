@@ -84,8 +84,7 @@ export function args(arg) {
             }
         }
     }
-
-    if (select && elements[select]) {
+    if ((select || select === 0) && elements[select]) {
         return elements[select];
     }
     else {
@@ -175,7 +174,6 @@ export function getFormData(form) {
             data[input.name] = input.value;
         }
     }
-
     return data;
 }
 

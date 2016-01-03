@@ -1,0 +1,19 @@
+{{#each missions}}
+<div class="block">
+    <div class="row">
+    <div class="col-xs-3" style="padding-right: 0;">
+        <div class="summary-block-img-wrapper">
+            <img src="{{ this.wallpaper_pic }}">
+        </div>
+    </div>
+    <div class="col-xs-9">
+        <h3 class="block-title">
+            <a href="{{ this.url }}">{{ this.title }}</a>
+        </h3>
+        <div class="block-content">
+            <small>{{ this.about }}</small>
+        </div>
+    </div>
+    </div>
+</div>
+{{/each}}

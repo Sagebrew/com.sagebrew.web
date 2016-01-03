@@ -63,7 +63,7 @@ export function load() {
 
             // If employment and occupation info is available add it to the account info
             var campaignFinanceForm = document.getElementById('campaign-finance');
-            if(campaignFinanceForm !== undefined) {
+            if(campaignFinanceForm !== undefined && campaignFinanceForm !== null) {
                 var employerName = document.getElementById('employer-name').value,
                     occupationName = document.getElementById('occupation-name').value,
                     retired = document.getElementById('retired-or-not-employed').checked;

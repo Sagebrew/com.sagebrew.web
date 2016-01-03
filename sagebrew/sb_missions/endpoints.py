@@ -13,7 +13,21 @@ class MissionViewSet(viewsets.ModelViewSet):
     permission_classes = (IsOwnerOrModeratorOrReadOnly,)
 
     def get_queryset(self):
-        query = 'MATCH (a:Mission) RETURN a'
+        if self.request.query_params.get('affects', "") == "me":
+            query = 'MATCH (pleb:Pleb {username: "%s"})-[:LIVES_AT]->' \
+                    '(address:Address)-[:ENCOMPASSED_BY*..]->' \
+                    '(location:Location)<-[:WITHIN]-' \
+                    '(mission:Mission {active: true}) ' \
+                    'RETURN DISTINCT mission' % self.request.user.username
+        elif self.request.query_params.get('affects', "") == "friends":
+            query = 'MATCH (pleb:Pleb {username: "%s"})-[:FRIENDS_WITH]' \
+                    '->(friends:Pleb)-[:LIVES_AT]->' \
+                    '(address:Address)-[:ENCOMPASSED_BY*..]->' \
+                    '(location:Location)<-[:WITHIN]-' \
+                    '(mission:Mission {active: true}) ' \
+                    'RETURN DISTINCT mission' % self.request.user.username
+        else:
+            query = 'MATCH (a:Mission {active: true}) RETURN a'
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Mission.inflate(row[0]) for row in res]

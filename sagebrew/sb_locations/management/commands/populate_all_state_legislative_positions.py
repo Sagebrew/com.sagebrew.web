@@ -13,7 +13,8 @@ class Command(BaseCommand):
     args = "None."
 
     def populate_all_state_legislative_positions(self):
-        base_url = 'http://openstates.org/api/v1/districts/%s/%s/'
+        base_url = 'http://openstates.org/api/v1/districts/%s/%s/?apikey=' \
+                   '53f7bd2a41df42c082bb2f07bd38e6aa'
         for state in us.states.STATES:
             query = 'MATCH (l:Location {name:"%s", sector:"federal"}) ' \
                     'RETURN l' % state.name

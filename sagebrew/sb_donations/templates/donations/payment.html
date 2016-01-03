@@ -1,7 +1,7 @@
 {% extends "donations/base.html" %}
 {% load staticfiles %}
 {% block title %}
-    Information
+    Donation Payment Method
 {% endblock title %}
 
 {% block description %}
@@ -12,6 +12,9 @@
 
 
 {% block live %}
+    <div id="js-list-payment-methods">
+        <div class="loader"></div>
+    </div>
     <div id="js-add-payment-form"></div>
 {% endblock %}
 

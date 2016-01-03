@@ -35,15 +35,12 @@ class Donation(SBObject):
     # optimization
     owner_username = StringProperty()
 
-    # relationships
-    # donated_for is what goal the user actually pledged the donation to.
-    donated_for = RelationshipTo('sb_goals.neo_models.Goal', 'DONATED_FOR')
-    # applied_to are the goals the donation was actually applied to. This in
-    # most circumstances will be the same goal as was donated for but may
-    # cover multiple goals based on the donation amount.
-    applied_to = RelationshipTo('sb_goals.neo_models.Goal', 'APPLIED_TO')
-    owned_by = RelationshipTo('plebs.neo_models.Pleb', 'DONATED_FROM')
+    # Owner
+    # Access who created this donation through:
+    # Neomodel: donations Cypher: DONATIONS_GIVEN
+    # RelationshipTo('plebs.neo_models.Pleb')
 
+    # relationships
     mission = RelationshipTo('sb_missions.neo_models.Mission', "CONTRIBUTED_TO")
     quest = RelationshipTo('sb_quests.neo_models.Quest', "CONTRIBUTED_TO")
 
@@ -51,9 +48,21 @@ class Donation(SBObject):
     # DEPRECATED: Rounds are deprecated and goals are no longer associated with
     # them. They are instead associated with Missions but are not aggregated
     # into rounds.
+    owned_by = RelationshipTo('plebs.neo_models.Pleb', 'DONATED_FROM')
     associated_round = RelationshipTo('sb_goals.neo_models.Round',
                                       'ASSOCIATED_ROUND')
     campaign = RelationshipTo('sb_quests.neo_models.Campaign', 'DONATED_TO')
+    # applied_to are the goals the donation was actually applied to. This in
+    # most circumstances will be the same goal as was donated for but may
+    # cover multiple goals based on the donation amount.
+    applied_to = RelationshipTo('sb_goals.neo_models.Goal', 'APPLIED_TO')
+    # donated_for is what goal the user actually pledged the donation to.
+    donated_for = RelationshipTo('sb_goals.neo_models.Goal', 'DONATED_FOR')
+
+    @property
+    def payment_method(self):
+        # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
+        return None
 
     @classmethod
     def get_donated_for(cls, object_uuid):

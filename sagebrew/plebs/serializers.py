@@ -1,10 +1,11 @@
 import us
+import stripe
 
 from unidecode import unidecode
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, authenticate
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
@@ -180,6 +181,10 @@ class PlebSerializerNeo(SBSerializer):
     is_verified = serializers.BooleanField(read_only=True)
     email_verified = serializers.BooleanField(read_only=True)
     completed_profile_info = serializers.BooleanField(read_only=True)
+    customer_token = serializers.CharField(write_only=True, required=False)
+    stripe_default_card_id = serializers.CharField(write_only=True,
+                                                   required=False,
+                                                   allow_blank=True)
     # determine whether to show a notification about reputation change
     reputation_update_seen = serializers.BooleanField(
         required=False, validators=[ReputationNotificationValidator()])
@@ -250,6 +255,8 @@ class PlebSerializerNeo(SBSerializer):
         update_time = request.data.get('update_time', False)
         first_name = validated_data.get('first_name', instance.first_name)
         last_name = validated_data.get('last_name', instance.last_name)
+        customer_token = validated_data.pop('customer_token',
+                                            instance.customer_token)
         email = validated_data.get('email', instance.email)
         user_obj = User.objects.get(username=instance.username)
         if first_name != instance.first_name:
@@ -276,6 +283,25 @@ class PlebSerializerNeo(SBSerializer):
                                                     instance.employer_name)
         instance.reputation_update_seen = validated_data.get(
             'reputation_update_seen', instance.reputation_update_seen)
+        if customer_token is not None:
+            # Customers must provide a credit card for us to create a customer
+            # with stripe. Get the credit card # and create a customer instance
+            # so we can charge it in the future.
+            if instance.stripe_customer_id is None:
+                customer = stripe.Customer.create(
+                    description="Customer %s" % instance.username,
+                    card=customer_token,
+                    email=instance.email
+                )
+                instance.stripe_customer_id = customer['id']
+                instance.stripe_default_card_id = customer[
+                    'sources']['data'][0]['id']
+            else:
+                customer = stripe.Customer.retrieve(instance.stripe_customer_id)
+                card = customer.sources.create(source=customer_token)
+                instance.stripe_default_card_id = card['id']
+        instance.stripe_default_card_id = validated_data.get(
+                'stripe_default_card_id', instance.stripe_default_card_id)
         if update_time:
             instance.last_counted_vote_node = instance.vote_from_last_refresh
         instance.save()

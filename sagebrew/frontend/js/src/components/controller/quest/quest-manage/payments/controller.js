@@ -1,7 +1,8 @@
-var addPayment = require('common/payment').addPayment;
+var addPayment = require('common/payment').addPayment,
+    questPayments = require('./partials/questpayments');
 
 export const meta = {
-    controller: "payments",
+    controller: "quest/quest-manage/payments",
     match_method: "path",
     check: [
        "^quests\/[A-Za-z0-9.@_%+-]{1,36}\/manage\/add_payment",
@@ -21,7 +22,7 @@ export function init() {
  * Load
  */
 export function load() {
-    addPayment.load();
+    addPayment(questPayments.stripeResponseHandler, questPayments.questCancelRedirect);
 }
 
 /**

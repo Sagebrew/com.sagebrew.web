@@ -6,7 +6,7 @@
     {% include "manage/activate_partial.html" %}
     <div class="block">
         <div class="col-xs-12 text-center">
-            <h1>{% if mission.focus_on_type == "position" %}{{ mission.focused_on.full_name|title }}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}</h1>
+            <h1>{% if mission.focus_on_type == "position" %}{{ mission.focus_name_formatted }}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}</h1>
             <a href="{% url "quest" quest.id %}">By: {% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</a>
             {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
             {%  if request.user.username == quest.owner_username %}
@@ -43,7 +43,10 @@
                 {% if quest.is_moderator or quest.is_editor or request.user.username == quest.id %}
                     <a class="btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
                 {% endif %}
-                <a href="{% url 'mission_donation_amount' mission.id mission.slug %}" class="btn btn-primary btn-lg sb_btn">Donate</a>
+                <a href="{% url 'mission_donation_amount' mission.id mission.slug %}"
+                   class="btn btn-primary btn-lg sb_btn" {% if mission.active == False%}disabled{% endif %}
+                   data-toggle="tooltip"
+                   data-original-title="You must take your mission live before people can donate.">Donate</a>
             </div>
         </div>
     </div>

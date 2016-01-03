@@ -28,9 +28,9 @@ export function load() {
         .on('click', '#take-live', function () {
             event.preventDefault();
             if (settings.profile.quest.account_verified !== "verified") {
-                $.notify("You must add a bank account prior to taking your Quest live so we can get you your donations", {type: "danger"});
+                $.notify('You must add a bank account under "Accounting" prior to taking your Quest live so we can get you your donations', {type: "danger"});
             } else if (settings.profile.quest.account_type === "paid" && settings.profile.quest.card_on_file !== true) {
-                $.notify("You must add a credit card or change your account to free prior to taking the Quest live", {type: "danger"});
+                $.notify('You must add a credit card under "Billing" or change your account to free prior to taking the Quest live', {type: "danger"});
             } else {
                 greyPage.classList.remove('sb_hidden');
                 request.patch({

@@ -8,6 +8,7 @@ export function amount() {
         customInput = document.getElementById('custom-contribution'),
         customInputWrapper = document.getElementById('custom-amount-wrapper'),
         errorFormatWrapper = document.getElementById('error-wrong-format'),
+        errorMinDonationWrapper = document.getElementById('error-min-donation'),
         missionID = helpers.args(1),
         missionSlug = helpers.args(2),
         contributionKey = missionID + 'contributionAmount',
@@ -74,20 +75,22 @@ export function amount() {
             if (!decimalFormat.test(numStr) && !nonDecimalFormat.test(numStr)){
                 errorFormatWrapper.classList.remove("sb_hidden");
                 continueBtn.disabled = true;
+            } else if (parseInt(numStr) < 1) {
+                errorMinDonationWrapper.classList.remove("sb_hidden");
+                continueBtn.disabled = true;
             } else if (decimalFormat.test(numStr)) {
+                errorMinDonationWrapper.classList.add("sb_hidden");
                 errorFormatWrapper.classList.add("sb_hidden");
                 continueBtn.disabled = false;
                 localStorage.setItem(contributionKey, numStr.replace(".", ""));
             } else if (nonDecimalFormat.test(numStr)) {
+                errorMinDonationWrapper.classList.add("sb_hidden");
                 errorFormatWrapper.classList.add("sb_hidden");
                 continueBtn.disabled = false;
                 localStorage.setItem(contributionKey, numStr + "00");
             }
         })
         .on('click', '.js-subscription', function (){
-            localStorage.setItem(subscriptionKey, this.id);
-        })
-        .on('click', '#monthly-subscription', function () {
             localStorage.setItem(subscriptionKey, this.id);
         })
         .on('click', '#js-continue-btn', function(event){

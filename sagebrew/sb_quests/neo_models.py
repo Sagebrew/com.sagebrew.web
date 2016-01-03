@@ -24,7 +24,7 @@ class Quest(Searchable):
     stripe_customer_id = StringProperty()
     # Subscription ID for retrieving and managing subscription
     stripe_subscription_id = StringProperty()
-    # The credit card associated with the customer
+    # The credit card associated with the quest
     stripe_default_card_id = StringProperty()
     # Did the user accept the Stripe Terms of Service?
     tos_acceptance = BooleanProperty(default=False)

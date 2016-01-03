@@ -78,21 +78,19 @@ class DonationListCreate(generics.ListCreateAPIView):
     permission_classes = (IsAuthorizedAndVerified,)
 
     def get_queryset(self):
-        query = 'MATCH (quest:Quest {owner_username: "%s"})<-' \
-                '[:CONTRIBUTED_TO]-(donation:Donation) RETURN donation ' \
-                'UNION ' \
-                'MATCH (quest:Quest {owner_username: "%s"})-[:EMBARKS_ON]->' \
-                '(mission:Mission)<-[:CONTRIBUTED_TO]-(donation:Donation) ' \
-                'RETURN donation' % \
-                (self.kwargs[self.lookup_field], self.kwargs[self.lookup_field])
+        query = 'MATCH (mission:Mission {object_uuid: "%s"})' \
+                '<-[:CONTRIBUTED_TO]-(donation:Donation) ' \
+                'RETURN donation' % self.kwargs[self.lookup_field]
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Donation.inflate(row[0]) for row in res]
 
     def perform_create(self, serializer):
         mission = Mission.get(object_uuid=self.kwargs[self.lookup_field])
-        serializer.save(mission=mission,
-                        token=self.request.data.get('token', None))
+        donor = Pleb.get(self.request.user.username)
+        quest = Mission.get_quest(object_uuid=self.kwargs[self.lookup_field])
+        serializer.save(mission=mission, donor=donor, quest=quest,
+                        owner_username=donor.username)
 
     def create(self, request, *args, **kwargs):
         pleb = Pleb.get(request.user.username)
@@ -116,8 +114,9 @@ class DonationListCreate(generics.ListCreateAPIView):
         :param kwargs:
         :return:
         """
-        if not (request.user.username in Mission.get_moderators(
-                self.kwargs[self.lookup_field])):
+        mission = Mission.get(object_uuid=self.kwargs[self.lookup_field])
+        if not (request.user.username in
+                Mission.get_moderators(mission.owner_username)):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "You are not authorized to access "
                                        "this page."},

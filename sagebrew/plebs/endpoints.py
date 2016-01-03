@@ -1,3 +1,4 @@
+import stripe
 import pytz
 from datetime import datetime, timedelta
 from dateutil import parser
@@ -789,6 +790,31 @@ class MeViewSet(mixins.UpdateModelMixin,
                                                    context))
             return self.get_paginated_response(html_array)
         return self.get_paginated_response(serializer.data)
+
+    @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def payment_methods(self, request):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        pleb = Pleb.get(username=request.user.username)
+        cards = []
+        if pleb.stripe_customer_id is not None:
+            account = stripe.Customer.retrieve(pleb.stripe_customer_id)
+            for card in account.sources.data:
+                cards.append({
+                    "id": card.id,
+                    "brand": card.brand,
+                    "exp_month": card.exp_month,
+                    "exp_year": card.exp_year,
+                    "last4": card.last4,
+                    "default":
+                        True
+                        if card.id == pleb.stripe_default_card_id else False,
+                })
+        return Response({
+            "count": len(cards),
+            "next": None,
+            "previous": None,
+            "results": cards
+        }, status=status.HTTP_200_OK)
 
     @list_route(methods=['post'], serializer_class=PoliticalPartySerializer,
                 permission_classes=(IsAuthenticated,))

@@ -3,7 +3,8 @@ var requests = require('api').request,
     payment = require('common/payment'),
     settings = require('settings').settings,
     validators = require('common/validators'),
-    moment = require('moment');
+    moment = require('moment'),
+    donationPayments = require('./partials/donationpayment');
 
 export const meta = {
     controller: "donations/payment",
@@ -25,7 +26,9 @@ export function init() {
  * Load
  */
 export function load() {
-    payment.addPayment();
+    payment.listPaymentMethods("/v1/me/", donationPayments.usePaymentCallback,
+        donationPayments.stripeResponseHandler,
+        donationPayments.donationCancelRedirect);
 }
 
 /**

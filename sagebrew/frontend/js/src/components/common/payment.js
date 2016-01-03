@@ -2,12 +2,67 @@
 var templates = require('template_build/templates'),
     helpers = require('common/helpers'),
     settings = require('settings').settings,
-    request = require('api').request;
+    request = require('api').request,
+    paymentMethodKey = "selectedPaymentMethod";
+
+
+export function listPaymentMethods(endpoint, usePaymentCallback,
+                                   responseHandler, cancelRedirect) {
+    var $app = $(".app-sb"),
+        paymentMethods = document.getElementById('js-list-payment-methods'),
+        greyPage = document.getElementById('sb-greyout-page');
+    getPaymentMethods(true);
+    $app
+        .on('click', '#js-add-payment-method', function () {
+            paymentMethods.classList.add('sb_hidden');
+            addPayment(responseHandler, cancelRedirect);
+        })
+        .on('click', '#js-use-payment-method', function () {
+            usePaymentCallback(localStorage.getItem(paymentMethodKey));
+        })
+        .on('click', '.js-select-payment', function () {
+            greyPage.classList.remove('sb_hidden');
+            request.patch({url: endpoint, data: JSON.stringify({
+                stripe_default_card_id: this.id
+            })})
+                .done(function () {
+                    getPaymentMethods(true);
+                })
+        })
+        .on('click', '.js-payment-method-option', function (){
+            localStorage.setItem(paymentMethodKey, this.id);
+        })
+}
+
+export function getPaymentMethods(submitPayment, callback) {
+    var paymentMethods = document.getElementById('js-list-payment-methods'),
+        greyPage = document.getElementById('sb-greyout-page');
+    request.get({url: "/v1/me/payment_methods/"})
+        .done(function (data) {
+            paymentMethods.innerHTML = templates.payment_methods({
+                cards: data.results,
+                submit_payment: submitPayment === true
+            });
+            $(':radio').radiocheck();
+            for(var i=0; i < data.results.length; i++) {
+                if (data.results[i].default === true){
+                    localStorage.setItem(paymentMethodKey, data.results[i].id);
+                }
+            }
+
+            paymentMethods.classList.remove('sb_hidden');
+            greyPage.classList.add('sb_hidden');
+            if(callback !== undefined){
+                callback();
+            }
+        });
+}
 
 /**
- * Load
+ * addPayment creates and manages the interface for adding a new form of credit
+ * card payment.
  */
-export function addPayment() {
+export function addPayment(responseHandler, cancelRedirect) {
     var $app = $(".app-sb"),
         paymentForm = document.getElementById('js-add-payment-form'),
         greyPage = document.getElementById('sb-greyout-page'),
@@ -64,53 +119,33 @@ export function addPayment() {
                 cvc: $('#cc-cvc').val(),
                 exp_month: exp_month,
                 exp_year: exp_year
-            }, stripeResponseHandler);
+            }, function(status, response) {
+                var $form = $('#payment-form'),
+                    greyPage = document.getElementById('sb-greyout-page');
+                if (response.error) {
+                    var errorMsg = response.error.message;
+                    if(response.error.message === "You must supply either a card, customer, or bank account to create a token.") {
+                        errorMsg = "You must supply card information prior to saving.";
+                    }
+                    greyPage.classList.add('sb_hidden');
+                    $form.find('.payment-errors').text(errorMsg);
+                    $form.find('.payment-errors').removeAttr('hidden');
+                    $form.find('button').prop('disabled', false);
+                } else {
+                    responseHandler(status, response)
+                }
+            });
 
             // Prevent the form from submitting with the default action
             return false;
         })
         .on('click', '#js-cancel', function(event) {
             event.preventDefault();
-            window.history.back();
+            // Check if another function wants to handle where we should be going
+            if(cancelRedirect !== undefined && cancelRedirect !== null){
+                cancelRedirect();
+            } else {
+                window.history.back();
+            }
         });
-}
-
-
-function stripeResponseHandler(status, response) {
-    var $form = $('#payment-form'),
-        questID = helpers.args(1),
-        greyPage = document.getElementById('sb-greyout-page');
-    if (response.error) {
-        var errorMsg = response.error.message;
-        if(response.error.message === "You must supply either a card, customer, or bank account to create a token.") {
-            errorMsg = "You must supply card information prior to saving.";
-        }
-        greyPage.classList.add('sb_hidden');
-        $form.find('.payment-errors').text(errorMsg);
-        $form.find('.payment-errors').removeAttr('hidden');
-        $form.find('button').prop('disabled', false);
-    } else {
-        request.put({url: "/v1/quests/" + questID + "/", data: JSON.stringify({
-            customer_token: response.id
-        })})
-            .done(function () {
-                // If we were previously at the plan upgrade page and didn't have a
-                // card on file we redirect here. If the user enters a card we then
-                // update the account to paid and redirect to the quest billing page.
-                if(localStorage.getItem('quest_account') === "upgrade"){
-                    localStorage.removeItem('quest_account');
-                    request.patch({url: "/v1/quests/" + questID + "/", data: JSON.stringify({
-                        account_type: "paid"
-                    })}).done(function () {
-                        window.location.href = "/quests/" + questID + "/manage/billing/";
-                    }).fail(function () {
-                        greyPage.classList.add('sb_hidden');
-                    });
-                } else {
-                    window.location.href = "/quests/" + questID + "/manage/billing/";
-                }
-            }).fail(function () {
-                greyPage.classList.add('sb_hidden');
-            });
-    }
 }

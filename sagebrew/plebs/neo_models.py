@@ -184,8 +184,11 @@ class Pleb(Searchable):
     initial_verification_email_sent = BooleanProperty(default=False)
 
     stripe_customer_id = StringProperty()
+    # The credit card associated with the customer
+    stripe_default_card_id = StringProperty()
     # last_counted_vote_node is the node we want to query on to get
     # reputation change over time
+
     last_counted_vote_node = StringProperty(default=None)
     # vote_from_last_refresh is what gets stored every time a user
     # refreshes their page, allows us to easily swap it with
@@ -288,11 +291,6 @@ class Pleb(Searchable):
     # Neomodel: moderators Cypher: MODERATOR_OF
     # RelationshipTo('sb_quests.neo_models.Quest')
 
-    # DEPRECATED - use quest editor and accountant instead
-    campaign_editor = RelationshipTo('sb_quests.neo_models.Campaign',
-                                     'CAN_EDIT')
-    campaign_accountant = RelationshipTo('sb_quests.neo_models.Campaign',
-                                         'CAN_MANAGE_FINANCES')
     # Use stripe_account on quest instead
     stripe_account = StringProperty()
     # Can this just be a vote? Have it set like we do with votable content
@@ -310,6 +308,17 @@ class Pleb(Searchable):
                                         'AFFILIATES_WITH')
     activity_interests = RelationshipTo('plebs.neo_models.ActivityInterest',
                                         'WILL_PARTICIPATE')
+
+    # DEPRECATED - use quest editor and accountant instead
+    campaign_editor = RelationshipTo('sb_quests.neo_models.Campaign',
+                                     'CAN_EDIT')
+    campaign_accountant = RelationshipTo('sb_quests.neo_models.Campaign',
+                                         'CAN_MANAGE_FINANCES')
+
+    @property
+    def customer_token(self):
+        # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
+        return None
 
     @classmethod
     def get(cls, username):
@@ -377,6 +386,26 @@ class Pleb(Searchable):
                 donation_amount = 0
             cache.set('%s_%s_donation_amount' %
                       (username, campaign_uuid), donation_amount)
+        return donation_amount
+
+    @classmethod
+    def get_mission_political_donations(cls, username, mission_id):
+        donation_amount = cache.get('%s_%s_donation_amount' % (username,
+                                                               mission_id))
+        beg_year = datetime(datetime.now(pytz.utc).year, 1, 1).strftime("%s")
+        end_year = datetime(datetime.now(pytz.utc).year + 1, 1, 1
+                            ).strftime("%s")
+        if donation_amount == 0 or donation_amount is None:
+            query = 'MATCH (p:Pleb {username: "%s"})-[:DONATIONS_GIVEN]->' \
+                    '(d:Donation)-[:DONATED_TO]->' \
+                    '(c:Mission {object_uuid:"%s", focus_on_type: "position"}) ' \
+                    'WHERE d.created > %s AND d.created < %s ' \
+                    'RETURN sum(d.amount)' \
+                    % (username, mission_id, beg_year, end_year)
+            res, col = db.cypher_query(query)
+            donation_amount = res.one if res.one is not None else 0
+            cache.set('%s_%s_donation_amount' %
+                      (username, mission_id), donation_amount)
         return donation_amount
 
     def get_quest(self):

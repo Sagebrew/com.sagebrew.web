@@ -20,6 +20,8 @@ export function init() {
  * Load
  */
 export function load() {
+    $('[data-toggle="tooltip"]').tooltip();
+    $('[data-toggle="popover"]').popover();
     wallpaper.load();
 }
 

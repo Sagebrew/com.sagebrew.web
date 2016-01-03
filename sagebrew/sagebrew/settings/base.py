@@ -360,8 +360,6 @@ PAYMENT_PLANS = [
     ("sub", "Subscription")
 ]
 
-FREE_RELEASE_LIMIT = 500000
-
 SEARCH_TYPES = [
     ("general", "general"),
     ("conversations", "question"),

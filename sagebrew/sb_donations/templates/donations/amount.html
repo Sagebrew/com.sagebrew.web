@@ -67,6 +67,9 @@
                 <div class="alert alert-danger sb_hidden" id="error-wrong-format">
                     Please enter a valid amount in the form of 10.00
                 </div>
+                <div class="alert alert-danger sb_hidden" id="error-min-donation">
+                    Sorry donations must be greater than $1
+                </div>
                 <div class="form-group">
                     <div class="input-group">
                       <span class="input-group-addon">$</span>
@@ -88,11 +91,12 @@
                 <input id="one-time-donation" class="js-subscription" type="radio" name="group1" value="1" data-toggle="radio" checked>
                 One-time Donation
             </label>
-
+            {% comment %}
             <label class="radio">
                 <input id="monthly-subscription" class="js-subscription" type="radio" name="group1" value="2" data-toggle="radio">
                 Donate Monthly
             </label>
+            {% endcomment %}
             <div class="row">
                 <div class="col-md-6 col-lg-4">
                     <button id="js-continue-btn" disabled type="submit" class="btn btn-primary sb_btn sb_btn_fill">Continue</button>

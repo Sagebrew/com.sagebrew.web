@@ -172,7 +172,7 @@ class SBDonationSerializer(DonationSerializer):
                             **validated_data).save()
         if not donor.stripe_customer_id:
             customer = stripe.Customer.create(
-                description="Customer for %s" % donor.email,
+                description="Customer for %s" % donor.username,
                 card=token,
                 email=donor.email)
             donor.stripe_customer_id = customer['id']
@@ -185,16 +185,9 @@ class SBDonationSerializer(DonationSerializer):
             amount=donation.amount,
             currency="usd",
             customer=donor.stripe_customer_id,
+            receipt_email=donor.email,
             description="Donation to Sagebrew from %s" % donor.username
         )
-        user_data = {
-            "source": "support@sagebrew.com",
-            "to": donor.email,
-            "subject": "Thank you for your Donation!",
-            "html_content": render_to_string(
-                "email_templates/email_sagebrew_donation_thanks.html")
-        }
-        spawn_task(send_email_task, user_data)
         spawn_task(task_func=check_privileges,
                    task_param={"username": donor.username})
         return donation

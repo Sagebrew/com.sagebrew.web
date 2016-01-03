@@ -305,27 +305,8 @@ class TestSagebrewDonation(APITestCase):
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_donation_create(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('direct_donation')
-        stripe.api_key = settings.STRIPE_SECRET_KEY
-        self.pleb.stripe_customer_id = None
-        self.pleb.save()
-        cache.set(self.pleb.username, self.pleb)
-        token = stripe.Token.create(
-            card={
-                "number": "4242424242424242",
-                "exp_month": 12,
-                "exp_year": (datetime.datetime.now() + datetime.timedelta(
-                    days=3 * 365)).year,
-                "cvc": '123'
-            }
-        )
-        data = {
-            'amount': 1000,
-            'token': token['id']
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # TODO need to update donation workflow and create test
+        pass
 
     def test_donation_create_invalid_data(self):
         self.client.force_authenticate(user=self.user)

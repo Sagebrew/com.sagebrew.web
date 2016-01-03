@@ -1,7 +1,7 @@
 {% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
 {% block title %}
-    {{ quest.first_name }}'s Quest
+    {% if quest.title %}{{ quest.title }}{% else %}{{ quest.first_name }} {{ quest.last_name }}{% endif %}'s Quest
 {% endblock title %}
 {% block description %}
     <meta name="description" content="{{ description }}">
@@ -19,15 +19,24 @@
         <div class="hidden-sm hidden-md hidden-lg block-title text-center no-underline">
             <h1>{% if quest.title %} {{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</h1>
         </div>
-        <div class="col-xs-12 col-sm-7 wallpaper quest-wallpaper">
-            {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
-            <img src="{{ quest.wallpaper_pic|default_if_none:default_wallpaper }}">
+        {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
+        {% if request.user.username == quest.owner_username %}
+            <div class="col-xs-12 col-sm-7 wallpaper quest-wallpaper" id="js-croppic-wrapper-div-id">
+                <img id="js-croppic-img-id" class="js-croppic-img-class"
+                     src="{{ quest.wallpaper_pic|default_if_none:default_wallpaper }}">
+            </div>
+        {% else %}
+            <div class="col-xs-12 col-sm-7 wallpaper quest-wallpaper">
+                <img src="{{ quest.wallpaper_pic|default_if_none:default_wallpaper }}">
+            </div>
+            {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
+        {% endif %}
+
+        <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
+            <a href="/quests/{{ quest.owner_username }}/donate/amount/" class="btn btn-primary sb_btn_fill">Donate</a>
         </div>
         <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
-            <button class="btn btn-primary sb_btn_fill" id="js-donate-btn">Donate</button>
-        </div>
-        <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
-            <button class="btn btn-primary sb_btn_fill" id="js-donate-btn">Follow</button>
+            <button class="btn btn-primary sb_btn_fill js-follow-btn">Follow</button>
         </div>
         <div class="hidden-xs col-sm-5">
             <div class="block">
@@ -55,7 +64,7 @@
                     <h4 class="tight">About</h4>
                 </div>
                 <div class="block-content" style="padding-bottom: 0;">
-                    <p>{{ quest.about|default_if_none:"A short summary about the Quest Owner or Group in about 128 characters. We can increase or decrease the amount we enable based on" }}</p>
+                    <p>{{ quest.about|default_if_none:"A short summary about the Quest Owner or Group in 128 characters" }}</p>
                     <ul class="list-inline">
                         {% if quest.website %}
                             <li>
@@ -101,10 +110,10 @@
 
                     <ul class="list-inline list-inline-btns">
                         <li>
-                            <a href="#" class="btn btn-primary sb_btn_fill">Donate</a>
+                            <a href="/quests/{{ quest.owner_username }}/donate/choose/" class="btn btn-primary sb_btn_fill">Donate</a>
                         </li>
                         <li>
-                            <a href="#" class="btn btn-primary sb_btn_fill">Follow</a>
+                            <a href="#" class="btn btn-primary sb_btn_fill js-follow-btn">Follow</a>
                         </li>
                     </ul>
 
@@ -137,7 +146,7 @@
 {% endblock %}
 
 {% block intercom %}
-    {% if request.user.username == id %}
+    {% if request.user.username == quest.owner_username %}
         Intercom('trackEvent', 'visited-own-quest');
     {% endif %}
 {% endblock %}

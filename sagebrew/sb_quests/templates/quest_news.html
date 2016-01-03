@@ -11,7 +11,7 @@
             <h4 style="margin-top: 10px;"><a href="{{ the_url }}">{{ first_name }} {{ last_name }} has started a Quest{% if position_name %} for {{ position_name }} {% endif %} in your area!</a></h4>
         </div>
         <div class="col-xs-12 col-sm-8">
-            <h5 style="margin-top: 0;">Reputation: {{ reputation }}</h5>
+            <h5 style="margin-top: 0;">Reputation: {{ reputation|default:0 }}</h5>
         </div>
     </div>
 </div>

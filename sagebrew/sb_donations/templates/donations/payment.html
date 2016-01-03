@@ -1,0 +1,28 @@
+{% extends "donations/base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Donation Payment Method
+{% endblock title %}
+
+{% block description %}
+{% endblock description %}
+
+{% block keywords %}
+{% endblock keywords %}
+
+
+{% block live %}
+    <div id="js-list-payment-methods">
+        <div class="loader"></div>
+    </div>
+    <div id="js-add-payment-form"></div>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    {{ block.super }}
+{% endblock scripts %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-donation-payment');
+{% endblock %}

@@ -1,5 +1,7 @@
 from django.conf.urls import patterns, url
 
+from sb_donations.views import DonationQuestView
+
 from .views import (insights, quest, delete_quest,
                     QuestSettingsView, saga)
 
@@ -9,9 +11,13 @@ urlpatterns = patterns(
     url(r'^/deprecated/(?P<username>[A-Za-z0-9.@_%+-]{2,36})/$', saga,
         name='quest_saga'),
 
-    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/$', quest, name='quest'),
-    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/insights/$', insights,
-        name='quest_stats'),
+    # Donate
+    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/'
+        r'donate/choose/$', DonationQuestView.as_view(
+            template_name='donations/mission.html'),
+        name="donation_choose"),
+
+    # Manage
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/manage/moderators/$',
         QuestSettingsView.as_view(template_name="manage/moderators.html"),
         name='quest_moderators'),
@@ -33,5 +39,10 @@ urlpatterns = patterns(
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/manage/general/$',
         QuestSettingsView.as_view(), name='quest_manage_settings'),
     url(r'^delete_quest/$', delete_quest, name="delete_quest"),
+
+    # View
+    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/$', quest, name='quest'),
+    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/insights/$', insights,
+        name='quest_stats'),
 
 )

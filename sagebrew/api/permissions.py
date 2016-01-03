@@ -20,6 +20,26 @@ class IsSelfOrReadOnly(permissions.BasePermission):
         return obj.username == request.user.username
 
 
+class IsAnonCreateReadOnlyOrIsAuthenticated(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method == "POST" and not request.user.is_authenticated():
+            return True
+        elif not request.user.is_authenticated() and request.method != "POST":
+            return False
+        elif request.method in permissions.SAFE_METHODS:
+            return True
+        # TODO may want to enable authenticated apps to create new users
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        if not request.user.is_authenticated():
+            return False
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return obj.username == request.user.username
+
+
 class IsSelf(permissions.BasePermission):
     """
     @DEPRECATED

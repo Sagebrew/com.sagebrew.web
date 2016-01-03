@@ -1,0 +1,156 @@
+{% extends "donations/base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Information
+{% endblock title %}
+
+{% block description %}
+{% endblock description %}
+
+{% block keywords %}
+{% endblock keywords %}
+
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">
+            Personal Information
+        </h3>
+        <div class="block-content">
+            <form id="account-info">
+                <div class="form-group">
+                    <label for="first-name">First Name</label>
+                    <input type="text"
+                           id="first-name"
+                           name="first_name"
+                           placeholder="First Name"
+                           value="" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text"
+                           id="last-name"
+                           name="last_name"
+                           placeholder="Last Name"
+                           value="" class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="text"
+                           id="email"
+                           name="email"
+                           placeholder="Email"
+                           value="" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password"
+                           value=""
+                           name="password"
+                           id="password"
+                           placeholder="Password"
+                           class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="password2">Re-enter Password</label>
+                    <input type="password"
+                           value=""
+                           name="password2"
+                           id="password2"
+                           placeholder="Re-enter Password"
+                           class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="birthday">Birthday</label>
+                    <input type="text"
+                           id="birthday"
+                           name="date_of_birth"
+                           placeholder="MM/DD/YYYY"
+                           value="" class="form-control">
+                </div>
+            </form>
+        </div>
+    </div>
+    {% if request.user.is_authenticated == False and selected.focus_on_type == "position" %}
+        {% include "donations/campaign_finance.html" %}
+    {% endif %}
+    <div class="block">
+        <h3 class="block-title">
+            Address
+        </h3>
+        <div class="block-content">
+            <form id="address">
+                <div class="form-group">
+                    <label for="street">Address Line 1*</label>
+                    <input type="text"
+                           id="street"
+                           name="street"
+                           value=""
+                           placeholder="Address Line 1*"
+                           class="form-control"
+                           autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="street-additional">Address Line 2</label>
+                    <input type="text"
+                           id="street-additional"
+                           name="street_additional"
+                           value=""
+                           placeholder="Apt, Building, etc"
+                           class="form-control"
+                           autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="city">City*</label>
+                    <input type="text"
+                           id="city"
+                           name="city"
+                           value=""
+                           placeholder="City*"
+                           class="form-control"
+                           autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="">State*</label>
+                    <input type="text"
+                           id="state"
+                           name="state"
+                           value=""
+                           placeholder="State*"
+                           class="form-control"
+                           autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="">Zip Code*</label>
+                    <input type="text"
+                           id="postal-code"
+                           name="postal_code"
+                           value=""
+                           placeholder="Zip Code*"
+                           class="form-control"
+                           autocomplete="off">
+                </div>
+            </form>
+            <div class="row">
+                <div class="col-md-6 col-lg-4">
+                    <button id="js-continue-btn" disabled type="submit" class="btn btn-primary sb_btn sb_btn_fill">Continue</button>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <a href="{% if selected != None %}{% url "mission" selected.id selected.slug %}{% else %}{% url "quest" quest.owner_username %}{% endif %}" class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove"
+                    >Cancel</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <small>By continuing, you agree to our <a href="{% url "terms_and_conditions" %}">Terms of Service</a>.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-donation-information');
+{% endblock %}

@@ -61,7 +61,7 @@ export function navbar() {
         //
         // Show Rep
         .on('click', '.js-show-reputation', function() {
-            request.put({
+            request.patch({
                 url: "/v1/me/",
                 data: JSON.stringify({
                     "reputation_update_seen": true,

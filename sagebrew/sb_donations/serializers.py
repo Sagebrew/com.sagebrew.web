@@ -13,10 +13,6 @@ from api.utils import gather_request_data, spawn_task
 from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
 from plebs.serializers import PlebExportSerializer
-from sb_quests.neo_models import Campaign
-from sb_quests.tasks import release_single_donation_task
-from sb_goals.neo_models import Round
-from sb_goals.tasks import check_goal_completion_task
 from plebs.tasks import send_email_task
 from sb_privileges.tasks import check_privileges
 
@@ -27,140 +23,91 @@ class DonationSerializer(SBSerializer):
     completed = serializers.BooleanField(read_only=True)
     amount = serializers.IntegerField(required=True)
     owner_username = serializers.CharField(read_only=True)
+    payment_method = serializers.CharField(write_only=True, allow_null=True)
 
-    donated_for = serializers.SerializerMethodField()
-    applied_to = serializers.SerializerMethodField()
-    owned_by = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
     mission = serializers.SerializerMethodField()
 
     def validate_amount(self, value):
+        """
+        Commenting out for time being until we can incorporate this into the
+        frontend and also establish that 2700 is the actual max amount.
+        Quests should be able to set this dynamically per mission and us
+        display the max amount in the custom input field.
+
+        from sb_missions.neo_models import Mission
         request = self.context.get('request', None)
-        donation_amount = Pleb.get_campaign_donations(
-            request.user.username, self.context['view'].kwargs['object_uuid'])
+        mission = Mission.get(self.context['view'].kwargs['object_uuid'])
+
+        if mission.focus_on_type == "position":
+            donation_amount = Pleb.get_mission_political_donations(
+                request.user.username,
+                self.context['view'].kwargs['object_uuid'])
+            if donation_amount >= 270000:
+                message = "You have already donated the max amount of " \
+                          "$2700 to this " \
+                          "mission for the year."
+                raise serializers.ValidationError(message)
+            if (donation_amount + value) > 270000:
+                message = "You cannot donate $%s because you have already " \
+                          "donated $%s and the max you can donate to this " \
+                          "campaign is $%s." % (str(value)[:-2],
+                                                str(donation_amount)[:-2],
+                                                str(270000)[:-2])
+                raise serializers.ValidationError(message)
+        """
         if value < 0:
             message = "You cannot donate a negative amount of " \
-                      "money to this campaign."
+                      "money to this mission."
             raise serializers.ValidationError(message)
-        if donation_amount >= 270000:
-            message = "You have already donated the max amount to this " \
-                      "campaign."
+        if value < 1:
+            message = "Donations must be at least $1."
             raise serializers.ValidationError(message)
-        if (donation_amount + value) > 270000:
-            message = "You cannot donate $%s because you have already " \
-                      "donated $%s and the max you can donate to this " \
-                      "campaign is $%s." % (str(value)[:-2],
-                                            str(donation_amount)[:-2],
-                                            str(270000)[:-2])
-            raise serializers.ValidationError(message)
+        '''
+        TODO @tyler is there a reason we weren't allowing donations with change?
         if not isinstance(value, int):
             raise serializers.ValidationError("Sorry donations cannot include "
                                               "change.")
+        '''
         return value
 
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
         stripe.api_key = settings.STRIPE_SECRET_KEY
-        donor = Pleb.get(request.user.username)
-        token = validated_data.pop('token', None)
-        validated_data['owner_username'] = donor.username
-        campaign = validated_data.pop('campaign', None)
+        mission = validated_data.pop('mission', None)
+        quest = validated_data.pop('quest', None)
+        donor = validated_data.pop('donor', None)
+        payment_method = validated_data.pop('payment_method', None)
         donation = Donation(**validated_data).save()
-        if not donor.stripe_customer_id:
-            customer = stripe.Customer.create(
-                description="Customer for %s" % donor.email,
-                card=token,
-                email=donor.email)
-            donor.stripe_customer_id = customer['id']
-            donor.save()
-            cache.delete(donor.username)
-            donor.refresh()
-        current_round = Round.nodes.get(
-            object_uuid=Campaign.get_active_round(campaign.object_uuid))
-        current_round.donations.connect(donation)
-        donation.associated_round.connect(current_round)
-        # this is commented out because we cannot currently foresee any
-        # use cases for it but we may need it in the future.
-        """
-        donated_toward = Goal.inflate(
-            Campaign.get_current_target_goal(campaign.object_uuid))
-        cache.set("%s_target_goal" % (campaign.object_uuid), donated_toward)
-        donated_toward.donations.connect(donation)
-        donation.donated_for.connect(donated_toward)
-        """
-        # This query manages the relationships between the new donation and
-        # the goals in which it will be applied to
-        # It gets the current active round of a campaign and gets the sum of
-        # the donations on that round, this includes the new donation so the
-        # donation has to be connected to the current round before this query
-        # is ran. It totals the amount of donations given to this round then
-        # gets all the goals whose total_required is less than or equal to the
-        # total amount of donations and those who have not been completed. It
-        # then gets the goal with the highest total_required and gets the next
-        # goal from that to see if the new donation needs to be applied to the
-        # next goal as well, this occurs when a donation amount will be
-        # applied to partially complete a goal. It then creates the
-        # connections between the goals which the donation will be applied to.
-        query = 'MATCH (r:Round {object_uuid:"%s"}) WITH r OPTIONAL MATCH ' \
-                '(r)-[:HAS_DONATIONS]->(d:Donation) WITH r, d MATCH ' \
-                '(cd:Donation {object_uuid:"%s"}) WITH r, SUM(d.amount) ' \
-                'as total_amount, cd, d MATCH (r)-[:STRIVING_FOR]->' \
-                '(goals:Goal) WHERE goals.completed=false AND ' \
-                'goals.total_required-total_amount<=0 FOREACH ' \
-                '(goal IN [goals]|MERGE (cd)-[:APPLIED_TO]->(goal) ' \
-                'MERGE (goal)-[:RECEIVED]->(cd))' \
-                % (Campaign.get_active_round(campaign.object_uuid),
-                   donation.object_uuid)
-        db.cypher_query(query)
-        campaign.donations.connect(donation)
-        donation.campaign.connect(campaign)
+
         donor.donations.connect(donation)
-        donation.owned_by.connect(donor)
-        cache.delete("%s_total_donated" % campaign.object_uuid)
-        if campaign.get_total_donated(campaign.object_uuid) \
-                < settings.FREE_RELEASE_LIMIT:
-            spawn_task(task_func=release_single_donation_task,
-                       task_param={"donation_uuid": donation.object_uuid})
-            return donation
-        email_data = {
-            "source": "support@sagebrew.com",
-            "to": donor.email,
-            "subject": "Thank you for your Quest Donation!",
-            "html_content": render_to_string(
-                "email_templates/email_quest_donation_pledge.html")
-        }
+        donation.mission.connect(mission)
 
-        spawn_task(task_func=send_email_task,
-                   task_param=email_data)
-        spawn_task(task_func=check_goal_completion_task,
-                   task_param={"round_uuid": current_round.object_uuid})
-        spawn_task(task_func=check_privileges,
-                   task_param={"username": donor.username})
+        quest_desc = quest.title \
+            if quest.title else "%s %s" % (quest.first_name, quest.last_name)
+        mission_desc = mission.title \
+            if mission.title else mission.focus_name_formatted
+        description = "Donation to %s's mission for %s" % (quest_desc,
+                                                           mission_desc)
+        payment_method = payment_method if payment_method is not None \
+            else donor.stripe_default_card_id
+        stripe.Charge.create(
+            customer=donor.stripe_customer_id,
+            amount=donation.amount,
+            currency="usd",
+            description=description,
+            destination=quest.stripe_id,
+            receipt_email=donor.email,
+            source=payment_method,
+            application_fee=int(
+                (donation.amount * (quest.application_fee +
+                                    settings.STRIPE_TRANSACTION_PERCENT)) + 30)
+        )
+        donation.completed = True
+        donation.save()
+        cache.delete("%s_total_donated" % mission.object_uuid)
+        cache.delete("%s_total_donated" % quest.object_uuid)
         return donation
-
-    def get_donated_for(self, obj):
-        request, _, _, relation, _ = gather_request_data(self.context)
-        donated_for = Donation.get_donated_for(obj.object_uuid)
-        if relation == 'hyperlink' and donated_for is not None:
-            return reverse('goal-detail', kwargs={'object_uuid': donated_for},
-                           request=request)
-        return donated_for
-
-    def get_applied_to(self, obj):
-        request, _, _, relation, _ = gather_request_data(self.context)
-        applied_to = Donation.get_applied_to(obj.object_uuid)
-        if relation == 'hyperlink' and applied_to is not None:
-            return [reverse('goal-detail', kwargs={'object_uuid': goal},
-                            request=request) for goal in applied_to]
-        return applied_to
-
-    def get_owned_by(self, obj):
-        request, _, _, relation, _ = gather_request_data(self.context)
-        if relation == "hyperlink":
-            return reverse('profile_page',
-                           kwargs={"pleb_username": obj.owner_username},
-                           request=request)
-        return obj.owner_username
 
     def get_mission(self, obj):
         from sb_missions.neo_models import Mission
@@ -176,13 +123,14 @@ class DonationSerializer(SBSerializer):
             return reverse('mission-detail',
                            kwargs={"object_uuid": mission},
                            request=request)
-        return mission.object_uuid
+        return mission
 
     def get_quest(self, obj):
         from sb_quests.neo_models import Quest
         from sb_quests.serializers import QuestSerializer
         request, expand, _, relation, _ = gather_request_data(self.context)
-        query = 'MATCH (d:Donation {object_uuid: "%s"})-[:CONTRIBUTED_TO]->' \
+        query = 'MATCH (d:Donation {object_uuid: "%s"})-' \
+                '[:CONTRIBUTED_TO]->' \
                 '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
                 'RETURN quest' % obj.object_uuid
         res, _ = db.cypher_query(query)

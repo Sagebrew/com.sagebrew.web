@@ -27,6 +27,30 @@ export function getCookie(name) {
     return cookieValue;
 }
 
+export function birthdayInputManager(jsElement, event) {
+    var temp;
+    if (event.keyCode !== 193 && event.keyCode !== 111) {
+        if (event.keyCode !== 8) {
+            if ($(jsElement).val().length === 2) {
+                $(jsElement).val($(jsElement).val() + "/");
+            } else if ($(jsElement).val().length === 5) {
+                $(jsElement).val($(jsElement).val() + "/");
+            }
+        } else {
+            temp = $(jsElement).val();
+            if ($(jsElement).val().length === 5) {
+                $(jsElement).val(temp.substring(0, 4));
+            } else if ($(jsElement).val().length === 2) {
+                $(jsElement).val(temp.substring(0, 1));
+            }
+        }
+    } else {
+        temp = $(jsElement).val();
+        var tam = $(jsElement).val().length;
+        $(jsElement).val(temp.substring(0, tam-1));
+    }
+}
+
 /**
  * Check if HTTP method requires CSRF.
  * @param method
@@ -60,8 +84,7 @@ export function args(arg) {
             }
         }
     }
-
-    if (select && elements[select]) {
+    if ((select || select === 0) && elements[select]) {
         return elements[select];
     }
     else {
@@ -103,7 +126,9 @@ export function loadMap(callbackFxn, libraries = "places") {
     "use strict";
     var s = document.createElement("script");
     s.type = "text/javascript";
-    s.src  = "https://maps.googleapis.com/maps/api/js?key=" + settings.google_maps + "&libraries=" + libraries + "&callback=setupAutoSearchMaps";
+    s.src  = "https://maps.googleapis.com/maps/api/js?key=" +
+        settings.google_maps + "&libraries=" +
+        libraries + "&callback=setupAutoSearchMaps";
     window.setupAutoSearchMaps = function(){
         callbackFxn();
     };
@@ -131,6 +156,13 @@ export function determineZoom(affectedArea){
 }
 
 
+/**
+ * Gather all of the form data associated with the given form. This will build
+ * a dictionary using the name associated with the input field as the key and
+ * the value provided by the user as the value.
+ * @param form
+ * @returns {{}}
+ */
 export function getFormData(form) {
     var data = {};
     for (var i = 0, ii = form.length; i < ii; ++i) {
@@ -139,9 +171,52 @@ export function getFormData(form) {
         // we prepopulate it. So if they remove it we want to set it to
         // an empty string in the backend.
         if (input.name) {
+            data[input.name] = input.value;
+        }
+    }
+    return data;
+}
+
+/**
+ * Gather all of the form data for inputs that have successfully been verified.
+ * This function requires that you use a formValidation validator on the form
+ * or manage adding has-success manually.
+ * @param form
+ * @returns {{}}
+ */
+export function getSuccessFormData(form) {
+    var data = {}, parent, input;
+    for (var i = 0, ii = form.length; i < ii; ++i) {
+        input = form[i];
+        // Don't check the value because if the use has entered a value
+        // we prepopulate it. So if they remove it we want to set it to
+        // an empty string in the backend.
+        parent = findAncestor(input, "form-group");
+        if (input.name && parent.classList.contains('has-success')) {
           data[input.name] = input.value;
         }
     }
-
     return data;
+}
+
+/**
+ * Determine if all the forms in a given array have been filled out
+ * successfully.
+ * This function requires that you use a formValidation validator on the form
+ * or manage adding has-success to validated fields manually. If all forms are
+ * fully validated it returns true and if they are not it returns false.
+ * @param forms
+ * @returns {boolean}
+ */
+export function verifyContinue(forms) {
+    var formData;
+    for(var i = 0; i < forms.length; i++){
+        formData = getSuccessFormData(forms[i]);
+        // Subtract one because for some reason the form length is one longer
+        // than the actual amount of inputs.
+        if (Object.keys(formData).length !== forms[i].length - 1) {
+            return false;
+        }
+    }
+    return true;
 }

@@ -51,8 +51,10 @@
 
 {% include "partials/intercom.html" %}
 <script>
-{%  block intercom %}
-{% endblock %}
+    {% if request.user.is_authenticated %}
+        {%  block intercom %}
+        {% endblock %}
+    {% endif %}
 </script>
 
 {% block analytics %}

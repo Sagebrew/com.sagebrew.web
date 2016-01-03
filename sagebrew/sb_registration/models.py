@@ -41,10 +41,9 @@ class EmailAuthTokenGenerator(object):
         timestamp_base36 = int_to_base36(timestamp)
 
         key_salt = "sagebrew.sb_registration.models.EmailAuthTokenGenerator"
-        hash_val = "%s%s%s%s%s%s" % (user.username, user.first_name,
-                                     user.last_name, user.email,
-                                     pleb.completed_profile_info,
-                                     pleb.email_verified)
+        hash_val = "%s%s%s%s%s" % (user.username, user.first_name,
+                                   user.last_name, user.email,
+                                   pleb.email_verified)
 
         created_hash = salted_hmac(key_salt, hash_val).hexdigest()[::2]
         return "%s-%s" % (timestamp_base36, created_hash)

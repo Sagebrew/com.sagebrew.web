@@ -132,6 +132,12 @@ class Mission(Searchable):
                 raise DoesNotExist("Quest does not exist")
         return mission
 
+    @classmethod
+    def get_quest(cls, object_uuid):
+        from sb_quests.neo_models import Quest
+        return Quest.get(owner_username=Mission.get(
+                object_uuid=object_uuid).owner_username)
+
     def get_focused_on(self, request=None):
         from api.neo_models import SBObject
         from sb_quests.neo_models import Position
@@ -154,6 +160,8 @@ class Mission(Searchable):
             elif child_label == "Question":
                 return QuestionSerializerNeo(Question.inflate(res.one),
                                              context={'request': request}).data
+        else:
+            return None
 
     def get_location(self):
         from sb_locations.neo_models import Location

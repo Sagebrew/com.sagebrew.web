@@ -21,6 +21,7 @@ static/*
 sagebrew/static/*
 sagebrew/temp_files/dynamo_table.json
 .idea/workspace.xml
+sagebrew/frontend/js/src/components/template_build/*
 .vagrant
 *.log
 *.pot

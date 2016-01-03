@@ -138,31 +138,6 @@ class DonationEndpointTests(APITestCase):
         self.assertEqual(response.data['owner_username'],
                          self.donation.owner_username)
 
-    def test_get_donated_for(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('donation-detail',
-                      kwargs={'object_uuid': self.donation.object_uuid})
-        response = self.client.get(url)
-
-        self.assertIsNone(response.data['donated_for'])
-
-    def test_get_applied_to(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('donation-detail',
-                      kwargs={'object_uuid': self.donation.object_uuid})
-        response = self.client.get(url)
-
-        self.assertEqual(response.data['applied_to'], [])
-
-    def test_get_owned_by(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('donation-detail',
-                      kwargs={'object_uuid': self.donation.object_uuid})
-        response = self.client.get(url)
-
-        self.assertEqual(response.data['owned_by'],
-                         self.donation.owner_username)
-
     def test_get_quest(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('donation-detail',

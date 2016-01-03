@@ -49,7 +49,7 @@ export function load() {
                 document.getElementById('js-mission-list').innerHTML = '<div class="loader"></div>';
                 var affectFilterList = document.getElementById('js-affect-filter');
                 for (var i = 0; i < affectFilterList.childNodes.length; i++) {
-                    if (affectFilterList.childNodes[i].className == "active"){
+                    if (affectFilterList.childNodes[i].className === "active"){
                         affectFilterList.childNodes[i].classList.remove("active");
                     }
                 }
@@ -57,7 +57,7 @@ export function load() {
                 loadMissions(this.id);
             }
         });
-    loadMissions("everyone")
+    loadMissions("everyone");
 }
 
 /**
@@ -93,14 +93,14 @@ function loadMissions(affectsFilter) {
                 data.results[i].title = missions.determineTitle(data.results[i]);
                 if (data.results[i].focus_on_type === "position"){
                     if(data.results[i].quest.title !== "" && data.results[i].quest.title !== null){
-                        data.results[i].title = data.results[i].quest.title + "'s mission for " + data.results[i].title
+                        data.results[i].title = data.results[i].quest.title + "'s mission for " + data.results[i].title;
                     } else {
-                        data.results[i].title = data.results[i].quest.first_name + " " + data.results[i].quest.last_name + "'s mission for " + data.results[i].title
+                        data.results[i].title = data.results[i].quest.first_name + " " + data.results[i].quest.last_name + "'s mission for " + data.results[i].title;
                     }
 
                 }
                 if(data.results[i].wallpaper_pic === "" || data.results[i].wallpaper_pic === undefined || data.results[i].wallpaper_pic === null){
-                    data.results[i].wallpaper_pic = settings.static_url + "images/wallpaper_capitol_2.jpg"
+                    data.results[i].wallpaper_pic = settings.static_url + "images/wallpaper_capitol_2.jpg";
                 }
             }
             $missionList.append(templates.mission_list_block({missions: data.results}));

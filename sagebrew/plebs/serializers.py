@@ -301,7 +301,7 @@ class PlebSerializerNeo(SBSerializer):
                 card = customer.sources.create(source=customer_token)
                 instance.stripe_default_card_id = card['id']
         instance.stripe_default_card_id = validated_data.get(
-                'stripe_default_card_id', instance.stripe_default_card_id)
+            'stripe_default_card_id', instance.stripe_default_card_id)
         if update_time:
             instance.last_counted_vote_node = instance.vote_from_last_refresh
         instance.save()

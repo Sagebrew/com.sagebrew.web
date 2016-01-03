@@ -136,7 +136,7 @@ class Mission(Searchable):
     def get_quest(cls, object_uuid):
         from sb_quests.neo_models import Quest
         return Quest.get(owner_username=Mission.get(
-                object_uuid=object_uuid).owner_username)
+            object_uuid=object_uuid).owner_username)
 
     def get_focused_on(self, request=None):
         from api.neo_models import SBObject

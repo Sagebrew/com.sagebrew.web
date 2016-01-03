@@ -4,23 +4,27 @@
     </h3>
     <div class="block-content">
         <small>Campaign Finance law requires us to ask for your occupation and employer since this is a mission for political office.</small>
-        <div class="form-group">
-            <label for="">Employer Name</label>
-            <input type="text"
-               name="employer_name"
-               placeholder="Employer Name"
-               value="" class="form-control">
-        </div>
-        <div class="form-group">
-            <label for="">Job Title</label>
-            <input type="text"
-               name="occupation_name"
-               placeholder="Job Title"
-               value="" class="form-control">
-        </div>
-        <label class="checkbox" for="checkbox2">
-            <input type="checkbox" value="" id="checkbox2" data-toggle="checkbox">
-            Retired or not employed
-        </label>
+        <form id="campaign-finance">
+            <div class="form-group">
+                <label for="">Employer Name</label>
+                <input type="text"
+                       id="employer-name"
+                       name="employer_name"
+                       placeholder="Employer Name"
+                       value="" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="">Job Title</label>
+                <input type="text"
+                       id="occupation-name"
+                       name="occupation_name"
+                       placeholder="Job Title"
+                       value="" class="form-control">
+            </div>
+            <label class="checkbox" for="retired-or-not-employed">
+                <input type="checkbox" value="" id="retired-or-not-employed" data-toggle="checkbox">
+                Retired or not employed
+            </label>
+        </form>
     </div>
 </div>

@@ -1,11 +1,11 @@
-/*global Stripe, Card*/
-var templates = require('template_build/templates'),
-    helpers = require('common/helpers'),
-    settings = require('settings').settings,
+var helpers = require('common/helpers'),
     request = require('api').request,
     getPaymentMethods = require('common/payment').getPaymentMethods;
 
 export function stripeResponseHandler(status, response) {
+    var greyPage = document.getElementById('sb-greyout-page'),
+        $form = $('#payment-form');
+
     request.patch({url: "/v1/me/", data: JSON.stringify({
         customer_token: response.id
     })})
@@ -15,7 +15,7 @@ export function stripeResponseHandler(status, response) {
                     getPaymentMethods(true, function () {
                         document.getElementById('js-add-payment-form').innerHTML = "";
                     });
-                })
+                });
         }).fail(function () {
             greyPage.classList.add('sb_hidden');
             $form.find('button').prop('disabled', false);
@@ -27,7 +27,7 @@ export function donationCancelRedirect() {
     var paymentMethods = document.getElementById('js-list-payment-methods'),
         paymentForm = document.getElementById('js-add-payment-form');
     paymentMethods.classList.remove('sb_hidden');
-    paymentForm.innerHTML = ""
+    paymentForm.innerHTML = "";
 }
 
 export function usePaymentCallback(paymentID) {
@@ -48,5 +48,5 @@ export function usePaymentCallback(paymentID) {
             localStorage.removeItem(subscriptionKey);
             localStorage.removeItem(paymentMethodKey);
             window.location.href = "/" + donationType + "/" + donationToID + "/";
-        })
+        });
 }

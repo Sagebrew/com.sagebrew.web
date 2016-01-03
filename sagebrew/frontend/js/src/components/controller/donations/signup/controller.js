@@ -30,12 +30,9 @@ export function load() {
         congressionalKey = "addressCongressionalDistrict",
         validKey = "addressValid",
         originalKey = "addressOriginal",
-        occupationKey = "occupationKey",
-        employerKey = "employerKey",
         $app = $(".app-sb"),
         donateToID = helpers.args(1),
         missionSlug = helpers.args(2),
-        donationType = helpers.args(0),
         accountForm = document.getElementById('account-info'),
         addressForm = document.getElementById('address'),
         addressValidationForm = $("#address"),
@@ -65,13 +62,24 @@ export function load() {
             addressData.congressional_district = localStorage.getItem(congressionalKey);
 
             // If employment and occupation info is available add it to the account info
-            accountData.employer_name = localStorage.getItem(employerKey);
-            accountData.occupation_name = localStorage.getItem(occupationKey);
+            var campaignFinanceForm = document.getElementById('campaign-finance');
+            if(campaignFinanceForm !== undefined) {
+                var employerName = document.getElementById('employer-name').value,
+                    occupationName = document.getElementById('occupation-name').value,
+                    retired = document.getElementById('retired-or-not-employed').checked;
+                if (retired === true) {
+                    accountData.employer_name = "N/A";
+                    accountData.occupation_name = "Retired or Not Employed";
+                } else {
+                    accountData.employer_name = employerName;
+                    accountData.occupation_name = occupationName;
+                }
+            }
 
             // The backend doesn't care about the user's password matching so
             // delete the second password input we use to help ensure the user
             // doesn't put int a password they don't mean to.
-            delete accountData["password2"];
+            delete accountData.password2;
             accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
             requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
                 .done(function () {
@@ -79,7 +87,7 @@ export function load() {
                         .done(function () {
                             window.location.href = "/missions/" + donateToID + "/" +
                                 missionSlug + "/donate/payment/";
-                        })
+                        });
                 });
         });
     var liveaddress = $.LiveAddress({

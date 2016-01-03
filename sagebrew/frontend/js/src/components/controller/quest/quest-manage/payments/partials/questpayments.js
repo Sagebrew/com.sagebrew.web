@@ -1,7 +1,4 @@
-/*global Stripe, Card*/
-var templates = require('template_build/templates'),
-    helpers = require('common/helpers'),
-    settings = require('settings').settings,
+var helpers = require('common/helpers'),
     request = require('api').request;
 
 export function stripeResponseHandler(status, response) {

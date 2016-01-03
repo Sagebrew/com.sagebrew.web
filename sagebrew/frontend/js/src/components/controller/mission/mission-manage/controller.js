@@ -2,8 +2,7 @@
  * @file
  */
 var request = require('api').request,
-    helpers = require('common/helpers'),
-    settings = require('settings').settings;
+    helpers = require('common/helpers');
 
 /**
  * Meta.

@@ -1,6 +1,5 @@
 /*global Stripe, Card*/
 var templates = require('template_build/templates'),
-    helpers = require('common/helpers'),
     settings = require('settings').settings,
     request = require('api').request,
     paymentMethodKey = "selectedPaymentMethod";
@@ -27,11 +26,11 @@ export function listPaymentMethods(endpoint, usePaymentCallback,
             })})
                 .done(function () {
                     getPaymentMethods(true);
-                })
+                });
         })
         .on('click', '.js-payment-method-option', function (){
             localStorage.setItem(paymentMethodKey, this.id);
-        })
+        });
 }
 
 export function getPaymentMethods(submitPayment, callback) {
@@ -132,7 +131,7 @@ export function addPayment(responseHandler, cancelRedirect) {
                     $form.find('.payment-errors').removeAttr('hidden');
                     $form.find('button').prop('disabled', false);
                 } else {
-                    responseHandler(status, response)
+                    responseHandler(status, response);
                 }
             });
 

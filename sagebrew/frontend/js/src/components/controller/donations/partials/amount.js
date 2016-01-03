@@ -98,8 +98,29 @@ export function amount() {
                 window.location.href = "/missions/" + donateToID + "/" +
                     helpers.args(2) + "/donate/name/";
             } else {
-                window.location.href = "/missions/" + donateToID + "/" +
-                    helpers.args(2) + "/donate/payment/";
+                var campaignFinanceForm = document.getElementById('campaign-finance');
+                if(campaignFinanceForm !== undefined){
+                    var employerName = document.getElementById('employer-name').value,
+                        occupationName = document.getElementById('occupation-name').value,
+                        retired = document.getElementById('retired-or-not-employed').checked;
+                    if(retired === true){
+                        employerName = "N/A";
+                        occupationName = "Retired or Not Employed";
+                    }
+                    var data = {
+                        employer_name: employerName,
+                        occupation_name: occupationName
+                    };
+                    request.patch({url: "/v1/me/", data: JSON.stringify(data)})
+                        .done(function () {
+                            window.location.href = "/missions/" + donateToID + "/" +
+                                helpers.args(2) + "/donate/payment/";
+                        });
+                } else {
+                    window.location.href = "/missions/" + donateToID + "/" +
+                        helpers.args(2) + "/donate/payment/";
+                }
+
             }
         });
 }

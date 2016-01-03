@@ -1,7 +1,4 @@
-var request = require('api').request,
-    templates = require('template_build/templates'),
-    missions = require('common/missions'),
-    settings = require('settings').settings,
+var missions = require('common/missions'),
     helpers = require('common/helpers'),
     addCroppic = require('common/uploadimage').addCroppic;
 

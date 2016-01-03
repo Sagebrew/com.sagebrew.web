@@ -1,9 +1,5 @@
-var requests = require('api').request,
-    helpers = require('common/helpers'),
-    missions = require('common/missions'),
-    settings = require('settings').settings,
-    validators = require('common/validators'),
-    moment = require('moment');
+var helpers = require('common/helpers'),
+    missions = require('common/missions');
 
 export const meta = {
     controller: "donations/choose",

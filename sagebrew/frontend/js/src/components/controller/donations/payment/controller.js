@@ -1,9 +1,4 @@
-var requests = require('api').request,
-    helpers = require('common/helpers'),
-    payment = require('common/payment'),
-    settings = require('settings').settings,
-    validators = require('common/validators'),
-    moment = require('moment'),
+var payment = require('common/payment'),
     donationPayments = require('./partials/donationpayment');
 
 export const meta = {

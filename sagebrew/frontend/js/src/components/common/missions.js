@@ -10,17 +10,17 @@ export function populateMissions(loadElement, questID){
                 loadElement.innerHTML = templates.position_holder({static_url: settings.static_url});
             } else {
                 for(var i=0; i < data.results.length; i++){
-                    if (data.results[i].focus_on_type == "position"){
+                    if (data.results[i].focus_on_type === "position"){
                         if (data.results[i].focused_on.full_name ) {
-                            title = data.results[i].focused_on.full_name
+                            title = data.results[i].focused_on.full_name;
                         } else {
-                            title = data.results[i].focus_name_formatted
+                            title = data.results[i].focus_name_formatted;
                         }
                     } else {
                         if (data.results[i].title) {
-                            title = data.results[i].title
+                            title = data.results[i].title;
                         } else {
-                            title = data.results[i].focus_name_formatted
+                            title = data.results[i].focus_name_formatted;
                         }
                     }
                     title = title.replace('-', ' ');

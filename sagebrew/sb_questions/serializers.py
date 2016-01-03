@@ -23,7 +23,7 @@ from sb_solutions.serializers import SolutionSerializerNeo
 from sb_solutions.neo_models import Solution
 
 from .neo_models import Question
-from .tasks import add_auto_tags_to_question_task, update_search_index
+from .tasks import add_auto_tags_to_question_task
 
 
 def solution_count(question_uuid):
@@ -215,9 +215,8 @@ class QuestionSerializerNeo(TitledContentSerializer):
                 "external_id": instance.external_location_id})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
-        spawn_task(task_func=update_search_index, task_param={
-            "object_uuid": instance.object_uuid})
-        return instance
+        return super(QuestionSerializerNeo, self).update(
+            instance, validated_data)
 
     def get_url(self, obj):
         return obj.get_url(request=self.context.get('request', None))

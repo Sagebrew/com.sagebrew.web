@@ -364,7 +364,13 @@ SEARCH_TYPES = [
     ("general", "general"),
     ("conversations", "question"),
     ("people", "profile"),
-    ("quests", ["campaign", "politicalcampaign"])
+    ("quests", ["campaign", "politicalcampaign", "quest"]),
+    ("missions", "mission")
+]
+
+SEARCH_FIELDS = [
+    "username", "first_name", "last_name", "content", "title", "tags",
+    "full_name", "owner_username", "focused_on"
 ]
 
 

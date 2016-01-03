@@ -316,7 +316,7 @@ class PlebSerializerNeo(SBSerializer):
             "first_name": instance.first_name,
             "last_name": instance.last_name, "email": instance.email
         })
-        return instance
+        return super(PlebSerializerNeo, self).update(instance, validated_data)
 
     def get_id(self, obj):
         return obj.username

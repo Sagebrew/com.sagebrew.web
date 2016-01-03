@@ -19,7 +19,6 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from neomodel import db
-from elasticsearch import Elasticsearch
 
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrModerator,
                              IsOwnerOrEditor, IsOwnerOrModeratorOrReadOnly)
@@ -518,9 +517,6 @@ class PoliticalCampaignViewSet(CampaignViewSet):
     def perform_create(self, serializer):
         instance = serializer.save(position=Position.nodes.get(
             object_uuid=self.request.data['position']))
-        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        es.index(index='full-search-base', doc_type=serializer.data['type'],
-                 id=serializer.data['id'], body=serializer.data)
         return instance
 
     def retrieve(self, request, *args, **kwargs):

@@ -7,7 +7,7 @@ from neomodel import (db, StringProperty, IntegerProperty, DoesNotExist,
                       CypherException)
 
 from api.neo_models import SBObject
-from api.utils import spawn_task, deprecation
+from api.utils import deprecation
 
 
 class Goal(SBObject):

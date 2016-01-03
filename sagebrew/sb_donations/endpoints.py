@@ -95,7 +95,8 @@ class DonationListCreate(generics.ListCreateAPIView):
         donor = Pleb.get(self.request.user.username)
         if "/v1/missions/" in self.request.path:
             mission = Mission.get(object_uuid=self.kwargs[self.lookup_field])
-            quest = Mission.get_quest(object_uuid=self.kwargs[self.lookup_field])
+            quest = Mission.get_quest(
+                object_uuid=self.kwargs[self.lookup_field])
         else:
             mission = None
             quest = Quest.get(owner_username=self.kwargs[self.lookup_field])
@@ -126,10 +127,10 @@ class DonationListCreate(generics.ListCreateAPIView):
         """
         if "mission" in self.request.path:
             moderators = Mission.get(
-                    object_uuid=self.kwargs[self.lookup_field])
+                object_uuid=self.kwargs[self.lookup_field])
         else:
             moderators = Quest.get(
-                    owner_username=self.kwargs[self.lookup_field])
+                owner_username=self.kwargs[self.lookup_field])
         if not (request.user.username in
                 moderators.get_moderators(moderators.owner_username)):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,

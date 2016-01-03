@@ -437,8 +437,6 @@ class QuestSerializer(SBSerializer):
         return quest
 
     def update(self, instance, validated_data):
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe_token = validated_data.pop('stripe_token', None)
         customer_token = validated_data.pop('customer_token',
@@ -455,7 +453,6 @@ class QuestSerializer(SBSerializer):
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
         instance.youtube = validated_data.get('youtube', instance.youtube)
         instance.twitter = validated_data.get('twitter', instance.twitter)
-        logger.info({"init": initial_state, "curr": active})
         if initial_state is True and active is False:
             remove_search_object(instance.object_uuid, "quest")
         website = validated_data.get('website', instance.website)

@@ -3,32 +3,12 @@ var request = require('api').request,
     getArgs = require('common/helpers').getQueryParam,
     moment = require('moment'),
     templates = require('template_build/templates'),
-    Handlebars = require('handlebars');
+    Handlebars = require('handlebars'),
+    handlebarsHelpers = require('common/handlebars_helpers').installHandleBarsHelpers;
 
 
 export function submitSearch() {
-    Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
-        switch (operator) {
-            case '==':
-                return (v1 == v2) ? options.fn(this) : options.inverse(this);
-            case '===':
-                return (v1 === v2) ? options.fn(this) : options.inverse(this);
-            case '<':
-                return (v1 < v2) ? options.fn(this) : options.inverse(this);
-            case '<=':
-                return (v1 <= v2) ? options.fn(this) : options.inverse(this);
-            case '>':
-                return (v1 > v2) ? options.fn(this) : options.inverse(this);
-            case '>=':
-                return (v1 >= v2) ? options.fn(this) : options.inverse(this);
-            case '&&':
-                return (v1 && v2) ? options.fn(this) : options.inverse(this);
-            case '||':
-                return (v1 || v2) ? options.fn(this) : options.inverse(this);
-            default:
-                return options.inverse(this);
-        }
-    });
+    handlebarsHelpers();
     var searchResults = document.getElementById("search_result_div");
     searchResults.innerHTML = searchResults.innerHTML + '<div class="loader"></div>';
     request.get({url: "/v1/search/?query=" + getArgs('q') + "&filter=" + getArgs('filter')})

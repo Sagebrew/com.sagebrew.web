@@ -83,6 +83,66 @@
 }
 
 //
+// Search blocks
+//
+.search-block{
+  &:extend(.block);
+  margin-bottom: 15px;
+  background-color: @sb_off_white;
+  border-radius: 2px;
+  border: 2px solid @border-color;
+  height: auto;
+  min-height: 130px;
+  padding: @sb_common_padding_positive !important;
+  a {
+    color: @sb_grey_dark;
+    font-size: 20px;
+    @media only screen and (max-width: 768px){
+      font-size: 18px;
+    }
+    &:hover {
+      color: @sb_green;
+    }
+  }
+  ul{
+    padding-left: 0;
+  }
+  p{
+    margin-bottom: 0;
+  }
+}
+.search-content-block{
+  margin-top: 20px;
+  @media only screen and (max-width: 768px){
+    margin-top: 0;
+  }
+  p{
+    font-size: 16px;
+    @media only screen and (max-width: 768px){
+      font-size: 12px;
+    }
+  }
+}
+.search-vote-block{
+  margin-top: 20px;
+  @media only screen and (max-width: 768px){
+    margin-top: 15px;
+  }
+  h6{
+    @media only screen and (max-width: 768px){
+      font-size: 16px;
+    }
+  }
+}
+.search-thumbnail{
+  &:extend(.sb_thumbnail_md);
+  @media only screen and (max-width: 768px){
+    width: 85px;
+  }
+  margin-right: 15px;
+}
+
+//
 // Legacy overrides
 // -------------------------------------------------
 .block.sb_solution_news {

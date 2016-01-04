@@ -1,7 +1,6 @@
 import stripe
 
 from django.conf import settings
-from django.template.loader import render_to_string
 from django.core.cache import cache
 
 from rest_framework import serializers
@@ -13,7 +12,6 @@ from api.utils import gather_request_data, spawn_task
 from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
 from plebs.serializers import PlebExportSerializer
-from plebs.tasks import send_email_task
 from sb_privileges.tasks import check_privileges
 
 from .neo_models import Donation

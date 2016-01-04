@@ -195,7 +195,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                                context={'request': request})
         return self.get_paginated_response(serializer.data)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'],
+                  permission_classes=(IsAuthenticated, IsSelfOrReadOnly))
     def follow(self, request, username=None):
         """
         This endpoint allows users to follow other users.
@@ -211,7 +212,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                          "status": status.HTTP_200_OK},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'],
+                  permission_classes=(IsAuthenticated, IsSelfOrReadOnly))
     def unfollow(self, request, username=None):
         """
         This endpoint allows users to unfollow other users.

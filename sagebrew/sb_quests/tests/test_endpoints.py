@@ -278,7 +278,7 @@ class QuestEndpointTests(APITestCase):
         }
         response = self.client.put(url, data=data, format='json')
 
-        self.assertEqual(response.data['website'], data['website'])
+        self.assertEqual(response.data['website'], "http://this is an update")
 
     def test_update_wallpaper_pic(self):
         self.client.force_authenticate(user=self.user)

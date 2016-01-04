@@ -18,13 +18,14 @@ from sb_search.tasks import update_search_object
 class VoteEndpointTests(APITestCase):
     def setUp(self):
         cache.clear()
-        self.unit_under_test_name = 'goal'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
-        self.question = Question(title=str(uuid1())).save()
+        self.question = Question(
+            title=str(uuid1()), owner_username=self.pleb.username,
+            content="Hello there this is a question").save()
 
     def test_vote_get(self):
         self.client.force_authenticate(user=self.user)

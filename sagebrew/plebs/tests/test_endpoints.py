@@ -1,4 +1,5 @@
 import time
+from datetime import datetime
 from uuid import uuid1
 import shortuuid
 from collections import OrderedDict
@@ -729,12 +730,13 @@ class ProfileEndpointTests(APITestCase):
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
+        self.maxDiff = None
 
     def test_unauthorized(self):
         url = reverse('profile-detail', kwargs={
             'username': self.pleb.username})
         data = {}
-        response = self.client.post(url, data, format='json')
+        response = self.client.get(url, data, format='json')
         self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
                                              status.HTTP_403_FORBIDDEN])
 
@@ -921,10 +923,17 @@ class ProfileEndpointTests(APITestCase):
     def test_create_pleb(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-list')
-        data = {}
+        data = {
+            "date_of_birth": datetime.now().isoformat(),
+            "password": "testpassword1",
+            "email": "ahhaha1232132a@fffffff.com",
+            "first_name": "testuser",
+            "last_name": "testuser2",
+        }
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.data, {'detail': 'TBD'})
-        self.assertEqual(response.status_code, status.HTTP_501_NOT_IMPLEMENTED)
+        self.assertEqual(Pleb.get(username="testuser_testuser2").username,
+                         "testuser_testuser2")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
 
 class ProfileContentMethodTests(APITestCase):

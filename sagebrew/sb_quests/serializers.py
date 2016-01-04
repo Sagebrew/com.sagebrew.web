@@ -798,9 +798,9 @@ class PoliticalCampaignSerializer(CampaignSerializer):
         request, _, _, _, _ = gather_request_data(self.context)
         if request is None:
             return False
-        check, _ = PoliticalCampaign.get_allow_vote(obj.object_uuid,
-                                                    request.user.username)
-        return check
+        check, reason = PoliticalCampaign.get_allow_vote(obj.object_uuid,
+                                                         request.user.username)
+        return {"check": check, "reason": reason['detail']}
 
     def get_current_seat(self, obj):
         return PoliticalCampaign.get_current_seat(obj.object_uuid)

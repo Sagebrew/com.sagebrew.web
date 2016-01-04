@@ -28,8 +28,8 @@ class IsAnonCreateReadOnlyOrIsAuthenticated(permissions.BasePermission):
             return False
         elif request.method in permissions.SAFE_METHODS:
             return True
-        # TODO may want to enable authenticated apps to create new users
-        return False
+
+        return True
 
     def has_object_permission(self, request, view, obj):
         if not request.user.is_authenticated():
@@ -86,6 +86,13 @@ class IsOwnerOrEditorOrAccountant(permissions.BasePermission):
 
 
 class IsOwnerOrModeratorOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if request.user.is_authenticated():
+            return True
+        return False
+
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True

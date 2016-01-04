@@ -27,8 +27,11 @@ def calc_age(birthday):
     :return:
     '''
     today = date.today()
-    return today.year - birthday.year - ((today.month, today.day)
-                                         < (birthday.month - birthday.day))
+    try:
+        return today.year - birthday.year - ((today.month, today.day)
+                                             < (birthday.month - birthday.day))
+    except AttributeError:
+        return 0
 
 
 @apply_defense
@@ -240,6 +243,8 @@ def create_user_util_test(email, first_name="test", last_name="test",
     DEPRECATED
     Please use User serializer from now on. This function is no longer necessary
     Functionality found in plebs/serializers.py
+    :param task:
+    :return:
     :param first_name:
     :param last_name:
     :param email:

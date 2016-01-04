@@ -63,15 +63,13 @@ class TestCreateStateDistricts(TestCase):
     def test_rep_already_exists(self):
         try:
             official = PublicOfficial.nodes.get(bioguideid="MIL000290")
-            official.delete()
         except (PublicOfficial.DoesNotExist, DoesNotExist):
-            pass
-        official = PublicOfficial(bioguideid="MIL000290",
-                                  first_name="Kathy",
-                                  last_name="Crawford",
-                                  state_district="38",
-                                  state_chamber="lower",
-                                  state="mi").save()
+            official = PublicOfficial(bioguideid="MIL000290",
+                                      first_name="Kathy",
+                                      last_name="Crawford",
+                                      state_district="38",
+                                      state_chamber="lower",
+                                      state="mi").save()
         response = requests.get(self.lookup_url, headers=self.headers)
         json_response = response.json()
         res = create_and_attach_state_level_reps.apply_async(

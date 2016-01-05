@@ -31,6 +31,7 @@
     "packery": "~1.4.3",
     "typeahead.js": "~0.11.1",
     "jquery.payment": "~1.3.2",
-    "Croppie": "croppie#~1.0.3"
+    "Croppie": "croppie#~1.0.3",
+    "highcharts": "~4.1.7"
   }
 }

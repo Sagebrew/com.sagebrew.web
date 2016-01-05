@@ -329,6 +329,12 @@ class QuestViewSet(viewsets.ModelViewSet):
                                  status.HTTP_404_NOT_FOUND},
                             status=status.HTTP_404_NOT_FOUND)
 
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
+                                                       IsOwnerOrModerator,))
+    def pledged_votes_per_day(self, request, owner_username=None):
+        queryset = self.get_object().pledged_votes_per_day()
+        return Response(queryset, status=status.HTTP_200_OK)
+
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticatedOrReadOnly,))
     def missions(self, request, owner_username):

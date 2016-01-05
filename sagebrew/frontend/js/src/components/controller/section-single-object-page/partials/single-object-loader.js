@@ -1,4 +1,4 @@
-/*global $, enableContentFunctionality, populateComment, enableSolutionFunctionality, enableQuestionFunctionality*/
+/*global $, enableContentFunctionality, populateComment, enableSolutionFunctionality, enableQuestionFunctionality, showEditPosts*/
 var request = require('./../../../api').request,
     settings = require('./../../../settings').settings,
     helpers = require('./../../../common/helpers');
@@ -73,6 +73,9 @@ function loadSingleContent() {
                     enableQuestionFunctionality([data.id]);
                 } else if (formattedObjectType === "solution") {
                     enableSolutionFunctionality([data.id]);
+                } else if (formattedObjectType === "post") {
+                    showEditPosts([data.id]);
+                    enableContentFunctionality(data.id, formattedObjectType);
                 } else {
                     enableContentFunctionality(data.id, formattedObjectType);
                 }

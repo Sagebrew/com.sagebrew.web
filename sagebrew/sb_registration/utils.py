@@ -1,6 +1,7 @@
-from unidecode import unidecode
-from datetime import datetime
+import pytz
 import boto.ses
+from unidecode import unidecode
+from datetime import datetime, timedelta
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from datetime import date
 from django.conf import settings
@@ -26,8 +27,11 @@ def calc_age(birthday):
     :return:
     '''
     today = date.today()
-    return today.year - birthday.year - ((today.month, today.day)
-                                         < (birthday.month - birthday.day))
+    try:
+        return today.year - birthday.year - ((today.month, today.day)
+                                             < (birthday.month - birthday.day))
+    except AttributeError:
+        return 0
 
 
 @apply_defense
@@ -232,6 +236,50 @@ def create_user_util(first_name, last_name, email, password, birthday):
         return {"task_id": res, "username": username, "user": user}
 
 
-def create_user_util_test(email):
-    return create_user_util("test", "test", email, "testpassword",
-                            datetime.now())
+def create_user_util_test(email, first_name="test", last_name="test",
+                          password="test_test", birthday=None, task=False):
+    """
+    DEPRECATED
+    Please use User serializer from now on. This function is no longer necessary
+    Functionality found in plebs/serializers.py
+    :param first_name:
+    :param last_name:
+    :param email:
+    :param password:
+    :param birthday:
+    :return:
+    """
+    if birthday is None:
+        birthday = datetime.now(pytz.utc) - timedelta(days=18 * 365)
+    try:
+        user = User.objects.get(email=email)
+        username = user.username
+    except User.DoesNotExist:
+        username = generate_username(first_name, last_name)
+        user = User.objects.create_user(first_name=first_name,
+                                        last_name=last_name,
+                                        email=email, password=password,
+                                        username=username)
+        user.save()
+    try:
+        pleb = Pleb.nodes.get(username=user.username)
+    except (Pleb.DoesNotExist, DoesNotExist):
+        try:
+            pleb = Pleb(email=user.email, first_name=user.first_name,
+                        last_name=user.last_name, username=user.username,
+                        date_of_birth=birthday)
+            pleb.save()
+        except(CypherException, IOError):
+            return False
+    except(CypherException, IOError):
+        raise False
+    if task:
+        res = spawn_task(task_func=create_pleb_task,
+                         task_param={"user_instance": user,
+                                     "birthday": birthday,
+                                     "password": password})
+        if isinstance(res, Exception) is True:
+            return res
+        else:
+            return {"task_id": res, "username": username, "user": user}
+    return pleb

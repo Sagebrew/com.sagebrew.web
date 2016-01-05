@@ -18,7 +18,7 @@ from sb_docstore.tasks import spawn_user_updates, add_object_to_table_task
 class TestSpawnUserUpdates(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -32,7 +32,7 @@ class TestSpawnUserUpdates(TestCase):
     def test_spawn_user_updates(self):
         data = {
             "username": self.pleb.username,
-            "object_uuids": [self.question.object_uuid]
+            "object_uuid": self.question.object_uuid
         }
         res = spawn_user_updates.apply_async(kwargs=data)
         while not res.ready():
@@ -50,7 +50,7 @@ class TestSpawnUserUpdates(TestCase):
         }
         data = {
             "username": self.pleb.username,
-            "object_uuids": [self.question.object_uuid]
+            "object_uuid": self.question.object_uuid
         }
         res = add_object_to_table('votes', vote_data)
         self.assertTrue(res)
@@ -64,7 +64,7 @@ class TestSpawnUserUpdates(TestCase):
 class TestAddObjectToTableTask(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)

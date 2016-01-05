@@ -1,5 +1,7 @@
+import pytz
 import stripe
 from uuid import uuid1
+from datetime import datetime, timedelta
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -9,7 +11,6 @@ from django.templatetags.static import static
 from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-
 from neomodel import db, DoesNotExist
 
 from sb_privileges.neo_models import SBAction, Privilege
@@ -29,8 +30,7 @@ class CampaignEndpointTests(APITestCase):
         db.cypher_query(query)
         self.unit_under_test_name = 'campaign'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email, task=False)
         self.user = User.objects.get(email=self.email)
         for camp in self.pleb.campaign.all():
             camp.delete()
@@ -45,6 +45,9 @@ class CampaignEndpointTests(APITestCase):
         self.campaign.editors.connect(self.pleb)
         self.pleb.campaign_accountant.connect(self.campaign)
         self.pleb.campaign_editor.connect(self.campaign)
+        self.pleb.date_of_birth = \
+            datetime.now(pytz.utc) - timedelta(days=18 * 365)
+        self.pleb.save()
         cache.clear()
         self.stripe = stripe
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -843,6 +846,32 @@ class CampaignEndpointTests(APITestCase):
         location.delete()
         position.delete()
 
+    def test_vote_too_young(self):
+        location = Location(name="Test Location").save()
+        position = Position(name="Test Position").save()
+        position.location.connect(location)
+        location.positions.connect(position)
+        self.pleb.date_of_birth = \
+            datetime.now(pytz.utc) - timedelta(days=17 * 365)
+        self.pleb.save()
+        cache.clear()
+        address = Address().save()
+        self.pleb.address.connect(address)
+        self.campaign.position.connect(position)
+        address.encompassed_by.connect(location)
+        location.addresses.connect(address)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('campaign-vote',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'vote_type': 1
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        address.delete()
+        location.delete()
+        position.delete()
+
     def test_vote_anonymous(self):
         location = Location(name="Test Location").save()
         position = Position(name="Test Position").save()
@@ -883,7 +912,9 @@ class CampaignEndpointTests(APITestCase):
             'vote_type': 1
         }
         response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.data['detail'],
+                         "You cannot pledge vote to Quest outside your area.")
         address.delete()
         location.delete()
         location2.delete()
@@ -980,44 +1011,6 @@ class CampaignEndpointTests(APITestCase):
         location2.delete()
         location3.delete()
         location4.delete()
-        position.delete()
-
-    def test_vote_five_locations_away(self):
-        location = Location(name="Test Location").save()
-        location2 = Location(name="Test Location 2").save()
-        location3 = Location(name="Test Location 3").save()
-        location4 = Location(name="Test Location 4").save()
-        location5 = Location(name="Test Location 5").save()
-        position = Position(name="Test Position").save()
-        position.location.connect(location)
-        location.positions.connect(position)
-        location2.encompasses.connect(location)
-        location.encompassed_by.connect(location2)
-        location3.encompasses.connect(location2)
-        location2.encompassed_by.connect(location3)
-        location4.encompasses.connect(location3)
-        location3.encompassed_by.connect(location4)
-        location5.encompasses.connect(location4)
-        location4.encompassed_by.connect(location5)
-        address = Address().save()
-        self.pleb.address.connect(address)
-        self.campaign.position.connect(position)
-        address.encompassed_by.connect(location5)
-        location5.addresses.connect(address)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('campaign-vote',
-                      kwargs={'object_uuid': self.campaign.object_uuid})
-        data = {
-            'vote_type': 1
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        address.delete()
-        location.delete()
-        location2.delete()
-        location3.delete()
-        location4.delete()
-        location5.delete()
         position.delete()
 
     def test_rounds(self):
@@ -1143,6 +1136,26 @@ class CampaignEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_donation_create_user_is_not_verified(self):
+        self.client.force_authenticate(user=self.user)
+        active_round = Round(active=True).save()
+        target_goal = Goal(monetary_requirement=1000, target=True).save()
+        self.campaign.goals.connect(target_goal)
+        self.campaign.active_round.connect(active_round)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 1000
+        }
+        self.pleb.is_verified = False
+        self.pleb.save()
+        cache.clear()
+        response = self.client.post(url, data=data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.pleb.is_verified = True
+        self.pleb.save()
+
     def test_donation_create_value_too_high(self):
         self.client.force_authenticate(user=self.user)
         active_round = Round(active=True).save()
@@ -1174,6 +1187,39 @@ class CampaignEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['amount'],
                          ['A valid integer is required.'])
+
+    def test_donation_create_pleb_too_young(self):
+        self.pleb.date_of_birth = \
+            datetime.now(pytz.utc) - timedelta(days=17 * 365)
+        self.pleb.save()
+        cache.set(self.pleb.username, self.pleb)
+        self.client.force_authenticate(user=self.user)
+        active_round = Round(active=True).save()
+        target_goal = Goal(monetary_requirement=1000, target=True).save()
+        self.campaign.goals.connect(target_goal)
+        self.campaign.active_round.connect(active_round)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 1000
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        cache.set(self.pleb.username, self.pleb)
+
+    def test_donation_pleb_correct_age(self):
+        self.client.force_authenticate(user=self.user)
+        active_round = Round(active=True).save()
+        target_goal = Goal(monetary_requirement=1000, target=True).save()
+        self.campaign.goals.connect(target_goal)
+        self.campaign.active_round.connect(active_round)
+        url = reverse('campaign-donations',
+                      kwargs={'object_uuid': self.campaign.object_uuid})
+        data = {
+            'amount': 1000
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_donation_create_two_goals(self):
         self.client.force_authenticate(user=self.user)

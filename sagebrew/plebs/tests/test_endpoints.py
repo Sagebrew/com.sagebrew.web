@@ -3031,7 +3031,7 @@ class NewsfeedTests(APITestCase):
         cache.clear()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -3760,14 +3760,14 @@ class TestFollowNewsfeed(APITestCase):
         cache.clear()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2)
+        res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
@@ -3812,7 +3812,7 @@ class TestFollowEndpoints(APITestCase):
         cache.clear()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -3866,13 +3866,13 @@ class TestAcceptFriendRequest(APITestCase):
         res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2)
+        res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
@@ -3960,13 +3960,13 @@ class TestDeclineFriendRequest(APITestCase):
         res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2)
+        res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
@@ -4054,13 +4054,13 @@ class TestBlockFriendRequest(APITestCase):
         res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email)
+        res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2)
+        res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)

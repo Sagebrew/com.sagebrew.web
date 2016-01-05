@@ -209,7 +209,7 @@ class DonationEndpointTests(APITestCase):
 
     def test_delete_not_owner(self):
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2)
+        res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
@@ -243,6 +243,8 @@ class TestSagebrewDonation(APITestCase):
         self.url = "http://testserver"
         self.donation = Donation(completed=False, amount=1000,
                                  owner_username=self.user.username).save()
+        self.pleb.is_verified = True
+        self.pleb.save()
         cache.set(self.pleb.username, self.pleb)
 
     def test_unauthorized(self):
@@ -336,3 +338,29 @@ class TestSagebrewDonation(APITestCase):
         }
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_donation_create_user_is_not_verified(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('direct_donation')
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        self.pleb.stripe_customer_id = None
+        self.pleb.is_verified = False
+        self.pleb.save()
+        cache.clear()
+        token = stripe.Token.create(
+            card={
+                "number": "4242424242424242",
+                "exp_month": 12,
+                "exp_year": (datetime.datetime.now() + datetime.timedelta(
+                    days=3 * 365)).year,
+                "cvc": '123'
+            }
+        )
+        data = {
+            'amount': 1000,
+            'token': token['id']
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.pleb.is_verified = True
+        self.pleb.save()

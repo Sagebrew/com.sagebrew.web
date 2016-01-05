@@ -90,7 +90,7 @@
                             <button class="btn btn-primary sb_btn"
                                 data-toggle="modal"
                                 data-target="#donationModal">Donate</button>
-                            {% if allow_vote %}
+                            {% if allow_vote.check %}
                                 {% if vote_type %}
                                     <button id="create_vote"
                                             data-object_uuid="{{ id }}"
@@ -106,7 +106,7 @@
                                     class="btn sb_restricted"
                                     data-toggle="tooltip"
                                     data-placement="top"
-                                    data-title="Quest not in your area!">Pledge Vote</button>
+                                    data-title="{{ allow_vote.reason }}">Pledge Vote</button>
                             {% endif %}
                     {% endif %}
                 </div>

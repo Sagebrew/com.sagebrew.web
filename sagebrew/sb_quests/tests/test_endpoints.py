@@ -10,6 +10,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from neomodel import db
+from elasticsearch import Elasticsearch, TransportError
 
 from sb_privileges.neo_models import SBAction, Privilege
 from plebs.neo_models import Pleb
@@ -18,6 +19,7 @@ from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
 
 from sb_quests.neo_models import Quest, Position
+from sb_quests.serializers import QuestSerializer
 
 
 class QuestEndpointTests(APITestCase):
@@ -171,6 +173,32 @@ class QuestEndpointTests(APITestCase):
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['active'], True)
+
+    def test_update_take_quest_inactive(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        self.quest.active = True
+        self.quest.save()
+        cache.set("%s_quest" % self.quest.owner_username, self.quest)
+        data = {
+            'active': False,
+        }
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        es.index(index='full-search-base', doc_type='quest',
+                 id=self.quest.object_uuid,
+                 body=QuestSerializer(self.quest).data)
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['active'], False)
+        try:
+            es.get(index='full-search-base', doc_type='quest',
+                   id=self.quest.object_uuid)
+        except TransportError as e:
+            self.assertEqual(e.info, {"_index": "full-search-base",
+                                      "_type": "quest",
+                                      "_id": self.quest.object_uuid,
+                                      "found": False})
 
     def test_update_about(self):
         self.client.force_authenticate(user=self.user)

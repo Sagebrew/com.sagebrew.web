@@ -23,6 +23,7 @@ from sb_goals.neo_models import Round, Goal
 from sb_public_official.serializers import PublicOfficialSerializer
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
+from sb_search.utils import remove_search_object
 
 from .neo_models import (Campaign, PoliticalCampaign, Position, Quest)
 
@@ -440,12 +441,14 @@ class QuestSerializer(SBSerializer):
         stripe_token = validated_data.pop('stripe_token', None)
         customer_token = validated_data.pop('customer_token',
                                             instance.customer_token)
+        initial_state = instance.active
         ein = validated_data.pop('ein', instance.ein)
         ssn = validated_data.pop('ssn', instance.ssn)
         # Remove any dashses from the ssn input.
         if ssn is not None:
             ssn = ssn.replace('-', "")
-        instance.active = validated_data.pop('active', instance.active)
+        active = validated_data.pop('active', instance.active)
+        instance.active = active
         title = validated_data.pop('title', instance.title)
         if title is not None:
             title = title.strip()
@@ -456,7 +459,8 @@ class QuestSerializer(SBSerializer):
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
         instance.youtube = validated_data.get('youtube', instance.youtube)
         instance.twitter = validated_data.get('twitter', instance.twitter)
-
+        if initial_state is True and active is False:
+            remove_search_object(instance.object_uuid, "quest")
         website = validated_data.get('website', instance.website)
         if website is None:
             instance.website = website
@@ -586,6 +590,8 @@ class QuestSerializer(SBSerializer):
         instance.save()
         instance.refresh()
         cache.set("%s_quest" % instance.object_uuid, instance)
+        if instance.active:
+            return super(QuestSerializer, self).update(instance, validated_data)
         return instance
 
     def get_url(self, obj):

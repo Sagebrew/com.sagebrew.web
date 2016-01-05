@@ -1,4 +1,4 @@
-/*global $, enableContentFunctionality, enableQuestionFunctionality, enableSolutionFunctionality, populateComment*/
+/*global $, enableContentFunctionality, populateComment, enableSolutionFunctionality, enableQuestionFunctionality, showEditPosts*/
 var request = require('api').request;
 
 require('plugin/contentloader');
@@ -35,16 +35,14 @@ function loadSingleContent() {
             html: 'true'
         },
         dataCallback: function (base_url, params) {
-            var urlParams = $.param(params);
-            var url;
+            var urlParams = $.param(params), url;
             if (urlParams) {
                 url = base_url + "?" + urlParams;
-            }
-            else {
+            } else {
                 url = base_url;
             }
 
-            return request.get({url:url});
+            return request.get({url: url});
         },
         renderCallback: function ($container, data) {
             if (data.results.to_be_deleted) {
@@ -57,13 +55,16 @@ function loadSingleContent() {
                 if (formattedObjectType === "solution" || formattedObjectType === "question") {
                     wrapper.append('<small><a href="' + data.results.url + '">View the full Conversation</a></small>');
                 }
-                 wrapper.append(data.html);
+                wrapper.append(data.html);
                 if (formattedObjectType === "question") {
                     // TODO refactor this
                     enableQuestionFunctionality([data.id]);
                 } else if (formattedObjectType === "solution") {
                     // TODO refactor this
                     enableSolutionFunctionality([data.id]);
+                } else if (formattedObjectType === "post") {
+                    showEditPosts([data.id]);
+                    enableContentFunctionality(data.id, formattedObjectType);
                 } else {
                     // TODO refactor this
                     enableContentFunctionality(data.id, formattedObjectType);

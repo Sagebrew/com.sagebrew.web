@@ -1,5 +1,6 @@
 /*global $*/
-var request = require('api').request;
+var request = require('api').request,
+    highcharts = require('highcharts');
 
 function prepareDonationData(donationData) {
     var parsedData = [],

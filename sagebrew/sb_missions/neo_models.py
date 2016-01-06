@@ -203,8 +203,8 @@ class Mission(Searchable):
 
     @classmethod
     def get_donations(cls, object_uuid):
-        query = 'MATCH (c:Mission {object_uuid:"%s"})-' \
-                '[:RECEIVED_DONATION]->(d:Donation) RETURN d' % object_uuid
+        query = 'MATCH (c:Mission {object_uuid:"%s"})<-' \
+                '[:CONTRIBUTED_TO]-(d:Donation) RETURN d' % object_uuid
         res, _ = db.cypher_query(query)
         return [donation[0] for donation in res]
 

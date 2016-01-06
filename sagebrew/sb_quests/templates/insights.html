@@ -1,21 +1,25 @@
-{% extends "layout/one-col.html" %}
+{% extends "layout/hero-two-col-left.html" %}
 {% load staticfiles %}
 {% block title %}
     {{ first_name }} {{ last_name }}'s Quest Insights
 {% endblock title %}
 
-{% block live %}
-    <div id="campaign_id" class="sb_hidden" data-object_uuid="{{ id }}"></div>
-    <div class="block">
-        <h3 class="block-title">Insights</h3>
+{% block hero %}
+    {% include "manage/activate_partial.html" %}
+    <div class="block block-type-title">
+        <div class="block-content clearfix">
+            <h1>Insights</h1>
+        </div>
+    </div>
+{% endblock %}
 
+{% block sidebar_left %}
+    <div class="block block-type-nav">
         <div class="block-content">
-            {% if is_moderator %}
-
-           {% endif %}
-            <div class="block block-type-nav">
-            <div class="block-content">
-                <ul class="nav nav-list nav-list-vivid">
+            <ul class="nav nav-list nav-list-vivid">
+                <li>
+                    <h3>Missions</h3>
+                </li>
                 <li class="active">
                     <label for="mission-select" class="hidden"></label>
                     <select id="mission-select" class="form-control mission-input">
@@ -26,32 +30,34 @@
                             <option value="{{ other_mission.id }}">{% if other_mission.title %} {{ other_mission.title }} {% else %} {{ other_mission.focus_name_formatted }} {% endif %}</option>
                         {% endif %}
                     {% endfor %}
-                </select>
+                    </select>
                 </li>
             </ul>
-            </div>
-        </div>
-            <div class="row">
-                <div class="col-xs-6">
-                    <div class="sb_quest_info_box" id="js-total_donation_amount">Total Donations<br></div>
-                </div>
-                <div class="col-xs-6">
-                    <div class="sb_quest_info_box" id="js-total_pledge_vote_amount">Total Votes<br></div>
-                </div>
-                {% if is_moderator %}
-                    <button class="btn btn-primary sb_btn sb_btn_fill" id="js-get_donation_csv">Export Contributions</button>
-                    <div class="sb_chart" id="js-individual_donation_chart"></div>
-                    <div class="row">
-                          <div class="col-xs-12">
-                               <div class="sb_chart" id="js-pledged_vote_daily_chart"></div>
-                           </div>
-                       </div>
-                {% endif %}
-            </div>
         </div>
     </div>
+{% endblock %}
 
-{% endblock  %}
+{% block live %}
+<div class="block">
+    <div class="block-content">
+        <div class="col-xs-6">
+            <div class="sb_quest_info_box" id="js-total_donation_amount">Total Donations<br></div>
+        </div>
+        <div class="col-xs-6">
+            <div class="sb_quest_info_box" id="js-total_pledge_vote_amount">Total Votes<br></div>
+        </div>
+        {% if is_moderator %}
+            <button class="btn btn-primary sb_btn sb_btn_fill" id="js-get_donation_csv">Export Contributions</button>
+            <div class="sb_chart" id="js-individual_donation_chart"></div>
+            <div class="row">
+                  <div class="col-xs-12">
+                       <div class="sb_chart" id="js-pledged_vote_daily_chart"></div>
+                   </div>
+               </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
 
 {% block intercom %}
     Intercom('trackEvent', 'visited-own-stats-page');

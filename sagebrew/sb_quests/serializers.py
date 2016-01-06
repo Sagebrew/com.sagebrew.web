@@ -645,11 +645,16 @@ class QuestSerializer(SBSerializer):
 
     def get_missions(self, obj):
         from sb_missions.neo_models import Mission
+        from sb_missions.serializers import MissionSerializer
+        expand = self.context.get('expand', 'false').lower()
         query = 'MATCH (quest:Quest {owner_username: "%s"})-[:EMBARKS_ON]->' \
                 '(mission:Mission) RETURN mission' % obj.owner_username
         res, _ = db.cypher_query(query)
         if res.one is None:
             return None
+        if expand == 'true':
+            return [MissionSerializer(Mission.inflate(row[0])).data
+                    for row in res]
         return [reverse('mission-detail',
                         kwargs={
                             'object_uuid': Mission.inflate(row[0]).object_uuid

@@ -50,6 +50,8 @@ class MissionSerializer(SBSerializer):
     quest = serializers.SerializerMethodField()
     focus_name_formatted = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
+    total_donation_amount = serializers.SerializerMethodField()
+    total_pledge_vote_amount = serializers.SerializerMethodField()
     district = serializers.CharField(write_only=True, allow_null=True)
     level = serializers.ChoiceField(required=False, choices=[
         ('local', "Local"), ('state_upper', "State Upper"),
@@ -353,3 +355,9 @@ class MissionSerializer(SBSerializer):
 
     def get_slug(self, obj):
         return slugify(obj.get_mission_title())
+
+    def get_total_donation_amount(self, obj):
+        return obj.get_total_donation_amount()
+
+    def get_total_pledge_vote_amount(self, obj):
+        return obj.get_total_pledge_vote_amount()

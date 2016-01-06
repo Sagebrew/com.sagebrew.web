@@ -44,10 +44,10 @@ function preparePledgedVoteData(voteData) {
     return parsedVoteData.reverse();
 }
 
-export function getCharts() {
+export function getCharts(missionID) {
     handlebarsHelpers();
-    var campaignId = $("#campaign_id").data('object_uuid');
-    request.get({url: "/v1/quests/" + campaignId + "/donations/"})
+    console.log(missionID);
+    request.get({url: "/v1/missions/" + missionID + "/donations/"})
         .done(function (data) {
             var preparedData = prepareDonationData(data.results);
             // Create a scatter plot showing each donation received as a point
@@ -93,7 +93,7 @@ export function getCharts() {
                     }]
             });
         });
-    request.get({url: "/v1/quests/" + campaignId + "/pledged_votes_per_day/"})
+    request.get({url: "/v1/missions/" + missionID + "/pledged_votes_per_day/"})
         .done(function (data) {
             var preparedData = preparePledgedVoteData(data);
             // Create a column chart which shows daily pledge vote amount
@@ -133,30 +133,24 @@ export function getCharts() {
                     }]
             });
         });
-    request.get({url: "/v1/quests/" + campaignId + "/"})
+    request.get({url: "/v1/missions/" + missionID + "/"})
         .done(function (data) {
             console.log(data);
-            console.log(data.total_donation_amount);
-            console.log(data.total_pledge_vote_amount);
-            $("#js-total_donation_amount").append("<h2>$" + data.total_donation_amount / 100 + "</h2>");
-            $("#js-total_pledge_vote_amount").append("<h2>" + data.total_pledge_vote_amount + "</h2>");
-            var moneyReq = (data.target_goal_donation_requirement - data.total_donation_amount) / 100,
-                pledgeReq = data.target_goal_pledge_vote_requirement - data.total_pledge_vote_amount,
-                donationPercentage = data.total_donation_amount / data.target_goal_donation_requirement * 100,
-                pledgePercentage = data.total_pledge_vote_amount / data.target_goal_pledge_vote_requirement * 100;
-            if (moneyReq < 0) {
-                moneyReq = 0;
+            var totalDonation = $("#js-total_donation_amount"),
+                totalPledge = $("#js-total_pledge_vote_amount"),
+                donationAmount = data.total_donation_amount,
+                pledgeAmount = data.total_pledge_vote_amount;
+            totalDonation.empty();
+            totalPledge.empty();
+            if (typeof donationAmount === "undefined") {
+                donationAmount = 0;
+            } else {
+                donationAmount = donationAmount / 100;
             }
-            if (pledgeReq < 0) {
-                pledgeReq = 0;
+            if (typeof pledgeAmount === "undefined") {
+                pledgeAmount = 0;
             }
-            if (donationPercentage > 100) {
-                donationPercentage = 100;
-            }
-            if (pledgePercentage > 100) {
-                pledgePercentage = 100;
-            }
-            $("#js-required_for_goal").append('<small>Pledges</small><div class="progress sb_progress" style="margin-bottom: 0;"><div class="progress-bar sb_progress_bar" style="width: ' + pledgePercentage + '%"></div></div>');
-            $("#js-required_for_goal").append('<small>Donations</small><div class="progress sb_progress" style="margin-bottom: 0;"><div class="progress-bar sb_progress_bar" style="width: ' + donationPercentage + '%;"></div></div>');
+            totalDonation.append("Total Donations<h2>$" + donationAmount + "</h2>");
+            totalPledge.append("Total Pledge Votes<h2>" + pledgeAmount + "</h2>");
         });
 }

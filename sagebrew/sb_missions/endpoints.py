@@ -78,9 +78,6 @@ class MissionViewSet(viewsets.ModelViewSet):
         donation_info = [DonationExportSerializer(
             Donation.inflate(donation)).data for donation in
             Mission.get_donations(object_uuid)]
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
-        logger.info(donation_info)
         mission = self.get_object()
         quest = Mission.get_quest(mission.object_uuid)
         # this loop merges the 'owned_by' and 'address' dictionaries into

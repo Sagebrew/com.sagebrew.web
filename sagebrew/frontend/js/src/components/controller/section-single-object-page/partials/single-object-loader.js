@@ -3,6 +3,15 @@ var request = require('api').request;
 
 require('plugin/contentloader');
 
+
+export const meta = {
+    controller: "section-single-object-page",
+    match_method: "path",
+    check: [
+        "^questions|solutions|posts/([A-Za-z0-9.@_%+-]{36})"
+    ]
+};
+
 function loadSingleContent() {
     var wrapper = $("#js-content-wrapper"),
         objectURL,
@@ -64,6 +73,9 @@ function loadSingleContent() {
                 } else if (formattedObjectType === "solution") {
                     // TODO refactor this
                     enableSolutionFunctionality([data.id]);
+                } else if (formattedObjectType === "post") {
+                    showEditPosts([data.id]);
+                    enableContentFunctionality(data.id, formattedObjectType);
                 } else {
                     // TODO refactor this
                     enableContentFunctionality(data.id, formattedObjectType);

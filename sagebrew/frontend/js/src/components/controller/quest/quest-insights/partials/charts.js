@@ -1,9 +1,5 @@
 /*global $*/
-var templates = require('template_build/templates'),
-    request = require('api').request,
-    Handlebars = require('handlebars'),
-    handlebarsHelpers = require('common/handlebars_helpers').installHandleBarsHelpers,
-    highcharts = require('highcharts');
+var request = require('api').request;
 
 function prepareDonationData(donationData) {
     var parsedData = [],
@@ -45,8 +41,6 @@ function preparePledgedVoteData(voteData) {
 }
 
 export function getCharts(missionID) {
-    handlebarsHelpers();
-    console.log(missionID);
     request.get({url: "/v1/missions/" + missionID + "/donations/"})
         .done(function (data) {
             var preparedData = prepareDonationData(data.results);
@@ -135,7 +129,6 @@ export function getCharts(missionID) {
         });
     request.get({url: "/v1/missions/" + missionID + "/"})
         .done(function (data) {
-            console.log(data);
             var totalDonation = $("#js-total_donation_amount"),
                 totalPledge = $("#js-total_pledge_vote_amount"),
                 donationAmount = data.total_donation_amount,

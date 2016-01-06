@@ -1,5 +1,4 @@
-var interests = require('common/helpers.js'),
-    searchFunc = require('./partials/search');
+var searchFunc = require('./partials/search');
 
 export const meta = {
     controller: "section-search",

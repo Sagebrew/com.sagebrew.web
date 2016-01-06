@@ -1,4 +1,4 @@
-/*global $, enableContentFunctionality, enableQuestionFunctionality, enableSolutionFunctionality, populateComment*/
+/*global $, enableContentFunctionality, enableQuestionFunctionality, enableSolutionFunctionality, populateComment, showEditPosts*/
 var request = require('api').request;
 
 require('plugin/contentloader');

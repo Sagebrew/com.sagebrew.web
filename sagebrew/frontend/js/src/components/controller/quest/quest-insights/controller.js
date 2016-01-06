@@ -1,7 +1,4 @@
-var templates = require('template_build/templates'),
-    helpers = require('common/helpers'),
-    settings = require('settings').settings,
-    charts = require('./partials/charts'),
+var charts = require('./partials/charts'),
     exportContributions = require('./partials/contribution_export').exportContributions;
 
 export const meta = {

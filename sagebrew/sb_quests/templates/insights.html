@@ -32,6 +32,11 @@
                     {% endfor %}
                     </select>
                 </li>
+                {% if is_moderator %}
+                <li>
+                    <button class="btn btn-primary sb_btn sb_btn_fill" id="js-get_donation_csv">Export Contributions</button>
+                </li>
+                {% endif %}
             </ul>
         </div>
     </div>
@@ -40,23 +45,22 @@
 {% block live %}
 <div class="block">
     <div class="block-content">
-        <div class="col-xs-6">
-            <div class="sb_quest_info_box" id="js-total_donation_amount">Total Donations<br></div>
-        </div>
+        <div class="sb_quest_info_box" id="js-total_donation_amount">Total Donations<br></div>
+        {% comment %}
         <div class="col-xs-6">
             <div class="sb_quest_info_box" id="js-total_pledge_vote_amount">Total Votes<br></div>
         </div>
-        {% if is_moderator %}
-            <button class="btn btn-primary sb_btn sb_btn_fill" id="js-get_donation_csv">Export Contributions</button>
-            <div class="sb_chart" id="js-individual_donation_chart"></div>
-            <div class="row">
-                  <div class="col-xs-12">
-                       <div class="sb_chart" id="js-pledged_vote_daily_chart"></div>
-                   </div>
-               </div>
-        {% endif %}
+        {% endcomment %}
     </div>
 </div>
+
+{% if is_moderator %}
+<div class="block">
+    <div class="block-content">
+        <div class="sb_chart" id="js-individual_donation_chart"></div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block intercom %}

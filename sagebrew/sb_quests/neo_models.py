@@ -106,6 +106,10 @@ class Quest(Searchable):
     endorses = RelationshipTo('sb_missions.neo_models.Mission', "ENDORSES")
     holds = RelationshipTo('sb_quests.neo_models.Seat', "HOLDS")
 
+    # Followers are users which have decided to follow a Quest, this means that
+    # they will get a notification whenever the quest makes an update.
+    followers = RelationshipTo('plebs.neo_models.Pleb', "FOLLOWERS")
+
     @property
     def ein(self):
         # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
@@ -201,6 +205,36 @@ class Quest(Searchable):
             updates = [row[0] for row in res]
             cache.set("%s_updates" % object_uuid, updates)
         return updates
+
+    def is_following(self, username):
+        query = 'MATCH (q:Quest {object_uuid:"%s"})-[r:FOLLOWERS]->' \
+                '(p:Pleb {username:"%s"}) RETURN r.active' % \
+                (self.object_uuid, username)
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def follow(self, username):
+        """
+        The username passed to this function is the user who will be following
+        the user the method is called upon.
+        """
+        query = 'MATCH (q:Quest {object_uuid:"%s"}), (p:Pleb {username:"%s"}) ' \
+                'WITH q, p CREATE UNIQUE (q)-[r:FOLLOWERS]->(p) SET ' \
+                'r.active=true RETURN r.active' % (self.object_uuid, username)
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def unfollow(self, username):
+        """
+        The username passed to this function is the user who will stop
+        following the user the method is called upon.
+        """
+        query = 'MATCH (q:Quest {object_uuid:"%s"})-[r:FOLLOWERS]->(p:Pleb ' \
+                '{username:"%s"}) SET r.active=false RETURN r.active' \
+                % (self.object_uuid, username)
+        res, _ = db.cypher_query(query)
+        return res.one
+
 
     def get_public_official(self):
         """
@@ -591,7 +625,7 @@ class Campaign(Searchable):
 class PoliticalCampaign(Campaign):
     """
     A political campaign is one where a user is running for public office. These
-    campaigns are more strictly controlled and must follower certain legal
+    campaigns are more strictly controlled and must follow certain legal
     parameters.
     """
 

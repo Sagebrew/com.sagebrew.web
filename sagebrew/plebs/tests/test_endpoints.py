@@ -1722,7 +1722,8 @@ class PlebPresidentTest(APITestCase):
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         position = Position(name="President").save()
-        mission = Mission(owner_username=quest.owner_username).save()
+        mission = Mission(owner_username=quest.owner_username,
+                          active=True).save()
         quest.missions.connect(mission)
         mission.position.connect(position)
 
@@ -1745,7 +1746,8 @@ class PlebPresidentTest(APITestCase):
             about='Test Bio', owner_username=self.pleb.username,
             active=True).save()
         position = Position(name="President").save()
-        mission = Mission(owner_username=quest.owner_username).save()
+        mission = Mission(owner_username=quest.owner_username,
+                          active=True).save()
         quest.missions.connect(mission)
         mission.position.connect(position)
         self.client.force_authenticate(user=self.user)

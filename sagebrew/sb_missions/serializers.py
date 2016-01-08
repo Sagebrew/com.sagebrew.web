@@ -358,6 +358,3 @@ class MissionSerializer(SBSerializer):
 
     def get_total_donation_amount(self, obj):
         return obj.get_total_donation_amount()
-
-    def get_total_pledge_vote_amount(self, obj):
-        return obj.get_total_pledge_vote_amount()

@@ -68,7 +68,7 @@ class MissionViewSet(viewsets.ModelViewSet):
     def donation_data(self, request, object_uuid=None):
         """
         This endpoint allows for the owner or accountants to get a .csv file
-        containing all of the data for donations given to the campaign.
+        containing all of the data for donations given to the mission.
 
         :param request:
         :param owner_username:

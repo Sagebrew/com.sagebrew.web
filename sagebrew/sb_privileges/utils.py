@@ -91,7 +91,7 @@ def manage_privilege_relation(username):
     cache.set(username, pleb)
     cache.set("%s_privileges" % username,
               pleb.get_privileges(cache_buster=True))
-    cache.set("%s_actions" % pleb.username,
+    cache.set("%s_actions" % username,
               pleb.get_actions(cache_buster=True))
     return True
 

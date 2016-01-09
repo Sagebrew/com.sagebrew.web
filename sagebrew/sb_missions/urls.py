@@ -21,7 +21,7 @@ urlpatterns = patterns(
 
     # Insights
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
-        r'insights/$',
+        r'manage/insights/$',
         insights, name="mission_insights"),
 
     # Manage

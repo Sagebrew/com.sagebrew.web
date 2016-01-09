@@ -6,8 +6,8 @@ export const meta = {
     controller: "quest/quest-insights",
     match_method: "path",
     check: [
-       "^quests\/[A-Za-z0-9.@_%+-]{1,36}\/insights",
-       "^missions\/[A-Za-z0-9.@_%+-]{1,36}\/[A-Za-z0-9.@_%+-]{1,140}\/insights"
+       "^quests\/[A-Za-z0-9.@_%+-]{1,36}\/insights$",
+       "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/manage\/insights"
     ]
 };
 
@@ -39,7 +39,7 @@ export function load() {
             charts.getCharts(selectedVal, "quests");
         } else {
             selectedSlug = missionSelector.options[missionSelector.selectedIndex].dataset.slug;
-            window.history.pushState("", selectedText + " Insights", "/missions/" + selectedVal + "/" + selectedSlug + "/insights/");
+            window.history.pushState("", selectedText + " Insights", "/missions/" + selectedVal + "/" + selectedSlug + "/manage/insights/");
             charts.getCharts(selectedVal, "missions");
         }
     };

@@ -5,7 +5,7 @@ from datetime import datetime
 
 from django.core.cache import cache
 
-from neomodel import (DoesNotExist, CypherException)
+from neomodel import (DoesNotExist, CypherException, db)
 
 from plebs.neo_models import Pleb
 from sb_requirements.neo_models import Requirement
@@ -47,46 +47,51 @@ def manage_privilege_relation(username):
         return e
     for privilege in privileges:
         try:
-            meets_reqs = privilege.check_requirements(pleb)
+            meets_reqs = privilege.check_requirements(username)
         except IOError as e:
             logger.exception(e)
             sleep(1)
             continue
-        if not meets_reqs and privilege in pleb.privileges.all():
-            rel = pleb.privileges.relationship(privilege)
-            if rel.active:
-                rel.active = False
-                rel.lost_on = datetime.now(pytz.utc)
-                rel.save()
-            for action in privilege.actions.all():
-                rel = pleb.actions.relationship(action)
-                if rel.active:
-                    rel.active = False
-                    rel.lost_on = datetime.now(pytz.utc)
-                    rel.save()
-            continue
-        elif not meets_reqs:
-            continue
-        elif meets_reqs:
-            if privilege not in pleb.privileges:
-                rel = pleb.privileges.connect(privilege)
-                rel.save()
-            for action in privilege.actions.all():
-                if action not in pleb.actions:
-                    rel = pleb.actions.connect(action)
-                    rel.save()
+        current_time = datetime.now(pytz.utc)
+        current_time = current_time.astimezone(pytz.utc)
+        epoch_date = datetime(1970, 1, 1, tzinfo=pytz.utc)
+        current_time = float((current_time - epoch_date).total_seconds())
+        if not meets_reqs:
+            query = 'MATCH (pleb:Pleb {username: "%s"})-' \
+                    '[r:HAS]->(privilege:Privilege {name: "%s"}) ' \
+                    'SET r.active=false, r.lost_on=%s ' \
+                    'WITH pleb, privilege ' \
+                    'MATCH (pleb)-[r_a:CAN]->(action:SBAction) ' \
+                    'SET r_a.active=false, r_a.lost_on=%s ' \
+                    'RETURN action, privilege' % (
+                        username, privilege.name, current_time, current_time)
+            res, _ = db.cypher_query(query)
+            if res.one is not None:
+                continue
+        else:
+            query = 'MATCH (pleb:Pleb {username: "%s"}),' \
+                    '(privilege:Privilege {name: "%s"}) ' \
+                    'CREATE UNIQUE (pleb)-[r:HAS]->(privilege) ' \
+                    'SET r.active=true, r.gained_on=%s ' \
+                    'RETURN privilege' % (
+                        username, privilege.name, current_time)
+            res, _ = db.cypher_query(query)
+            query = 'MATCH (pleb:Pleb {username: "%s"}),' \
+                    '(privilege:Privilege {name: "%s"})-[:GRANTS]->' \
+                    '(action:SBAction) ' \
+                    'CREATE UNIQUE (pleb)-[r:CAN]->(action) ' \
+                    'SET r.active=true, r.gained_on=%s ' \
+                    'RETURN action' % (
+                        username, privilege.name, current_time)
+            res, _ = db.cypher_query(query)
         # Adding short sleep so we don't DDoS ourselves
         # Because of this, this fxn should only ever be called from an async
         # task
         sleep(1)
-    try:
-        pleb.refresh()
-    except IndexError:
-        pass
-    cache.set(pleb.username, pleb)
-    cache.set("%s_privileges" % pleb.username,
+    cache.set(username, pleb)
+    cache.set("%s_privileges" % username,
               pleb.get_privileges(cache_buster=True))
-    cache.set("%s_actions" % pleb.username,
+    cache.set("%s_actions" % username,
               pleb.get_actions(cache_buster=True))
     return True
 

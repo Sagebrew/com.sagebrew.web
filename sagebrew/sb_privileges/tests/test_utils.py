@@ -21,7 +21,7 @@ from sb_requirements.neo_models import Requirement
 
 class TestManagePrivilegeRelation(APITestCase):
     def setUp(self):
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         cache.clear()
         self.email = "success@simulator.amazonses.com"
@@ -42,13 +42,10 @@ class TestManagePrivilegeRelation(APITestCase):
                                        condition=30).save()
         self.action = SBAction(resource=str(uuid1()),
                                url="/v1/comments/").save()
-        if self.action not in self.privilege.actions:
-            self.privilege.actions.connect(self.action)
-        if self.privilege not in self.action.privilege:
-            self.action.privilege.connect(self.privilege)
+        self.privilege.actions.connect(self.action)
+        self.action.privilege.connect(self.privilege)
         self.test_url = settings.WEB_ADDRESS
-        if self.requirement not in self.privilege.requirements:
-            self.privilege.requirements.connect(self.requirement)
+        self.privilege.requirements.connect(self.requirement)
 
     def test_pleb_does_not_exist(self):
         response = manage_privilege_relation(username=str(uuid1()))
@@ -71,8 +68,21 @@ class TestManagePrivilegeRelation(APITestCase):
         self.assertTrue(response)
 
     @requests_mock.mock()
+    def test_dont_gain_privilege(self, m):
+        self.client.force_authenticate(user=self.user)
+        m.get("%s/v1/profiles/%s/reputation/" % (self.test_url,
+                                                 self.user.username),
+              json={"reputation": 25}, status_code=status.HTTP_200_OK)
+        response = manage_privilege_relation(username=self.username)
+        self.assertTrue(response)
+
+    @requests_mock.mock()
     def test_lose_privilege(self, m):
         self.client.force_authenticate(user=self.user)
+        m.get("%s/v1/profiles/%s/reputation/" % (self.test_url,
+                                                 self.user.username),
+              json={"reputation": 50}, status_code=status.HTTP_200_OK)
+        manage_privilege_relation(username=self.username)
         m.get("%s/v1/profiles/%s/reputation/" % (self.test_url,
                                                  self.user.username),
               json={"reputation": 25}, status_code=status.HTTP_200_OK)
@@ -82,6 +92,10 @@ class TestManagePrivilegeRelation(APITestCase):
     @requests_mock.mock()
     def test_lose_and_regain_privilege(self, m):
         self.client.force_authenticate(user=self.user)
+        m.get("%s/v1/profiles/%s/reputation/" % (self.test_url,
+                                                 self.user.username),
+              json={"reputation": 50}, status_code=status.HTTP_200_OK)
+        manage_privilege_relation(username=self.username)
         m.get("%s/v1/profiles/%s/reputation/" % (self.test_url,
                                                  self.user.username),
               json={"reputation": 25}, status_code=status.HTTP_200_OK)

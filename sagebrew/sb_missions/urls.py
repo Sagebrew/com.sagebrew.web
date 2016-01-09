@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url
 from sb_donations.views import DonationMissionView
 from .views import (public_office_mission, advocate_mission, select_mission,
                     mission, mission_redirect_page, mission_updates,
-                    MissionSettingsView, mission_list)
+                    MissionSettingsView, mission_list, insights)
 
 
 urlpatterns = patterns(
@@ -18,6 +18,11 @@ urlpatterns = patterns(
     url(r'^advocate/$', advocate_mission, name="advocate_mission"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/$',
         mission_redirect_page, name="mission_redirect"),
+
+    # Insights
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'insights/$',
+        insights, name="mission_insights"),
 
     # Manage
     url(r'^settings/$', MissionSettingsView.as_view(),

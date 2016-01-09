@@ -41,8 +41,8 @@ function preparePledgedVoteData(voteData) {
     return parsedVoteData.reverse();
 }
 
-export function getCharts(missionID) {
-    request.get({url: "/v1/missions/" + missionID + "/donations/"})
+export function getCharts(missionID, objectType) {
+    request.get({url: "/v1/" + objectType + "/" + missionID + "/donations/"})
         .done(function (data) {
             var preparedData = prepareDonationData(data.results);
             // Create a scatter plot showing each donation received as a point
@@ -88,7 +88,7 @@ export function getCharts(missionID) {
                     }]
             });
         });
-    request.get({url: "/v1/missions/" + missionID + "/pledged_votes_per_day/"})
+    request.get({url: "/v1/" + objectType + "/" + missionID + "/pledged_votes_per_day/"})
         .done(function (data) {
             var preparedData = preparePledgedVoteData(data);
             // Create a column chart which shows daily pledge vote amount
@@ -128,7 +128,7 @@ export function getCharts(missionID) {
                     }]
             });
         });
-    request.get({url: "/v1/missions/" + missionID + "/"})
+    request.get({url: "/v1/" + objectType + "/" + missionID + "/"})
         .done(function (data) {
             var totalDonation = $("#js-total_donation_amount"),
                 totalPledge = $("#js-total_pledge_vote_amount"),

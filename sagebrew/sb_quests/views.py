@@ -60,6 +60,7 @@ def insights(request, username):
                                      "Quest." % (serializer_data['first_name'],
                                                  serializer_data['last_name'])
     serializer_data['keywords'] = "Statistics, Insights, Quest"
+    serializer_data['quest_id'] = serializer_data['id']
     return render(request, 'insights.html', serializer_data)
 
 

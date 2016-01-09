@@ -191,13 +191,11 @@ class URLContentEndpointTests(APITestCase):
         self.client.logout()
         self.test_url = "example.com"
         try:
-            self.url_content = URLContent(url=self.test_url,
-                                          description="this is a test "
-                                                      "description",
-                                          title="this is a test title",
-                                          selected_image="http://i.imgur.com"
-                                                         "/7ItPc2M.jpg")\
-                .save()
+            self.url_content = URLContent(
+                url=self.test_url,
+                description="this is a test description",
+                title="this is a test title",
+                selected_image="http://i.imgur.com/7ItPc2M.jpg").save()
         except UniqueProperty:
             self.url_content = URLContent.nodes.get(url=self.test_url)
 
@@ -319,9 +317,7 @@ class URLContentEndpointTests(APITestCase):
     def test_list_friend(self):
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(email2, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
+        create_user_util_test(email2)
         friend = Pleb.nodes.get(email=email2)
         content = URLContent(url="test.com").save()
         content.owned_by.connect(friend)
@@ -335,12 +331,10 @@ class URLContentEndpointTests(APITestCase):
     def test_list_not_friend(self):
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(email2, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
+        create_user_util_test(email2)
         friend = Pleb.nodes.get(email=email2)
-        content = URLContent(url="https://www.test.com/our-platform.html")\
-            .save()
+        content = URLContent(
+                url="https://www.test.com/our-platform.html").save()
         content.owned_by.connect(friend)
         self.pleb.friends.disconnect(friend)
         friend.friends.disconnect(self.pleb)

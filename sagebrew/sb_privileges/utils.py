@@ -64,7 +64,7 @@ def manage_privilege_relation(username):
                     'MATCH (pleb)-[r_a:CAN]->(action:SBAction) ' \
                     'SET r_a.active=false, r_a.lost_on=%s ' \
                     'RETURN action, privilege' % (
-                username, privilege.name, current_time, current_time)
+                        username, privilege.name, current_time, current_time)
             res, _ = db.cypher_query(query)
             if res.one is not None:
                 continue
@@ -74,7 +74,7 @@ def manage_privilege_relation(username):
                     'CREATE UNIQUE (pleb)-[r:HAS]->(privilege) ' \
                     'SET r.active=true, r.gained_on=%s ' \
                     'RETURN privilege' % (
-                username, privilege.name, current_time)
+                        username, privilege.name, current_time)
             res, _ = db.cypher_query(query)
             query = 'MATCH (pleb:Pleb {username: "%s"}),' \
                     '(privilege:Privilege {name: "%s"})-[:GRANTS]->' \
@@ -82,7 +82,7 @@ def manage_privilege_relation(username):
                     'CREATE UNIQUE (pleb)-[r:CAN]->(action) ' \
                     'SET r.active=true, r.gained_on=%s ' \
                     'RETURN action' % (
-                username, privilege.name, current_time)
+                        username, privilege.name, current_time)
             res, _ = db.cypher_query(query)
         # Adding short sleep so we don't DDoS ourselves
         # Because of this, this fxn should only ever be called from an async

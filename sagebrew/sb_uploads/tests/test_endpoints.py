@@ -1,4 +1,3 @@
-import time
 from uuid import uuid1
 
 from django.core.urlresolvers import reverse
@@ -332,7 +331,7 @@ class URLContentEndpointTests(APITestCase):
         email2 = "osndfonasd@non-user.com"
         friend = create_user_util_test(email2)
         content = URLContent(
-                url="https://www.test.com/our-platform.html").save()
+            url="https://www.test.com/our-platform.html").save()
         content.owned_by.connect(friend)
         self.pleb.friends.disconnect(friend)
         friend.friends.disconnect(self.pleb)

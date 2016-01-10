@@ -5,12 +5,10 @@ from django.core.files.temp import NamedTemporaryFile
 from django.core.servers.basehttp import FileWrapper
 
 from neomodel import db
-from rest_framework import viewsets, status
-from rest_framework.response import Response
+from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 
-from sb_donations.neo_models import Donation
 from sb_donations.serializers import DonationExportSerializer
 from api.permissions import (IsOwnerOrModeratorOrReadOnly, IsOwnerOrModerator)
 

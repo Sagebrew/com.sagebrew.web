@@ -22,7 +22,9 @@ class DonationSerializer(SBSerializer):
     amount = serializers.IntegerField(required=True)
     owner_username = serializers.CharField(read_only=True)
     payment_method = serializers.CharField(write_only=True, allow_null=True)
-
+    mission_type = serializers.ChoiceField(read_only=True, choices=[
+        ('position', "Public Office"), ('advocacy', "Advocacy"),
+        ('question', "Question")])
     quest = serializers.SerializerMethodField()
     mission = serializers.SerializerMethodField()
 
@@ -76,6 +78,7 @@ class DonationSerializer(SBSerializer):
         quest = validated_data.pop('quest', None)
         donor = validated_data.pop('donor', None)
         payment_method = validated_data.pop('payment_method', None)
+        validated_data['mission_type'] = mission.focus_on_type
         donation = Donation(**validated_data).save()
 
         donor.donations.connect(donation)
@@ -146,7 +149,9 @@ class DonationSerializer(SBSerializer):
 
 class DonationExportSerializer(serializers.Serializer):
     completed = serializers.BooleanField(read_only=True)
-
+    mission_type = serializers.ChoiceField(read_only=True, choices=[
+        ('position', "Public Office"), ('advocacy', "Advocacy"),
+        ('question', "Question")])
     amount = serializers.SerializerMethodField()
     owned_by = serializers.SerializerMethodField()
     employer = serializers.SerializerMethodField()
@@ -159,14 +164,16 @@ class DonationExportSerializer(serializers.Serializer):
         return float(obj.amount) / 100.0
 
     def get_employer(self, obj):
-        # TODO add logic to only return this if this is for a mission with
-        # political type
-        return None
+        if obj.mission_type == "position":
+            return Pleb.get(username=obj.owner_username).employer_name
+        else:
+            return None
 
     def get_occupation_name(self, obj):
-        # TODO add logic to only return this if this is for a mission with
-        # political type
-        return None
+        if obj.mission_type == "position":
+            return Pleb.get(username=obj.owner_username).occupation_name
+        else:
+            return None
 
 
 class SBDonationSerializer(DonationSerializer):

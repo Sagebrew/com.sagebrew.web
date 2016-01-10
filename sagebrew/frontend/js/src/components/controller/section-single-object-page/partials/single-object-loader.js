@@ -1,7 +1,8 @@
-/*global $, enableContentFunctionality, populateComment, enableSolutionFunctionality, enableQuestionFunctionality, showEditPosts*/
+/*global $, enableContentFunctionality, enableQuestionFunctionality, enableSolutionFunctionality, populateComment, showEditPosts*/
 var request = require('api').request;
 
 require('plugin/contentloader');
+
 
 function loadSingleContent() {
     var wrapper = $("#js-content-wrapper"),

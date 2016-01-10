@@ -54,11 +54,13 @@ def insights(request, username):
     except (CypherException, IOError):
         return redirect("500_Error")
     serializer_data = QuestSerializer(quest_obj,
-                                      context={'request': request}).data
+                                      context={'request': request,
+                                               'expand': 'true'}).data
     serializer_data['description'] = "Statistics and Insights for %s %s's " \
                                      "Quest." % (serializer_data['first_name'],
                                                  serializer_data['last_name'])
     serializer_data['keywords'] = "Statistics, Insights, Quest"
+    serializer_data['quest_id'] = serializer_data['id']
     return render(request, 'insights.html', serializer_data)
 
 

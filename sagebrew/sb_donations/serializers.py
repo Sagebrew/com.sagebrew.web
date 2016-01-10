@@ -149,6 +149,8 @@ class DonationExportSerializer(serializers.Serializer):
 
     amount = serializers.SerializerMethodField()
     owned_by = serializers.SerializerMethodField()
+    employer = serializers.SerializerMethodField()
+    occupation_name = serializers.SerializerMethodField()
 
     def get_owned_by(self, obj):
         return PlebExportSerializer(Pleb.get(obj.owner_username)).data

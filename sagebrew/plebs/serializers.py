@@ -481,6 +481,8 @@ class PlebExportSerializer(serializers.Serializer):
     first_name = serializers.CharField()
     last_name = serializers.CharField()
     email = serializers.CharField()
+    employer_name = serializers.CharField()
+    occupation_name = serializers.CharField()
 
     address = serializers.SerializerMethodField()
 

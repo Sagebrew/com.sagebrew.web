@@ -222,6 +222,23 @@ class Quest(Searchable):
                 public_official = None
         return public_official
 
+    def pledged_votes_per_day(self):
+        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
+                '[r:RECEIVED_PLEDGED_VOTE]->(:Pleb) RETURN r ' \
+                'ORDER BY r.created' \
+                % self.object_uuid
+        res, _ = db.cypher_query(query)
+        vote_data = {}
+        for vote in res:
+            rel = VoteRelationship.inflate(vote[0])
+            active_value = int(rel.active)
+            date_string = rel.created.strftime('%Y-%m-%d')
+            if date_string not in vote_data.keys():
+                vote_data[date_string] = active_value
+            else:
+                vote_data[date_string] += active_value
+        return vote_data
+
 
 class Campaign(Searchable):
     """
@@ -729,23 +746,6 @@ class PoliticalCampaign(Campaign):
                 % object_uuid
         res, _ = db.cypher_query(query)
         return res.one
-
-    def pledged_votes_per_day(self):
-        query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
-                '[r:RECEIVED_PLEDGED_VOTE]->(:Pleb) RETURN r ' \
-                'ORDER BY r.created' \
-                % self.object_uuid
-        res, _ = db.cypher_query(query)
-        vote_data = {}
-        for vote in res:
-            rel = VoteRelationship.inflate(vote[0])
-            active_value = int(rel.active)
-            date_string = rel.created.strftime('%Y-%m-%d')
-            if date_string not in vote_data.keys():
-                vote_data[date_string] = active_value
-            else:
-                vote_data[date_string] += active_value
-        return vote_data
 
 
 class Position(SBObject):

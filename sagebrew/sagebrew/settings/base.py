@@ -73,7 +73,6 @@ STATICFILES_DIRS = (
     '%s/sb_quests/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
     '%s/sb_public_official/static/' % PROJECT_DIR,
-    '%s/sb_search/static/' % PROJECT_DIR,
     '%s/sb_solutions/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
 )

@@ -29,7 +29,6 @@ from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
 from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
-from sb_donations.neo_models import Donation
 from sb_donations.serializers import DonationExportSerializer
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
@@ -339,6 +338,7 @@ class QuestViewSet(viewsets.ModelViewSet):
         httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
                                               % newfile.name
         return httpresponse
+
 
 class CampaignViewSet(viewsets.ModelViewSet):
     serializer_class = CampaignSerializer

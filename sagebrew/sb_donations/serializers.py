@@ -158,6 +158,16 @@ class DonationExportSerializer(serializers.Serializer):
     def get_amount(self, obj):
         return float(obj.amount) / 100.0
 
+    def get_employer(self, obj):
+        # TODO add logic to only return this if this is for a mission with
+        # political type
+        return None
+
+    def get_occupation_name(self, obj):
+        # TODO add logic to only return this if this is for a mission with
+        # political type
+        return None
+
 
 class SBDonationSerializer(DonationSerializer):
     def validate_amount(self, value):

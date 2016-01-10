@@ -16,7 +16,6 @@ export function populateMissions(loadElement, questID){
         });
 }
 
-
 export function determineTitle(mission) {
     var title;
     if (mission.focus_on_type === "position"){

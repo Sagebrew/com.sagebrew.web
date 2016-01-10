@@ -1,0 +1,27 @@
+{% extends "manage/mission_manage_base.html" %}
+{% load staticfiles %}
+{% block title %}Mission Insights{% endblock title %}
+
+{% block live %}
+<div class="block">
+    <div class="block-content">
+        <div class="sb_quest_info_box">Total Donations<br>
+            <h2>${{ mission.total_donation_amount }}</h2>
+        </div>
+    </div>
+</div>
+
+
+<div class="block">
+    <div class="block-content">
+        <div class="sb_chart" id="js-individual-donation-chart">
+            <div class="loader"></div>
+        </div>
+        {% if quest.is_moderator %}<a href="/v1/missions/{{ mission.id }}/donation_data/" target="_blank" class="btn btn-primary sb_btn">Export Contributions</a>{% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-quest-insight-page');
+{% endblock %}

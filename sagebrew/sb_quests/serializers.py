@@ -367,6 +367,7 @@ class QuestSerializer(SBSerializer):
     completed_stripe = serializers.SerializerMethodField()
     completed_customer = serializers.SerializerMethodField()
     missions = serializers.SerializerMethodField()
+    total_donation_amount = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -660,6 +661,9 @@ class QuestSerializer(SBSerializer):
                             'object_uuid': Mission.inflate(row[0]).object_uuid
                         }, request=self.context.get('request', None))
                 for row in res]
+
+    def get_total_donation_amount(self, obj):
+        return obj.get_total_donation_amount()
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):

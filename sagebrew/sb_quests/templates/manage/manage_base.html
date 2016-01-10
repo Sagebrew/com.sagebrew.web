@@ -29,6 +29,11 @@
                         General
                     </a>
                 </li>
+                <li class="{% if "/manage/insights/" in request.path %}active{% endif %}">
+                    <a href="{% url 'quest_stats' quest.id %}">
+                        Insights
+                    </a>
+                </li>
                 <li {% if "/manage/billing/" in request.path %}class="active"{% endif %}>
                     <a href="{% url 'quest_manage_billing' quest.id %}">
                         Billing

@@ -5,12 +5,10 @@ from django.core.files.temp import NamedTemporaryFile
 from django.core.servers.basehttp import FileWrapper
 
 from neomodel import db
-from rest_framework import viewsets, status
-from rest_framework.response import Response
+from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 
-from sb_donations.neo_models import Donation
 from sb_donations.serializers import DonationExportSerializer
 from api.permissions import (IsOwnerOrModeratorOrReadOnly, IsOwnerOrModerator)
 
@@ -59,12 +57,6 @@ class MissionViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
                                                        IsOwnerOrModerator,))
-    def pledged_votes_per_day(self, request, object_uuid=None):
-        queryset = self.get_object().pledged_votes_per_day()
-        return Response(queryset, status=status.HTTP_200_OK)
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
-                                                       IsOwnerOrModerator,))
     def donation_data(self, request, object_uuid=None):
         """
         This endpoint allows for the owner or accountants to get a .csv file
@@ -74,11 +66,12 @@ class MissionViewSet(viewsets.ModelViewSet):
         :param owner_username:
         :return:
         """
-        self.check_object_permissions(request, object_uuid)
-        donation_info = [DonationExportSerializer(
-            Donation.inflate(donation)).data for donation in
-            Mission.get_donations(object_uuid)]
         mission = self.get_object()
+        self.check_object_permissions(request, mission.owner_username)
+        keys = []
+        donation_info = DonationExportSerializer(
+            Mission.get_donations(object_uuid=object_uuid), many=True).data
+
         quest = Mission.get_quest(mission.object_uuid)
         # this loop merges the 'owned_by' and 'address' dictionaries into
         # the top level dictionary, allows for simple writing to csv
@@ -90,7 +83,6 @@ class MissionViewSet(viewsets.ModelViewSet):
                     quest.application_fee +
                     settings.STRIPE_TRANSACTION_PERCENT) + .3
                 donation['amount'] -= application_fee
-            keys = []
             for key in donation_info[0].keys():
                 new_key = key.replace('_', ' ').title()
                 for donation in donation_info:
@@ -117,7 +109,18 @@ class MissionViewSet(viewsets.ModelViewSet):
                                                   % newfile.name
             return httpresponse
         except IndexError:
-            return Response({'detail': 'Unable to find any donation data',
-                             'status_code':
-                                 status.HTTP_404_NOT_FOUND},
-                            status=status.HTTP_404_NOT_FOUND)
+            pass
+        newfile = NamedTemporaryFile(suffix='.csv', delete=False)
+        newfile.name = "quest_donations.csv"
+        dict_writer = csv.DictWriter(newfile, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(donation_info)
+        # the HttpResponse use here allows us to do an automatic download
+        # upon hitting the button
+        newfile.seek(0)
+        wrapper = FileWrapper(newfile)
+        httpresponse = HttpResponse(wrapper,
+                                    content_type="text/csv")
+        httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
+                                              % newfile.name
+        return httpresponse

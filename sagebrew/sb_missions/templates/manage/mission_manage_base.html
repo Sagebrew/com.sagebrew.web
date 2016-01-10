@@ -26,6 +26,11 @@
                         General
                     </a>
                 </li>
+                <li {% if "/manage/insights/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_insights" mission.id slug %}">
+                        Insights
+                    </a>
+                </li>
                 <li {% if "/manage/epic/" in request.path %}class="active" {% endif %}>
                     <a href="{% url "mission_edit_epic" mission.id slug %}">
                         Epic

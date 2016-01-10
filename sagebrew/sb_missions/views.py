@@ -102,31 +102,6 @@ def mission_updates(request, object_uuid, slug=None):
                    "quest": QuestSerializer(quest).data})
 
 
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def insights(request, object_uuid, slug=None):
-    owner_username = Mission.get_quest(object_uuid).owner_username
-    if request.user.username not in Quest.get_moderators(owner_username):
-        return redirect('quest', owner_username)
-    try:
-        mission_obj = Mission.get(object_uuid)
-    except (Quest.DoesNotExist, DoesNotExist):
-        return redirect("404_Error")
-    except (CypherException, IOError):
-        return redirect("500_Error")
-    serializer_data = MissionSerializer(mission_obj,
-                                        context={'request': request,
-                                                 'expand': 'true'}).data
-    serializer_data['description'] = "Statistics and Insights for %s." \
-                                     % (serializer_data['title'])
-    serializer_data['keywords'] = "Statistics, Insights, Mission"
-    serializer_data['missions'] = serializer_data['quest']['missions']
-    serializer_data['mission'] = {"id": object_uuid}
-    serializer_data['quest_id'] = serializer_data['quest']['id']
-    return render(request, 'insights.html', serializer_data)
-
-
 class LoginRequiredMixin(View):
     @classmethod
     def as_view(cls, **initkwargs):
@@ -164,7 +139,8 @@ class MissionSettingsView(LoginRequiredMixin):
         quest = Quest.inflate(res.one.quest)
         return render(request, self.template_name, {
             "missions": missions,
-            "mission": MissionSerializer(mission_obj).data,
-            "quest": QuestSerializer(quest).data,
+            "mission": MissionSerializer(mission_obj,
+                                         context={"request": request}).data,
+            "quest": QuestSerializer(quest, context={"request": request}).data,
             "slug": slugify(mission_obj.get_mission_title())
         })

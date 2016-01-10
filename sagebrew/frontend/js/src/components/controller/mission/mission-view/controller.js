@@ -4,7 +4,7 @@ export const meta = {
     controller: "mission/mission-view",
     match_method: "path",
     check: [
-       "^missions\/[A-Za-z0-9.@_%+-]{36}$"
+       "^missions\/[A-Za-z0-9.@_%+-]{36}\/"
     ]
 };
 

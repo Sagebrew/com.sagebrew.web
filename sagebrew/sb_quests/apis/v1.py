@@ -14,7 +14,6 @@ router.register(r'quests', QuestViewSet, base_name='quest')
 urlpatterns = patterns(
     'sb_quests.endpoints',
     url(r'^', include(router.urls)),
-    (r'^quests/', include('sb_goals.apis.relations.v1')),
     (r'^quests/', include('sb_updates.apis.relations.v1')),
     (r'^quests/', include('sb_donations.apis.relations.v1'))
 )

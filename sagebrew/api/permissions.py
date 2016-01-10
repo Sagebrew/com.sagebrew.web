@@ -111,9 +111,10 @@ class IsOwnerOrModeratorOrReadOnly(permissions.BasePermission):
 
 class IsOwnerOrModerator(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if request.user.username in Quest.get_moderators(obj) or \
+        if request.user.username in \
+                Quest.get_moderators(owner_username=obj) or \
                 request.user.username == obj or request.user.username in \
-                Mission.get_moderators(Mission.get(obj).owner_username):
+                Mission.get_moderators(owner_username=obj):
             return True
         else:
             return False

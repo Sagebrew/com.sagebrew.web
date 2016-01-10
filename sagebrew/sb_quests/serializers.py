@@ -407,7 +407,7 @@ class QuestSerializer(SBSerializer):
             account.tos_acceptance.ip = ip
             account.tos_acceptance.date = int(time.time())
             quest.tos_acceptance = True
-            quest.save()
+        quest.save()
         account.save()
         # Potential optimization in combining these utilizing a transaction
         # Added these to ensure that the user has intercom when they hit the

@@ -762,6 +762,7 @@ class PoliticalCampaign(Campaign):
                 vote_data[date_string] += active_value
         return vote_data
 
+
 class Position(SBObject):
     name = StringProperty()
     full_name = StringProperty()

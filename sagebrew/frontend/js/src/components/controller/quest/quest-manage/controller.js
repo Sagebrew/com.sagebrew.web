@@ -12,7 +12,8 @@ export const meta = {
     controller: "quest/quest-manage",
     match_method: "path",
     check: [
-       "^quests\/[A-Za-z0-9.@_%+-]{1,36}"
+        "^quests\/[A-Za-z0-9.@_%+-]{1,36}",
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/"
     ]
 };
 

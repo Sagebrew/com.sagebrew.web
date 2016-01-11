@@ -6,15 +6,13 @@
  * We'll put the markup preview logic and whatnot in here.
  */
 
-var helpers = require('./helpers'),
-    request = require('./../api').request,
-    Handlebars = require('handlebars');
+var Handlebars = require('handlebars');
 
 export function installHandleBarsHelpers() {
     Handlebars.registerHelper('ifCond', function (v1, operator, v2, options) {
         switch (operator) {
             case '==':
-                return (v1 == v2) ? options.fn(this) : options.inverse(this);
+                return (v1 === v2) ? options.fn(this) : options.inverse(this);
             case '===':
                 return (v1 === v2) ? options.fn(this) : options.inverse(this);
             case '<':

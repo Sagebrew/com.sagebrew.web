@@ -201,6 +201,13 @@ class Mission(Searchable):
             cache.set("%s_moderators" % quest.owner_username, moderators)
         return moderators
 
+    @classmethod
+    def get_donations(cls, object_uuid):
+        query = 'MATCH (c:Mission {object_uuid:"%s"})<-' \
+                '[:CONTRIBUTED_TO]-(d:Donation) RETURN d' % object_uuid
+        res, _ = db.cypher_query(query)
+        return [donation[0] for donation in res]
+
     def get_mission_title(self):
         if self.title:
             title = self.title
@@ -211,3 +218,10 @@ class Mission(Searchable):
             else:
                 title = None
         return title
+
+    def get_total_donation_amount(self):
+        query = 'MATCH (c:Mission {object_uuid:"%s"})<-' \
+                '[:CONTRIBUTED_TO]-(d:Donation) RETURN sum(d.amount)' \
+                % self.object_uuid
+        res, _ = db.cypher_query(query)
+        return res.one

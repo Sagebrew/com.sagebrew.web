@@ -368,6 +368,7 @@ class QuestSerializer(SBSerializer):
     completed_stripe = serializers.SerializerMethodField()
     completed_customer = serializers.SerializerMethodField()
     missions = serializers.SerializerMethodField()
+    total_donation_amount = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -407,7 +408,7 @@ class QuestSerializer(SBSerializer):
             account.tos_acceptance.ip = ip
             account.tos_acceptance.date = int(time.time())
             quest.tos_acceptance = True
-            quest.save()
+        quest.save()
         account.save()
         # Potential optimization in combining these utilizing a transaction
         # Added these to ensure that the user has intercom when they hit the
@@ -646,16 +647,24 @@ class QuestSerializer(SBSerializer):
 
     def get_missions(self, obj):
         from sb_missions.neo_models import Mission
+        from sb_missions.serializers import MissionSerializer
+        expand = self.context.get('expand', 'false').lower()
         query = 'MATCH (quest:Quest {owner_username: "%s"})-[:EMBARKS_ON]->' \
                 '(mission:Mission) RETURN mission' % obj.owner_username
         res, _ = db.cypher_query(query)
         if res.one is None:
             return None
+        if expand == 'true':
+            return [MissionSerializer(Mission.inflate(row[0])).data
+                    for row in res]
         return [reverse('mission-detail',
                         kwargs={
                             'object_uuid': Mission.inflate(row[0]).object_uuid
                         }, request=self.context.get('request', None))
                 for row in res]
+
+    def get_total_donation_amount(self, obj):
+        return obj.get_total_donation_amount()
 
     def get_is_following(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)

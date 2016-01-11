@@ -34,7 +34,7 @@ class Donation(SBObject):
     amount = IntegerProperty()
     # optimization
     owner_username = StringProperty()
-
+    mission_type = StringProperty()
     # Owner
     # Access who created this donation through:
     # Neomodel: donations Cypher: DONATIONS_GIVEN

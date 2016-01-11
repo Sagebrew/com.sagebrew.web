@@ -3,7 +3,6 @@ var request = require('api').request,
     getArgs = require('common/helpers').getQueryParam,
     moment = require('moment'),
     templates = require('template_build/templates'),
-    Handlebars = require('handlebars'),
     handlebarsHelpers = require('common/handlebars_helpers').installHandleBarsHelpers;
 
 

@@ -206,6 +206,15 @@ class Quest(Searchable):
             cache.set("%s_updates" % object_uuid, updates)
         return updates
 
+    @classmethod
+    def get_donations(cls, owner_username):
+        from sb_donations.neo_models import Donation
+        query = 'MATCH (c:Quest {owner_username:"%s"})-[:EMBARKS_ON]->' \
+                '(mission:Mission)<-' \
+                '[:CONTRIBUTED_TO]-(d:Donation) RETURN d' % owner_username
+        res, _ = db.cypher_query(query)
+        return [Donation.inflate(donation[0]) for donation in res]
+
     def is_following(self, username):
         query = 'MATCH (q:Quest {object_uuid:"%s"})-[r:FOLLOWERS]->' \
                 '(p:Pleb {username:"%s"}) RETURN r.active' % \
@@ -261,6 +270,13 @@ class Quest(Searchable):
             except IndexError:
                 public_official = None
         return public_official
+
+    def get_total_donation_amount(self):
+        query = 'MATCH (c:Mission {object_uuid:"%s"})<-' \
+                '[:CONTRIBUTED_TO]-(d:Donation) RETURN sum(d.amount)' % (
+                    self.object_uuid)
+        res, _ = db.cypher_query(query)
+        return res.one
 
 
 class Campaign(Searchable):
@@ -773,10 +789,9 @@ class PoliticalCampaign(Campaign):
     def pledged_votes_per_day(self):
         query = 'MATCH (c:PoliticalCampaign {object_uuid:"%s"})-' \
                 '[r:RECEIVED_PLEDGED_VOTE]->(:Pleb) RETURN r ' \
-                'ORDER BY r.created' \
-                % self.object_uuid
-        res, _ = db.cypher_query(query)
+                'ORDER BY r.created' % self.object_uuid
         vote_data = {}
+        res, _ = db.cypher_query(query)
         for vote in res:
             rel = VoteRelationship.inflate(vote[0])
             active_value = int(rel.active)

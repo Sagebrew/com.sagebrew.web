@@ -1,12 +1,13 @@
-import csv
 import stripe
+import csv
 from stripe.error import InvalidRequestError
 
-from django.conf import settings
-from django.core.cache import cache
 from django.http import HttpResponse
 from django.core.files.temp import NamedTemporaryFile
 from django.core.servers.basehttp import FileWrapper
+from django.conf import settings
+from django.core.cache import cache
+
 from django.template.loader import render_to_string
 from django.templatetags.static import static
 
@@ -23,12 +24,12 @@ from neomodel import db
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrModerator,
                              IsOwnerOrEditor, IsOwnerOrModeratorOrReadOnly)
 from sb_goals.serializers import GoalSerializer
-from sb_donations.neo_models import Donation
-from sb_donations.serializers import DonationExportSerializer
+
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
 from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
+from sb_donations.serializers import DonationExportSerializer
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, ModeratorSerializer,
@@ -272,63 +273,6 @@ class QuestViewSet(viewsets.ModelViewSet):
         return Response(Quest.get_moderators(owner_username),
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
-                                                       IsOwnerOrModerator,))
-    def donation_data(self, request, owner_username=None):
-        """
-        This endpoint allows for the owner or accountants to get a .csv file
-        containing all of the data for donations given to the campaign.
-
-        :param request:
-        :param owner_username:
-        :return:
-        """
-        self.check_object_permissions(request, owner_username)
-        donation_info = [DonationExportSerializer(
-            Donation.inflate(donation)).data for donation in
-            Quest.get_donations(owner_username)]
-        campaign = self.get_object()
-        # this loop merges the 'owned_by' and 'address' dictionaries into
-        # the top level dictionary, allows for simple writing to csv
-        try:
-            for donation in donation_info:
-                donation.update(donation.pop('owned_by', {}))
-                donation.update(donation.pop('address', {}))
-                application_fee = donation['amount'] * (
-                    campaign.application_fee +
-                    settings.STRIPE_TRANSACTION_PERCENT) + .3
-                donation['amount'] -= application_fee
-            keys = []
-            for key in donation_info[0].keys():
-                new_key = key.replace('_', ' ').title()
-                for donation in donation_info:
-                    donation[new_key] = donation[key]
-                    donation.pop(key, None)
-                keys.append(new_key)
-            # use of named temporary file here is to handle deletion of file
-            # after we return the file, after the new file object is evicted
-            # it gets deleted
-            # http://stackoverflow.com/questions/3582414/removing-tmp-file-after-return-httpresponse-in-django
-            newfile = NamedTemporaryFile(suffix='.csv', delete=False)
-            newfile.name = "%s_quest_donations.csv" % owner_username
-            dict_writer = csv.DictWriter(newfile, keys)
-            dict_writer.writeheader()
-            dict_writer.writerows(donation_info)
-            # the HttpResponse use here allows us to do an automatic download
-            # upon hitting the button
-            newfile.seek(0)
-            wrapper = FileWrapper(newfile)
-            httpresponse = HttpResponse(wrapper,
-                                        content_type="text/csv")
-            httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
-                                                  % newfile.name
-            return httpresponse
-        except IndexError:
-            return Response({'detail': 'Unable to find any donation data',
-                             'status_code':
-                                 status.HTTP_404_NOT_FOUND},
-                            status=status.HTTP_404_NOT_FOUND)
-
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticatedOrReadOnly,))
     def missions(self, request, owner_username):
@@ -341,6 +285,59 @@ class QuestViewSet(viewsets.ModelViewSet):
         serializer = MissionSerializer(page, many=True,
                                        context={'request': request})
         return self.get_paginated_response(serializer.data)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
+                                                       IsOwnerOrModerator,))
+    def donation_data(self, request, owner_username):
+        """
+        This endpoint allows for the owner or accountants to get a .csv file
+        containing all of the data for donations given to the mission.
+        :param request:
+        :return:
+        """
+        self.check_object_permissions(request, owner_username)
+        quest = self.get_object()
+        keys = []
+        donation_info = DonationExportSerializer(
+            Quest.get_donations(owner_username=owner_username), many=True).data
+        # this loop merges the 'owned_by' and 'address' dictionaries into
+        # the top level dictionary, allows for simple writing to csv
+        try:
+            for donation in donation_info:
+                donation.update(donation.pop('owned_by', {}))
+                donation.update(donation.pop('address', {}))
+                application_fee = donation['amount'] * (
+                    quest.application_fee +
+                    settings.STRIPE_TRANSACTION_PERCENT) + .3
+                donation['amount'] -= application_fee
+            for key in donation_info[0].keys():
+                new_key = key.replace('_', ' ').title()
+                for donation in donation_info:
+                    donation[new_key] = donation[key]
+                    donation.pop(key, None)
+                keys.append(new_key)
+            # use of named temporary file here is to handle deletion of file
+            # after we return the file, after the new file object is evicted
+            # it gets deleted
+            # http://stackoverflow.com/questions/3582414/removing-tmp-file-
+            # after-return-httpresponse-in-django
+
+        except IndexError:
+            pass
+        newfile = NamedTemporaryFile(suffix='.csv', delete=False)
+        newfile.name = "quest_donations.csv"
+        dict_writer = csv.DictWriter(newfile, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(donation_info)
+        # the HttpResponse use here allows us to do an automatic download
+        # upon hitting the button
+        newfile.seek(0)
+        wrapper = FileWrapper(newfile)
+        httpresponse = HttpResponse(wrapper,
+                                    content_type="text/csv")
+        httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
+                                              % newfile.name
+        return httpresponse
 
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated,))

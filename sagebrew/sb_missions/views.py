@@ -139,7 +139,8 @@ class MissionSettingsView(LoginRequiredMixin):
         quest = Quest.inflate(res.one.quest)
         return render(request, self.template_name, {
             "missions": missions,
-            "mission": MissionSerializer(mission_obj).data,
-            "quest": QuestSerializer(quest).data,
+            "mission": MissionSerializer(mission_obj,
+                                         context={"request": request}).data,
+            "quest": QuestSerializer(quest, context={"request": request}).data,
             "slug": slugify(mission_obj.get_mission_title())
         })

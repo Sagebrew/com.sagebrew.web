@@ -33,7 +33,7 @@ class TestRequirementModel(TestCase):
         privilege = Privilege(name="Awesome Privilege")
         privilege.save()
         privilege.requirements.connect(req)
-        result = privilege.check_requirements(self.pleb)
+        result = privilege.check_requirements(self.pleb.username)
         privilege.requirements.disconnect(req)
         privilege.delete()
         req.delete()
@@ -52,7 +52,7 @@ class TestRequirementModel(TestCase):
         privilege = Privilege(name="Awesome Privilege")
         privilege.save()
         privilege.requirements.connect(req)
-        result = privilege.check_requirements(self.pleb)
+        result = privilege.check_requirements(self.pleb.username)
         privilege.requirements.disconnect(req)
         privilege.delete()
         req.delete()
@@ -72,7 +72,7 @@ class TestRequirementModel(TestCase):
         privilege.save()
         privilege.requirements.connect(req)
         try:
-            privilege.check_requirements(self.pleb)
+            privilege.check_requirements(self.pleb.username)
         except IOError as e:
             privilege.requirements.disconnect(req)
             privilege.delete()

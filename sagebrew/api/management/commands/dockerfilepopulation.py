@@ -30,6 +30,8 @@ class Command(BaseCommand):
                     data = populate_test_env(data)
                 elif(circle_branch == "master"):
                     data = populate_prod_env(data)
+                else:
+                    data = populate_test_env(data)
             else:
                 data = data.replace("{{PROJECT_REPONAME}}",
                                     os.environ.get("PROJECT_REPONAME", ""))
@@ -78,6 +80,8 @@ class Command(BaseCommand):
                     data = populate_test_env(data)
                 elif(circle_branch == "master"):
                     data = populate_prod_env(data)
+                else:
+                    data = populate_test_env(data)
             else:
                 data = data.replace("{{PROJECT_REPONAME}}",
                                     os.environ.get("PROJECT_REPONAME", ""))

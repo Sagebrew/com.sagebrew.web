@@ -344,9 +344,9 @@ class QuestViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated,))
-    def follow(self, request, username=None):
+    def follow(self, request, owner_username=None):
         """
-        This endpoint allows users to follow other users.
+        This endpoint allows users to follow Quests.
         """
         queryset = self.get_object()
         is_following = queryset.is_following(request.user.username)
@@ -361,9 +361,9 @@ class QuestViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated,))
-    def unfollow(self, request, username=None):
+    def unfollow(self, request, owner_username=None):
         """
-        This endpoint allows users to unfollow other users.
+        This endpoint allows users to unfollow Quests.
         """
         queryset = self.get_object()
         is_following = queryset.is_following(request.user.username)

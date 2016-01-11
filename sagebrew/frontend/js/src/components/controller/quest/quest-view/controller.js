@@ -1,7 +1,8 @@
 /**
  * @file
  */
-var quest = require('./partials/quest');
+var quest = require('./partials/quest'),
+    follow = require('./partials/follow');
 
 
 /**
@@ -23,4 +24,5 @@ export const meta = {
  */
 export function load() {
     quest.load();
+    follow.load();
 }

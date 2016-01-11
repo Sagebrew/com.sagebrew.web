@@ -1,5 +1,4 @@
-var missions = require('common/missions'),
-    helpers = require('common/helpers'),
+var helpers = require('common/helpers'),
     request = require('api').request;
 
 export function load() {
@@ -10,7 +9,7 @@ export function load() {
         followText = followButton.text().toLowerCase();
         questId = helpers.args(1);
         request.post({url:"/v1/quests/" + questId + "/" + followText + "/"})
-            .done(function(data) {
+            .done(function() {
                 if (followText === "follow") {
                     followButton.text("Unfollow");
                 } else {

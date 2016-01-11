@@ -244,7 +244,7 @@ class Quest(Searchable):
         res, _ = db.cypher_query(query)
         return res.one
 
-    def get_following(self):
+    def get_followers(self):
         query = 'MATCH (q:Quest {object_uuid:"%s"})-[r:FOLLOWERS]->' \
                 '(p:Pleb) WHERE r.active=true RETURN p.username' % \
                 (self.object_uuid)

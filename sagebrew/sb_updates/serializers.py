@@ -62,7 +62,7 @@ class UpdateSerializer(TitledContentSerializer):
         cache.delete("%s_updates" % quest.object_uuid)
         task_params = {
             "sb_object": update.object_uuid,
-            "to_plebs": quest.get_following(),
+            "to_plebs": quest.get_followers(),
             "from_pleb": request.user.username,
             "notification_id": str(uuid1()),
             "url": reverse('mission_updates',

@@ -3,9 +3,11 @@ var helpers = require('common/helpers'),
 
 export function load() {
     var followButton = $(".js-follow-btn"),
+        app = $(".app-sb"),
         followText,
         questId;
-    followButton.on('click', function() {
+
+    app.on('click', ".js-follow-btn", function() {
         followText = followButton.text().toLowerCase();
         questId = helpers.args(1);
         request.post({url:"/v1/quests/" + questId + "/" + followText + "/"})

@@ -1,6 +1,7 @@
-from datetime import datetime
 import pytz
 import bleach
+from uuid import uuid1
+from datetime import datetime
 
 from django.utils.text import slugify
 from django.core.cache import cache
@@ -12,9 +13,9 @@ from neomodel import db
 
 from plebs.neo_models import Pleb
 from sb_goals.neo_models import Goal
-from api.utils import gather_request_data
+from api.utils import gather_request_data, spawn_task
 from sb_base.serializers import TitledContentSerializer
-
+from sb_notifications.tasks import spawn_notifications
 
 from .neo_models import Update
 
@@ -59,6 +60,19 @@ class UpdateSerializer(TitledContentSerializer):
         elif about_type == 'quest':
             update.quest.connect(about)
         cache.delete("%s_updates" % quest.object_uuid)
+        task_params = {
+            "sb_object": update.object_uuid,
+            "to_plebs": quest.get_followers(),
+            "from_pleb": request.user.username,
+            "notification_id": str(uuid1()),
+            "url": reverse('mission_updates',
+                           kwargs={'object_uuid': about.object_uuid,
+                                   'slug': slugify(about.get_mission_title())}),
+            "action_name": "%s %s has made an Update on a Quest you follow!" %
+                           (request.user.first_name, request.user.last_name),
+            "public": True
+        }
+        spawn_task(task_func=spawn_notifications, task_param=task_params)
         return update
 
     def update(self, instance, validated_data):

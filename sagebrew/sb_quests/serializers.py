@@ -364,6 +364,7 @@ class QuestSerializer(SBSerializer):
     updates = serializers.SerializerMethodField()
     is_editor = serializers.SerializerMethodField()
     is_moderator = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
     completed_stripe = serializers.SerializerMethodField()
     completed_customer = serializers.SerializerMethodField()
     missions = serializers.SerializerMethodField()
@@ -664,6 +665,12 @@ class QuestSerializer(SBSerializer):
 
     def get_total_donation_amount(self, obj):
         return obj.get_total_donation_amount()
+
+    def get_is_following(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return obj.is_following(request.user.username)
 
 
 class PoliticalCampaignSerializer(CampaignSerializer):

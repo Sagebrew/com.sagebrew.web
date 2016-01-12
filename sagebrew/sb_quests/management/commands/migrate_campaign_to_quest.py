@@ -81,7 +81,7 @@ class Command(BaseCommand):
                     campaign.pledged_votes.disconnect(pledged_vote)
 
                 for donation in campaign.donations.all():
-                    mission.donations.connect(donation)
+                    donation.mission.connect(donation)
                     campaign.donations.disconnect(donation)
 
     def handle(self, *args, **options):

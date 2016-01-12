@@ -1,8 +1,7 @@
 var requests = require('api').request,
     helpers = require('common/helpers'),
     settings = require('settings').settings,
-    validators = require('common/validators'),
-    moment = require('moment');
+    validators = require('common/validators');
 
 export const meta = {
     controller: "user-settings",
@@ -31,22 +30,23 @@ export function load() {
         validKey = "addressValid",
         originalKey = "addressOriginal",
         $app = $(".app-sb"),
+        addressID = document.getElementById('address-id').dataset.id,
         donateToID = helpers.args(1),
         missionSlug = helpers.args(2),
         accountForm = document.getElementById('account-info'),
         addressForm = document.getElementById('address'),
         addressValidationForm = $("#address"),
         continueBtn = document.getElementById('js-continue-btn');
-    validators.accountValidator($("#account-info"));
+    validators.updateAccountValidator($("#account-info"));
     validators.addressValidator(addressValidationForm);
     $app
         .on('change', 'input', function () {
             continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm]);
         })
+        .on('keypress', '#street', function() {
+            document.getElementById('postal-code').value = "";
+        })
         .on('click', '#js-continue-btn', function (event) {
-            event.preventDefault();
-            document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
-            var accountData = helpers.getSuccessFormData(accountForm);
             var addressData = helpers.getSuccessFormData(addressForm);
 
             // Add the additional address fields we get dynamically from smarty
@@ -59,34 +59,20 @@ export function load() {
             addressData.longitude = localStorage.getItem(longitudeKey);
             addressData.country = localStorage.getItem(countryKey);
             addressData.congressional_district = localStorage.getItem(congressionalKey);
-
-            // If employment and occupation info is available add it to the account info
-            var campaignFinanceForm = document.getElementById('campaign-finance');
-            if(campaignFinanceForm !== undefined && campaignFinanceForm !== null) {
-                var employerName = document.getElementById('employer-name').value,
-                    occupationName = document.getElementById('occupation-name').value,
-                    retired = document.getElementById('retired-or-not-employed').checked;
-                if (retired === true) {
-                    accountData.employer_name = "N/A";
-                    accountData.occupation_name = "Retired or Not Employed";
-                } else {
-                    accountData.employer_name = employerName;
-                    accountData.occupation_name = occupationName;
-                }
-            }
-
-            // The backend doesn't care about the user's password matching so
-            // delete the second password input we use to help ensure the user
-            // doesn't put int a password they don't mean to.
-            delete accountData.password2;
-            accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
-            requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
+            requests.put({url: "/v1/addresses/" + addressID + "/", data: JSON.stringify(addressData)})
                 .done(function () {
-                    requests.post({url: "/v1/addresses/", data: JSON.stringify(addressData)})
-                        .done(function () {
-                            window.location.href = "/missions/" + donateToID + "/" +
-                                missionSlug + "/donate/payment/";
-                        });
+                    window.location.reload();
+                });
+        })
+        .on('click', '#submit_settings', function (event) {
+            event.preventDefault();
+            document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+            var accountData = helpers.getSuccessFormData(accountForm);
+
+            // accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
+            requests.patch({url: "/v1/profiles/" + settings.user.username + "/", data: JSON.stringify(accountData)})
+                .done(function () {
+                    window.location.reload();
                 });
         });
     var liveaddress = $.LiveAddress({

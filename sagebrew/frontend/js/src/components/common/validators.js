@@ -109,6 +109,62 @@ export function accountValidator(formVal) {
     });
 }
 
+
+export function updateAccountValidator(formVal) {
+    formVal.formValidation({
+        framework: 'bootstrap',
+        /*
+        Don't use icons anywhere else but if we want to add this.
+        icon: {
+            valid: 'fa fa-check',
+            invalid: 'fa fa-times',
+            validating: 'fa fa-refresh'
+        },
+        */
+        fields: {
+            firstName: {
+                selector: '#first-name',
+                validators: {
+                    stringLength: {
+                        max: 30,
+                        message: "First Name must not exceed 30 characters"
+                    }
+                }
+            },
+            lastName: {
+                selector: '#last-name',
+                validators: {
+                    stringLength: {
+                        max: 30,
+                        message: "Last Name must not exceed 30 characters"
+                    }
+                }
+            },
+            email: {
+                selector: '#email',
+                validators: {
+                    stringLength: {
+                        max: 200,
+                        message: "Email must not exceed 200 characters"
+                    },
+                    emailAddress: {
+                        message: 'The value is not a valid email address'
+                    }
+                }
+            },
+            birthday: {
+                selector: '#birthday',
+                validators: {
+                    date: {
+                        format: 'MM/DD/YYYY',
+                        message: 'The value is not a valid date'
+                    }
+                }
+            }
+        }
+    });
+}
+
 /**
  * Form validator for address information. This manages all of the fields we
  * associate with a given address for a user.

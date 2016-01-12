@@ -13,7 +13,7 @@
         </h3>
         <div class="block-content">
             <form id="account-info">
-                <div class="form-group">
+                <div class="form-group has-success">
                     <label for="first-name">First Name</label>
                     <input type="text"
                            id="first-name"
@@ -22,7 +22,7 @@
                            value="{{ request.user.first_name }}" class="form-control">
                 </div>
 
-                <div class="form-group">
+                <div class="form-group  has-success">
                     <label for="last_name">Last Name</label>
                     <input type="text"
                            id="last-name"
@@ -30,8 +30,8 @@
                            placeholder="Last Name"
                            value="{{ request.user.last_name }}" class="form-control">
                 </div>
-
-                <div class="form-group">
+                {% comment %}
+                <div class="form-group  has-success">
                     <label for="email">Email</label>
                     <input type="text"
                            id="email"
@@ -39,6 +39,7 @@
                            placeholder="Email"
                            value="{{ request.user.email }}" class="form-control">
                 </div>
+                {% endcomment %}
             </form>
             <div class="row">
                 <div class="col-md-6 col-lg-4">
@@ -55,9 +56,10 @@
             Address
         </h3>
         <div class="block-content">
+            <div id="address-id" data-id="address.id"></div>
             <form id="address">
-                <div class="form-group">
-                    <label for="street">Address Line 1*</label>
+                <div class="form-group has-success">
+                    <label for="street">Address Line 1</label>
                     <input type="text"
                            id="street"
                            name="street"
@@ -76,8 +78,8 @@
                            class="form-control"
                            autocomplete="off">
                 </div>
-                <div class="form-group">
-                    <label for="city">City*</label>
+                <div class="form-group has-success">
+                    <label for="city">City</label>
                     <input type="text"
                            id="city"
                            name="city"
@@ -86,8 +88,8 @@
                            class="form-control"
                            autocomplete="off">
                 </div>
-                <div class="form-group">
-                    <label for="">State*</label>
+                <div class="form-group has-success">
+                    <label for="">State</label>
                     <input type="text"
                            id="state"
                            name="state"
@@ -96,8 +98,8 @@
                            class="form-control"
                            autocomplete="off">
                 </div>
-                <div class="form-group">
-                    <label for="">Zip Code*</label>
+                <div class="form-group has-success">
+                    <label for="">Zip Code</label>
                     <input type="text"
                            id="postal-code"
                            name="postal_code"
@@ -159,8 +161,5 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
-    <script src="{% static 'js/settings_validator.js' %}"></script>
-    <script src="{% static 'js/address_validation.js' %}"></script>
     <script src="{% static 'js/submit_settings.js' %}"></script>
 {% endblock scripts %}

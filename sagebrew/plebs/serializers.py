@@ -211,6 +211,7 @@ class PlebSerializerNeo(SBSerializer):
 
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
+        quest_registration = request.session.get('account_type')
         username = generate_username(validated_data['first_name'],
                                      validated_data['last_name'])
         birthday = validated_data.pop('date_of_birth', None)
@@ -234,6 +235,9 @@ class PlebSerializerNeo(SBSerializer):
             user = authenticate(username=user.username,
                                 password=validated_data['password'])
             login(request, user)
+            if quest_registration is not None:
+                request.session['account_type'] = quest_registration
+                request.session.set_expiry(1800)
         spawn_task(task_func=create_pleb_task,
                    task_param={
                        "user_instance": user, "birthday": birthday,

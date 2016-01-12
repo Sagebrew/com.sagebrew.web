@@ -39,7 +39,7 @@ class Command(BaseCommand):
                             location.sector = "local"
                         elif encompassed_by is not None and state is not None \
                                 and encompassed_by != \
-                                    "United States of America":
+                                "United States of America":
                             location.sector = "local"
                         else:
                             location.sector = "federal"

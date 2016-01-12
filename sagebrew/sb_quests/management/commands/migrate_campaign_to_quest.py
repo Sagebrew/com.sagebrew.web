@@ -41,10 +41,6 @@ class Command(BaseCommand):
                 owner_username=campaign.object_uuid
             ).save()
 
-            for donation in campaign.donations.all():
-                quest.donations.connect(donation)
-                campaign.donations.disconnect(donation)
-
             for update in campaign.updates.all():
                 quest.updates.connect(update)
                 campaign.updates.disconnect(update)
@@ -74,8 +70,7 @@ class Command(BaseCommand):
                     wallpaper_pic=campaign.wallpaper_pic,
                     owner_username=campaign.object_uuid,
                     location_name=campaign.location_name,
-                    focus_on_type="position"
-                ).save()
+                    focus_on_type="position").save()
 
                 for position in campaign.position.all():
                     mission.position.connect(position)
@@ -84,7 +79,10 @@ class Command(BaseCommand):
                 for pledged_vote in campaign.pledged_votes.all():
                     mission.pledge_votes.connect(pledged_vote)
                     campaign.pledged_votes.disconnect(pledged_vote)
-            campaign.delete()
+
+                for donation in campaign.donations.all():
+                    mission.donations.connect(donation)
+                    campaign.donations.disconnect(donation)
 
     def handle(self, *args, **options):
         self.migrate_campaign_to_quest()

@@ -617,8 +617,8 @@ class Pleb(Searchable):
         return determine_reps(self.username)
 
     def get_donations(self):
-        query = 'MATCH (p:`Pleb` {username: "%s"})-[:DONATIONS_GIVEN]->' \
-                '(d:`Donation`) WHERE (d)-[:DONATED_TO]->(:Campaign) ' \
+        query = 'MATCH (p:Pleb {username: "%s"})-[:DONATIONS_GIVEN]->' \
+                '(d:Donation)-[:CONTRIBUTED_TO]->(mission:Mission) ' \
                 'RETURN d.object_uuid' % self.username
         res, col = db.cypher_query(query)
         return [row[0] for row in res]

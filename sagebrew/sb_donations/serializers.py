@@ -119,7 +119,7 @@ class DonationSerializer(SBSerializer):
             return None
         if expand == 'true':
             return MissionSerializer(Mission.get(
-                object_uuid=mission.object_uuid)).data
+                object_uuid=mission)).data
         if relation == "hyperlink" and mission is not None:
             return reverse('mission-detail',
                            kwargs={"object_uuid": mission},

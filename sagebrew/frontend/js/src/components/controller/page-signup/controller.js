@@ -18,11 +18,6 @@ export const meta = {
     check: "^$"
 };
 
-
-function signupFormValidation() {
-    validators.accountValidator($("#account-info"));
-}
-
 function submitSignup() {
     var submitButton = $("#submit_signup"),
         accountForm = document.getElementById('account-info');
@@ -53,7 +48,7 @@ export function load() {
 
     //
     // Form Validation
-    signupFormValidation();
+    validators.accountValidator($("#account-info"));
 
     //
     // Actual signup form.

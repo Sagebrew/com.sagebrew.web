@@ -1,0 +1,24 @@
+{% if request.path != "/" %}
+    <ul class="nav navbar-nav navbar-left sb_login sb-signup-btn">
+        <li>
+            <button class="btn btn-block btn-primary" id="js-sign-up">Signup</button>
+        </li>
+    </ul>
+{% endif %}
+{% if request.path != "/login/" %}
+    <ul class="nav navbar-nav navbar-right sb_login">
+        <li>
+            <input type="email"
+                   class="form-control input-sm email"
+                   placeholder="E-mail" id="email_input">
+        </li>
+        <li>
+            <input type="password"
+                   class="form-control input-sm password"
+                   placeholder="Password" id="password_input">
+        </li>
+        <li>
+            <button class="btn btn-block btn-primary" id="submit_login">Login</button>
+        </li>
+    </ul>
+{% endif %}

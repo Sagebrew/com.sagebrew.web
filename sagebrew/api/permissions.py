@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
-from sb_quests.neo_models import Campaign
-from sb_goals.neo_models import Goal
+from sb_quests.neo_models import Quest
+from sb_missions.neo_models import Mission
 
 
 class IsOwnerOrAdmin(permissions.BasePermission):
@@ -15,6 +15,26 @@ class IsOwnerOrAdmin(permissions.BasePermission):
 
 class IsSelfOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+
+        return obj.username == request.user.username
+
+
+class IsAnonCreateReadOnlyOrIsAuthenticated(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method == "POST" and not request.user.is_authenticated():
+            return True
+        elif not request.user.is_authenticated() and request.method != "POST":
+            return False
+        elif request.method in permissions.SAFE_METHODS:
+            return True
+
+        return True
+
+    def has_object_permission(self, request, view, obj):
+        if not request.user.is_authenticated():
+            return False
         if request.method in permissions.SAFE_METHODS:
             return True
 
@@ -60,15 +80,41 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 
 class IsOwnerOrEditorOrAccountant(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if (request.user.username in Campaign.get_campaign_helpers(obj)):
+        if request.user.username in Quest.get_quest_helpers(obj):
             return True
         else:
             return False
 
 
-class IsOwnerOrAccountant(permissions.BasePermission):
+class IsOwnerOrModeratorOrReadOnly(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if request.user.is_authenticated():
+            return True
+        return False
+
     def has_object_permission(self, request, view, obj):
-        if (request.user.username in Campaign.get_accountants(obj)):
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        if request.user.username in \
+                Quest.get_moderators(obj.owner_username) or \
+                request.user.username == obj.owner_username:
+            # Only allow the owner of the quest delete it
+            if request.method == 'DELETE' and \
+                    request.user.username != obj.owner_username:
+                return False
+            return True
+        else:
+            return False
+
+
+class IsOwnerOrModerator(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        if request.user.username in \
+                Quest.get_moderators(owner_username=obj) or \
+                request.user.username == obj or request.user.username in \
+                Mission.get_moderators(owner_username=obj):
             return True
         else:
             return False
@@ -76,16 +122,8 @@ class IsOwnerOrAccountant(permissions.BasePermission):
 
 class IsOwnerOrEditor(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
-        if (request.user.username in Campaign.get_editors(obj)):
-            return True
-        else:
-            return False
-
-
-class IsGoalOwnerOrEditor(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if (request.user.username in
-                Campaign.get_editors(Goal.get_campaign(obj))):
+        if request.user.username in Quest.get_editors(obj) or \
+                request.user.username == obj:
             return True
         else:
             return False

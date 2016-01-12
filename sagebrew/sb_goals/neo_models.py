@@ -7,8 +7,7 @@ from neomodel import (db, StringProperty, IntegerProperty, DoesNotExist,
                       CypherException)
 
 from api.neo_models import SBObject
-from api.utils import spawn_task
-from sb_quests.tasks import release_funds_task
+from api.utils import deprecation
 
 
 class Goal(SBObject):
@@ -68,11 +67,19 @@ class Goal(SBObject):
     # relationships
     updates = RelationshipTo('sb_updates.neo_models.Update', "UPDATE_FOR")
     donations = RelationshipTo('sb_donations.neo_models.Donation', "RECEIVED")
-    associated_round = RelationshipTo('sb_goals.neo_models.Round', "PART_OF")
     previous_goal = RelationshipTo('sb_goals.neo_models.Goal', "PREVIOUS")
     next_goal = RelationshipTo('sb_goals.neo_models.Goal', "NEXT")
+
+    # DEPRECATIONS
+    # DEPRECATED: Goals are no longer directly associated with Quests. Instead
+    # they are associated with Missions. Use "WORKING_TOWARDS" off of a mission
+    # to determine the Goals
     campaign = RelationshipTo('sb_quests.neo_models.Campaign',
                               'ASSOCIATED_WITH')
+
+    # DEPRECATED: Rounds are no longer used. Instead Goals are either active
+    # or not and are not grouped into any specific "round"
+    associated_round = RelationshipTo('sb_goals.neo_models.Round', "PART_OF")
 
     @classmethod
     def get_updates(cls, object_uuid):
@@ -90,6 +97,7 @@ class Goal(SBObject):
 
     @classmethod
     def get_associated_round(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:PART_OF]->' \
                 '(u:`Round`) return u.object_uuid' % object_uuid
         res, _ = db.cypher_query(query)
@@ -120,6 +128,8 @@ class Goal(SBObject):
 
     @classmethod
     def get_campaign(cls, object_uuid):
+        # DEPRECATED use get_mission or get_quest instead
+        deprecation('Campaigns are deprecated, use Missions or Quests instead')
         query = 'MATCH (g:`Goal` {object_uuid: "%s"})-[:ASSOCIATED_WITH]-' \
                 '(c:`Campaign`) RETURN c.object_uuid' % object_uuid
         res, _ = db.cypher_query(query)
@@ -130,6 +140,7 @@ class Goal(SBObject):
 
     @classmethod
     def get_associated_round_donation_total(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         query = 'MATCH (g:Goal {object_uuid: "%s"})-[:PART_OF]->(r:Round)-' \
                 '[:HAS_DONATIONS]->(d:Donation) RETURN sum(d.amount)' \
                 % object_uuid
@@ -158,6 +169,7 @@ class Goal(SBObject):
 
 class Round(SBObject):
     """
+    !!!!!!!!!DEPRECATED!!!!!!!!!
     A round is a grouping of goals. The objective of a round is to provide
     more of an agile development feel to the goal assignment process. A round
     is much like a sprint only over a much longer duration. But within it
@@ -199,6 +211,7 @@ class Round(SBObject):
 
     @classmethod
     def get_goals(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:STRIVING_FOR]->' \
                 '(g:`Goal`) RETURN g.object_uuid' % object_uuid
         res, _ = db.cypher_query(query)
@@ -206,6 +219,7 @@ class Round(SBObject):
 
     @classmethod
     def get_previous_round(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:PREVIOUS]->' \
                 '(g:`Round`) RETURN g.object_uuid' % object_uuid
         res, _ = db.cypher_query(query)
@@ -216,6 +230,7 @@ class Round(SBObject):
 
     @classmethod
     def get_next_round(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:NEXT]->' \
                 '(g:`Round`) RETURN g.object_uuid' % object_uuid
         res, _ = db.cypher_query(query)
@@ -226,6 +241,7 @@ class Round(SBObject):
 
     @classmethod
     def get_campaign(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         query = 'MATCH (r:Round {object_uuid:"%s"})-[:ASSOCIATED_WITH]->' \
                 '(c:Campaign) RETURN c.object_uuid' % object_uuid
         res, _ = db.cypher_query(query)
@@ -236,6 +252,7 @@ class Round(SBObject):
 
     @classmethod
     def get_total_donation_amount(cls, object_uuid):
+        deprecation("Rounds are deprecated and should no longer be used.")
         query = 'MATCH (r:Round {object_uuid:"%s"})-[:HAS_DONATIONS]->' \
                 '(d:Donation) RETURN sum(d.amount)' % object_uuid
         res, _ = db.cypher_query(query)
@@ -252,6 +269,7 @@ class Round(SBObject):
         :return:
         """
         from sb_quests.neo_models import PoliticalCampaign
+        deprecation("Rounds are deprecated and should no longer be used.")
         query = 'MATCH (r:`Round` {object_uuid:"%s"})-[:STRIVING_FOR]->' \
                 '(g:`Goal`) WITH r, g MATCH ' \
                 '(r)-[:ASSOCIATED_WITH]->(c:Campaign) ' \
@@ -280,8 +298,8 @@ class Round(SBObject):
                     goal_node.completed = True
                     goal_node.completed_date = datetime.now(pytz.utc)
                     goal_node.save()
-                    spawn_task(task_func=release_funds_task,
-                               task_param={"goal_uuid": goal_node.object_uuid})
+                    # spawn_task(task_func=release_funds_task,
+                    #           task_param={"goal_uuid": goal_node.object_uuid})
                     try:
                         next_goal = Goal.nodes.get(
                             object_uuid=Goal.get_next_goal(
@@ -304,6 +322,7 @@ class Round(SBObject):
         :return:
         """
         from sb_quests.neo_models import PoliticalCampaign
+        deprecation("Rounds are deprecated and should no longer be used.")
         query = 'MATCH (r:Round {object_uuid:"%s"})-[:STRIVING_FOR]->' \
                 '(g:Goal) WITH r, g MATCH (r)-[ASSOCIATED_WITH]->' \
                 '(c:Campaign) RETURN g.completed, c.object_uuid ' \

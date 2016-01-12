@@ -1,11 +1,14 @@
 var gulp = require('gulp'),
     path = require('path'),
+    handlebars = require('gulp-handlebars'),
     concat = require('gulp-concat'),
     browserify = require('browserify'),
     bulkify = require('bulkify'),
     globify = require('require-globify'),
     babelify = require("babelify"),
     less = require('gulp-less'),
+    wrap = require('gulp-wrap'),
+    declare = require('gulp-declare'),
     gulpif = require('gulp-if'),
     jshint = require('gulp-jshint'),
     uglify = require('gulp-uglify'),
@@ -34,6 +37,7 @@ var paths = {
         'bower_components/bootstrap/js/collapse.js',
         'bower_components/bootstrap/js/tab.js',
         'bower_components/lightbox2/dist/js/lightbox.js',
+        'bower_components/jquery.payment/lib/jquery.payment.js',
         'bower_components/waypoints/lib/jquery.waypoints.js',
         'bower_components/Autolinker.js/dist/Autolinker.js',
         'bower_components/remarkable-bootstrap-notify/dist/bootstrap-notify.js',
@@ -41,11 +45,14 @@ var paths = {
         'bower_components/jquery-mousewheel/jquery.mousewheel.js',
         'bower_components/bootstrap-switch/dist/js/bootstrap-switch.js',
         'bower_components/packery/dist/packery.pkgd.js',
+        'bower_components/Croppie/croppie.min.js',
         'node_modules/bootstrap-tokenfield/dist/bootstrap-tokenfield.min.js', // TODO Remove this after transitioning registration and tag input to new format and use require
         'js/vendor/flatui/radiocheck.js',
         'bower_components/typeahead.js/dist/typeahead.bundle.min.js',
+        'js/vendor/liveaddress.min.js',
         'js/vendor/formvalidation/formValidation.min.js',
         'js/vendor/formvalidation/bootstrap.min.js',
+        'js/vendor/card.js',
         '../sagebrew/static/js/vendor/spin.min.js',
         '../sagebrew/static/js/vendor/jquery.spin.js',
         '../sagebrew/static/js/vendor/foggy.min.js',
@@ -101,10 +108,30 @@ gulp.task('lr-server', function() {
 //
 // App Scripts - Lint
 gulp.task('scripts:lint', function () {
-    return gulp.src(['js/src/**'])
+    return gulp.src(['js/src/**/*.js'])
             .pipe(gulpif(!production, jshint('.jshintrc')))
             .pipe(gulpif(!production, jshint.reporter('jshint-stylish')))
             .on('error', gutil.log);
+});
+
+//
+// App Templates - Templates
+gulp.task('scripts:templates', function(){
+    gulp.src('js/src/**/templates/*.hbs')
+        .pipe(handlebars({
+            handlebars: require('handlebars')
+        }))
+        .pipe(wrap('Handlebars.template(<%= contents %>)'))
+        .pipe(declare({
+            root: 'exports',
+            noRedeclare: true
+        }))
+        .pipe(concat('templates.js'))
+        // Add the Handlebars module in the final output
+        .pipe(wrap('var Handlebars = require("handlebars");\n <%= contents %>'))
+        .pipe(gulpif(production, uglify()))
+        .on('error', gutil.log)
+        .pipe(gulp.dest('js/src/components/template_build/'));
 });
 
 //
@@ -121,10 +148,12 @@ gulp.task('scripts:global', function () {
         var bundler =  browserify({
             entries: [__dirname + "/" + entry],
             basedir: __dirname,
-            debug: debug
-            //transform: [bulkify, babelify]
+            debug: debug,
+            paths: [
+                './node_modules',
+                './js/src/components'
+            ]
         });
-
         bundler.transform(babelify);
         bundler.transform(globify);
 
@@ -159,7 +188,8 @@ gulp.task('scripts:vendor', function () {
 
 //
 // JS
-gulp.task('scripts', ['scripts:lint', 'scripts:global', 'scripts:vendor']);
+gulp.task('scripts', ['scripts:lint', 'scripts:global', 'scripts:vendor',
+    'scripts:templates']);
 
 //
 // Styles
@@ -203,7 +233,8 @@ gulp.task('images', ['images:hotfix'], function() {
 gulp.task('watch', function () {
     'use strict';
     gulp.watch(paths.styles, ['styles']);
-    gulp.watch(['js/src/**'], ['scripts:lint', 'scripts:global']);
+    gulp.watch(['js/src/**'], ['scripts:lint', 'scripts:global',
+        'scripts:templates']);
 
 });
 

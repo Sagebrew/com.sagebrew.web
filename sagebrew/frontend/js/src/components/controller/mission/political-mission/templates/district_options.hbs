@@ -1,0 +1,7 @@
+<label for="district-select" hidden></label>
+<select id="district-select" class="form-control mission-input">
+    <option selected disabled value="NaN">{{ option_holder }}</option>
+    {{#each districts}}
+        <option value="{{ this.name }}">{{ this.name }}</option>
+    {{/each}}
+</select>

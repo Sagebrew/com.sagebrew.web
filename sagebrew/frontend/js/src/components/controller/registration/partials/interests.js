@@ -1,4 +1,4 @@
-var request = require('./../../../api').request;
+var request = require('api').request;
 
 export function load() {
     var $app = $(".app-sb");

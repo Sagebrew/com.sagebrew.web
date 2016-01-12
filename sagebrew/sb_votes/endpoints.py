@@ -13,6 +13,7 @@ from api.utils import spawn_task
 from sb_base.views import ObjectRetrieveUpdateDestroy
 from sb_docstore.tasks import spawn_user_updates
 from plebs.neo_models import Pleb
+from sb_search.tasks import update_search_object
 
 from .serializers import VoteSerializer
 from .neo_models import Vote
@@ -78,6 +79,16 @@ class ObjectVotesListCreate(ListCreateAPIView):
                                   countdown=30)
             cache.set("%s_%s_vote" % (request.user.username, object_uuid),
                       new_task)
+            search_result = cache.get("%s_vote_search_update" % object_uuid)
+            if search_result is not None:
+                search_result.revoke()
+            task_param = {
+                "object_uuid": object_uuid
+            }
+            spawned = spawn_task(task_func=update_search_object,
+                                 task_param=task_param,
+                                 countdown=10)
+            cache.set("%s_vote_search_update" % object_uuid, spawned)
             return Response({"detail": "Successfully created or modified "
                                        "vote.",
                              "status": status.HTTP_200_OK,

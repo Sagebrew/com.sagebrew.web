@@ -1,0 +1,80 @@
+{% extends "manage/manage_base.html" %}
+{% load staticfiles %}
+{% block title %}Quest Banking{% endblock title %}
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">
+            Accounting
+        </h3>
+        <div class="block-content">
+            <div id="account-verification-status">
+                {% if quest.account_verified == "unverified" %}
+                    <span class="label label-danger">Verification: Incomplete</span>
+                {% elif quest.account_verified == "pending" %}
+                    <span class="label label-warning">Verification: Pending</span>
+                {% else %}
+                    <span class="label label-success">Verification: Completed</span>
+                {% endif %}
+            </div>
+
+            <form id="bankingForm">
+                <div class="form-group">
+                    <label for="ssn">
+                        Social Security Number
+                    </label>
+                    <input id="ssn" type="text" class="form-control" name="ssn">
+                    <p class="help-block">We don't store this.</p>
+                </div>
+                <div class="form-group">
+                    <label for="ein">
+                        EIN for political campaign committee or other entity managing bank account (optional)
+                    </label>
+                    <input id="ein" type="text" class="form-control" name="ein">
+                    <p class="help-block">We don't store this.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="routing-number">
+                        Routing Number
+                    </label>
+                    <input id="routing-number" type="text" class="form-control" name="routing_number">
+                    <p class="help-block">We don't store this.</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="account-number">
+                        Account Number
+                    </label>
+                    <input id="account-number" type="text" class="form-control" name="account_number">
+                    <p class="help-block">We don't store this.</p>
+                </div>
+            </form>
+
+            <div class="row">
+                <div id="js-validation-errors"></div>
+                <div class="col-lg-4 col-md-6 col-xs-12">
+                    <button class="btn btn-primary sb_btn sb_btn_fill"
+                            id="submit">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+            {% if quest.tos_acceptance == False %}
+                <div class="row">
+                    <div class="col-xs-12">
+                        <small>By completing the form,
+                            you agree to the <a href="https://stripe.com/connect/account-terms">
+                                Stripe Connected Account Agreement</a>.</small>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    {{ block.super }}
+{% endblock scripts %}

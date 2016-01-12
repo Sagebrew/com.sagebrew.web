@@ -4,8 +4,16 @@
  * Global SB controller. Loaded on every page.
  */
 
-var helpers = require('./../../common/helpers');
+var helpers = require('common/helpers');
 
+/**
+ * Meta.
+ */
+export const meta = {
+    controller: "global",
+    match_method: true,
+    check: true
+};
 
 /**
  * Scope - Global

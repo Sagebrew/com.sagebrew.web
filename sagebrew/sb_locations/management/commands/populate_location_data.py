@@ -2,7 +2,7 @@ import os
 import us
 from json import loads, dumps
 
-from neomodel import DoesNotExist, db
+from neomodel import DoesNotExist, db, MultipleNodesReturned
 
 from django.core.management.base import BaseCommand
 
@@ -18,7 +18,12 @@ class Command(BaseCommand):
             usa = Location.nodes.get(name='United States of America')
         except (DoesNotExist, Location.DoesNotExist):
             usa = Location(name="United States of America").save()
-        if not usa.positions.all():
+        query = 'MATCH (a:Location {object_uuid: "%s"})-' \
+                '[:POSITIONS_AVAILABLE]->' \
+                '(p:Position) RETURN p.name' % usa.object_uuid
+        res, _ = db.cypher_query(query)
+        positions = [row[0] for row in res]
+        if "President" not in positions:
             pres = Position(name="President").save()
             usa.positions.connect(pres)
             pres.location.connect(usa)
@@ -35,9 +40,16 @@ class Command(BaseCommand):
                         state = Location(name=state_name,
                                          geo_data=dumps(
                                              file_data['coordinates'])).save()
+                    except MultipleNodesReturned:
+                        continue
                     usa.encompasses.connect(state)
                     state.encompassed_by.connect(usa)
-                    if not state.positions.all():
+                    query = 'MATCH (a:Location {object_uuid: "%s"})-' \
+                            '[:POSITIONS_AVAILABLE]->' \
+                            '(p:Position) RETURN p.name' % state.object_uuid
+                    res, _ = db.cypher_query(query)
+                    positions = [row[0] for row in res]
+                    if "Senator" not in positions:
                         senator = Position(name='Senator').save()
                         senator.location.connect(state)
                         state.positions.connect(senator)
@@ -49,8 +61,11 @@ class Command(BaseCommand):
                     state, district = district_data.split('-')
                     if not int(district):
                         district = 1
-                    state_node = Location.nodes.get(
-                        name=us.states.lookup(state).name)
+                    try:
+                        state_node = Location.nodes.get(
+                            name=us.states.lookup(state).name)
+                    except MultipleNodesReturned:
+                        continue
                     with open(root + "/shape.geojson") as geo_data:
                         file_data = loads(geo_data.read())
                         query = 'MATCH (l:Location {name:"%s"})-' \
@@ -66,7 +81,13 @@ class Command(BaseCommand):
                             district.encompassed_by.connect(state_node)
                             usa.encompasses.connect(district)
                             state_node.encompasses.connect(district)
-                            if not district.positions.all():
+                            query = 'MATCH (a:Location {object_uuid: "%s"})-' \
+                                    '[:POSITIONS_AVAILABLE]->' \
+                                    '(p:Position) ' \
+                                    'RETURN p.name' % district.object_uuid
+                            res, _ = db.cypher_query(query)
+                            positions = [row[0] for row in res]
+                            if "House Representative" not in positions:
                                 house_rep = Position(
                                     name="House Representative").save()
                                 house_rep.location.connect(district)

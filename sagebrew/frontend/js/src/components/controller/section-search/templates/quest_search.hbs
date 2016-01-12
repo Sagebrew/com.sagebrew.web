@@ -1,0 +1,17 @@
+<div class="block search-block">
+    <div class="row">
+        <div class="col-xs-4 col-sm-3">
+            <div class="thumbnail sb_thumbnail_md sb_thumbnail_search">
+                <a href="{{ url }}"><img src="{{ profile_pic }}"></a>
+            </div>
+        </div>
+        <div class="col-xs-8 search-content-block">
+            <h6><a href="{{ url }}">{{ title }} <i class="fa fa-rocket"></i></a></h6>
+            {{#if public_official }}
+                <p>{{ public_official.state }} - {{ public_official.title }}</p>
+            {{ else }}
+                <p>{{ about }}</p>
+            {{/if }}
+        </div>
+      </div>
+</div>

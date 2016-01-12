@@ -7,6 +7,11 @@ from api.neo_models import SBObject
 
 class Location(SBObject):
     name = StringProperty(index=True)
+    # Valid Sectors:
+    #     state_upper - State Senator Districts
+    #     state_lower - State House Representative Districts
+    #     federal - U.S. Federal Districts (House of Reps)
+    #     local - Everything else :)
     sector = StringProperty(default=None)
     geo_data = StringProperty(default=None)
 
@@ -18,8 +23,13 @@ class Location(SBObject):
                                'POSITIONS_AVAILABLE')
     addresses = RelationshipTo('plebs.neo_models.Address',
                                'ENCOMPASSES_ADDRESS')
+    # Questions
     # Access Questions that are related to this location through:
     # Neomodel: focus_location Cypher: FOCUSED_ON
+
+    # Mission
+    # Access Missions that are related to this location through:
+    # Neomodel: location Cypher: WITHIN
 
     # optimizations
     # TODO these might be best moved to the Question or maybe lat, long to since
@@ -30,7 +40,7 @@ class Location(SBObject):
     created_by = StringProperty(default="smarty_streets")
     # ID provided by a third party representing the ID that should be used
     # when querying their service.
-    external_id = StringProperty(default=None)
+    external_id = StringProperty(default=None, index=True)
 
     @classmethod
     def get(cls, object_uuid):

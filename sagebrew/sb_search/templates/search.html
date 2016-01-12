@@ -2,7 +2,7 @@
 {% load staticfiles %}
 {% block content %}
 <div class="row-fluid sb_page">
-    <div class="col-lg-8 col-md-12 col-sm-12 hidden-xs col-lg-offset-2 col-sm-offset-0">
+    <div class="col-lg-8 col-xs-12 col-lg-offset-2">
         <div class="sb_nav sb_secondary_nav sb_search_nav search-nav-wrapper">
             <ul>
                 <li>
@@ -12,7 +12,10 @@
                     <a class="btn sb_tab_question filter_button {% if 'conversations' in request.GET.urlencode %}active{% endif %}" data-filter="conversations">Conversations</a>
                 </li>
                 <li>
-                    <a class="btn sb_tab_question filter_button {% if 'sagas' in request.GET.urlencode %}active{% endif %}" data-filter="quests">Quests</a>
+                    <a class="btn sb_tab_question filter_button {% if 'quests' in request.GET.urlencode %}active{% endif %}" data-filter="quests">Quests</a>
+                </li>
+                <li>
+                    <a class="btn sb_tab_question filter_button {% if 'missions' in request.GET.urlencode %}active{% endif %}" data-filter="missions">Missions</a>
                 </li>
                 <li>
                     <a class="btn sb_tab_question filter_button {% if 'people' in request.GET.urlencode %}active{% endif %}" data-filter="people">People</a>
@@ -21,14 +24,8 @@
         </div>
         <div class="sb_wall sb_search_wall">
             <div id="search_result_div">
-                <div id="search_param" data-search_param="{{ search_param }}" data-search_page="{{ page }}" data-filter="{{ filter }}"></div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/update_search_page.js' %}"></script>
-    <script src="{% static 'js/update_filter.js' %}"></script>
 {% endblock %}

@@ -18,12 +18,14 @@ def parse_google_places(places, external_id):
         country
         administrative_area_level_1
         administrative_area_level_2
+    Unable to get the external id for all of the components as google only
+    gives us the external id of the leaf node.
     :param places:
     :param external_id:
     :return:
     """
     structure = verify_structure(break_out_structure(places), external_id)
-    return create_tree(structure)
+    return create_tree(structure, external_id)
 
 
 def google_maps_query(external_id):
@@ -75,7 +77,7 @@ def verify_structure(structure, external_id, verify=True):
     return [x for x in structure if x is not None]
 
 
-def create_tree(structure):
+def create_tree(structure, external_id):
     # If top level node then check if exists, if it doesn't then create it
     parent_node = None
     for idx, element in enumerate(structure):
@@ -88,6 +90,10 @@ def create_tree(structure):
         # the chain for this structure, and we may need to update it at a later
         # date.
         try:
+            # Don't listen to pycharm, "utf-8" needs to be passed or this will
+            # throw:
+            # UnicodeDecodeError: 'ascii' codec can't decode byte 0xc3 in
+            # position 2: ordinal not in range(128)
             name = unidecode(unicode(element['long_name'], "utf-8"))
         except TypeError:
             # Handles cases where the name is already in unicode format
@@ -98,8 +104,9 @@ def create_tree(structure):
             query = 'MATCH (a:Location {name: "%s"}) RETURN a' % name
             res, _ = db.cypher_query(query)
             if not res.one:
-                parent_node = Location(name=name,
-                                       created_by="google_maps").save()
+                parent_node = Location(
+                    name=name, created_by="google_maps",
+                    sector="federal").save()
             else:
                 parent_node = Location.inflate(res.one)
         else:
@@ -114,14 +121,27 @@ def create_tree(structure):
                     '[:ENCOMPASSES]->(b:Location {name: "%s"}) RETURN b' % (
                         parent_node.object_uuid, name)
             res, _ = db.cypher_query(query)
+
             if not res.one:
-                child_node = Location(name=name,
-                                      created_by="google_maps").save()
+                if 'locality' in element['types']:
+                    sector = "local"
+                    external_holder = external_id
+                else:
+                    sector = None
+                    external_holder = None
+                child_node = Location(
+                    name=name, created_by="google_maps", sector=sector,
+                    external_id=external_holder).save()
                 parent_node.encompasses.connect(child_node)
                 child_node.encompassed_by.connect(parent_node)
                 parent_node = child_node
             else:
                 parent_node = Location.inflate(res.one)
+                if 'locality' in element['types']:
+                    parent_node.sector = "local"
+                    parent_node.external_id = external_id
+                    parent_node.created_by = "google_maps"
+                    parent_node.save()
 
     return parent_node
 
@@ -141,19 +161,73 @@ def connect_related_element(location, element_id):
     return connection_node
 
 
-def get_positions(name, filter_param=""):
+def get_positions(identifier, filter_param="", lookup="name", distinct=False,
+                  property_name=""):
+    federal_positions = ""
+    distinct_string = ""
+    non_external_id = ""
     if filter_param == "state":
         constructed_filter = 'WHERE p.level="state_upper" ' \
                              'OR p.level="state_lower"'
-    elif filter_param == '':
+    elif filter_param == '' or filter_param is None or filter_param == "local":
         constructed_filter = ''
     else:
         constructed_filter = 'WHERE p.level="%s"' % filter_param
-    query = 'MATCH (l:Location {name:"%s"})-[:ENCOMPASSES*..]->' \
-            '(l2:Location)-[:POSITIONS_AVAILABLE]->(p:Position) %s ' \
-            'RETURN p UNION MATCH (l:Location {name:"%s"})' \
-            '-[:POSITIONS_AVAILABLE]->(p:Position) %s RETURN p' \
-            % (name, constructed_filter, name, constructed_filter)
+
+    if distinct:
+        distinct_string = "DISTINCT"
+
+    if filter_param == "federal":
+        federal_positions = ' UNION MATCH (:Location ' \
+                            '{name: "United States of America"})-' \
+                            '[:POSITIONS_AVAILABLE]->(p:Position) ' \
+                            'RETURN %s p%s' % (distinct_string, property_name)
+    if lookup != "external_id":
+        # If we don't have an external id we'll want to ensure the location
+        # is kept within the USA since that's the only area we have positions
+        # TODO: May be able to remove this
+        non_external_id = '(:Location {name: "United States of America"})-' \
+                          '[:ENCOMPASSES]->'
+
+    if filter_param != "local":
+        query = 'MATCH %s(l:Location {%s: "%s"})-[:ENCOMPASSES*..]->' \
+                '(l2:Location)-[:POSITIONS_AVAILABLE]->(p:Position) %s ' \
+                'RETURN %s p%s UNION MATCH (:Location ' \
+                '{name: "United States of America"})-' \
+                '[:ENCOMPASSES]->(l:Location {%s: "%s"})' \
+                '-[:POSITIONS_AVAILABLE]->(p:Position) %s RETURN %s p%s%s' \
+                % (non_external_id, lookup, identifier, constructed_filter,
+                   distinct_string, property_name, lookup, identifier,
+                   constructed_filter, distinct_string, property_name,
+                   federal_positions)
+    else:
+        query = 'MATCH (l:Location {external_id: "%s"})-' \
+                '[:POSITIONS_AVAILABLE]->(p:Position) RETURN %s p%s' % (
+                    identifier, distinct_string, property_name)
+    res, _ = db.cypher_query(query)
+    if not res.one:
+        return []
+    return res
+
+
+def get_districts(identifier, filter_param="", lookup="name", distinct=False,
+                  property_name=""):
+    if filter_param == "state":
+        constructed_filter = 'WHERE l.sector="state_upper" ' \
+                             'OR l.sector="state_lower"'
+    elif filter_param == '':
+        constructed_filter = ''
+    else:
+        constructed_filter = 'WHERE l.sector="%s"' % filter_param
+
+    if distinct:
+        distinct_string = "DISTINCT"
+    else:
+        distinct_string = ""
+    query = 'MATCH (l2:Location {%s: "%s"})-[:ENCOMPASSES*..]->' \
+            '(l:Location) %s RETURN %s l%s ORDER BY l.name' % (
+                lookup, identifier, constructed_filter, distinct_string,
+                property_name)
     res, _ = db.cypher_query(query)
     if not res.one:
         return []

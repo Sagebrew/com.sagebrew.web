@@ -3,7 +3,18 @@
  * @file
  * Signup Page... This is actually the homepage for anon users.
  */
-var request = require('./../../api').request;
+var request = require('api').request,
+    birthdayInputManager = require('common/helpers').birthdayInputManager;
+
+/**
+ * Meta.
+ */
+export const meta = {
+    controller: "page-signup",
+    match_method: "path",
+    check: "^$"
+};
+
 
 function signupFormValidation() {
        $("#signupForm").formValidation({
@@ -50,6 +61,9 @@ function signupFormValidation() {
                     stringLength: {
                         max: 200,
                         message: "Email must not exceed 200 characters"
+                    },
+                    emailAddress: {
+                        message: 'The value is not a valid email address'
                     }
                 }
             },
@@ -186,26 +200,6 @@ export function load() {
     //
     //Birthday input in signup form.
     $('#birthday').keyup(function (e) {
-        var temp;
-        if (e.keyCode !== 193 && e.keyCode !== 111) {
-            if (e.keyCode !== 8) {
-                if ($(this).val().length === 2) {
-                    $(this).val($(this).val() + "/");
-                } else if ($(this).val().length === 5) {
-                    $(this).val($(this).val() + "/");
-                }
-            } else {
-                temp = $(this).val();
-                if ($(this).val().length === 5) {
-                    $(this).val(temp.substring(0, 4));
-                } else if ($(this).val().length === 2) {
-                    $(this).val(temp.substring(0, 1));
-                }
-            }
-        } else {
-            temp = $(this).val();
-            var tam = $(this).val().length;
-            $(this).val(temp.substring(0, tam-1));
-        }
+        birthdayInputManager(this, e);
     });
 }

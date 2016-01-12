@@ -37,7 +37,8 @@ def create_and_attach_state_level_reps(rep_data):
             rep.campaign.connect(camp)
             camp.public_official.connect(rep)
             query = 'MATCH (l:Location {name:"%s", sector:"federal"})<-' \
-                    '[:ENCOMPASSED_BY]-(l2:Location {name:"%s", sector:"%s"})-' \
+                    '[:ENCOMPASSED_BY]-(l2:Location ' \
+                    '{name:"%s", sector:"%s"})-' \
                     '[:POSITIONS_AVAILABLE]->(p:Position) RETURN p' \
                     % (us.states.lookup(rep.state).name,
                        rep.state_district, 'state_%s' % rep.state_chamber)

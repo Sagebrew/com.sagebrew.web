@@ -196,7 +196,8 @@ def generate_username(first_name, last_name):
 def create_user_util(first_name, last_name, email, password, birthday):
     """
     DEPRECATED
-    Please use User serializer from now on. This function is no longer necessary
+    Please use Profile serializer from now on. This function is no longer
+    necessary.
     Functionality found in plebs/serializers.py
     :param first_name:
     :param last_name:
@@ -242,6 +243,8 @@ def create_user_util_test(email, first_name="test", last_name="test",
     DEPRECATED
     Please use User serializer from now on. This function is no longer necessary
     Functionality found in plebs/serializers.py
+    :param task:
+    :return:
     :param first_name:
     :param last_name:
     :param email:

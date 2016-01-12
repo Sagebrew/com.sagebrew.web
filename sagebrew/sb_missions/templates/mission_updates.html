@@ -1,0 +1,37 @@
+{% extends "mission_base.html" %}
+{% load staticfiles %}
+{% block title %}{% if title %} {{ title }} {% else %} {{ focus_name_formatted }} {% endif %} Updates{% endblock %}
+
+{% block live %}
+    <div>
+        {% if is_editor or is_moderator or request.user.username == quest.owner_username and not updates%}
+            <div class="block block-holder-lg sb_markdown" id="epic-parent">
+                <div class="block-content">
+                    <p>Updates are distributed to anyone that
+                    has donated to or pledged to vote for your
+                    Quest and will show up on their Newsfeed. We
+                    recommend using them to share:</p>
+                    <ul>
+                        <li>Progress regarding your Mission</li>
+                        <li>Information you'd like to bring attention to</li>
+                        <li>Upcoming events related to your Mission</li>
+                    </ul>
+                    <p>You can add updates in your <a href="{% url 'mission_update_settings' mission.id mission.slug %}">settings</a>.</p>
+                </div>
+            </div>
+        {% else %}
+            {% if updates %}
+                <div id="js-update-wrapper">
+                </div>
+            {% else %}
+                <div class="block block-holder-lg sb_markdown">
+                    <h4 class="block-content block-holder-lg">{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} is still setting up this Mission, check back soon!</h4>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block intercom %}
+   Intercom('trackEvent', 'mission-update-page');
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "manage/manage_base.html" %}
+{% load staticfiles %}
+{% block title %}Quest Settings{% endblock title %}
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">
+            General Settings
+        </h3>
+        <div class="block-content">
+            <form id="socialForm">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text"
+                       id="title"
+                       name="title" class="form-control"
+                       placeholder="Name of your group, organization, or what you'd like to be called instead of your first and last name."
+                       value="{% if quest.title %}{{ quest.title }}{% endif %}">
+                </div>
+                <div class="form-group">
+                    <label for="about">About</label>
+                    <textarea id="about" class="form-control" rows="3"
+                              placeholder="Describe yourself or your group in 128 characters or less"
+                              name="about">{{ quest.about|default_if_none:'' }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="website">Website URL</label>
+                    <input type="text"
+                       id="website"
+                       name="website"
+                       placeholder="https://"
+                       value="{{ quest.website|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="facebook-social-address">Facebook Username</label>
+                    <input type="text"
+                       id="facebook-social-address"
+                       name="facebook"
+                       placeholder="Facebook Username"
+                       value="{{ quest.facebook|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="twitter-social-address">Twitter ID</label>
+                    <input type="text"
+                       id="twitter-social-address"
+                       name="twitter"
+                       placeholder="Twitter ID"
+                       value="{{ quest.twitter|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="linkedin-social-address">LinkedIn Username</label>
+                    <input type="text"
+                       name="linkedin"
+                       id="linkedin-social-address"
+                       placeholder="LinkedIn Username"
+                       value="{{ quest.linkedin|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="youtube-social-address">YouTube Username</label>
+                    <input type="text"
+                       name="youtube"
+                       id="youtube-social-address"
+                       placeholder="Youtube Username"
+                       value="{{ quest.youtube|default_if_none:'' }}"
+                       class="form-control">
+                </div>
+
+                <div class="row">
+                    <div id="validation-errors"></div>
+                    <div class="col-lg-4 col-md-6">
+                        <button class="btn btn-primary sb_btn sb_btn_fill"
+                                id="submit">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}

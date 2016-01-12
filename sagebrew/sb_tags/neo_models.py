@@ -1,5 +1,3 @@
-from uuid import uuid1
-
 from neomodel import (StringProperty, IntegerProperty,
                       RelationshipTo, StructuredRel, BooleanProperty,
                       FloatProperty)
@@ -17,7 +15,6 @@ class FrequentTagModel(StructuredRel):
 
 
 class Tag(SBObject):
-    object_uuid = StringProperty(default=uuid1, index=True)
     name = StringProperty(unique_index=True)
     tag_used = IntegerProperty(default=0)
     base = BooleanProperty(default=False)

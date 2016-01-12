@@ -1,26 +1,30 @@
 from json import loads
 from unidecode import unidecode
 
-from rest_framework import serializers
 from rest_framework.reverse import reverse
+from rest_framework import serializers
 
 from neomodel.exception import DoesNotExist
 
 from neomodel import db
 
-from api.utils import gather_request_data
+from api.utils import gather_request_data, spawn_task
 from api.serializers import SBSerializer
 
 from .neo_models import Location
+from .tasks import create_location_tree
 
 
 class LocationSerializer(SBSerializer):
     name = serializers.CharField()
-
+    sector = serializers.ChoiceField(choices=[
+        ('state_upper', "State Upper"), ('state_lower', "State Lower"),
+        ('federal', "Federal"), ('local', "Local")])
     encompasses = serializers.SerializerMethodField()
     encompassed_by = serializers.SerializerMethodField()
     positions = serializers.SerializerMethodField()
     geo_data = serializers.SerializerMethodField()
+    external_id = serializers.CharField()
 
     def get_encompasses(self, obj):
         request, _, _, relations, _ = gather_request_data(self.context)
@@ -54,6 +58,20 @@ class LocationSerializer(SBSerializer):
         if expand == 'true':
             return loads(obj.geo_data)
         return True
+
+
+class LocationExternalIDSerializer(serializers.Serializer):
+    place_id = serializers.CharField(max_length=120, required=True,
+                                     write_only=True)
+
+    def create(self, validated_data):
+        query = 'MATCH (a:Location {external_id: "%s"}) RETURN a' % (
+                validated_data.get('place_id'))
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            spawn_task(task_func=create_location_tree, task_param={
+                "external_id": validated_data.get('place_id')})
+        return res
 
 
 class LocationManagerSerializer(SBSerializer):

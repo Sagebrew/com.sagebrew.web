@@ -5,10 +5,10 @@
  * TODO refactor and include the above globals.
  *
  */
-var request = require('./../../../api').request,
-    helpers = require('./../../../common/helpers'),
-    settings = require('./../../../settings').settings,
-    content = require('./../../../common/content');
+var request = require('api').request,
+    helpers = require('common/helpers'),
+    settings = require('settings').settings,
+    content = require('common/content');
 
 
 
@@ -207,9 +207,8 @@ export function init () {
                         newImage.css({top: styleAddition.newTop, left: styleAddition.newLeft, position: 'absolute'});
                     });
                 },
-                error: function (XMLHttpRequest) {
+                error: function () {
                     jsImageWrapper.remove(".loader");
-                    request.errorDisplay(XMLHttpRequest);
                 }
             });
         }

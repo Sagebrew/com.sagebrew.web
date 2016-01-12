@@ -4,12 +4,11 @@ from rest_framework.decorators import (api_view, permission_classes)
 
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
                                         IsAuthenticated)
-from rest_framework.decorators import detail_route
+
 from rest_framework.response import Response
 from rest_framework import status, generics, viewsets
 from neomodel import db
 
-from api.permissions import IsGoalOwnerOrEditor
 from sb_quests.neo_models import Campaign
 
 from .serializers import (GoalSerializer, RoundSerializer)
@@ -62,7 +61,7 @@ class GoalListCreateMixin(generics.ListCreateAPIView):
 class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView,
                                 viewsets.GenericViewSet):
     serializer_class = GoalSerializer
-    permission_classes = (IsAuthenticatedOrReadOnly, IsGoalOwnerOrEditor)
+    permission_classes = (IsAuthenticatedOrReadOnly)
     lookup_field = "object_uuid"
 
     def get_object(self):
@@ -97,21 +96,6 @@ class GoalRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView,
                             status=status.HTTP_405_METHOD_NOT_ALLOWED)
         return super(GoalRetrieveUpdateDestroy, self).destroy(request, *args,
                                                               **kwargs)
-
-    @detail_route(methods=['PUT', 'PATCH'], serializer_class=GoalSerializer,
-                  permission_classes=(IsAuthenticated, IsGoalOwnerOrEditor))
-    def disconnect_round(self, request, object_uuid=None):
-        queryset = self.get_object()
-        if queryset.completed is True or queryset.active is True:
-            return Response({"status_code": status.HTTP_405_METHOD_NOT_ALLOWED,
-                             "detail": "You cannot modify a completed "
-                                       "or active goal."},
-                            status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        queryset.disconnect_from_upcoming()
-        return Response({"status_code": status.HTTP_200_OK,
-                         "detail": "Successfully removed goal from upcoming "
-                                   "round."},
-                        status=status.HTTP_200_OK)
 
 
 class RoundListCreate(generics.ListCreateAPIView):

@@ -1,0 +1,61 @@
+    <div class="block">
+        <h3 class="block-title">Payment Methods</h3>
+        <div class="block-content">
+            <table class="table table-striped payment-methods">
+                <tr>
+                    <th>
+
+                    </th>
+                    <th>
+                        Type
+                    </th>
+                    <th>
+                        Number
+                    </th>
+                    <th>
+                        Exp Date
+                    </th>
+                </tr>
+                {{#each cards}}
+                    <tr>
+                        <td>
+                            {{# if this.default }}
+                                <label class="radio">
+                                    <input type="radio" name="group1" class="js-payment-method-option"
+                                           value="{{ this.id }}"
+                                           id="{{ this.id }}"
+                                           data-toggle="radio" checked>
+                                </label>
+                            {{ else }}
+                                <label class="radio">
+                                    <input type="radio" name="group1" class="js-payment-method-option"
+                                           value="{{ this.id }}"
+                                           id="{{ this.id }}"
+                                           data-toggle="radio">
+                                </label>
+                            {{/if}}
+                        </td>
+                        <td>
+                            {{ this.brand }}
+                        </td>
+                        <td>
+                            {{ this.last4 }}
+                        </td>
+                        <td>
+                            {{ this.exp_month }}/{{ this.exp_year }}
+                        </td>
+                    </tr>
+                {{ else }}
+                    <tr>
+                        <td>
+                            Please add a payment method
+                        </td>
+                    </tr>
+                {{/each}}
+            </table>
+            {{#if submit_payment }}
+                <button class="btn btn-primary btn-sm sb_btn" id="js-use-payment-method">Use This Payment Method</button>
+            {{/if}}
+            <button class="btn btn-primary btn-sm sb_btn" id="js-add-payment-method"><i class="fa fa-plus"></i> Add Payment Method</button>
+        </div>
+    </div>

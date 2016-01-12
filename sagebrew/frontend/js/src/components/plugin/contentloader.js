@@ -1,7 +1,7 @@
 /* global Waypoint, jQuery */
 /**
  * @file
- * This is getting intense. Lets see where this goes...
+ * An infinite pager jquery plugin using waypoints and jQuery.
  */
 
 ;(function ($) {
@@ -175,6 +175,11 @@
         }
     };
 
+    /**
+     * Register sb_contentLoader.
+     * @param options
+     * @returns {*}
+     */
     $.fn.sb_contentLoader = function
         (options) {
         return this.each(function () {

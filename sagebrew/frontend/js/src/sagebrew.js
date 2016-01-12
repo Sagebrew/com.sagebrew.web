@@ -1,7 +1,6 @@
 /**
  * @file
  * Primary JS file that is loaded on every page.
- * WIP JS Strategy. This is a WIP and may or may not even work.
  */
 
 var app_settings = require('./components/settings').settings,
@@ -9,9 +8,6 @@ var app_settings = require('./components/settings').settings,
 
 var ctrls = router.controllers();
 if (ctrls.length) {
-    //
-    // I don't know how useful this is. but lets give it a shot.
-    // It's javascript. Everyone gets to do it differently.
 
     //
     // Init...
@@ -49,4 +45,7 @@ if (ctrls.length) {
 
 }
 
+/**
+ * I'm not sure if this is valid.
+ */
 export const settings = app_settings;

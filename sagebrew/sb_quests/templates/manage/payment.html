@@ -1,0 +1,13 @@
+{% extends "manage/manage_base.html" %}
+{% load staticfiles %}
+{% block title %}Quest Payment{% endblock title %}
+
+{% block live %}
+    <div id="js-add-payment-form"></div>
+{% endblock %}
+
+
+{% block scripts %}
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    {{ block.super }}
+{% endblock scripts %}

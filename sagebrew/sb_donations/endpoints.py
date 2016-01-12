@@ -6,10 +6,10 @@ from rest_framework.decorators import api_view, permission_classes
 from neomodel import db
 
 from api.permissions import IsAuthorizedAndVerified
-from sb_quests.neo_models import Campaign
+from sb_missions.neo_models import Mission
+from sb_quests.neo_models import Quest
 from sb_registration.utils import calc_age
 from plebs.neo_models import Pleb
-from plebs.serializers import PlebSerializerNeo
 
 from .neo_models import Donation
 from .serializers import DonationSerializer, SBDonationSerializer
@@ -21,7 +21,7 @@ class DonationViewSet(viewsets.ReadOnlyModelViewSet, mixins.DestroyModelMixin):
     permission_classes = (IsAuthenticated,)
 
     def get_object(self):
-        query = 'MATCH (d:`Donation` {object_uuid: "%s"}) RETURN d' % \
+        query = 'MATCH (d:Donation {object_uuid: "%s"}) RETURN d' % \
                 (self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         res[0][0].pull()
@@ -35,7 +35,7 @@ class DonationViewSet(viewsets.ReadOnlyModelViewSet, mixins.DestroyModelMixin):
         """
         return Response({'detail': "Sorry, we currently do not allow for "
                                    "users to query all donations for every "
-                                   "campaign.",
+                                   "quest.",
                          'status_code': status.HTTP_405_METHOD_NOT_ALLOWED},
                         status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
@@ -79,36 +79,37 @@ class DonationListCreate(generics.ListCreateAPIView):
     permission_classes = (IsAuthorizedAndVerified,)
 
     def get_queryset(self):
-        query = 'MATCH (c:`Campaign` {object_uuid: "%s"})-' \
-                '[:RECEIVED_DONATION]->(d:`Donation`) RETURN d' % \
-                (self.kwargs[self.lookup_field])
+        if "/v1/missions/" in self.request.path:
+            query = 'MATCH (mission:Mission {object_uuid: "%s"})' \
+                    '<-[:CONTRIBUTED_TO]-(donation:Donation) ' \
+                    'RETURN donation' % self.kwargs[self.lookup_field]
+        else:
+            query = 'MATCH (quest:Quest {owner_username: "%s"})' \
+                    '<-[:CONTRIBUTED_TO]-(donation:Donation) ' \
+                    'RETURN donation' % self.kwargs[self.lookup_field]
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Donation.inflate(row[0]) for row in res]
 
     def perform_create(self, serializer):
-        campaign = Campaign.get(object_uuid=self.kwargs[self.lookup_field])
-        serializer.save(campaign=campaign,
-                        token=self.request.data.get('token', None))
+        donor = Pleb.get(self.request.user.username)
+        if "/v1/missions/" in self.request.path:
+            mission = Mission.get(object_uuid=self.kwargs[self.lookup_field])
+            quest = Mission.get_quest(
+                object_uuid=self.kwargs[self.lookup_field])
+        else:
+            mission = None
+            quest = Quest.get(owner_username=self.kwargs[self.lookup_field])
+        serializer.save(mission=mission, donor=donor, quest=quest,
+                        owner_username=donor.username)
 
     def create(self, request, *args, **kwargs):
         pleb = Pleb.get(request.user.username)
-        if not pleb:
-            return Response({"status_code": status.HTTP_403_FORBIDDEN,
-                             "detail": "You are not authorized to access "
-                                       "this page."},
-                            status=status.HTTP_403_FORBIDDEN)
         if calc_age(pleb.date_of_birth) < 18:
             return Response({"detail": "You may not donate to a Quest unless "
                                        "you are 18 years of age or older.",
                              "status_code": status.HTTP_401_UNAUTHORIZED},
                             status=status.HTTP_401_UNAUTHORIZED)
-        if not PlebSerializerNeo(pleb).data.get("is_verified", False):
-            return Response(
-                {"detail": "You may not donate to a Quest "
-                           "unless you are verified.",
-                 "status_code": status.HTTP_401_UNAUTHORIZED},
-                status=status.HTTP_401_UNAUTHORIZED)
         return super(DonationListCreate, self).create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
@@ -124,8 +125,14 @@ class DonationListCreate(generics.ListCreateAPIView):
         :param kwargs:
         :return:
         """
-        if not (request.user.username in Campaign.get_accountants
-                (self.kwargs[self.lookup_field])):
+        if "mission" in self.request.path:
+            moderators = Mission.get(
+                object_uuid=self.kwargs[self.lookup_field])
+        else:
+            moderators = Quest.get(
+                owner_username=self.kwargs[self.lookup_field])
+        if not (request.user.username in
+                moderators.get_moderators(moderators.owner_username)):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "You are not authorized to access "
                                        "this page."},

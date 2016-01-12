@@ -27,8 +27,7 @@
                    Conversations
                 </a>
             </h3>
-            <div class="sb_border sb_border_question">
-                <h3>Question</h3>
+            <div>
             {% if to_be_deleted == True %}
                 <div class="row">
                         <div class="col-xs-10">
@@ -40,14 +39,12 @@
                         </div>
                 </div>
             {% else %}
-                <div class="row">
-                    {% if html_snapshot %}
-                        {% include "question.html" %}
-                    {% else %}
-                        <div id="single_question_wrapper">
-                        </div>
-                    {% endif %}
-                </div>
+                {% if html_snapshot %}
+                    {% include "question.html" %}
+                {% else %}
+                    <div class="question" id="single_question_wrapper">
+                    </div>
+                {% endif %}
                 <div class="row sb_tertiary_nav">
                     <div class="col-xs-12 col-sm-8">
                         {% if html_snapshot %}
@@ -67,7 +64,7 @@
                 </div>
                 <div class="row">
                     {% if html_snapshot %}
-                        <div class="col-lg-12" id="solution_container">
+                        <div id="solution_container">
                             {% for solution in solutions %}
                                 {% with profile=solution.profile %}
                                     {% include "solution_include.html" %}
@@ -75,26 +72,23 @@
                             {% endfor %}
                         </div>
                     {% else %}
-                        <div class="col-lg-12" id="solution_container">
+                        <div id="solution_container">
                         </div>
                     {% endif %}
                 </div>
                 {% if not is_closed and not request.user.is_anonymous and not html_snapshot and request_profile.email_verified and request_profile.completed_profile_info %}
-                    <div class="row" style="padding-left: 15px; padding-right: 15px;">
-                        <div class="block sb_markdown sb_solution sb_provide_solution">
+                    <div class="row">
+                        <div class="block sb_markdown sb_solution">
                             <form id="solutionSubmitForm">
-                            <div class="row-fluid">
-                                <h5>Provide a Solution</h5>
+                            <div class="col-lg-12">
+                                <h4>Provide a Solution</h4>
                             </div>
-                            <div class="row">
                                 <div class="col-lg-12">
                                     <textarea class="form-control sb_solution_input_area markdown-input"
                                               id="solution_content_id"
                                               name="solution_content"
                                               placeholder="Write your solution..."></textarea>
                                 </div>
-                            </div>
-                            <div class="row">
                                 <div class="col-md-4">
                                     <button class="btn btn-primary sb_btn sb_btn_fill submit_solution-action"
                                             id="submit_solution"
@@ -103,7 +97,6 @@
                                         Submit
                                     </button>
                                 </div>
-                            </div>
                             </form>
                         </div>
                     </div>
@@ -196,9 +189,7 @@
 
     {% if not html_snapshot %}
         <script src="{% static 'js/edit_question.js' %}"></script>
-        <script src="{% static 'js/vendor/jquery.pagedown-bootstrap.combined.min.js' %}"></script>
         <script src="{% static 'js/flag_modal.js' %}"></script>
-        <script src="{% static 'js/create_markdown.js' %}"></script>
         <script src="{% static 'js/solution_validator.js' %}"></script>
         <script src="{% static 'js/activate_tooltips.js' %}"></script>
     {% endif %}

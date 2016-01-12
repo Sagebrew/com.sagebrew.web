@@ -41,7 +41,6 @@ class Question(TitledContent):
     external_location_id = StringProperty(index=True)
 
     # relationships
-
     closed_by = RelationshipTo('plebs.neo_models.Pleb', 'CLOSED_BY')
     solutions = RelationshipTo('sb_solutions.neo_models.Solution',
                                'POSSIBLE_ANSWER')

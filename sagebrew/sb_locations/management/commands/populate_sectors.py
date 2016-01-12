@@ -1,7 +1,7 @@
 import us
 from django.core.management.base import BaseCommand
 
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, db
 
 from sb_locations.neo_models import Location
 
@@ -10,7 +10,9 @@ class Command(BaseCommand):
     args = "None."
 
     def populate_sectors(self):
-        for location in Location.nodes.all():
+        query = 'MATCH (location:Location) RETURN location'
+        res, _ = db.cypher_query(query)
+        for location in [Location.inflate(row[0]) for row in res]:
             if not location.sector:
                 try:
                     encompassed_by = Location.nodes.get(

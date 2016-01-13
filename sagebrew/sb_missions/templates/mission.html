@@ -23,7 +23,7 @@
                 {% endautoescape %}
             {% else %}
                 {% if mission.active == True and quest.active == True %}
-                    {% if rendered_epic %}
+                    {% if mission.rendered_epic %}
                         {% autoescape off %}
                             {{ mission.rendered_epic }}
                         {% endautoescape %}

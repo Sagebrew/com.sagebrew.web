@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 from neomodel import db, DoesNotExist
 
 from sb_missions.neo_models import Mission
-from sb_quests.neo_models import Quest, PoliticalCampaign
+from sb_quests.neo_models import Quest, PoliticalCampaign, Position
 
 
 class Command(BaseCommand):
@@ -70,11 +70,22 @@ class Command(BaseCommand):
                     wallpaper_pic=campaign.wallpaper_pic,
                     owner_username=campaign.object_uuid,
                     location_name=campaign.location_name,
-                    focus_on_type="position").save()
+                    focus_on_type="position",
+                    active=campaign.active).save()
 
                 for position in campaign.position.all():
                     mission.position.connect(position)
                     campaign.position.disconnect(position)
+
+                query = 'MATCH (position:Position)-[:CAMPAIGNS]->' \
+                        '(campaign:Campaign {object_uuid: "%s"}) ' \
+                        'RETURN position' % campaign.object_uuid
+                res, _ = db.cypher_query(query)
+                if res.one:
+                    positions = [Position.inflate(row[0]) for row in res]
+                    for position in positions:
+                        mission.position.connect(position)
+                        position.campaigns.disconnect(campaign)
 
                 for pledged_vote in campaign.pledged_votes.all():
                     mission.pledge_votes.connect(pledged_vote)
@@ -83,6 +94,8 @@ class Command(BaseCommand):
                 for donation in campaign.donations.all():
                     donation.mission.connect(mission)
                     campaign.donations.disconnect(donation)
+
+                quest.missions.connect(mission)
 
     def handle(self, *args, **options):
         self.migrate_campaign_to_quest()

@@ -353,7 +353,7 @@ class QuestSerializer(SBSerializer):
     account_number = serializers.CharField(write_only=True, required=False)
     ssn = serializers.CharField(write_only=True, required=False)
     account_type = serializers.ChoiceField(
-        required=False, write_only=True,
+        required=False,
         choices=[('paid', "Paid"), ('free', "Free")])
     account_verified = serializers.ChoiceField(
         read_only=True,

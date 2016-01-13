@@ -23,6 +23,8 @@ export function init() {
  * Load
  */
 export function load() {
+    // TODO need to see if we can reuse some of the code from donation signup
+    // Very similiar especially when it comes to address.
     var latitudeKey = "addressLatitude",
         longitudeKey = "addressLongitude",
         countryKey = "addressCountry",

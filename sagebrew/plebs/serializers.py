@@ -413,7 +413,8 @@ class AddressSerializer(SBSerializer):
         instance.street_additional = validated_data.get(
             'street_additional', instance.street_additional)
         instance.city = validated_data.get("city", instance.city)
-        instance.state = validated_data.get("state", instance.state)
+        instance.state = us.states.lookup(
+                validated_data.get("state", instance.state)).name
         instance.postal_code = validated_data.get("postal_code",
                                                   instance.postal_code)
         instance.country = validated_data.get("country", instance.country)

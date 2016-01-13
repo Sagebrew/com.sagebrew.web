@@ -426,7 +426,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         possible_senators = cache.get('%s_possible_senators' % username)
         if possible_senators is None:
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                    '(a:Address) WITH a MATCH (a)-[:ENCOMPASSED_BY*..]->' \
+                    '(a:Address)-[:ENCOMPASSED_BY*..]->' \
                     '(l:Location {name: a.state, sector:"federal"})-' \
                     '[:POSITIONS_AVAILABLE]->(o:Position)<-' \
                     '[:FOCUSED_ON]-(m:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \

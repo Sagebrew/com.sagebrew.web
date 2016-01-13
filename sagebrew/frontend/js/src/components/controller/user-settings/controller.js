@@ -1,14 +1,13 @@
 var requests = require('api').request,
     helpers = require('common/helpers'),
     settings = require('settings').settings,
-    validators = require('common/validators'),
-    moment = require('moment');
+    validators = require('common/validators');
 
 export const meta = {
-    controller: "donations/signup",
+    controller: "user-settings",
     match_method: "path",
     check: [
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/donate\/name"
+       "^user/settings"
     ]
 };
 
@@ -24,6 +23,8 @@ export function init() {
  * Load
  */
 export function load() {
+    // TODO need to see if we can reuse some of the code from donation signup
+    // Very similiar especially when it comes to address.
     var latitudeKey = "addressLatitude",
         longitudeKey = "addressLongitude",
         countryKey = "addressCountry",
@@ -31,23 +32,34 @@ export function load() {
         validKey = "addressValid",
         originalKey = "addressOriginal",
         $app = $(".app-sb"),
-        donateToID = helpers.args(1),
-        missionSlug = helpers.args(2),
+        addressID = document.getElementById('address-id').dataset.id,
         accountForm = document.getElementById('account-info'),
         addressForm = document.getElementById('address'),
+        passwordForm = document.getElementById('password-form'),
         addressValidationForm = $("#address"),
-        continueBtn = document.getElementById('js-continue-btn');
-    $(':checkbox').radiocheck();
-    validators.accountValidator($("#account-info"));
+        passwordValidationForm = $('#password-form'),
+        continueBtn = document.getElementById('js-continue-btn'),
+        passwordBtn = document.getElementById('js-new-password');
+    validators.updateAccountValidator($("#account-info"));
     validators.addressValidator(addressValidationForm);
-    $app
+    validators.passwordValidator(passwordValidationForm);
+    passwordValidationForm
         .on('keyup', 'input', function () {
-            continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm]);
+            passwordBtn.disabled = !helpers.verifyContinue([passwordForm]);
+        });
+    addressValidationForm
+        .on('keyup', 'input', function () {
+            continueBtn.disabled = !helpers.verifyContinue([addressForm]);
+        });
+    $app
+        .on('keypress', '#street', function() {
+            var postalCode = document.getElementById('postal-code');
+            postalCode.value = "";
+            var parentPostalCode = helpers.findAncestor(postalCode, 'form-group');
+            parentPostalCode.classList.remove('has-success');
+
         })
-        .on('click', '#js-continue-btn', function (event) {
-            event.preventDefault();
-            document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
-            var accountData = helpers.getSuccessFormData(accountForm);
+        .on('click', '#js-continue-btn', function () {
             var addressData = helpers.getSuccessFormData(addressForm);
 
             // Add the additional address fields we get dynamically from smarty
@@ -60,34 +72,29 @@ export function load() {
             addressData.longitude = localStorage.getItem(longitudeKey);
             addressData.country = localStorage.getItem(countryKey);
             addressData.congressional_district = localStorage.getItem(congressionalKey);
-
-            // If employment and occupation info is available add it to the account info
-            var campaignFinanceForm = document.getElementById('campaign-finance');
-            if(campaignFinanceForm !== undefined && campaignFinanceForm !== null) {
-                var employerName = document.getElementById('employer-name').value,
-                    occupationName = document.getElementById('occupation-name').value,
-                    retired = document.getElementById('retired-or-not-employed').checked;
-                if (retired === true) {
-                    accountData.employer_name = "N/A";
-                    accountData.occupation_name = "Retired or Not Employed";
-                } else {
-                    accountData.employer_name = employerName;
-                    accountData.occupation_name = occupationName;
-                }
-            }
-
-            // The backend doesn't care about the user's password matching so
-            // delete the second password input we use to help ensure the user
-            // doesn't put int a password they don't mean to.
-            delete accountData.password2;
-            accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
-            requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
+            requests.put({url: "/v1/addresses/" + addressID + "/", data: JSON.stringify(addressData)})
                 .done(function () {
-                    requests.post({url: "/v1/addresses/", data: JSON.stringify(addressData)})
-                        .done(function () {
-                            window.location.href = "/missions/" + donateToID + "/" +
-                                missionSlug + "/donate/payment/";
-                        });
+                    window.location.reload();
+                });
+        })
+        .on('click', '#submit_settings', function (event) {
+            event.preventDefault();
+            document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+            var accountData = helpers.getSuccessFormData(accountForm);
+
+            // accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
+            requests.patch({url: "/v1/profiles/" + settings.user.username + "/", data: JSON.stringify(accountData)})
+                .done(function () {
+                    window.location.reload();
+                });
+        })
+        .on('click', '#js-new-password', function (event) {
+            event.preventDefault();
+            document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+            var passwordData = helpers.getSuccessFormData(passwordForm);
+            requests.patch({url: "/v1/profiles/" + settings.user.username + "/", data: JSON.stringify(passwordData)})
+                .done(function () {
+                    window.location.reload();
                 });
         });
     var liveaddress = $.LiveAddress({

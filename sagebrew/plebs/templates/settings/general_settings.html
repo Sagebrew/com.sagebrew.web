@@ -9,178 +9,149 @@
 {% block live %}
     <div class="block">
         <h3 class="block-title">
-            General
+            Personal Information
         </h3>
-
         <div class="block-content">
-            <div style="display: none"
-                 id="username"
-                 data-username="{{ request.user.username }}"></div>
-            <form id="settings_form">
-                <div class="row">
-                    <div class="col-md-6 fname">
-                        <div class="form-group">
-                            <label for="">First Name</label>
-                            <input type="text"
-                               id="first_name"
-                               name="first_name"
-                               placeholder="First Name"
-                               class="form-control input-lg"
-                               value="{{ request.user.first_name }}" >
-                        </div>
-
-                    </div>
-                    <div class="col-md-6 lname">
-                        <div class="from-group">
-                            <label for="">Last Name</label>
-                            <input type="text"
-                               id="last_name"
-                               name="last_name"
-                               placeholder="Last Name"
-                               class="form-control input-lg"
-                               value="{{ request.user.last_name }}">
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12 email_class">
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="text"
-                               id="email"
-                               name="email"
-                               placeholder="Email Address"
-                               class="form-control input-lg"
-                               value="{{ request.user.email }}">
-
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12">
-                    <div style="display: none"
-                         id="address_uuid"
-                         data-object_uuid="{{ address.object_uuid }}"></div>
-                        <label>Address</label>
-                            {% if not address %}
-                                <div>
-                                You do not have a current address set,
-                                please set one here.
-                                </div>
-                            {% endif %}
-                        <div class="form-group">
-                              <input type="text"
-                               id="sb_primary"
-                               placeholder="Street Address"
-                               class="form-control input-lg"
-                               value="{{ address.street }}"
-                               autocomplete="off">
-                        </div>
-                        <div class="form-group">
-                                      <input type="text"
-                               id="sb_secondary"
-                               placeholder="Address Line 2"
-                               class="form-control input-lg"
-                               value="{{ address.street_additional|default_if_none:'' }}"
-                               autocomplete="off">
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <input type="text"
-                                   id="sb_city"
-                                   placeholder="City"
-                                   class="form-control input-lg"
-                                   value="{{ address.city }}"
-                                autocomplete="off">
-                           </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-
-
-                        <input type="text"
-                               id="sb_state"
-                               placeholder="State"
-                               class="form-control input-lg"
-                               value="{{ address.state }}"
-                               autocomplete="off">
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                         <input type="text"
-                               id="sb_zip"
-                               placeholder="Zip Code"
-                               class="form-control input-lg"
-                               value="{{ address.postal_code }}"
-                               autocomplete="off">
-                        </div>
-
-                    </div>
+            <form id="account-info">
+                <div class="form-group has-success">
+                    <label for="first-name">First Name</label>
                     <input type="text"
-                           id="id_valid"
-                           style="display: none">
-                    <input type="text"
-                           id="id_congressional_district"
-                           style="display: none"
-                           value="{{ address.congressional_district }}">
-                    <input type="text"
-                           id="id_latitude"
-                           style="display: none"
-                           value="{{ address.latitude }}">
-                    <input type="text"
-                           id="id_longitude"
-                           style="display: none"
-                           value="{{ address.longitude }}">
+                           id="first-name"
+                           name="first_name"
+                           placeholder="First Name"
+                           value="{{ request.user.first_name }}" class="form-control">
                 </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <label for="">Change Password</label>
-                        <div class="form-group password1">
-                             <input type="password"
-                               id="old_password"
-                               name="old_password"
-                               placeholder="Old Password"
-                               class="form-control input-lg">
-                        </div>
-                         <div class="form-group password2">
-                        <input type="password"
-                               id="new_password"
-                               name="new_password"
-                               placeholder="New Password"
-                               class="form-control input-lg">
-                        </div>
-                        <div class="form-group password3">
-                        <input type="password"
-                               id="new_password_confirm"
-                               name="new_password_confirm"
-                               placeholder="Confirm Password"
-                               class="form-control input-lg">
-                        </div>
-                    </div>
+
+                <div class="form-group  has-success">
+                    <label for="last_name">Last Name</label>
+                    <input type="text"
+                           id="last-name"
+                           name="last_name"
+                           placeholder="Last Name"
+                           value="{{ request.user.last_name }}" class="form-control">
+                </div>
+                <div class="form-group  has-success">
+                    <label for="email">Email</label>
+                    <input type="text"
+                           id="email"
+                           name="email"
+                           placeholder="Email"
+                           value="{{ request.user.email }}" class="form-control">
                 </div>
             </form>
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-6 col-lg-4">
                     <button class="btn btn-primary sb_btn sb_btn_fill"
                             id="submit_settings">
-                        Save Changes
+                        Update Personal Info
                     </button>
                 </div>
             </div>
         </div>
-        <div hidden id="address_data_block" data-address_validation={{ address_key }}></div>
+    </div>
+    <div class="block">
+        <h3 class="block-title">
+            Address
+        </h3>
+        <div class="block-content">
+            <div id="address-id" data-id="{{ address.id }}"></div>
+            <form id="address">
+                <div class="form-group has-success">
+                    <label for="street">Address Line 1</label>
+                    <input type="text"
+                           id="street"
+                           name="street"
+                           value="{{ address.street }}"
+                           placeholder="Address Line 1*"
+                           class="form-control"
+                           autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="street-additional">Address Line 2</label>
+                    <input type="text"
+                           id="street-additional"
+                           name="street_additional"
+                           value="{{ address.street_additional|default_if_none:'' }}"
+                           placeholder="Apt, Building, etc"
+                           class="form-control"
+                           autocomplete="off">
+                </div>
+                <div class="form-group has-success">
+                    <label for="city">City</label>
+                    <input type="text"
+                           id="city"
+                           name="city"
+                           value="{{ address.city }}"
+                           placeholder="City*"
+                           class="form-control"
+                           autocomplete="off">
+                </div>
+                <div class="form-group has-success">
+                    <label for="">State</label>
+                    <input type="text"
+                           id="state"
+                           name="state"
+                           value="{{ address.state }}"
+                           placeholder="State*"
+                           class="form-control"
+                           autocomplete="off">
+                </div>
+                <div class="form-group has-success">
+                    <label for="">Zip Code</label>
+                    <input type="text"
+                           id="postal-code"
+                           name="postal_code"
+                           value="{{ address.postal_code }}"
+                           placeholder="Zip Code*"
+                           class="form-control"
+                           autocomplete="off">
+                </div>
+            </form>
+            <div class="row">
+                <div class="col-md-6 col-lg-4">
+                    <button id="js-continue-btn" type="submit" class="btn btn-primary sb_btn sb_btn_fill">Update Address</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="block">
+        <h3 class="block-title">
+            Change Password
+        </h3>
+        <div class="block-content">
+            <form id="password-form">
+                <label for="">Change Password</label>
+                <div class="form-group password1">
+                     <input type="password"
+                       id="password"
+                       name="password"
+                       placeholder="Old Password"
+                       class="form-control input-lg">
+                </div>
+                 <div class="form-group password2">
+                <input type="password"
+                       id="new-password"
+                       name="new_password"
+                       placeholder="New Password"
+                       class="form-control input-lg">
+                </div>
+                <div class="form-group password3">
+                <input type="password"
+                       id="password2"
+                       name="password2"
+                       placeholder="Confirm Password"
+                       class="form-control input-lg">
+                </div>
+            </form>
+            <div class="row">
+                <div class="col-md-6 col-lg-4">
+                    <button class="btn btn-primary sb_btn sb_btn_fill"
+                            id="js-new-password">
+                        Update Password
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
 {% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="//d79i1fxsrar4t.cloudfront.net/jquery.liveaddress/2.4/jquery.liveaddress.min.js"></script>
-    <script src="{% static 'js/settings_validator.js' %}"></script>
-    <script src="{% static 'js/address_validation.js' %}"></script>
-    <script src="{% static 'js/submit_settings.js' %}"></script>
-{% endblock scripts %}

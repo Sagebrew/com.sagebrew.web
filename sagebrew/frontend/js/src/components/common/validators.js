@@ -109,6 +109,112 @@ export function accountValidator(formVal) {
     });
 }
 
+
+export function updateAccountValidator(formVal) {
+    formVal.formValidation({
+        framework: 'bootstrap',
+        /*
+        Don't use icons anywhere else but if we want to add this.
+        icon: {
+            valid: 'fa fa-check',
+            invalid: 'fa fa-times',
+            validating: 'fa fa-refresh'
+        },
+        */
+        fields: {
+            firstName: {
+                selector: '#first-name',
+                validators: {
+                    stringLength: {
+                        max: 30,
+                        message: "First Name must not exceed 30 characters"
+                    }
+                }
+            },
+            lastName: {
+                selector: '#last-name',
+                validators: {
+                    stringLength: {
+                        max: 30,
+                        message: "Last Name must not exceed 30 characters"
+                    }
+                }
+            },
+            email: {
+                selector: '#email',
+                validators: {
+                    stringLength: {
+                        max: 200,
+                        message: "Email must not exceed 200 characters"
+                    },
+                    emailAddress: {
+                        message: 'The value is not a valid email address'
+                    }
+                }
+            },
+            birthday: {
+                selector: '#birthday',
+                validators: {
+                    date: {
+                        format: 'MM/DD/YYYY',
+                        message: 'The value is not a valid date'
+                    }
+                }
+            }
+        }
+    });
+}
+
+export function passwordValidator(passwordVal) {
+    passwordVal.formValidation({
+        framework: 'bootstrap',
+        fields: {
+            oldPassword: {
+                selector: '#password',
+                validators: {
+                    notEmpty: {
+                        message: "Please provide your old password"
+                    }
+                }
+            },
+            password1: {
+                selector: '#new-password',
+                validators: {
+                    notEmpty: {
+                        message: "Password is required"
+                    },
+                    stringLength: {
+                        min: 8,
+                        max: 128,
+                        message: "Passwords must be between 8 and 128 characters long"
+                    },
+                    identical: {
+                        field: 'password2',
+                        message: 'Passwords must be the same'
+                    }
+                }
+            },
+            password2: {
+                selector: '#password2',
+                validators: {
+                    notEmpty: {
+                        message: "Password 2 is required"
+                    },
+                    stringLength: {
+                        min: 8,
+                        max: 128,
+                        message: "Passwords must be between 8 and 128 characters long"
+                    },
+                    identical: {
+                        field: 'password1',
+                        message: 'Passwords must be the same'
+                    }
+                }
+            }
+        }
+    });
+}
+
 /**
  * Form validator for address information. This manages all of the fields we
  * associate with a given address for a user.

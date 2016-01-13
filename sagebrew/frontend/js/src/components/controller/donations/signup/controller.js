@@ -41,7 +41,7 @@ export function load() {
     validators.accountValidator($("#account-info"));
     validators.addressValidator(addressValidationForm);
     $app
-        .on('change', 'input', function () {
+        .on('keyup', 'input', function () {
             continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm]);
         })
         .on('click', '#js-continue-btn', function (event) {

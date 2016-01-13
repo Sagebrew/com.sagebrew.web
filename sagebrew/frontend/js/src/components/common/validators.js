@@ -165,6 +165,56 @@ export function updateAccountValidator(formVal) {
     });
 }
 
+export function passwordValidator(passwordVal) {
+    passwordVal.formValidation({
+        framework: 'bootstrap',
+        fields: {
+            oldPassword: {
+                selector: '#password',
+                validators: {
+                    notEmpty: {
+                        message: "Please provide your old password"
+                    }
+                }
+            },
+            password1: {
+                selector: '#new-password',
+                validators: {
+                    notEmpty: {
+                        message: "Password is required"
+                    },
+                    stringLength: {
+                        min: 8,
+                        max: 128,
+                        message: "Passwords must be between 8 and 128 characters long"
+                    },
+                    identical: {
+                        field: 'password2',
+                        message: 'Passwords must be the same'
+                    }
+                }
+            },
+            password2: {
+                selector: '#password2',
+                validators: {
+                    notEmpty: {
+                        message: "Password 2 is required"
+                    },
+                    stringLength: {
+                        min: 8,
+                        max: 128,
+                        message: "Passwords must be between 8 and 128 characters long"
+                    },
+                    identical: {
+                        field: 'password1',
+                        message: 'Passwords must be the same'
+                    }
+                }
+            }
+        }
+    });
+}
+
 /**
  * Form validator for address information. This manages all of the fields we
  * associate with a given address for a user.

@@ -14,7 +14,7 @@ from rest_framework.reverse import reverse
 from neomodel import db, DoesNotExist
 
 from api.serializers import SBSerializer
-from api.utils import spawn_task, gather_request_data
+from api.utils import spawn_task, gather_request_data, SBUniqueValidator
 from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
 
@@ -171,8 +171,8 @@ class PlebSerializerNeo(SBSerializer):
                                          write_only=True,
                                          style={'input_type': 'password'})
     email = serializers.EmailField(required=True, write_only=True,
-                                   validators=[UniqueValidator(
-                                       queryset=User.objects.all(),
+                                   validators=[SBUniqueValidator(
+                                       queryset=Pleb.nodes.all(),
                                        message="Sorry looks like that email is "
                                                "already taken.")],)
     date_of_birth = serializers.DateTimeField(required=True, write_only=True)

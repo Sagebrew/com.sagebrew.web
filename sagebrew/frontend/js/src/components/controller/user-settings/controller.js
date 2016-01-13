@@ -31,22 +31,33 @@ export function load() {
         originalKey = "addressOriginal",
         $app = $(".app-sb"),
         addressID = document.getElementById('address-id').dataset.id,
-        donateToID = helpers.args(1),
-        missionSlug = helpers.args(2),
         accountForm = document.getElementById('account-info'),
         addressForm = document.getElementById('address'),
+        passwordForm = document.getElementById('password-form'),
         addressValidationForm = $("#address"),
-        continueBtn = document.getElementById('js-continue-btn');
+        passwordValidationForm = $('#password-form'),
+        continueBtn = document.getElementById('js-continue-btn'),
+        passwordBtn = document.getElementById('js-new-password');
     validators.updateAccountValidator($("#account-info"));
     validators.addressValidator(addressValidationForm);
+    validators.passwordValidator(passwordValidationForm);
+    passwordValidationForm
+        .on('keyup', 'input', function () {
+            passwordBtn.disabled = !helpers.verifyContinue([passwordForm]);
+        });
+    addressValidationForm
+        .on('keyup', 'input', function () {
+            continueBtn.disabled = !helpers.verifyContinue([addressForm]);
+        });
     $app
-        .on('change', 'input', function () {
-            continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm]);
-        })
         .on('keypress', '#street', function() {
-            document.getElementById('postal-code').value = "";
+            var postalCode = document.getElementById('postal-code');
+            postalCode.value = "";
+            var parentPostalCode = helpers.findAncestor(postalCode, 'form-group');
+            parentPostalCode.classList.remove('has-success');
+
         })
-        .on('click', '#js-continue-btn', function (event) {
+        .on('click', '#js-continue-btn', function () {
             var addressData = helpers.getSuccessFormData(addressForm);
 
             // Add the additional address fields we get dynamically from smarty
@@ -71,6 +82,15 @@ export function load() {
 
             // accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
             requests.patch({url: "/v1/profiles/" + settings.user.username + "/", data: JSON.stringify(accountData)})
+                .done(function () {
+                    window.location.reload();
+                });
+        })
+        .on('click', '#js-new-password', function (event) {
+            event.preventDefault();
+            document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+            var passwordData = helpers.getSuccessFormData(passwordForm);
+            requests.patch({url: "/v1/profiles/" + settings.user.username + "/", data: JSON.stringify(passwordData)})
                 .done(function () {
                     window.location.reload();
                 });

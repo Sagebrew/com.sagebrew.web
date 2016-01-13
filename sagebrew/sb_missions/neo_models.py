@@ -117,7 +117,6 @@ class Mission(Searchable):
                                   model=VoteRelationship)
     goals = RelationshipTo('sb_goals.neo_models.Goal', "WORKING_TOWARDS")
 
-
     @classmethod
     def get(cls, object_uuid):
         mission = cache.get("%s_mission" % object_uuid)

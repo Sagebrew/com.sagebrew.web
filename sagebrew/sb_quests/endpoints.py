@@ -339,6 +339,40 @@ class QuestViewSet(viewsets.ModelViewSet):
                                               % newfile.name
         return httpresponse
 
+    @detail_route(methods=['post'],
+                  permission_classes=(IsAuthenticated,))
+    def follow(self, request, owner_username=None):
+        """
+        This endpoint allows users to follow Quests.
+        """
+        queryset = self.get_object()
+        is_following = queryset.is_following(request.user.username)
+        if is_following:
+            return Response({"detail": "Already following user.",
+                             "status": status.HTTP_200_OK},
+                            status=status.HTTP_200_OK)
+        queryset.follow(request.user.username)
+        return Response({"detail": "Successfully followed user.",
+                         "status": status.HTTP_200_OK},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'],
+                  permission_classes=(IsAuthenticated,))
+    def unfollow(self, request, owner_username=None):
+        """
+        This endpoint allows users to unfollow Quests.
+        """
+        queryset = self.get_object()
+        is_following = queryset.is_following(request.user.username)
+        if not is_following:
+            return Response({"detail": "Already not following user.",
+                             "status": status.HTTP_200_OK},
+                            status=status.HTTP_200_OK)
+        queryset.unfollow(request.user.username)
+        return Response({"detail": "Successfully unfollowed user.",
+                         "status": status.HTTP_200_OK},
+                        status=status.HTTP_200_OK)
+
 
 class CampaignViewSet(viewsets.ModelViewSet):
     serializer_class = CampaignSerializer

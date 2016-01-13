@@ -59,6 +59,16 @@ class Command(BaseCommand):
                 campaign.public_official.disconnect(public_official)
 
             if campaign.epic != "" and campaign.epic is not None:
+                website = campaign.website
+                if website is None:
+                    website = website
+                elif "https://" in website or "http://" in website:
+                    website = website
+                else:
+                    if website.strip() == "":
+                        website = None
+                    else:
+                        website = "http://" + website
                 mission = Mission(
                     about=campaign.biography,
                     epic=campaign.epic,
@@ -66,7 +76,7 @@ class Command(BaseCommand):
                     linkedin=campaign.linkedin,
                     youtube=campaign.youtube,
                     twitter=campaign.twitter,
-                    website=campaign.website,
+                    website=website,
                     wallpaper_pic=campaign.wallpaper_pic,
                     owner_username=campaign.object_uuid,
                     location_name=campaign.location_name,

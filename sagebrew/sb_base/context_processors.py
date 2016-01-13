@@ -14,7 +14,6 @@ from sb_quests.neo_models import Quest
 
 
 def js_settings(request):
-
     data = {
         'api': {
             'google_maps': environ.get('GOOGLE_MAPS_JS'),
@@ -23,7 +22,8 @@ def js_settings(request):
         },
         'google_maps': environ.get('GOOGLE_MAPS_JS'),
         'user': {},
-        'static_url': settings.STATIC_URL
+        'static_url': settings.STATIC_URL,
+        'version': environ.get("SHA1", "")
     }
     try:
         if request.user.is_authenticated():

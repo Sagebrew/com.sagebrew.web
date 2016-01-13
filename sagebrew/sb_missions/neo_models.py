@@ -178,9 +178,9 @@ class Mission(Searchable):
         quest = Quest.get(owner_username)
         editors = cache.get("%s_editors" % quest.owner_username)
         if editors is None:
-            query = 'MATCH (quest:Quest {owner_username: "%s")<-' \
+            query = 'MATCH (quest:Quest {owner_username: "%s"})<-' \
                     '[:EDITOR_OF]-(pleb:pleb) ' \
-                    'RETURN pleb.username' % quest
+                    'RETURN pleb.username' % owner_username
             res, col = db.cypher_query(query)
             editors = [row[0] for row in res]
             cache.set("%s_editors" % quest.owner_username, editors)
@@ -192,9 +192,9 @@ class Mission(Searchable):
         quest = Quest.get(owner_username)
         moderators = cache.get("%s_moderators" % quest.owner_username)
         if moderators is None:
-            query = 'MATCH (quest:Quest {owner_username: "%s")<-' \
+            query = 'MATCH (quest:Quest {owner_username: "%s"})<-' \
                     '[:MODERATOR_OF]-(pleb:pleb) ' \
-                    'RETURN pleb.username' % quest
+                    'RETURN pleb.username' % owner_username
             res, col = db.cypher_query(query)
             moderators = [row[0] for row in res]
             cache.set("%s_moderators" % quest.owner_username, moderators)

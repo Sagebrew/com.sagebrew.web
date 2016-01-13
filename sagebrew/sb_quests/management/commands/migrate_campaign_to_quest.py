@@ -41,10 +41,6 @@ class Command(BaseCommand):
                 owner_username=campaign.object_uuid
             ).save()
 
-            for update in campaign.updates.all():
-                quest.updates.connect(update)
-                campaign.updates.disconnect(update)
-
             for editor in campaign.editors.all():
                 quest.editors.connect(editor)
                 campaign.editors.disconnect(editor)
@@ -104,6 +100,10 @@ class Command(BaseCommand):
                 for donation in campaign.donations.all():
                     donation.mission.connect(mission)
                     campaign.donations.disconnect(donation)
+
+                for update in campaign.updates.all():
+                    update.mission.connect(mission)
+                    campaign.updates.disconnect(update)
 
                 quest.missions.connect(mission)
 

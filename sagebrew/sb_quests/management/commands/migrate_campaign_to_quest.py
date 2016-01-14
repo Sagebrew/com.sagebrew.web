@@ -30,6 +30,7 @@ class Command(BaseCommand):
                 else:
                     website = "http://" + website
             quest = Quest(
+                object_uuid=campaign.object_uuid,
                 stripe_id=campaign.stripe_id,
                 about=campaign.biography,
                 stripe_customer_id=campaign.stripe_customer_id,
@@ -82,6 +83,8 @@ class Command(BaseCommand):
                 for position in campaign.position.all():
                     mission.position.connect(position)
                     campaign.position.disconnect(position)
+                    mission.focus_name = position.full_name
+                    mission.save()
 
                 query = 'MATCH (position:Position)-[:CAMPAIGNS]->' \
                         '(campaign:Campaign {object_uuid: "%s"}) ' \
@@ -92,6 +95,8 @@ class Command(BaseCommand):
                     for position in positions:
                         mission.position.connect(position)
                         position.campaigns.disconnect(campaign)
+                        mission.focus_name = position.full_name
+                        mission.save()
 
                 for pledged_vote in campaign.pledged_votes.all():
                     mission.pledge_votes.connect(pledged_vote)

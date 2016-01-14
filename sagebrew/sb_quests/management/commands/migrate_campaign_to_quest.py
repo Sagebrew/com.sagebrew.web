@@ -19,6 +19,16 @@ class Command(BaseCommand):
                 continue
             except (DoesNotExist, Quest.DoesNotExist):
                 pass
+            website = campaign.website
+            if website is None:
+                website = website
+            elif "https://" in website or "http://" in website:
+                website = website
+            else:
+                if website.strip() == "":
+                    website = None
+                else:
+                    website = "http://" + website
             quest = Quest(
                 stripe_id=campaign.stripe_id,
                 about=campaign.biography,
@@ -29,7 +39,7 @@ class Command(BaseCommand):
                 linkedin=campaign.linkedin,
                 youtube=campaign.youtube,
                 twitter=campaign.twitter,
-                website=campaign.website,
+                website=website,
                 wallpaper_pic=campaign.wallpaper_pic,
                 profile_pic=campaign.profile_pic,
                 application_fee=campaign.application_fee,
@@ -55,16 +65,6 @@ class Command(BaseCommand):
                 campaign.public_official.disconnect(public_official)
 
             if campaign.epic != "" and campaign.epic is not None:
-                website = campaign.website
-                if website is None:
-                    website = website
-                elif "https://" in website or "http://" in website:
-                    website = website
-                else:
-                    if website.strip() == "":
-                        website = None
-                    else:
-                        website = "http://" + website
                 mission = Mission(
                     about=campaign.biography,
                     epic=campaign.epic,

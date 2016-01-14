@@ -30,7 +30,6 @@ class Command(BaseCommand):
                 else:
                     website = "http://" + website
             quest = Quest(
-                object_uuid=campaign.object_uuid,
                 stripe_id=campaign.stripe_id,
                 about=campaign.biography,
                 stripe_customer_id=campaign.stripe_customer_id,
@@ -111,6 +110,9 @@ class Command(BaseCommand):
                     campaign.updates.disconnect(update)
 
                 quest.missions.connect(mission)
+                # TODO manually remove campaign and then set
+                # object_uuid to owner_username
+                # Then clear cache
 
     def handle(self, *args, **options):
         self.migrate_campaign_to_quest()

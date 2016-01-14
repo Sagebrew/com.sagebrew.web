@@ -19,7 +19,18 @@ class Command(BaseCommand):
                 continue
             except (DoesNotExist, Quest.DoesNotExist):
                 pass
+            website = campaign.website
+            if website is None:
+                website = website
+            elif "https://" in website or "http://" in website:
+                website = website
+            else:
+                if website.strip() == "":
+                    website = None
+                else:
+                    website = "http://" + website
             quest = Quest(
+                object_uuid=campaign.object_uuid,
                 stripe_id=campaign.stripe_id,
                 about=campaign.biography,
                 stripe_customer_id=campaign.stripe_customer_id,
@@ -29,7 +40,7 @@ class Command(BaseCommand):
                 linkedin=campaign.linkedin,
                 youtube=campaign.youtube,
                 twitter=campaign.twitter,
-                website=campaign.website,
+                website=website,
                 wallpaper_pic=campaign.wallpaper_pic,
                 profile_pic=campaign.profile_pic,
                 application_fee=campaign.application_fee,
@@ -55,16 +66,6 @@ class Command(BaseCommand):
                 campaign.public_official.disconnect(public_official)
 
             if campaign.epic != "" and campaign.epic is not None:
-                website = campaign.website
-                if website is None:
-                    website = website
-                elif "https://" in website or "http://" in website:
-                    website = website
-                else:
-                    if website.strip() == "":
-                        website = None
-                    else:
-                        website = "http://" + website
                 mission = Mission(
                     about=campaign.biography,
                     epic=campaign.epic,
@@ -82,6 +83,8 @@ class Command(BaseCommand):
                 for position in campaign.position.all():
                     mission.position.connect(position)
                     campaign.position.disconnect(position)
+                    mission.focus_name = position.full_name
+                    mission.save()
 
                 query = 'MATCH (position:Position)-[:CAMPAIGNS]->' \
                         '(campaign:Campaign {object_uuid: "%s"}) ' \
@@ -92,6 +95,8 @@ class Command(BaseCommand):
                     for position in positions:
                         mission.position.connect(position)
                         position.campaigns.disconnect(campaign)
+                        mission.focus_name = position.full_name
+                        mission.save()
 
                 for pledged_vote in campaign.pledged_votes.all():
                     mission.pledge_votes.connect(pledged_vote)

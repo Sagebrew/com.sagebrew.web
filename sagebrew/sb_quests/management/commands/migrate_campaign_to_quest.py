@@ -1,3 +1,6 @@
+import pytz
+from datetime import datetime
+
 from django.core.management.base import BaseCommand
 
 from neomodel import db, DoesNotExist
@@ -29,8 +32,6 @@ class Command(BaseCommand):
                     website = None
                 else:
                     website = "http://" + website
-            # TODO add tos_acceptance, account_verified,
-            # account_verified_date if quest active
             quest = Quest(
                 stripe_id=campaign.stripe_id,
                 about=campaign.biography,
@@ -65,6 +66,12 @@ class Command(BaseCommand):
                 public_official.quest.connect(quest)
                 public_official.campaign.disconnect(campaign)
                 campaign.public_official.disconnect(public_official)
+
+            if quest.active:
+                quest.tos_acceptance = True
+                quest.account_verified = True
+                quest.account_verified_date = datetime.now(pytz.utc)
+                quest.save()
 
             if campaign.epic != "" and campaign.epic is not None:
                 mission = Mission(

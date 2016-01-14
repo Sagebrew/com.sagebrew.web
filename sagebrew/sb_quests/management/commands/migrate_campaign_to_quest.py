@@ -29,6 +29,8 @@ class Command(BaseCommand):
                     website = None
                 else:
                     website = "http://" + website
+            # TODO add tos_acceptance, account_verified,
+            # account_verified_date if quest active
             quest = Quest(
                 stripe_id=campaign.stripe_id,
                 about=campaign.biography,

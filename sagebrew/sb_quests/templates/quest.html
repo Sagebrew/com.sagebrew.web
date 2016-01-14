@@ -125,7 +125,7 @@
     <div class="row block block-padding-bottom-15 row-no-margin">
         <div class="col-xs-12">
             <h2 class="block-title">Missions</h2>
-            <div id="js-mission-list"></div>
+            <div id="js-mission-list"><div class="loader"></div></div>
             {% if quest.owner_username == request.user.username %}
                 {% if quest.account_type != "paid" and quest.missions|length >= free_missions %}
                     {% comment %} TODO need to add button to upgrade account to pro account {% endcomment %}

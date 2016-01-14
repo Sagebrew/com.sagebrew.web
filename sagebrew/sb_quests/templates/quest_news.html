@@ -1,7 +1,7 @@
 {% load static %}
 <div class="block search-block">
     <div class="row">
-       {% url "quest" username=id as the_url %}
+       {% url "quest" username=owner_username as the_url %}
         <div class="hidden-xs col-sm-2 col-md-3 col-lg-2">
             <div class="thumbnail sb_thumbnail_md sb_thumbnail_search">
                 <a href="{{ the_url }}"><img src="{{ profile_pic }}"></a>

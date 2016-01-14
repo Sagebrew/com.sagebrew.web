@@ -38,7 +38,7 @@ class RelationshipWeight(StructuredRel):
 
 
 class EditRelationshipModel(StructuredRel):
-    time_edited = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
+    time_edited = DateTimeProperty(default=get_current_time)
 
 
 class PostedOnRel(StructuredRel):

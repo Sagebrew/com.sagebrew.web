@@ -8,8 +8,6 @@ from django.template.loader import get_template
 from django.template import Context
 from django.core.cache import cache
 
-from elasticsearch import Elasticsearch, NotFoundError
-
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 
@@ -27,38 +25,6 @@ from sb_locations.neo_models import Location
 
 from .neo_models import Pleb, BetaUser, OauthUser, Address
 from .utils import create_friend_request_util
-
-
-@shared_task()
-def pleb_user_update(username, first_name, last_name, email):
-    from .serializers import PlebSerializerNeo
-    try:
-        pleb = Pleb.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
-        raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
-
-    try:
-        pleb.first_name = first_name
-        pleb.last_name = last_name
-        pleb.email = email
-
-        pleb.save()
-        pleb.update_campaign()
-        pleb.refresh()
-        cache.set(pleb.username, pleb)
-        document = PlebSerializerNeo(pleb).data
-        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        try:
-            es.delete(index="full-search-base",
-                      doc_type=document['type'], id=document['id'])
-        except NotFoundError:
-            pass
-        es.index(index="full-search-base", doc_type=document['type'],
-                 id=document['id'], body=document)
-    except(CypherException, IOError) as e:
-        raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
-
-    return True
 
 
 @shared_task()

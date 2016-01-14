@@ -43,7 +43,7 @@
     <div class="row-fluid sb_page">
         <div class="col-lg-12">
             <div class="sb_wall sb_conversation_wall">
-                <div class="sb_border sb_markdown">
+                <div class="sb_markdown">
                     <form id="updateForm">
                     <div id="campaign-id" data-object_uuid="{% if not 'edit' in request.path %}{{ id }}{% else %}{{ campaign }}{% endif %}" style="display: none;"></div>
                     <h3>{% if not 'edit' in request.path %}Submit Update{% else %} Edit Update{% endif %}</h3>
@@ -94,11 +94,12 @@
                                        data-object_uuid="{{ id }}">Create Update</button>
                                 {% else %}
                                 <button class="btn btn-primary sb_btn sb_btn_fill" id="edit-update"
-                                        data-object_uuid="{{ object_uuid }}">Submit</button>
+                                        data-object_uuid="{{ object_uuid }}"
+                                        data-url="{{ url }}">Submit</button>
                                 {% endif %}
                             </div>
                             <div class="col-lg-3 col-md-4">
-                                <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove cancel_update-action" data-url="{{ url }}">Cancel</button>
+                                <a href="{{ url }}" class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove">Cancel</a>
 
                             </div>
                         </div>

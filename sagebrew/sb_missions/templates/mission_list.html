@@ -1,0 +1,47 @@
+{% extends "layout/two-col-left.html" %}
+{% load staticfiles %}
+{% block title %}Missions{% endblock %}
+
+{% block sidebar_left %}
+    {% if request.user.is_authenticated %}
+        <div class="block block-type-nav">
+            <div class="block-title">
+                Start a Mission
+            </div>
+            <div class="block-content">
+                <a class="btn btn-primary sb_btn sb_btn_fill" id="js-quest-signup" href="#"><i class="fa fa-rocket quest-rocket"></i> Embark</a>
+            </div>
+        </div>
+    {% endif %}
+    <div class="block block-type-nav">
+        <div class="block-title">
+            Affects
+        </div>
+        <div class="block-content">
+            <ul class="nav nav-list nav-list-vivid" id="js-affect-filter">
+                <li {% if request.user.is_authenticated == False %}class="disabled"{% endif %}>
+                    <a id="me" {% if request.user.is_authenticated %}class="js-affect-filter"{% endif %} href="#">
+                        You
+                    </a>
+                </li>
+                <li {% if request.user.is_authenticated == False %}class="disabled"{% endif %}>
+                    <a id="friends" {% if request.user.is_authenticated %}class="js-affect-filter"{% endif %} href="#">
+                        Friends
+                    </a>
+                </li>
+                <li class="active">
+                    <a id="everyone" class="js-affect-filter" href="#">
+                        Everyone
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block live %}
+        <div id="js-mission-list">
+            <div class="loader"></div>
+        </div>
+{% endblock %}
+

@@ -19,7 +19,7 @@ class QuestEpicSitemap(Sitemap):
         return [PoliticalCampaign.inflate(row[0]) for row in res]
 
     def location(self, obj):
-        return reverse('quest_saga', kwargs={"username": obj.owner_username})
+        return reverse('quest', kwargs={"username": obj.owner_username})
 
 
 class QuestUpdateSitemap(Sitemap):

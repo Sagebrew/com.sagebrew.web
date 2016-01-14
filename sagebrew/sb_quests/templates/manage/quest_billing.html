@@ -1,0 +1,45 @@
+{% extends "manage/manage_base.html" %}
+{% load staticfiles %}
+{% block title %}Quest Billing{% endblock title %}
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">
+            Plan
+        </h3>
+        <div class="block-content">
+           <p>{{ quest.account_type|default:"free"|title }} - Using {{ quest.missions|length }} of {% if quest.account_type == "paid" %}&infin;{% else %}{{ free_missions }}{% endif %} Available Missions</p>
+            <small>Active Missions</small>
+            <div class="progress">
+                {% if quest.account_type == "paid" %}
+                    <div class="progress-bar" style="width: 0;"></div>
+                {% else %}
+                    <div class="progress-bar" style="width: {% widthratio quest.missions|length free_missions 100 %}%;"></div>
+                {% endif %}
+            </div>
+            <div class="row">
+                <div class="col-lg-4 col-md-6 col-xs-12">
+                    <a class="btn btn-primary sb_btn sb_btn_fill" href="/quests/{{ quest.id }}/manage/plan/">
+                        Update Plan
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="js-payment-info-block"></div>
+    <div class="block">
+        <h3 class="block-title">Payment History</h3>
+        <div class="block-content">
+            <div id="js-billing-history">
+                <p>You don't have any previous bills</p>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block scripts %}
+    <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+    {{ block.super }}
+{% endblock scripts %}

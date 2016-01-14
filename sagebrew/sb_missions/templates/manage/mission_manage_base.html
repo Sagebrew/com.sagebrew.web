@@ -1,0 +1,47 @@
+{% extends "manage/manage_base.html" %}
+{% load staticfiles %}
+{% block title %}Mission Settings{% endblock title %}
+
+{% block important_actions %}
+    <a href="{% url 'mission' mission.id mission.slug %}" class="btn btn-primary btn-sm sb_btn">View Mission</a>
+{% endblock important_actions %}
+{% block sidebar_left %}
+    <div class="block block-type-nav">
+        <div class="block-content">
+            <ul class="nav nav-list nav-list-vivid">
+                <li class="{% if "manage/" == request.path %}active{% endif %}">
+                    <label for="mission-select" class="hidden"></label>
+                    <select onchange="this.options[this.selectedIndex].value && (window.location = this.options[this.selectedIndex].value);" id="mission-select" class="form-control mission-input">
+                    {% for other_mission in missions %}
+                        {% if other_mission.id == mission.id %}
+                            <option selected value="{{ other_mission.id }}">{% if other_mission.title %} {{ other_mission.title }} {% else %} {{ other_mission.focus_name_formatted }} {% endif %}</option>
+                        {% else %}
+                            <option value="{% url "mission_settings" other_mission.id other_mission.slug %}">{% if other_mission.title %} {{ other_mission.title }} {% else %} {{ other_mission.focus_name_formatted }} {% endif %}</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+                </li>
+                <li {% if "/manage/general/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_settings" mission.id slug %}">
+                        General
+                    </a>
+                </li>
+                <li {% if "/manage/insights/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_insights" mission.id slug %}">
+                        Insights
+                    </a>
+                </li>
+                <li {% if "/manage/epic/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_edit_epic" mission.id slug %}">
+                        Epic
+                    </a>
+                </li>
+                <li {% if "/manage/updates/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_update_settings" mission.id slug %}">
+                        Updates
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock sidebar_left %}

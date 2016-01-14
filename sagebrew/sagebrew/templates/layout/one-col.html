@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block body_class %}{{ block.super }} layout-one-col{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12"><div class="live">
+            {% block live %}
+            {% endblock %}
+        </div></div>
+    </div>
+{% endblock %}

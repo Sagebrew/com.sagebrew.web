@@ -1,0 +1,52 @@
+<div class="block">
+    <h3 class="block-title">Payment Details</h3>
+    <div class="block-content card">
+
+    </div>
+    <div class="block-content">
+        {{#if addWarning }}
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="alert alert-warning">
+                        {{ warningMsg }}
+                    </div>
+                </div>
+            </div>
+        {{/if}}
+        <form id="payment-form" action="" method="POST">
+             <div class="row">
+                <div class="col-xs-12">
+                    <div class="alert alert-danger payment-errors" hidden></div>
+                </div>
+             </div>
+            <div class="form-group">
+                <label for="name" class="control-label">Full Name</label>
+                <input id="name" class="input-lg form-control">
+            </div>
+            <div class="form-group">
+                <label for="cc-number" class="control-label">Credit Card Number</label>
+                <input id="cc-number" type="tel" class="input-lg form-control cc-number" placeholder="•••• •••• •••• ••••" required>
+            </div>
+
+            <div class="row form-group">
+                <div class="col-xs-6">
+                    <label for="cc-exp" class="control-label">Expiration Date</label>
+                    <input id="cc-exp" type="tel" class="input-lg form-control cc-exp" placeholder="•• / ••" required>
+                </div>
+                <div class="col-xs-6">
+                    <label for="cc-cvc" class="control-label">CVC</label>
+                    <input id="cc-cvc" type="tel" class="input-lg form-control cc-cvc" autocomplete="off" placeholder="•••" required>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-xs-6">
+                    <button type="submit" class="btn btn-lg btn-primary sb_btn sb_btn_fill">Save Card</button>
+                </div>
+                <div class="col-xs-6">
+                    <button id="js-cancel" class="btn btn-lg btn-primary sb_btn sb_btn_remove sb_btn_fill">Cancel</button>
+                </div>
+            </div>
+            <h2 class="validation"></h2>
+        </form>
+    </div>
+</div>

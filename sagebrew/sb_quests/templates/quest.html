@@ -1,0 +1,151 @@
+{% extends "layout/hero-two-col-right.html" %}
+{% load staticfiles %}
+{% block title %}
+    {% if quest.title %}{{ quest.title }}{% else %}{{ quest.first_name }} {{ quest.last_name }}{% endif %}'s Quest
+{% endblock title %}
+{% block description %}
+    <meta name="description" content="{{ description }}">
+{% endblock description %}
+{% block keywords %}
+    {% if keywords %}
+        <meta name="keywords" content="{{ keywords }}">
+    {% endif %}
+    <meta name="author" content="{% if quest.title %} {{ quest.title }} {% else %}{{ quest.first_name }} {{ quest.last_name }} {% endif %}">
+{% endblock keywords %}
+{% block content %}
+    {% comment %} TODO need some assistance transitioning this over to hero-one-col {% endcomment %}
+    {% include "manage/activate_partial.html" %}
+    <div class="row block row-no-margin">
+        <div class="hidden-sm hidden-md hidden-lg block-title text-center no-underline">
+            <h1>{% if quest.title %} {{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</h1>
+        </div>
+        {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
+        {% if request.user.username == quest.owner_username %}
+            <div class="col-xs-12 col-sm-7 wallpaper quest-wallpaper" id="js-croppic-wrapper-div-id">
+                <img id="js-croppic-img-id" class="js-croppic-img-class"
+                     src="{{ quest.wallpaper_pic|default_if_none:default_wallpaper }}">
+            </div>
+        {% else %}
+            <div class="col-xs-12 col-sm-7 wallpaper quest-wallpaper">
+                <img src="{{ quest.wallpaper_pic|default_if_none:default_wallpaper }}">
+            </div>
+            {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
+        {% endif %}
+
+        <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
+            <a href="/quests/{{ quest.owner_username }}/donate/amount/" class="btn btn-primary sb_btn_fill">Donate</a>
+        </div>
+        <div class="hidden-xs col-sm-5">
+            <div class="block">
+                <div class="block-title no-underline">
+                    <h1>{% if quest.title %} {{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</h1>
+                </div>
+                {% if quest.public_official %}
+                    <div class="block-content">
+                        {% if quest.public_official.title != "President" and quest.public_official.title != "Vice President" %}
+                          <p>{{ quest.public_official.title }} from {{ quest.public_official.state }}</p>
+                        {% else %}
+                          <p>{{ quest.public_official.title }}</p>
+                        {% endif %}
+                    </div>
+                {% else %}
+                    {% if quest.seat_formal_name %}
+                        <div class="block-content">
+                            <p>{{ quest.seat_formal_name }}</p>
+                        </div>
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div class="block">
+                <div class="block-title">
+                    <h4 class="tight">About</h4>
+                </div>
+                <div class="block-content" style="padding-bottom: 0;">
+                    <p>{{ quest.about|default_if_none:"A short summary about the Quest Owner or Group in 128 characters" }}</p>
+                    <ul class="list-inline">
+                        {% if quest.website %}
+                            <li>
+                                <a href="{{ quest.website }}"
+                                   class="btn btn-primary sb_btn_icon sb_btn_icon_green">
+                                    <i class="fa fa-globe"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if quest.facebook %}
+                            <li>
+                                <a href="http://facebook.com/{{ quest.facebook }}"
+                                   class="btn btn-primary sb_btn_icon sb_btn_icon_green">
+                                    <span class="fa fa-facebook"></span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if quest.twitter %}
+                            <li>
+                                <a href="http://twitter.com/{{ quest.twitter }}"
+                                   class="btn btn-primary sb_btn_icon sb_btn_icon_green">
+                                    <span class="fa fa-twitter"></span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if quest.youtube %}
+                            <li>
+                                <a href="http://youtube.com/{{ quest.youtube }}"
+                                   class="btn btn-primary sb_btn_icon sb_btn_icon_green">
+                                    <span class="fa fa-youtube-play"></span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if quest.linkedin %}
+                            <li>
+                                <a href="http://linkedin.com/{{ quest.linkedin }}"
+                                   class="btn btn-primary sb_btn_icon sb_btn_icon_green">
+                                    <span class="fa fa-linkedin"></span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                    {% if quest.active %}
+                        <ul class="list-inline list-inline-btns">
+                            {% if quest.missions %}
+                                <li>
+                                    <a href="/quests/{{ quest.owner_username }}/donate/choose/" class="btn btn-primary sb_btn_fill">Donate</a>
+                                </li>
+                            {% endif %}
+                            <li>
+                                <button class="btn btn-primary sb_btn_fill js-follow-btn" {% if not user.is_authenticated %}disabled{% endif %}>{% if quest.is_following %}Unfollow{% else %}Follow{% endif %}</button>
+                            </li>
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+    <div class="row block block-padding-bottom-15 row-no-margin">
+        <div class="col-xs-12">
+            <h2 class="block-title">Missions</h2>
+            <div id="js-mission-list"><div class="loader"></div></div>
+            {% if quest.owner_username == request.user.username %}
+                {% if quest.account_type != "paid" and quest.missions|length >= free_missions %}
+                    {% comment %} TODO need to add button to upgrade account to pro account {% endcomment %}
+                {% else %}
+                    <div class="col-xs-12 col-sm-4">
+                        <div class="radio-image-selector js-position" id="js-add-mission">
+                            <h4 class="sb-profile-not-friend-header">Embark on a Mission</h4>
+                            <div class="row radio-image-selector-image-wrapper">
+                                <img class="radio-image-selector-image" src="{% static 'images/plus_bw.png' %}">
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block intercom %}
+    {% if request.user.username == quest.owner_username %}
+        Intercom('trackEvent', 'visited-own-quest');
+    {% endif %}
+{% endblock %}

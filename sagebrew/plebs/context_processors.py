@@ -1,3 +1,4 @@
+from django.conf import settings
 from neomodel.exception import CypherException, DoesNotExist
 
 from .neo_models import Pleb
@@ -26,6 +27,7 @@ def request_profile(request):
         if request.user.is_authenticated():
             try:
                 return {
+                    "free_missions": settings.FREE_MISSIONS,
                     "request_profile":
                         PlebSerializerNeo(Pleb.get(request.user.username),
                                           context={"request": request}).data}

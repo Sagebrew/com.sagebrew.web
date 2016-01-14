@@ -1,3 +1,4 @@
+import stripe
 import pytz
 from datetime import datetime, timedelta
 from dateutil import parser
@@ -11,7 +12,8 @@ from django.core.cache import cache
 from django.template import RequestContext
 from django.conf import settings
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
@@ -22,7 +24,8 @@ from neomodel import db
 
 from sagebrew import errors
 
-from api.permissions import IsSelfOrReadOnly, IsSelf
+from api.permissions import (IsSelfOrReadOnly, IsSelf,
+                             IsAnonCreateReadOnlyOrIsAuthenticated)
 from sb_base.utils import get_filter_params
 from sb_base.neo_models import SBContent
 from sb_base.serializers import MarkdownContentSerializer
@@ -35,8 +38,10 @@ from sb_public_official.serializers import PublicOfficialSerializer
 from sb_public_official.neo_models import PublicOfficial
 from sb_donations.neo_models import Donation
 from sb_donations.serializers import DonationSerializer
-from sb_quests.neo_models import PoliticalCampaign
-from sb_quests.serializers import PoliticalCampaignSerializer
+from sb_missions.neo_models import Mission
+from sb_missions.serializers import MissionSerializer
+from sb_quests.neo_models import Quest
+from sb_quests.serializers import QuestSerializer
 from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
@@ -67,7 +72,6 @@ class AddressViewSet(viewsets.ModelViewSet):
     """
     serializer_class = AddressSerializer
     lookup_field = 'object_uuid'
-
     permission_classes = (IsAuthenticated, )
 
     def get_queryset(self):
@@ -83,15 +87,6 @@ class AddressViewSet(viewsets.ModelViewSet):
                     self.request.user.username, self.kwargs[self.lookup_field])
         res, col = db.cypher_query(query)
         return Address.inflate(res[0][0])
-
-    def perform_create(self, serializer):
-        pleb = Pleb.get(self.request.user.username)
-        instance = serializer.save()
-        instance.owned_by.connect(pleb)
-        pleb.address.connect(instance)
-        pleb.refresh()
-        cache.set(pleb.username, pleb)
-        return instance
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -149,22 +144,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
     serializer_class = PlebSerializerNeo
     lookup_field = "username"
     queryset = Pleb.nodes.all()
-    permission_classes = (IsAuthenticated, IsSelfOrReadOnly)
+    permission_classes = (IsAnonCreateReadOnlyOrIsAuthenticated, )
 
     def get_object(self):
         return Pleb.get(self.kwargs[self.lookup_field])
-
-    def create(self, request, *args, **kwargs):
-        """
-        Currently a profile is generated for a user when the base user is
-        created. We currently don't support creating a profile through an
-        endpoint due to the confirmation process and links that need to be
-        made.
-        :param request:
-        :return:
-        """
-        return Response({"detail": "TBD"},
-                        status=status.HTTP_501_NOT_IMPLEMENTED)
 
     def destroy(self, request, *args, **kwargs):
         return Response({"detail": "TBD"},
@@ -212,7 +195,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                                context={'request': request})
         return self.get_paginated_response(serializer.data)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'],
+                  permission_classes=(IsAuthenticated, IsSelfOrReadOnly))
     def follow(self, request, username=None):
         """
         This endpoint allows users to follow other users.
@@ -228,7 +212,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                          "status": status.HTTP_200_OK},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['post'])
+    @detail_route(methods=['post'],
+                  permission_classes=(IsAuthenticated, IsSelfOrReadOnly))
     def unfollow(self, request, username=None):
         """
         This endpoint allows users to unfollow other users.
@@ -388,11 +373,12 @@ class ProfileViewSet(viewsets.ModelViewSet):
                     '(a:Address)-[:ENCOMPASSED_BY]->' \
                     '(l:Location {name: str(a.congressional_district), ' \
                     'sector:"federal"})-[:POSITIONS_AVAILABLE]->(o:Position)' \
-                    '-[:CAMPAIGNS]' \
-                    '->(c:Campaign) WHERE c.active=true AND o.level="federal"' \
-                    ' RETURN DISTINCT c LIMIT 5' % username
+                    '<-[:FOCUSED_ON]-(m:Mission)' \
+                    '<-[:EMBARKS_ON]-(quest:Quest) ' \
+                    'WHERE quest.active=true AND o.level="federal"' \
+                    ' RETURN DISTINCT quest LIMIT 5' % username
             res, _ = db.cypher_query(query)
-            possible_reps = [PoliticalCampaign.inflate(row[0]) for row in res]
+            possible_reps = [Quest.inflate(row[0]) for row in res]
             cache.set('%s_possible_house_representatives' % username,
                       possible_reps, timeout=1800)
         html = self.request.query_params.get('html', 'false').lower()
@@ -404,23 +390,23 @@ class ProfileViewSet(viewsets.ModelViewSet):
             possible_rep_html = [
                 render_to_string('sb_home_section/sb_potential_rep.html',
                                  possible_rep) for possible_rep in
-                PoliticalCampaignSerializer(possible_reps, many=True).data]
+                QuestSerializer(possible_reps, many=True).data]
             return Response(possible_rep_html, status=status.HTTP_200_OK)
-        return Response(PoliticalCampaignSerializer(possible_reps,
-                                                    many=True).data,
+        return Response(QuestSerializer(possible_reps, many=True).data,
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def possible_local_representatives(self, request, username=None):
         query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                 '(a:Address)-[:ENCOMPASSED_BY]->(l:Location {name: a.city, ' \
-                'sector:"local"})-[:POSITIONS_AVAILABLE]->(o:Position)-' \
-                '[:CAMPAIGNS]->(c:Campaign) WHERE c.active=true AND NOT ' \
-                'o.level="federal" RETURN DISTINCT c LIMIT 5' % \
+                'sector:"local"})-[:POSITIONS_AVAILABLE]->(o:Position)<-' \
+                '[:FOCUSED_ON]-(m:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
+                'WHERE quest.active=true AND NOT ' \
+                'o.level="federal" RETURN DISTINCT quest LIMIT 5' % \
                 username
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
-        possible_reps = [PoliticalCampaign.inflate(row[0]) for row in res]
+        possible_reps = [Quest.inflate(row[0]) for row in res]
         html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
             if not possible_reps:
@@ -430,10 +416,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
             possible_rep_html = [
                 render_to_string('sb_home_section/sb_potential_rep.html',
                                  possible_rep) for possible_rep in
-                PoliticalCampaignSerializer(possible_reps, many=True).data]
+                QuestSerializer(possible_reps, many=True).data]
             return Response(possible_rep_html, status=status.HTTP_200_OK)
-        return Response(PoliticalCampaignSerializer(possible_reps,
-                                                    many=True).data,
+        return Response(QuestSerializer(possible_reps, many=True).data,
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
@@ -443,13 +428,13 @@ class ProfileViewSet(viewsets.ModelViewSet):
             query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(a:Address)-[:ENCOMPASSED_BY*..]->' \
                     '(l:Location {name: a.state, sector:"federal"})-' \
-                    '[:POSITIONS_AVAILABLE]->(o:Position)-[:CAMPAIGNS]' \
-                    '->(c:Campaign) WHERE c.active=true RETURN DISTINCT ' \
-                    'c LIMIT 5' % \
+                    '[:POSITIONS_AVAILABLE]->(o:Position)<-' \
+                    '[:FOCUSED_ON]-(m:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
+                    'WHERE quest.active=true RETURN DISTINCT ' \
+                    'quest LIMIT 5' % \
                     username
             res, _ = db.cypher_query(query)
-            possible_senators = [PoliticalCampaign.inflate(row[0])
-                                 for row in res]
+            possible_senators = [Quest.inflate(row[0]) for row in res]
             cache.set('%s_possible_senators' % username,
                       possible_senators, timeout=1800)
         html = self.request.query_params.get('html', 'false').lower()
@@ -461,21 +446,21 @@ class ProfileViewSet(viewsets.ModelViewSet):
             possible_senators_html = [
                 render_to_string('sb_home_section/sb_potential_rep.html',
                                  possible_sen) for possible_sen in
-                PoliticalCampaignSerializer(possible_senators, many=True).data]
+                QuestSerializer(possible_senators, many=True).data]
             return Response(possible_senators_html, status=status.HTTP_200_OK)
-        return Response(PoliticalCampaignSerializer(possible_senators,
-                                                    many=True).data,
+        return Response(QuestSerializer(possible_senators, many=True).data,
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def possible_presidents(self, request, username=None):
         possible_presidents = cache.get('possible_presidents')
         if possible_presidents is None:
-            query = 'MATCH (p:Position {name:"President"})-[:CAMPAIGNS]->' \
-                    '(c:Campaign) WHERE c.active=true RETURN c LIMIT 5'
+            query = 'MATCH (p:Position {name:"President"})<-[:FOCUSED_ON]-' \
+                    '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
+                    'WHERE quest.active=true AND mission.active=true' \
+                    ' RETURN quest LIMIT 5'
             res, _ = db.cypher_query(query)
-            possible_presidents = [PoliticalCampaign.inflate(row[0])
-                                   for row in res]
+            possible_presidents = [Quest.inflate(row[0]) for row in res]
             cache.set("possible_presidents", possible_presidents, timeout=1800)
         html = self.request.query_params.get('html', 'false').lower()
         if html == 'true':
@@ -486,13 +471,25 @@ class ProfileViewSet(viewsets.ModelViewSet):
             possible_presidents_html = [
                 render_to_string('sb_home_section/sb_potential_rep.html',
                                  possible_pres)
-                for possible_pres in PoliticalCampaignSerializer(
+                for possible_pres in QuestSerializer(
                     possible_presidents, many=True).data]
             return Response(possible_presidents_html,
                             status=status.HTTP_200_OK)
-        return Response(PoliticalCampaignSerializer(possible_presidents,
-                                                    many=True).data,
+        return Response(QuestSerializer(possible_presidents, many=True).data,
                         status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticatedOrReadOnly,))
+    def missions(self, request, username):
+        query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
+                '[:EMBARKS_ON]->(m:Mission) RETURN m' % username
+        res, _ = db.cypher_query(query)
+        [row[0].pull() for row in res]
+        queryset = [Mission.inflate(row[0]) for row in res]
+        page = self.paginate_queryset(queryset)
+        serializer = MissionSerializer(page, many=True,
+                                       context={'request': request})
+        return self.get_paginated_response(serializer.data)
 
 
 class MeViewSet(mixins.UpdateModelMixin,
@@ -569,7 +566,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'WHERE questions.to_be_deleted = False AND questions.created > %s' \
             ' RETURN questions, NULL AS solutions, NULL AS posts, ' \
             'questions.created AS created, NULL AS s_question, ' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the current users solutions\n' \
             'MATCH (a:Pleb {username: "%s"})-' \
@@ -578,14 +575,14 @@ class MeViewSet(mixins.UpdateModelMixin,
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
             ' RETURN solutions, NULL AS questions, NULL AS posts, ' \
             'solutions.created AS created, s_question AS s_question,' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the current users posts\n' \
             'MATCH (a:Pleb {username: "%s"})-[:OWNS_POST]->(posts:Post) ' \
             'WHERE posts.to_be_deleted = False AND posts.created > %s ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
             'posts.created AS created, NULL AS s_question,' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the posts on the current users wall that are \n' \
             '// not owned by the current user \n' \
@@ -595,27 +592,28 @@ class MeViewSet(mixins.UpdateModelMixin,
             'posts.to_be_deleted = False AND posts.created > %s ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
             'posts.created AS created, NULL AS s_question,' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
-            '// Retrieve the campaigns affecting the given user\n' \
+            '// Retrieve the quests affecting the given user\n' \
             'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->(:Address)-' \
             '[:ENCOMPASSED_BY*..]->' \
-            '(:Location)-[:POSITIONS_AVAILABLE]->(:Position)-[:CAMPAIGNS]->' \
-            '(campaigns:Campaign) ' \
-            'WHERE campaigns.active = True AND campaigns.created > %s ' \
-            'RETURN campaigns, NULL AS solutions, NULL AS posts, ' \
-            'NULL AS questions, campaigns.created AS created, ' \
-            'NULL AS s_question, NULL AS updates, NULL AS q_campaigns UNION ' \
+            '(:Location)-[:POSITIONS_AVAILABLE]->(:Position)<-[:FOCUSED_ON]-' \
+            '(mission:Mission)<-[:EMBARKS_ON]-(quests:Quest) ' \
+            'WHERE quests.active = True AND quests.created > %s ' \
+            'RETURN quests, NULL AS solutions, NULL AS posts, ' \
+            'NULL AS questions, quests.created AS created, ' \
+            'NULL AS s_question, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
-            '// Retrieve the campaigns updates affecting the given user\n' \
+            '// Retrieve the quests updates affecting the given user\n' \
             'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->(:Address)-' \
             '[:ENCOMPASSED_BY*..]->' \
-            '(:Location)-[:POSITIONS_AVAILABLE]->(:Position)-[:CAMPAIGNS]->' \
-            '(q_campaigns:Campaign)-[:HAS_UPDATE]->(updates:Update) ' \
-            'WHERE q_campaigns.active = True AND updates.created > %s ' \
+            '(:Location)-[:POSITIONS_AVAILABLE]->(:Position)<-[:FOCUSED_ON]-' \
+            '(mission:Mission)<-[:EMBARKS_ON]-(q_quests:Quest)' \
+            '-[:CREATED_AN]->(updates:Update) ' \
+            'WHERE q_quests.active = True AND updates.created > %s ' \
             'RETURN updates, NULL AS solutions, NULL AS posts, ' \
             'NULL AS questions, updates.created AS created, ' \
-            'NULL AS s_question, NULL as campaigns, q_campaigns UNION ' \
+            'NULL AS s_question, NULL as quests, q_quests UNION ' \
             '' \
             "// Retrieve all the current user's friends posts on their \n" \
             '// walls\n' \
@@ -627,7 +625,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'AND posts.created > %s ' \
             'RETURN posts, NULL AS questions, NULL AS solutions, ' \
             'posts.created AS created, NULL AS s_question, ' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the current users friends and friends of friends' \
             '// questions \n' \
@@ -638,7 +636,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'questions.created > %s ' \
             'RETURN questions, NULL AS posts, NULL AS solutions, ' \
             'questions.created AS created, NULL AS s_question, ' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the current users friends and friends of friends' \
             '// solutions \n' \
@@ -650,7 +648,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
             ' RETURN solutions, NULL AS posts, NULL AS questions, ' \
             'solutions.created AS created, s_question AS s_question,' \
-            'NULL AS campaigns, NULL AS updates, NULL AS q_campaigns UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the users questions that the current user is ' \
             '// following \n' \
@@ -660,8 +658,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             'questions.created > %s ' \
             'RETURN NULL AS solutions, NULL AS posts, ' \
             'questions AS questions, questions.created AS created, ' \
-            'NULL AS s_question, NULL AS campaigns, NULL AS updates, ' \
-            'NULL AS q_campaigns UNION ' \
+            'NULL AS s_question, NULL AS quests, NULL AS updates, ' \
+            'NULL AS q_quests UNION ' \
             '' \
             '// Retrieve all the users solutions that the current user is ' \
             '// following \n' \
@@ -672,8 +670,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             'solutions.created > %s ' \
             'RETURN solutions, NULL AS posts, ' \
             'NULL AS questions, solutions.created AS created, ' \
-            's_question as s_question, NULL AS campaigns, NULL AS updates, ' \
-            'NULL AS q_campaigns' \
+            's_question as s_question, NULL AS quests, NULL AS updates, ' \
+            'NULL AS q_quests' \
             % (
                 request.user.username, then,
                 request.user.username, then,
@@ -738,10 +736,10 @@ class MeViewSet(mixins.UpdateModelMixin,
                         news_article['created']).replace(microsecond=0)
                     article_html = render_to_string(
                         'post_news.html', RequestContext(request, news_article))
-            elif row.campaigns is not None:
-                row.campaigns.pull()
-                news_article = PoliticalCampaignSerializer(
-                    PoliticalCampaign.inflate(row.campaigns),
+            elif row.quests is not None:
+                row.quests.pull()
+                news_article = QuestSerializer(
+                    Quest.inflate(row.quests),
                     context={'request': request}).data
                 if html == "true":
                     news_article['created'] = parser.parse(
@@ -751,12 +749,12 @@ class MeViewSet(mixins.UpdateModelMixin,
                         RequestContext(request, news_article))
             elif row.updates is not None:
                 row.updates.pull()
-                row.q_campaigns.pull()
+                row.q_quests.pull()
                 news_article = UpdateSerializer(
                     Update.inflate(row.updates),
                     context={'request': request}).data
-                news_article['campaign'] = PoliticalCampaignSerializer(
-                    PoliticalCampaign.inflate(row.q_campaigns),
+                news_article['campaign'] = QuestSerializer(
+                    Quest.inflate(row.q_quests),
                     context={'request': request}).data
                 if html == "true":
                     news_article['last_edited_on'] = parser.parse(
@@ -779,7 +777,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                 permission_classes=(IsAuthenticated,))
     def donations(self, request):
         query = 'MATCH (a:Pleb {username:"%s"})-[:DONATIONS_GIVEN]->' \
-                '(d:Donation) WHERE (d)-[:DONATED_TO]->(:Campaign) RETURN d' % \
+                '(d:Donation)-[:CONTRIBUTED_TO]->(:Mission) RETURN d' % \
                 request.user.username
         res, _ = db.cypher_query(query)
         queryset = [Donation.inflate(row[0]) for row in res]
@@ -795,6 +793,31 @@ class MeViewSet(mixins.UpdateModelMixin,
                                                    context))
             return self.get_paginated_response(html_array)
         return self.get_paginated_response(serializer.data)
+
+    @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def payment_methods(self, request):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        pleb = Pleb.get(username=request.user.username)
+        cards = []
+        if pleb.stripe_customer_id is not None:
+            account = stripe.Customer.retrieve(pleb.stripe_customer_id)
+            for card in account.sources.data:
+                cards.append({
+                    "id": card.id,
+                    "brand": card.brand,
+                    "exp_month": card.exp_month,
+                    "exp_year": card.exp_year,
+                    "last4": card.last4,
+                    "default":
+                        True
+                        if card.id == pleb.stripe_default_card_id else False,
+                })
+        return Response({
+            "count": len(cards),
+            "next": None,
+            "previous": None,
+            "results": cards
+        }, status=status.HTTP_200_OK)
 
     @list_route(methods=['post'], serializer_class=PoliticalPartySerializer,
                 permission_classes=(IsAuthenticated,))

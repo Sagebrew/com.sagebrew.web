@@ -88,7 +88,8 @@ function baseOptions() {
             }
         },
         error: function (XMLHttpRequest) {
-          errorDisplay(XMLHttpRequest);
+            document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+            errorDisplay(XMLHttpRequest);
         }
     };
 }
@@ -125,6 +126,18 @@ export function post(options) {
 export function put(options) {
     var defaultOptions = baseOptions();
     defaultOptions.type = "PUT";
+    var settings = $.extend({}, defaultOptions, options);
+    return $.ajax(settings);
+}
+
+/**
+ * PATCH
+ * @param options
+ * @returns {*}
+ */
+export function patch(options) {
+    var defaultOptions = baseOptions();
+    defaultOptions.type = "PATCH";
     var settings = $.extend({}, defaultOptions, options);
     return $.ajax(settings);
 }

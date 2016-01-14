@@ -1,9 +1,16 @@
 from rest_framework import serializers
+from rest_framework.reverse import reverse
 
 from api.serializers import SBSerializer
 
 
 class TagSerializer(SBSerializer):
-    name = serializers.CharField()
-    href = serializers.HyperlinkedIdentityField(view_name="tag-detail",
-                                                lookup_field="name")
+    name = serializers.CharField(max_length=140)
+    href = serializers.SerializerMethodField()
+
+    def get_href(self, obj):
+        request = self.context.get('request', None)
+        if request is None:
+            return None
+        return reverse('tag-detail',
+                       kwargs={'name': obj.name}, request=request)

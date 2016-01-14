@@ -7,11 +7,6 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 
 from neomodel import db, DoesNotExist
 
-from rest_framework.decorators import (api_view, permission_classes)
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
-
 from api.utils import smart_truncate
 from sb_registration.utils import verify_completed_registration
 from sb_quests.neo_models import PoliticalCampaign
@@ -19,7 +14,7 @@ from sb_questions.neo_models import Question
 from plebs.neo_models import Pleb
 
 from .serializers import QuestionSerializerNeo
-from .utils import prepare_question_search_html, question_html_snapshot
+from .utils import question_html_snapshot
 
 
 @login_required()
@@ -116,27 +111,6 @@ def question_detail_page(request, question_uuid, slug=None):
         'campaign': campaign,
         'views': question.get_view_count()
     })
-
-
-@api_view(['GET'])
-@permission_classes((IsAuthenticated,))
-def get_question_search_view(request, question_uuid=None):
-    """
-    This view will get a question based upon the uuid, the request was from a
-    search it will return the html of the question for the search result
-    page, if it was called to display a single question detail it will return
-    the html the question_detail_page expects
-
-    :param request:
-    :return:
-    """
-    if question_uuid is None:
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-    response = prepare_question_search_html(question_uuid)
-    if response is False:
-        return Response(status=404)
-
-    return Response({'html': response}, status=200)
 
 
 @login_required()

@@ -28,8 +28,9 @@ class TagViewSet(viewsets.ModelViewSet):
             query_mod = "WHERE t.base=false AND NOT t:AutoTag"
         else:
             query_mod = "WHERE NOT t:AutoTag"
-        query = "MATCH (t:Tag) %s RETURN t" % (query_mod)
+        query = "MATCH (t:Tag) %s RETURN t" % query_mod
         res, col = db.cypher_query(query)
+        [row[0].pull() for row in res]
         return [Tag.inflate(row[0]) for row in res]
 
     def create(self, request, *args, **kwargs):
@@ -69,3 +70,10 @@ class TagViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(tag_list)
         return Response({"detail": "Paginated data only, currently."},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
+
+    @list_route(methods=['get'])
+    def suggestion_engine_v2(self, request, *args, **kwargs):
+        query = "MATCH (a:Tag) WHERE NOT a:AutoTag RETURN a.name"
+        res, _ = db.cypher_query(query)
+        return Response([row[0] for row in res],
+                        status=status.HTTP_200_OK)

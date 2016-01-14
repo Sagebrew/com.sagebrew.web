@@ -1,3 +1,4 @@
+/* global getUrlParameter */
 /**
  * @file
  * handles the anon login form...
@@ -6,7 +7,7 @@
 /**
  * Init Login
  */
-var request = require('./../../../api').request;
+var request = require('api').request;
 
 function loginform() {
     var submitArea = $("#submit_login");

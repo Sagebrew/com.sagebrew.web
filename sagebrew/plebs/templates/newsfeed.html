@@ -12,12 +12,12 @@
 {% endblock keywords %}
 {%  block midsection %}
 <div class="col-md-4 hidden-sm hidden-xs">
-   {% include "sb_home_section/sb_profile_rep_stats.html" %}
-   {% include "sb_home_section/sb_profile_potential_reps_stats.html" %}
+   {% include "sb_home_section/potential_representative_col.html" %}
+    {% include "sb_home_section/representative_col.html" %}
 </div>
 <div class="col-md-8">
     {% include "post_create.html" %}
-    <div class="app-newsfeed sb_wall" id="wall_app">
+    <div class="app-newsfeed" id="wall_app">
 
     </div>
 </div>

@@ -29,6 +29,8 @@
     "croppic": "*",
     "bootstrap-switch": "~3.3.2",
     "packery": "~1.4.3",
-    "typeahead.js": "~0.10.5"
+    "typeahead.js": "~0.11.1",
+    "jquery.payment": "~1.3.2",
+    "Croppie": "croppie#~1.0.3"
   }
 }

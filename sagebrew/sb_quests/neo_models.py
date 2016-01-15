@@ -227,7 +227,8 @@ class Quest(Searchable):
         The username passed to this function is the user who will be following
         the user the method is called upon.
         """
-        query = 'MATCH (q:Quest {object_uuid:"%s"}), (p:Pleb {username:"%s"}) ' \
+        query = 'MATCH (q:Quest {object_uuid:"%s"}), ' \
+                '(p:Pleb {username:"%s"}) ' \
                 'WITH q, p CREATE UNIQUE (q)-[r:FOLLOWERS]->(p) SET ' \
                 'r.active=true RETURN r.active' % (self.object_uuid, username)
         res, _ = db.cypher_query(query)

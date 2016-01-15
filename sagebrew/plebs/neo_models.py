@@ -398,7 +398,8 @@ class Pleb(Searchable):
         if donation_amount == 0 or donation_amount is None:
             query = 'MATCH (p:Pleb {username: "%s"})-[:DONATIONS_GIVEN]->' \
                     '(d:Donation)-[:DONATED_TO]->' \
-                    '(c:Mission {object_uuid:"%s", focus_on_type: "position"}) ' \
+                    '(c:Mission {object_uuid:"%s", ' \
+                    'focus_on_type: "position"}) ' \
                     'WHERE d.created > %s AND d.created < %s ' \
                     'RETURN sum(d.amount)' \
                     % (username, mission_id, beg_year, end_year)

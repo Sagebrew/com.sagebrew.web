@@ -1,9 +1,9 @@
 {% extends "manage/manage_base.html" %}
 {% load staticfiles %}
 {% block title %}Mission Settings{% endblock title %}
-
+{% block settings_header %}Manage Missions{% endblock settings_header %}
 {% block important_actions %}
-    <a href="{% url 'mission' mission.id mission.slug %}" class="btn btn-primary btn-sm sb_btn">View Mission</a>
+    <a href="{% url 'mission' mission.id mission.slug %}" class="btn btn-primary btn-lg sb_btn">View Mission</a>
 {% endblock important_actions %}
 {% block sidebar_left %}
     <div class="block block-type-nav">

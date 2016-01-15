@@ -94,7 +94,9 @@ export function amount() {
         })
         .on('click', '#js-continue-btn', function(event){
             event.preventDefault();
+            document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
             if(settings.user.type === "anon"){
+                document.getElementById('sb-greyout-page').classList.add('sb_hidden');
                 window.location.href = "/missions/" + donateToID + "/" +
                     helpers.args(2) + "/donate/name/";
             } else {
@@ -113,10 +115,12 @@ export function amount() {
                     };
                     request.patch({url: "/v1/me/", data: JSON.stringify(data)})
                         .done(function () {
+                            document.getElementById('sb-greyout-page').classList.add('sb_hidden');
                             window.location.href = "/missions/" + donateToID + "/" +
                                 helpers.args(2) + "/donate/payment/";
                         });
                 } else {
+                    document.getElementById('sb-greyout-page').classList.add('sb_hidden');
                     window.location.href = "/missions/" + donateToID + "/" +
                         helpers.args(2) + "/donate/payment/";
                 }

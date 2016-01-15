@@ -180,7 +180,7 @@ def finalize_citizen_creation(user_instance=None):
             pleb.initial_verification_email_sent = True
             pleb.save()
     task_ids = []
-    cache.set(pleb.username, pleb)
+    cache.delete(pleb.username)
     for item in task_list:
         task_ids.append(task_list[item].task_id)
     return task_list

@@ -112,7 +112,7 @@
                                 </li>
                             {% endif %}
                             <li>
-                                <button class="btn btn-primary sb_btn_fill js-follow-btn" {% if not user.is_authenticated %}disabled{% endif %}>{% if quest.is_following %}Unfollow{% else %}Follow{% endif %}</button>
+                                <button class="btn btn-primary sb_btn_fill" id='js-follow-btn' {% if not user.is_authenticated %}disabled{% endif %}>{% if quest.is_following %}Unfollow{% else %}Follow{% endif %}</button>
                             </li>
                         </ul>
                     {% endif %}

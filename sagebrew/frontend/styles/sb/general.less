@@ -1931,12 +1931,16 @@ textarea.sb_comment_input{
   }
 }
 .nav-pills {
+  @media only screen and (max-width: 768px){
+      margin-left: 0 !important;
+  }
   li {
     width: 150px;
+    margin-right: -2px;
     text-align: center;
     @media only screen and (max-width: 768px){
       font-size: 14px;
-      width: 95px;
+      width: 110px;
     }
     &:hover {
       background-color: #eee;

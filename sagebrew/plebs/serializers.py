@@ -18,7 +18,7 @@ from api.utils import spawn_task, gather_request_data, SBUniqueValidator
 from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
 
-from .neo_models import Address, Pleb
+from .neo_models import Address, Pleb, get_default_profile_pic
 from .tasks import (create_pleb_task, determine_pleb_reps,
                     update_address_location)
 
@@ -272,6 +272,8 @@ class PlebSerializerNeo(SBSerializer):
         user_obj.save()
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
+        if instance.profile_pic is None or instance.profile_pic == "":
+            instance.profile_pic = get_default_profile_pic()
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
         instance.occupation_name = validated_data.get('occupation_name',

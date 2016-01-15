@@ -93,7 +93,7 @@ export function init() {
 
         .on('click', '.cancel_question-action', function(event) {
             event.preventDefault();
-            if(questionID !== "submit_question"){
+            if(Object.prototype.toString.call(questionID) !== '[object Array]'){
                 window.location.href = "/conversations/" + questionID + "/";
             } else {
                 window.history.back();

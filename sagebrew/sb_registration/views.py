@@ -34,8 +34,10 @@ def signup_view(request):
         user_profile = Pleb.get(username=request.user.username)
         if user_profile.completed_profile_info is True:
             return redirect('newsfeed')
-        if not user_profile.email_verified:
+        elif not user_profile.email_verified:
             return redirect('confirm_view')
+        elif not user_profile.completed_profile_info:
+            return redirect('profile_info')
     return render(request, 'sign_up_page/index.html')
 
 

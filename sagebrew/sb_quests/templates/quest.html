@@ -31,10 +31,13 @@
             </div>
             {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
         {% endif %}
-
-        <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
-            <a href="/quests/{{ quest.owner_username }}/donate/amount/" class="btn btn-primary sb_btn_fill">Donate</a>
-        </div>
+        {% if quest.active %}
+            {% if quest.missions %}
+                <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
+                    <a href="/quests/{{ quest.owner_username }}/donate/choose/" class="btn btn-primary sb_btn_fill">Donate</a>
+                </div>
+            {% endif %}
+        {% endif %}
         <div class="hidden-xs col-sm-5">
             <div class="block">
                 <div class="block-title no-underline">
@@ -147,5 +150,7 @@
 {% block intercom %}
     {% if request.user.username == quest.owner_username %}
         Intercom('trackEvent', 'visited-own-quest');
+    {% else %}
+        Intercom('trackEvent', 'visited-{{ quest.owner_username }}-quest');
     {% endif %}
 {% endblock %}

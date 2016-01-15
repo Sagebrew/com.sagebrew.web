@@ -110,7 +110,6 @@ export function load() {
         ]
     });
     liveaddress.activate();
-    liveaddress.verify('#address-id');
     liveaddress.on("AddressWasValid", function(event, data, previousHandler){
         if (data.response.raw[0].metadata.congressional_district === "AL") {
             localStorage.setItem(congressionalKey, 1);

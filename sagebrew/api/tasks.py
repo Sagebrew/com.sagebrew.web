@@ -48,7 +48,7 @@ def add_object_to_search_index(object_uuid, object_data,
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         res = es.index(index=index, doc_type=object_data['type'],
-                       id=object_data['id'], body=object_data)
+                       id=object_uuid, body=object_data)
     except (ElasticsearchException, TransportError, ConnectionError,
             RequestError) as e:
         logger.exception("Failed to Connect to Elastic Search")

@@ -22,7 +22,15 @@
         </div>
     </div>
     <div class="block">
+
         <div class="block-content ">
+            <a href="{% url 'mission_donation_amount' mission.id mission.slug %}"
+               class="hidden-sm hidden-md hidden-lg btn btn-primary btn-lg sb_btn sb_btn_fill" {% if mission.active == False%}disabled{% endif %}
+               {% if mission.active == False%}data-toggle="tooltip"
+               data-original-title="You must take your mission live before people can donate."{% endif %}>Donate</a>
+            {% if quest.is_moderator or quest.is_editor or request.user.username == quest.owner_username %}
+                <a class="hidden-sm hidden-md hidden-lg btn btn-primary btn-lg sb_btn sb_btn_fill" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
+            {% endif %}
             <ul class="nav">
                 {% comment %}
                     For some reason if I remove this ul all the background color goes away
@@ -41,10 +49,10 @@
             </ul>
             <div class="title-important-actions tight">
                 {% if quest.is_moderator or quest.is_editor or request.user.username == quest.owner_username %}
-                    <a class="btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
+                    <a class="hidden-xs btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
                 {% endif %}
                 <a href="{% url 'mission_donation_amount' mission.id mission.slug %}"
-                   class="btn btn-primary btn-lg sb_btn" {% if mission.active == False%}disabled{% endif %}
+                   class="hidden-xs btn btn-primary btn-lg sb_btn" {% if mission.active == False%}disabled{% endif %}
                    {% if mission.active == False%}data-toggle="tooltip"
                    data-original-title="You must take your mission live before people can donate."{% endif %}>Donate</a>
             </div>

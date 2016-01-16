@@ -3,48 +3,9 @@ from celery import shared_task
 from neomodel import CypherException, DoesNotExist
 
 from api.utils import spawn_task, create_auto_tags
-from api.tasks import add_object_to_search_index
 from sb_tags.tasks import add_auto_tags
 
 from .neo_models import Question
-
-
-@shared_task()
-def add_question_to_indices_task(question):
-    '''
-    This function will take a question object and a string of tags which
-    the user has tagged the question as. It will then add the question
-    data to the elasticsearch base index.
-
-    :param question:
-    :param tags:
-    :return:
-    '''
-    try:
-        question_obj = Question.nodes.get(object_uuid=question["object_uuid"])
-        if question_obj.added_to_search_index is True:
-            return True
-    except (CypherException, IOError) as e:
-        raise add_question_to_indices_task.retry(exc=e, countdown=3,
-                                                 max_retries=None)
-
-    task_data = {
-        "object_uuid": question['object_uuid'],
-        'object_data': question
-    }
-    spawned = spawn_task(task_func=add_object_to_search_index,
-                         task_param=task_data)
-    if isinstance(spawned, Exception) is True:
-        raise add_question_to_indices_task.retry(exc=spawned, countdown=3,
-                                                 max_retries=None)
-    try:
-        question_obj.added_to_search_index = True
-        question_obj.save()
-    except (CypherException, IndexError) as e:
-        raise add_question_to_indices_task.retry(exc=e, countdown=3,
-                                                 max_retries=None)
-
-    return True
 
 
 @shared_task()

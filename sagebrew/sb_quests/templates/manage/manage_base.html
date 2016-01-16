@@ -4,15 +4,15 @@
 {% block hero %}
     {% include "manage/activate_partial.html" %}
     <div class="block block-type-title">
-        <div class="block-content clearfix">
-            <h1>Manage Quest</h1>
+        <div class="block-content type-nav clearfix">
+            <h1>{% block settings_header %}Manage Quest{% endblock settings_header %}</h1>
             <ul class="nav nav-pills">
                 <li {% if "/quests/" in request.path %}class="active"{% endif %}><a href="{% url 'quest_manage_settings' quest.id %}">Quest Settings</a></li>
                 <li {% if "/missions/" in request.path %}class="active"{% endif %}><a href="{% url 'mission_settings_redirect' %}">Missions</a></li>
             </ul>
             <div class="title-important-actions">
                 {% block important_actions %}
-                    <a href="{% url 'quest' request.user.username %}" class="btn btn-primary btn-sm sb_btn">View Quest</a>
+                    <a href="{% url 'quest' request.user.username %}" class="btn btn-primary btn-lg sb_btn">View Quest</a>
                 {% endblock important_actions %}
             </div>
 

@@ -152,6 +152,7 @@ def finalize_citizen_creation(user_instance=None):
         "object_uuid": pleb.object_uuid,
         'object_data': PlebSerializerNeo(pleb).data
     }
+    # TODO I think this can be removed.
     task_list["add_object_to_search_index"] = spawn_task(
         task_func=add_object_to_search_index,
         task_param=task_data,
@@ -180,7 +181,7 @@ def finalize_citizen_creation(user_instance=None):
             pleb.initial_verification_email_sent = True
             pleb.save()
     task_ids = []
-    cache.set(pleb.username, pleb)
+    cache.delete(pleb.username)
     for item in task_list:
         task_ids.append(task_list[item].task_id)
     return task_list

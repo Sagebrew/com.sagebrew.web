@@ -11,7 +11,12 @@ class Command(BaseCommand):
     def remove_duplicate(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         try:
-            es.delete(index="full-search-base", id="tyler_wiersing",
+            es.delete(index="full-search-base", id="devon_bleibtrey",
+                      doc_type="profile")
+        except NotFoundError:
+            pass
+        try:
+            es.delete(index="full-search-base", id="devon_bleibtrey1",
                       doc_type="profile")
         except NotFoundError:
             pass

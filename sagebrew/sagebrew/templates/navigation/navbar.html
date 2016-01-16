@@ -60,10 +60,11 @@
                         <li {% if "/newsfeed/" in request.path %}class="active"{% endif %}><a href="{% url 'newsfeed' %}">Newsfeed</a></li>
                         <li {% if "/user/" in request.path and "/settings/" not in request.path and "/newsfeed/" not in request.path %}class="active"{% endif %}><a href="{% url 'profile_page' request.user.username %}">Profile</a></li>
                         <li {% if "/conversations/" in request.path %}class="active"{% endif %}><a href="{% url 'question_page' %}">Conversation Cloud</a></li>
+                        <li {% if "/missions/" in request.path %}class="active"{% endif %}><a href="{% url 'mission_list' %}">Missions</a></li>
                         <li {% if "/help/" in request.path %}class="active"{% endif %}><a href="{% url 'help_center' %}">Help</a></li>
                         <li {% if "/settings/" in request.path %}class="active"{% endif %}><a href="{% url 'general_settings' %}">Settings</a></li>
-                        <li><a href="http://shop.sagebrew.com">Shop</a></li>
-                        <li><a href="http://blog.sagebrew.com">Blog</a></li>
+                        <li><a href="http://shop.sagebrew.com">Shop <i class="fa fa-external-link"></i></a></li>
+                        <li><a href="http://blog.sagebrew.com">Blog <i class="fa fa-external-link"></i></a></li>
                         <li><a href="{% url 'logout'%}">Logout</a></li>
                     </ul>
                 </div>
@@ -73,9 +74,10 @@
                         <li {% if "/" == request.path %}class="active"{% endif %}><a href="/">Sign Up</a></li>
                         <li {% if "/login/" in request.path %}class="active"{% endif %}><a href="{% url 'login'%}">Login</a></li>
                         <li {% if "/conversations/" in request.path %}class="active"{% endif %}><a href="{% url 'question_page' %}">Conversation Cloud</a></li>
+                        <li {% if "/missions/" in request.path %}class="active"{% endif %}><a href="{% url 'mission_list' %}">Missions</a></li>
                         <li><a href="http://about.sagebrew.com">About</a></li>
-                        <li><a href="http://shop.sagebrew.com">Shop</a></li>
-                        <li><a href="http://blog.sagebrew.com">Blog</a></li>
+                        <li><a href="http://shop.sagebrew.com">Shop <i class="fa fa-external-link"></i></a></li>
+                        <li><a href="http://blog.sagebrew.com">Blog <i class="fa fa-external-link"></i></a></li>
                         <li {% if "/help/" in request.path %}class="active"{% endif %}><a href="{% url 'help_center' %}">Help</a></li>
                     </ul>
                 </div>

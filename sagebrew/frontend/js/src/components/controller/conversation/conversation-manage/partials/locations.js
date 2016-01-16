@@ -18,7 +18,8 @@ function initAutocomplete() {
         center: {lat: latitude, lng: longitude},
         zoom: zoomLevel,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
-        disableDefaultUI: true
+        disableDefaultUI: true,
+        scrollwheel: false
     });
     var input = document.getElementById('pac-input');
 

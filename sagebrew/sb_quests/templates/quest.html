@@ -34,7 +34,14 @@
         {% if quest.active %}
             {% if quest.missions %}
                 <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
-                    <a href="/quests/{{ quest.owner_username }}/donate/choose/" class="btn btn-primary sb_btn_fill">Donate</a>
+                    <ul class="list-inline list-inline-btns">
+                        <li>
+                            <a href="/quests/{{ quest.owner_username }}/donate/choose/" class="btn btn-primary sb_btn_fill">Donate</a>
+                        </li>
+                        <li>
+                            <button class="btn btn-primary sb_btn_fill js-follow-btn" {% if not user.is_authenticated %}disabled{% endif %}>{% if quest.is_following %}Unfollow{% else %}Follow{% endif %}</button>
+                        </li>
+                    </ul>
                 </div>
             {% endif %}
         {% endif %}
@@ -115,7 +122,7 @@
                                 </li>
                             {% endif %}
                             <li>
-                                <button class="btn btn-primary sb_btn_fill" id='js-follow-btn' {% if not user.is_authenticated %}disabled{% endif %}>{% if quest.is_following %}Unfollow{% else %}Follow{% endif %}</button>
+                                <button class="btn btn-primary sb_btn_fill js-follow-btn" {% if not user.is_authenticated %}disabled{% endif %}>{% if quest.is_following %}Unfollow{% else %}Follow{% endif %}</button>
                             </li>
                         </ul>
                     {% endif %}

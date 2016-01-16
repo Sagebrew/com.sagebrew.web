@@ -4,7 +4,7 @@
 
 {% block hero %}
     {% include "manage/activate_partial.html" %}
-    <div class="block">
+    <div class="block" style="margin-top: -20px !important;">
         <div class="col-xs-12 text-center">
             <h1>{% if mission.focus_on_type == "position" %}{% if mission.focused_on.full_name %}{{ mission.focused_on.full_name|title }}{% else %}{{ mission.focus_name_formatted }}{% endif %}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}</h1>
             <a href="{% url "quest" quest.owner_username %}">By: {% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</a>

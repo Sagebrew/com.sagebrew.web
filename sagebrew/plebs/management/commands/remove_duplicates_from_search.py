@@ -31,6 +31,16 @@ class Command(BaseCommand):
         except NotFoundError:
             pass
         try:
+            es.delete(index="full-search-base", id="kate_wilson",
+                      doc_type="campaign")
+        except NotFoundError:
+            pass
+        try:
+            es.delete(index="full-search-base", id="kate_wilson",
+                      doc_type="politicalcampaign")
+        except NotFoundError:
+            pass
+        try:
             es.delete(index="full-search-base", id="keenan_gottschall",
                       doc_type="profile")
         except NotFoundError:

@@ -8,9 +8,9 @@ from django.core.cache import cache
 from neomodel import CypherException, DoesNotExist
 
 from api.utils import spawn_task
-from api.tasks import add_object_to_search_index
 from govtrack.neo_models import GTRole
 from govtrack.utils import populate_term_data
+from sb_search.tasks import update_search_object
 from sb_quests.neo_models import PoliticalCampaign
 from sb_quests.serializers import PoliticalCampaignSerializer
 
@@ -87,9 +87,9 @@ class Command(BaseCommand):
             rep_data = PoliticalCampaignSerializer(campaign).data
             task_data = {
                 "object_uuid": rep_data['id'],
-                "object_data": rep_data,
+                "instance": campaign,
             }
-            spawn_task(add_object_to_search_index, task_data)
+            spawn_task(update_search_object, task_data)
 
     def handle(self, *args, **options):
         self.create_placeholders()

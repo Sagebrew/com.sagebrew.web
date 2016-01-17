@@ -15,7 +15,7 @@ from py2neo.cypher.error.transaction import ClientError, CouldNotCommit
 from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task, generate_oauth_user
-from api.tasks import add_object_to_search_index
+from sb_search.tasks import update_search_object
 from sb_base.utils import defensive_exception
 from sb_wall.neo_models import Wall
 from sb_public_official.tasks import create_and_attach_state_level_reps
@@ -137,7 +137,6 @@ def connect_to_state_districts(object_uuid):
 
 @shared_task()
 def finalize_citizen_creation(user_instance=None):
-    from .serializers import PlebSerializerNeo
     # TODO look into celery chaining and/or grouping
     if user_instance is None:
         return None
@@ -150,11 +149,11 @@ def finalize_citizen_creation(user_instance=None):
     task_list = {}
     task_data = {
         "object_uuid": pleb.object_uuid,
-        'object_data': PlebSerializerNeo(pleb).data
+        "instance": pleb
     }
     # TODO I think this can be removed.
     task_list["add_object_to_search_index"] = spawn_task(
-        task_func=add_object_to_search_index,
+        task_func=update_search_object,
         task_param=task_data,
         countdown=30)
     task_list["check_privileges_task"] = spawn_task(

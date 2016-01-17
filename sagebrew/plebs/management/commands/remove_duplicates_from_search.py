@@ -25,6 +25,11 @@ class Command(BaseCommand):
                       doc_type="profile")
         except NotFoundError:
             pass
+        try:
+            es.delete(index="full-search-base", id="keenan_gottschall",
+                      doc_type="profile")
+        except NotFoundError:
+            pass
 
     def handle(self, *args, **options):
         self.remove_duplicate()

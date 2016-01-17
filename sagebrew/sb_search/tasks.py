@@ -158,6 +158,13 @@ def update_search_object(object_uuid, instance=None, object_data=None,
         raise update_search_object.retry(exc=e, countdown=5, max_retries=None)
     except KeyError:
         return False
+    try:
+        if instance.search_id is None:
+            instance.search_id = res['_id']
+            instance.populated_es_index = True
+            instance.save()
+    except AttributeError:
+        pass
 
     cache.delete("%s_vote_search_update" % object_uuid)
     return res

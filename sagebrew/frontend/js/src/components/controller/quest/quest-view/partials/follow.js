@@ -6,7 +6,6 @@ export function load() {
         app = $(".app-sb"),
         followText,
         questId;
-    console.log(followButtons)
     app.on('click', ".js-follow-btn", function() {
         for (var i = 0; i < followButtons.length; i++) {
             followText = followButtons[i].innerText.toLowerCase();

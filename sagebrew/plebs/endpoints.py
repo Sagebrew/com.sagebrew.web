@@ -741,6 +741,8 @@ class MeViewSet(mixins.UpdateModelMixin,
                 news_article = QuestSerializer(
                     Quest.inflate(row.quests),
                     context={'request': request}).data
+                news_article['reputation'] = Pleb.get(
+                    username=news_article['owner_username']).reputation
                 if html == "true":
                     news_article['created'] = parser.parse(
                         news_article['created'])

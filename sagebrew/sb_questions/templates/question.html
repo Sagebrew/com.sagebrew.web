@@ -20,7 +20,7 @@
     </div>
     <div class="col-xs-12 hidden-sm hidden-md hidden-lg title-by">
         <small>
-            by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
+            by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>
         </small>
     </div>
     <div class="col-md-1 hidden-sm hidden-xs sb-solution-controls">
@@ -129,17 +129,10 @@
                     {% endif %}
                 </small>
             </div>
-            <div class="created-time">
-                {% if created != last_edited_on %}
-                    <small>{{ last_edited_on|naturaltime }} · Edited</small>
-                {% else %}
-                    <small>{{ created|naturaltime }}</small>
-                {% endif %}
-            </div>
         </div>
         <div class="col-sm-5 col-sm-offset-3 hidden-xs hidden-md hidden-lg">
             <small>
-                by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> on {{ last_edited_on|date:"D d M Y" }}
+                by <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>
             </small>
         </div>
         <div class="js-comment-container" id="sb_comments_container_{{ id }}">

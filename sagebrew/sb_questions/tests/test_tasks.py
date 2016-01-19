@@ -9,51 +9,7 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_questions.neo_models import Question
-from sb_questions.tasks import (add_auto_tags_to_question_task,
-                                add_question_to_indices_task)
-
-
-class TestAddQuestionToIndicesTask(TestCase):
-    def setUp(self):
-        settings.CELERY_ALWAYS_EAGER = True
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.question = Question(object_uuid=str(uuid1()),
-                                 title=str(uuid1())).save()
-
-    def tearDown(self):
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_add_question_to_indices_task(self):
-        data = {
-            "question": {
-                "object_uuid": self.question.object_uuid,
-                "content": self.question.content,
-                "owner_username": self.pleb.username
-            }
-        }
-        res = add_question_to_indices_task.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        self.assertTrue(res.result)
-
-    def test_add_question_to_indices_task_already_added(self):
-        data = {
-            "question": {
-                "object_uuid": self.question.object_uuid,
-                "content": self.question.content,
-                "owner_username": self.pleb.username
-            }
-        }
-        self.question.added_to_search_index = True
-        self.question.save()
-        res = add_question_to_indices_task.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        self.assertTrue(res.result)
+from sb_questions.tasks import (add_auto_tags_to_question_task)
 
 
 class TestAddAutoTagsToQuestionTask(TestCase):

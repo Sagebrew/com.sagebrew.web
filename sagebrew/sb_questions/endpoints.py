@@ -14,10 +14,10 @@ from neomodel import db
 from api.utils import spawn_task
 from sb_base.utils import get_ordering, get_tagged_as
 from sb_stats.tasks import update_view_count_task
+from sb_search.tasks import update_search_object
 
 from .serializers import QuestionSerializerNeo, solution_count
 from .neo_models import Question
-from .tasks import add_question_to_indices_task
 
 
 class QuestionViewSet(viewsets.ModelViewSet):
@@ -91,10 +91,11 @@ class QuestionViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data,
                                          context={"request": request})
         if serializer.is_valid():
-            serializer.save()
+            instance = serializer.save()
             serializer = serializer.data
-            spawn_task(task_func=add_question_to_indices_task,
-                       task_param={"question": serializer})
+            spawn_task(task_func=update_search_object,
+                       task_param={"object_uuid": instance.object_uuid,
+                                   "instance": instance})
             html = request.query_params.get('html', 'false').lower()
             if html == "true":
                 serializer['last_edited_on'] = parser.parse(

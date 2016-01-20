@@ -30,6 +30,7 @@ from plebs.neo_models import Pleb
 from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
 from sb_donations.serializers import DonationExportSerializer
+from sb_search.utils import remove_search_object
 
 from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
                           EditorSerializer, ModeratorSerializer,
@@ -138,6 +139,7 @@ class QuestViewSet(viewsets.ModelViewSet):
         cache.delete("%s_editors" % instance.owner_username)
         cache.delete("%s_moderators" % instance.owner_username)
         cache.delete("%s_quest" % instance.owner_username)
+        remove_search_object(instance.object_uuid, "quest")
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated, IsOwnerOrEditor))

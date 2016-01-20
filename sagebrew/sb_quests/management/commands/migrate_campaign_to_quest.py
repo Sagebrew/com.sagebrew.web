@@ -1,9 +1,12 @@
+import pytz
+from datetime import datetime
+
 from django.core.management.base import BaseCommand
 
 from neomodel import db, DoesNotExist
 
 from sb_missions.neo_models import Mission
-from sb_quests.neo_models import Quest, PoliticalCampaign
+from sb_quests.neo_models import Quest, PoliticalCampaign, Position
 
 
 class Command(BaseCommand):
@@ -19,6 +22,16 @@ class Command(BaseCommand):
                 continue
             except (DoesNotExist, Quest.DoesNotExist):
                 pass
+            website = campaign.website
+            if website is None:
+                website = website
+            elif "https://" in website or "http://" in website:
+                website = website
+            else:
+                if website.strip() == "":
+                    website = None
+                else:
+                    website = "http://" + website
             quest = Quest(
                 stripe_id=campaign.stripe_id,
                 about=campaign.biography,
@@ -29,7 +42,7 @@ class Command(BaseCommand):
                 linkedin=campaign.linkedin,
                 youtube=campaign.youtube,
                 twitter=campaign.twitter,
-                website=campaign.website,
+                website=website,
                 wallpaper_pic=campaign.wallpaper_pic,
                 profile_pic=campaign.profile_pic,
                 application_fee=campaign.application_fee,
@@ -40,10 +53,6 @@ class Command(BaseCommand):
                 last_name=campaign.last_name,
                 owner_username=campaign.object_uuid
             ).save()
-
-            for update in campaign.updates.all():
-                quest.updates.connect(update)
-                campaign.updates.disconnect(update)
 
             for editor in campaign.editors.all():
                 quest.editors.connect(editor)
@@ -58,6 +67,12 @@ class Command(BaseCommand):
                 public_official.campaign.disconnect(campaign)
                 campaign.public_official.disconnect(public_official)
 
+            if quest.active:
+                quest.tos_acceptance = True
+                quest.account_verified = True
+                quest.account_verified_date = datetime.now(pytz.utc)
+                quest.save()
+
             if campaign.epic != "" and campaign.epic is not None:
                 mission = Mission(
                     about=campaign.biography,
@@ -66,23 +81,47 @@ class Command(BaseCommand):
                     linkedin=campaign.linkedin,
                     youtube=campaign.youtube,
                     twitter=campaign.twitter,
-                    website=campaign.website,
+                    website=website,
                     wallpaper_pic=campaign.wallpaper_pic,
                     owner_username=campaign.object_uuid,
                     location_name=campaign.location_name,
-                    focus_on_type="position").save()
+                    focus_on_type="position",
+                    active=campaign.active).save()
 
                 for position in campaign.position.all():
                     mission.position.connect(position)
                     campaign.position.disconnect(position)
+                    mission.focus_name = position.full_name
+                    mission.save()
+
+                query = 'MATCH (position:Position)-[:CAMPAIGNS]->' \
+                        '(campaign:Campaign {object_uuid: "%s"}) ' \
+                        'RETURN position' % campaign.object_uuid
+                res, _ = db.cypher_query(query)
+                if res.one:
+                    positions = [Position.inflate(row[0]) for row in res]
+                    for position in positions:
+                        mission.position.connect(position)
+                        position.campaigns.disconnect(campaign)
+                        mission.focus_name = position.full_name
+                        mission.save()
 
                 for pledged_vote in campaign.pledged_votes.all():
                     mission.pledge_votes.connect(pledged_vote)
                     campaign.pledged_votes.disconnect(pledged_vote)
 
                 for donation in campaign.donations.all():
-                    mission.donations.connect(donation)
+                    donation.mission.connect(mission)
                     campaign.donations.disconnect(donation)
+
+                for update in campaign.updates.all():
+                    update.mission.connect(mission)
+                    campaign.updates.disconnect(update)
+
+                quest.missions.connect(mission)
+                # TODO manually remove campaign and then set
+                # object_uuid to owner_username
+                # Then clear cache
 
     def handle(self, *args, **options):
         self.migrate_campaign_to_quest()

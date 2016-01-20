@@ -25,16 +25,20 @@ export function load () {
     $app
         .on('click', '.js-comment', function (event) {
             event.preventDefault();
-            var parent = helpers.findAncestor(this, 'js-comment-section');
-            var commentInput = parent.getElementsByClassName('js-comment-input')[0];
+            var parent = helpers.findAncestor(this, 'js-comment-section'),
+                commentInput = parent.getElementsByClassName('js-comment-input')[0],
+                placeHolderText = "Help improve the " + parent.dataset.type.replace(/\w\S*/g, function (txt) {
+                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+                }) + " by providing feedback";
+            if(parent.dataset.type === "post") {
+                placeHolderText = "Leave a comment...";
+            }
             commentInput.classList.remove('hidden');
             this.classList.add('hidden');
             commentInput.innerHTML = templates.comment_input({
                 parent_type: parent.dataset.type,
                 parent_id: parent.dataset.id,
-                placeholder_text: "Help improve the " + parent.dataset.type.replace(/\w\S*/g, function (txt) {
-                    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-                }) + " by providing feedback"
+                placeholder_text: placeHolderText
             });
             var inputArea = document.getElementById('comment-input-' + parent.dataset.id),
                 commentContainer = document.getElementById(

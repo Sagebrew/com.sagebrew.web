@@ -353,7 +353,7 @@ class QuestSerializer(SBSerializer):
     account_number = serializers.CharField(write_only=True, required=False)
     ssn = serializers.CharField(write_only=True, required=False)
     account_type = serializers.ChoiceField(
-        required=False, write_only=True,
+        required=False,
         choices=[('paid', "Paid"), ('free', "Free")])
     account_verified = serializers.ChoiceField(
         read_only=True,
@@ -407,6 +407,7 @@ class QuestSerializer(SBSerializer):
         if "quest/" in request.path:
             account.tos_acceptance.ip = ip
             account.tos_acceptance.date = int(time.time())
+            quest.account_verified_date = datetime.now(pytz.utc)
             quest.tos_acceptance = True
         quest.save()
         account.save()
@@ -546,6 +547,7 @@ class QuestSerializer(SBSerializer):
                         ip = request.META.get('REMOTE_ADDR')
                     account.tos_acceptance.ip = ip
                     account.tos_acceptance.date = int(time.time())
+                    instance.account_verified_date = datetime.now(pytz.utc)
                     instance.tos_acceptance = True
             account.legal_entity.additional_owners = []
             account.legal_entity.personal_id_number = ssn

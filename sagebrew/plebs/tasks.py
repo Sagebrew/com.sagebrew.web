@@ -8,8 +8,6 @@ from django.template.loader import get_template
 from django.template import Context
 from django.core.cache import cache
 
-from elasticsearch import Elasticsearch, NotFoundError
-
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 
@@ -17,7 +15,7 @@ from py2neo.cypher.error.transaction import ClientError, CouldNotCommit
 from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task, generate_oauth_user
-from api.tasks import add_object_to_search_index
+from sb_search.tasks import update_search_object
 from sb_base.utils import defensive_exception
 from sb_wall.neo_models import Wall
 from sb_public_official.tasks import create_and_attach_state_level_reps
@@ -27,38 +25,6 @@ from sb_locations.neo_models import Location
 
 from .neo_models import Pleb, BetaUser, OauthUser, Address
 from .utils import create_friend_request_util
-
-
-@shared_task()
-def pleb_user_update(username, first_name, last_name, email):
-    from .serializers import PlebSerializerNeo
-    try:
-        pleb = Pleb.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
-        raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
-
-    try:
-        pleb.first_name = first_name
-        pleb.last_name = last_name
-        pleb.email = email
-
-        pleb.save()
-        pleb.update_campaign()
-        pleb.refresh()
-        cache.set(pleb.username, pleb)
-        document = PlebSerializerNeo(pleb).data
-        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        try:
-            es.delete(index="full-search-base",
-                      doc_type=document['type'], id=document['id'])
-        except NotFoundError:
-            pass
-        es.index(index="full-search-base", doc_type=document['type'],
-                 id=document['id'], body=document)
-    except(CypherException, IOError) as e:
-        raise pleb_user_update.retry(exc=e, countdown=3, max_retries=None)
-
-    return True
 
 
 @shared_task()
@@ -171,7 +137,6 @@ def connect_to_state_districts(object_uuid):
 
 @shared_task()
 def finalize_citizen_creation(user_instance=None):
-    from .serializers import PlebSerializerNeo
     # TODO look into celery chaining and/or grouping
     if user_instance is None:
         return None
@@ -184,10 +149,11 @@ def finalize_citizen_creation(user_instance=None):
     task_list = {}
     task_data = {
         "object_uuid": pleb.object_uuid,
-        'object_data': PlebSerializerNeo(pleb).data
+        "instance": pleb
     }
+    # TODO I think this can be removed.
     task_list["add_object_to_search_index"] = spawn_task(
-        task_func=add_object_to_search_index,
+        task_func=update_search_object,
         task_param=task_data,
         countdown=30)
     task_list["check_privileges_task"] = spawn_task(
@@ -214,7 +180,7 @@ def finalize_citizen_creation(user_instance=None):
             pleb.initial_verification_email_sent = True
             pleb.save()
     task_ids = []
-    cache.set(pleb.username, pleb)
+    cache.delete(pleb.username)
     for item in task_list:
         task_ids.append(task_list[item].task_id)
     return task_list

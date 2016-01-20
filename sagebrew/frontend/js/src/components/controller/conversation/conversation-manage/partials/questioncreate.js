@@ -93,7 +93,11 @@ export function init() {
 
         .on('click', '.cancel_question-action', function(event) {
             event.preventDefault();
-            window.location.href = "/conversations/" + questionID + "/";
+            if(Object.prototype.toString.call(questionID) !== '[object Array]'){
+                window.location.href = "/conversations/" + questionID + "/";
+            } else {
+                window.history.back();
+            }
         })
 
         .on('click', '#sb_tag_box-tokenfield', function(event) {

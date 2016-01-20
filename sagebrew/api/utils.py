@@ -15,6 +15,8 @@ from django.core import signing
 from django.conf import settings
 
 from rest_framework.authtoken.models import Token
+from rest_framework.validators import UniqueValidator
+from rest_framework.serializers import ValidationError
 
 from boto.sqs.message import Message
 
@@ -285,3 +287,34 @@ def flatten_lists(unflattened_list):
 
 def deprecation(message):
     warnings.warn(message, DeprecationWarning, stacklevel=2)
+
+
+class SBUniqueValidator(UniqueValidator):
+    """
+    Validator that corresponds to `unique=True` on a model field.
+
+    Should be applied to an individual field on the serializer.
+    """
+
+    def filter_queryset(self, value, queryset):
+        """
+        Filter the queryset to all instances matching the given attribute.
+        """
+        return [x for x in queryset if getattr(x, self.field_name) == value]
+
+    def exclude_current_instance(self, queryset):
+        """
+        If an instance is being updated, then do not include
+        that instance itself as a uniqueness conflict.
+        """
+        if self.instance is not None:
+            return [x for x in queryset
+                    if x.object_uuid != self.instance.object_uuid]
+        return queryset
+
+    def __call__(self, value):
+        queryset = self.queryset
+        queryset = self.filter_queryset(value, queryset)
+        queryset = self.exclude_current_instance(queryset)
+        if queryset:
+            raise ValidationError(self.message)

@@ -31,10 +31,20 @@
             </div>
             {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
         {% endif %}
-
-        <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
-            <a href="/quests/{{ quest.owner_username }}/donate/amount/" class="btn btn-primary sb_btn_fill">Donate</a>
-        </div>
+        {% if quest.active %}
+            {% if quest.missions %}
+                <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
+                    <ul class="list-inline list-inline-btns">
+                        <li>
+                            <a href="/quests/{{ quest.owner_username }}/donate/choose/" class="btn btn-primary sb_btn_fill">Donate</a>
+                        </li>
+                        <li>
+                            <button class="btn btn-primary sb_btn_fill js-follow-btn" {% if not user.is_authenticated %}disabled{% endif %}>{% if quest.is_following %}Unfollow{% else %}Follow{% endif %}</button>
+                        </li>
+                    </ul>
+                </div>
+            {% endif %}
+        {% endif %}
         <div class="hidden-xs col-sm-5">
             <div class="block">
                 <div class="block-title no-underline">
@@ -104,16 +114,18 @@
                             </li>
                         {% endif %}
                     </ul>
-
-                    <ul class="list-inline list-inline-btns">
-                        <li>
-                            <a href="/quests/{{ quest.owner_username }}/donate/choose/" class="btn btn-primary sb_btn_fill">Donate</a>
-                        </li>
-                        <li>
-                            <button class="btn btn-primary sb_btn_fill js-follow-btn" {% if not user.is_authenticated %}disabled{% endif %}>{% if quest.is_following %}Unfollow{% else %}Follow{% endif %}</button>
-                        </li>
-                    </ul>
-
+                    {% if quest.active %}
+                        <ul class="list-inline list-inline-btns">
+                            {% if quest.missions %}
+                                <li>
+                                    <a href="/quests/{{ quest.owner_username }}/donate/choose/" class="btn btn-primary sb_btn_fill">Donate</a>
+                                </li>
+                            {% endif %}
+                            <li>
+                                <button class="btn btn-primary sb_btn_fill js-follow-btn" {% if not user.is_authenticated %}disabled{% endif %}>{% if quest.is_following %}Unfollow{% else %}Follow{% endif %}</button>
+                            </li>
+                        </ul>
+                    {% endif %}
                 </div>
             </div>
 
@@ -123,7 +135,7 @@
     <div class="row block block-padding-bottom-15 row-no-margin">
         <div class="col-xs-12">
             <h2 class="block-title">Missions</h2>
-            <div id="js-mission-list"></div>
+            <div id="js-mission-list"><div class="loader"></div></div>
             {% if quest.owner_username == request.user.username %}
                 {% if quest.account_type != "paid" and quest.missions|length >= free_missions %}
                     {% comment %} TODO need to add button to upgrade account to pro account {% endcomment %}
@@ -145,5 +157,7 @@
 {% block intercom %}
     {% if request.user.username == quest.owner_username %}
         Intercom('trackEvent', 'visited-own-quest');
+    {% else %}
+        Intercom('trackEvent', 'visited-{{ quest.owner_username }}-quest');
     {% endif %}
 {% endblock %}

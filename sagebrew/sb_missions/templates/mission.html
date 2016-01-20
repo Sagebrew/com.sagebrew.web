@@ -23,13 +23,13 @@
                 {% endautoescape %}
             {% else %}
                 {% if mission.active == True and quest.active == True %}
-                    {% if rendered_epic %}
+                    {% if mission.rendered_epic %}
                         {% autoescape off %}
                             {{ mission.rendered_epic }}
                         {% endautoescape %}
                     {% endif %}
                 {% else %}
-                    <h4>{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} is still setting up this Mission, check back soon!</h4>
+                    <h4 style="margin-top: 0;">{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} is still setting up this Mission, check back soon!</h4>
                 {% endif %}
             {% endif %}
         </div>

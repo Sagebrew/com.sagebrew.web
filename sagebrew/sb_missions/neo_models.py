@@ -66,8 +66,6 @@ class Mission(Searchable):
     focus_formal_name = StringProperty()
 
     # Relationships
-    goals = RelationshipTo('sb_goals.neo_models.Goal', "WORKING_TOWARDS")
-
     # Donations
     # Access Donations that are related to this Mission through:
     # Neomodel: mission Cypher: CONTRIBUTED_TO
@@ -117,6 +115,7 @@ class Mission(Searchable):
     pledge_votes = RelationshipTo('plebs.neo_models.Pleb',
                                   'RECEIVED_PLEDGED_VOTE',
                                   model=VoteRelationship)
+    goals = RelationshipTo('sb_goals.neo_models.Goal', "WORKING_TOWARDS")
 
     @classmethod
     def get(cls, object_uuid):
@@ -181,7 +180,7 @@ class Mission(Searchable):
         if editors is None:
             query = 'MATCH (quest:Quest {owner_username: "%s"})<-' \
                     '[:EDITOR_OF]-(pleb:Pleb) ' \
-                    'RETURN pleb.username' % quest.owner_username
+                    'RETURN pleb.username' % owner_username
             res, col = db.cypher_query(query)
             editors = [row[0] for row in res]
             cache.set("%s_editors" % quest.owner_username, editors)
@@ -195,7 +194,7 @@ class Mission(Searchable):
         if moderators is None:
             query = 'MATCH (quest:Quest {owner_username: "%s"})<-' \
                     '[:MODERATOR_OF]-(pleb:Pleb) ' \
-                    'RETURN pleb.username' % quest.owner_username
+                    'RETURN pleb.username' % owner_username
             res, col = db.cypher_query(query)
             moderators = [row[0] for row in res]
             cache.set("%s_moderators" % quest.owner_username, moderators)

@@ -26,7 +26,8 @@ function displayMap() {
             var map = new google.maps.Map(document.getElementById('map'), {
                 zoom: zoomLevel,
                 center: latLong,
-                disableDefaultUI: true
+                disableDefaultUI: true,
+                scrollwheel: false
             });
             if(data.longitude !== undefined && data.longitude !== null) {
                 if((data.affected_area.match(/,/g) || []).length > 1){

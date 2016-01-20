@@ -276,13 +276,27 @@ class MissionSerializer(SBSerializer):
             remove_search_object(instance.object_uuid, 'mission')
         instance.completed = validated_data.pop('completed', instance.completed)
         instance.title = validated_data.pop('title', instance.title)
-        instance.about = validated_data.pop('about', instance.about)
+        about = validated_data.get('about', instance.about)
+        if about is not None:
+            about = about.strip()
+            if about == "":
+                about = None
+        instance.about = about
         instance.epic = validated_data.pop('epic', instance.epic)
         instance.facebook = validated_data.pop('facebook', instance.facebook)
         instance.linkedin = validated_data.pop('linkedin', instance.linkedin)
         instance.youtube = validated_data.pop('youtube', instance.youtube)
         instance.twitter = validated_data.pop('twitter', instance.twitter)
-        instance.website = validated_data.pop('website', instance.website)
+        website = validated_data.get('website', instance.website)
+        if website is None:
+            instance.website = website
+        elif "https://" in website or "http://" in website:
+            instance.website = website
+        else:
+            if website.strip() == "":
+                instance.website = None
+            else:
+                instance.website = "http://" + website
         instance.wallpaper_pic = validated_data.pop('wallpaper_pic',
                                                     instance.wallpaper_pic)
         instance.save()

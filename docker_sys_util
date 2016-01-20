@@ -21,10 +21,4 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py create_privileges && \
     python manage.py clear_cache && \
     python manage.py clearsessions && \
-    python manage.py update_existing_expanded_content && \
-    python manage.py populate_sectors && \
-    python manage.py add_full_name_to_positions && \
-    python manage.py populate_all_state_legislative_positions && \
-    python manage.py populate_existing_state_districts && \
-    python manage.py migrate_campaign_to_quest && \
-    python manage.py populate_state_external_ids
+    python manage.py remove_duplicate_plebs_search

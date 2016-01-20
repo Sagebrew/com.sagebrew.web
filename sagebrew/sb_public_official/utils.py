@@ -16,7 +16,7 @@ logger = logging.getLogger('loggly_logs')
 def determine_reps(username):
     senators = []
     try:
-        pleb = Pleb.nodes.get(username=username)
+        pleb = Pleb.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError):
         return False
     try:

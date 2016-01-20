@@ -14,12 +14,12 @@ from rest_framework.reverse import reverse
 from neomodel import db, DoesNotExist
 
 from api.serializers import SBSerializer
-from api.utils import spawn_task, gather_request_data
+from api.utils import spawn_task, gather_request_data, SBUniqueValidator
 from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
 
-from .neo_models import Address, Pleb
-from .tasks import (create_pleb_task, pleb_user_update, determine_pleb_reps,
+from .neo_models import Address, Pleb, get_default_profile_pic
+from .tasks import (create_pleb_task, determine_pleb_reps,
                     update_address_location)
 
 
@@ -137,13 +137,6 @@ class UserSerializer(SBSerializer):
                 'new_password', validated_data.get('password', "")))
             update_session_auth_hash(self.context['request'], instance)
         instance.save()
-        # TODO Should move this out to the endpoint to remove circular
-        # dependencies. Like we do in sb_questions/endpoints.py create
-        spawn_task(task_func=pleb_user_update, task_param={
-            "username": instance.username,
-            "first_name": instance.first_name,
-            "last_name": instance.last_name, "email": instance.email
-        })
         return instance
 
     def get_id(self, obj):
@@ -171,8 +164,8 @@ class PlebSerializerNeo(SBSerializer):
                                          write_only=True,
                                          style={'input_type': 'password'})
     email = serializers.EmailField(required=True, write_only=True,
-                                   validators=[UniqueValidator(
-                                       queryset=User.objects.all(),
+                                   validators=[SBUniqueValidator(
+                                       queryset=Pleb.nodes.all(),
                                        message="Sorry looks like that email is "
                                                "already taken.")],)
     date_of_birth = serializers.DateTimeField(required=True, write_only=True)
@@ -279,6 +272,8 @@ class PlebSerializerNeo(SBSerializer):
         user_obj.save()
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
+        if instance.profile_pic is None or instance.profile_pic == "":
+            instance.profile_pic = get_default_profile_pic()
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
         instance.occupation_name = validated_data.get('occupation_name',
@@ -310,16 +305,7 @@ class PlebSerializerNeo(SBSerializer):
             instance.last_counted_vote_node = instance.vote_from_last_refresh
         instance.save()
         instance.update_campaign()
-        instance.refresh()
         cache.set(instance.username, instance)
-        # TODO @tyler once we have the updated search logic integrated with
-        # this PR we should be able to either remove this task spawn or spawn
-        # a task specifically for updating the search DB.
-        spawn_task(task_func=pleb_user_update, task_param={
-            "username": instance.username,
-            "first_name": instance.first_name,
-            "last_name": instance.last_name, "email": instance.email
-        })
         return super(PlebSerializerNeo, self).update(instance, validated_data)
 
     def get_id(self, obj):
@@ -413,7 +399,8 @@ class AddressSerializer(SBSerializer):
         instance.street_additional = validated_data.get(
             'street_additional', instance.street_additional)
         instance.city = validated_data.get("city", instance.city)
-        instance.state = validated_data.get("state", instance.state)
+        instance.state = us.states.lookup(
+            validated_data.get("state", instance.state)).name
         instance.postal_code = validated_data.get("postal_code",
                                                   instance.postal_code)
         instance.country = validated_data.get("country", instance.country)

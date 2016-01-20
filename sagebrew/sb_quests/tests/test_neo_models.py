@@ -242,8 +242,8 @@ class TestQuest(TestCase):
     def test_get_updates(self):
         update = Update().save()
         self.quest.updates.connect(update)
-        update.quest.connect(self.quest)
-        res = Quest.get_updates(self.owner.username)
+        cache.delete("%s_updates" % self.quest.object_uuid)
+        res = Quest.get_updates(self.quest.object_uuid)
         self.assertIn(update.object_uuid, res)
 
     def test_get_donations(self):
@@ -254,3 +254,33 @@ class TestQuest(TestCase):
         donation.quest.connect(self.quest)
         res = Quest.get_donations(self.quest.owner_username)
         self.assertEqual(donation.object_uuid, res[0].object_uuid)
+
+    def test_is_following(self):
+        self.quest.follow(self.owner.username)
+        self.assertTrue(self.owner in self.quest.followers)
+        res = self.quest.is_following(self.owner.username)
+        self.assertTrue(res)
+
+    def test_follow(self):
+        self.quest.follow(self.owner.username)
+        self.assertTrue(self.owner in self.quest.followers)
+
+    def test_unfollow(self):
+        self.quest.follow(self.owner.username)
+        self.assertTrue(self.owner in self.quest.followers)
+        res = self.quest.unfollow(self.owner.username)
+        self.assertFalse(res)
+
+    def test_get_followers(self):
+        self.quest.follow(self.owner.username)
+        self.assertTrue(self.owner in self.quest.followers)
+        res = self.quest.get_followers()
+        self.assertIn(self.owner.username, res)
+
+    def test_get_total_donation_amount(self):
+        donation1 = Donation(amount=10).save()
+        donation2 = Donation(amount=20).save()
+        donation1.quest.connect(self.quest)
+        donation2.quest.connect(self.quest)
+        res = self.quest.get_total_donation_amount()
+        self.assertEqual(res, 30)

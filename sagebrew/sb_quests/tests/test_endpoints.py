@@ -17,6 +17,7 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
+from sb_donations.neo_models import Donation
 
 from sb_quests.neo_models import Quest, Position
 from sb_quests.serializers import QuestSerializer
@@ -397,6 +398,46 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.data['detail'], 'Successfully added '
                                                   'specified users '
                                                   'to your quest.')
+
+    def test_missions(self):
+        self.client.force_authenticate(user=self.user)
+        mission = Mission(title=str(uuid1()),
+                          owner_username=self.pleb.username).save()
+        self.quest.missions.connect(mission)
+        url = reverse('quest-missions',
+                      kwargs={'owner_username': self.quest.owner_username})
+        response = self.client.get(url)
+        self.assertContains(response, mission.object_uuid,
+                            status_code=status.HTTP_200_OK)
+
+    def test_donation_data(self):
+        self.client.force_authenticate(user=self.user)
+        mission = Mission(title=str(uuid1()),
+                          owner_username=self.pleb.username).save()
+        self.quest.missions.connect(mission)
+        donation = Donation(amount=100, owner_username=self.pleb.username).save()
+        donation.mission.connect(mission)
+        donation.owned_by.connect(self.pleb)
+        url = reverse('quest-donation-data',
+                      kwargs={'owner_username': self.quest.owner_username})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_follow(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-follow',
+                      kwargs={'owner_username': self.quest.owner_username})
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_unfollow(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-unfollow',
+                      kwargs={'owner_username': self.quest.owner_username})
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class PositionEndpointTests(APITestCase):

@@ -1,22 +1,17 @@
-import pytz
-import datetime
 from uuid import uuid1
 
 from django.test import TestCase
 from django.core.cache import cache
-from rest_framework.reverse import reverse
 from neomodel import DoesNotExist
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_donations.neo_models import Donation
-from sb_goals.neo_models import Goal
 from sb_locations.neo_models import Location
-from sb_quests.neo_models import Campaign, PoliticalCampaign, Position, Quest
+from sb_quests.neo_models import Position, Quest
 from sb_tags.neo_models import Tag
 from sb_questions.neo_models import Question
-from sb_updates.neo_models import Update
 
 from sb_missions.neo_models import Mission
 

@@ -415,7 +415,8 @@ class QuestEndpointTests(APITestCase):
         mission = Mission(title=str(uuid1()),
                           owner_username=self.pleb.username).save()
         self.quest.missions.connect(mission)
-        donation = Donation(amount=100, owner_username=self.pleb.username).save()
+        donation = Donation(amount=100,
+                            owner_username=self.pleb.username).save()
         donation.mission.connect(mission)
         donation.owned_by.connect(self.pleb)
         url = reverse('quest-donation-data',

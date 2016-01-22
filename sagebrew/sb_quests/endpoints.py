@@ -276,8 +276,6 @@ class QuestViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticatedOrReadOnly,))
     def missions(self, request, owner_username=None):
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
         query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
                 '[:EMBARKS_ON]->(m:Mission) RETURN m' % owner_username
         res, _ = db.cypher_query(query)

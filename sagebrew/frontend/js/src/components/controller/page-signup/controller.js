@@ -77,10 +77,12 @@ export function load() {
         // to capture IE10
         vidFade();
     });
-    var wistiaVideo = Wistia.api('intro-video');
-    wistiaVideo.bind('play', function() {
-        vid.pause();
-    });
+    window.wistiaInit = function(W) {
+        var wistiaVideo = Wistia.api('intro-video');
+        wistiaVideo.bind('play', function () {
+            vid.pause();
+        });
+    };
 
     //
     //Birthday input in signup form.

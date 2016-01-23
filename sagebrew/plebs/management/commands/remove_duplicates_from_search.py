@@ -12,37 +12,17 @@ class Command(BaseCommand):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         try:
             es.delete(index="full-search-base", id="devon_bleibtrey",
-                      doc_type="profile")
-        except NotFoundError:
-            pass
-        try:
-            es.delete(index="full-search-base", id="devon_bleibtrey1",
-                      doc_type="profile")
-        except NotFoundError:
-            pass
-        try:
-            es.delete(index="full-search-base", id="kate_wilson",
-                      doc_type="profile")
-        except NotFoundError:
-            pass
-        try:
-            es.delete(index="full-search-base", id="kate_wilson",
                       doc_type="quest")
         except NotFoundError:
             pass
         try:
-            es.delete(index="full-search-base", id="kate_wilson",
+            es.delete(index="full-search-base", id="devon_bleibtrey",
                       doc_type="campaign")
         except NotFoundError:
             pass
         try:
-            es.delete(index="full-search-base", id="kate_wilson",
+            es.delete(index="full-search-base", id="devon_bleibtrey",
                       doc_type="politicalcampaign")
-        except NotFoundError:
-            pass
-        try:
-            es.delete(index="full-search-base", id="keenan_gottschall",
-                      doc_type="profile")
         except NotFoundError:
             pass
 

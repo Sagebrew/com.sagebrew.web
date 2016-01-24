@@ -3,6 +3,10 @@ from django.core.management.base import BaseCommand
 
 from elasticsearch import Elasticsearch, NotFoundError
 
+from api.utils import spawn_task
+from sb_search.tasks import update_search_object
+from plebs.neo_models import Pleb
+
 
 class Command(BaseCommand):
     args = 'None.'
@@ -25,6 +29,15 @@ class Command(BaseCommand):
                       doc_type="politicalcampaign")
         except NotFoundError:
             pass
+        pleb = Pleb.nodes.get(username="rebecca_tanner")
+        task_data = {
+            "object_uuid": pleb.object_uuid,
+            "instance": pleb
+        }
+        spawn_task(
+            task_func=update_search_object,
+            task_param=task_data,
+            countdown=30)
 
     def handle(self, *args, **options):
         self.remove_duplicate()

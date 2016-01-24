@@ -13,9 +13,7 @@ class Command(BaseCommand):
             for encompassed_by_id in encompassed_by:
                 loc = Location.nodes.get(object_uuid=encompassed_by_id)
                 sector_list.append(loc.sector)
-            print sector_list
             if "federal" not in sector_list:
-                print 'here'
                 update_address_location.apply_async(
                     kwargs={'object_uuid': address.object_uuid})
         return True

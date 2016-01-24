@@ -540,6 +540,7 @@ class MissionEndpointTests(APITestCase):
         stripe_charge = stripe.Charge.retrieve(donation.stripe_charge_id)
         application_fee = stripe.ApplicationFee.retrieve(
             stripe_charge['application_fee'])
+        self.assertEqual(donation.amount, data['amount'])
         self.assertEqual(application_fee['amount'],
                          int((donation.amount *
                               (self.quest.application_fee +
@@ -581,6 +582,7 @@ class MissionEndpointTests(APITestCase):
         stripe_charge = stripe.Charge.retrieve(donation.stripe_charge_id)
         application_fee = stripe.ApplicationFee.retrieve(
             stripe_charge['application_fee'])
+        self.assertEqual(donation.amount, data['amount'])
         self.assertEqual(application_fee['amount'],
                          int((donation.amount *
                               (self.quest.application_fee +
@@ -618,4 +620,6 @@ class MissionEndpointTests(APITestCase):
         self.quest.stripe_id = quest_token['id']
         self.quest.save()
         response = self.client.post(url, data=data, format='json')
+        donation = Donation.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(donation.amount, data['amount'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

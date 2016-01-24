@@ -38,5 +38,10 @@
 
 
 {% block intercom %}
-   Intercom('trackEvent', 'mission-page');
+    {% if request.user.username == quest.owner_username %}
+        Intercom('trackEvent', 'own-mission-page');
+    {% else %}
+        Intercom('trackEvent', 'visited-{{ quest.owner_username }}-mission');
+        Intercom('trackEvent', 'visited-mission');
+    {% endif %}
 {% endblock %}

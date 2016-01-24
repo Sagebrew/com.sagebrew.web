@@ -1,4 +1,5 @@
 import stripe
+import datetime
 from uuid import uuid1
 
 from django.conf import settings
@@ -41,7 +42,8 @@ class MissionEndpointTests(APITestCase):
         self.stripe = stripe
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
         self.mission = Mission(owner_username=self.pleb.username,
-                               title=str(uuid1())).save()
+                               title=str(uuid1()),
+                               focus_name="advocacy").save()
         self.quest.missions.connect(self.mission)
 
     def test_unauthorized(self):
@@ -439,3 +441,152 @@ class MissionEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.mission.object_uuid})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_donation_create(self):
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "amount": 500,
+            "payment_method": None
+        }
+        url = "/v1/missions/%s/donations/" % self.mission.object_uuid
+        self.client.force_authenticate(user=self.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        token = stripe.Token.create(
+            card={
+                "number": "4242424242424242",
+                "exp_month": 12,
+                "exp_year": (datetime.datetime.now() + datetime.timedelta(
+                    days=3 * 365)).year,
+                "cvc": '123'
+            }
+        )
+        self.pleb.stripe_default_card_id = token['id']
+        self.pleb.save()
+        quest_token = stripe.Account.create(
+            managed=True,
+            country="US",
+            email=self.pleb.email
+        )
+        self.quest.stripe_id = quest_token['id']
+        self.quest.save()
+        response = self.client.post(url, data=data, format='json')
+        donation = Donation.nodes.get(object_uuid=response.data['id'])
+        stripe_charge = stripe.Charge.retrieve(donation.stripe_charge_id)
+        application_fee = stripe.ApplicationFee.retrieve(
+            stripe_charge['application_fee'])
+        self.assertEqual(application_fee['amount'],
+                         int((donation.amount *
+                              (self.quest.application_fee +
+                               settings.STRIPE_TRANSACTION_PERCENT)) + 30))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_donation_create_not_default_payment(self):
+        self.client.force_authenticate(user=self.user)
+        token = stripe.Token.create(
+            card={
+                "number": "4242424242424242",
+                "exp_month": 12,
+                "exp_year": (datetime.datetime.now() + datetime.timedelta(
+                    days=3 * 365)).year,
+                "cvc": '123'
+            }
+        )
+        data = {
+            "amount": 700,
+            "payment_method": token['id']
+        }
+        url = "/v1/missions/%s/donations/" % self.mission.object_uuid
+        self.client.force_authenticate(user=self.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+
+        quest_token = stripe.Account.create(
+            managed=True,
+            country="US",
+            email=self.pleb.email
+        )
+        self.quest.stripe_id = quest_token['id']
+        self.quest.save()
+        response = self.client.post(url, data=data, format='json')
+        donation = Donation.nodes.get(object_uuid=response.data['id'])
+        stripe_charge = stripe.Charge.retrieve(donation.stripe_charge_id)
+        application_fee = stripe.ApplicationFee.retrieve(
+            stripe_charge['application_fee'])
+        self.assertEqual(application_fee['amount'],
+                         int((donation.amount *
+                              (self.quest.application_fee +
+                               settings.STRIPE_TRANSACTION_PERCENT)) + 30))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_donation_create_no_mission_title(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.title = ""
+        self.mission.save()
+        cache.clear()
+        data = {
+            "amount": 1500,
+            "payment_method": None
+        }
+        url = "/v1/missions/%s/donations/" % self.mission.object_uuid
+        self.client.force_authenticate(user=self.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        token = stripe.Token.create(
+            card={
+                "number": "4242424242424242",
+                "exp_month": 12,
+                "exp_year": (datetime.datetime.now() + datetime.timedelta(
+                    days=3 * 365)).year,
+                "cvc": '123'
+            }
+        )
+        self.pleb.stripe_default_card_id = token['id']
+        self.pleb.save()
+        quest_token = stripe.Account.create(
+            managed=True,
+            country="US",
+            email=self.pleb.email
+        )
+        self.quest.stripe_id = quest_token['id']
+        self.quest.save()
+        response = self.client.post(url, data=data, format='json')
+        donation = Donation.nodes.get(object_uuid=response.data['id'])
+        stripe_charge = stripe.Charge.retrieve(donation.stripe_charge_id)
+        application_fee = stripe.ApplicationFee.retrieve(
+            stripe_charge['application_fee'])
+        self.assertEqual(application_fee['amount'],
+                         int((donation.amount *
+                              (self.quest.application_fee +
+                               settings.STRIPE_TRANSACTION_PERCENT)) + 30))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_donation_create_quest_title(self):
+        self.client.force_authenticate(user=self.user)
+        self.quest.title = "This is my test Quest"
+        self.quest.save()
+        cache.clear()
+        data = {
+            "amount": 500,
+            "payment_method": None
+        }
+        url = "/v1/missions/%s/donations/" % self.mission.object_uuid
+        self.client.force_authenticate(user=self.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        token = stripe.Token.create(
+            card={
+                "number": "4242424242424242",
+                "exp_month": 12,
+                "exp_year": (datetime.datetime.now() + datetime.timedelta(
+                    days=3 * 365)).year,
+                "cvc": '123'
+            }
+        )
+        self.pleb.stripe_default_card_id = token['id']
+        self.pleb.save()
+        quest_token = stripe.Account.create(
+            managed=True,
+            country="US",
+            email=self.pleb.email
+        )
+        self.quest.stripe_id = quest_token['id']
+        self.quest.save()
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

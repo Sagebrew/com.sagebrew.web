@@ -34,6 +34,7 @@ class Donation(SBObject):
     amount = IntegerProperty()
     # optimization
     owner_username = StringProperty()
+    stripe_charge_id = StringProperty()
     mission_type = StringProperty()
     # Owner
     # Access who created this donation through:

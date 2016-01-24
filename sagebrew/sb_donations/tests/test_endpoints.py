@@ -1,10 +1,14 @@
 import stripe
 import datetime
+import shortuuid
+from uuid import uuid1
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
+
+from neomodel import DoesNotExist
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -13,6 +17,8 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_donations.neo_models import Donation
+from sb_missions.neo_models import Mission
+from sb_quests.neo_models import Quest
 
 
 class DonationEndpointTests(APITestCase):
@@ -191,9 +197,13 @@ class DonationEndpointTests(APITestCase):
 
     def test_delete_not_owner(self):
         self.email2 = "bounce@simulator.amazonses.com"
+        try:
+            self.pleb2 = Pleb.nodes.get(email=self.email2)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            self.pleb2 = Pleb(email=self.email2,
+                              username=shortuuid.uuid()).save()
         res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
         self.client.force_authenticate(user=self.user2)
         url = reverse('donation-detail',
@@ -280,8 +290,45 @@ class TestSagebrewDonation(APITestCase):
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_donation_create(self):
-        # TODO need to update donation workflow and create test
-        pass
+        self.client.force_authenticate(user=self.user)
+        self.quest = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
+        self.quest.editors.connect(self.pleb)
+        self.quest.moderators.connect(self.pleb)
+        cache.clear()
+        self.stripe = stripe
+        self.stripe.api_key = settings.STRIPE_SECRET_KEY
+        self.mission = Mission(owner_username=self.pleb.username,
+                               title=str(uuid1()),
+                               focus_name="advocacy").save()
+        self.quest.missions.connect(self.mission)
+        data = {
+            "amount": 500,
+            "payment_method": None
+        }
+        url = "/v1/missions/%s/donations/" % self.mission.object_uuid
+        self.client.force_authenticate(user=self.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        token = stripe.Token.create(
+            card={
+                "number": "4242424242424242",
+                "exp_month": 12,
+                "exp_year": (datetime.datetime.now() + datetime.timedelta(
+                    days=3 * 365)).year,
+                "cvc": '123'
+            }
+        )
+        self.pleb.stripe_default_card_id = token['id']
+        self.pleb.save()
+        quest_token = stripe.Account.create(
+            managed=True,
+            country="US",
+            email=self.pleb.email
+        )
+        self.quest.stripe_id = quest_token['id']
+        self.quest.save()
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_donation_create_invalid_data(self):
         self.client.force_authenticate(user=self.user)

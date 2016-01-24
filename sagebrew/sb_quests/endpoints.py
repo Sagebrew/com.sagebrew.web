@@ -275,7 +275,7 @@ class QuestViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticatedOrReadOnly,))
-    def missions(self, request, owner_username=None):
+    def missions(self, request, owner_username):
         query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
                 '[:EMBARKS_ON]->(m:Mission) RETURN m' % owner_username
         res, _ = db.cypher_query(query)
@@ -288,7 +288,7 @@ class QuestViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
                                                        IsOwnerOrModerator,))
-    def donation_data(self, request, owner_username=None):
+    def donation_data(self, request, owner_username):
         """
         This endpoint allows for the owner or accountants to get a .csv file
         containing all of the data for donations given to the mission.

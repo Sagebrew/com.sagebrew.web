@@ -85,6 +85,8 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "President"
         }
         response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_position_focus_federal_not_pres_no_district(self):
@@ -104,6 +106,8 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "Senator"
         }
         response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_position_focus_federal_not_pres_district(self):
@@ -126,6 +130,8 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "House Representative"
         }
         response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_position_focus_local(self):
@@ -149,6 +155,8 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "House Representative"
         }
         response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_position_focus_state_upper(self):
@@ -169,6 +177,8 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "House Representative"
         }
         response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_position_focus_state_lower(self):
@@ -189,6 +199,8 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "House Representative"
         }
         response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_position_focus_state_district(self):
@@ -212,6 +224,8 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "House Representative"
         }
         response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_advocacy_local(self):
@@ -235,6 +249,8 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "some random stuff"
         }
         response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_advocacy_state(self):
@@ -252,6 +268,8 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "some random stuff"
         }
         response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_advocacy_state_district(self):
@@ -272,6 +290,8 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "some random stuff"
         }
         response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_advocacy_federal_usa(self):
@@ -286,6 +306,8 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "some random stuff"
         }
         response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_advocacy_federal_mich(self):
@@ -304,6 +326,8 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "some random stuff"
         }
         response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_advocacy_federal_district(self):
@@ -325,6 +349,8 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "some random stuff"
         }
         response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_update(self):
@@ -344,6 +370,8 @@ class MissionEndpointTests(APITestCase):
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.facebook, data['facebook'])
         self.assertContains(response, data['epic'],
                             status_code=status.HTTP_200_OK)
 
@@ -414,6 +442,7 @@ class MissionEndpointTests(APITestCase):
         self.assertContains(response, data['epic'],
                             status_code=status.HTTP_200_OK)
         mission.refresh()
+        self.assertEqual(mission.website, data['website'])
         self.assertFalse(mission.active)
 
     def test_detail(self):

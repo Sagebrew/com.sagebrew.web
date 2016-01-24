@@ -328,7 +328,9 @@ class TestSagebrewDonation(APITestCase):
         self.quest.stripe_id = quest_token['id']
         self.quest.save()
         response = self.client.post(url, data=data, format='json')
+        donation = Donation.nodes.get(object_uuid=response['id'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(donation.amount, data['amount'])
 
     def test_donation_create_invalid_data(self):
         self.client.force_authenticate(user=self.user)

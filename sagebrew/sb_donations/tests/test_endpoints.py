@@ -197,11 +197,6 @@ class DonationEndpointTests(APITestCase):
 
     def test_delete_not_owner(self):
         self.email2 = "bounce@simulator.amazonses.com"
-        try:
-            self.pleb2 = Pleb.nodes.get(email=self.email2)
-        except (Pleb.DoesNotExist, DoesNotExist):
-            self.pleb2 = Pleb(email=self.email2,
-                              username=shortuuid.uuid()).save()
         res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
         self.user2 = User.objects.get(email=self.email2)
@@ -288,49 +283,6 @@ class TestSagebrewDonation(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_donation_create(self):
-        self.client.force_authenticate(user=self.user)
-        self.quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username).save()
-        self.quest.editors.connect(self.pleb)
-        self.quest.moderators.connect(self.pleb)
-        cache.clear()
-        self.stripe = stripe
-        self.stripe.api_key = settings.STRIPE_SECRET_KEY
-        self.mission = Mission(owner_username=self.pleb.username,
-                               title=str(uuid1()),
-                               focus_name="advocacy").save()
-        self.quest.missions.connect(self.mission)
-        data = {
-            "amount": 500,
-            "payment_method": None
-        }
-        url = "/v1/missions/%s/donations/" % self.mission.object_uuid
-        self.client.force_authenticate(user=self.user)
-        stripe.api_key = settings.STRIPE_SECRET_KEY
-        token = stripe.Token.create(
-            card={
-                "number": "4242424242424242",
-                "exp_month": 12,
-                "exp_year": (datetime.datetime.now() + datetime.timedelta(
-                    days=3 * 365)).year,
-                "cvc": '123'
-            }
-        )
-        self.pleb.stripe_default_card_id = token['id']
-        self.pleb.save()
-        quest_token = stripe.Account.create(
-            managed=True,
-            country="US",
-            email=self.pleb.email
-        )
-        self.quest.stripe_id = quest_token['id']
-        self.quest.save()
-        response = self.client.post(url, data=data, format='json')
-        donation = Donation.nodes.get(object_uuid=response.data['id'])
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(donation.amount, data['amount'])
 
     def test_donation_create_invalid_data(self):
         self.client.force_authenticate(user=self.user)

@@ -21,6 +21,10 @@ class DonationEndpointTests(APITestCase):
         self.unit_under_test_name = 'goal'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
+        self.email2 = "bounce@simulator.amazonses.com"
+        create_user_util_test(self.email2)
+        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.user2 = User.objects.get(email=self.email2)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
@@ -190,10 +194,6 @@ class DonationEndpointTests(APITestCase):
                          status.HTTP_204_NO_CONTENT)
 
     def test_delete_not_owner(self):
-        self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2, task=True)
-        self.assertNotEqual(res, False)
-        self.user2 = User.objects.get(email=self.email2)
         self.client.force_authenticate(user=self.user2)
         url = reverse('donation-detail',
                       kwargs={'object_uuid': self.donation.object_uuid})

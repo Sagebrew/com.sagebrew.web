@@ -19,10 +19,8 @@ def determine_reps(username):
         pleb = Pleb.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError):
         return False
-    try:
-        address = pleb.address.all()[0]
-    except (CypherException, IOError, IndexError):
-        logger.exception("Determine Reps Cypher Exception")
+    address = pleb.get_address()
+    if address is None:
         return False
     pleb_state = address.state
     pleb_district = int(address.congressional_district)

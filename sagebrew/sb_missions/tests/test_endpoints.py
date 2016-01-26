@@ -26,11 +26,8 @@ class MissionEndpointTests(APITestCase):
         db.cypher_query(query)
         self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"
-        self.email2 = "success2@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
-        self.pleb2 = create_user_util_test(self.email2)
         self.user = User.objects.get(email=self.email)
-        self.user2 = User.objects.get(email=self.email2)
         for camp in self.pleb.campaign.all():
             camp.delete()
         self.url = "http://testserver"

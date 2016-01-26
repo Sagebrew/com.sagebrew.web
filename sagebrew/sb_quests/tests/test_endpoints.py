@@ -29,7 +29,7 @@ class QuestEndpointTests(APITestCase):
         db.cypher_query(query)
         self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"
-        self.email2 = "success2@simulator.amazonses.com"
+        self.email2 = "bounce@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
         self.pleb2 = create_user_util_test(self.email2)
         self.user = User.objects.get(email=self.email)

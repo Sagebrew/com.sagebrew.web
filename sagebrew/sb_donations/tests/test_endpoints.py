@@ -21,12 +21,12 @@ class DonationEndpointTests(APITestCase):
         self.unit_under_test_name = 'goal'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
         create_user_util_test(self.email2)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         self.donation = Donation(completed=False, amount=1000,
                                  owner_username=self.user.username).save()
@@ -195,6 +195,7 @@ class DonationEndpointTests(APITestCase):
 
     def test_delete_not_owner(self):
         self.client.force_authenticate(user=self.user2)
+        self.donation.owned_by.connect(self.pleb2)
         url = reverse('donation-detail',
                       kwargs={'object_uuid': self.donation.object_uuid})
         response = self.client.delete(url, data={}, format='json')

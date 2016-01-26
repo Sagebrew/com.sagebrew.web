@@ -1,14 +1,10 @@
 import stripe
 import datetime
-import shortuuid
-from uuid import uuid1
 
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
-
-from neomodel import DoesNotExist
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -17,8 +13,6 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_donations.neo_models import Donation
-from sb_missions.neo_models import Mission
-from sb_quests.neo_models import Quest
 
 
 class DonationEndpointTests(APITestCase):

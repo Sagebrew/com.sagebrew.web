@@ -110,17 +110,3 @@ class MissionViewSet(viewsets.ModelViewSet):
             return httpresponse
         except IndexError:
             pass
-        newfile = NamedTemporaryFile(suffix='.csv', delete=False)
-        newfile.name = "quest_donations.csv"
-        dict_writer = csv.DictWriter(newfile, keys)
-        dict_writer.writeheader()
-        dict_writer.writerows(donation_info)
-        # the HttpResponse use here allows us to do an automatic download
-        # upon hitting the button
-        newfile.seek(0)
-        wrapper = FileWrapper(newfile)
-        httpresponse = HttpResponse(wrapper,
-                                    content_type="text/csv")
-        httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
-                                              % newfile.name
-        return httpresponse

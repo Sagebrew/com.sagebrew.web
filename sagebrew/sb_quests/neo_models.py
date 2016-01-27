@@ -273,7 +273,7 @@ class Quest(Searchable):
         return public_official
 
     def get_total_donation_amount(self):
-        query = 'MATCH (c:Mission {object_uuid:"%s"})<-' \
+        query = 'MATCH (c:Quest {object_uuid:"%s"})<-' \
                 '[:CONTRIBUTED_TO]-(d:Donation) RETURN sum(d.amount)' % (
                     self.object_uuid)
         res, _ = db.cypher_query(query)

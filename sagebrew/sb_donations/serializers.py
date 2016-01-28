@@ -22,6 +22,7 @@ class DonationSerializer(SBSerializer):
     amount = serializers.IntegerField(required=True)
     owner_username = serializers.CharField(read_only=True)
     payment_method = serializers.CharField(write_only=True, allow_null=True)
+
     mission_type = serializers.ChoiceField(read_only=True, choices=[
         ('position', "Public Office"), ('advocacy', "Advocacy"),
         ('question', "Question")])
@@ -87,12 +88,13 @@ class DonationSerializer(SBSerializer):
         quest_desc = quest.title \
             if quest.title else "%s %s" % (quest.first_name, quest.last_name)
         mission_desc = mission.title \
-            if mission.title else mission.focus_name_formatted
+            if mission.title else mission.focus_name.title().\
+            replace('-', ' ').replace('_', ' ')
         description = "Donation to %s's mission for %s" % (quest_desc,
                                                            mission_desc)
         payment_method = payment_method if payment_method is not None \
             else donor.stripe_default_card_id
-        stripe.Charge.create(
+        stripe_res = stripe.Charge.create(
             customer=donor.stripe_customer_id,
             amount=donation.amount,
             currency="usd",
@@ -104,6 +106,7 @@ class DonationSerializer(SBSerializer):
                 (donation.amount * (quest.application_fee +
                                     settings.STRIPE_TRANSACTION_PERCENT)) + 30)
         )
+        donation.stripe_charge_id = stripe_res['id']
         donation.completed = True
         donation.save()
         cache.delete("%s_total_donated" % mission.object_uuid)

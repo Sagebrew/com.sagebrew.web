@@ -128,7 +128,7 @@ class Mission(Searchable):
                 mission = cls.inflate(res[0][0])
                 cache.set("%s_mission" % object_uuid, mission)
             except IndexError:
-                raise DoesNotExist("Quest does not exist")
+                raise DoesNotExist("Mission does not exist")
         return mission
 
     @classmethod
@@ -179,7 +179,7 @@ class Mission(Searchable):
         editors = cache.get("%s_editors" % quest.owner_username)
         if editors is None:
             query = 'MATCH (quest:Quest {owner_username: "%s"})<-' \
-                    '[:EDITOR_OF]-(pleb:pleb) ' \
+                    '[:EDITOR_OF]-(pleb:Pleb) ' \
                     'RETURN pleb.username' % owner_username
             res, col = db.cypher_query(query)
             editors = [row[0] for row in res]
@@ -193,7 +193,7 @@ class Mission(Searchable):
         moderators = cache.get("%s_moderators" % quest.owner_username)
         if moderators is None:
             query = 'MATCH (quest:Quest {owner_username: "%s"})<-' \
-                    '[:MODERATOR_OF]-(pleb:pleb) ' \
+                    '[:MODERATOR_OF]-(pleb:Pleb) ' \
                     'RETURN pleb.username' % owner_username
             res, col = db.cypher_query(query)
             moderators = [row[0] for row in res]
@@ -202,10 +202,11 @@ class Mission(Searchable):
 
     @classmethod
     def get_donations(cls, object_uuid):
+        from sb_donations.neo_models import Donation
         query = 'MATCH (c:Mission {object_uuid:"%s"})<-' \
                 '[:CONTRIBUTED_TO]-(d:Donation) RETURN d' % object_uuid
         res, _ = db.cypher_query(query)
-        return [donation[0] for donation in res]
+        return [Donation.inflate(donation[0]) for donation in res]
 
     def get_mission_title(self):
         if self.title:

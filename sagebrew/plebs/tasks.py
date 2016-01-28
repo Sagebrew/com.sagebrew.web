@@ -69,7 +69,7 @@ def update_address_location(object_uuid):
                 '(l:Location) DELETE r' % object_uuid
         db.cypher_query(query)
         query = 'MATCH (s:Location {name:"%s"})-[:ENCOMPASSES]->' \
-                '(d:Location {name:"%s"}) RETURN d' % \
+                '(d:Location {name:"%s", sector:"federal"}) RETURN d' % \
                 (state, district)
         res, _ = db.cypher_query(query)
         if res.one is not None:

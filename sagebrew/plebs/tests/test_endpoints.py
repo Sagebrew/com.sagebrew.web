@@ -2816,6 +2816,9 @@ class AddressEndpointTests(APITestCase):
         }
         temp_loc = Location(name=data['city']).save()
         state = Location(name="Michigan").save()
+        district = Location(name="11", sector="federal").save()
+        state.encompasses.connect(district)
+        district.encompassed_by.connect(state)
         temp_loc.encompassed_by.connect(state)
         state.encompasses.connect(temp_loc)
         response = self.client.post(url, data=data, format='json')
@@ -2832,8 +2835,6 @@ class AddressEndpointTests(APITestCase):
                     response.data['object_uuid'])
         res, col = db.cypher_query(query)
         self.assertEqual(Pleb.inflate(res[0][0]).username, self.user.username)
-        temp_loc.delete()
-        state.delete()
 
     def test_update(self):
         self.client.force_authenticate(user=self.user)
@@ -2876,7 +2877,7 @@ class AddressEndpointTests(APITestCase):
         url = reverse('address-detail', kwargs={
             'object_uuid': self.address.object_uuid})
         state = Location(name="Michigan").save()
-        district = Location(name="10").save()
+        district = Location(name="10", sector="federal").save()
         state.encompasses.connect(district)
         district.encompassed_by.connect(state)
         data = {

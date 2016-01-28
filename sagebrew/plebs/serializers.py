@@ -382,7 +382,6 @@ class AddressSerializer(SBSerializer):
         address.owned_by.connect(pleb)
         pleb.address.connect(address)
         pleb.completed_profile_info = True
-        pleb.determine_reps()
         pleb.save()
         pleb.refresh()
         cache.set(pleb.username, pleb)

@@ -1,4 +1,3 @@
-import time
 from uuid import uuid1
 
 from rest_framework import status

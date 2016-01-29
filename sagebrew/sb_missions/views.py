@@ -91,6 +91,8 @@ def mission_updates(request, object_uuid, slug=None):
     try:
         mission_obj = Mission.get(object_uuid)
     except (Mission.DoesNotExist, DoesNotExist):
+        # Do we need this exception? If the Mission doesn't exist the quest
+        # query wont return a quest and the subsequent would fail as well.
         return redirect("404_Error")
     except (CypherException, ClientError, IOError):
         return redirect("500_Error")

@@ -1,3 +1,4 @@
+import time
 from uuid import uuid1
 
 from rest_framework import status
@@ -46,6 +47,14 @@ class QuestViewTests(TestCase):
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
+    def test_quest_about_is_none(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('quest', kwargs={'username': self.user.username})
+        self.quest.about = None
+        self.quest.save()
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
     def test_quest_about_is_not_none(self):
         self.client.login(username=self.user.username, password=self.password)
         url = reverse('quest', kwargs={'username': self.user.username})
@@ -59,3 +68,12 @@ class QuestViewTests(TestCase):
                       kwargs={'username': self.user.username})
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_settings_no_quest(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('quest_manage_settings',
+                      kwargs={'username': self.user.username})
+        for quest in self.pleb.quest.all():
+            quest.delete()
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)

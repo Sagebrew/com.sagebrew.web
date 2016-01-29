@@ -13,7 +13,7 @@ from neomodel import db
 from elasticsearch import Elasticsearch, TransportError
 
 from sb_privileges.neo_models import SBAction, Privilege
-from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb, Address
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
@@ -302,6 +302,168 @@ class QuestEndpointTests(APITestCase):
         response = self.client.put(url, data=data, format='json')
 
         self.assertEqual(response.data['profile_pic'], data['profile_pic'])
+
+    def test_update_ssn_not_none(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "ssn": "000-00-0000"
+        }
+        response = self.client.put(url, data=data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_title_not_none(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "title": " "
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertIsNone(response.data['title'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_customer_token(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        stripe_res = stripe.Token.create(
+            bank_account={
+                "country": "US",
+                "currency": "usd",
+                "name": "Test Test",
+                "routing_number": "110000000",
+                "account_number": "000123456789",
+                "account_holder_type": "company"
+            }
+        )
+        data = {
+            "customer_token": stripe_res['id']
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_customer_token_exists(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        stripe_res = stripe.Token.create(
+            card={
+                "exp_year": 2020,
+                "exp_month": 02,
+                "number": "4242424242424242",
+                "currency": "usd",
+                "cvc": 123,
+                "name": "Test Test"
+            }
+        )
+        customer = stripe.Customer.create(
+            description="Customer for %s Quest" % self.quest.object_uuid,
+            card=stripe_res['id'],
+            email=self.pleb.email
+        )
+        stripe_res = stripe.Token.create(
+            card={
+                "exp_year": 2020,
+                "exp_month": 02,
+                "number": "4242424242424242",
+                "currency": "usd",
+                "cvc": 123,
+                "name": "Test Test"
+            }
+        )
+        self.quest.stripe_customer_id = customer['id']
+        self.quest.save()
+        data = {
+            "customer_token": stripe_res['id']
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_paid(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        stripe_res = stripe.Token.create(
+            card={
+                "exp_year": 2020,
+                "exp_month": 02,
+                "number": "4242424242424242",
+                "currency": "usd",
+                "cvc": 123,
+                "name": "Test Test"
+            }
+        )
+        data = {
+            "customer_token": stripe_res['id'],
+            "account_type": "paid"
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.quest.refresh()
+        self.assertIsNotNone(self.quest.stripe_subscription_id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        customer = stripe.Customer.retrieve(self.quest.stripe_customer_id)
+        customer.delete()
+
+    def test_update_free(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        stripe_res = stripe.Token.create(
+            bank_account={
+                "country": "US",
+                "currency": "usd",
+                "name": "Test Test",
+                "routing_number": "110000000",
+                "account_number": "000123456789",
+                "account_holder_type": "company"
+            }
+        )
+        data = {
+            "customer_token": stripe_res['id'],
+            "account_type": "free"
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.quest.refresh()
+        self.assertIsNone(self.quest.stripe_subscription_id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        customer = stripe.Customer.retrieve(self.quest.stripe_customer_id)
+        customer.delete()
+
+    def test_stripe_token(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        address = Address(street="125 Glenwood Drive",
+                          city="Walled Lake",
+                          state="Michigan",
+                          postal_code="48390",
+                          country="USA",
+                          county="Oakland",
+                          congressional_district=11,
+                          validated=True).save()
+        self.pleb.address.connect(address)
+        stripe_res = stripe.Token.create(
+            bank_account={
+                "country": "US",
+                "currency": "usd",
+                "name": "Test Test",
+                "routing_number": "110000000",
+                "account_number": "000123456789",
+                "account_holder_type": "company"
+            }
+        )
+        data = {
+            "stripe_token": stripe_res['id'],
+            "ssn": "000000000",
+            "ein": "000000000"
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.quest.refresh()
+        self.assertEqual(self.quest.last_four_soc, "0000")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_moderators(self):
         self.client.force_authenticate(user=self.user)

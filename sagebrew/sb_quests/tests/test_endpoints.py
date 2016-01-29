@@ -18,6 +18,7 @@ from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
 from sb_donations.neo_models import Donation
+from sb_updates.neo_models import Update
 
 from sb_quests.neo_models import Quest, Position
 from sb_quests.serializers import QuestSerializer
@@ -160,6 +161,56 @@ class QuestEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_delete(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        stripe_res = stripe.Token.create(
+            card={
+                "exp_year": 2020,
+                "exp_month": 02,
+                "number": "4242424242424242",
+                "currency": "usd",
+                "cvc": 123,
+                "name": "Test Test"
+            }
+        )
+        customer = stripe.Customer.create(
+            description="Customer for %s Quest" % self.quest.object_uuid,
+            card=stripe_res['id'],
+            email=self.pleb.email
+        )
+        account_token = stripe.Token.create(
+            bank_account={
+                "country": "US",
+                "currency": "usd",
+                "name": "Test Test",
+                "routing_number": "110000000",
+                "account_number": "000123456789",
+                "account_holder_type": "company"
+            }
+        )
+        account_res = stripe.Account.create(
+            managed=True,
+            country="US",
+            email=self.pleb.email
+        )
+        account = stripe.Account.retrieve(account_res['id'])
+        account.external_accounts.create(external_account=account_token['id'])
+        sub = customer.subscriptions.create(plan='quest_premium')
+        self.quest.stripe_customer_id = customer['id']
+        self.quest.account_type = "paid"
+        self.quest.stripe_subscription_id = sub['id']
+        self.quest.stripe_id = account_res['id']
+        self.quest.save()
+        cache.clear()
+        response = self.client.delete(url)
+        mission = Mission(title=str(uuid1())).save()
+        self.quest.missions.connect(mission)
+        update = Update().save()
+        self.quest.updates.connect(update)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
 
     def test_update_take_quest_active(self):
         self.client.force_authenticate(user=self.user)

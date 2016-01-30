@@ -26,7 +26,7 @@ class UpdateSerializer(TitledContentSerializer):
     about_type = serializers.ChoiceField(choices=[
         ('mission', "Mission"), ('quest', "Quest"), ('seat', "Seat"),
         ('goal', "Goal")])
-    about_id = serializers.CharField(min_length=36, max_length=36)
+    about_id = serializers.CharField(min_length=2, max_length=36)
     about = serializers.SerializerMethodField()
 
     def create(self, validated_data):
@@ -55,8 +55,15 @@ class UpdateSerializer(TitledContentSerializer):
             goal = Goal.inflate(res.one)
             update.goals.connect(goal)
             goal.updates.connect(update)
+        # moved url generation into the if because we currently don't have a
+        # way to view just a quests updates
+        # TODO view quest updates only
+        url = ""
         if about_type == 'mission':
             update.mission.connect(about)
+            url = reverse('mission_updates',
+                           kwargs={'object_uuid': about.object_uuid,
+                                   'slug': slugify(about.get_mission_title())})
         elif about_type == 'quest':
             update.quest.connect(about)
         cache.delete("%s_updates" % quest.object_uuid)
@@ -65,9 +72,7 @@ class UpdateSerializer(TitledContentSerializer):
             "to_plebs": quest.get_followers(),
             "from_pleb": request.user.username,
             "notification_id": str(uuid1()),
-            "url": reverse('mission_updates',
-                           kwargs={'object_uuid': about.object_uuid,
-                                   'slug': slugify(about.get_mission_title())}),
+            "url": url,
             "action_name": "%s %s has made an Update on a Quest you follow!" %
                            (request.user.first_name, request.user.last_name),
             "public": True
@@ -87,8 +92,16 @@ class UpdateSerializer(TitledContentSerializer):
         return Update.get_goals(obj.object_uuid)
 
     def get_url(self, obj):
+        # removed this currently because this view doesn't exist
+        # TODO create view to display quest updates
+        """
+        elif obj.about_type == "quest":
+            about = Quest.get(obj.about_id)
+            return reverse('quest_updates',
+                           kwargs={'object_uuid': about.owner_username},
+                           request=request)
+        """
         from sb_missions.neo_models import Mission
-        from sb_quests.neo_models import Quest
         request, _, _, _, _ = gather_request_data(self.context)
         if obj.about_type == "mission":
             about = Mission.get(obj.about_id)
@@ -96,12 +109,9 @@ class UpdateSerializer(TitledContentSerializer):
                            kwargs={'object_uuid': about.object_uuid,
                                    'slug': slugify(about.get_mission_title())},
                            request=request)
-        elif obj.about_type == "quest":
-            about = Quest.get(obj.about_id)
-            return reverse('quest_updates',
-                           kwargs={'object_uuid': about.one}, request=request)
         else:
             return None
+
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(

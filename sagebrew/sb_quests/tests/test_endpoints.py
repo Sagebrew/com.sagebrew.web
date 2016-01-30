@@ -653,6 +653,24 @@ class QuestEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_update_create(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('update-list',
+                      kwargs={'object_uuid': self.quest.owner_username}) \
+              + "?about_type=quest"
+        self.quest.moderators.connect(self.pleb)
+        self.quest.editors.connect(self.pleb)
+        cache.clear()
+        data = {
+            'title': str(uuid1()),
+            'content': str(uuid1()),
+            'about_type': 'quest',
+            'about_id': self.quest.owner_username
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(data['title'], response.data['title'])
+
 
 class PositionEndpointTests(APITestCase):
     def setUp(self):

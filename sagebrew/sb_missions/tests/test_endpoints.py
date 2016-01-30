@@ -16,6 +16,7 @@ from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
 from sb_donations.neo_models import Donation
+from sb_updates.neo_models import Update
 
 from sb_quests.neo_models import Quest, Position
 
@@ -680,3 +681,49 @@ class MissionEndpointTests(APITestCase):
         donation = Donation.nodes.get(object_uuid=response.data['id'])
         self.assertEqual(donation.amount, data['amount'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_donation_get(self):
+        donation = Donation(amount=300).save()
+        donation.mission.connect(self.mission)
+        url = "/v1/missions/%s/donations/" % self.mission.object_uuid
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(donation.object_uuid,
+                         response.data['results'][0]['id'])
+
+    def test_donation_get_unauthorized(self):
+        donation = Donation(amount=300).save()
+        donation.mission.connect(self.mission)
+        url = "/v1/missions/%s/donations/" % self.mission.object_uuid
+        self.quest.moderators.disconnect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_update_create(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('update-list',
+                      kwargs={'object_uuid': self.mission.object_uuid}) \
+              + '?about_type=mission'
+        data = {
+            'title': str(uuid1()),
+            'content': str(uuid1()),
+            'about_type': 'mission',
+            'about_id': self.mission.object_uuid
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(data['title'], response.data['title'])
+
+    def test_update_render(self):
+        self.client.force_authenticate(user=self.user)
+        update = Update(title=str(uuid1()),
+                        content=str(uuid1())).save()
+        update.mission.connect(self.mission)
+        url = reverse('update-render',
+                      kwargs={'object_uuid': self.mission.object_uuid}) \
+              + "?about_type=mission"
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(update.object_uuid, response.data['results']['ids'])

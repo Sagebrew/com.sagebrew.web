@@ -712,8 +712,8 @@ class MissionEndpointTests(APITestCase):
     def test_update_create(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('update-list',
-                      kwargs={'object_uuid': self.mission.object_uuid}) \
-              + '?about_type=mission'
+                      kwargs={'object_uuid': self.mission.object_uuid}) + \
+            '?about_type=mission'
         data = {
             'title': str(uuid1()),
             'content': str(uuid1()),
@@ -730,8 +730,8 @@ class MissionEndpointTests(APITestCase):
                         content=str(uuid1())).save()
         update.mission.connect(self.mission)
         url = reverse('update-render',
-                      kwargs={'object_uuid': self.mission.object_uuid}) \
-              + "?about_type=mission"
+                      kwargs={'object_uuid': self.mission.object_uuid}) + \
+            "?about_type=mission"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(update.object_uuid, response.data['results']['ids'])

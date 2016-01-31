@@ -62,8 +62,8 @@ class UpdateSerializer(TitledContentSerializer):
         if about_type == 'mission':
             update.mission.connect(about)
             url = reverse('mission_updates',
-                           kwargs={'object_uuid': about.object_uuid,
-                                   'slug': slugify(about.get_mission_title())})
+                          kwargs={'object_uuid': about.object_uuid,
+                                  'slug': slugify(about.get_mission_title())})
         elif about_type == 'quest':
             update.quest.connect(about)
         cache.delete("%s_updates" % quest.object_uuid)
@@ -111,7 +111,6 @@ class UpdateSerializer(TitledContentSerializer):
                            request=request)
         else:
             return None
-
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(

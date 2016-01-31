@@ -673,8 +673,8 @@ class QuestEndpointTests(APITestCase):
     def test_update_create(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('update-list',
-                      kwargs={'object_uuid': self.quest.owner_username}) \
-              + "?about_type=quest"
+                      kwargs={'object_uuid': self.quest.owner_username}) + \
+            "?about_type=quest"
         self.quest.moderators.connect(self.pleb)
         self.quest.editors.connect(self.pleb)
         cache.clear()

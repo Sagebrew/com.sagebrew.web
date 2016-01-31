@@ -2,14 +2,10 @@ from django.conf.urls import patterns, url
 
 from sb_donations.views import DonationQuestView
 
-from .views import (quest, QuestSettingsView, saga)
+from .views import (quest, QuestSettingsView)
 
 urlpatterns = patterns(
     'sb_quests.views',
-    # DEPRECATED
-    url(r'^/deprecated/(?P<username>[A-Za-z0-9.@_%+-]{2,36})/$', saga,
-        name='quest_saga'),
-
     # Donate
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/'
         r'donate/choose/$', DonationQuestView.as_view(

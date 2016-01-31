@@ -70,16 +70,6 @@
                                       rows="8"
                                       placeholder="Update Content">{{ content }}</textarea>
                         </div>
-                    {% if not 'edit' in request.path %}
-                        <div class="row">
-                            <div class="col-xs-12">
-                                <input type="text" id="goal-selector"
-                                       placeholder="Goal titles you want this updated to correspond to"
-                                       class="form-control input-md"
-                                       value="">
-                            </div>
-                        </div>
-                    {% endif %}
                     <div id="validation_errors"></div>
                         {% comment %}
                         TODO determine if this and other "buttons" need to be a tags

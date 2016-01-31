@@ -23,7 +23,7 @@ logger = logging.getLogger('loggly_logs')
 
 @shared_task()
 def update_search_query(pleb, query_param, keywords):
-    '''
+    """
     This task creates a search query node then calls the task to create and
     attach keyword nodes to the search query node
 
@@ -31,7 +31,7 @@ def update_search_query(pleb, query_param, keywords):
     :param query_param:
     :param keywords:
     :return:
-    '''
+    """
     try:
         try:
             pleb = Pleb.get(username=pleb)
@@ -73,14 +73,14 @@ def update_search_query(pleb, query_param, keywords):
 
 @shared_task()
 def create_keyword(text, relevance, query_param):
-    '''
+    """
     This function takes
 
     :param text:
     :param relevance:
     :param query_param:
     :return:
-    '''
+    """
     try:
         try:
             search_query = SearchQuery.nodes.get(search_query=query_param)
@@ -117,6 +117,8 @@ def update_search_object(object_uuid, instance=None, object_data=None,
     from sb_missions.serializers import MissionSerializer
     from sb_questions.serializers import QuestionSerializerNeo
     from sb_base.neo_models import get_parent_votable_content
+    logger.critical("Updating Search Object")
+    logger.critical({"object_uuid": object_uuid})
     if instance is None:
         votable = get_parent_votable_content(object_uuid)
         label = votable.get_child_label()

@@ -1,9 +1,6 @@
-from django.core.cache import cache
 from localflavor.us.us_states import US_STATES
 
 from rest_framework import serializers
-
-from neomodel import db
 
 from api.serializers import SBSerializer
 

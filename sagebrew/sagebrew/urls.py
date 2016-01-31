@@ -121,6 +121,7 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_locations.apis.v1')),
     (r'^v1/', include('sb_council.apis.v1')),
     (r'^v1/', include('sb_search.apis.v1')),
+    (r'^v1/', include('sb_accounting.apis.v1')),
     url(r'^$', signup_view, name="signup"),
 )
 

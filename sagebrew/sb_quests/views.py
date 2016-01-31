@@ -58,6 +58,7 @@ class QuestSettingsView(LoginRequiredMixin):
                 return redirect("404_Error")
         except(CypherException, ClientError):
             return redirect("500_Error")
+        res.one.pull()
         quest_obj = Quest.inflate(res.one)
         quest_ser = QuestSerializer(quest_obj,
                                     context={'request': request}).data

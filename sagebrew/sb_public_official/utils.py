@@ -8,7 +8,7 @@ from .neo_models import PublicOfficial
 def determine_reps(pleb):
     # Remove all existing relationships with pleb
     query = 'MATCH (pleb:Pleb {username: "%s"}) ' \
-            'WITH pleb' \
+            'WITH pleb ' \
             'OPTIONAL MATCH (pleb)-[senators:HAS_SENATOR]->' \
             '(:PublicOfficial) WITH pleb, senators ' \
             'OPTIONAL MATCH (pleb)-[house_reps:HAS_HOUSE_REPRESENTATIVE]' \

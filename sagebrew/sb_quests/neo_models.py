@@ -139,18 +139,18 @@ class Quest(Searchable):
 
     @classmethod
     def get(cls, owner_username):
-        campaign = cache.get("%s_quest" % owner_username)
-        if campaign is None:
+        quest = cache.get("%s_quest" % owner_username)
+        if quest is None:
             query = 'MATCH (c:Quest {owner_username: "%s"}) RETURN c' % \
                     owner_username
-            res, col = db.cypher_query(query)
-            try:
-                campaign = cls.inflate(res[0][0])
-                cache.set("%s_quest" % owner_username, campaign)
-                return campaign
-            except IndexError:
+            res, _ = db.cypher_query(query)
+            if res.one:
+                res.one.pull()
+                quest = cls.inflate(res.one)
+                cache.set("%s_quest" % owner_username, quest)
+            else:
                 raise DoesNotExist("Quest does not exist")
-        return campaign
+        return quest
 
     @classmethod
     def get_editors(cls, owner_username):
@@ -283,11 +283,12 @@ class Position(SBObject):
         if position is None:
             query = 'MATCH (p:`Position` {object_uuid:"%s"}) RETURN p' % \
                     object_uuid
-            res, col = db.cypher_query(query)
-            try:
-                position = Position.inflate(res[0][0])
+            res, _ = db.cypher_query(query)
+            if res.one:
+                res.one.pull()
+                position = Position.inflate(res.one)
                 cache.set(object_uuid, position)
-            except IndexError:
+            else:
                 position = None
         return position
 

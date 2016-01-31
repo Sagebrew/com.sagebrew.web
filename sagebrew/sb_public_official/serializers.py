@@ -69,15 +69,5 @@ class PublicOfficialSerializer(SBSerializer):
         from sb_quests.serializers import QuestSerializer
         # We use object_uuid here instead of owner_username as none of the
         # public officials have a owner
-        quest = cache.get('%s_quest' % obj.object_uuid)
-        if quest is None:
-            query = 'MATCH (o:PublicOfficial {object_uuid: "%s"})-' \
-                    '[:IS_HOLDING]->(quest:Quest) ' \
-                    'RETURN quest' % obj.object_uuid
-            res, _ = db.cypher_query(query)
-            if res.one:
-                cache.set('%s_quest' % obj.object_uuid, quest)
-            quest = res.one
-        if quest is not None:
-            quest = QuestSerializer(Quest.inflate(quest)).data
-        return quest
+        return QuestSerializer(
+            Quest.get(owner_username=obj.object_uuid)).data

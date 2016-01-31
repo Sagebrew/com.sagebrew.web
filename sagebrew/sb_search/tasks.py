@@ -33,14 +33,15 @@ def update_search_query(pleb, query_param, keywords):
     :return:
     """
     try:
-        try:
-            pleb = Pleb.nodes.get(username=pleb)
-        except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
-            raise update_search_query.retry(exc=e, countdown=3,
-                                            max_retries=None)
-        except(CypherException, IOError) as e:
-            raise update_search_query.retry(exc=e, countdown=3,
-                                            max_retries=None)
+        res, _ = db.cypher_query("MATCH (a:%s {username:'%s'}) RETURN a" % pleb)
+        if res.one:
+            res.one.pull()
+            pleb = Pleb.inflate(res.one)
+        else:
+            raise update_search_query.retry(
+                exc=DoesNotExist("Profile with username: "
+                                 "%s does not exist" % pleb), countdown=3,
+                max_retries=None)
         search_query = SearchQuery.nodes.get(search_query=query_param)
         if pleb.searches.is_connected(search_query):
             rel = pleb.searches.relationship(search_query)

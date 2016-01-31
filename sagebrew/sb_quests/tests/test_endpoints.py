@@ -205,12 +205,27 @@ class QuestEndpointTests(APITestCase):
         self.quest.stripe_id = account_res['id']
         self.quest.save()
         cache.clear()
-        response = self.client.delete(url)
         mission = Mission(title=str(uuid1())).save()
         self.quest.missions.connect(mission)
         update = Update().save()
         self.quest.updates.connect(update)
+        response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        try:
+            Quest.nodes.get(owner_username=self.pleb.username)
+            self.assertTrue(False)
+        except Quest.DoesNotExist:
+            self.assertTrue(True)
+        try:
+            Mission.nodes.get(object_uuid=mission.object_uuid)
+            self.assertTrue(False)
+        except Mission.DoesNotExist:
+            self.assertTrue(True)
+        try:
+            Update.nodes.get(object_uuid=update.object_uuid)
+            self.assertTrue(False)
+        except Update.DoesNotExist:
+            self.assertTrue(True)
 
     def test_update_take_quest_active(self):
         self.client.force_authenticate(user=self.user)
@@ -381,13 +396,13 @@ class QuestEndpointTests(APITestCase):
         url = reverse('quest-detail',
                       kwargs={'owner_username': self.quest.owner_username})
         stripe_res = stripe.Token.create(
-            bank_account={
-                "country": "US",
+            card={
+                "exp_year": 2020,
+                "exp_month": 02,
+                "number": "4242424242424242",
                 "currency": "usd",
-                "name": "Test Test",
-                "routing_number": "110000000",
-                "account_number": "000123456789",
-                "account_holder_type": "company"
+                "cvc": 123,
+                "name": "Test Test"
             }
         )
         data = {
@@ -395,6 +410,8 @@ class QuestEndpointTests(APITestCase):
         }
         response = self.client.put(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.quest.refresh()
+        self.assertIsNotNone(self.quest.stripe_customer_id)
 
     def test_update_customer_token_exists(self):
         self.client.force_authenticate(user=self.user)

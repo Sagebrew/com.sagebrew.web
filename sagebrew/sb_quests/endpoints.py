@@ -117,7 +117,8 @@ class QuestViewSet(viewsets.ModelViewSet):
             [cache.delete("%s_mission" % mission) for mission in res.one]
         # Delete all missions associated with the Quest
         query = 'MATCH (:Quest {owner_username: "%s"})-[r:EMBARKS_ON]->' \
-                '(mission:Mission)-[r2]-() ' \
+                '(mission:Mission) WITH mission, r ' \
+                'OPTIONAL MATCH (mission)-[r2]-() ' \
                 'DELETE r, r2, mission' % instance.owner_username
         db.cypher_query(query)
         # Delete all updates associated with the Quest

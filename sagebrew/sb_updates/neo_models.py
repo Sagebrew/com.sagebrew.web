@@ -1,6 +1,5 @@
-from neomodel import (db, RelationshipTo, StringProperty)
+from neomodel import (RelationshipTo, StringProperty)
 
-from api.utils import deprecation
 from sb_base.neo_models import TitledContent
 
 

@@ -23,7 +23,7 @@ from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
 
-from .neo_models import Pleb, BetaUser, OauthUser, Address
+from .neo_models import Pleb, OauthUser, Address
 from .utils import create_friend_request_util
 
 

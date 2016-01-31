@@ -156,7 +156,7 @@ def update_search_object(object_uuid, instance=None, object_data=None,
             error_dict = {
                 "message": "Search False setup. "
                            "Object Data None, Instance not None",
-                "instance_label":  child_label,
+                "instance_label": child_label,
                 "instance_uuid": object_uuid,
             }
             logger.critical(error_dict)

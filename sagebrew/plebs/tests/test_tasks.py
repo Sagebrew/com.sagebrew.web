@@ -14,7 +14,7 @@ from sb_registration.utils import create_user_util_test
 from plebs.tasks import (create_wall_task,
                          finalize_citizen_creation, send_email_task,
                          create_friend_request_task,
-                         determine_pleb_reps, create_beta_user,
+                         determine_pleb_reps,
                          update_reputation, connect_to_state_districts)
 from sb_wall.neo_models import Wall
 

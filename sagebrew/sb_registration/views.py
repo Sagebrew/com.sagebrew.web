@@ -31,7 +31,7 @@ from .tasks import update_interests, store_address
 
 def signup_view(request):
     if request.user.is_authenticated() is True:
-        user_profile = Pleb.get(username=request.user.username)
+        user_profile = Pleb.nodes.get(username=request.user.username)
         if user_profile.completed_profile_info is True:
             return redirect('newsfeed')
         elif not user_profile.email_verified:
@@ -155,15 +155,12 @@ def login_view(request):
 
 @login_required()
 def resend_email_verification(request):
-    profile = cache.get(request.user.username)
-    if profile is None:
-        try:
-            profile = Pleb.nodes.get(username=request.user.username)
-            cache.set(request.user.username, profile)
-        except(Pleb.DoesNotExist, DoesNotExist):
-            return render(request, 'login.html')
-        except (CypherException, IOError):
-            return redirect('500_Error')
+    try:
+        profile = Pleb.nodes.get(username=request.user.username)
+    except(Pleb.DoesNotExist, DoesNotExist):
+        return render(request, 'login.html')
+    except (CypherException, IOError):
+        return redirect('500_Error')
 
     template_dict = {
         'full_name': request.user.get_full_name(),
@@ -234,12 +231,11 @@ def logout_view(request):
 @login_required()
 def email_verification(request, confirmation):
     try:
-        profile = Pleb.get(request.user.username)
+        profile = Pleb.nodes.get(request.user.username)
         if token_gen.check_token(request.user, confirmation, profile):
             profile.email_verified = True
             profile.save()
-            profile.refresh()
-            cache.set(profile.username, profile)
+            cache.delete(profile.username)
             return redirect('profile_info')
         else:
             return redirect('401_Error')
@@ -272,7 +268,7 @@ def profile_information(request):
     address_key = settings.ADDRESS_AUTH_ID
     address_information_form = AddressInfoForm(request.POST or None)
     try:
-        citizen = Pleb.get(request.user.username)
+        citizen = Pleb.nodes.get(request.user.username)
     except(Pleb.DoesNotExist, DoesNotExist):
         return render(request, 'login.html')
     except (CypherException, IOError):
@@ -292,8 +288,7 @@ def profile_information(request):
             try:
                 citizen.completed_profile_info = True
                 citizen.save()
-                citizen.refresh()
-                cache.set(citizen.username, citizen)
+                cache.delete(citizen.username)
             except (CypherException, IOError):
                 return redirect('500_Error')
             account_type = request.session.get('account_type')
@@ -357,15 +352,12 @@ def profile_picture(request):
     :param request:
     :return:
     """
-    profile = cache.get(request.user.username)
-    if profile is None:
-        try:
-            profile = Pleb.nodes.get(username=request.user.username)
-            cache.set(request.user.username, profile)
-        except(Pleb.DoesNotExist, DoesNotExist):
-            return render(request, 'login.html')
-        except (CypherException, IOError):
-            return redirect('500_Error')
+    try:
+        profile = Pleb.nodes.get(username=request.user.username)
+    except(Pleb.DoesNotExist, DoesNotExist):
+        return render(request, 'login.html')
+    except (CypherException, IOError):
+        return redirect('500_Error')
     profile_picture_form = ProfilePictureForm()
     return render(
         request, 'profile_picture.html',

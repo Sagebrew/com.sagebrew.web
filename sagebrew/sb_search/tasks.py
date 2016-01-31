@@ -133,6 +133,11 @@ def update_search_object(object_uuid, instance=None, object_data=None,
             # Currently we only need this functionality for Questions as
             # they are the only objects in search that we display votes
             # for in the search interface.
+            error_dict = {
+                "message": "Search: Question only false functionality",
+                "instance_uuid": object_uuid,
+            }
+            logger.critical(error_dict)
             return False
 
     if object_data is None and instance is not None:
@@ -146,6 +151,13 @@ def update_search_object(object_uuid, instance=None, object_data=None,
         elif child_label == 'pleb':
             object_data = PlebSerializerNeo(instance).data
         else:
+            error_dict = {
+                "message": "Search False setup. "
+                           "Object Data None, Instance not None",
+                "instance_label":  child_label,
+                "instance_uuid": object_uuid,
+            }
+            logger.critical(error_dict)
             return False
 
     try:
@@ -157,6 +169,12 @@ def update_search_object(object_uuid, instance=None, object_data=None,
         logger.exception("Failed to connect to Elasticsearch")
         raise update_search_object.retry(exc=e, countdown=5, max_retries=None)
     except KeyError:
+        error_dict = {
+            "message": "Search: KeyError False creation",
+            "instance_uuid": object_uuid,
+            "object_data": object_data
+        }
+        logger.critical(error_dict)
         return False
     try:
         if instance.search_id is None:

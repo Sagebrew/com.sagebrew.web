@@ -58,6 +58,5 @@ def determine_reps(username):
     cache.set("%s_senators" % username, senators)
     # Need this as neomodel does not currently support spawning post_save
     # after connections
-    pleb.refresh()
-    cache.set(pleb.username, pleb)
+    cache.delete(pleb.username)
     return True

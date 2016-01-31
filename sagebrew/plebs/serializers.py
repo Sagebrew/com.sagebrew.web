@@ -20,7 +20,8 @@ from sb_quests.neo_models import Quest
 
 from .neo_models import Address, Pleb, get_default_profile_pic
 from .tasks import (create_pleb_task, determine_pleb_reps,
-                    update_address_location)
+                    update_address_location, create_wall_task,
+                    generate_oauth_info)
 
 
 def generate_username(first_name, last_name):
@@ -231,10 +232,12 @@ class PlebSerializerNeo(SBSerializer):
             if quest_registration is not None:
                 request.session['account_type'] = quest_registration
                 request.session.set_expiry(1800)
-        spawn_task(task_func=create_pleb_task,
-                   task_param={
-                       "user_instance": user, "birthday": birthday,
-                       "password": validated_data['password']})
+        spawn_task(task_func=create_wall_task,
+                   task_param={"user_instance": user})
+        spawn_task(task_func=generate_oauth_info,
+                   task_param={'username': user.username,
+                               'password': validated_data['password']},
+                   countdown=20)
         return pleb
 
     def update(self, instance, validated_data):

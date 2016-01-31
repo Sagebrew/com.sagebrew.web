@@ -9,8 +9,7 @@ from neomodel import DoesNotExist
 from plebs.neo_models import Pleb
 
 from sb_registration.utils import create_user_util_test
-from sb_registration.tasks import (update_interests, store_address,
-                                   save_profile_picture)
+from sb_registration.tasks import (store_address, save_profile_picture)
 
 
 class TestUpdateInterestsTask(TestCase):
@@ -40,48 +39,6 @@ class TestUpdateInterestsTask(TestCase):
     def tearDown(self):
         self.fake_user.delete()
         settings.CELERY_ALWAYS_EAGER = False
-
-    def test_update_interest(self):
-        data = {
-            "username": self.pleb.username,
-            "interests": {
-                "fiscal": True,
-                "social": True,
-                "education": True
-            }
-        }
-        res = update_interests.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        self.assertTrue(res.result)
-
-    def test_update_tag_doesnt_exist(self):
-        data = {
-            "username": self.pleb.username,
-            "interests": {
-                "fiscal": True,
-                "social": True,
-                "this_tag_doesnt_exist": True
-            }
-        }
-        res = update_interests.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        self.assertTrue(res.result)
-
-    def test_update_interest_pleb_doesnt_exist(self):
-        data = {
-            "username": "this_username_doesnt_exist",
-            "interests": {
-                "fiscal": True,
-                "social": True,
-                "this_tag_doesnt_exist": True
-            }
-        }
-        res = update_interests.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        self.assertIsInstance(res.result, DoesNotExist)
 
 
 class TestStoreAddressTask(TestCase):

@@ -577,7 +577,7 @@ class Pleb(Searchable):
 
     def determine_reps(self):
         from sb_public_official.utils import determine_reps
-        return determine_reps(self.username)
+        return determine_reps(self)
 
     def get_donations(self):
         query = 'MATCH (p:Pleb {username: "%s"})-[:DONATIONS_GIVEN]->' \

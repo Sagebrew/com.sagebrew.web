@@ -1,3 +1,5 @@
+from localflavor.us.us_states import US_STATES
+
 from django.core.cache import cache
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -16,8 +18,8 @@ from rest_framework import status
 from neomodel import (DoesNotExist, CypherException, db)
 
 from api.utils import spawn_task
-from plebs.tasks import send_email_task
-from plebs.neo_models import Pleb
+from plebs.tasks import send_email_task, update_address_location
+from plebs.neo_models import Pleb, Address
 
 from sb_quests.serializers import QuestSerializer
 from .forms import (AddressInfoForm, InterestForm,
@@ -25,7 +27,6 @@ from .forms import (AddressInfoForm, InterestForm,
                     LoginForm)
 from .utils import (verify_completed_registration, verify_verified_email)
 from .models import token_gen
-from .tasks import update_interests, store_address
 
 
 def signup_view(request):
@@ -198,11 +199,26 @@ def profile_information(request):
         address_clean['country'] = 'USA'
         if(address_clean['valid'] == "valid" or
                 address_clean.get('original_selected', False) is True):
-            success = spawn_task(store_address,
-                                 {"username": request.user.username,
-                                  "address_clean": address_clean})
-            if isinstance(success, Exception):
-                return redirect('500_Error')
+            try:
+                state = dict(US_STATES)[address_clean['state']]
+            except KeyError:
+                return address_clean['state']
+            address = Address(street=address_clean['primary_address'],
+                              street_aditional=address_clean[
+                                  'street_additional'],
+                              city=address_clean['city'],
+                              state=state,
+                              postal_code=address_clean['postal_code'],
+                              latitude=address_clean['latitude'],
+                              longitude=address_clean['longitude'],
+                              congressional_district=address_clean[
+                                  'congressional_district'],
+                              county=address_clean['county']).save()
+            address.owned_by.connect(citizen)
+            citizen.address.connect(address)
+            citizen.determine_reps()
+            spawn_task(task_func=update_address_location,
+                       task_param={"object_uuid": address.object_uuid})
             try:
                 citizen.completed_profile_info = True
                 citizen.save()
@@ -245,11 +261,15 @@ def interests(request):
     if interest_form.is_valid():
         if "select_all" in interest_form.cleaned_data:
             interest_form.cleaned_data.pop('select_all', None)
-        data = {"username": request.user.username,
-                "interests": interest_form.cleaned_data}
-        success = spawn_task(update_interests, data)
-        if isinstance(success, Exception):
-            return redirect('500_Error')
+        queries = []
+        for key, value in interest_form.cleaned_data.iteritems():
+            query = 'MATCH (pleb:Pleb {username: "%s"}), ' \
+                    '(tag:Tag {name: "%s"}) ' \
+                    'CREATE UNIQUE (pleb)-[:INTERESTED_IN]->(tag) ' \
+                    'RETURN pleb' % (request.user.username, key.lower())
+            queries.append((query, {}))
+        db.cypher_batch_query(queries)
+        cache.delete(request.user.username)
         return redirect('profile_picture')
 
     return render(request, 'interests.html', {'interest_form': interest_form})

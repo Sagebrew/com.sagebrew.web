@@ -509,6 +509,15 @@ class MeViewSet(mixins.UpdateModelMixin,
     def get_queryset(self):
         return Pleb.get(self.request.user.username)
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = Pleb.nodes.get(username=request.user.username)
+        serializer = self.get_serializer(instance, data=request.data,
+                                         partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 

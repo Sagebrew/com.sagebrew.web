@@ -9,30 +9,6 @@ from neomodel import (DoesNotExist, AttemptedCardinalityViolation,
 from api.utils import spawn_task
 from plebs.tasks import update_address_location
 from plebs.neo_models import Pleb, Address
-from sb_tags.neo_models import Tag
-
-
-@shared_task()
-def update_interests(username, interests):
-    try:
-        citizen = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist) as e:
-        raise update_interests.retry(exc=e, countdown=3, max_retries=None)
-    except (CypherException, IOError) as e:
-        raise update_interests.retry(exc=e, countdown=3, max_retries=None)
-    for key, value in interests.iteritems():
-        if value is True or value != []:
-            try:
-                tag = Tag.nodes.get(name=key.lower())
-                citizen.interests.connect(tag)
-            except (Tag.DoesNotExist, DoesNotExist) as e:
-                raise update_interests.retry(exc=e, countdown=3,
-                                             max_retries=None)
-            except (CypherException, IOError) as e:
-                raise update_interests.retry(exc=e, countdown=3,
-                                             max_retries=None)
-    cache.delete(username)
-    return True
 
 
 @shared_task()
@@ -58,8 +34,7 @@ def store_address(username, address_clean):
                           longitude=address_clean['longitude'],
                           congressional_district=address_clean[
                               'congressional_district'],
-                          county=address_clean['county'])
-        address.save()
+                          county=address_clean['county']).save()
     except (CypherException, IOError) as e:
         raise store_address.retry(exc=e, countdown=3, max_retries=None)
 

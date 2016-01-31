@@ -46,7 +46,8 @@ def send_email_task(source, to, subject, html_content):
 def determine_pleb_reps(username):
     from sb_public_official.utils import determine_reps
     try:
-        result = determine_reps(username)
+        pleb = Pleb.nodes.get(username=username)
+        result = determine_reps(pleb)
         if result is False:
             raise Exception("Failed to determine reps")
         return result

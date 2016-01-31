@@ -351,10 +351,8 @@ class AddressSerializer(SBSerializer):
         pleb.address.connect(address)
         pleb.completed_profile_info = True
         pleb.save()
+        pleb.determine_reps()
         cache.delete(pleb.username)
-        spawn_task(task_func=determine_pleb_reps, task_param={
-            "username": self.context['request'].user.username,
-        })
         spawn_task(task_func=update_address_location,
                    task_param={"object_uuid": address.object_uuid})
         return address

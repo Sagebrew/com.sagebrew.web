@@ -261,13 +261,11 @@ def interests(request):
     if interest_form.is_valid():
         if "select_all" in interest_form.cleaned_data:
             interest_form.cleaned_data.pop('select_all', None)
-        queries = []
-        for key, value in interest_form.cleaned_data.iteritems():
-            query = 'MATCH (pleb:Pleb {username: "%s"}), ' \
-                    '(tag:Tag {name: "%s"}) ' \
-                    'CREATE UNIQUE (pleb)-[:INTERESTED_IN]->(tag) ' \
-                    'RETURN pleb' % (request.user.username, key.lower())
-            queries.append((query, {}))
+        queries = [('MATCH (pleb:Pleb {username: "%s"}), '
+                    '(tag:Tag {name: "%s"}) '
+                    'CREATE UNIQUE (pleb)-[:INTERESTED_IN]->(tag) '
+                    'RETURN pleb' % (request.user.username, key.lower()), {})
+                   for key, value in interest_form.cleaned_data.iteritems()]
         db.cypher_batch_query(queries)
         cache.delete(request.user.username)
         return redirect('profile_picture')

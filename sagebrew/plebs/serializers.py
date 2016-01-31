@@ -346,7 +346,7 @@ class AddressSerializer(SBSerializer):
             validated_data['country'] = "USA"
         address = Address(**validated_data).save()
         address.set_encompassing()
-        pleb = Pleb.nodes.get(request.user.username)
+        pleb = Pleb.nodes.get(username=request.user.username)
         address.owned_by.connect(pleb)
         pleb.address.connect(address)
         pleb.completed_profile_info = True

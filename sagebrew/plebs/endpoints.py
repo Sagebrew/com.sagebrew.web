@@ -937,7 +937,7 @@ class FriendManager(RetrieveUpdateDestroyAPIView):
 
     def destroy(self, request, *args, **kwargs):
         friend = self.get_object()
-        profile = Pleb.nodes.get(request.user.username)
+        profile = Pleb.nodes.get(username=request.user.username)
         # TODO: Change this to modifying the relationship manager rather than
         # just disconnecting
 

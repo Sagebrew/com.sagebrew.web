@@ -1,4 +1,3 @@
-from api.utils import deprecation
 from neomodel import (db, RelationshipTo, BooleanProperty, IntegerProperty,
                       StringProperty)
 

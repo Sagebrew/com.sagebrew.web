@@ -11,50 +11,12 @@ from api.utils import wait_util
 from plebs.neo_models import Pleb, Address
 from sb_locations.neo_models import Location
 from sb_registration.utils import create_user_util_test
-from plebs.tasks import (create_pleb_task, create_wall_task,
+from plebs.tasks import (create_wall_task,
                          finalize_citizen_creation, send_email_task,
                          create_friend_request_task,
                          determine_pleb_reps, create_beta_user,
                          update_reputation, connect_to_state_districts)
 from sb_wall.neo_models import Wall
-
-
-class TestCreatePlebTask(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        settings.CELERY_ALWAYS_EAGER = True
-        try:
-            pleb = Pleb.nodes.get(
-                email='suppressionlist@simulator.amazonses.com')
-            pleb.delete()
-            user = User.objects.get(
-                email='suppressionlist@simulator.amazonses.com')
-            user.delete()
-        except (Pleb.DoesNotExist, User.DoesNotExist):
-            self.fake_user = User.objects.create_user(
-                first_name='test', last_name='test',
-                email='suppressionlist@simulator.amazonses.com',
-                password='fakepass',
-                username='thisisafakeusername')
-            self.fake_user.save()
-
-    def tearDown(self):
-        self.fake_user.delete()
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_create_pleb_task_success_pleb_exists(self):
-        user_instance = User.objects.get(username=self.username)
-        task_data = {'user_instance': user_instance}
-
-        res = create_pleb_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-        self.assertFalse(isinstance(res.result, Exception))
 
 
 class TestCreateWallTask(TestCase):

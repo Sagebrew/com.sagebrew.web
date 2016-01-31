@@ -11,10 +11,10 @@ from api.utils import spawn_task
 from govtrack.neo_models import GTRole
 from govtrack.utils import populate_term_data
 from sb_search.tasks import update_search_object
-from sb_quests.neo_models import PoliticalCampaign
-from sb_quests.serializers import PoliticalCampaignSerializer
 
 from sb_public_official.neo_models import PublicOfficial
+from sb_quests.neo_models import Quest
+from sb_quests.serializers import QuestSerializer
 
 logger = getLogger('loggly_logs')
 
@@ -59,32 +59,31 @@ class Command(BaseCommand):
                 except (CypherException, IOError) as e:
                     logger.exception(e)
                     continue
-                camp = rep.get_campaign()
+                camp = rep.get_quest()
                 if not camp:
-                    camp = PoliticalCampaign(
-                        biography=rep.bio, youtube=rep.youtube,
+                    camp = Quest(
+                        about=rep.bio, youtube=rep.youtube,
                         twitter=rep.twitter, website=rep.website,
                         first_name=rep.first_name, last_name=rep.last_name,
                         profile_pic="%s/representative_images/225x275/"
                                     "%s.jpg" % (
                                         settings.LONG_TERM_STATIC_DOMAIN,
                                         rep.bioguideid)).save()
-                    camp.public_official.connect(rep)
-                    rep.campaign.connect(camp)
+                    rep.quest.connect(camp)
                 else:
                     camp.profile_pic = "%s/representative_images/225x275/" \
                                        "%s.jpg" % (
                                            settings.LONG_TERM_STATIC_DOMAIN,
                                            rep.bioguideid)
                     camp.save()
-                    cache.set('%s_campaign' % camp.object_uuid, camp)
+                    cache.set('%s_quest' % camp.object_uuid, camp)
                 rep.gt_person.connect(person)
                 rep.gt_role.connect(role)
                 camps.append(camp)
         populate_term_data()
         for campaign in camps:
             campaign.refresh()
-            rep_data = PoliticalCampaignSerializer(campaign).data
+            rep_data = QuestSerializer(campaign).data
             task_data = {
                 "object_uuid": rep_data['id'],
                 "instance": campaign,

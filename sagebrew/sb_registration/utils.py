@@ -12,7 +12,7 @@ from boto.s3.key import Key
 from neomodel import DoesNotExist, CypherException
 
 from api.utils import spawn_task
-from plebs.tasks import create_pleb_task
+from plebs.tasks import create_wall_task, generate_oauth_info
 from plebs.neo_models import Pleb
 from sb_base.decorators import apply_defense
 from sb_quests.neo_models import Campaign
@@ -192,51 +192,6 @@ def generate_username(first_name, last_name):
     return username
 
 
-@apply_defense
-def create_user_util(first_name, last_name, email, password, birthday):
-    """
-    DEPRECATED
-    Please use Profile serializer from now on. This function is no longer
-    necessary.
-    Functionality found in plebs/serializers.py
-    :param first_name:
-    :param last_name:
-    :param email:
-    :param password:
-    :param birthday:
-    :return:
-    """
-    try:
-        user = User.objects.get(email=email)
-        username = user.username
-    except User.DoesNotExist:
-        username = generate_username(first_name, last_name)
-        user = User.objects.create_user(first_name=first_name,
-                                        last_name=last_name,
-                                        email=email, password=password,
-                                        username=username)
-        user.save()
-    try:
-        Pleb.nodes.get(username=user.username)
-    except (Pleb.DoesNotExist, DoesNotExist):
-        try:
-            pleb = Pleb(email=user.email, first_name=user.first_name,
-                        last_name=user.last_name, username=user.username,
-                        date_of_birth=birthday)
-            pleb.save()
-        except(CypherException, IOError):
-            return False
-    except(CypherException, IOError):
-        raise False
-    res = spawn_task(task_func=create_pleb_task,
-                     task_param={"user_instance": user, "birthday": birthday,
-                                 "password": password})
-    if isinstance(res, Exception) is True:
-        return res
-    else:
-        return {"task_id": res, "username": username, "user": user}
-
-
 def create_user_util_test(email, first_name="test", last_name="test",
                           password="test_test", birthday=None, task=False):
     """
@@ -277,10 +232,12 @@ def create_user_util_test(email, first_name="test", last_name="test",
     except(CypherException, IOError):
         raise False
     if task:
-        res = spawn_task(task_func=create_pleb_task,
-                         task_param={"user_instance": user,
-                                     "birthday": birthday,
-                                     "password": password})
+        res = spawn_task(task_func=create_wall_task,
+                         task_param={"user_instance": user})
+        spawn_task(task_func=generate_oauth_info,
+                   task_param={'username': user.username,
+                               'password': password},
+                   countdown=20)
         if isinstance(res, Exception) is True:
             return res
         else:

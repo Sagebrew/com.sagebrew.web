@@ -115,7 +115,6 @@ class Mission(Searchable):
     pledge_votes = RelationshipTo('plebs.neo_models.Pleb',
                                   'RECEIVED_PLEDGED_VOTE',
                                   model=VoteRelationship)
-    goals = RelationshipTo('sb_goals.neo_models.Goal', "WORKING_TOWARDS")
 
     @classmethod
     def get(cls, object_uuid):

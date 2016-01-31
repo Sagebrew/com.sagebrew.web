@@ -19,7 +19,7 @@ from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
 
 from .neo_models import Address, Pleb, get_default_profile_pic
-from .tasks import (create_pleb_task, determine_pleb_reps,
+from .tasks import (determine_pleb_reps,
                     update_address_location, create_wall_task,
                     generate_oauth_info)
 
@@ -99,46 +99,11 @@ class UserSerializer(SBSerializer):
 
     def create(self, validated_data):
         # DEPRECATED use profile create instead
-        username = generate_username(validated_data['first_name'],
-                                     validated_data['last_name'])
-        birthday = validated_data.pop('birthday', None)
-
-        user = User.objects.create_user(
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-            email=validated_data['email'],
-            password=validated_data['password'], username=username)
-        user.save()
-        pleb = Pleb(email=user.email,
-                    first_name=user.first_name,
-                    last_name=user.last_name,
-                    username=user.username,
-                    date_of_birth=birthday)
-        pleb.save()
-        # TODO Should move this out to the endpoint to remove circular
-        # dependencies
-        cache.delete(pleb.username)
-        spawn_task(task_func=create_pleb_task,
-                   task_param={
-                       "user_instance": user, "birthday": birthday,
-                       "password": validated_data['password']})
-        return user
+        pass
 
     def update(self, instance, validated_data):
         # DEPRECATED use profile update instead
-        instance.first_name = validated_data.get('first_name',
-                                                 instance.first_name)
-        instance.last_name = validated_data.get('last_name',
-                                                instance.last_name)
-        instance.email = validated_data.get('email', instance.email)
-        # TODO @tyler we need to test if this password logic works or if we
-        # should only set password if something is passed
-        if instance.check_password(validated_data.get('password', "")) is True:
-            instance.set_password(validated_data.get(
-                'new_password', validated_data.get('password', "")))
-            update_session_auth_hash(self.context['request'], instance)
-        instance.save()
-        return instance
+        pass
 
     def get_id(self, obj):
         return obj.username

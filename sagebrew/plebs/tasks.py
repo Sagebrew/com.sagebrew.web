@@ -248,35 +248,6 @@ def generate_oauth_info(username, password, web_address=None):
 
 
 @shared_task()
-def create_pleb_task(user_instance=None, birthday=None, password=None):
-    # We do a check to make sure that a user with the email given does not exist
-    # in the registration view, so if you are calling this function without
-    # using that view there is a potential UniqueProperty error which can get
-    # thrown.
-    if user_instance is None:
-        return None
-    try:
-        Pleb.get(username=user_instance.username)
-    except (Pleb.DoesNotExist, DoesNotExist) as e:
-        raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
-    except(CypherException, IOError) as e:
-        raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
-    task_info = spawn_task(task_func=create_wall_task,
-                           task_param={"user_instance": user_instance})
-    if isinstance(task_info, Exception) is True:
-        raise create_pleb_task.retry(exc=task_info, countdown=3,
-                                     max_retries=None)
-    oauth_res = spawn_task(task_func=generate_oauth_info,
-                           task_param={'username': user_instance.username,
-                                       'password': password},
-                           countdown=20)
-    if isinstance(oauth_res, Exception):
-        raise create_pleb_task.retry(exc=oauth_res, countdown=3,
-                                     max_retries=None)
-    return task_info
-
-
-@shared_task()
 def create_beta_user(email):
     try:
         BetaUser.nodes.get(email=email)

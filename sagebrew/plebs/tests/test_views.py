@@ -15,7 +15,6 @@ from sb_comments.neo_models import Comment
 from sb_posts.neo_models import Post
 from sb_registration.utils import create_user_util_test
 from api.utils import wait_util
-from sb_quests.neo_models import PoliticalCampaign
 
 from plebs.neo_models import Pleb, FriendRequest
 from plebs.views import (ProfileView, create_friend_request)
@@ -426,17 +425,6 @@ class TestSettingPages(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_quest_settings_no_quest(self):
-        self.client.login(username=self.user.username, password=self.password)
-        url = reverse("general_settings")
-        response = self.client.get(url)
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_quest_settings_quest(self):
-        campaign = PoliticalCampaign(
-            owner_username=self.pleb.username).save()
-        self.pleb.campaign.connect(campaign)
-        campaign.owned_by.connect(self.pleb)
         self.client.login(username=self.user.username, password=self.password)
         url = reverse("general_settings")
         response = self.client.get(url)

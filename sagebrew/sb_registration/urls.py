@@ -3,14 +3,12 @@ from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 
 from .views import (profile_information, interests, profile_picture,
-                    signup_view_api,
                     login_view_api, email_verification,
                     resend_email_verification)
 
 
 urlpatterns = patterns(
     'sb_registration.views',
-    url(r'^signup/$', signup_view_api, name="signup_api"),
     url(r'^signup/confirm/$', login_required(
         TemplateView.as_view(template_name='verify_email.html')),
         name="confirm_view"),

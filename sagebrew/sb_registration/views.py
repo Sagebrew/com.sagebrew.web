@@ -21,10 +21,9 @@ from plebs.neo_models import Pleb
 
 from sb_quests.serializers import QuestSerializer
 from .forms import (AddressInfoForm, InterestForm,
-                    ProfilePictureForm, SignupForm,
+                    ProfilePictureForm,
                     LoginForm)
-from .utils import (verify_completed_registration, verify_verified_email,
-                    create_user_util)
+from .utils import (verify_completed_registration, verify_verified_email)
 from .models import token_gen
 from .tasks import update_interests, store_address
 
@@ -61,87 +60,6 @@ def quest_signup(request):
                 return redirect('500_Error')
         return redirect('signup')
     return render(request, 'quest_details.html')
-
-
-@api_view(['POST'])
-def signup_view_api(request):
-    # DEPRECATED please use Profile Create method and Update Method in
-    # plebs/serializers from now on
-    quest_registration = request.session.get('account_type')
-    try:
-        signup_form = SignupForm(request.data)
-        valid_form = signup_form.is_valid()
-    except AttributeError:
-        return Response({'detail': 'Form Error'},
-                        status=status.HTTP_400_BAD_REQUEST)
-    if valid_form is True:
-        if signup_form.cleaned_data['password'] != \
-                signup_form.cleaned_data['password2']:
-            return Response({'detail': 'Passwords do not match!'},
-                            status=status.HTTP_401_UNAUTHORIZED)
-        if signup_form.cleaned_data['email'][-4:] == '.gov':
-            return Response({"detail": "If you are using a .gov email address "
-                                       "please follow this link, or use a "
-                                       "personal email address."},
-                            status.HTTP_200_OK)
-        try:
-            test_user = User.objects.get(
-                email=signup_form.cleaned_data['email'])
-            if test_user.is_active:
-                return Response(
-                    {'detail': 'A user with this email already exists!'},
-                    status=status.HTTP_401_UNAUTHORIZED)
-            test_user.is_active = True
-            test_user.set_password(signup_form.cleaned_data['password'])
-            test_user.save()
-            user = authenticate(username=test_user.username,
-                                password=signup_form.cleaned_data['password'])
-            login(request, user)
-            if quest_registration is not None:
-                request.session['account_type'] = quest_registration
-                request.session.set_expiry(1800)
-            return Response({"detail": "existing success"},
-                            status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            res = create_user_util(first_name=signup_form.
-                                   cleaned_data['first_name'],
-                                   last_name=signup_form.
-                                   cleaned_data['last_name'],
-                                   email=signup_form.
-                                   cleaned_data['email'],
-                                   password=signup_form.
-                                   cleaned_data['password'],
-                                   birthday=signup_form.
-                                   cleaned_data['birthday'])
-            if res and res is not None:
-                user = authenticate(username=res['username'],
-                                    password=signup_form.cleaned_data[
-                                        'password'])
-            else:
-                return Response({'detail': 'system error'},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    if quest_registration is not None:
-                        request.session['account_type'] = quest_registration
-                        request.session.set_expiry(1800)
-                    return Response({'detail': 'success'},
-                                    status=status.HTTP_200_OK)
-                else:
-                    return Response({'detail': 'account disabled'},
-                                    status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response({'detail': 'invalid login'},
-                                status=status.HTTP_400_BAD_REQUEST)
-        except MultipleObjectsReturned:
-            return Response({'detail': 'Appears we have two users with '
-                                       'that email. Please contact '
-                                       'support@sagebrew.com.'},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response({"detail": signup_form.errors.as_json()},
-                        status=status.HTTP_400_BAD_REQUEST)
 
 
 def login_view(request):
@@ -352,16 +270,7 @@ def profile_picture(request):
     :param request:
     :return:
     """
-    try:
-        profile = Pleb.nodes.get(username=request.user.username)
-    except(Pleb.DoesNotExist, DoesNotExist):
-        return render(request, 'login.html')
-    except (CypherException, IOError):
-        return redirect('500_Error')
     profile_picture_form = ProfilePictureForm()
-    return render(
-        request, 'profile_picture.html',
-        {
-            'profile_picture_form': profile_picture_form,
-            'pleb': profile
-        })
+    return render(request,
+                  'profile_picture.html',
+                  {'profile_picture_form': profile_picture_form})

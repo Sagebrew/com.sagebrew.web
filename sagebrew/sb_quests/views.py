@@ -63,8 +63,3 @@ class QuestSettingsView(LoginRequiredMixin):
                                     context={'request': request}).data
         quest_ser['account_type'] = quest_obj.account_type
         return render(request, self.template_name, {"quest": quest_ser})
-
-
-# DEPRECATED
-def saga(request, username):
-    return render(request, 'quest.html', {})

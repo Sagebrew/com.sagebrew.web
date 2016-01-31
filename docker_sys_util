@@ -21,4 +21,4 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py create_privileges && \
     python manage.py clear_cache && \
     python manage.py clearsessions && \
-    python manage.py connect_addresses_to_federal_districts
+    python manage.py remove_duplicates_from_search

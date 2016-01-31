@@ -258,7 +258,7 @@ def create_friend_request_task(from_username, to_username, object_uuid):
 @shared_task()
 def update_reputation(username):
     try:
-        pleb = Pleb.get(username=username)
+        pleb = Pleb.nodes.get(username=username)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         raise update_reputation.retry(exc=e, countdown=3, max_retries=None)
 
@@ -270,8 +270,7 @@ def update_reputation(username):
         pleb.save()
         check_priv = spawn_task(task_func=check_privileges,
                                 task_param={"username": username})
-        pleb.refresh()
-        cache.set(username, pleb)
+        cache.delete(username)
         if isinstance(check_priv, Exception):
             raise update_reputation.retry(exc=check_priv, countdown=3,
                                           max_retries=None)

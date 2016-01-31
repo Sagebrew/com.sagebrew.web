@@ -34,7 +34,7 @@ def update_search_query(pleb, query_param, keywords):
     """
     try:
         try:
-            pleb = Pleb.get(username=pleb)
+            pleb = Pleb.nodes.get(username=pleb)
         except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
             raise update_search_query.retry(exc=e, countdown=3,
                                             max_retries=None)

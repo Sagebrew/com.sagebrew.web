@@ -14,11 +14,14 @@ def create_friend_request_util(from_username, to_username, object_uuid):
     If the function cant find either the to or from pleb it ends, if
     it does find them then it will create a friend request and
     create the relationships from the users to the friend requests
+    :param from_username:
+    :param to_username:
+    :param object_uuid:
     """
     try:
         try:
-            from_citizen = Pleb.get(username=from_username)
-            to_citizen = Pleb.get(username=to_username)
+            from_citizen = Pleb.nodes.get(username=from_username)
+            to_citizen = Pleb.nodes.get(username=to_username)
         except(Pleb.DoesNotExist, DoesNotExist) as e:
             return e
         except(CypherException, IOError) as e:
@@ -43,6 +46,8 @@ def create_friend_request_util(from_username, to_username, object_uuid):
         from_citizen.friend_requests_sent.connect(friend_request)
         to_citizen.friend_requests_received.connect(friend_request)
         cache.delete("%s_friend_requests" % to_citizen.username)
+        cache.delete(from_citizen.username)
+        cache.delete(to_citizen.username)
         return True
     except(CypherException, KeyError) as e:
         return e

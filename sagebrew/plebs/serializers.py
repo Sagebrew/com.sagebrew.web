@@ -346,13 +346,12 @@ class AddressSerializer(SBSerializer):
             validated_data['country'] = "USA"
         address = Address(**validated_data).save()
         address.set_encompassing()
-        pleb = Pleb.get(request.user.username)
+        pleb = Pleb.nodes.get(request.user.username)
         address.owned_by.connect(pleb)
         pleb.address.connect(address)
         pleb.completed_profile_info = True
         pleb.save()
-        pleb.refresh()
-        cache.set(pleb.username, pleb)
+        cache.delete(pleb.username)
         spawn_task(task_func=determine_pleb_reps, task_param={
             "username": self.context['request'].user.username,
         })

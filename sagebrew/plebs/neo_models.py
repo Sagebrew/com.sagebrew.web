@@ -502,7 +502,7 @@ class Pleb(Searchable):
             total_rep = 0
         self.reputation = total_rep
         self.save()
-        cache.set(self.username, self)
+        cache.delete(self.username)
         return {"rep_list": rep_list,
                 "base_tags": base_tags,
                 "tags": tags,

@@ -65,6 +65,7 @@ class Command(BaseCommand):
                         about=rep.bio, youtube=rep.youtube,
                         twitter=rep.twitter, website=rep.website,
                         first_name=rep.first_name, last_name=rep.last_name,
+                        owner_username=rep.object_uuid,
                         profile_pic="%s/representative_images/225x275/"
                                     "%s.jpg" % (
                                         settings.LONG_TERM_STATIC_DOMAIN,

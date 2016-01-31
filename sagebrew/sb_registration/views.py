@@ -149,7 +149,7 @@ def logout_view(request):
 @login_required()
 def email_verification(request, confirmation):
     try:
-        profile = Pleb.nodes.get(request.user.username)
+        profile = Pleb.nodes.get(username=request.user.username)
         if token_gen.check_token(request.user, confirmation, profile):
             profile.email_verified = True
             profile.save()
@@ -186,7 +186,7 @@ def profile_information(request):
     address_key = settings.ADDRESS_AUTH_ID
     address_information_form = AddressInfoForm(request.POST or None)
     try:
-        citizen = Pleb.nodes.get(request.user.username)
+        citizen = Pleb.nodes.get(username=request.user.username)
     except(Pleb.DoesNotExist, DoesNotExist):
         return render(request, 'login.html')
     except (CypherException, IOError):

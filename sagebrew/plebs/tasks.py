@@ -151,7 +151,6 @@ def finalize_citizen_creation(user_instance=None):
         "object_uuid": pleb.object_uuid,
         "instance": pleb
     }
-    # TODO I think this can be removed.
     task_list["add_object_to_search_index"] = spawn_task(
         task_func=update_search_object,
         task_param=task_data,
@@ -244,19 +243,6 @@ def generate_oauth_info(username, password, web_address=None):
     except(CypherException, IOError) as e:
         return e
 
-    return True
-
-
-@shared_task()
-def create_beta_user(email):
-    try:
-        BetaUser.nodes.get(email=email)
-        return True
-    except (BetaUser.DoesNotExist, DoesNotExist):
-        beta_user = BetaUser(email=email)
-        beta_user.save()
-    except (CypherException, IOError) as e:
-        raise create_beta_user.retry(exc=e, countdown=3, max_retries=None)
     return True
 
 

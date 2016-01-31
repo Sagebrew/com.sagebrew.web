@@ -22,7 +22,6 @@ class Update(TitledContent):
     # are now using "ABOUT" for the relationship type for each of the
     # properties. This is because only one ABOUT relationship should
     # exist coming from an update.
-    goal = RelationshipTo('sb_goals.neo_models.Goal', "ABOUT")
     mission = RelationshipTo('sb_missions.neo_models.Mission', "ABOUT")
     seat = RelationshipTo('sb_quests.neo_models.Seat', "ABOUT")
     quest = RelationshipTo('sb_quests.neo_models.Quest', "ABOUT")

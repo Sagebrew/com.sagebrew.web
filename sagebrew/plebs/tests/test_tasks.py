@@ -267,29 +267,6 @@ class TestDeterminePlebReps(TestCase):
         self.assertTrue(res.result)
 
 
-class TestCreateBetaUser(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        settings.CELERY_ALWAYS_EAGER = True
-
-    def tearDown(self):
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_create_beta_user(self):
-        data = {
-            'email': self.pleb.email
-        }
-        res = create_beta_user.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        self.assertTrue(res.result)
-
-
 class TestUpdateReputation(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"

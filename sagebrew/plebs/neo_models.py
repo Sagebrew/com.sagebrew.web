@@ -457,6 +457,13 @@ class Pleb(Searchable):
         except CypherException as e:
             return e
 
+    def update_quest(self):
+        query = 'MATCH (p:Pleb {username:"%s"})-[:IS_WAGING]->' \
+                '(c:Quest) SET c.first_name="%s", c.last_name="%s"' % \
+                (self.username, self.first_name, self.last_name)
+        res, _ = db.cypher_query(query)
+        return True
+
     def update_weight_relationship(self, sb_object, modifier_type):
         rel = self.object_weight.relationship(sb_object)
         if modifier_type in self.search_modifiers.keys():

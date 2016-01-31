@@ -272,7 +272,7 @@ class PlebSerializerNeo(SBSerializer):
         if update_time:
             instance.last_counted_vote_node = instance.vote_from_last_refresh
         instance.save()
-        instance.update_campaign()
+        instance.update_quest()
         cache.set(instance.username, instance)
         return super(PlebSerializerNeo, self).update(instance, validated_data)
 

@@ -41,8 +41,8 @@ class TestPleb(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def test_update_campaign(self):
-        self.assertTrue(self.pleb.update_campaign())
+    def test_update_quest(self):
+        self.assertTrue(self.pleb.update_quest())
 
     def test_get_official_phone(self):
         self.assertIsNone(self.pleb.get_official_phone())

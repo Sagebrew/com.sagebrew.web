@@ -3,8 +3,6 @@ import markdown
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel import db
-
 from api.serializers import SBSerializer
 from api.utils import gather_request_data
 

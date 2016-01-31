@@ -58,7 +58,7 @@ class UpdateSerializer(TitledContentSerializer):
         # moved url generation into the if because we currently don't have a
         # way to view just a quests updates
         # TODO view quest updates only
-        url = ""
+        url = None
         if about_type == 'mission':
             update.mission.connect(about)
             url = reverse('mission_updates',

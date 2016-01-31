@@ -77,9 +77,8 @@ class TestCreateStateDistricts(TestCase):
         while not res.ready():
             time.sleep(1)
         self.assertTrue(res.result)
-        camp = official.get_campaign()
-        self.assertTrue(camp in official.campaign)
-        self.assertTrue(self.lower_pos in camp.position)
+        camp = official.get_quest()
+        self.assertTrue(camp in official.quest)
         official.delete()
         camp.delete()
 

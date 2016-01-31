@@ -2,14 +2,16 @@ from django.core.cache import cache
 
 from neomodel import db
 
-from .neo_models import (PublicOfficial)
+from .neo_models import PublicOfficial
 
 
 def determine_reps(pleb):
     # Remove all existing relationships with pleb
-    query = 'MATCH (pleb:Pleb {username: "%s"})-[senators:HAS_SENATOR]->' \
+    query = 'MATCH (pleb:Pleb {username: "%s"}) ' \
+            'WITH pleb' \
+            'OPTIONAL MATCH (pleb)-[senators:HAS_SENATOR]->' \
             '(:PublicOfficial) WITH pleb, senators ' \
-            'MATCH (pleb)-[house_reps:HAS_HOUSE_REPRESENTATIVE]' \
+            'OPTIONAL MATCH (pleb)-[house_reps:HAS_HOUSE_REPRESENTATIVE]' \
             '-(:PublicOfficial) DELETE senators, house_reps' % pleb.username
     res, _ = db.cypher_query(query)
 
@@ -23,8 +25,9 @@ def determine_reps(pleb):
             'CREATE UNIQUE (pleb)-[:HAS_HOUSE_REPRESENTATIVE]->(public) ' \
             'RETURN public' % pleb.username
     res, _ = db.cypher_query(query)
-    cache.set("%s_house_representative" % pleb.username,
-              PublicOfficial.inflate(res.one))
+    if res.one:
+        cache.set("%s_house_representative" % pleb.username,
+                  PublicOfficial.inflate(res.one))
 
     # Link pleb with their senator
     query = 'MATCH (pleb:Pleb {username: "%s"})-[:LIVES_AT]->' \
@@ -37,7 +40,8 @@ def determine_reps(pleb):
             'RETURN DISTINCT public' % pleb.username
     res, _ = db.cypher_query(query)
     senators = [PublicOfficial.inflate(row[0]) for row in res]
-    cache.set("%s_senators" % pleb.username, senators)
+    if senators:
+        cache.set("%s_senators" % pleb.username, senators)
 
     president = PublicOfficial.nodes.get(title='President')
     pleb.president.connect(president)

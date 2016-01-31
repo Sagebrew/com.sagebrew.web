@@ -291,6 +291,5 @@ def profile_picture(request):
     :return:
     """
     profile_picture_form = ProfilePictureForm()
-    return render(request,
-                  'profile_picture.html',
+    return render(request, 'profile_picture.html',
                   {'profile_picture_form': profile_picture_form})

@@ -237,7 +237,7 @@ class TestUpdateSearchObject(TestCase):
     def test_pleb(self):
         object_data = PlebSerializerNeo(self.pleb).data
         self.es.index(index='full-search-base', doc_type='profile',
-                      id=self.pleb.username, body=object_data)
+                      id=self.pleb.object_uuid, body=object_data)
         self.pleb.profile_pic = str(uuid1())
         self.pleb.save()
         task_data = {
@@ -249,7 +249,7 @@ class TestUpdateSearchObject(TestCase):
             time.sleep(1)
         self.assertTrue(res.result)
         res = self.es.get(index="full-search-base", doc_type="profile",
-                          id=self.pleb.username)
+                          id=self.pleb.object_uuid)
 
         self.assertEqual(self.pleb.profile_pic, res['_source']['profile_pic'])
 

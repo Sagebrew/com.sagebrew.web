@@ -2656,9 +2656,9 @@ class AddressEndpointTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         try:
-            PublicOfficial.nodes.get(title="president")
+            PublicOfficial.nodes.get(title="President")
         except(DoesNotExist, PublicOfficial.DoesNotExist):
-            PublicOfficial(bioguideid=str(uuid1()), title="president",
+            PublicOfficial(bioguideid=str(uuid1()), title="President",
                            gt_id=str(uuid1())).save()
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="MI",

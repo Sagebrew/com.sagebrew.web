@@ -126,10 +126,11 @@ class TestProfileInfoView(TestCase):
         self.pleb.completed_profile_info = False
         self.pleb.save()
         try:
-            PublicOfficial.nodes.get(title="president")
+            self.official = PublicOfficial.nodes.get(title="President")
         except(DoesNotExist, PublicOfficial.DoesNotExist):
-            PublicOfficial(bioguideid=str(uuid1()), title="president",
-                           gt_id=str(uuid1())).save()
+            self.official = PublicOfficial(bioguideid=str(uuid1()),
+                                           title="President",
+                                           gt_id=str(uuid1())).save()
         addresses = Address.nodes.all()
         for address in addresses:
             if self.pleb.address.is_connected(address):

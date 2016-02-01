@@ -1,14 +1,12 @@
 from uuid import uuid1
 
 from django.template.loader import render_to_string
-from django.core.cache import cache
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.views.generic import View
-from django.template import RequestContext
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -28,7 +26,7 @@ from sb_registration.utils import (verify_completed_registration)
 
 from .serializers import PlebSerializerNeo
 from .tasks import create_friend_request_task, send_email_task
-from .forms import (GetUserSearchForm, SubmitFriendRequestForm)
+from .forms import (SubmitFriendRequestForm)
 from .serializers import BetaUserSerializer, AddressSerializer
 
 

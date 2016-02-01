@@ -18,7 +18,7 @@ from api.utils import spawn_task, gather_request_data, SBUniqueValidator
 from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
 
-from .neo_models import Address, Pleb, get_default_profile_pic
+from .neo_models import Address, Pleb
 from .tasks import (determine_pleb_reps,
                     update_address_location, create_wall_task,
                     generate_oauth_info)

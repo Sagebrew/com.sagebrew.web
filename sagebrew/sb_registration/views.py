@@ -1,3 +1,5 @@
+from localflavor.us.us_states import US_STATES
+
 from django.core.cache import cache
 from django.conf import settings
 from django.core.urlresolvers import reverse
@@ -13,25 +15,27 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-from neomodel import (DoesNotExist, CypherException, db)
+from neomodel import (CypherException, db, DoesNotExist)
 
 from api.utils import spawn_task
-from plebs.tasks import send_email_task
-from plebs.neo_models import Pleb
+from plebs.tasks import send_email_task, update_address_location
+from plebs.neo_models import Pleb, Address
 
 from sb_quests.serializers import QuestSerializer
 from .forms import (AddressInfoForm, InterestForm,
-                    ProfilePictureForm, SignupForm,
+                    ProfilePictureForm,
                     LoginForm)
-from .utils import (verify_completed_registration, verify_verified_email,
-                    create_user_util)
+from .utils import (verify_completed_registration, verify_verified_email)
 from .models import token_gen
-from .tasks import update_interests, store_address
 
 
 def signup_view(request):
     if request.user.is_authenticated() is True:
-        user_profile = Pleb.get(username=request.user.username)
+        try:
+            user_profile = Pleb.get(username=request.user.username,
+                                    cache_buster=True)
+        except DoesNotExist:
+            return redirect('404_Error')
         if user_profile.completed_profile_info is True:
             return redirect('newsfeed')
         elif not user_profile.email_verified:
@@ -63,87 +67,6 @@ def quest_signup(request):
     return render(request, 'quest_details.html')
 
 
-@api_view(['POST'])
-def signup_view_api(request):
-    # DEPRECATED please use Profile Create method and Update Method in
-    # plebs/serializers from now on
-    quest_registration = request.session.get('account_type')
-    try:
-        signup_form = SignupForm(request.data)
-        valid_form = signup_form.is_valid()
-    except AttributeError:
-        return Response({'detail': 'Form Error'},
-                        status=status.HTTP_400_BAD_REQUEST)
-    if valid_form is True:
-        if signup_form.cleaned_data['password'] != \
-                signup_form.cleaned_data['password2']:
-            return Response({'detail': 'Passwords do not match!'},
-                            status=status.HTTP_401_UNAUTHORIZED)
-        if signup_form.cleaned_data['email'][-4:] == '.gov':
-            return Response({"detail": "If you are using a .gov email address "
-                                       "please follow this link, or use a "
-                                       "personal email address."},
-                            status.HTTP_200_OK)
-        try:
-            test_user = User.objects.get(
-                email=signup_form.cleaned_data['email'])
-            if test_user.is_active:
-                return Response(
-                    {'detail': 'A user with this email already exists!'},
-                    status=status.HTTP_401_UNAUTHORIZED)
-            test_user.is_active = True
-            test_user.set_password(signup_form.cleaned_data['password'])
-            test_user.save()
-            user = authenticate(username=test_user.username,
-                                password=signup_form.cleaned_data['password'])
-            login(request, user)
-            if quest_registration is not None:
-                request.session['account_type'] = quest_registration
-                request.session.set_expiry(1800)
-            return Response({"detail": "existing success"},
-                            status=status.HTTP_200_OK)
-        except User.DoesNotExist:
-            res = create_user_util(first_name=signup_form.
-                                   cleaned_data['first_name'],
-                                   last_name=signup_form.
-                                   cleaned_data['last_name'],
-                                   email=signup_form.
-                                   cleaned_data['email'],
-                                   password=signup_form.
-                                   cleaned_data['password'],
-                                   birthday=signup_form.
-                                   cleaned_data['birthday'])
-            if res and res is not None:
-                user = authenticate(username=res['username'],
-                                    password=signup_form.cleaned_data[
-                                        'password'])
-            else:
-                return Response({'detail': 'system error'},
-                                status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            if user is not None:
-                if user.is_active:
-                    login(request, user)
-                    if quest_registration is not None:
-                        request.session['account_type'] = quest_registration
-                        request.session.set_expiry(1800)
-                    return Response({'detail': 'success'},
-                                    status=status.HTTP_200_OK)
-                else:
-                    return Response({'detail': 'account disabled'},
-                                    status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response({'detail': 'invalid login'},
-                                status=status.HTTP_400_BAD_REQUEST)
-        except MultipleObjectsReturned:
-            return Response({'detail': 'Appears we have two users with '
-                                       'that email. Please contact '
-                                       'support@sagebrew.com.'},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    else:
-        return Response({"detail": signup_form.errors.as_json()},
-                        status=status.HTTP_400_BAD_REQUEST)
-
-
 def login_view(request):
     try:
         if request.user.is_authenticated() is True:
@@ -155,15 +78,12 @@ def login_view(request):
 
 @login_required()
 def resend_email_verification(request):
-    profile = cache.get(request.user.username)
-    if profile is None:
-        try:
-            profile = Pleb.nodes.get(username=request.user.username)
-            cache.set(request.user.username, profile)
-        except(Pleb.DoesNotExist, DoesNotExist):
-            return render(request, 'login.html')
-        except (CypherException, IOError):
-            return redirect('500_Error')
+    try:
+        profile = Pleb.get(username=request.user.username, cache_buster=True)
+    except DoesNotExist:
+        return render(request, 'login.html')
+    except (CypherException, IOError):
+        return redirect('500_Error')
 
     template_dict = {
         'full_name': request.user.get_full_name(),
@@ -234,17 +154,18 @@ def logout_view(request):
 @login_required()
 def email_verification(request, confirmation):
     try:
-        profile = Pleb.get(request.user.username)
+        try:
+            profile = Pleb.get(username=request.user.username,
+                               cache_buster=True)
+        except DoesNotExist:
+            return redirect('logout')
         if token_gen.check_token(request.user, confirmation, profile):
             profile.email_verified = True
             profile.save()
-            profile.refresh()
-            cache.set(profile.username, profile)
+            cache.delete(profile.username)
             return redirect('profile_info')
         else:
             return redirect('401_Error')
-    except (Pleb.DoesNotExist, DoesNotExist):
-        return redirect('logout')
     except(CypherException, IOError):
         return redirect('500_Error')
 
@@ -272,9 +193,9 @@ def profile_information(request):
     address_key = settings.ADDRESS_AUTH_ID
     address_information_form = AddressInfoForm(request.POST or None)
     try:
-        citizen = Pleb.get(request.user.username)
-    except(Pleb.DoesNotExist, DoesNotExist):
-        return render(request, 'login.html')
+        citizen = Pleb.get(username=request.user.username, cache_buster=True)
+    except DoesNotExist:
+            return render(request, 'login.html')
     except (CypherException, IOError):
         return redirect('500_Error')
     if citizen.completed_profile_info:
@@ -284,16 +205,30 @@ def profile_information(request):
         address_clean['country'] = 'USA'
         if(address_clean['valid'] == "valid" or
                 address_clean.get('original_selected', False) is True):
-            success = spawn_task(store_address,
-                                 {"username": request.user.username,
-                                  "address_clean": address_clean})
-            if isinstance(success, Exception):
-                return redirect('500_Error')
+            try:
+                state = dict(US_STATES)[address_clean['state']]
+            except KeyError:
+                return address_clean['state']
+            address = Address(street=address_clean['primary_address'],
+                              street_aditional=address_clean[
+                                  'street_additional'],
+                              city=address_clean['city'],
+                              state=state,
+                              postal_code=address_clean['postal_code'],
+                              latitude=address_clean['latitude'],
+                              longitude=address_clean['longitude'],
+                              congressional_district=address_clean[
+                                  'congressional_district'],
+                              county=address_clean['county']).save()
+            address.owned_by.connect(citizen)
+            citizen.address.connect(address)
+            citizen.determine_reps()
+            spawn_task(task_func=update_address_location,
+                       task_param={"object_uuid": address.object_uuid})
             try:
                 citizen.completed_profile_info = True
                 citizen.save()
-                citizen.refresh()
-                cache.set(citizen.username, citizen)
+                cache.delete(citizen.username)
             except (CypherException, IOError):
                 return redirect('500_Error')
             account_type = request.session.get('account_type')
@@ -332,11 +267,13 @@ def interests(request):
     if interest_form.is_valid():
         if "select_all" in interest_form.cleaned_data:
             interest_form.cleaned_data.pop('select_all', None)
-        data = {"username": request.user.username,
-                "interests": interest_form.cleaned_data}
-        success = spawn_task(update_interests, data)
-        if isinstance(success, Exception):
-            return redirect('500_Error')
+        queries = [('MATCH (pleb:Pleb {username: "%s"}), '
+                    '(tag:Tag {name: "%s"}) '
+                    'CREATE UNIQUE (pleb)-[:INTERESTED_IN]->(tag) '
+                    'RETURN pleb' % (request.user.username, key.lower()), {})
+                   for key, value in interest_form.cleaned_data.iteritems()]
+        db.cypher_batch_query(queries)
+        cache.delete(request.user.username)
         return redirect('profile_picture')
 
     return render(request, 'interests.html', {'interest_form': interest_form})
@@ -357,19 +294,6 @@ def profile_picture(request):
     :param request:
     :return:
     """
-    profile = cache.get(request.user.username)
-    if profile is None:
-        try:
-            profile = Pleb.nodes.get(username=request.user.username)
-            cache.set(request.user.username, profile)
-        except(Pleb.DoesNotExist, DoesNotExist):
-            return render(request, 'login.html')
-        except (CypherException, IOError):
-            return redirect('500_Error')
     profile_picture_form = ProfilePictureForm()
-    return render(
-        request, 'profile_picture.html',
-        {
-            'profile_picture_form': profile_picture_form,
-            'pleb': profile
-        })
+    return render(request, 'profile_picture.html',
+                  {'profile_picture_form': profile_picture_form})

@@ -149,6 +149,15 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def get_object(self):
         return Pleb.get(self.kwargs[self.lookup_field])
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = Pleb.get(username=request.user.username, cache_buster=True)
+        serializer = self.get_serializer(instance, data=request.data,
+                                         partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
     def destroy(self, request, *args, **kwargs):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
@@ -200,6 +209,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def follow(self, request, username=None):
         """
         This endpoint allows users to follow other users.
+        :param username:
+        :param request:
         """
         queryset = self.get_object()
         is_following = queryset.is_following(request.user.username)
@@ -217,6 +228,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def unfollow(self, request, username=None):
         """
         This endpoint allows users to unfollow other users.
+        :param username:
+        :param request:
         """
         queryset = self.get_object()
         is_following = queryset.is_following(request.user.username)
@@ -509,6 +522,15 @@ class MeViewSet(mixins.UpdateModelMixin,
     def get_queryset(self):
         return Pleb.get(self.request.user.username)
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = Pleb.get(username=request.user.username, cache_buster=True)
+        serializer = self.get_serializer(instance, data=request.data,
+                                         partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
     def put(self, request, *args, **kwargs):
         return self.update(request, *args, **kwargs)
 
@@ -542,6 +564,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             WHERE questions.to_be_deleted = False AND questions.created > %s
             RETURN questions, tags.name AS tags, NULL as posts,
                 NULL as solutions UNION
+
+        :param request:
         """
         # This query retrieves all of the current user's posts, solutions,
         # and questions as well as their direct friends posts, solutions,
@@ -673,13 +697,11 @@ class MeViewSet(mixins.UpdateModelMixin,
             's_question as s_question, NULL AS quests, NULL AS updates, ' \
             'NULL AS q_quests' \
             % (
-                request.user.username, then,
-                request.user.username, then,
-                request.user.username, then, request.user.username,
-                then, request.user.username, then,
-                request.user.username, then,
-                request.user.username, then, request.user.username,
-                then, request.user.username, then, request.user.username, then,
+                request.user.username, then, request.user.username, then,
+                request.user.username, then, request.user.username, then,
+                request.user.username, then, request.user.username, then,
+                request.user.username, then, request.user.username, then,
+                request.user.username, then, request.user.username, then,
                 request.user.username, then)
         news = []
         article_html = None
@@ -853,6 +875,7 @@ class MeViewSet(mixins.UpdateModelMixin,
         Connects the authenticated pleb up to all the existing parties that
         are passed within a list. Returns all of names of the successfully
         connected parties.
+        :param request:
         """
         serializer = self.get_serializer(data=request.data,
                                          context={"request": request})
@@ -937,13 +960,13 @@ class FriendManager(RetrieveUpdateDestroyAPIView):
 
     def destroy(self, request, *args, **kwargs):
         friend = self.get_object()
-        profile = Pleb.get(request.user.username)
+        profile = Pleb.get(username=request.user.username, cache_buster=True)
         # TODO: Change this to modifying the relationship manager rather than
         # just disconnecting
 
         profile.friends.disconnect(friend)
         friend.friends.disconnect(profile)
-
+        cache.delete(profile.username)
         return Response({'detail': 'success'},
                         status=status.HTTP_204_NO_CONTENT)
 
@@ -971,6 +994,7 @@ class FriendRequestList(mixins.ListModelMixin, viewsets.GenericViewSet):
         Had to overwrite this function to add a check for a query param being
         passed that when set to true will set all the user's current
         notifications to seen
+        :param request:
         """
         seen = request.query_params.get('seen', 'false').lower()
         if seen == "true":
@@ -1044,6 +1068,8 @@ class FriendRequestList(mixins.ListModelMixin, viewsets.GenericViewSet):
         """
         This is a intermediate step on the way to utilizing a JS Framework to
         handle template rendering.
+        :param request:
+        :param object_uuid:
         """
         html_array = []
         id_array = []

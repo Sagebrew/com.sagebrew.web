@@ -1,9 +1,6 @@
-from django.core.cache import cache
 from localflavor.us.us_states import US_STATES
 
 from rest_framework import serializers
-
-from neomodel import db
 
 from api.serializers import SBSerializer
 
@@ -27,9 +24,6 @@ class PublicOfficialSerializer(SBSerializer):
     full_name = serializers.SerializerMethodField()
     channel_wallpaper = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
-    # DEPRECATED
-    # Still used for initial population of reps
-    campaign = serializers.SerializerMethodField()
 
     def get_type(self, obj):
         return "public_official"
@@ -72,29 +66,5 @@ class PublicOfficialSerializer(SBSerializer):
         from sb_quests.serializers import QuestSerializer
         # We use object_uuid here instead of owner_username as none of the
         # public officials have a owner
-        quest = cache.get('%s_quest' % obj.object_uuid)
-        if quest is None:
-            query = 'MATCH (o:PublicOfficial {object_uuid: "%s"})-' \
-                    '[:IS_HOLDING]->(quest:Quest) ' \
-                    'RETURN quest' % obj.object_uuid
-            res, _ = db.cypher_query(query)
-            if res.one:
-                cache.set('%s_quest' % obj.object_uuid, quest)
-            quest = res.one
-        if quest is not None:
-            quest = QuestSerializer(Quest.inflate(quest)).data
-        return quest
-
-    def get_campaign(self, obj):
-        campaign = cache.get('%s_campaign' % obj.object_uuid)
-        if campaign is None:
-            query = 'MATCH (o:PublicOfficial {object_uuid: "%s"})-' \
-                    '[:HAS_CAMPAIGN]->(c:PoliticalCampaign) ' \
-                    'RETURN c.object_uuid' % obj.object_uuid
-            res, _ = db.cypher_query(query)
-            try:
-                campaign = res[0][0]
-                cache.set('%s_campaign' % obj.object_uuid, campaign)
-            except IndexError:
-                return None
-        return campaign
+        return QuestSerializer(
+            Quest.get(owner_username=obj.object_uuid)).data

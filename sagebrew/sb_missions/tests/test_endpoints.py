@@ -28,8 +28,6 @@ class MissionEndpointTests(APITestCase):
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
-        for camp in self.pleb.campaign.all():
-            camp.delete()
         self.url = "http://testserver"
         self.quest = Quest(
             about='Test Bio', owner_username=self.pleb.username).save()

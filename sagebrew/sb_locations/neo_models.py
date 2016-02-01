@@ -49,10 +49,11 @@ class Location(SBObject):
             query = 'MATCH (n:`Location` {object_uuid: "%s"}) RETURN n' % (
                 object_uuid)
             res, _ = db.cypher_query(query)
-            try:
-                location = Location.inflate(res[0][0])
+            if res.one:
+                res.one.pull()
+                location = Location.inflate(res.one)
                 cache.set(object_uuid, location)
-            except IndexError:
+            else:
                 location = None
         return location
 

@@ -29,7 +29,7 @@ class TestPublicOfficialUtils(TestCase):
         self.pleb.address.connect(self.address)
 
     def test_determine_reps(self):
-        res = determine_reps(self.pleb.username)
+        res = determine_reps(self.pleb)
 
         self.assertTrue(res)
         self.assertTrue(self.pleb.senators.is_connected(self.senator))

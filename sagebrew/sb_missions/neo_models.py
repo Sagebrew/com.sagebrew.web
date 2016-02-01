@@ -115,7 +115,6 @@ class Mission(Searchable):
     pledge_votes = RelationshipTo('plebs.neo_models.Pleb',
                                   'RECEIVED_PLEDGED_VOTE',
                                   model=VoteRelationship)
-    goals = RelationshipTo('sb_goals.neo_models.Goal', "WORKING_TOWARDS")
 
     @classmethod
     def get(cls, object_uuid):
@@ -123,11 +122,12 @@ class Mission(Searchable):
         if mission is None:
             query = 'MATCH (c:`Mission` {object_uuid: "%s"}) RETURN c' % \
                     object_uuid
-            res, col = db.cypher_query(query)
-            try:
-                mission = cls.inflate(res[0][0])
+            res, _ = db.cypher_query(query)
+            if res.one:
+                res.one.pull()
+                mission = cls.inflate(res.one)
                 cache.set("%s_mission" % object_uuid, mission)
-            except IndexError:
+            else:
                 raise DoesNotExist("Mission does not exist")
         return mission
 

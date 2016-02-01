@@ -9,10 +9,7 @@ from django.core.cache import cache
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel import db
-
 from plebs.neo_models import Pleb
-from sb_goals.neo_models import Goal
 from api.utils import gather_request_data, spawn_task
 from sb_base.serializers import TitledContentSerializer
 from sb_notifications.tasks import spawn_notifications
@@ -22,7 +19,6 @@ from .neo_models import Update
 
 class UpdateSerializer(TitledContentSerializer):
     title = serializers.CharField(min_length=5, max_length=140)
-    goals = serializers.SerializerMethodField()
     about_type = serializers.ChoiceField(choices=[
         ('mission', "Mission"), ('quest', "Quest"), ('seat', "Seat"),
         ('goal', "Goal")])
@@ -45,16 +41,6 @@ class UpdateSerializer(TitledContentSerializer):
         about_type = validated_data.get('about_type')
         update = Update(**validated_data).save()
         quest.updates.connect(update)
-        if validated_data.get('about_type') == "goal":
-            query = 'MATCH (c:Quest {object_uuid:"%s"})-[:EMBARKS_ON]->' \
-                    '(mission:Mission)-[:WORKING_TOWARDS]->' \
-                    '(g:Goal {title:"%s"}) ' \
-                    'RETURN g' % (quest.object_uuid,
-                                  validated_data.get('about_id'))
-            res, _ = db.cypher_query(query)
-            goal = Goal.inflate(res.one)
-            update.goals.connect(goal)
-            goal.updates.connect(update)
         if about_type == 'mission':
             update.mission.connect(about)
         elif about_type == 'quest':
@@ -81,10 +67,6 @@ class UpdateSerializer(TitledContentSerializer):
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
         return instance
-
-    def get_goals(self, obj):
-        request, _, _, _, _ = gather_request_data(self.context)
-        return Update.get_goals(obj.object_uuid)
 
     def get_url(self, obj):
         from sb_missions.neo_models import Mission

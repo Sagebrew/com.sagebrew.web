@@ -41,7 +41,7 @@ class TestUpdateSearchQuery(TestCase):
         test_query.save()
 
         task_data = {
-            "pleb": str(uuid1()), "query_param": test_query.search_query,
+            "username": str(uuid1()), "query_param": test_query.search_query,
             "keywords": ['fake', 'keywords']
         }
 
@@ -60,7 +60,7 @@ class TestUpdateSearchQuery(TestCase):
         test_query.save()
 
         task_data = {
-            "pleb": str(uuid1()), "query_param": test_query.search_query,
+            "username": str(uuid1()), "query_param": test_query.search_query,
             "keywords": ['fake', 'keywords']
         }
 
@@ -80,7 +80,8 @@ class TestUpdateSearchQuery(TestCase):
         test_query.save()
 
         task_data = {
-            "pleb": self.pleb.username, "query_param": test_query.search_query,
+            "username": self.pleb.username,
+            "query_param": test_query.search_query,
             "keywords": ['fake', 'keywords']
         }
 
@@ -98,7 +99,8 @@ class TestUpdateSearchQuery(TestCase):
         self.pleb.searches.connect(test_query)
 
         task_data = {
-            "pleb": self.pleb.username, "query_param": test_query.search_query,
+            "username": self.pleb.username,
+            "query_param": test_query.search_query,
             "keywords": ['fake', 'keywords']
         }
 
@@ -110,7 +112,8 @@ class TestUpdateSearchQuery(TestCase):
 
     def test_update_search_query_query_does_not_exist(self):
         task_data = {
-            "pleb": self.pleb.username, "query_param": str(uuid1()),
+            "username": self.pleb.username,
+            "query_param": str(uuid1()),
             "keywords": ['fake', 'keywords']
         }
 
@@ -219,7 +222,7 @@ class TestUpdateSearchObject(TestCase):
         question.save()
         task_data = {
             "object_uuid": question.object_uuid,
-            "instance": question
+            "label": "question"
         }
         res = update_search_object.apply_async(kwargs=task_data)
         while not res.ready():
@@ -234,19 +237,19 @@ class TestUpdateSearchObject(TestCase):
     def test_pleb(self):
         object_data = PlebSerializerNeo(self.pleb).data
         self.es.index(index='full-search-base', doc_type='profile',
-                      id=self.pleb.username, body=object_data)
+                      id=self.pleb.object_uuid, body=object_data)
         self.pleb.profile_pic = str(uuid1())
         self.pleb.save()
         task_data = {
-            "object_uuid": self.pleb.username,
-            "instance": self.pleb
+            "object_uuid": self.pleb.object_uuid,
+            "label": "pleb"
         }
         res = update_search_object.apply_async(kwargs=task_data)
         while not res.ready():
             time.sleep(1)
         self.assertTrue(res.result)
         res = self.es.get(index="full-search-base", doc_type="profile",
-                          id=self.pleb.username)
+                          id=self.pleb.object_uuid)
 
         self.assertEqual(self.pleb.profile_pic, res['_source']['profile_pic'])
 
@@ -264,7 +267,7 @@ class TestUpdateSearchObject(TestCase):
         quest.save()
         task_data = {
             "object_uuid": quest.object_uuid,
-            "instance": quest
+            "label": "quest"
         }
         res = update_search_object.apply_async(kwargs=task_data)
         while not res.ready():
@@ -289,7 +292,7 @@ class TestUpdateSearchObject(TestCase):
         mission.save()
         task_data = {
             "object_uuid": mission.object_uuid,
-            "instance": mission
+            "label": "mission"
         }
         res = update_search_object.apply_async(kwargs=task_data)
         while not res.ready():
@@ -317,7 +320,7 @@ class TestUpdateSearchObject(TestCase):
         solution.save()
         task_data = {
             "object_uuid": solution.object_uuid,
-            "instance": solution
+            "label": "solution"
         }
         res = update_search_object.apply_async(kwargs=task_data)
         while not res.ready():
@@ -325,7 +328,7 @@ class TestUpdateSearchObject(TestCase):
 
         self.assertFalse(res.result)
 
-    def test_no_instance(self):
+    def test_no_label(self):
         request = RequestFactory().get('')
         request.user = self.user
         question = Question(title=str(uuid1()),
@@ -353,7 +356,7 @@ class TestUpdateSearchObject(TestCase):
         self.assertEqual(question.content,
                          res['_source']['content'])
 
-    def test_no_instance_not_question(self):
+    def test_no_label_not_question(self):
         request = RequestFactory().get('')
         request.user = self.user
         solution = Solution().save()

@@ -152,7 +152,7 @@ def finalize_citizen_creation(username):
     task_list = {}
     task_data = {
         "object_uuid": pleb.object_uuid,
-        "instance": pleb
+        "label": "pleb"
     }
     task_list["add_object_to_search_index"] = spawn_task(
         task_func=update_search_object,

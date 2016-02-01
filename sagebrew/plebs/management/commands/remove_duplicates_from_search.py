@@ -57,7 +57,7 @@ class Command(BaseCommand):
         pleb = Pleb.nodes.get(username="robin_branch")
         task_data = {
             "object_uuid": pleb.object_uuid,
-            "instance": pleb
+            "label": 'pleb'
         }
         spawn_task(
             task_func=update_search_object,
@@ -66,7 +66,7 @@ class Command(BaseCommand):
         pleb = Pleb.nodes.get(username="rebecca_tanner")
         task_data = {
             "object_uuid": pleb.object_uuid,
-            "instance": pleb
+            "label": 'pleb'
         }
         spawn_task(
             task_func=update_search_object,

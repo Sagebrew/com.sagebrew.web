@@ -222,7 +222,7 @@ class TestUpdateSearchObject(TestCase):
         question.save()
         task_data = {
             "object_uuid": question.object_uuid,
-            "instance": question
+            "label": "question"
         }
         res = update_search_object.apply_async(kwargs=task_data)
         while not res.ready():
@@ -242,7 +242,7 @@ class TestUpdateSearchObject(TestCase):
         self.pleb.save()
         task_data = {
             "object_uuid": self.pleb.username,
-            "instance": self.pleb
+            "label": "pleb"
         }
         res = update_search_object.apply_async(kwargs=task_data)
         while not res.ready():
@@ -267,7 +267,7 @@ class TestUpdateSearchObject(TestCase):
         quest.save()
         task_data = {
             "object_uuid": quest.object_uuid,
-            "instance": quest
+            "label": "quest"
         }
         res = update_search_object.apply_async(kwargs=task_data)
         while not res.ready():
@@ -292,7 +292,7 @@ class TestUpdateSearchObject(TestCase):
         mission.save()
         task_data = {
             "object_uuid": mission.object_uuid,
-            "instance": mission
+            "label": "mission"
         }
         res = update_search_object.apply_async(kwargs=task_data)
         while not res.ready():
@@ -320,7 +320,7 @@ class TestUpdateSearchObject(TestCase):
         solution.save()
         task_data = {
             "object_uuid": solution.object_uuid,
-            "instance": solution
+            "label": "solution"
         }
         res = update_search_object.apply_async(kwargs=task_data)
         while not res.ready():
@@ -328,7 +328,7 @@ class TestUpdateSearchObject(TestCase):
 
         self.assertFalse(res.result)
 
-    def test_no_instance(self):
+    def test_no_label(self):
         request = RequestFactory().get('')
         request.user = self.user
         question = Question(title=str(uuid1()),
@@ -356,7 +356,7 @@ class TestUpdateSearchObject(TestCase):
         self.assertEqual(question.content,
                          res['_source']['content'])
 
-    def test_no_instance_not_question(self):
+    def test_no_label_not_question(self):
         request = RequestFactory().get('')
         request.user = self.user
         solution = Solution().save()

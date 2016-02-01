@@ -87,7 +87,7 @@ class Command(BaseCommand):
             rep_data = QuestSerializer(campaign).data
             task_data = {
                 "object_uuid": rep_data['id'],
-                "instance": campaign,
+                "label": 'quest',
             }
             spawn_task(update_search_object, task_data)
 

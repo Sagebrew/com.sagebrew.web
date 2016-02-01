@@ -115,7 +115,7 @@ def create_keyword(text, relevance, query_param):
 
 
 @shared_task()
-def update_search_object(object_uuid, label, object_data=None,
+def update_search_object(object_uuid, label=None, object_data=None,
                          index="full-search-base"):
     from plebs.serializers import PlebSerializerNeo
     from sb_quests.serializers import QuestSerializer
@@ -123,6 +123,9 @@ def update_search_object(object_uuid, label, object_data=None,
     from sb_missions.serializers import MissionSerializer
     from sb_missions.neo_models import Mission
     from sb_questions.serializers import QuestionSerializerNeo
+    from sb_base.neo_models import get_parent_votable_content
+    if label is None:
+        label = get_parent_votable_content(object_uuid).get_child_label()
     logger.critical("Updating Search Object")
     logger.critical({"object_uuid": object_uuid})
     query = 'MATCH (a:%s {object_uuid:"%s"}) RETURN a' % \

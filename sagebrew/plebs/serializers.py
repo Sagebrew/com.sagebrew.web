@@ -189,7 +189,6 @@ class PlebSerializerNeo(SBSerializer):
         pleb.occupation_name = validated_data.get('occupation_name', None)
         pleb.employer_name = validated_data.get('employer_name', None)
         pleb.save()
-        cache.set(pleb.username, pleb)
         if not request.user.is_authenticated():
             user = authenticate(username=user.username,
                                 password=validated_data['password'])
@@ -203,6 +202,7 @@ class PlebSerializerNeo(SBSerializer):
                    task_param={'username': user.username,
                                'password': validated_data['password']},
                    countdown=20)
+        cache.delete(pleb.username)
         return pleb
 
     def update(self, instance, validated_data):
@@ -238,12 +238,14 @@ class PlebSerializerNeo(SBSerializer):
                 'new_password', validated_data.get('password', "")))
             update_session_auth_hash(self.context['request'], user_obj)
         user_obj.save()
-        instance.profile_pic = validated_data.get('profile_pic',
-                                                  instance.profile_pic)
-        if instance.profile_pic is None or instance.profile_pic == "":
-            instance.profile_pic = get_default_profile_pic()
-        instance.wallpaper_pic = validated_data.get('wallpaper_pic',
-                                                    instance.wallpaper_pic)
+        profile_pic = validated_data.get('profile_pic')
+        if profile_pic is not None and profile_pic != "":
+            instance.profile_pic = validated_data.get('profile_pic',
+                                                      instance.profile_pic)
+        wallpaper_pic = validated_data.get('wallpaper_pic')
+        if wallpaper_pic is not None and wallpaper_pic != "":
+            instance.wallpaper_pic = validated_data.get('wallpaper_pic',
+                                                        instance.wallpaper_pic)
         instance.occupation_name = validated_data.get('occupation_name',
                                                       instance.occupation_name)
         instance.employer_name = validated_data.get('employer_name',
@@ -346,7 +348,7 @@ class AddressSerializer(SBSerializer):
             validated_data['country'] = "USA"
         address = Address(**validated_data).save()
         address.set_encompassing()
-        pleb = Pleb.nodes.get(username=request.user.username)
+        pleb = Pleb.get(username=request.user.username, cache_buster=True)
         address.owned_by.connect(pleb)
         pleb.address.connect(address)
         pleb.completed_profile_info = True

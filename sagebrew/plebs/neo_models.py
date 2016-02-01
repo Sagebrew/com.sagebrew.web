@@ -309,9 +309,9 @@ class Pleb(Searchable):
         return None
 
     @classmethod
-    def get(cls, username):
+    def get(cls, username, cache_buster=False):
         profile = cache.get(username)
-        if profile is None:
+        if profile is None or cache_buster:
             res, _ = db.cypher_query(
                 "MATCH (a:%s {username:'%s'}) RETURN a" % (
                     cls.__name__, username))
@@ -665,7 +665,7 @@ class Pleb(Searchable):
         if last_seen != self.vote_from_last_refresh:
             self.vote_from_last_refresh = res['last_created']
             self.save()
-            cache.set(self.username, self)
+            cache.delete(self.username)
         if reputation_change >= 1000 or reputation_change <= -1000:
             return "%dk" % (int(reputation_change / 1000.0))
         return reputation_change

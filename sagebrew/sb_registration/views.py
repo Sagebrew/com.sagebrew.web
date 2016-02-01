@@ -15,7 +15,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-from neomodel import (CypherException, db)
+from neomodel import (CypherException, db, DoesNotExist)
 
 from api.utils import spawn_task
 from plebs.tasks import send_email_task, update_address_location
@@ -31,12 +31,10 @@ from .models import token_gen
 
 def signup_view(request):
     if request.user.is_authenticated() is True:
-        res, _ = db.cypher_query("MATCH (a:Pleb {username:'%s'}) RETURN a" %
-                                 request.user.username)
-        if res.one:
-            res.one.pull()
-            user_profile = Pleb.inflate(res.one)
-        else:
+        try:
+            user_profile = Pleb.get(username=request.user.username,
+                                    cache_buster=True)
+        except DoesNotExist:
             return redirect('404_Error')
         if user_profile.completed_profile_info is True:
             return redirect('newsfeed')
@@ -81,13 +79,9 @@ def login_view(request):
 @login_required()
 def resend_email_verification(request):
     try:
-        res, _ = db.cypher_query("MATCH (a:Pleb {username:'%s'}) RETURN a" %
-                                 request.user.username)
-        if res.one:
-            res.one.pull()
-            profile = Pleb.inflate(res.one)
-        else:
-            return render(request, 'login.html')
+        profile = Pleb.get(username=request.user.username, cache_buster=True)
+    except DoesNotExist:
+        return render(request, 'login.html')
     except (CypherException, IOError):
         return redirect('500_Error')
 
@@ -160,12 +154,10 @@ def logout_view(request):
 @login_required()
 def email_verification(request, confirmation):
     try:
-        res, _ = db.cypher_query("MATCH (a:Pleb {username:'%s'}) RETURN a" %
-                                 request.user.username)
-        if res.one:
-            res.one.pull()
-            profile = Pleb.inflate(res.one)
-        else:
+        try:
+            profile = Pleb.get(username=request.user.username,
+                               cache_buster=True)
+        except DoesNotExist:
             return redirect('logout')
         if token_gen.check_token(request.user, confirmation, profile):
             profile.email_verified = True
@@ -201,12 +193,8 @@ def profile_information(request):
     address_key = settings.ADDRESS_AUTH_ID
     address_information_form = AddressInfoForm(request.POST or None)
     try:
-        res, _ = db.cypher_query("MATCH (a:Pleb {username:'%s'}) RETURN a" %
-                                 request.user.username)
-        if res.one:
-            res.one.pull()
-            citizen = Pleb.inflate(res.one)
-        else:
+        citizen = Pleb.get(username=request.user.username, cache_buster=True)
+    except DoesNotExist:
             return render(request, 'login.html')
     except (CypherException, IOError):
         return redirect('500_Error')

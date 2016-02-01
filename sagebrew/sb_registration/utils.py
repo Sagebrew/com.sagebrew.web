@@ -205,7 +205,7 @@ def create_user_util_test(email, first_name="test", last_name="test",
                                         username=username)
         user.save()
     try:
-        pleb = Pleb.nodes.get(username=user.username)
+        pleb = Pleb.get(username=user.username, cache_buster=True)
     except (Pleb.DoesNotExist, DoesNotExist):
         try:
             pleb = Pleb(email=user.email, first_name=user.first_name,

@@ -30,7 +30,7 @@ def check_closed_reputation_changes():
     try:
         for pleb in Pleb.nodes.all():
             res = pleb.get_total_rep()
-            cache.set(pleb.username, pleb)
+            cache.delete(pleb.username)
             if res['previous_rep'] != res['total_rep']:
                 spawn_task(task_func=check_privileges,
                            task_param={'username': pleb.username})

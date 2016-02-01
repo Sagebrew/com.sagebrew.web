@@ -54,7 +54,7 @@ class Command(BaseCommand):
                       doc_type="profile")
         except NotFoundError:
             pass
-        pleb = Pleb.nodes.get(username="robin_branch")
+        pleb = Pleb.get(username="robin_branch", cache_buster=True)
         task_data = {
             "object_uuid": pleb.object_uuid,
             "label": 'pleb'
@@ -63,7 +63,7 @@ class Command(BaseCommand):
             task_func=update_search_object,
             task_param=task_data,
             countdown=30)
-        pleb = Pleb.nodes.get(username="rebecca_tanner")
+        pleb = Pleb.get(username="rebecca_tanner", cache_buster=True)
         task_data = {
             "object_uuid": pleb.object_uuid,
             "label": 'pleb'

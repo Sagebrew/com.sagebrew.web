@@ -20,8 +20,8 @@ def create_friend_request_util(from_username, to_username, object_uuid):
     """
     try:
         try:
-            from_citizen = Pleb.nodes.get(username=from_username)
-            to_citizen = Pleb.nodes.get(username=to_username)
+            from_citizen = Pleb.get(username=from_username, cache_buster=True)
+            to_citizen = Pleb.get(username=to_username, cache_buster=True)
         except(Pleb.DoesNotExist, DoesNotExist) as e:
             return e
         except(CypherException, IOError) as e:

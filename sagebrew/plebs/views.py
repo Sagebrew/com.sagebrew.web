@@ -73,7 +73,7 @@ class ProfileView(LoginRequiredMixin):
                 'ELSE False END AS result' % (request.user.username,
                                               page_user.username)
         try:
-            res, col = db.cypher_query(query)
+            res, _ = db.cypher_query(query)
             are_friends = bool(res[0])
         except(CypherException, ClientError):
             return redirect("500_Error")
@@ -151,54 +151,6 @@ def contribute_settings(request):
     """
     return render(request, 'settings/contribute_settings.html',
                   {"stripe_key": settings.STRIPE_PUBLIC_KEY})
-
-
-@api_view(['GET'])
-@permission_classes((IsAuthenticated,))
-def get_user_search_view(request, pleb_username=""):
-    """
-    This view will take a plebs email, get the user and render to string
-    an html object which holds the data to be displayed when a user is returned
-    in a search.
-
-    :param request:
-    :param pleb_username:
-    :return:
-    """
-    form = GetUserSearchForm({"username": pleb_username})
-    if form.is_valid() is True:
-        profile = cache.get(pleb_username)
-        current_user = cache.get(request.user.username)
-        if profile is None:
-            try:
-                profile = Pleb.nodes.get(username=pleb_username)
-            except(Pleb.DoesNotExist, DoesNotExist):
-                return Response({"detail": "Sorry we could not find "
-                                           "that user."},
-                                status=status.HTTP_404_NOT_FOUND)
-            cache.set(pleb_username, profile)
-        if current_user is None:
-            current_user = Pleb.nodes.get(username=request.user.username)
-
-        if profile in current_user.friends.all():
-            is_friend = True
-            friend_request_sent = True
-        else:
-            is_friend = False
-            friend_request_sent = current_user.get_friend_requests_sent(
-                profile.username)
-        serializer_data = PlebSerializerNeo(profile).data
-        serializer_data['is_friend'] = is_friend
-
-        serializer_data['friend_request_sent'] = friend_request_sent
-        context = RequestContext(request, serializer_data)
-        return Response(
-            {
-                'html': render_to_string('user_search_block.html',
-                                         context)},
-            status=200)
-    else:
-        return Response({'detail': 'error'}, 400)
 
 
 @api_view(['POST'])

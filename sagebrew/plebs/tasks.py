@@ -46,7 +46,7 @@ def send_email_task(source, to, subject, html_content):
 def determine_pleb_reps(username):
     from sb_public_official.utils import determine_reps
     try:
-        pleb = Pleb.nodes.get(username=username)
+        pleb = Pleb.get(username=username, cache_buster=True)
         result = determine_reps(pleb)
         if result is False:
             raise Exception("Failed to determine reps")
@@ -139,16 +139,11 @@ def connect_to_state_districts(object_uuid):
 @shared_task()
 def finalize_citizen_creation(username):
     # TODO look into celery chaining and/or grouping
-    res, _ = db.cypher_query("MATCH (a:Pleb {username:'%s'}) RETURN a" %
-                             username)
-    if res.one:
-        res.one.pull()
-        pleb = Pleb.inflate(res.one)
-    else:
+    try:
+        pleb = Pleb.get(username=username, cache_buster=True)
+    except DoesNotExist as e:
         raise finalize_citizen_creation.retry(
-            exc=DoesNotExist('Profile with username: %s '
-                             'does not exist' % username), countdown=3,
-            max_retries=None)
+            exc=e, countdown=3, max_retries=None)
     task_list = {}
     task_data = {
         "object_uuid": pleb.object_uuid,
@@ -211,8 +206,8 @@ def create_wall_task(username=None):
 @shared_task
 def generate_oauth_info(username, password, web_address=None):
     try:
-        pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
+        pleb = Pleb.get(username=username, cache_buster=True)
+    except (DoesNotExist, CypherException, IOError) as e:
         raise generate_oauth_info.retry(exc=e, countdown=3, max_retries=None)
     creds = generate_oauth_user(pleb, password, web_address)
 
@@ -249,7 +244,7 @@ def create_friend_request_task(from_username, to_username, object_uuid):
 @shared_task()
 def update_reputation(username):
     try:
-        pleb = Pleb.nodes.get(username=username)
+        pleb = Pleb.get(username=username, cache_buster=True)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         raise update_reputation.retry(exc=e, countdown=3, max_retries=None)
 

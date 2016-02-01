@@ -125,11 +125,12 @@ def update_search_object(object_uuid, label=None, object_data=None,
     from sb_questions.serializers import QuestionSerializerNeo
     from sb_base.neo_models import get_parent_votable_content
     if label is None:
-        label = get_parent_votable_content(object_uuid).get_child_label()
+        label = get_parent_votable_content(
+            object_uuid).get_child_label().lower()
     logger.critical("Updating Search Object")
     logger.critical({"object_uuid": object_uuid})
     query = 'MATCH (a:%s {object_uuid:"%s"}) RETURN a' % \
-            (label, object_uuid)
+            (label.title(), object_uuid)
     res, _ = db.cypher_query(query)
     if res.one:
         res.one.pull()

@@ -17,6 +17,9 @@ from django.core.cache import cache
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 
+from neomodel import DoesNotExist
+
+from sb_public_official.neo_models import PublicOfficial
 from sb_registration.views import (profile_information,
                                    logout_view,
                                    login_view, login_view_api,
@@ -122,6 +125,11 @@ class TestProfileInfoView(TestCase):
         self.pleb.email_verified = True
         self.pleb.completed_profile_info = False
         self.pleb.save()
+        try:
+            PublicOfficial.nodes.get(title="president")
+        except(DoesNotExist, PublicOfficial.DoesNotExist):
+            PublicOfficial(bioguideid=str(uuid1()), title="president",
+                           gt_id=str(uuid1())).save()
         addresses = Address.nodes.all()
         for address in addresses:
             if self.pleb.address.is_connected(address):

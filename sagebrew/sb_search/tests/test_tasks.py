@@ -241,7 +241,7 @@ class TestUpdateSearchObject(TestCase):
         self.pleb.profile_pic = str(uuid1())
         self.pleb.save()
         task_data = {
-            "object_uuid": self.pleb.username,
+            "object_uuid": self.pleb.object_uuid,
             "label": "pleb"
         }
         res = update_search_object.apply_async(kwargs=task_data)

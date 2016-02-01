@@ -77,22 +77,6 @@ class TestCreateWallTask(TestCase):
 
         self.assertFalse(isinstance(res.result, Exception))
 
-    def test_create_wall_task_pleb_has_more_than_one_wall(self):
-        wall = Wall(wall_id=str(uuid1())).save()
-        wall2 = Wall(wall_id=str(uuid1())).save()
-        wall.owned_by.connect(self.fake_pleb)
-        self.fake_pleb.wall.connect(wall)
-        self.fake_pleb.wall.connect(wall2)
-        task_data = {
-            'username': self.fake_user.username,
-        }
-
-        res = create_wall_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-
-        self.assertFalse(res.result)
-
 
 class TestFinalizeCitizenCreationTask(TestCase):
     def setUp(self):

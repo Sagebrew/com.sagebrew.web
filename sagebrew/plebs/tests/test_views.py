@@ -3,7 +3,7 @@ from base64 import b64encode
 from json import loads
 
 from rest_framework import status
-from rest_framework.test import APIRequestFactory, APITestCase
+from rest_framework.test import APIRequestFactory
 
 from django.contrib.auth.models import User, AnonymousUser
 from django.test import TestCase, Client
@@ -435,24 +435,5 @@ class TestSettingPages(TestCase):
         cache.set(self.pleb.username, self.pleb)
         self.client.login(username=self.user.username, password=self.password)
         url = reverse("contribute_settings")
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-
-class TestUserSearchView(APITestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.pleb.completed_profile_info = True
-        self.pleb.email_verified = True
-        self.pleb.save()
-
-    def test_get_user_search_view(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse("get_user_search_view",
-                      kwargs={"pleb_username": self.pleb.username})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

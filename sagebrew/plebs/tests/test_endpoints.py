@@ -2655,6 +2655,11 @@ class AddressEndpointTests(APITestCase):
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
+        try:
+            PublicOfficial.nodes.get(title="president")
+        except(DoesNotExist, PublicOfficial.DoesNotExist):
+            PublicOfficial(bioguideid=str(uuid1()), title="president",
+                           gt_id=str(uuid1())).save()
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",

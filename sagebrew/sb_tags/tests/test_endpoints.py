@@ -55,7 +55,6 @@ class TagEndpointTest(APITestCase):
         url = reverse('tag-detail',
                       kwargs={"name": self.tag.name})
         response = self.client.get(url)
-        print response.data
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['id'], self.tag.object_uuid)
         self.assertIn('http', response.data['href'])

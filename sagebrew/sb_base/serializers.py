@@ -3,8 +3,6 @@ import markdown
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from neomodel import db
-
 from api.serializers import SBSerializer
 from api.utils import gather_request_data
 
@@ -160,32 +158,3 @@ class MarkdownContentSerializer(ContentSerializer):
 class TitledContentSerializer(MarkdownContentSerializer):
     title = serializers.CharField(required=False,
                                   min_length=15, max_length=140)
-
-
-class CampaignAttributeSerializer(SBSerializer):
-    """
-    This serializer is inherited from by both the GoalSerializer and
-    RoundSerializer. We can have our logic for getting campaigns in
-    this serializer so we don't have to repeat code. We can also use this
-    for any object we need in the future that needs to get the campaign it is
-    related to.
-    """
-    campaign = serializers.SerializerMethodField()
-
-    def get_campaign(self, obj):
-        request, _, _, relation, expedite = gather_request_data(self.context)
-        if expedite == 'true':
-            return None
-        query = 'MATCH (o:`%s` {object_uuid:"%s"})-[:ASSOCIATED_WITH]-' \
-                '(c:Campaign) RETURN c.object_uuid' % (obj.get_child_label(),
-                                                       obj.object_uuid)
-        res, col = db.cypher_query(query)
-        try:
-            if relation == 'hyperlink':
-                return reverse('campaign-detail',
-                               kwargs={'object_uuid': res[0][0]},
-                               request=request)
-
-            return res[0][0]
-        except IndexError:
-            return None

@@ -55,7 +55,7 @@ class TestCreateWallTask(TestCase):
 
     def test_create_wall_task_success(self):
         task_data = {
-            'user_instance': self.fake_user
+            'username': self.fake_user.username
         }
         res = create_wall_task.apply_async(kwargs=task_data)
         while not res.ready():
@@ -68,7 +68,7 @@ class TestCreateWallTask(TestCase):
         wall.owned_by.connect(self.fake_pleb)
         self.fake_pleb.wall.connect(wall)
         task_data = {
-            'user_instance': self.fake_user,
+            'username': self.fake_user.username,
         }
 
         res = create_wall_task.apply_async(kwargs=task_data)
@@ -84,7 +84,7 @@ class TestCreateWallTask(TestCase):
         self.fake_pleb.wall.connect(wall)
         self.fake_pleb.wall.connect(wall2)
         task_data = {
-            'user_instance': self.fake_user,
+            'username': self.fake_user.username,
         }
 
         res = create_wall_task.apply_async(kwargs=task_data)
@@ -129,7 +129,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
 
     def test_finalize_citizen_creation_email_not_sent(self):
         task_data = {
-            'user_instance': self.fake_user
+            'username': self.fake_user.username
         }
         res = finalize_citizen_creation.apply_async(kwargs=task_data)
         while not res.ready():
@@ -141,7 +141,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
         self.fake_pleb.initial_verification_email_sent = True
         self.fake_pleb.save()
         task_data = {
-            'user_instance': self.fake_user
+            'username': self.fake_user.username
         }
         res = finalize_citizen_creation.apply_async(kwargs=task_data)
         while not res.ready():

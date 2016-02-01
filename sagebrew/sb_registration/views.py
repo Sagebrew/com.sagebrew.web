@@ -15,7 +15,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-from neomodel import (DoesNotExist, CypherException, db)
+from neomodel import (CypherException, db)
 
 from api.utils import spawn_task
 from plebs.tasks import send_email_task, update_address_location
@@ -31,7 +31,7 @@ from .models import token_gen
 
 def signup_view(request):
     if request.user.is_authenticated() is True:
-        res, _ = db.cypher_query("MATCH (a:%s {username:'%s'}) RETURN a" %
+        res, _ = db.cypher_query("MATCH (a:Pleb {username:'%s'}) RETURN a" %
                                  request.user.username)
         if res.one:
             res.one.pull()
@@ -81,7 +81,7 @@ def login_view(request):
 @login_required()
 def resend_email_verification(request):
     try:
-        res, _ = db.cypher_query("MATCH (a:%s {username:'%s'}) RETURN a" %
+        res, _ = db.cypher_query("MATCH (a:Pleb {username:'%s'}) RETURN a" %
                                  request.user.username)
         if res.one:
             res.one.pull()
@@ -160,7 +160,7 @@ def logout_view(request):
 @login_required()
 def email_verification(request, confirmation):
     try:
-        res, _ = db.cypher_query("MATCH (a:%s {username:'%s'}) RETURN a" %
+        res, _ = db.cypher_query("MATCH (a:Pleb {username:'%s'}) RETURN a" %
                                  request.user.username)
         if res.one:
             res.one.pull()
@@ -201,7 +201,7 @@ def profile_information(request):
     address_key = settings.ADDRESS_AUTH_ID
     address_information_form = AddressInfoForm(request.POST or None)
     try:
-        res, _ = db.cypher_query("MATCH (a:%s {username:'%s'}) RETURN a" %
+        res, _ = db.cypher_query("MATCH (a:Pleb {username:'%s'}) RETURN a" %
                                  request.user.username)
         if res.one:
             res.one.pull()

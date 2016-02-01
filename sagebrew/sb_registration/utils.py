@@ -218,7 +218,7 @@ def create_user_util_test(email, first_name="test", last_name="test",
         raise False
     if task:
         res = spawn_task(task_func=create_wall_task,
-                         task_param={"user_instance": user})
+                         task_param={"username": user.username})
         spawn_task(task_func=generate_oauth_info,
                    task_param={'username': user.username,
                                'password': password},

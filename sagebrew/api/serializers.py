@@ -24,7 +24,7 @@ class SBSerializer(serializers.Serializer):
     def update(self, instance, validated_data):
         task_param = {
             "object_uuid": instance.object_uuid,
-            "instance": instance
+            "label": instance.get_child_label().lower()
         }
         spawn_task(task_func=update_search_object, task_param=task_param)
         return instance

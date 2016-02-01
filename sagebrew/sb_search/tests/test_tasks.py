@@ -41,7 +41,7 @@ class TestUpdateSearchQuery(TestCase):
         test_query.save()
 
         task_data = {
-            "pleb": str(uuid1()), "query_param": test_query.search_query,
+            "username": str(uuid1()), "query_param": test_query.search_query,
             "keywords": ['fake', 'keywords']
         }
 
@@ -60,7 +60,7 @@ class TestUpdateSearchQuery(TestCase):
         test_query.save()
 
         task_data = {
-            "pleb": str(uuid1()), "query_param": test_query.search_query,
+            "username": str(uuid1()), "query_param": test_query.search_query,
             "keywords": ['fake', 'keywords']
         }
 
@@ -80,7 +80,8 @@ class TestUpdateSearchQuery(TestCase):
         test_query.save()
 
         task_data = {
-            "pleb": self.pleb.username, "query_param": test_query.search_query,
+            "username": self.pleb.username,
+            "query_param": test_query.search_query,
             "keywords": ['fake', 'keywords']
         }
 
@@ -98,7 +99,8 @@ class TestUpdateSearchQuery(TestCase):
         self.pleb.searches.connect(test_query)
 
         task_data = {
-            "pleb": self.pleb.username, "query_param": test_query.search_query,
+            "username": self.pleb.username,
+            "query_param": test_query.search_query,
             "keywords": ['fake', 'keywords']
         }
 
@@ -110,7 +112,8 @@ class TestUpdateSearchQuery(TestCase):
 
     def test_update_search_query_query_does_not_exist(self):
         task_data = {
-            "pleb": self.pleb.username, "query_param": str(uuid1()),
+            "username": self.pleb.username,
+            "query_param": str(uuid1()),
             "keywords": ['fake', 'keywords']
         }
 

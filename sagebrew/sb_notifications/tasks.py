@@ -9,7 +9,7 @@ from .utils import create_notification_util
 @shared_task()
 def spawn_notifications(sb_object, from_pleb, to_plebs, notification_id, url,
                         action_name, public=False):
-    '''
+    """
     This function will take an object(post,comment,solution,etc.), the type of
     the object, from_pleb and a to_pleb. To pleb can be a list of people or
     just a singular pleb and will create a notification about the object
@@ -18,8 +18,10 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, notification_id, url,
     :param from_pleb:
     :param to_plebs:
     :param notification_id
+    :param action_name
+    :param public
     :return:
-    '''
+    """
     plebeians = []
     if from_pleb in to_plebs:
         to_plebs.remove(from_pleb)

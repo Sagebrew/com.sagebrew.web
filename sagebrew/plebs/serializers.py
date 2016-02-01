@@ -198,7 +198,7 @@ class PlebSerializerNeo(SBSerializer):
                 request.session['account_type'] = quest_registration
                 request.session.set_expiry(1800)
         spawn_task(task_func=create_wall_task,
-                   task_param={"user_instance": user})
+                   task_param={"username": user.username})
         spawn_task(task_func=generate_oauth_info,
                    task_param={'username': user.username,
                                'password': validated_data['password']},
@@ -352,7 +352,6 @@ class AddressSerializer(SBSerializer):
         pleb.completed_profile_info = True
         pleb.save()
         pleb.determine_reps()
-        cache.delete(pleb.username)
         spawn_task(task_func=update_address_location,
                    task_param={"object_uuid": address.object_uuid})
         return address

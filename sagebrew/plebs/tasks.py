@@ -7,6 +7,7 @@ from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
 from django.core.cache import cache
+from django.contrib.auth.models import User
 
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
@@ -17,7 +18,6 @@ from neomodel import DoesNotExist, CypherException, db
 from api.utils import spawn_task, generate_oauth_user
 from sb_search.tasks import update_search_object
 from sb_base.utils import defensive_exception
-from sb_wall.neo_models import Wall
 from sb_public_official.tasks import create_and_attach_state_level_reps
 from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
@@ -137,16 +137,18 @@ def connect_to_state_districts(object_uuid):
 
 
 @shared_task()
-def finalize_citizen_creation(user_instance=None):
+def finalize_citizen_creation(username):
     # TODO look into celery chaining and/or grouping
-    if user_instance is None:
-        return None
-    username = user_instance.username
-    try:
-        pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist) as e:
-        raise finalize_citizen_creation.retry(exc=e, countdown=3,
-                                              max_retries=None)
+    res, _ = db.cypher_query("MATCH (a:Pleb {username:'%s'}) RETURN a" %
+                             username)
+    if res.one:
+        res.one.pull()
+        pleb = Pleb.inflate(res.one)
+    else:
+        raise finalize_citizen_creation.retry(
+            exc=DoesNotExist('Profile with username: %s '
+                             'does not exist' % username), countdown=3,
+            max_retries=None)
     task_list = {}
     task_data = {
         "object_uuid": pleb.object_uuid,
@@ -160,6 +162,7 @@ def finalize_citizen_creation(user_instance=None):
         task_func=check_privileges, task_param={"username": username},
         countdown=20)
     if not pleb.initial_verification_email_sent:
+        user_instance = User.objects.get(username=username)
         generated_token = token_gen.make_token(user_instance, pleb)
         template_dict = {
             'full_name': user_instance.get_full_name(),
@@ -184,34 +187,24 @@ def finalize_citizen_creation(user_instance=None):
 
 
 @shared_task()
-def create_wall_task(user_instance=None):
-    if user_instance is None:
-        return None
+def create_wall_task(username=None):
     try:
-        pleb = Pleb.nodes.get(username=user_instance.username)
-    except (Pleb.DoesNotExist, DoesNotExist) as e:
-        raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
-    try:
-        wall_list = pleb.wall.all()
-    except(CypherException, IOError) as e:
-        raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
-    if len(wall_list) > 1:
-        return False
-    elif len(wall_list) == 1:
-        pass
-    else:
-        try:
-            wall = Wall(wall_id=str(uuid1())).save()
-            wall.owned_by.connect(pleb)
-            pleb.wall.connect(wall)
-        except(CypherException, IOError) as e:
-            raise create_wall_task.retry(exc=e, countdown=3,
+        query = 'MATCH (pleb:Pleb {username: "%s"})' \
+                '-[:OWNS_WALL]->(wall:Wall) RETURN wall' % username
+        res, _ = db.cypher_query(query)
+        if not res.one:
+            query = 'MATCH (pleb:Pleb {username: "%s"}) ' \
+                    'CREATE UNIQUE (pleb)-[:OWNS_WALL]->' \
+                    '(wall:Wall {wall_id: "%s"}) ' \
+                    'RETURN wall' % (username, str(uuid1()))
+            res, _ = db.cypher_query(query)
+        spawned = spawn_task(task_func=finalize_citizen_creation,
+                             task_param={"username": username})
+        if isinstance(spawned, Exception) is True:
+            raise create_wall_task.retry(exc=spawned, countdown=3,
                                          max_retries=None)
-    spawned = spawn_task(task_func=finalize_citizen_creation,
-                         task_param={"user_instance": user_instance})
-    if isinstance(spawned, Exception) is True:
-        raise create_wall_task.retry(exc=spawned, countdown=3,
-                                     max_retries=None)
+    except (CypherException, IOError, ClientError) as e:
+        raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     return spawned
 
 

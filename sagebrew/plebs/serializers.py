@@ -60,6 +60,7 @@ class ReputationNotificationValidator:
     but also allows creation of the question by setting self.object_uuid to
     None if there is not an instance in the serializer.
     """
+
     def __init__(self):
         pass
 
@@ -266,7 +267,8 @@ class PlebSerializerNeo(SBSerializer):
                 instance.stripe_default_card_id = customer[
                     'sources']['data'][0]['id']
             else:
-                customer = stripe.Customer.retrieve(instance.stripe_customer_id)
+                customer = stripe.Customer.retrieve(
+                    instance.stripe_customer_id)
                 card = customer.sources.create(source=customer_token)
                 instance.stripe_default_card_id = card['id']
         instance.stripe_default_card_id = validated_data.get(
@@ -343,7 +345,8 @@ class AddressSerializer(SBSerializer):
 
     def create(self, validated_data):
         request = self.context.get('request', None)
-        validated_data['state'] = us.states.lookup(validated_data['state']).name
+        validated_data['state'] = us.states.lookup(
+            validated_data['state']).name
         if not validated_data.get('country', False):
             validated_data['country'] = "USA"
         address = Address(**validated_data).save()

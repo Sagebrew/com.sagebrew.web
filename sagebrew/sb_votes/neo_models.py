@@ -10,7 +10,8 @@ from api.neo_models import SBObject
 # of everyone's vote relationships at the time and populate an initial vote
 # node off of that. Then we will track the progression from there.
 
-# We're currently not using this still aside from a reference for the serializer
+# We're currently not using this still aside from a reference for the
+# serializer
 
 
 class Vote(SBObject):

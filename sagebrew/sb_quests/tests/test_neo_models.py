@@ -15,6 +15,7 @@ from sb_missions.neo_models import Mission
 
 
 class TestPosition(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -74,6 +75,7 @@ class TestPosition(TestCase):
 
 
 class TestQuest(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -121,7 +123,7 @@ class TestQuest(TestCase):
         self.assertIn(update.object_uuid, res)
 
     def test_get_donations(self):
-        donation = Donation().save()
+        donation = Donation(amount=100).save()
         mission = Mission().save()
         self.quest.missions.connect(mission)
         donation.mission.connect(mission)
@@ -152,9 +154,11 @@ class TestQuest(TestCase):
         self.assertIn(self.owner.username, res)
 
     def test_get_total_donation_amount(self):
-        donation1 = Donation(amount=10).save()
-        donation2 = Donation(amount=20).save()
-        donation1.quest.connect(self.quest)
-        donation2.quest.connect(self.quest)
+        donation1 = Donation(amount=100).save()
+        donation2 = Donation(amount=200).save()
+        mission = Mission().save()
+        self.quest.missions.connect(mission)
+        donation1.mission.connect(mission)
+        donation2.mission.connect(mission)
         res = self.quest.get_total_donation_amount()
-        self.assertEqual(res, 30)
+        self.assertEqual(res, "2.19")

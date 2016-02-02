@@ -32,6 +32,7 @@ from sb_quests.neo_models import Quest
 
 
 class InterestsTest(TestCase):
+
     def setUp(self):
         call_command("create_prepopulated_tags")
         time.sleep(3)
@@ -116,6 +117,7 @@ class InterestsTest(TestCase):
 
 
 class TestProfileInfoView(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
@@ -435,6 +437,7 @@ class TestProfileInfoView(TestCase):
 
 
 class TestSignupView(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
@@ -460,6 +463,7 @@ class TestSignupView(TestCase):
 
 
 class TestLoginView(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
@@ -478,6 +482,7 @@ class TestLoginView(TestCase):
 
 
 class TestLoginAPIView(TestCase):
+
     def setUp(self):
         self.store = SessionStore()
         self.factory = APIRequestFactory()
@@ -614,6 +619,7 @@ class TestLoginAPIView(TestCase):
 
 
 class TestLogoutView(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
@@ -639,6 +645,7 @@ class TestLogoutView(TestCase):
 
 
 class TestEmailVerificationView(TestCase):
+
     def setUp(self):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
@@ -701,6 +708,7 @@ class TestEmailVerificationView(TestCase):
 
 
 class TestResendEmailVerificationView(TestCase):
+
     def setUp(self):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
@@ -742,6 +750,7 @@ class TestResendEmailVerificationView(TestCase):
 
 
 class TestConfirmView(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
@@ -765,6 +774,7 @@ class TestConfirmView(TestCase):
 
 
 class TestAgeRestrictionView(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
@@ -788,6 +798,7 @@ class TestAgeRestrictionView(TestCase):
 
 
 class TestQuestSignup(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
@@ -809,6 +820,7 @@ class TestQuestSignup(TestCase):
 
 
 class TestProfilePicture(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()

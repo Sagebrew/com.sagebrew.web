@@ -11,7 +11,7 @@ INTERNAL_IPS = ('192.168.56.1',
                 '192.168.56.101:8080',
                 'sagebrew.local.dev',
                 '192.168.33.15', ''
-)
+                )
 
 TEMPLATES = [{
     'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -58,7 +58,7 @@ TEMPLATES = [{
             "sb_base.context_processors.js_settings",
 
         ],
-        'allowed_include_roots': [HELP_DOCS_PATH,]
+        'allowed_include_roots': [HELP_DOCS_PATH, ]
     },
 }]
 
@@ -102,9 +102,9 @@ EMAIL_VERIFICATION_URL = "%s/registration/email_confirmation/" % WEB_ADDRESS
 
 
 BROKER_URL = 'amqp://%s:%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
-                                        environ.get("QUEUE_PASSWORD", ""),
-                                        environ.get("QUEUE_HOST", ""),
-                                        environ.get("QUEUE_PORT", ""))
+                                       environ.get("QUEUE_PASSWORD", ""),
+                                       environ.get("QUEUE_HOST", ""),
+                                       environ.get("QUEUE_PORT", ""))
 CELERY_IGNORE_RESULT = False
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS':

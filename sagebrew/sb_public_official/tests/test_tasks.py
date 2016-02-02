@@ -16,6 +16,7 @@ from sb_public_official.neo_models import PublicOfficial
 
 
 class TestCreateStateDistricts(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)

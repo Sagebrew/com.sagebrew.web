@@ -167,7 +167,7 @@ class AlchemyAPI:
                 self.apikey = key
 
             # Close file
-            #f.close()
+            # f.close()
         except IOError:
             # The file doesn't exist, so show the message and create the file.
             print(

@@ -6,6 +6,7 @@ from plebs.tasks import update_address_location
 
 
 class Command(BaseCommand):
+
     def migrate_addresses(self):
         for address in Address.nodes.all():
             sector_list = []

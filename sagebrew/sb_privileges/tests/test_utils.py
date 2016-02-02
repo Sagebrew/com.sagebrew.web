@@ -20,6 +20,7 @@ from sb_requirements.neo_models import Requirement
 
 
 class TestManagePrivilegeRelation(APITestCase):
+
     def setUp(self):
         query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
@@ -108,6 +109,7 @@ class TestManagePrivilegeRelation(APITestCase):
 
 
 class TestCreatePrivilege(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"

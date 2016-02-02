@@ -10,6 +10,7 @@ from api.utils import wait_util
 
 
 class ProfilePageTest(APITestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"

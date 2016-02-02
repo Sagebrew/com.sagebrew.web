@@ -195,7 +195,7 @@ def profile_information(request):
     try:
         citizen = Pleb.get(username=request.user.username, cache_buster=True)
     except DoesNotExist:
-            return render(request, 'login.html')
+        return render(request, 'login.html')
     except (CypherException, IOError):
         return redirect('500_Error')
     if citizen.completed_profile_info:

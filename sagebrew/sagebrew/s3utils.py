@@ -3,6 +3,7 @@ from storages.backends.s3boto import S3BotoStorage
 
 
 class SBS3BotoStorage(S3BotoStorage):
+
     def url(self, name):
         name = self._normalize_name(self._clean_name(name))
         if self.custom_domain:

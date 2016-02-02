@@ -21,6 +21,7 @@ from sb_quests.neo_models import Quest, Position
 
 
 class MissionEndpointTests(APITestCase):
+
     def setUp(self):
         query = "match (n)-[r]-() delete n,r"
         db.cypher_query(query)
@@ -114,7 +115,8 @@ class MissionEndpointTests(APITestCase):
         michigan.encompassed_by.connect(usa)
         michigan.encompasses.connect(d11)
         d11.encompassed_by.connect(michigan)
-        position = Position(name="House Representative", level="federal").save()
+        position = Position(name="House Representative",
+                            level="federal").save()
         d11.positions.connect(position)
         url = reverse('mission-list')
         data = {

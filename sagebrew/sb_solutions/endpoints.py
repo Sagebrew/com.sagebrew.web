@@ -99,7 +99,8 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                     "CASE WHEN v.vote_type=True THEN vote_count+1 " \
                     "WHEN v.vote_type=False THEN vote_count-1 " \
                     "ELSE vote_count END) as reduction " \
-                    "ORDER BY reduction DESC" % (self.kwargs[self.lookup_field])
+                    "ORDER BY reduction DESC" % (
+                        self.kwargs[self.lookup_field])
         else:
             query = "MATCH (a:Question {object_uuid:'%s'})-" \
                     "[:POSSIBLE_ANSWER]->" \

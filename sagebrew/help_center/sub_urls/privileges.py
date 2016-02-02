@@ -16,7 +16,7 @@ urlpatterns = patterns(
                     settings.HELP_DOCS_PATH),
             "category": "privileges",
             "static_files": True,
-        },
+    },
         name="participate_in_the_conversation"),
     url(r'^upvote/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -28,7 +28,7 @@ urlpatterns = patterns(
                 "%s10_upvote.html" % settings.HELP_DOCS_PATH,
             "category": "privileges",
             "static_files": True,
-        },
+    },
         name="upvote"),
     url(r'^comment/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -42,7 +42,7 @@ urlpatterns = patterns(
             "content_path":
                 "%s20_comment.html" % settings.HELP_DOCS_PATH,
             "category": "privileges"
-        },
+    },
         name="comment"),
     url(r'^flagging/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -54,7 +54,7 @@ urlpatterns = patterns(
             "content_path":
                 "%s50_flagging.html" % settings.HELP_DOCS_PATH,
             "category": "privileges"
-        },
+    },
         name="flagging"),
     url(r'^downvote/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -66,7 +66,7 @@ urlpatterns = patterns(
             "content_path":
                 "%s100_downvote.html" % settings.HELP_DOCS_PATH,
             "category": "privileges"
-        },
+    },
         name="downvote"),
     # url(r'^explicit_content/$', TemplateView.as_view(
     #    template_name="help_page.html"),
@@ -91,7 +91,7 @@ urlpatterns = patterns(
                 "%s1000_barista.html" % settings.HELP_DOCS_PATH,
             "category": "privileges",
             "static_files": True,
-        },
+    },
         name="barista"),
     url(r'^tagging/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -103,7 +103,7 @@ urlpatterns = patterns(
             "content_path":
                 "%s1250_tagging.html" % settings.HELP_DOCS_PATH,
             "category": "privileges"
-        },
+    },
         name="tagging"),
     url(r'^brewmaster/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -118,7 +118,7 @@ urlpatterns = patterns(
                 "%s10000_brewmaster.html" % settings.HELP_DOCS_PATH,
             "category": "privileges",
             "static_files": True,
-        },
+    },
         name="brewmaster"),
     url(r'^tribune/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -129,7 +129,7 @@ urlpatterns = patterns(
                 "%s12500_tribune.html" % settings.HELP_DOCS_PATH,
             "category": "privileges",
             "static_files": True,
-        },
+    },
         name="tribune"),
     url(r'^participate_in_the_conversation/$', RedirectView.as_view(
         url='/help/privileges/participate-in-the-conversation/', permanent=True),

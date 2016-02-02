@@ -18,6 +18,7 @@ from sb_flags.neo_models import Flag
 
 
 class CouncilEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'sbcontent'
         self.email = "success@simulator.amazonses.com"

@@ -303,8 +303,9 @@ class QuestViewSet(viewsets.ModelViewSet):
                 donation.update(donation.pop('address', {}))
                 application_fee = donation['amount'] * (
                     quest.application_fee +
-                    settings.STRIPE_TRANSACTION_PERCENT) + .3
-                donation['amount'] -= application_fee
+                    settings.STRIPE_TRANSACTION_PERCENT) + 30
+                donation['amount'] = '{:,.2f}'.format(
+                    float(donation['amount'] - application_fee) / 100)
             for key in donation_info[0].keys():
                 new_key = key.replace('_', ' ').title()
                 for donation in donation_info:

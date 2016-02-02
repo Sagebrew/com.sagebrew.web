@@ -30,6 +30,7 @@ from sb_registration.utils import create_user_util_test
 
 
 class TestPleb(TestCase):
+
     def test_pickle_does_not_exist(self):
         try:
             Pleb.nodes.get(email="notanemail@example.com")
@@ -40,6 +41,7 @@ class TestPleb(TestCase):
 
 
 class TestCreateFriendRequestUtil(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -90,6 +92,7 @@ class TestCreateFriendRequestUtil(TestCase):
 
 
 class TestGenerateUsername(TestCase):
+
     def test_generate_username(self):
         res = generate_username("Test", "Username")
         self.assertEqual(res, "test_username")

@@ -13,6 +13,7 @@ from sb_search.utils import (remove_search_object)
 
 
 class TestRemoveSearchObject(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"

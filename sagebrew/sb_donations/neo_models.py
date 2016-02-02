@@ -30,7 +30,7 @@ class Donation(SBObject):
     # Amount is an Integer to adhere to Stripe's API and to ensure precision
     # http://stackoverflow.com/questions/3730019/why-not-use-double-or-
     # float-to-represent-currency
-    amount = IntegerProperty()
+    amount = IntegerProperty(required=True)
     # optimization
     owner_username = StringProperty()
     stripe_charge_id = StringProperty()
@@ -41,7 +41,8 @@ class Donation(SBObject):
     # RelationshipTo('plebs.neo_models.Pleb')
 
     # relationships
-    mission = RelationshipTo('sb_missions.neo_models.Mission', "CONTRIBUTED_TO")
+    mission = RelationshipTo(
+        'sb_missions.neo_models.Mission', "CONTRIBUTED_TO")
     quest = RelationshipTo('sb_quests.neo_models.Quest', "CONTRIBUTED_TO")
 
     # DEPRECATIONS

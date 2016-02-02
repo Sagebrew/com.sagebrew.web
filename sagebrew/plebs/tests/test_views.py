@@ -21,6 +21,7 @@ from plebs.views import (ProfileView, create_friend_request)
 
 
 class ProfilePageTest(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.client = Client()
@@ -292,6 +293,7 @@ class ProfilePageTest(TestCase):
 
 
 class TestCreateFriendRequestView(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
@@ -400,6 +402,7 @@ class TestCreateFriendRequestView(TestCase):
 
 
 class TestSettingPages(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.client = Client()

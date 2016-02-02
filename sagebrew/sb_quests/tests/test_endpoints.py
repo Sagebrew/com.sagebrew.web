@@ -24,6 +24,7 @@ from sb_quests.serializers import QuestSerializer
 
 
 class QuestEndpointTests(APITestCase):
+
     def setUp(self):
         query = "match (n)-[r]-() delete n,r"
         db.cypher_query(query)
@@ -440,6 +441,7 @@ class QuestEndpointTests(APITestCase):
 
 
 class PositionEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'position'
         self.email = "success@simulator.amazonses.com"

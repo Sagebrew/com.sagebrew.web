@@ -8,6 +8,7 @@ class EmailAuthTokenGenerator(object):
     '''
     This object is created for user email verification
     '''
+
     def make_token(self, user, pleb):
         if pleb is None:
             return None

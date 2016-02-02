@@ -10,7 +10,7 @@ from plebs.neo_models import Pleb
 class Command(BaseCommand):
     args = 'None.'
 
-    def update_pleb_search(self):
+    def remove_duplicate_plebs_search(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         for pleb in Pleb.nodes.all():
             try:
@@ -20,4 +20,4 @@ class Command(BaseCommand):
                 pass
 
     def handle(self, *args, **options):
-        self.update_pleb_search()
+        self.remove_duplicate_plebs_search()

@@ -3,8 +3,6 @@ from django.core.management.base import BaseCommand
 
 from elasticsearch import Elasticsearch, NotFoundError
 
-from plebs.neo_models import Pleb
-
 
 class Command(BaseCommand):
     args = 'None.'
@@ -17,9 +15,6 @@ class Command(BaseCommand):
                       doc_type="quest")
         except NotFoundError:
             pass
-        for pleb in Pleb.nodes.all():
-            es.delete(index="full-search-base", id=pleb.username,
-                      doc_type="profile")
 
     def handle(self, *args, **options):
         self.remove_duplicate()

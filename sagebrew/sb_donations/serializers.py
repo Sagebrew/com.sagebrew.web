@@ -161,8 +161,8 @@ class DonationSerializer(SBSerializer):
             return None
         quest = Quest.inflate(res.one)
         application_fee = obj.amount * (
-                    quest.application_fee +
-                    settings.STRIPE_TRANSACTION_PERCENT) + 30
+            quest.application_fee +
+            settings.STRIPE_TRANSACTION_PERCENT) + 30
         return '{:,.2f}'.format(float(obj.amount - application_fee) / 100)
 
 

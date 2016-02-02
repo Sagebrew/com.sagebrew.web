@@ -57,7 +57,6 @@ checkout:
 
 test:
   override:
-    - find ~/com.sagebrew.web/sagebrew/ -name '*.py' -exec autopep8 --in-place '{}' \;
     - flake8 ~/com.sagebrew.web/sagebrew/ --ignore C901
     - coverage run --source='.' manage.py test --failfast
     - coverage html --fail-under=70

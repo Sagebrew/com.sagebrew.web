@@ -15,6 +15,7 @@ from sb_uploads.neo_models import URLContent
 
 
 class UploadEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -179,6 +180,7 @@ class UploadEndpointTests(APITestCase):
 
 
 class URLContentEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"

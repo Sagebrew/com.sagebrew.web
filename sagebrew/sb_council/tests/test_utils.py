@@ -11,6 +11,7 @@ from sb_council.utils import update_closed, check_closed_reputation_changes
 
 
 class TestUpdateClosed(TestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'sbcontent'
         self.email = "success@simulator.amazonses.com"
@@ -59,6 +60,7 @@ class TestUpdateClosed(TestCase):
 
 
 class TestCheckClosedReputationChanges(TestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'sbcontent'
         self.email = "success@simulator.amazonses.com"

@@ -13,6 +13,7 @@ from sb_base.neo_models import (get_parent_votable_content, VotableContent,
 
 
 class TestVotableContentNeoModel(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -71,6 +72,7 @@ class TestVotableContentNeoModel(TestCase):
 
 
 class TestTaggableContent(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -91,6 +93,7 @@ class TestTaggableContent(TestCase):
 
 
 class TestVersionedContent(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -117,6 +120,7 @@ class TestVersionedContent(TestCase):
 
 
 class TestGetParentVotableContent(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -136,6 +140,7 @@ class TestGetParentVotableContent(TestCase):
 
 
 class TestGetUploadedObject(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -160,6 +165,7 @@ class TestGetUploadedObject(TestCase):
 
 
 class TestGetParentTitledContent(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)

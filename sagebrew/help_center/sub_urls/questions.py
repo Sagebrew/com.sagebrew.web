@@ -15,7 +15,7 @@ urlpatterns = patterns(
             "content_path":
                 "%scontext_to_a_question.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
-        },
+    },
         name="context_to_a_question"),
     url(r'^duplicates/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -28,7 +28,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sduplicates.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
-        },
+    },
         name="duplicates"),
     url(r'^formatting/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -40,7 +40,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sgood_question.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
-        },
+    },
         name="good_question"),
     url(r'^no-traffic/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -52,7 +52,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sno_traffic.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
-        },
+    },
         name="no_traffic"),
     url(r'^quality-standards/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -67,7 +67,7 @@ urlpatterns = patterns(
             "content_path":
                 "%squality_standards_message.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
-        },
+    },
         name="quality_standards"),
     url(r'^questions-avoid-asking/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -79,7 +79,7 @@ urlpatterns = patterns(
             "content_path":
                 "%squestions_avoid_asking.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
-        },
+    },
         name="questions_avoid_asking"),
     url(r'^questions-no-longer-accepted/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -93,7 +93,7 @@ urlpatterns = patterns(
                 "%squestions_no_longer_accepted.html" % (
                     settings.HELP_DOCS_PATH),
             "category": "questions"
-        },
+    },
         name="questions_no_longer_accepted"),
     url(r'^solution-to-question/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -107,7 +107,7 @@ urlpatterns = patterns(
             "content_path":
                 "%ssolution_to_question.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
-        },
+    },
         name="solution_to_question"),
     url(r'^tags/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -119,7 +119,7 @@ urlpatterns = patterns(
             "content_path":
                 "%stags_and_how_to_use_them.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
-        },
+    },
         name="tags_and_how_to_use_them"),
     url(r'^topics-to-ask-about/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -131,7 +131,7 @@ urlpatterns = patterns(
             "content_path":
                 "%stopics_to_ask_about.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
-        },
+    },
         name="topics_to_ask_about"),
     url(r'^traffic-no-solutions/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -145,7 +145,7 @@ urlpatterns = patterns(
             "content_path":
                 "%straffic_no_solutions.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
-        },
+    },
         name="traffic_no_solutions"),
     url(r'^no_traffic/$', RedirectView.as_view(
         url='/help/questions/no-traffic/', permanent=True),
@@ -185,5 +185,5 @@ if settings.DEBUG is True:
             "content_path":
                 "%sclosure_of_a_question.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
-        },
+    },
         name="closure_of_a_question"),

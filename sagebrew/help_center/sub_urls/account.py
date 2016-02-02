@@ -16,7 +16,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sdelete_account.html" % settings.HELP_DOCS_PATH,
             "category": "account"
-        },
+    },
         name="delete_account"),
     url(r'^reset-password/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -28,7 +28,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sreset_password.html" % settings.HELP_DOCS_PATH,
             "category": "account"
-            },
+    },
         name="reset_password"),
     url(r'^why-join/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -40,7 +40,7 @@ urlpatterns = patterns(
             "content_path":
                 "%screate_an_account.html" % settings.HELP_DOCS_PATH,
             "category": "account"
-        },
+    },
         name="create_an_account"),
     url(r'^restriction-on-asking/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -53,7 +53,7 @@ urlpatterns = patterns(
             "content_path":
                 "%srestriction_on_asking.html" % settings.HELP_DOCS_PATH,
             "category": "account"
-        },
+    },
         name="restriction_on_asking"),
     url(r'^delete_account/$', RedirectView.as_view(
         url='/help/accounts/delete-account/', permanent=True),
@@ -81,6 +81,6 @@ if settings.DEBUG is True:
                 "content_path":
                     "%schange_password.html" % settings.HELP_DOCS_PATH,
                 "category": "account"
-            },
+        },
             name="change_password"),
     )

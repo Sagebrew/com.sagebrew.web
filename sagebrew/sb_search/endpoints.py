@@ -67,7 +67,7 @@ class SearchViewSet(ListAPIView):
             except KeyError:
                 raise ValidationError("Invalid filter parameter")
 
-        task_param = {"pleb": self.request.user.username,
+        task_param = {"username": self.request.user.username,
                       "query_param": query_param,
                       "keywords": keywords}
         # we do not notify users if this task fails to spawn because it is

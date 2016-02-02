@@ -16,7 +16,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sdonation_goals.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
-        },
+    },
         name="donation_goals"),
     url(r'^funding-not-in-account/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -31,7 +31,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sfunding_not_in_account.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
-        },
+    },
         name="funding_not_in_account"),
     url(r'^how-to-export-contributions/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -43,7 +43,7 @@ urlpatterns = patterns(
             "content_path":
                 "%show_export_contributions.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
-        },
+    },
         name="how_to_export_contributions"),
     url(r'^how-to-get-on-the-ballot/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -54,7 +54,7 @@ urlpatterns = patterns(
             "content_path":
                 "%show_to_get_name_on_ballot.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
-        },
+    },
         name="how_to_get_on_the_ballot"),
     url(r'^how-to-run/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -65,7 +65,7 @@ urlpatterns = patterns(
             "content_path":
                 "%show_to_run_for_office.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
-        },
+    },
         name="how_to_run"),
     url(r'^name-on-ballot-to-run/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -78,7 +78,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sname_on_ballot_to_run.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
-        },
+    },
         name="name_on_ballot_to_run"),
     url(r'^need-more-help-public-official/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -90,7 +90,7 @@ urlpatterns = patterns(
                 "%sneed_more_help_repsagetribune.html" % (
                     settings.HELP_DOCS_PATH),
             "category": "quest"
-        },
+    },
         name="need_more_help_repsagetribune"),
     url(r'^principal-campaign-committee/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -101,7 +101,7 @@ urlpatterns = patterns(
                 "%swhat_is_principle_campaign_committee.html" % (
                     settings.HELP_DOCS_PATH),
             "category": "quest"
-        },
+    },
         name="principle_campaign_committee"),
     url(r'^quest/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -114,7 +114,7 @@ urlpatterns = patterns(
                 "%squest_signup.html" % settings.HELP_DOCS_PATH,
             "category": "quest",
             "static_files": True
-        },
+    },
         name="quest_signup"),
     url(r'^donation_goals/$', RedirectView.as_view(
         url='/help/quest/goals/', permanent=True), name='goals_redirect'),

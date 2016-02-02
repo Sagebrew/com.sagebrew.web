@@ -8,9 +8,6 @@ from django.core.servers.basehttp import FileWrapper
 from django.conf import settings
 from django.core.cache import cache
 
-from django.template.loader import render_to_string
-from django.templatetags.static import static
-
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
                                         IsAuthenticated, IsAdminUser)
 from rest_framework.exceptions import ValidationError
@@ -23,21 +20,16 @@ from neomodel import db
 
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrModerator,
                              IsOwnerOrEditor, IsOwnerOrModeratorOrReadOnly)
-from sb_goals.serializers import GoalSerializer
 
-from plebs.serializers import PlebSerializerNeo
-from plebs.neo_models import Pleb
 from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
 from sb_donations.serializers import DonationExportSerializer
 from sb_search.utils import remove_search_object
 
-from .serializers import (CampaignSerializer, PoliticalCampaignSerializer,
-                          EditorSerializer, ModeratorSerializer,
+from .serializers import (EditorSerializer, ModeratorSerializer,
                           PositionSerializer,
-                          PositionManagerSerializer, QuestSerializer,
-                          AccountantSerializer)
-from .neo_models import Campaign, PoliticalCampaign, Position, Quest
+                          PositionManagerSerializer, QuestSerializer)
+from .neo_models import Position, Quest
 
 
 class QuestViewSet(viewsets.ModelViewSet):
@@ -294,6 +286,7 @@ class QuestViewSet(viewsets.ModelViewSet):
         """
         This endpoint allows for the owner or accountants to get a .csv file
         containing all of the data for donations given to the mission.
+        :param owner_username:
         :param request:
         :return:
         """
@@ -310,8 +303,9 @@ class QuestViewSet(viewsets.ModelViewSet):
                 donation.update(donation.pop('address', {}))
                 application_fee = donation['amount'] * (
                     quest.application_fee +
-                    settings.STRIPE_TRANSACTION_PERCENT) + .3
-                donation['amount'] -= application_fee
+                    settings.STRIPE_TRANSACTION_PERCENT) + 30
+                donation['amount'] = '{:,.2f}'.format(
+                    float(donation['amount'] - application_fee) / 100)
             for key in donation_info[0].keys():
                 new_key = key.replace('_', ' ').title()
                 for donation in donation_info:
@@ -346,6 +340,8 @@ class QuestViewSet(viewsets.ModelViewSet):
     def follow(self, request, owner_username=None):
         """
         This endpoint allows users to follow Quests.
+        :param request:
+        :param owner_username:
         """
         queryset = self.get_object()
         is_following = queryset.is_following(request.user.username)
@@ -363,6 +359,8 @@ class QuestViewSet(viewsets.ModelViewSet):
     def unfollow(self, request, owner_username=None):
         """
         This endpoint allows users to unfollow Quests.
+        :param request:
+        :param owner_username:
         """
         queryset = self.get_object()
         is_following = queryset.is_following(request.user.username)
@@ -373,244 +371,6 @@ class QuestViewSet(viewsets.ModelViewSet):
         queryset.unfollow(request.user.username)
         return Response({"detail": "Successfully unfollowed user.",
                          "status": status.HTTP_200_OK},
-                        status=status.HTTP_200_OK)
-
-
-class CampaignViewSet(viewsets.ModelViewSet):
-    serializer_class = CampaignSerializer
-    lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
-    def get_queryset(self):
-        query = "MATCH (c:`Campaign`) RETURN c"
-        res, col = db.cypher_query(query)
-        try:
-            [row[0].pull() for row in res]
-            return [Campaign.inflate(row[0]) for row in res]
-        except IndexError:
-            return []
-
-    def get_object(self):
-        return Campaign.get(object_uuid=self.kwargs[self.lookup_field])
-
-    def perform_update(self, serializer):
-        serializer.save(stripe_token=self.request.data.get('stripe_token',
-                                                           None),
-                        customer_token=self.request.data.get('customer_token',
-                                                             None),
-                        ein=self.request.data.get('ein', None),
-                        ssn=self.request.data.get('ssn', None),
-                        activate=self.request.data.get('activate', None))
-
-    @detail_route(methods=['get'],
-                  permission_classes=(IsAuthenticated, IsOwnerOrEditor))
-    def editors(self, request, object_uuid=None):
-        """
-        This is a method on the endpoint because there should be no reason
-        for people other than the owner or editors to view the editors of
-        the page. We want to keep this information private so that no one
-        other than someone who is associated with the campaign knows who has
-        access to edit the campaign.
-
-        :param request:
-        :param object_uuid:
-        :return:
-        """
-        self.check_object_permissions(request, object_uuid)
-        queryset = Campaign.get_editors(object_uuid)
-        html = request.query_params.get('html', 'false').lower()
-        if html == 'true':
-            queryset.remove(object_uuid)
-            return Response({"ids": queryset, "html": [
-                render_to_string("current_editor.html",
-                                 PlebSerializerNeo(Pleb.get(pleb)).data)
-                for pleb in queryset]}, status=status.HTTP_200_OK)
-        return Response(Campaign.get_editors(object_uuid),
-                        status=status.HTTP_200_OK)
-
-    @detail_route(methods=['post'],
-                  serializer_class=EditorSerializer,
-                  permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
-    def add_editors(self, request, object_uuid=None):
-        """
-        This method will take a list of usernames which will be added to the
-        editors of the campaign. Only to be used to add a list of editors to
-        the campaign. We are not fully modifying the list we are just adding
-        to it.
-
-        :param request:
-        :return:
-        """
-        serializer = self.get_serializer(self.get_object(), data=request.data)
-        html = request.query_params.get('html', 'false').lower()
-        if serializer.is_valid():
-            serializer.save()
-            if html == 'true':
-                return Response(
-                    {"ids": serializer.validated_data['profiles'],
-                     "html": [render_to_string("current_editor.html",
-                                               PlebSerializerNeo(
-                                                   Pleb.get(pleb)).data)
-                              for pleb in
-                              serializer.validated_data['profiles']]},
-                    status=status.HTTP_200_OK)
-            return Response({"detail": "Successfully added specified users "
-                                       "to your campaign.",
-                             "status": status.HTTP_200_OK,
-                             "developer_message": None},
-                            status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @detail_route(methods=['post'],
-                  serializer_class=EditorSerializer,
-                  permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
-    def remove_editors(self, request, object_uuid=None):
-        """
-        This is a method which will only be used to remove the users
-        in the list posted to this endpoint from the list of allowed editors
-        of the campaign.
-
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        serializer = self.get_serializer(data=request.data)
-        queryset = self.get_object()
-        html = request.query_params.get('html', 'false').lower()
-        if serializer.is_valid():
-            # The profiles key here refers to a list of usernames
-            # not the actual user objects
-            serializer.remove_profiles(queryset)
-            if html == 'true':
-                return Response({"ids": serializer.data['profiles'], "html": [
-                    render_to_string("potential_quest_helper.html",
-                                     PlebSerializerNeo(Pleb.get(pleb)).data)
-                    for pleb in serializer.data['profiles']]},
-                    status=status.HTTP_200_OK)
-            return Response({"detail": "Successfully removed specified "
-                                       "editors from your campaign.",
-                             "status": status.HTTP_200_OK,
-                             "developer_message": None},
-                            status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    @detail_route(methods=['post'],
-                  serializer_class=AccountantSerializer,
-                  permission_classes=(IsAuthenticated, IsOwnerOrAdmin,))
-    def add_accountants(self, request, object_uuid=None):
-        """
-        This helper method will take a list of usernames which are to be added
-        to the list of accountants for the campaign and create the necessary
-        connections.
-
-        :param request:
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        serializer = self.get_serializer(self.get_object(), data=request.data)
-        html = request.query_params.get('html', 'false').lower()
-        if serializer.is_valid():
-            serializer.save()
-            if html == 'true':
-                return Response({"ids": serializer.validated_data['profiles'],
-                                 "html": [render_to_string(
-                                     "current_accountant.html",
-                                     PlebSerializerNeo(Pleb.get(pleb)).data)
-                                     for pleb
-                                     in serializer.validated_data[
-                                     'profiles']]},
-                                status=status.HTTP_200_OK)
-            return Response({"detail": "Successfully added specified users to"
-                                       " your quest moderators.",
-                             "status": status.HTTP_200_OK,
-                             "developer_message": None},
-                            status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class PoliticalCampaignViewSet(CampaignViewSet):
-    serializer_class = PoliticalCampaignSerializer
-    lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticatedOrReadOnly,)
-
-    def get_queryset(self):
-        query = "MATCH (c:`PoliticalCampaign`) RETURN c"
-        res, col = db.cypher_query(query)
-        try:
-            [row[0].pull() for row in res]
-            return [PoliticalCampaign.inflate(row[0]) for row in res]
-        except IndexError:
-            return []
-
-    def get_object(self):
-        return PoliticalCampaign.get(self.kwargs[self.lookup_field])
-
-    def perform_create(self, serializer):
-        instance = serializer.save(position=Position.nodes.get(
-            object_uuid=self.request.data['position']))
-        return instance
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        serializer_data = dict(serializer.data)
-        if serializer_data['wallpaper_pic'] is None:
-            serializer_data['wallpaper_pic'] = static(
-                'images/wallpaper_capitol_2.jpg')
-        if serializer_data['profile_pic'] is None:
-            serializer_data['profile_pic'] = static(
-                'images/sage_coffee_grey-01.png')
-        return Response(serializer_data)
-
-    def update(self, request, *args, **kwargs):
-        if not (request.user.username in
-                Campaign.get_campaign_helpers(
-                    self.kwargs[self.lookup_field])):
-            return Response({"status_code": status.HTTP_403_FORBIDDEN,
-                             "detail": "You are not authorized to access "
-                                       "this page."},
-                            status=status.HTTP_403_FORBIDDEN)
-        return super(PoliticalCampaignViewSet, self).update(request, *args,
-                                                            **kwargs)
-
-    @detail_route(methods=['get'], serializer_class=GoalSerializer)
-    def unassigned_goals(self, request, object_uuid=None):
-        if not (request.user.username in
-                Campaign.get_campaign_helpers(
-                    self.kwargs[self.lookup_field])):
-            return Response({"status_code": status.HTTP_403_FORBIDDEN,
-                             "detail": "You are not authorized to access "
-                                       "this page."},
-                            status=status.HTTP_403_FORBIDDEN)
-        html = request.query_params.get('html', 'false').lower()
-        queryset = PoliticalCampaign.get_unassigned_goals(object_uuid)
-        if html == 'true':
-            return Response([render_to_string(
-                "goal_draggable.html", GoalSerializer(goal).data)
-                for goal in queryset], status=status.HTTP_200_OK)
-        return Response(self.serializer_class(queryset, many=True).data,
-                        status=status.HTTP_200_OK)
-
-    @detail_route(methods=['get'], serializer_class=PlebSerializerNeo)
-    def possible_helpers(self, request, object_uuid=None):
-        if not request.user.username == object_uuid:
-            return Response({"status_code": status.HTTP_403_FORBIDDEN,
-                             "detail": "You are not authorized to access "
-                                       "this page."},
-                            status=status.HTTP_403_FORBIDDEN)
-        html = request.query_params.get('html', 'false').lower()
-        queryset = PoliticalCampaign.get_possible_helpers(object_uuid)
-        if html == 'true':
-            return Response({"ids": queryset,
-                             "html": [
-                                 render_to_string(
-                                     'potential_quest_helper.html',
-                                     PlebSerializerNeo(Pleb.get(pleb)).data)
-                                 for pleb in queryset]},
-                            status=status.HTTP_200_OK)
-        return Response(self.serializer_class(queryset, many=True).data,
                         status=status.HTTP_200_OK)
 
 

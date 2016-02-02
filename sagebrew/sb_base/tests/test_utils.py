@@ -8,6 +8,7 @@ from sb_base.utils import defensive_exception
 
 
 class TestDefensiveExceptionUtil(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)

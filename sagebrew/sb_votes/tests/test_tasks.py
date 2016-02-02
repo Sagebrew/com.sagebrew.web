@@ -17,6 +17,7 @@ from sb_votes.tasks import (vote_object_task, object_vote_notifications,
 
 
 class TestVoteObjectTask(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -108,6 +109,7 @@ class TestVoteObjectTask(TestCase):
 
 
 class TestObjectVoteNotifications(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -236,6 +238,7 @@ class TestObjectVoteNotifications(TestCase):
 
 
 class TestCreateVoteNodeTask(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)

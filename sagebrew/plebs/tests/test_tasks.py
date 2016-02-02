@@ -11,53 +11,16 @@ from api.utils import wait_util
 from plebs.neo_models import Pleb, Address
 from sb_locations.neo_models import Location
 from sb_registration.utils import create_user_util_test
-from plebs.tasks import (create_pleb_task, create_wall_task,
+from plebs.tasks import (create_wall_task,
                          finalize_citizen_creation, send_email_task,
                          create_friend_request_task,
-                         determine_pleb_reps, create_beta_user,
+                         determine_pleb_reps,
                          update_reputation, connect_to_state_districts)
 from sb_wall.neo_models import Wall
 
 
-class TestCreatePlebTask(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        settings.CELERY_ALWAYS_EAGER = True
-        try:
-            pleb = Pleb.nodes.get(
-                email='suppressionlist@simulator.amazonses.com')
-            pleb.delete()
-            user = User.objects.get(
-                email='suppressionlist@simulator.amazonses.com')
-            user.delete()
-        except (Pleb.DoesNotExist, User.DoesNotExist):
-            self.fake_user = User.objects.create_user(
-                first_name='test', last_name='test',
-                email='suppressionlist@simulator.amazonses.com',
-                password='fakepass',
-                username='thisisafakeusername')
-            self.fake_user.save()
-
-    def tearDown(self):
-        self.fake_user.delete()
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_create_pleb_task_success_pleb_exists(self):
-        user_instance = User.objects.get(username=self.username)
-        task_data = {'user_instance': user_instance}
-
-        res = create_pleb_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-        self.assertFalse(isinstance(res.result, Exception))
-
-
 class TestCreateWallTask(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -93,7 +56,7 @@ class TestCreateWallTask(TestCase):
 
     def test_create_wall_task_success(self):
         task_data = {
-            'user_instance': self.fake_user
+            'username': self.fake_user.username
         }
         res = create_wall_task.apply_async(kwargs=task_data)
         while not res.ready():
@@ -106,7 +69,7 @@ class TestCreateWallTask(TestCase):
         wall.owned_by.connect(self.fake_pleb)
         self.fake_pleb.wall.connect(wall)
         task_data = {
-            'user_instance': self.fake_user,
+            'username': self.fake_user.username,
         }
 
         res = create_wall_task.apply_async(kwargs=task_data)
@@ -115,24 +78,9 @@ class TestCreateWallTask(TestCase):
 
         self.assertFalse(isinstance(res.result, Exception))
 
-    def test_create_wall_task_pleb_has_more_than_one_wall(self):
-        wall = Wall(wall_id=str(uuid1())).save()
-        wall2 = Wall(wall_id=str(uuid1())).save()
-        wall.owned_by.connect(self.fake_pleb)
-        self.fake_pleb.wall.connect(wall)
-        self.fake_pleb.wall.connect(wall2)
-        task_data = {
-            'user_instance': self.fake_user,
-        }
-
-        res = create_wall_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-
-        self.assertFalse(res.result)
-
 
 class TestFinalizeCitizenCreationTask(TestCase):
+
     def setUp(self):
         self.email2 = 'suppressionlist@simulator.amazonses.com'
         self.email = "success@simulator.amazonses.com"
@@ -167,7 +115,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
 
     def test_finalize_citizen_creation_email_not_sent(self):
         task_data = {
-            'user_instance': self.fake_user
+            'username': self.fake_user.username
         }
         res = finalize_citizen_creation.apply_async(kwargs=task_data)
         while not res.ready():
@@ -179,7 +127,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
         self.fake_pleb.initial_verification_email_sent = True
         self.fake_pleb.save()
         task_data = {
-            'user_instance': self.fake_user
+            'username': self.fake_user.username
         }
         res = finalize_citizen_creation.apply_async(kwargs=task_data)
         while not res.ready():
@@ -189,6 +137,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
 
 
 class TestSendEmailTask(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -235,6 +184,7 @@ class TestSendEmailTask(TestCase):
 
 
 class TestCreateFriendRequestTask(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -283,6 +233,7 @@ class TestCreateFriendRequestTask(TestCase):
 
 
 class TestDeterminePlebReps(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -305,30 +256,8 @@ class TestDeterminePlebReps(TestCase):
         self.assertTrue(res.result)
 
 
-class TestCreateBetaUser(TestCase):
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        settings.CELERY_ALWAYS_EAGER = True
-
-    def tearDown(self):
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_create_beta_user(self):
-        data = {
-            'email': self.pleb.email
-        }
-        res = create_beta_user.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        self.assertTrue(res.result)
-
-
 class TestUpdateReputation(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -352,6 +281,7 @@ class TestUpdateReputation(TestCase):
 
 
 class TestCreateStateDistricts(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -365,7 +295,8 @@ class TestCreateStateDistricts(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_state_districts(self):
-        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
+        mi = Location(name=us.states.lookup(
+            "MI").name, sector="federal").save()
         address = Address(state="MI", latitude=42.532020,
                           longitude=-83.496500).save()
         lower = Location(name='38', sector='state_lower').save()
@@ -389,7 +320,8 @@ class TestCreateStateDistricts(TestCase):
         lower.delete()
 
     def test_create_state_districts_already_exist(self):
-        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
+        mi = Location(name=us.states.lookup(
+            "MI").name, sector="federal").save()
         address = Address(state="MI", latitude=42.532020,
                           longitude=-83.496500).save()
         upper = Location(name="15", sector="state_upper").save()
@@ -442,7 +374,8 @@ class TestCreateStateDistricts(TestCase):
         self.assertIsInstance(res.result, Exception)
 
     def test_address_has_no_lat_long(self):
-        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
+        mi = Location(name=us.states.lookup(
+            "MI").name, sector="federal").save()
         address = Address(state="MI").save()
         res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
@@ -453,9 +386,11 @@ class TestCreateStateDistricts(TestCase):
         address.delete()
 
     def test_address_has_lat_long_outside_usa(self):
-        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
+        mi = Location(name=us.states.lookup(
+            "MI").name, sector="federal").save()
         # lat/long of Greenwich UK
-        address = Address(state="MI", latitude=51.4800, longitude=0.0000).save()
+        address = Address(state="MI", latitude=51.4800,
+                          longitude=0.0000).save()
         res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
         while not res.ready():

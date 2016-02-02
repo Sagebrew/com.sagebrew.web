@@ -16,7 +16,7 @@ urlpatterns = patterns(
                 "%safter_donating_to_a_candidate.html" % (
                     settings.HELP_DOCS_PATH),
             "category": "citizens"
-        },
+    },
         name="after_donating_to_a_candidate"),
     url(r'^donating-to-a-candidate/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -29,7 +29,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sdonating_to_a_candidate.html" % settings.HELP_DOCS_PATH,
             "category": "citizens"
-        },
+    },
         name="donating_to_a_candidate"),
     url(r'^goals/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -41,7 +41,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sdonation_goals_citizen.html" % settings.HELP_DOCS_PATH,
             "category": "citizens"
-        },
+    },
         name="donation_goals_citizen"),
     url(r'^pledging-votes/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -56,7 +56,7 @@ urlpatterns = patterns(
             "content_path":
                 "%spledging_votes.html" % settings.HELP_DOCS_PATH,
             "category": "citizens"
-        },
+    },
         name="pledging_votes"),
     url(r'^contributions/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -72,7 +72,7 @@ urlpatterns = patterns(
                 "%scampaign_contribution_rules.html" % (
                     settings.HELP_DOCS_PATH),
             "category": "citizens"
-        },
+    },
         name="campaign_contribution_rules"),
     url(r'^quest/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -85,7 +85,7 @@ urlpatterns = patterns(
                 "%saction_area_citizen.html" % (
                     settings.HELP_DOCS_PATH),
             "category": "citizens"
-        },
+    },
         name="quest_citizen"),
     url(r'^donation_goals/$', RedirectView.as_view(
         url='/help/donating/goals/', permanent=True), name='goals_redirect'),

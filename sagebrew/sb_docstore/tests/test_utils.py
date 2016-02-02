@@ -14,6 +14,7 @@ from sb_docstore.utils import (add_object_to_table,
 
 
 class TestDocstoreUtils(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)

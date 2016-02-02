@@ -124,7 +124,6 @@ TEMPLATES = [{
         '%s/sb_comments/templates/' % PROJECT_DIR,
         '%s/sb_council/templates' % PROJECT_DIR,
         '%s/sb_flag/templates/' % PROJECT_DIR,
-        '%s/sb_goals/templates/' % PROJECT_DIR,
         '%s/sb_missions/templates/' % PROJECT_DIR,
         '%s/sb_notifications/templates/' % PROJECT_DIR,
         '%s/sb_posts/templates/' % PROJECT_DIR,
@@ -158,7 +157,7 @@ TEMPLATES = [{
             "plebs.context_processors.request_profile",
             "sb_base.context_processors.js_settings",
         ],
-        'allowed_include_roots': [HELP_DOCS_PATH,],
+        'allowed_include_roots': [HELP_DOCS_PATH, ],
     },
 }]
 
@@ -196,7 +195,6 @@ INSTALLED_APPS = (
     'sb_docstore',
     'sb_donations',
     'sb_flags',
-    'sb_goals',
     'sb_locations',
     'sb_missions',
     'sb_notifications',

@@ -47,6 +47,7 @@ class QuestionTitleUpdate:
     but also allows creation of the question by setting self.object_uuid to
     None if there is not an instance in the serializer.
     """
+
     def __init__(self):
         pass
 
@@ -66,6 +67,7 @@ class QuestionTitleUpdate:
 
 
 class PopulateTags:
+
     def __init__(self):
         pass
 
@@ -203,7 +205,8 @@ class QuestionSerializerNeo(TitledContentSerializer):
                                                            instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.latitude = validated_data.get('latitude', instance.latitude)
-        instance.longitude = validated_data.get('longitude', instance.longitude)
+        instance.longitude = validated_data.get(
+            'longitude', instance.longitude)
         instance.affected_area = validated_data.get('affected_area',
                                                     instance.affected_area)
         instance.external_location_id = validated_data.get(

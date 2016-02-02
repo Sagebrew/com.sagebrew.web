@@ -192,13 +192,16 @@ def populate_prod_env(data):
                         os.environ.get("ELASTIC_SEARCH_KEY_PROD", ""))
     data = data.replace("{{REDIS_LOCATION}}",
                         os.environ.get("REDIS_LOCATION_PROD", ""))
-    data = data.replace("{{REDIS_PORT}}", os.environ.get("REDIS_PORT_PROD", ""))
+    data = data.replace(
+        "{{REDIS_PORT}}", os.environ.get("REDIS_PORT_PROD", ""))
     data = data.replace("{{QUEUE_USERNAME}}",
                         os.environ.get("QUEUE_USERNAME_PROD", ""))
     data = data.replace("{{QUEUE_PASSWORD}}",
                         os.environ.get("QUEUE_PASSWORD_PROD", ""))
-    data = data.replace("{{QUEUE_HOST}}", os.environ.get("QUEUE_HOST_PROD", ""))
-    data = data.replace("{{QUEUE_PORT}}", os.environ.get("QUEUE_PORT_PROD", ""))
+    data = data.replace(
+        "{{QUEUE_HOST}}", os.environ.get("QUEUE_HOST_PROD", ""))
+    data = data.replace(
+        "{{QUEUE_PORT}}", os.environ.get("QUEUE_PORT_PROD", ""))
     data = data.replace("{{OPBEAT_ORG_ID}}",
                         os.environ.get("OPBEAT_ORG_ID_PROD", ""))
     data = data.replace("{{OPBEAT_APP}}",

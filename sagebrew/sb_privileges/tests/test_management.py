@@ -8,6 +8,7 @@ from sb_requirements.neo_models import Requirement
 
 
 class TestCreatePrivileges(TestCase):
+
     def test_create_privileges(self):
         call_command('create_privileges')
         with open('%s/sb_privileges/management/commands'
@@ -24,7 +25,8 @@ class TestCreatePrivileges(TestCase):
                         name=requirement["name"])
                     self.assertIsNotNone(requirement_obj)
                 for action in actions:
-                    action_obj = SBAction.nodes.get(resource=action["resource"])
+                    action_obj = SBAction.nodes.get(
+                        resource=action["resource"])
                     self.assertIsNotNone(action_obj)
                 for restriction in data['restrictions']:
                     restrict_obj = Restriction.nodes.get(

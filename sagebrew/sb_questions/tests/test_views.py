@@ -22,6 +22,7 @@ from sb_questions.views import question_detail_page
 
 
 class TestGetQuestionSearchView(APITestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -44,6 +45,7 @@ class TestGetQuestionSearchView(APITestCase):
 
 
 class TestGetQuestionView(APITestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -182,6 +184,7 @@ class TestGetQuestionView(APITestCase):
 
 
 class TestGetQuestionListView(APITestCase):
+
     def setUp(self):
         cache.clear()
         self.email = "success@simulator.amazonses.com"
@@ -218,6 +221,7 @@ class TestGetQuestionListView(APITestCase):
 
 
 class TestSingleQuestionPage(APITestCase):
+
     def setUp(self):
         cache.clear()
         self.email = "success@simulator.amazonses.com"

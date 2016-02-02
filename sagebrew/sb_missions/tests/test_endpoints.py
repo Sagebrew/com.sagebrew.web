@@ -21,6 +21,7 @@ from sb_quests.neo_models import Quest, Position
 
 
 class MissionEndpointTests(APITestCase):
+
     def setUp(self):
         query = "match (n)-[r]-() delete n,r"
         db.cypher_query(query)
@@ -28,8 +29,6 @@ class MissionEndpointTests(APITestCase):
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
-        for camp in self.pleb.campaign.all():
-            camp.delete()
         self.url = "http://testserver"
         self.quest = Quest(
             about='Test Bio', owner_username=self.pleb.username).save()
@@ -116,7 +115,8 @@ class MissionEndpointTests(APITestCase):
         michigan.encompassed_by.connect(usa)
         michigan.encompasses.connect(d11)
         d11.encompassed_by.connect(michigan)
-        position = Position(name="House Representative", level="federal").save()
+        position = Position(name="House Representative",
+                            level="federal").save()
         d11.positions.connect(position)
         url = reverse('mission-list')
         data = {

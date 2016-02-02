@@ -13,6 +13,7 @@ from sb_registration.utils import create_user_util_test
 
 
 class TestCommentsRetrieveUpdateDestroy(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'comment'
         self.email = "success@simulator.amazonses.com"
@@ -135,6 +136,7 @@ class TestCommentsRetrieveUpdateDestroy(APITestCase):
 
 
 class TestCommentListCreate(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'comment'
         self.email = "success@simulator.amazonses.com"

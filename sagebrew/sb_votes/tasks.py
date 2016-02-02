@@ -216,7 +216,7 @@ def create_vote_node(node_id, vote_type, voter, parent_object):
         owner.last_counted_vote_node = node_id
     owner.reputation_update_seen = False
     owner.save()
-    cache.set(owner.username, owner)
+    cache.delete(owner.username)
     # See reputation_change method on pleb for where this is set
     cache.delete("%s_reputation_change" % owner.username)
     return True

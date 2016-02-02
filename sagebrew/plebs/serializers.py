@@ -18,9 +18,10 @@ from api.utils import spawn_task, gather_request_data, SBUniqueValidator
 from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
 
-from .neo_models import Address, Pleb, get_default_profile_pic
-from .tasks import (create_pleb_task, determine_pleb_reps,
-                    update_address_location)
+from .neo_models import Address, Pleb
+from .tasks import (determine_pleb_reps,
+                    update_address_location, create_wall_task,
+                    generate_oauth_info)
 
 
 def generate_username(first_name, last_name):
@@ -59,6 +60,7 @@ class ReputationNotificationValidator:
     but also allows creation of the question by setting self.object_uuid to
     None if there is not an instance in the serializer.
     """
+
     def __init__(self):
         pass
 
@@ -98,46 +100,11 @@ class UserSerializer(SBSerializer):
 
     def create(self, validated_data):
         # DEPRECATED use profile create instead
-        username = generate_username(validated_data['first_name'],
-                                     validated_data['last_name'])
-        birthday = validated_data.pop('birthday', None)
-
-        user = User.objects.create_user(
-            first_name=validated_data['first_name'],
-            last_name=validated_data['last_name'],
-            email=validated_data['email'],
-            password=validated_data['password'], username=username)
-        user.save()
-        pleb = Pleb(email=user.email,
-                    first_name=user.first_name,
-                    last_name=user.last_name,
-                    username=user.username,
-                    date_of_birth=birthday)
-        pleb.save()
-        # TODO Should move this out to the endpoint to remove circular
-        # dependencies
-        cache.delete(pleb.username)
-        spawn_task(task_func=create_pleb_task,
-                   task_param={
-                       "user_instance": user, "birthday": birthday,
-                       "password": validated_data['password']})
-        return user
+        pass
 
     def update(self, instance, validated_data):
         # DEPRECATED use profile update instead
-        instance.first_name = validated_data.get('first_name',
-                                                 instance.first_name)
-        instance.last_name = validated_data.get('last_name',
-                                                instance.last_name)
-        instance.email = validated_data.get('email', instance.email)
-        # TODO @tyler we need to test if this password logic works or if we
-        # should only set password if something is passed
-        if instance.check_password(validated_data.get('password', "")) is True:
-            instance.set_password(validated_data.get(
-                'new_password', validated_data.get('password', "")))
-            update_session_auth_hash(self.context['request'], instance)
-        instance.save()
-        return instance
+        pass
 
     def get_id(self, obj):
         return obj.username
@@ -223,7 +190,6 @@ class PlebSerializerNeo(SBSerializer):
         pleb.occupation_name = validated_data.get('occupation_name', None)
         pleb.employer_name = validated_data.get('employer_name', None)
         pleb.save()
-        cache.set(pleb.username, pleb)
         if not request.user.is_authenticated():
             user = authenticate(username=user.username,
                                 password=validated_data['password'])
@@ -231,10 +197,13 @@ class PlebSerializerNeo(SBSerializer):
             if quest_registration is not None:
                 request.session['account_type'] = quest_registration
                 request.session.set_expiry(1800)
-        spawn_task(task_func=create_pleb_task,
-                   task_param={
-                       "user_instance": user, "birthday": birthday,
-                       "password": validated_data['password']})
+        spawn_task(task_func=create_wall_task,
+                   task_param={"username": user.username})
+        spawn_task(task_func=generate_oauth_info,
+                   task_param={'username': user.username,
+                               'password': validated_data['password']},
+                   countdown=20)
+        cache.delete(pleb.username)
         return pleb
 
     def update(self, instance, validated_data):
@@ -270,12 +239,14 @@ class PlebSerializerNeo(SBSerializer):
                 'new_password', validated_data.get('password', "")))
             update_session_auth_hash(self.context['request'], user_obj)
         user_obj.save()
-        instance.profile_pic = validated_data.get('profile_pic',
-                                                  instance.profile_pic)
-        if instance.profile_pic is None or instance.profile_pic == "":
-            instance.profile_pic = get_default_profile_pic()
-        instance.wallpaper_pic = validated_data.get('wallpaper_pic',
-                                                    instance.wallpaper_pic)
+        profile_pic = validated_data.get('profile_pic')
+        if profile_pic is not None and profile_pic != "":
+            instance.profile_pic = validated_data.get('profile_pic',
+                                                      instance.profile_pic)
+        wallpaper_pic = validated_data.get('wallpaper_pic')
+        if wallpaper_pic is not None and wallpaper_pic != "":
+            instance.wallpaper_pic = validated_data.get('wallpaper_pic',
+                                                        instance.wallpaper_pic)
         instance.occupation_name = validated_data.get('occupation_name',
                                                       instance.occupation_name)
         instance.employer_name = validated_data.get('employer_name',
@@ -296,7 +267,8 @@ class PlebSerializerNeo(SBSerializer):
                 instance.stripe_default_card_id = customer[
                     'sources']['data'][0]['id']
             else:
-                customer = stripe.Customer.retrieve(instance.stripe_customer_id)
+                customer = stripe.Customer.retrieve(
+                    instance.stripe_customer_id)
                 card = customer.sources.create(source=customer_token)
                 instance.stripe_default_card_id = card['id']
         instance.stripe_default_card_id = validated_data.get(
@@ -304,8 +276,8 @@ class PlebSerializerNeo(SBSerializer):
         if update_time:
             instance.last_counted_vote_node = instance.vote_from_last_refresh
         instance.save()
-        instance.update_campaign()
-        cache.set(instance.username, instance)
+        instance.update_quest()
+        cache.delete(instance.username)
         return super(PlebSerializerNeo, self).update(instance, validated_data)
 
     def get_id(self, obj):
@@ -373,21 +345,18 @@ class AddressSerializer(SBSerializer):
 
     def create(self, validated_data):
         request = self.context.get('request', None)
-        validated_data['state'] = us.states.lookup(validated_data['state']).name
+        validated_data['state'] = us.states.lookup(
+            validated_data['state']).name
         if not validated_data.get('country', False):
             validated_data['country'] = "USA"
         address = Address(**validated_data).save()
         address.set_encompassing()
-        pleb = Pleb.get(request.user.username)
+        pleb = Pleb.get(username=request.user.username, cache_buster=True)
         address.owned_by.connect(pleb)
         pleb.address.connect(address)
         pleb.completed_profile_info = True
         pleb.save()
-        pleb.refresh()
-        cache.set(pleb.username, pleb)
-        spawn_task(task_func=determine_pleb_reps, task_param={
-            "username": self.context['request'].user.username,
-        })
+        pleb.determine_reps()
         spawn_task(task_func=update_address_location,
                    task_param={"object_uuid": address.object_uuid})
         return address

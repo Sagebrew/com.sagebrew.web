@@ -12,6 +12,7 @@ from sb_registration.utils import create_user_util_test
 
 
 class TestSearchResultView(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.client = Client()

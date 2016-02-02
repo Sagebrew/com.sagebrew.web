@@ -9,7 +9,7 @@ from neomodel import db, DoesNotExist
 
 from api.utils import smart_truncate
 from sb_registration.utils import verify_completed_registration
-from sb_quests.neo_models import PoliticalCampaign
+from sb_quests.neo_models import Quest
 from sb_questions.neo_models import Question
 from plebs.neo_models import Pleb
 
@@ -33,6 +33,7 @@ def question_page(request, sort_by="most_recent"):
     that matched the uuid. This will most likely occur when clicking on a
     question which is shown on your newsfeed or another page
 
+    :param sort_by:
     :param request:
 
                 request.data/request.body = {
@@ -70,6 +71,7 @@ def question_redirect_page(request, question_uuid):
     comments,
     references and tags.
 
+    :param question_uuid:
     :param request:
     :return:
     """
@@ -86,7 +88,9 @@ def question_detail_page(request, question_uuid, slug=None):
     comments,
     references and tags.
 
+    :param question_uuid:
     :param request:
+    :param slug:
     :return:
     """
     question = Question.get(question_uuid)
@@ -96,8 +100,8 @@ def question_detail_page(request, question_uuid, slug=None):
         return render(request, 'conversation.html', question_html_snapshot(
             request, question, question_uuid, tags, description))
     try:
-        campaign = PoliticalCampaign.get(object_uuid=question.owner_username)
-    except (PoliticalCampaign.DoesNotExist, DoesNotExist):
+        campaign = Quest.get(owner_username=question.owner_username)
+    except (Quest.DoesNotExist, DoesNotExist):
         campaign = None
     return render(request, 'conversation.html', {
         'uuid': question.object_uuid,
@@ -123,6 +127,7 @@ def solution_edit_page(request, solution_uuid=None):
     page, if it was called to display a single question detail it will return
     the html the question_detail_page expects
 
+    :param solution_uuid:
     :param request:
     :return:
     """
@@ -140,6 +145,7 @@ def question_edit_page(request, question_uuid=None):
     page, if it was called to display a single question detail it will return
     the html the question_detail_page expects
 
+    :param question_uuid:
     :param request:
     :return:
     """

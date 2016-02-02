@@ -24,6 +24,7 @@ from sb_quests.serializers import QuestSerializer
 
 
 class QuestEndpointTests(APITestCase):
+
     def setUp(self):
         query = "match (n)-[r]-() delete n,r"
         db.cypher_query(query)
@@ -34,8 +35,6 @@ class QuestEndpointTests(APITestCase):
         self.pleb2 = create_user_util_test(self.email2)
         self.user = User.objects.get(email=self.email)
         self.user2 = User.objects.get(email=self.email2)
-        for camp in self.pleb.campaign.all():
-            camp.delete()
         self.url = "http://testserver"
         self.quest = Quest(
             about='Test Bio', owner_username=self.pleb.username).save()
@@ -442,6 +441,7 @@ class QuestEndpointTests(APITestCase):
 
 
 class PositionEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'position'
         self.email = "success@simulator.amazonses.com"
@@ -461,8 +461,6 @@ class PositionEndpointTests(APITestCase):
         for item in Location.nodes.all():
             item.delete()
         self.location = Location(name="Michigan").save()
-        for camp in self.pleb.campaign.all():
-            camp.delete()
         cache.clear()
 
     def test_unauthorized(self):
@@ -515,14 +513,6 @@ class PositionEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['name'], 'Senator')
-
-    def test_detail_campaigns(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('position-detail',
-                      kwargs={'object_uuid': self.position.object_uuid})
-        response = self.client.get(url)
-
-        self.assertEqual(response.data['campaigns'], [])
 
     def test_detail_href(self):
         self.client.force_authenticate(user=self.user)

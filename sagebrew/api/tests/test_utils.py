@@ -17,6 +17,7 @@ from sb_questions.neo_models import Question
 
 
 class TestAddFailureToQueue(TestCase):
+
     def setUp(self):
         self.message = {
             'message': 'this is a test message to add if a task fails'
@@ -27,6 +28,7 @@ class TestAddFailureToQueue(TestCase):
 
 
 class TestEncryptAndDecrypt(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -63,6 +65,7 @@ class TestCreateAutoTags(TestCase):
 
 
 class TestSmartTruncate(TestCase):
+
     def test_smart_truncate(self):
         res = smart_truncate("this is some test content which is longer than "
                              "100 characters to determine if the logic in "
@@ -85,6 +88,7 @@ class TestSmartTruncate(TestCase):
 
 
 class TestGatherRequestData(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.unit_under_test_name = 'pleb'
@@ -147,6 +151,7 @@ class TestGatherRequestData(TestCase):
 
 
 class TestFlattenList(TestCase):
+
     def test_flatten(self):
         lists = [1, 1, 2, 3, [1, 2, 3], [1]]
         res = flatten_lists(lists)

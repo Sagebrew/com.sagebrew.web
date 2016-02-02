@@ -16,6 +16,7 @@ from sb_donations.neo_models import Donation
 
 
 class DonationEndpointTests(APITestCase):
+
     def setUp(self):
         cache.clear()
         self.unit_under_test_name = 'goal'
@@ -215,6 +216,7 @@ class DonationEndpointTests(APITestCase):
 
 
 class TestSagebrewDonation(APITestCase):
+
     def setUp(self):
         cache.clear()
         self.unit_under_test_name = 'donations'

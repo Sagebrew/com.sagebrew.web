@@ -16,7 +16,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sadmin_council.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
-        },
+    },
         name="admin_council"),
 
     url(r'^moderators/$', TemplateView.as_view(
@@ -30,7 +30,7 @@ urlpatterns = patterns(
             "content_path":
                 "%smoderators.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
-        },
+    },
         name="moderators"),
     url(r'^reputation-changed-user-removed/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -44,7 +44,7 @@ urlpatterns = patterns(
                 "%sreputation_change_user_remove.html" % (
                     settings.HELP_DOCS_PATH),
             "category": "Reputation and Moderation"
-        },
+    },
         name="reputation_changed_user_removed"),
     url(r'^serial-voting-change/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -60,7 +60,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sserial_voting_change.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
-        },
+    },
         name="serial_voting_change"),
     url(r'^user-removed-change/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -76,7 +76,7 @@ urlpatterns = patterns(
             "content_path":
                 "%suser_removed_change.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
-        },
+    },
         name="user_removed_change"),
     url(r'^voting-importance/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -89,7 +89,7 @@ urlpatterns = patterns(
             "content_path":
                 "%svoting_importance.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
-        },
+    },
         name="voting_importance"),
     url(r'^$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -100,7 +100,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sreputation.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
-        },
+    },
         name="reputation"),
     url(r'^admin_council/$', RedirectView.as_view(
         url='/help/reputation/admin-council/', permanent=True),
@@ -132,7 +132,7 @@ if settings.DEBUG is True:
             "content_path":
                 "%sconceding.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
-        },
+    },
         name="conceding"),
     url(r'^what_are_badges/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -144,5 +144,5 @@ if settings.DEBUG is True:
             "content_path":
                 "%swhat_are_badges.html" % settings.HELP_DOCS_PATH,
             "category": "Reputation and Moderation"
-        },
+    },
         name="what_are_badges"),

@@ -1,5 +1,4 @@
 import csv
-from django.conf import settings
 from django.http import HttpResponse
 from django.core.files.temp import NamedTemporaryFile
 from django.core.servers.basehttp import FileWrapper

@@ -21,5 +21,4 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py create_privileges && \
     python manage.py clear_cache && \
     python manage.py clearsessions && \
-    python manage.py remove_duplicates_from_search && \
-    python manage.py update_pleb_search
+    python manage.py remove_duplicates_from_search

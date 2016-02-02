@@ -226,4 +226,7 @@ class Mission(Searchable):
                 '[:CONTRIBUTED_TO]-(d:Donation) RETURN sum(d.amount)' \
                 % self.object_uuid
         res, _ = db.cypher_query(query)
-        return res.one
+        if res.one:
+            return '{:,.2f}'.format(float(res.one) / 100)
+        else:
+            return "0.00"

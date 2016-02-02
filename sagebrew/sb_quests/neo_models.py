@@ -252,11 +252,16 @@ class Quest(Searchable):
         return [row[0] for row in res]
 
     def get_total_donation_amount(self):
-        query = 'MATCH (c:Quest {object_uuid:"%s"})<-' \
-                '[:CONTRIBUTED_TO]-(d:Donation) RETURN sum(d.amount)' % (
+        query = 'MATCH (c:Quest {object_uuid:"%s"})-[:EMBARKS_ON]' \
+                '->(mission:Mission)<-' \
+                '[:CONTRIBUTED_TO]-(d:Donation) ' \
+                'RETURN sum(d.amount)' % (
                     self.object_uuid)
         res, _ = db.cypher_query(query)
-        return res.one
+        if res.one:
+            return '{:,.2f}'.format(float(res.one) / 100)
+        else:
+            return "0.00"
 
 
 class Position(SBObject):

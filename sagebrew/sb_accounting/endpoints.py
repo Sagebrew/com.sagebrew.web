@@ -12,6 +12,9 @@ from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from plebs.tasks import send_email_task
 
+from logging import getLogger
+logger =getLogger('loggly_logs')
+
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):

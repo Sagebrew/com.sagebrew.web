@@ -12,7 +12,6 @@ from rest_framework.test import APITestCase
 from neomodel import db
 
 from sb_registration.utils import create_user_util_test
-from sb_missions.neo_models import Mission
 
 from sb_quests.neo_models import Quest
 
@@ -54,12 +53,12 @@ class AccountingHooksTests(APITestCase):
                 }
             }
         }
-        m.get("https://api.stripe.com/v1/events/evt_00000000000000/",
+        m.get("https://api.stripe.com/v1/events/evt_00000000000000",
               json=event_mock_data, status_code=status.HTTP_200_OK)
         customer_mock_data = {
             "email": "success@simulator.amazonses.com"
         }
-        m.get("https://api.stripe.com/v1/customers/cus_00000000000000/",
+        m.get("https://api.stripe.com/v1/customers/cus_00000000000000",
               json=customer_mock_data, status_code=status.HTTP_200_OK)
         self.client.force_authenticate(user=self.user)
         url = reverse('accounting-list')
@@ -68,4 +67,32 @@ class AccountingHooksTests(APITestCase):
         }
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data, "Invoice Payment Failed")
+        self.assertEqual(response.data['detail'], "Invoice Payment Failed")
+
+    @requests_mock.mock()
+    def test_valid_event_invalid_customer_request(self, m):
+        event_mock_data = {
+            "id": "evt_00000000000000",
+            "type": "invoice.payment_failed",
+            "data": {
+                "object": {
+                    "customer": "cus_00000000000000"
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/events/evt_00000000000000",
+              json=event_mock_data, status_code=status.HTTP_200_OK)
+        customer_mock_data = {
+            "error": {
+                "type": "invalid_request_error"
+            }
+        }
+        m.get("https://api.stripe.com/v1/customers/cus_00000000000000",
+              json=customer_mock_data, status_code=status.HTTP_400_BAD_REQUEST)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000"
+        }
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

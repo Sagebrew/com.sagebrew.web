@@ -2,6 +2,8 @@ from localflavor.us.us_states import US_STATES
 
 from rest_framework import serializers
 
+from neomodel import db
+
 from api.serializers import SBSerializer
 
 
@@ -66,5 +68,13 @@ class PublicOfficialSerializer(SBSerializer):
         from sb_quests.serializers import QuestSerializer
         # We use object_uuid here instead of owner_username as none of the
         # public officials have a owner
-        return QuestSerializer(
-            Quest.get(owner_username=obj.object_uuid)).data
+        quest = None
+        query = 'MATCH (o:PublicOfficial {object_uuid: "%s"})-' \
+                '[:IS_HOLDING]->(quest:Quest) ' \
+                'RETURN quest' % obj.object_uuid
+        res, _ = db.cypher_query(query)
+        if res.one:
+            quest = res.one
+        if quest is not None:
+            quest = QuestSerializer(Quest.inflate(quest)).data
+        return quest

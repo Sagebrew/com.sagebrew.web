@@ -512,6 +512,8 @@ class QuestSerializer(SBSerializer):
                 customer = stripe.Customer.retrieve(instance.stripe_customer_id)
                 sub = customer.subscriptions.create(plan='quest_premium')
                 instance.stripe_subscription_id = sub['id']
+            instance.application_fee = settings.STRIPE_PAID_ACCOUNT_FEE
+
         elif instance.account_type == "free":
             # if we get a free submission and the subscription is already set
             # cancel it.
@@ -520,6 +522,8 @@ class QuestSerializer(SBSerializer):
                 customer.subscriptions.retrieve(
                     instance.stripe_subscription_id).delete()
                 instance.stripe_subscription_id = None
+            instance.application_fee = settings.STRIPE_FREE_ACCOUNT_FEE
+
         if stripe_token is not None:
             if instance.stripe_id is None or instance.stripe_id == "Not Set":
                 stripe_res = stripe.Account.create(managed=True, country="US",

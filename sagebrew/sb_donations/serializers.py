@@ -28,6 +28,7 @@ class DonationSerializer(SBSerializer):
         ('question', "Question")])
     quest = serializers.SerializerMethodField()
     mission = serializers.SerializerMethodField()
+    actual_amount = serializers.SerializerMethodField()
 
     def validate_amount(self, value):
         """
@@ -149,6 +150,21 @@ class DonationSerializer(SBSerializer):
                            request=request)
         return quest.owner_username
 
+    def get_actual_amount(self, obj):
+        from sb_quests.neo_models import Quest
+        query = 'MATCH (d:Donation {object_uuid: "%s"})-' \
+                '[:CONTRIBUTED_TO]->' \
+                '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
+                'RETURN quest' % obj.object_uuid
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            return None
+        quest = Quest.inflate(res.one)
+        application_fee = obj.amount * (
+                    quest.application_fee +
+                    settings.STRIPE_TRANSACTION_PERCENT) + 30
+        return '{:,.2f}'.format(float(obj.amount - application_fee) / 100)
+
 
 class DonationExportSerializer(serializers.Serializer):
     completed = serializers.BooleanField(read_only=True)
@@ -164,7 +180,7 @@ class DonationExportSerializer(serializers.Serializer):
         return PlebExportSerializer(Pleb.get(obj.owner_username)).data
 
     def get_amount(self, obj):
-        return float(obj.amount) / 100.0
+        return obj.amount
 
     def get_employer(self, obj):
         if obj.mission_type == "position":

@@ -13,17 +13,17 @@ function prepareDonationData(donationData) {
         startYear = new Date(
             donationData[0].created.toLocaleString()).getFullYear();
         $.each(donationData, function (index, value) {
-            tempTotal += (value.amount / 100);
+            tempTotal += parseFloat(value.actual_amount);
             lifetimeTotalData.push(tempTotal);
             var tempDate = new Date(value.created.toLocaleString());
             parsedData.push([Date.UTC(
                 tempDate.getFullYear(), tempDate.getMonth(),
                 tempDate.getDate(), tempDate.getHours(),
                 tempDate.getMinutes(), tempDate.getSeconds()),
-                value.amount / 100]);
+                parseFloat(value.actual_amount)]);
             parsedShortData.push([Date.UTC(
                 tempDate.getFullYear(), tempDate.getMonth(),
-                tempDate.getDate()), value.amount / 100]);
+                tempDate.getDate()), value.actual_amount]);
         });
     }
     return {

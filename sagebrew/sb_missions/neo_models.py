@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.conf import settings
 
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist,
                       BooleanProperty)
@@ -222,9 +223,14 @@ class Mission(Searchable):
         return title
 
     def get_total_donation_amount(self):
+        from sb_quests.neo_models import Quest
+        quest = Quest.get(owner_username=self.owner_username)
         query = 'MATCH (c:Mission {object_uuid:"%s"})<-' \
-                '[:CONTRIBUTED_TO]-(d:Donation) RETURN sum(d.amount)' \
-                % self.object_uuid
+                '[:CONTRIBUTED_TO]-(d:Donation) ' \
+                'RETURN sum(d.amount) - (sum(d.amount) * ' \
+                '(%f + %f) + count(d) * 30)' \
+                % (self.object_uuid, quest.application_fee,
+                   settings.STRIPE_TRANSACTION_PERCENT)
         res, _ = db.cypher_query(query)
         if res.one:
             return '{:,.2f}'.format(float(res.one) / 100)

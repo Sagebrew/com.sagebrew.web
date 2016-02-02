@@ -1,5 +1,6 @@
 from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.cache import cache
+from django.conf import settings
 
 from rest_framework.reverse import reverse
 
@@ -255,8 +256,10 @@ class Quest(Searchable):
         query = 'MATCH (c:Quest {object_uuid:"%s"})-[:EMBARKS_ON]' \
                 '->(mission:Mission)<-' \
                 '[:CONTRIBUTED_TO]-(d:Donation) ' \
-                'RETURN sum(d.amount)' % (
-                    self.object_uuid)
+                'RETURN sum(d.amount) - (sum(d.amount) * ' \
+                '(%f + %f) + count(d) * 30)' % (
+                    self.object_uuid, self.application_fee,
+                    settings.STRIPE_TRANSACTION_PERCENT)
         res, _ = db.cypher_query(query)
         if res.one:
             return '{:,.2f}'.format(float(res.one) / 100)

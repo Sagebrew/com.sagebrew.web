@@ -3,8 +3,6 @@ from django.core.management.base import BaseCommand
 
 from elasticsearch import Elasticsearch, NotFoundError
 
-from api.utils import spawn_task
-from sb_search.tasks import update_search_object
 from plebs.neo_models import Pleb
 
 

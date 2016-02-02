@@ -156,7 +156,9 @@ class TestQuest(TestCase):
     def test_get_total_donation_amount(self):
         donation1 = Donation(amount=100).save()
         donation2 = Donation(amount=200).save()
-        donation1.quest.connect(self.quest)
-        donation2.quest.connect(self.quest)
+        mission = Mission().save()
+        self.quest.missions.connect(mission)
+        donation1.mission.connect(mission)
+        donation2.mission.connect(mission)
         res = self.quest.get_total_donation_amount()
         self.assertEqual(res, "2.19")

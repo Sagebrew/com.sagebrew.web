@@ -154,9 +154,9 @@ class TestQuest(TestCase):
         self.assertIn(self.owner.username, res)
 
     def test_get_total_donation_amount(self):
-        donation1 = Donation(amount=10).save()
-        donation2 = Donation(amount=20).save()
+        donation1 = Donation(amount=100).save()
+        donation2 = Donation(amount=200).save()
         donation1.quest.connect(self.quest)
         donation2.quest.connect(self.quest)
         res = self.quest.get_total_donation_amount()
-        self.assertEqual(res, "0.30")
+        self.assertEqual(res, "2.19")

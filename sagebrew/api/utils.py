@@ -289,6 +289,15 @@ def deprecation(message):
     warnings.warn(message, DeprecationWarning, stacklevel=2)
 
 
+def calc_stripe_application_fee(amount, quest_application_fee,
+                                total_donations=1):
+    return int(
+        (amount *
+         (quest_application_fee + settings.STRIPE_TRANSACTION_PERCENT)) +
+        (30 * total_donations)
+    )
+
+
 class SBUniqueValidator(UniqueValidator):
     """
     Validator that corresponds to `unique=True` on a model field.

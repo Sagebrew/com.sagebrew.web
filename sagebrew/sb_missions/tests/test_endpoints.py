@@ -12,6 +12,7 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
+from api.utils import calc_stripe_application_fee
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
@@ -513,6 +514,51 @@ class MissionEndpointTests(APITestCase):
                          int((donation.amount *
                               (self.quest.application_fee +
                                settings.STRIPE_TRANSACTION_PERCENT)) + 30))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_donation_create_verify_stripe_amount(self):
+        self.client.force_authenticate(user=self.user)
+        data = {
+            "amount": 500,
+            "payment_method": None
+        }
+        url = "/v1/missions/%s/donations/" % self.mission.object_uuid
+        self.client.force_authenticate(user=self.user)
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        token = stripe.Token.create(
+            card={
+                "number": "4242424242424242",
+                "exp_month": 12,
+                "exp_year": (datetime.datetime.now() + datetime.timedelta(
+                    days=3 * 365)).year,
+                "cvc": '123'
+            }
+        )
+        self.pleb.stripe_default_card_id = token['id']
+        self.pleb.save()
+        quest_token = stripe.Account.create(
+            managed=True,
+            country="US",
+            email=self.pleb.email
+        )
+        self.quest.stripe_id = quest_token['id']
+        self.quest.save()
+        response = self.client.post(url, data=data, format='json')
+        donation = Donation.nodes.get(object_uuid=response.data['id'])
+        stripe_charge = stripe.Charge.retrieve(donation.stripe_charge_id)
+        application_fee = stripe.ApplicationFee.retrieve(
+            stripe_charge['application_fee'])
+        self.assertEqual(application_fee['amount'],
+                         int((donation.amount *
+                              (self.quest.application_fee +
+                               settings.STRIPE_TRANSACTION_PERCENT)) + 30))
+        self.assertEqual(stripe_charge['amount'], donation.amount)
+        self.assertEqual(
+            (stripe_charge['amount'] -
+             calc_stripe_application_fee(stripe_charge['amount'], .041)),
+            (donation.amount -
+             calc_stripe_application_fee(donation.amount, .041))
+        )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_donation_create_less_than_1(self):

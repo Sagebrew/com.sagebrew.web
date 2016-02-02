@@ -18,6 +18,7 @@ from rest_framework import status
 
 from neomodel import db
 
+from api.utils import calc_stripe_application_fee
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrModerator,
                              IsOwnerOrEditor, IsOwnerOrModeratorOrReadOnly)
 
@@ -302,9 +303,8 @@ class QuestViewSet(viewsets.ModelViewSet):
             for donation in donation_info:
                 donation.update(donation.pop('owned_by', {}))
                 donation.update(donation.pop('address', {}))
-                application_fee = donation['amount'] * (
-                    quest.application_fee +
-                    settings.STRIPE_TRANSACTION_PERCENT) + 30
+                application_fee = calc_stripe_application_fee(
+                    donation['amount'], quest.application_fee)
                 donation['amount'] = '{:,.2f}'.format(
                     float(donation['amount'] - application_fee) / 100)
             for key in donation_info[0].keys():

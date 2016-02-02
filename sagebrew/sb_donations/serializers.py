@@ -180,6 +180,7 @@ class DonationExportSerializer(serializers.Serializer):
 
 
 class SBDonationSerializer(DonationSerializer):
+
     def validate_amount(self, value):
         return value
 

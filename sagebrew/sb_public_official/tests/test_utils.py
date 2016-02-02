@@ -10,6 +10,7 @@ from sb_public_official.neo_models import PublicOfficial
 
 
 class TestPublicOfficialUtils(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)

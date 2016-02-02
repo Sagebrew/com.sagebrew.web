@@ -6,6 +6,7 @@ from django.conf import settings
 
 
 class Command(BaseCommand):
+
     def add_arguments(self, parser):
         parser.add_argument('user', nargs='+', type=str)
         parser.add_argument('worker', nargs='+', type=str)

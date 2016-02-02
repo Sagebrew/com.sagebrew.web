@@ -38,6 +38,7 @@ def root_profile_page(request):
 
 
 class LoginRequiredMixin(View):
+
     @classmethod
     def as_view(cls, **initkwargs):
         view = super(LoginRequiredMixin, cls).as_view(**initkwargs)

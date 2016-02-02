@@ -10,6 +10,7 @@ from sb_solutions.neo_models import Solution
 
 
 class TestQuestionNeoModel(TestCase):
+
     def setUp(self):
         from django.core.cache import cache
         cache.clear()

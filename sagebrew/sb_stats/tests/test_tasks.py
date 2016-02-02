@@ -13,6 +13,7 @@ from sb_stats.tasks import update_view_count_task
 
 
 class TestUpdateViewCountTask(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)

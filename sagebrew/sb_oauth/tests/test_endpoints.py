@@ -12,6 +12,7 @@ from sb_oauth.models import SBApplication
 
 
 class ApplicationTests(APITestCase):
+
     def setUp(self):
         self.user = User.objects.create(username='lauren', password='secret')
         self.user.is_staff = True

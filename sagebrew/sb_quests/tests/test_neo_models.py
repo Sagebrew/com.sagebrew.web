@@ -15,6 +15,7 @@ from sb_missions.neo_models import Mission
 
 
 class TestPosition(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -74,6 +75,7 @@ class TestPosition(TestCase):
 
 
 class TestQuest(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)

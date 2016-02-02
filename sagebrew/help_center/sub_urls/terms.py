@@ -17,7 +17,7 @@ urlpatterns = patterns(
             "content_path":
                 "%strust_and_safety.html" % settings.HELP_DOCS_PATH,
             "category": "terms"
-        },
+    },
         name="trust_and_safety"),
     url(r'^$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -28,7 +28,7 @@ urlpatterns = patterns(
                 "%suser_terms_and_conditions.html" % settings.HELP_DOCS_PATH,
             "category": "terms",
             "static_files": True
-        },
+    },
         name="terms_and_conditions"),
     url(r'^quest-terms/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -40,7 +40,7 @@ urlpatterns = patterns(
                 "%squest_terms_and_conditions.html" % settings.HELP_DOCS_PATH,
             "category": "terms",
             "static_files": True
-        },
+    },
         name="quest_terms_and_conditions"),
     url(r'^trust_and_safety/$', RedirectView.as_view(
         url='/help/terms/trust-and-safety/', permanent=True),

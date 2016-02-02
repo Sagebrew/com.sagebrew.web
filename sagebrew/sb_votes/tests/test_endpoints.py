@@ -16,6 +16,7 @@ from sb_search.tasks import update_search_object
 
 
 class VoteEndpointTests(APITestCase):
+
     def setUp(self):
         cache.clear()
         self.email = "success@simulator.amazonses.com"

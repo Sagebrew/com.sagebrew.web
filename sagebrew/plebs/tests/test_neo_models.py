@@ -18,6 +18,7 @@ from plebs.neo_models import BetaUser, Pleb, Address
 
 
 class TestBetaUser(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -33,6 +34,7 @@ class TestBetaUser(TestCase):
 
 
 class TestPleb(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -126,6 +128,7 @@ class TestPleb(TestCase):
 
 
 class TestPlebReputationChange(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -230,6 +233,7 @@ class TestPlebReputationChange(TestCase):
 
 
 class TestAddress(TestCase):
+
     def setUp(self):
         self.address = Address(city="Wixom", state="MI").save()
         try:

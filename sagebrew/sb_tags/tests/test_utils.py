@@ -8,6 +8,7 @@ from sb_registration.utils import create_user_util_test
 
 
 class TestCreateTagRelations(TestCase):
+
     def setUp(self):
         self.tags = []
         self.email = "success@simulator.amazonses.com"
@@ -43,6 +44,7 @@ class TestCreateTagRelations(TestCase):
 
 
 class TestUpdateTagsUtil(TestCase):
+
     def setUp(self):
         self.tags = []
         self.email = "success@simulator.amazonses.com"

@@ -25,6 +25,7 @@ from sb_quests.serializers import QuestSerializer
 
 
 class SearchEndpointTests(APITestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)

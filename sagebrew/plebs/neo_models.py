@@ -749,7 +749,8 @@ class Address(SBObject):
             if Location.get_single_encompassed_by(
                     encompassed_by.object_uuid) != \
                     us.states.lookup(self.state).name:
-                # if a location node exists with an incorrect encompassing state
+                # if a location node exists with an incorrect encompassing
+                # state
                 raise DoesNotExist("This Location does not exist")
         except (Location.DoesNotExist, DoesNotExist):
             encompassed_by = Location(name=self.city, sector="local").save()
@@ -773,7 +774,8 @@ class Address(SBObject):
                 self.encompassed_by.connect(encompassed_by)
             if self not in encompassed_by.addresses:
                 encompassed_by.addresses.connect(self)
-        # get or create the state level districts and attach them to the address
+        # get or create the state level districts and attach them to the
+        # address
         spawn_task(task_func=connect_to_state_districts,
                    task_param={'object_uuid': self.object_uuid})
         return self

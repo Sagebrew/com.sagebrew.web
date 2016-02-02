@@ -15,6 +15,7 @@ from sb_requirements.neo_models import Requirement
 
 
 class TestPrivilegeViews(APITestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"

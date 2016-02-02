@@ -41,7 +41,8 @@ class Donation(SBObject):
     # RelationshipTo('plebs.neo_models.Pleb')
 
     # relationships
-    mission = RelationshipTo('sb_missions.neo_models.Mission', "CONTRIBUTED_TO")
+    mission = RelationshipTo(
+        'sb_missions.neo_models.Mission', "CONTRIBUTED_TO")
     quest = RelationshipTo('sb_quests.neo_models.Quest', "CONTRIBUTED_TO")
 
     # DEPRECATIONS

@@ -157,7 +157,7 @@ TEMPLATES = [{
             "plebs.context_processors.request_profile",
             "sb_base.context_processors.js_settings",
         ],
-        'allowed_include_roots': [HELP_DOCS_PATH,],
+        'allowed_include_roots': [HELP_DOCS_PATH, ],
     },
 }]
 

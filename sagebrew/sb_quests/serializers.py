@@ -25,6 +25,7 @@ from .neo_models import (Position, Quest)
 
 
 class AllowVoteValidator:
+
     def __init__(self):
         pass
 
@@ -214,7 +215,8 @@ class QuestSerializer(SBSerializer):
                 instance.stripe_default_card_id = customer[
                     'sources']['data'][0]['id']
             else:
-                customer = stripe.Customer.retrieve(instance.stripe_customer_id)
+                customer = stripe.Customer.retrieve(
+                    instance.stripe_customer_id)
                 card = customer.sources.create(source=customer_token)
                 instance.stripe_default_card_id = card['id']
         instance.account_type = validated_data.get('account_type',
@@ -224,14 +226,16 @@ class QuestSerializer(SBSerializer):
             # exist
             if instance.stripe_subscription_id is None and \
                     instance.stripe_customer_id is not None:
-                customer = stripe.Customer.retrieve(instance.stripe_customer_id)
+                customer = stripe.Customer.retrieve(
+                    instance.stripe_customer_id)
                 sub = customer.subscriptions.create(plan='quest_premium')
                 instance.stripe_subscription_id = sub['id']
         elif instance.account_type == "free":
             # if we get a free submission and the subscription is already set
             # cancel it.
             if instance.stripe_subscription_id is not None:
-                customer = stripe.Customer.retrieve(instance.stripe_customer_id)
+                customer = stripe.Customer.retrieve(
+                    instance.stripe_customer_id)
                 customer.subscriptions.retrieve(
                     instance.stripe_subscription_id).delete()
                 instance.stripe_subscription_id = None
@@ -303,7 +307,8 @@ class QuestSerializer(SBSerializer):
             # to unverified if Stripe alerts us to it.
             verification = "pending"
             if account['legal_entity']['verification']['status'] == "verified":
-                verification = account['legal_entity']['verification']['status']
+                verification = account['legal_entity'][
+                    'verification']['status']
             instance.account_verified = verification
             instance.last_four_soc = ssn[-4:]
         instance.save()

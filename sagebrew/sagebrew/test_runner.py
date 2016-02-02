@@ -5,6 +5,7 @@ from django.test.runner import DiscoverRunner
 
 
 class SBTestRunner(DiscoverRunner):
+
     def setup_databases(self, *args, **kwargs):
         call("sudo service neo4j-service stop", shell=True)
         sleep(1)

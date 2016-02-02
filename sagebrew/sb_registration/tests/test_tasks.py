@@ -8,6 +8,7 @@ from sb_registration.utils import create_user_util_test
 
 
 class TestUpdateInterestsTask(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)

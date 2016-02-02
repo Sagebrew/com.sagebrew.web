@@ -12,6 +12,7 @@ from sb_notifications.neo_models import Notification
 
 
 class TestNotificationUtils(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)

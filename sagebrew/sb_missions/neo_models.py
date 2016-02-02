@@ -34,7 +34,8 @@ class Mission(Searchable):
     #     state
     #     federal
     #     local
-    # For filtering purposes we combine state_upper and state_lower into "state"
+    # For filtering purposes we combine state_upper and state_lower into
+    # "state"
     level = StringProperty()
 
     # The mission may have seperate pages than the core Quest does
@@ -92,7 +93,8 @@ class Mission(Searchable):
 
     # Helper function that can be associated with on the serializer and gets
     # a focused on object.
-    focused_on = RelationshipTo('sb_search.neo_models.Searchable', 'FOCUSED_ON')
+    focused_on = RelationshipTo(
+        'sb_search.neo_models.Searchable', 'FOCUSED_ON')
 
     # Utilized to link a Mission to a Question or Solution. Two use cases are
     # currently possible. One is that a parent Quest provides a solution or

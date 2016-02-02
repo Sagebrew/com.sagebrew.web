@@ -16,6 +16,7 @@ from sb_docstore.tasks import spawn_user_updates, add_object_to_table_task
 
 
 class TestSpawnUserUpdates(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -62,6 +63,7 @@ class TestSpawnUserUpdates(TestCase):
 
 
 class TestAddObjectToTableTask(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)

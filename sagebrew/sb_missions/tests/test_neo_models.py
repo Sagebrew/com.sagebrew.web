@@ -17,6 +17,7 @@ from sb_missions.neo_models import Mission
 
 
 class TestMission(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)

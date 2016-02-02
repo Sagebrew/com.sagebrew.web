@@ -6,6 +6,7 @@ from sb_public_official.neo_models import PublicOfficial
 
 
 class Command(BaseCommand):
+
     def migrate_states(self):
         for official in PublicOfficial.nodes.all():
             try:

@@ -2,12 +2,10 @@ from django.conf.urls import patterns, url, include
 
 from rest_framework import routers
 
-from sb_quests.endpoints import (PoliticalCampaignViewSet, PositionViewSet,
-                                 QuestViewSet)
+from sb_quests.endpoints import (PositionViewSet, QuestViewSet)
 
 router = routers.SimpleRouter()
 
-router.register(r'campaigns', PoliticalCampaignViewSet, base_name='campaign')
 router.register(r'positions', PositionViewSet, base_name='position')
 router.register(r'quests', QuestViewSet, base_name='quest')
 

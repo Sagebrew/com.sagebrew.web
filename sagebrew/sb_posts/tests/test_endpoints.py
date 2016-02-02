@@ -18,6 +18,7 @@ from sb_registration.utils import create_user_util_test
 
 
 class PostsEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -324,6 +325,7 @@ class PostsEndpointTests(APITestCase):
 
 
 class WallPostListCreateTest(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'post'
         self.email = "success@simulator.amazonses.com"
@@ -389,7 +391,8 @@ class WallPostListCreateTest(APITestCase):
         url = reverse('profile-wall', kwargs={'username': self.pleb.username})
         data = {}
         response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.data['content'][0], 'This field is required.')
+        self.assertEqual(response.data['content'][
+                         0], 'This field is required.')
 
     def test_delete_status(self):
         self.client.force_authenticate(user=self.user)
@@ -498,6 +501,7 @@ class WallPostListCreateTest(APITestCase):
 
 
 class PostListCreateTest(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'post'
         self.email = "success@simulator.amazonses.com"
@@ -646,7 +650,8 @@ class PostListCreateTest(APITestCase):
         url = reverse('post-list')
         data = {}
         response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.data['content'][0], 'This field is required.')
+        self.assertEqual(response.data['content'][
+                         0], 'This field is required.')
 
     def test_delete_status(self):
         self.client.force_authenticate(user=self.user)
@@ -731,6 +736,7 @@ class PostListCreateTest(APITestCase):
 
 
 class TestSinglePostPage(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'post'
         self.email = "success@simulator.amazonses.com"

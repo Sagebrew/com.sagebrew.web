@@ -6,6 +6,7 @@ from plebs.neo_models import Address
 
 
 class Command(BaseCommand):
+
     def migrate_addresses(self):
         for address in Address.nodes.all():
             try:

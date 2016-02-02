@@ -16,7 +16,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sgood_solution.html" % settings.HELP_DOCS_PATH,
             "category": "solutions"
-        },
+    },
         name="good_solution"),
     url(r'^solution-to-own-question/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -26,7 +26,7 @@ urlpatterns = patterns(
             "content_path":
                 "%ssolution_to_own_question.html" % settings.HELP_DOCS_PATH,
             "category": "solutions"
-        },
+    },
         name="solution_to_own_question"),
     url(r'^solutions-no-longer-accepted/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -40,7 +40,7 @@ urlpatterns = patterns(
                 "%ssolutions_no_longer_accepted.html" % (
                     settings.HELP_DOCS_PATH),
             "category": "solutions"
-        },
+    },
         name="solutions_no_longer_accepted"),
     url(r'^when-to-edit-solutions/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -53,7 +53,7 @@ urlpatterns = patterns(
                 "%swhen_edit_solution.html" % (
                     settings.HELP_DOCS_PATH),
             "category": "solutions"
-        },
+    },
         name="when_to_edit_solutions"),
     url(r'^why-are-solutions-removed/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -65,7 +65,7 @@ urlpatterns = patterns(
                 "%swhy_solutions_removed.html" % settings.HELP_DOCS_PATH,
             "category": "solutions",
             "static_files": True,
-        },
+    },
         name="why_are_solutions_removed"),
     url(r'^good_solution/$', RedirectView.as_view(
         url='/help/solutions/formatting/', permanent=True),

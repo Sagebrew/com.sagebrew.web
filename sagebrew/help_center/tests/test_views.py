@@ -11,6 +11,7 @@ from sb_registration.utils import create_user_util_test
 
 
 class HelpGoodQuestionTests(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
@@ -26,6 +27,7 @@ class HelpGoodQuestionTests(TestCase):
 
 
 class TestHelpArea(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
@@ -43,6 +45,7 @@ class TestHelpArea(TestCase):
 
 
 class TestRelatedArticles(APITestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)

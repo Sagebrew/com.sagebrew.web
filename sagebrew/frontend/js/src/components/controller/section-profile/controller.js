@@ -51,10 +51,16 @@ export function load() {
         .on('click', '#js-quest-signup', function(event) {
             event.preventDefault();
             greyPage.classList.remove('sb_hidden');
-            request.post({url: "/v1/quests/", data: {}})
-                .done(function () {
-                    window.location.href = "/quests/" + settings.user.username;
-                });
+            if(settings.profile.quest !== null){
+                greyPage.classList.add('sb_hidden');
+                window.location.href = "/missions/select/";
+            } else {
+                request.post({url: "/v1/quests/", data: {}})
+                    .done(function () {
+                        greyPage.classList.add('sb_hidden');
+                        window.location.href = "/missions/select/";
+                    });
+            }
         });
 }
 

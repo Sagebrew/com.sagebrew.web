@@ -16,7 +16,6 @@ from neomodel import db
 
 from sb_base.views import ObjectRetrieveUpdateDestroy
 from sb_quests.neo_models import Quest
-from sb_goals.neo_models import Goal
 from sb_missions.neo_models import Mission
 
 from .serializers import UpdateSerializer
@@ -121,8 +120,6 @@ def update_renderer(request, object_uuid=None):
         update['created'] = parser.parse(
             update['created']).replace(microsecond=0)
         update['vote_count'] = str(update['vote_count'])
-        update['goals'] = ", ".join([Goal.nodes.get(object_uuid=goal).title
-                                    for goal in update['goals']])
 
         context = RequestContext(request, update)
         html_array.append(render_to_string('update.html', context))

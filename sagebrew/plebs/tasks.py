@@ -7,6 +7,7 @@ from django.conf import settings
 from django.template.loader import get_template
 from django.template import Context
 from django.core.cache import cache
+from django.contrib.auth.models import User
 
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
@@ -17,13 +18,12 @@ from neomodel import DoesNotExist, CypherException, db
 from api.utils import spawn_task, generate_oauth_user
 from sb_search.tasks import update_search_object
 from sb_base.utils import defensive_exception
-from sb_wall.neo_models import Wall
 from sb_public_official.tasks import create_and_attach_state_level_reps
 from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
 
-from .neo_models import Pleb, BetaUser, OauthUser, Address
+from .neo_models import Pleb, OauthUser, Address
 from .utils import create_friend_request_util
 
 
@@ -46,7 +46,8 @@ def send_email_task(source, to, subject, html_content):
 def determine_pleb_reps(username):
     from sb_public_official.utils import determine_reps
     try:
-        result = determine_reps(username)
+        pleb = Pleb.get(username=username, cache_buster=True)
+        result = determine_reps(pleb)
         if result is False:
             raise Exception("Failed to determine reps")
         return result
@@ -69,7 +70,7 @@ def update_address_location(object_uuid):
                 '(l:Location) DELETE r' % object_uuid
         db.cypher_query(query)
         query = 'MATCH (s:Location {name:"%s"})-[:ENCOMPASSES]->' \
-                '(d:Location {name:"%s"}) RETURN d' % \
+                '(d:Location {name:"%s", sector:"federal"}) RETURN d' % \
                 (state, district)
         res, _ = db.cypher_query(query)
         if res.one is not None:
@@ -136,22 +137,18 @@ def connect_to_state_districts(object_uuid):
 
 
 @shared_task()
-def finalize_citizen_creation(user_instance=None):
+def finalize_citizen_creation(username):
     # TODO look into celery chaining and/or grouping
-    if user_instance is None:
-        return None
-    username = user_instance.username
     try:
-        pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist) as e:
-        raise finalize_citizen_creation.retry(exc=e, countdown=3,
-                                              max_retries=None)
+        pleb = Pleb.get(username=username, cache_buster=True)
+    except DoesNotExist as e:
+        raise finalize_citizen_creation.retry(
+            exc=e, countdown=3, max_retries=None)
     task_list = {}
     task_data = {
         "object_uuid": pleb.object_uuid,
-        "instance": pleb
+        "label": "pleb"
     }
-    # TODO I think this can be removed.
     task_list["add_object_to_search_index"] = spawn_task(
         task_func=update_search_object,
         task_param=task_data,
@@ -160,6 +157,7 @@ def finalize_citizen_creation(user_instance=None):
         task_func=check_privileges, task_param={"username": username},
         countdown=20)
     if not pleb.initial_verification_email_sent:
+        user_instance = User.objects.get(username=username)
         generated_token = token_gen.make_token(user_instance, pleb)
         template_dict = {
             'full_name': user_instance.get_full_name(),
@@ -179,50 +177,37 @@ def finalize_citizen_creation(user_instance=None):
         if task_list['send_email_task'] is not None:
             pleb.initial_verification_email_sent = True
             pleb.save()
-    task_ids = []
     cache.delete(pleb.username)
-    for item in task_list:
-        task_ids.append(task_list[item].task_id)
     return task_list
 
 
 @shared_task()
-def create_wall_task(user_instance=None):
-    if user_instance is None:
-        return None
+def create_wall_task(username=None):
     try:
-        pleb = Pleb.nodes.get(username=user_instance.username)
-    except (Pleb.DoesNotExist, DoesNotExist) as e:
-        raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
-    try:
-        wall_list = pleb.wall.all()
-    except(CypherException, IOError) as e:
-        raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
-    if len(wall_list) > 1:
-        return False
-    elif len(wall_list) == 1:
-        pass
-    else:
-        try:
-            wall = Wall(wall_id=str(uuid1())).save()
-            wall.owned_by.connect(pleb)
-            pleb.wall.connect(wall)
-        except(CypherException, IOError) as e:
-            raise create_wall_task.retry(exc=e, countdown=3,
+        query = 'MATCH (pleb:Pleb {username: "%s"})' \
+                '-[:OWNS_WALL]->(wall:Wall) RETURN wall' % username
+        res, _ = db.cypher_query(query)
+        if not res.one:
+            query = 'MATCH (pleb:Pleb {username: "%s"}) ' \
+                    'CREATE UNIQUE (pleb)-[:OWNS_WALL]->' \
+                    '(wall:Wall {wall_id: "%s"}) ' \
+                    'RETURN wall' % (username, str(uuid1()))
+            res, _ = db.cypher_query(query)
+        spawned = spawn_task(task_func=finalize_citizen_creation,
+                             task_param={"username": username})
+        if isinstance(spawned, Exception) is True:
+            raise create_wall_task.retry(exc=spawned, countdown=3,
                                          max_retries=None)
-    spawned = spawn_task(task_func=finalize_citizen_creation,
-                         task_param={"user_instance": user_instance})
-    if isinstance(spawned, Exception) is True:
-        raise create_wall_task.retry(exc=spawned, countdown=3,
-                                     max_retries=None)
+    except (CypherException, IOError, ClientError) as e:
+        raise create_wall_task.retry(exc=e, countdown=3, max_retries=None)
     return spawned
 
 
 @shared_task
 def generate_oauth_info(username, password, web_address=None):
     try:
-        pleb = Pleb.nodes.get(username=username)
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
+        pleb = Pleb.get(username=username, cache_buster=True)
+    except (DoesNotExist, CypherException, IOError) as e:
         raise generate_oauth_info.retry(exc=e, countdown=3, max_retries=None)
     creds = generate_oauth_user(pleb, password, web_address)
 
@@ -248,48 +233,6 @@ def generate_oauth_info(username, password, web_address=None):
 
 
 @shared_task()
-def create_pleb_task(user_instance=None, birthday=None, password=None):
-    # We do a check to make sure that a user with the email given does not exist
-    # in the registration view, so if you are calling this function without
-    # using that view there is a potential UniqueProperty error which can get
-    # thrown.
-    if user_instance is None:
-        return None
-    try:
-        Pleb.get(username=user_instance.username)
-    except (Pleb.DoesNotExist, DoesNotExist) as e:
-        raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
-    except(CypherException, IOError) as e:
-        raise create_pleb_task.retry(exc=e, countdown=3, max_retries=None)
-    task_info = spawn_task(task_func=create_wall_task,
-                           task_param={"user_instance": user_instance})
-    if isinstance(task_info, Exception) is True:
-        raise create_pleb_task.retry(exc=task_info, countdown=3,
-                                     max_retries=None)
-    oauth_res = spawn_task(task_func=generate_oauth_info,
-                           task_param={'username': user_instance.username,
-                                       'password': password},
-                           countdown=20)
-    if isinstance(oauth_res, Exception):
-        raise create_pleb_task.retry(exc=oauth_res, countdown=3,
-                                     max_retries=None)
-    return task_info
-
-
-@shared_task()
-def create_beta_user(email):
-    try:
-        BetaUser.nodes.get(email=email)
-        return True
-    except (BetaUser.DoesNotExist, DoesNotExist):
-        beta_user = BetaUser(email=email)
-        beta_user.save()
-    except (CypherException, IOError) as e:
-        raise create_beta_user.retry(exc=e, countdown=3, max_retries=None)
-    return True
-
-
-@shared_task()
 def create_friend_request_task(from_username, to_username, object_uuid):
     res = create_friend_request_util(from_username, to_username, object_uuid)
     if isinstance(res, Exception):
@@ -301,7 +244,7 @@ def create_friend_request_task(from_username, to_username, object_uuid):
 @shared_task()
 def update_reputation(username):
     try:
-        pleb = Pleb.get(username=username)
+        pleb = Pleb.get(username=username, cache_buster=True)
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
         raise update_reputation.retry(exc=e, countdown=3, max_retries=None)
 
@@ -313,8 +256,7 @@ def update_reputation(username):
         pleb.save()
         check_priv = spawn_task(task_func=check_privileges,
                                 task_param={"username": username})
-        pleb.refresh()
-        cache.set(username, pleb)
+        cache.delete(username)
         if isinstance(check_priv, Exception):
             raise update_reputation.retry(exc=check_priv, countdown=3,
                                           max_retries=None)

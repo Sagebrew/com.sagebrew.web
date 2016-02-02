@@ -10,6 +10,7 @@ from sb_public_official.neo_models import PublicOfficial
 
 
 class TestPublicOfficialUtils(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -29,7 +30,7 @@ class TestPublicOfficialUtils(TestCase):
         self.pleb.address.connect(self.address)
 
     def test_determine_reps(self):
-        res = determine_reps(self.pleb.username)
+        res = determine_reps(self.pleb)
 
         self.assertTrue(res)
         self.assertTrue(self.pleb.senators.is_connected(self.senator))

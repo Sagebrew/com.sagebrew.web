@@ -95,7 +95,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             serializer = serializer.data
             spawn_task(task_func=update_search_object,
                        task_param={"object_uuid": instance.object_uuid,
-                                   "instance": instance})
+                                   "label": "question"})
             html = request.query_params.get('html', 'false').lower()
             if html == "true":
                 serializer['last_edited_on'] = parser.parse(

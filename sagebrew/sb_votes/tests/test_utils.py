@@ -15,6 +15,7 @@ from sb_votes.utils import (determine_update_values, determine_vote_type,
 
 
 class TestDetermineUpdateValues(TestCase):
+
     def setUp(self):
         self.tags = []
         self.email = "success@simulator.amazonses.com"
@@ -72,6 +73,7 @@ class TestDetermineUpdateValues(TestCase):
 
 
 class TestDetermineVoteType(TestCase):
+
     def setUp(self):
         self.tags = []
         self.email = "success@simulator.amazonses.com"
@@ -111,6 +113,7 @@ class TestDetermineVoteType(TestCase):
 
 
 class TestHandleVote(TestCase):
+
     def setUp(self):
         self.tags = []
         self.email = "success@simulator.amazonses.com"

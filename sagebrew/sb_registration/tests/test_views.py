@@ -17,18 +17,22 @@ from django.core.cache import cache
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 
+from neomodel import DoesNotExist
+
+from sb_public_official.neo_models import PublicOfficial
 from sb_registration.views import (profile_information,
-                                   signup_view_api, logout_view,
+                                   logout_view,
                                    login_view, login_view_api,
                                    resend_email_verification,
                                    email_verification, interests)
 from sb_registration.models import EmailAuthTokenGenerator
-from sb_registration.utils import create_user_util_test, generate_username
+from sb_registration.utils import create_user_util_test
 from plebs.neo_models import Pleb, Address
 from sb_quests.neo_models import Quest
 
 
 class InterestsTest(TestCase):
+
     def setUp(self):
         call_command("create_prepopulated_tags")
         time.sleep(3)
@@ -113,6 +117,7 @@ class InterestsTest(TestCase):
 
 
 class TestProfileInfoView(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
@@ -122,6 +127,12 @@ class TestProfileInfoView(TestCase):
         self.pleb.email_verified = True
         self.pleb.completed_profile_info = False
         self.pleb.save()
+        try:
+            self.official = PublicOfficial.nodes.get(title="President")
+        except(DoesNotExist, PublicOfficial.DoesNotExist):
+            self.official = PublicOfficial(bioguideid=str(uuid1()),
+                                           title="President",
+                                           gt_id=str(uuid1())).save()
         addresses = Address.nodes.all()
         for address in addresses:
             if self.pleb.address.is_connected(address):
@@ -426,6 +437,7 @@ class TestProfileInfoView(TestCase):
 
 
 class TestSignupView(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
@@ -450,207 +462,8 @@ class TestSignupView(TestCase):
         self.client.logout()
 
 
-class TestSignupAPIView(TestCase):
-    def setUp(self):
-        self.store = SessionStore()
-        self.factory = APIRequestFactory()
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-
-    def test_signup_view_api_success(self):
-        signup_dict = {
-            'first_name': 'Tyler',
-            'last_name': 'Wiersing',
-            'email': 'ooto@simulator.amazonses.com',
-            'password': 'testpassword',
-            'password2': 'testpassword',
-            'birthday': "06/23/1990"
-        }
-        request = self.factory.post('/registration/signup/', data=signup_dict,
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        res = signup_view_api(request)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-    def test_signup_view_api_international_character(self):
-        signup_dict = {
-            'first_name': 'Martin',
-            'last_name': 'Jänsch',
-            'email': 'ooto@simulator.amazonses.com',
-            'password': 'testpassword',
-            'password2': 'testpassword',
-            'birthday': "06/23/1990"
-        }
-        request = self.factory.post('/registration/signup/', data=signup_dict,
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        res = signup_view_api(request)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        test_user = User.objects.get(username="martin_jansch")
-        self.assertEqual(test_user.username, "martin_jansch")
-        test_user.delete()
-
-    def test_signup_view_api_international_characters(self):
-        signup_dict = {
-            'first_name': 'Martin',
-            'last_name': 'Iñtërnâtiônàlizætiøn2',
-            'email': 'ooto@simulator.amazonses.com',
-            'password': 'testpassword',
-            'password2': 'testpassword',
-            'birthday': "06/23/1990"
-        }
-        request = self.factory.post('/registration/signup/', data=signup_dict,
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        res = signup_view_api(request)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        test_user = User.objects.get(username='martin_internationalizaetion2')
-        self.assertEqual(test_user.username, 'martin_internationalizaetion2')
-        test_user.delete()
-
-    def test_signup_view_api_long_name(self):
-        signup_dict = {
-            'first_name': 'Thisismyfirstnamereallyitsuper',
-            'last_name': 'bereadyformylastnamecauseitsev',
-            'email': 'ooto@simulator.amazonses.com',
-            'password': 'testpassword',
-            'password2': 'testpassword',
-            'birthday': "06/23/1990"
-        }
-        request = self.factory.post('/registration/signup/', data=signup_dict,
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        res = signup_view_api(request)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        username = "thisismyfirstnamereallyitsuper"
-        test_user = User.objects.get(username=username)
-        self.assertEqual(test_user.username, username)
-        test_user.delete()
-
-    def test_signup_view_api_two_long_names(self):
-        signup_dict = {
-            'first_name': 'Thisismyfirstnamereallyitsuper',
-            'last_name': 'bereadyformylastnamecauseitsev',
-            'email': 'ooto@simulator.amazonses.com',
-            'password': 'testpassword',
-            'password2': 'testpassword',
-            'birthday': "06/23/1990"
-        }
-        request = self.factory.post('/registration/signup/', data=signup_dict,
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        signup_view_api(request)
-        username = generate_username(signup_dict['first_name'],
-                                     signup_dict['last_name'])
-        self.assertEqual(username, "thisismyfirstnamereallyitsupe1")
-
-    def test_signup_view_api_success_user_is_not_active(self):
-        signup_dict = {
-            'first_name': self.user.first_name,
-            'last_name': self.user.last_name,
-            'email': self.user.email,
-            'password': 'testpassword',
-            'password2': 'testpassword',
-            'birthday': "06/23/1990"
-        }
-        self.user.is_active = False
-        self.user.save()
-        request = self.factory.post('/registration/signup/', data=signup_dict,
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        res = signup_view_api(request)
-        res.render()
-        self.assertEqual(loads(res.content)['detail'], 'existing success')
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-    def test_signup_view_api_success_user_multiple_objects(self):
-        signup_dict = {
-            'first_name': self.user.first_name,
-            'last_name': self.user.last_name,
-            'email': self.user.email,
-            'password': 'testpassword',
-            'password2': 'testpassword',
-            'birthday': "06/23/1990"
-        }
-        self.user.is_active = False
-        self.user.save()
-        User.objects.create_user(first_name=self.user.first_name,
-                                 last_name=self.user.last_name,
-                                 email=self.user.email, password="test",
-                                 username="blablabla")
-        request = self.factory.post('/registration/signup/', data=signup_dict,
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        res = signup_view_api(request)
-        res.render()
-        self.assertEqual(loads(res.content)['detail'],
-                         'Appears we have two users with '
-                         'that email. Please contact '
-                         'support@sagebrew.com.')
-        self.assertEqual(res.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-    def test_signup_view_api_failure_user_exists(self):
-        signup_dict = {
-            'first_name': self.user.first_name,
-            'last_name': self.user.last_name,
-            'email': self.user.email,
-            'password': 'testpassword',
-            'password2': 'testpassword',
-            'birthday': "06/23/1990"
-        }
-
-        request = self.factory.post('/registration/signup/', data=signup_dict,
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        res = signup_view_api(request)
-        res.render()
-        self.assertEqual(loads(res.content)['detail'],
-                         'A user with this email already exists!')
-        self.assertEqual(res.status_code, 401)
-
-    def test_signup_view_api_failure_passwords_do_not_match(self):
-        signup_dict = {
-            'first_name': 'Tyler',
-            'last_name': 'Wiersing',
-            'email': 'success@simulator.amazonses.com',
-            'password': 'testpass',
-            'password2': 'not the same as the first',
-            'birthday': "06/23/1990"
-        }
-        request = self.factory.post('/registration/signup/', data=signup_dict,
-                                    format='json')
-        s = SessionStore()
-        s.save()
-        request.session = s
-        res = signup_view_api(request)
-        res.render()
-
-        self.assertEqual(loads(res.content)['detail'],
-                         'Passwords do not match!')
-        self.assertEqual(res.status_code, 401)
-
-
 class TestLoginView(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
@@ -669,6 +482,7 @@ class TestLoginView(TestCase):
 
 
 class TestLoginAPIView(TestCase):
+
     def setUp(self):
         self.store = SessionStore()
         self.factory = APIRequestFactory()
@@ -805,6 +619,7 @@ class TestLoginAPIView(TestCase):
 
 
 class TestLogoutView(TestCase):
+
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
@@ -830,6 +645,7 @@ class TestLogoutView(TestCase):
 
 
 class TestEmailVerificationView(TestCase):
+
     def setUp(self):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
@@ -892,6 +708,7 @@ class TestEmailVerificationView(TestCase):
 
 
 class TestResendEmailVerificationView(TestCase):
+
     def setUp(self):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
@@ -933,6 +750,7 @@ class TestResendEmailVerificationView(TestCase):
 
 
 class TestConfirmView(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
@@ -956,6 +774,7 @@ class TestConfirmView(TestCase):
 
 
 class TestAgeRestrictionView(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
@@ -979,6 +798,7 @@ class TestAgeRestrictionView(TestCase):
 
 
 class TestQuestSignup(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
@@ -1000,6 +820,7 @@ class TestQuestSignup(TestCase):
 
 
 class TestProfilePicture(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()

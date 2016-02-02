@@ -12,6 +12,7 @@ from sb_registration.utils import create_user_util_test
 
 
 class TagEndpointTest(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"

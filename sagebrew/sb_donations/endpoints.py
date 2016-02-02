@@ -85,6 +85,7 @@ class DonationListCreate(generics.ListCreateAPIView):
                     'RETURN donation' % self.kwargs[self.lookup_field]
         else:
             query = 'MATCH (quest:Quest {owner_username: "%s"})' \
+                    '-[:EMBARKS_ON]->(mission:Mission)' \
                     '<-[:CONTRIBUTED_TO]-(donation:Donation) ' \
                     'RETURN donation' % self.kwargs[self.lookup_field]
         res, _ = db.cypher_query(query)

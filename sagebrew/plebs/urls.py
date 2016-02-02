@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from .views import (get_user_search_view, ProfileView,
+from .views import (ProfileView,
                     deactivate_user, root_profile_page, general_settings,
                     contribute_settings,
                     authenticate_representative, delete_account)
@@ -17,14 +17,13 @@ urlpatterns = patterns(
     url(r'^newsfeed/$',
         ProfileView.as_view(template_name='newsfeed.html'), name="newsfeed"),
     url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,30})/friends/$',
-        ProfileView.as_view(template_name='sb_friends_section/sb_friends.html'),
+        ProfileView.as_view(
+            template_name='sb_friends_section/sb_friends.html'),
         name="friend_page"),
     url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,30})/donations/$',
         ProfileView.as_view(template_name='pleb_donations.html'),
         name="donation_page"),
     url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,30})/$',
         ProfileView.as_view(), name="profile_page"),
-    url(r'^search/(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,30})/$',
-        get_user_search_view, name="get_user_search_view"),
     url(r'^', root_profile_page, name="root_profile_page"),
 )

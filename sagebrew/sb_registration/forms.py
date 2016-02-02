@@ -213,17 +213,6 @@ class ProfilePageForm(forms.Form):
     )
 
 
-class SignupForm(forms.Form):
-    first_name = forms.CharField(required=True, max_length=30,
-                                 label="First Name")
-    last_name = forms.CharField(required=True, max_length=30,
-                                label="Last Name")
-    email = forms.EmailField(required=True, label="Email")
-    password = forms.CharField(required=True, min_length=6, max_length=56)
-    password2 = forms.CharField(required=True, min_length=6, max_length=56)
-    birthday = forms.DateTimeField(required=True, input_formats=['%m/%d/%Y'])
-
-
 class LoginForm(forms.Form):
     email = forms.EmailField(required=True)
     password = forms.CharField(required=True, min_length=6)

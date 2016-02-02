@@ -159,5 +159,6 @@
         Intercom('trackEvent', 'visited-own-quest');
     {% else %}
         Intercom('trackEvent', 'visited-{{ quest.owner_username }}-quest');
+        Intercom('trackEvent', 'visited-quest');
     {% endif %}
 {% endblock %}

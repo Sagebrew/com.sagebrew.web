@@ -13,6 +13,7 @@ from sb_questions.tasks import (add_auto_tags_to_question_task)
 
 
 class TestAddAutoTagsToQuestionTask(TestCase):
+
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"

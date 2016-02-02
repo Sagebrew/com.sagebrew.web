@@ -16,6 +16,7 @@ from sb_search.tasks import update_search_object
 
 
 class VoteEndpointTests(APITestCase):
+
     def setUp(self):
         cache.clear()
         self.email = "success@simulator.amazonses.com"
@@ -107,7 +108,7 @@ class VoteEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         task_params = {
             "object_uuid": self.question.object_uuid,
-            "instance": self.question
+            "label": "question"
         }
         async_result = spawn_task(task_func=update_search_object,
                                   task_param=task_params, countdown=30)

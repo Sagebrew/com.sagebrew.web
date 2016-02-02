@@ -216,7 +216,6 @@ def create_auto_tags(content):
 def wait_util(async_res):
     while not async_res['task_id'].ready():
         time.sleep(1)
-
     while not async_res['task_id'].result.ready():
         time.sleep(1)
     return async_res['task_id'].result.result

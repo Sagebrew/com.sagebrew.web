@@ -13,7 +13,7 @@ from api.utils import wait_util
 from sb_updates.neo_models import Update
 
 
-class ProfilePageTest(TestCase):
+class UpdateViewTests(TestCase):
 
     def setUp(self):
         self.client = Client()

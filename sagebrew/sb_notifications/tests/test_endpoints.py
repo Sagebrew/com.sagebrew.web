@@ -13,6 +13,7 @@ from sb_notifications.neo_models import Notification
 
 
 class UserNotificationRetrieveTest(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'notification'
         self.email = "success@simulator.amazonses.com"

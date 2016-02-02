@@ -16,6 +16,7 @@ from sb_quests.neo_models import Position
 
 
 class LocationEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'location'
         self.email = "success@simulator.amazonses.com"

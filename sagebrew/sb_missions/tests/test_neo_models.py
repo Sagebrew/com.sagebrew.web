@@ -17,6 +17,7 @@ from sb_missions.neo_models import Mission
 
 
 class TestMission(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -103,9 +104,9 @@ class TestMission(TestCase):
         self.assertIsNone(res)
 
     def test_get_total_donation_amount(self):
-        donation1 = Donation(amount=10).save()
-        donation2 = Donation(amount=20).save()
+        donation1 = Donation(amount=100).save()
+        donation2 = Donation(amount=200).save()
         donation1.mission.connect(self.mission)
         donation2.mission.connect(self.mission)
         res = self.mission.get_total_donation_amount()
-        self.assertEqual(res, 30)
+        self.assertEqual(res, "2.19")

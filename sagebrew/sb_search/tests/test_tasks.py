@@ -24,6 +24,7 @@ from sb_solutions.serializers import SolutionSerializerNeo
 
 
 class TestUpdateSearchQuery(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -125,6 +126,7 @@ class TestUpdateSearchQuery(TestCase):
 
 
 class TestCreateKeywordTask(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -199,6 +201,7 @@ class TestCreateKeywordTask(TestCase):
 
 
 class TestUpdateSearchObject(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)

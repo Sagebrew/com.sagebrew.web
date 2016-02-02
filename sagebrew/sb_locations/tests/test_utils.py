@@ -329,6 +329,7 @@ wixom_server_response = {
 
 
 class TestGooglePlaces(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"

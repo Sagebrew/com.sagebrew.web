@@ -16,6 +16,6 @@ urlpatterns = patterns(
             "content_path":
                 "%ssecurity_vulnerability.html" % settings.HELP_DOCS_PATH,
             "category": "security"
-        },
+    },
         name="security_vulnerability"),
 )

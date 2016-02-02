@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.conf import settings
 
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist,
                       BooleanProperty)
@@ -34,7 +35,8 @@ class Mission(Searchable):
     #     state
     #     federal
     #     local
-    # For filtering purposes we combine state_upper and state_lower into "state"
+    # For filtering purposes we combine state_upper and state_lower into
+    # "state"
     level = StringProperty()
 
     # The mission may have seperate pages than the core Quest does
@@ -92,7 +94,8 @@ class Mission(Searchable):
 
     # Helper function that can be associated with on the serializer and gets
     # a focused on object.
-    focused_on = RelationshipTo('sb_search.neo_models.Searchable', 'FOCUSED_ON')
+    focused_on = RelationshipTo(
+        'sb_search.neo_models.Searchable', 'FOCUSED_ON')
 
     # Utilized to link a Mission to a Question or Solution. Two use cases are
     # currently possible. One is that a parent Quest provides a solution or
@@ -220,8 +223,16 @@ class Mission(Searchable):
         return title
 
     def get_total_donation_amount(self):
+        from sb_quests.neo_models import Quest
+        quest = Quest.get(owner_username=self.owner_username)
         query = 'MATCH (c:Mission {object_uuid:"%s"})<-' \
-                '[:CONTRIBUTED_TO]-(d:Donation) RETURN sum(d.amount)' \
-                % self.object_uuid
+                '[:CONTRIBUTED_TO]-(d:Donation) ' \
+                'RETURN sum(d.amount) - (sum(d.amount) * ' \
+                '(%f + %f) + count(d) * 30)' \
+                % (self.object_uuid, quest.application_fee,
+                   settings.STRIPE_TRANSACTION_PERCENT)
         res, _ = db.cypher_query(query)
-        return res.one
+        if res.one:
+            return '{:,.2f}'.format(float(res.one) / 100)
+        else:
+            return "0.00"

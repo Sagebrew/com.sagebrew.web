@@ -15,6 +15,7 @@ from sb_updates.neo_models import Update
 
 
 class UpdateEndpointsTest(APITestCase):
+
     def setUp(self):
         cache.clear()
         self.unit_under_test_name = 'goal'

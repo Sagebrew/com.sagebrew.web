@@ -17,7 +17,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sadvertising.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
-        },
+    },
         name="advertising"),
     url(r'^be-nice/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -29,7 +29,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sbe_nice.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
-        },
+    },
         name="be_nice"),
     url(r'^do-not-spam/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -40,7 +40,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sdont_spam.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
-        },
+    },
         name="do_not_spam"),
     url(r'^feedback/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -51,7 +51,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sfeedback.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
-        },
+    },
         name="feedback"),
     url(r'^finding-topics-of-interest/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -65,7 +65,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sfinding_topics_of_interest.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
-        },
+    },
         name="finding_topics_of_interest"),
     url(r'^how-to-search/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -77,7 +77,7 @@ urlpatterns = patterns(
             "content_path":
                 "%show_to_search.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
-        },
+    },
         name="how_to_search"),
     url(r'^markdown-formatting/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -89,7 +89,7 @@ urlpatterns = patterns(
             "content_path":
                 "%smarkdown_formatting.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
-        },
+    },
         name="markdown_formatting"),
     url(r'^support/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -100,7 +100,7 @@ urlpatterns = patterns(
             "content_path":
                 "%smore_help.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
-        },
+    },
         name="support"),
     url(r'^reporting-suspicious-behavior/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -114,7 +114,7 @@ urlpatterns = patterns(
                 "%sreporting_suspicious_behavior.html" % (
                     settings.HELP_DOCS_PATH),
             "category": "policies"
-        },
+    },
         name="reporting_suspicious_behavior"),
     url(r'^user-behavior/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -126,7 +126,7 @@ urlpatterns = patterns(
             "content_path":
                 "%suser_behavior.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
-        },
+    },
         name="user_behavior"),
     url(r'^what-is-markdown/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -137,7 +137,7 @@ urlpatterns = patterns(
             "content_path":
                 "%swhat_is_markdown.html" % settings.HELP_DOCS_PATH,
             "category": "policies"
-        },
+    },
         name="what_is_markdown"),
     url(r'^be_nice/$', RedirectView.as_view(
         url='/help/policies/be-nice/', permanent=True),

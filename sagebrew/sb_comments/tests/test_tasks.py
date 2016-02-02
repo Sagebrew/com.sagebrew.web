@@ -18,6 +18,7 @@ from sb_comments.tasks import spawn_comment_notifications
 
 
 class TestSpawnCommentNotifications(TestCase):
+
     def setUp(self):
         self.api_endpoint = "http://testserver/v1"
         self.email = "success@simulator.amazonses.com"
@@ -108,7 +109,8 @@ class TestSpawnCommentNotifications(TestCase):
         self.assertTrue(res.result)
         while not res.result['comment_on_comment_task'].ready():
             time.sleep(1)
-        notification = Notification.nodes.get(object_uuid=comment_on_comment_id)
+        notification = Notification.nodes.get(
+            object_uuid=comment_on_comment_id)
         self.assertEqual(notification.action_name, "commented on a question "
                                                    "you commented on")
         self.assertTrue(self.pleb2.notifications.is_connected(notification))

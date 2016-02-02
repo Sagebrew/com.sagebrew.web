@@ -35,7 +35,8 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, notification_id, url,
             to_pleb = Pleb.get(username=plebeian)
             plebeians.append(to_pleb)
         except(CypherException, Pleb.DoesNotExist, DoesNotExist, IOError) as e:
-            raise spawn_notifications.retry(exc=e, countdown=3, max_retries=100)
+            raise spawn_notifications.retry(
+                exc=e, countdown=3, max_retries=100)
     response = create_notification_util(sb_object, from_pleb, plebeians,
                                         notification_id, url, action_name,
                                         public)

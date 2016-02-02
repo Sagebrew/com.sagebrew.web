@@ -20,6 +20,7 @@ from sb_wall.neo_models import Wall
 
 
 class TestCreateWallTask(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -79,6 +80,7 @@ class TestCreateWallTask(TestCase):
 
 
 class TestFinalizeCitizenCreationTask(TestCase):
+
     def setUp(self):
         self.email2 = 'suppressionlist@simulator.amazonses.com'
         self.email = "success@simulator.amazonses.com"
@@ -135,6 +137,7 @@ class TestFinalizeCitizenCreationTask(TestCase):
 
 
 class TestSendEmailTask(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -181,6 +184,7 @@ class TestSendEmailTask(TestCase):
 
 
 class TestCreateFriendRequestTask(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -229,6 +233,7 @@ class TestCreateFriendRequestTask(TestCase):
 
 
 class TestDeterminePlebReps(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -252,6 +257,7 @@ class TestDeterminePlebReps(TestCase):
 
 
 class TestUpdateReputation(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -275,6 +281,7 @@ class TestUpdateReputation(TestCase):
 
 
 class TestCreateStateDistricts(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -288,7 +295,8 @@ class TestCreateStateDistricts(TestCase):
         settings.CELERY_ALWAYS_EAGER = False
 
     def test_create_state_districts(self):
-        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
+        mi = Location(name=us.states.lookup(
+            "MI").name, sector="federal").save()
         address = Address(state="MI", latitude=42.532020,
                           longitude=-83.496500).save()
         lower = Location(name='38', sector='state_lower').save()
@@ -312,7 +320,8 @@ class TestCreateStateDistricts(TestCase):
         lower.delete()
 
     def test_create_state_districts_already_exist(self):
-        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
+        mi = Location(name=us.states.lookup(
+            "MI").name, sector="federal").save()
         address = Address(state="MI", latitude=42.532020,
                           longitude=-83.496500).save()
         upper = Location(name="15", sector="state_upper").save()
@@ -365,7 +374,8 @@ class TestCreateStateDistricts(TestCase):
         self.assertIsInstance(res.result, Exception)
 
     def test_address_has_no_lat_long(self):
-        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
+        mi = Location(name=us.states.lookup(
+            "MI").name, sector="federal").save()
         address = Address(state="MI").save()
         res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
@@ -376,9 +386,11 @@ class TestCreateStateDistricts(TestCase):
         address.delete()
 
     def test_address_has_lat_long_outside_usa(self):
-        mi = Location(name=us.states.lookup("MI").name, sector="federal").save()
+        mi = Location(name=us.states.lookup(
+            "MI").name, sector="federal").save()
         # lat/long of Greenwich UK
-        address = Address(state="MI", latitude=51.4800, longitude=0.0000).save()
+        address = Address(state="MI", latitude=51.4800,
+                          longitude=0.0000).save()
         res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
         while not res.ready():

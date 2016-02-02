@@ -16,6 +16,7 @@ from .neo_models import UploadedObject, ModifiedObject, URLContent
 
 
 class MediaType:
+
     def __init__(self):
         pass
 
@@ -30,6 +31,7 @@ class MediaType:
 
 
 class FileSize:
+
     def __init__(self):
         pass
 

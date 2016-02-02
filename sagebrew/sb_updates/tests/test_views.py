@@ -14,6 +14,7 @@ from sb_updates.neo_models import Update
 
 
 class ProfilePageTest(TestCase):
+
     def setUp(self):
         self.client = Client()
         self.email = "success@simulator.amazonses.com"

@@ -34,6 +34,7 @@ from sb_donations.neo_models import Donation
 
 
 class MeEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -240,7 +241,7 @@ class MeEndpointTests(APITestCase):
         quest = Quest(owner_username=str(uuid1())).save()
         mission = Mission(owner_username=quest.owner_username).save()
         quest.missions.connect(mission)
-        donation = Donation().save()
+        donation = Donation(amount=100).save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
         donation.mission.connect(mission)
@@ -253,7 +254,7 @@ class MeEndpointTests(APITestCase):
         quest = Quest(owner_username=str(uuid1())).save()
         mission = Mission(owner_username=quest.owner_username).save()
         quest.missions.connect(mission)
-        donation = Donation().save()
+        donation = Donation(amount=100).save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
         donation.mission.connect(mission)
@@ -263,7 +264,7 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_sagebrew_donations(self):
-        donation = Donation().save()
+        donation = Donation(amount=100).save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
@@ -275,7 +276,7 @@ class MeEndpointTests(APITestCase):
     def test_donations_with_only_sagebrew_donation(self):
         for donation in Donation.nodes.all():
             donation.delete()
-        donation = Donation().save()
+        donation = Donation(amount=100).save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
@@ -463,6 +464,7 @@ class MeEndpointTests(APITestCase):
 
 
 class SentFriendRequestEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'friend_requests'
         self.email = "success@simulator.amazonses.com"
@@ -602,6 +604,7 @@ class SentFriendRequestEndpointTests(APITestCase):
 
 
 class FriendManagerEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'friend'
         self.email = "success@simulator.amazonses.com"
@@ -724,6 +727,7 @@ class FriendManagerEndpointTests(APITestCase):
 
 
 class ProfileEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -937,6 +941,7 @@ class ProfileEndpointTests(APITestCase):
 
 
 class ProfileContentMethodTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -1125,6 +1130,7 @@ class ProfileContentMethodTests(APITestCase):
 
 
 class ProfileFriendsMethodTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -1155,6 +1161,7 @@ class ProfileFriendsMethodTests(APITestCase):
 
 
 class BaseUserTests(APITestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.email2 = "bounce@simulator.amazonses.com"
@@ -1217,7 +1224,8 @@ class BaseUserTests(APITestCase):
 
         data = {"password": "hellothere2"}
         response = self.client.put(url, data, format='json')
-        self.assertEqual(response.data['birthday'], ['This field is required.'])
+        self.assertEqual(response.data['birthday'], [
+                         'This field is required.'])
 
     def test_update_no_email(self):
         self.client.force_authenticate(user=self.unit_under_test)
@@ -1392,6 +1400,7 @@ class BaseUserTests(APITestCase):
 
 
 class FriendRequestListTest(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'friend_request'
         self.email = "success@simulator.amazonses.com"
@@ -1553,6 +1562,7 @@ class FriendRequestListTest(APITestCase):
 
 
 class PlebPresidentTest(APITestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -1833,6 +1843,7 @@ class PlebPresidentTest(APITestCase):
 
 
 class PlebSenatorsTest(APITestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -2169,6 +2180,7 @@ class PlebSenatorsTest(APITestCase):
 
 
 class PlebHouseRepresentativeTest(APITestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -2485,6 +2497,7 @@ class PlebHouseRepresentativeTest(APITestCase):
 
 
 class PlebLocalRepresentativeTest(APITestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
@@ -2649,6 +2662,7 @@ class PlebLocalRepresentativeTest(APITestCase):
 
 
 class AddressEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'address'
         self.email = "success@simulator.amazonses.com"
@@ -2901,6 +2915,7 @@ class AddressEndpointTests(APITestCase):
 
 
 class ReputationMethodEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'reputation'
         self.email = "success@simulator.amazonses.com"
@@ -2992,6 +3007,7 @@ class ReputationMethodEndpointTests(APITestCase):
 
 
 class BetaUserMethodEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'is_beta_user'
         self.email = "success@simulator.amazonses.com"
@@ -3095,6 +3111,7 @@ class BetaUserMethodEndpointTests(APITestCase):
 
 
 class NewsfeedTests(APITestCase):
+
     def setUp(self):
         cache.clear()
         self.unit_under_test_name = 'pleb'
@@ -3837,6 +3854,7 @@ class NewsfeedTests(APITestCase):
 
 
 class TestFollowNewsfeed(APITestCase):
+
     def setUp(self):
         cache.clear()
         self.unit_under_test_name = 'pleb'
@@ -3889,6 +3907,7 @@ class TestFollowNewsfeed(APITestCase):
 
 
 class TestFollowEndpoints(APITestCase):
+
     def setUp(self):
         cache.clear()
         self.unit_under_test_name = 'pleb'
@@ -3906,7 +3925,8 @@ class TestFollowEndpoints(APITestCase):
         url = reverse('profile-follow',
                       kwargs={'username': self.pleb2.username})
         response = self.client.post(url)
-        self.assertEqual(response.data['detail'], "Successfully followed user.")
+        self.assertEqual(response.data['detail'],
+                         "Successfully followed user.")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_follow_already_following(self):
@@ -3925,7 +3945,8 @@ class TestFollowEndpoints(APITestCase):
                       kwargs={'username': self.pleb2.username})
         response = self.client.post(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['detail'], "Already not following user.")
+        self.assertEqual(response.data['detail'],
+                         "Already not following user.")
 
     def test_unfollow_following(self):
         self.client.force_authenticate(user=self.user)
@@ -3942,6 +3963,7 @@ class TestFollowEndpoints(APITestCase):
 
 
 class TestAcceptFriendRequest(APITestCase):
+
     def setUp(self):
         query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
@@ -4036,6 +4058,7 @@ class TestAcceptFriendRequest(APITestCase):
 
 
 class TestDeclineFriendRequest(APITestCase):
+
     def setUp(self):
         query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
@@ -4130,6 +4153,7 @@ class TestDeclineFriendRequest(APITestCase):
 
 
 class TestBlockFriendRequest(APITestCase):
+
     def setUp(self):
         query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)

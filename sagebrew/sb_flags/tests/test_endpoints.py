@@ -14,6 +14,7 @@ from sb_questions.neo_models import Question
 
 
 class FlagEndpointTest(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'flag'
         self.email = "success@simulator.amazonses.com"

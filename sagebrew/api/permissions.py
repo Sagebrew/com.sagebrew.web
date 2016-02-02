@@ -5,6 +5,7 @@ from sb_missions.neo_models import Mission
 
 
 class IsOwnerOrAdmin(permissions.BasePermission):
+
     def has_object_permission(self, request, view, obj):
         if (obj.owner_username == request.user.username or
                 request.user.is_staff):
@@ -14,6 +15,7 @@ class IsOwnerOrAdmin(permissions.BasePermission):
 
 
 class IsSelfOrReadOnly(permissions.BasePermission):
+
     def has_object_permission(self, request, view, obj):
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -22,6 +24,7 @@ class IsSelfOrReadOnly(permissions.BasePermission):
 
 
 class IsAnonCreateReadOnlyOrIsAuthenticated(permissions.BasePermission):
+
     def has_permission(self, request, view):
         if request.method == "POST" and not request.user.is_authenticated():
             return True
@@ -49,11 +52,13 @@ class IsSelf(permissions.BasePermission):
     in user should be placed on this endpoint.
     See WA-1250 https://sagebrew.atlassian.net/browse/WA-1250
     """
+
     def has_object_permission(self, request, view, obj):
         return obj.username == request.user.username
 
 
 class IsUserOrAdmin(permissions.BasePermission):
+
     def has_object_permission(self, request, view, obj):
         if obj.user == request.user or request.user.is_staff:
             return True
@@ -62,6 +67,7 @@ class IsUserOrAdmin(permissions.BasePermission):
 
 
 class IsAuthorizedAndVerified(permissions.BasePermission):
+
     def has_object_permission(self, request, view, obj):
         if obj.email_verified and obj.completed_profile_info and \
                 request.user.is_authenticated():
@@ -71,6 +77,7 @@ class IsAuthorizedAndVerified(permissions.BasePermission):
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):
+
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -79,6 +86,7 @@ class IsAdminOrReadOnly(permissions.BasePermission):
 
 
 class IsOwnerOrEditorOrAccountant(permissions.BasePermission):
+
     def has_object_permission(self, request, view, obj):
         if request.user.username in Quest.get_quest_helpers(obj):
             return True
@@ -87,6 +95,7 @@ class IsOwnerOrEditorOrAccountant(permissions.BasePermission):
 
 
 class IsOwnerOrModeratorOrReadOnly(permissions.BasePermission):
+
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
@@ -110,6 +119,7 @@ class IsOwnerOrModeratorOrReadOnly(permissions.BasePermission):
 
 
 class IsOwnerOrModerator(permissions.BasePermission):
+
     def has_object_permission(self, request, view, obj):
         if request.user.username in \
                 Quest.get_moderators(owner_username=obj) or \
@@ -121,6 +131,7 @@ class IsOwnerOrModerator(permissions.BasePermission):
 
 
 class IsOwnerOrEditor(permissions.BasePermission):
+
     def has_object_permission(self, request, view, obj):
         if request.user.username in Quest.get_editors(obj) or \
                 request.user.username == obj:

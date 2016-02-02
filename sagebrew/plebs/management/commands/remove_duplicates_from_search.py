@@ -3,8 +3,6 @@ from django.core.management.base import BaseCommand
 
 from elasticsearch import Elasticsearch, NotFoundError
 
-from plebs.neo_models import Pleb
-
 
 class Command(BaseCommand):
     args = 'None.'

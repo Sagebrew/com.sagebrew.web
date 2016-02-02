@@ -12,9 +12,6 @@ from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from plebs.tasks import send_email_task
 
-from logging import getLogger
-logger =getLogger('loggly_logs')
-
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
     def enforce_csrf(self, request):
@@ -45,8 +42,9 @@ class AccountingViewSet(viewsets.ViewSet):
                 "subject": "Representative Authentication",
                 "html_content": render_to_string(
                     "email_templates/email_subscription_failure_notice.html",
-                    {"billing_url": reverse("quest_manage_billing",
-                                            kwargs={'username': pleb.username})})
+                    {"billing_url":
+                        reverse("quest_manage_billing",
+                                kwargs={'username': pleb.username})})
             }
             spawn_task(task_func=send_email_task, task_param=email_data)
             return Response({"detail": "Invoice Payment Failed"},

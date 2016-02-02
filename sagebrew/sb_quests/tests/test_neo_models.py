@@ -123,7 +123,7 @@ class TestQuest(TestCase):
         self.assertIn(update.object_uuid, res)
 
     def test_get_donations(self):
-        donation = Donation().save()
+        donation = Donation(amount=100).save()
         mission = Mission().save()
         self.quest.missions.connect(mission)
         donation.mission.connect(mission)

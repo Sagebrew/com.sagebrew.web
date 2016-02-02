@@ -19,7 +19,7 @@ from .neo_models import Donation
 
 class DonationSerializer(SBSerializer):
     completed = serializers.BooleanField(read_only=True)
-    amount = serializers.IntegerField(required=True)
+    amount = serializers.IntegerField(required=True, min_value=100)
     owner_username = serializers.CharField(read_only=True)
     payment_method = serializers.CharField(write_only=True, allow_null=True)
 

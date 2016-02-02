@@ -30,7 +30,7 @@ class Donation(SBObject):
     # Amount is an Integer to adhere to Stripe's API and to ensure precision
     # http://stackoverflow.com/questions/3730019/why-not-use-double-or-
     # float-to-represent-currency
-    amount = IntegerProperty()
+    amount = IntegerProperty(required=True)
     # optimization
     owner_username = StringProperty()
     stripe_charge_id = StringProperty()

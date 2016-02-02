@@ -241,7 +241,7 @@ class MeEndpointTests(APITestCase):
         quest = Quest(owner_username=str(uuid1())).save()
         mission = Mission(owner_username=quest.owner_username).save()
         quest.missions.connect(mission)
-        donation = Donation().save()
+        donation = Donation(amount=100).save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
         donation.mission.connect(mission)
@@ -254,7 +254,7 @@ class MeEndpointTests(APITestCase):
         quest = Quest(owner_username=str(uuid1())).save()
         mission = Mission(owner_username=quest.owner_username).save()
         quest.missions.connect(mission)
-        donation = Donation().save()
+        donation = Donation(amount=100).save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
         donation.mission.connect(mission)
@@ -264,7 +264,7 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_sagebrew_donations(self):
-        donation = Donation().save()
+        donation = Donation(amount=100).save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
@@ -276,7 +276,7 @@ class MeEndpointTests(APITestCase):
     def test_donations_with_only_sagebrew_donation(self):
         for donation in Donation.nodes.all():
             donation.delete()
-        donation = Donation().save()
+        donation = Donation(amount=100).save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)

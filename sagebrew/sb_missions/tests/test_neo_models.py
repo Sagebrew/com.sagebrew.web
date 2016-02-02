@@ -109,4 +109,4 @@ class TestMission(TestCase):
         donation1.mission.connect(self.mission)
         donation2.mission.connect(self.mission)
         res = self.mission.get_total_donation_amount()
-        self.assertEqual(res, "3.00")
+        self.assertEqual(res, "0.30")

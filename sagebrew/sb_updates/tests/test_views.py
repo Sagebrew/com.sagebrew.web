@@ -46,7 +46,7 @@ class TestMissionUpdateView(TestCase):
 
     def test_edit_update(self):
         self.client.login(username=self.user.username, password=self.password)
-        url = reverse("mission_edit_updates",
+        url = reverse("mission_edit_update",
                       kwargs={"object_uuid": self.mission.object_uuid,
                               "edit_id": self.update.object_uuid,
                               "slug": slugify(
@@ -56,7 +56,7 @@ class TestMissionUpdateView(TestCase):
 
     def test_edit_update_doesnt_exist(self):
         self.client.login(username=self.user.username, password=self.password)
-        url = reverse("mission_edit_updates",
+        url = reverse("mission_edit_update",
                       kwargs={"object_uuid": self.mission.object_uuid,
                               "edit_id": self.update.object_uuid,
                               "slug": slugify(

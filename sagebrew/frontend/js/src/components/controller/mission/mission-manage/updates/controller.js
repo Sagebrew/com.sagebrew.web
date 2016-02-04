@@ -24,7 +24,6 @@ export function load() {
     var $app = $(".app-sb"),
         missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         $updateWrapper = $("#js-update-wrapper");
-    console.log('here2');
     markdown($("textarea.markdown-input"));
     $app
         .on('click', '#submit', function(event) {

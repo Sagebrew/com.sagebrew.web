@@ -112,9 +112,10 @@ def mission_updates(request, object_uuid, slug=None):
     # without pagination lets just indicate if we have any or not and then
     # hit the endpoint to gather the actual updates.
     quest = Quest.inflate(res.one.quest)
+    mission_obj = Mission.inflate(res.one.mission)
     return render(request, 'mission_updates.html', {
         "updates": res.one.update,
-        "mission": MissionSerializer(Mission.inflate(res.one.mission)).data,
+        "mission": MissionSerializer(mission_obj).data,
         "slug": slugify(mission_obj.get_mission_title()),
         "quest": QuestSerializer(quest).data
     })

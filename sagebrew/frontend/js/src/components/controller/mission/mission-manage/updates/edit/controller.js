@@ -3,13 +3,15 @@ var request = require('api').request,
     validators = require('common/validators'),
     helpers = require('common/helpers');
 
+
 export const meta = {
-    controller: "mission/mission-manage/updates",
+    controller: "mission/mission-manage/updates/edit",
     match_method: "path",
     check: [
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/manage\/updates\/[A-Za-z0-9.@_%+-]{36}\/edit$"
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/manage\/updates\/[A-Za-z0-9.@_%+-]{36}\/edit"
     ]
 };
+
 
 
 /**
@@ -24,11 +26,9 @@ export function init() {
  */
 export function load() {
     var $app = $(".app-sb"),
-        missionId = window.location.pathname.match("([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})")[0],
-        updateId = window.location.pathname.match("([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})")[1],
+        missionId = helpers.args(1),
+        updateId = helpers.args(5),
         missionSlug = helpers.args(2);
-    console.log('here')
-    console.log(updateId);
     markdown($("textarea.markdown-input"));
     validators.editUpdateValidator($('updateForm'));
     $app
@@ -39,10 +39,10 @@ export function load() {
                 "title": $("#title_id").val()
             })})
                 .done(function () {
-                    window.location.href = "/missions/" + missionId + "/" + missionSlug + "manage/updates/";
+                    window.location.href = "/missions/" + missionId + "/" + missionSlug + "/manage/updates/";
                 });
         })
-        .on('click', '#cancel_update-action', function () {
+        .on('click', '#js-cancel', function () {
             event.preventDefault();
             window.history.back();
         });

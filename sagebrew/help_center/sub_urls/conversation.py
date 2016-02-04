@@ -14,7 +14,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sclosed.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
-        },
+    },
         name="closed"),
     url(r'^conversation-cloud/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -27,7 +27,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sconversation_area.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
-        },
+    },
         name="conversation_area"),
     url(r'^deletions/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -39,7 +39,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sdeletions.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
-        },
+    },
         name="deletions"),
     url(r'^one-question-per-week/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -51,7 +51,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sone_question_per_week.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
-        },
+    },
         name="one_question_per_week"),
     url(r'^research/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -63,7 +63,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sresearch.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
-        },
+    },
         name="research"),
     url(r'^starting-a-public-conversation/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -78,7 +78,7 @@ urlpatterns = patterns(
                     settings.HELP_DOCS_PATH),
             "category": "conversation",
             "static_files": True
-        },
+    },
         name="starting_a_public_conversation"),
     url(r'^protected/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -93,7 +93,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sprotected.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
-        },
+    },
         name="protected"),
     url(r'^seasoned/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -105,7 +105,7 @@ urlpatterns = patterns(
             "content_path":
                 "%sseasoned.html" % settings.HELP_DOCS_PATH,
             "category": "questions"
-        },
+    },
         name="seasoned"),
     url(r'^spam/$', TemplateView.as_view(
         template_name="help_page.html"),
@@ -117,7 +117,7 @@ urlpatterns = patterns(
             "content_path":
                 "%scontribution_spam_block.html" % settings.HELP_DOCS_PATH,
             "category": "conversation"
-        },
+    },
         name="spam"),
     url(r'^conversation_area/$', RedirectView.as_view(
         url='/help/conversation/conversation-cloud/', permanent=True),

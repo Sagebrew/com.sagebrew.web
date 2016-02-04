@@ -19,14 +19,16 @@ from .neo_models import Donation
 
 class DonationSerializer(SBSerializer):
     completed = serializers.BooleanField(read_only=True)
-    amount = serializers.IntegerField(required=True)
+    amount = serializers.IntegerField(required=True, min_value=100)
     owner_username = serializers.CharField(read_only=True)
     payment_method = serializers.CharField(write_only=True, allow_null=True)
+
     mission_type = serializers.ChoiceField(read_only=True, choices=[
         ('position', "Public Office"), ('advocacy', "Advocacy"),
         ('question', "Question")])
     quest = serializers.SerializerMethodField()
     mission = serializers.SerializerMethodField()
+    actual_amount = serializers.SerializerMethodField()
 
     def validate_amount(self, value):
         """
@@ -87,12 +89,13 @@ class DonationSerializer(SBSerializer):
         quest_desc = quest.title \
             if quest.title else "%s %s" % (quest.first_name, quest.last_name)
         mission_desc = mission.title \
-            if mission.title else mission.focus_name_formatted
+            if mission.title else mission.focus_name.title().\
+            replace('-', ' ').replace('_', ' ')
         description = "Donation to %s's mission for %s" % (quest_desc,
                                                            mission_desc)
         payment_method = payment_method if payment_method is not None \
             else donor.stripe_default_card_id
-        stripe.Charge.create(
+        stripe_res = stripe.Charge.create(
             customer=donor.stripe_customer_id,
             amount=donation.amount,
             currency="usd",
@@ -104,6 +107,7 @@ class DonationSerializer(SBSerializer):
                 (donation.amount * (quest.application_fee +
                                     settings.STRIPE_TRANSACTION_PERCENT)) + 30)
         )
+        donation.stripe_charge_id = stripe_res['id']
         donation.completed = True
         donation.save()
         cache.delete("%s_total_donated" % mission.object_uuid)
@@ -146,6 +150,21 @@ class DonationSerializer(SBSerializer):
                            request=request)
         return quest.owner_username
 
+    def get_actual_amount(self, obj):
+        from sb_quests.neo_models import Quest
+        query = 'MATCH (d:Donation {object_uuid: "%s"})-' \
+                '[:CONTRIBUTED_TO]->' \
+                '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
+                'RETURN quest' % obj.object_uuid
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            return None
+        quest = Quest.inflate(res.one)
+        application_fee = obj.amount * (
+            quest.application_fee +
+            settings.STRIPE_TRANSACTION_PERCENT) + 30
+        return '{:,.2f}'.format(float(obj.amount - application_fee) / 100)
+
 
 class DonationExportSerializer(serializers.Serializer):
     completed = serializers.BooleanField(read_only=True)
@@ -161,7 +180,7 @@ class DonationExportSerializer(serializers.Serializer):
         return PlebExportSerializer(Pleb.get(obj.owner_username)).data
 
     def get_amount(self, obj):
-        return float(obj.amount) / 100.0
+        return obj.amount
 
     def get_employer(self, obj):
         if obj.mission_type == "position":
@@ -177,6 +196,7 @@ class DonationExportSerializer(serializers.Serializer):
 
 
 class SBDonationSerializer(DonationSerializer):
+
     def validate_amount(self, value):
         return value
 

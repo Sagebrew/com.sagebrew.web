@@ -16,7 +16,8 @@ def create_location_tree(external_id):
     except KeyError as e:
         raise create_location_tree.retry(exc=e, countdown=10,
                                          max_retries=None)
-    end_node = parse_google_places(hierarchy['address_components'], external_id)
+    end_node = parse_google_places(
+        hierarchy['address_components'], external_id)
     spawn_task(task_func=connect_location_to_element, task_param={
         "element_id": external_id, "location": end_node})
 

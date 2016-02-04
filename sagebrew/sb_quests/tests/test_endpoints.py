@@ -17,24 +17,24 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
+from sb_donations.neo_models import Donation
 
 from sb_quests.neo_models import Quest, Position
 from sb_quests.serializers import QuestSerializer
 
 
 class QuestEndpointTests(APITestCase):
+
     def setUp(self):
         query = "match (n)-[r]-() delete n,r"
         db.cypher_query(query)
         self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"
-        self.email2 = "success2@simulator.amazonses.com"
+        self.email2 = "bounce@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
         self.pleb2 = create_user_util_test(self.email2)
         self.user = User.objects.get(email=self.email)
         self.user2 = User.objects.get(email=self.email2)
-        for camp in self.pleb.campaign.all():
-            camp.delete()
         self.url = "http://testserver"
         self.quest = Quest(
             about='Test Bio', owner_username=self.pleb.username).save()
@@ -398,8 +398,50 @@ class QuestEndpointTests(APITestCase):
                                                   'specified users '
                                                   'to your quest.')
 
+    def test_missions(self):
+        self.client.force_authenticate(user=self.user)
+        mission = Mission(title=str(uuid1()),
+                          owner_username=self.pleb.username).save()
+        self.quest.missions.connect(mission)
+        url = reverse('quest-missions',
+                      kwargs={'owner_username': self.quest.owner_username})
+        response = self.client.get(url)
+        self.assertContains(response, mission.object_uuid,
+                            status_code=status.HTTP_200_OK)
+
+    def test_donation_data(self):
+        self.client.force_authenticate(user=self.user)
+        mission = Mission(title=str(uuid1()),
+                          owner_username=self.pleb.username).save()
+        self.quest.missions.connect(mission)
+        donation = Donation(amount=100,
+                            owner_username=self.pleb.username).save()
+        donation.mission.connect(mission)
+        donation.owned_by.connect(self.pleb)
+        url = reverse('quest-donation-data',
+                      kwargs={'owner_username': self.quest.owner_username})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_follow(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-follow',
+                      kwargs={'owner_username': self.quest.owner_username})
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_unfollow(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-unfollow',
+                      kwargs={'owner_username': self.quest.owner_username})
+        response = self.client.post(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
 
 class PositionEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'position'
         self.email = "success@simulator.amazonses.com"
@@ -419,8 +461,6 @@ class PositionEndpointTests(APITestCase):
         for item in Location.nodes.all():
             item.delete()
         self.location = Location(name="Michigan").save()
-        for camp in self.pleb.campaign.all():
-            camp.delete()
         cache.clear()
 
     def test_unauthorized(self):
@@ -473,14 +513,6 @@ class PositionEndpointTests(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['name'], 'Senator')
-
-    def test_detail_campaigns(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('position-detail',
-                      kwargs={'object_uuid': self.position.object_uuid})
-        response = self.client.get(url)
-
-        self.assertEqual(response.data['campaigns'], [])
 
     def test_detail_href(self):
         self.client.force_authenticate(user=self.user)

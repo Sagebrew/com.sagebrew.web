@@ -1,4 +1,4 @@
-/* global wistiaJQuery */
+/* global Wistia */
 /**
  * @file
  * Signup Page... This is actually the homepage for anon users.
@@ -77,13 +77,12 @@ export function load() {
         // to capture IE10
         vidFade();
     });
-    wistiaJQuery(document).bind("wistia-popover", function(event, iframe) {
-        vid.pause();
-        iframe.wistiaApi.time(0).play();
-    });
-    wistiaJQuery(document).bind("wistia-popover-close", function() {
-        vid.play();
-    });
+    window.wistiaInit = function(W) {
+        var wistiaVideo = Wistia.api('intro-video');
+        wistiaVideo.bind('play', function () {
+            vid.pause();
+        });
+    };
 
     //
     //Birthday input in signup form.

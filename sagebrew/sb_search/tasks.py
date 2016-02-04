@@ -22,25 +22,30 @@ logger = logging.getLogger('loggly_logs')
 
 
 @shared_task()
-def update_search_query(pleb, query_param, keywords):
-    '''
+def update_search_query(username, query_param, keywords):
+    """
     This task creates a search query node then calls the task to create and
     attach keyword nodes to the search query node
 
-    :param pleb:
+    :param username:
     :param query_param:
     :param keywords:
     :return:
-    '''
+    """
     try:
-        try:
-            pleb = Pleb.get(username=pleb)
-        except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError) as e:
-            raise update_search_query.retry(exc=e, countdown=3,
-                                            max_retries=None)
-        except(CypherException, IOError) as e:
-            raise update_search_query.retry(exc=e, countdown=3,
-                                            max_retries=None)
+        res, _ = db.cypher_query("MATCH (a:%s {username:'%s'}) RETURN a" %
+                                 username)
+        if res.one:
+            res.one.pull()
+            pleb = Pleb.inflate(res.one)
+        else:
+            raise update_search_query.retry(
+                exc=DoesNotExist("Profile with username: "
+                                 "%s does not exist" % username), countdown=3,
+                max_retries=None)
+    except (CypherException, IOError) as e:
+        raise update_search_query.retry(exc=e, countdown=3, max_retries=None)
+    try:
         search_query = SearchQuery.nodes.get(search_query=query_param)
         if pleb.searches.is_connected(search_query):
             rel = pleb.searches.relationship(search_query)
@@ -73,14 +78,14 @@ def update_search_query(pleb, query_param, keywords):
 
 @shared_task()
 def create_keyword(text, relevance, query_param):
-    '''
+    """
     This function takes
 
     :param text:
     :param relevance:
     :param query_param:
     :return:
-    '''
+    """
     try:
         try:
             search_query = SearchQuery.nodes.get(search_query=query_param)
@@ -110,44 +115,58 @@ def create_keyword(text, relevance, query_param):
 
 
 @shared_task()
-def update_search_object(object_uuid, instance=None, object_data=None,
+def update_search_object(object_uuid, label=None, object_data=None,
                          index="full-search-base"):
     from plebs.serializers import PlebSerializerNeo
     from sb_quests.serializers import QuestSerializer
+    from sb_quests.neo_models import Quest
     from sb_missions.serializers import MissionSerializer
+    from sb_missions.neo_models import Mission
     from sb_questions.serializers import QuestionSerializerNeo
     from sb_base.neo_models import get_parent_votable_content
-    if instance is None:
-        votable = get_parent_votable_content(object_uuid)
-        label = votable.get_child_label()
-        query = 'MATCH (a:%s {object_uuid:"%s"}) RETURN a' % \
-                (label, object_uuid)
-        res, _ = db.cypher_query(query)
-        if label == "Question":
-            try:
-                instance = Question.inflate(res.one)
-            except (CypherException, ClientError, IOError) as e:
-                raise update_search_object.retry(exc=e, countdown=5,
-                                                 max_retries=None)
-        else:
-            # Currently we only need this functionality for Questions as
-            # they are the only objects in search that we display votes
-            # for in the search interface.
-            return False
-
-    if object_data is None and instance is not None:
-        child_label = instance.get_child_label().lower()
-        if child_label == 'quest':
-            object_data = QuestSerializer(instance).data
-        elif child_label == 'mission':
-            object_data = MissionSerializer(instance).data
-        elif child_label == 'question':
-            object_data = QuestionSerializerNeo(instance).data
-        elif child_label == 'pleb':
-            object_data = PlebSerializerNeo(instance).data
-        else:
-            return False
-
+    if label is None:
+        label = get_parent_votable_content(
+            object_uuid).get_child_label().lower()
+    logger.critical("Updating Search Object")
+    logger.critical({"object_uuid": object_uuid})
+    query = 'MATCH (a:%s {object_uuid:"%s"}) RETURN a' % \
+            (label.title(), object_uuid)
+    res, _ = db.cypher_query(query)
+    if res.one:
+        res.one.pull()
+    else:
+        raise update_search_object.retry(
+            exc=DoesNotExist('Object with uuid: %s '
+                             'does not exist' % object_uuid), countdown=3,
+            max_retries=None)
+    if label == "question":
+        instance = Question.inflate(res.one)
+        object_data = QuestionSerializerNeo(instance).data
+        logger.critical(object_data)
+    elif label == "quest":
+        instance = Quest.inflate(res.one)
+        object_data = QuestSerializer(instance).data
+        logger.critical(object_data)
+    elif label == "mission":
+        instance = Mission.inflate(res.one)
+        object_data = MissionSerializer(instance).data
+        logger.critical(object_data)
+    elif label == "pleb":
+        instance = Pleb.inflate(res.one)
+        object_data = PlebSerializerNeo(instance).data
+        logger.critical(object_data)
+    else:
+        # Currently we only need this functionality for Questions as
+        # they are the only objects in search that we display votes
+        # for in the search interface.
+        error_dict = {
+            "message": "Search False setup. "
+                       "Object Data None, Instance not None",
+            "instance_label": label,
+            "instance_uuid": object_uuid,
+        }
+        logger.critical(error_dict)
+        return False
     try:
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         res = es.index(index=index, doc_type=object_data['type'],
@@ -157,6 +176,12 @@ def update_search_object(object_uuid, instance=None, object_data=None,
         logger.exception("Failed to connect to Elasticsearch")
         raise update_search_object.retry(exc=e, countdown=5, max_retries=None)
     except KeyError:
+        error_dict = {
+            "message": "Search: KeyError False creation",
+            "instance_uuid": object_uuid,
+            "object_data": object_data
+        }
+        logger.critical(error_dict)
         return False
     try:
         if instance.search_id is None:

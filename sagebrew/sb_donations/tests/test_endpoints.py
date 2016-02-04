@@ -16,6 +16,7 @@ from sb_donations.neo_models import Donation
 
 
 class DonationEndpointTests(APITestCase):
+
     def setUp(self):
         cache.clear()
         self.unit_under_test_name = 'goal'
@@ -23,6 +24,10 @@ class DonationEndpointTests(APITestCase):
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
+        self.email2 = "bounce@simulator.amazonses.com"
+        create_user_util_test(self.email2)
+        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.user2 = User.objects.get(email=self.email2)
         self.url = "http://testserver"
         self.donation = Donation(completed=False, amount=1000,
                                  owner_username=self.user.username).save()
@@ -190,12 +195,8 @@ class DonationEndpointTests(APITestCase):
                          status.HTTP_204_NO_CONTENT)
 
     def test_delete_not_owner(self):
-        self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
-        self.user2 = User.objects.get(email=self.email2)
         self.client.force_authenticate(user=self.user2)
+        self.donation.owned_by.connect(self.pleb2)
         url = reverse('donation-detail',
                       kwargs={'object_uuid': self.donation.object_uuid})
         response = self.client.delete(url, data={}, format='json')
@@ -215,6 +216,7 @@ class DonationEndpointTests(APITestCase):
 
 
 class TestSagebrewDonation(APITestCase):
+
     def setUp(self):
         cache.clear()
         self.unit_under_test_name = 'donations'
@@ -278,10 +280,6 @@ class TestSagebrewDonation(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_donation_create(self):
-        # TODO need to update donation workflow and create test
-        pass
 
     def test_donation_create_invalid_data(self):
         self.client.force_authenticate(user=self.user)

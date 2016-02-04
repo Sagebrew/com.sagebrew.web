@@ -12,6 +12,7 @@ from sb_registration.utils import create_user_util_test
 
 
 class TestNotificationTasks(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)

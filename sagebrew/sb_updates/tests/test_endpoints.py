@@ -15,6 +15,7 @@ from sb_updates.neo_models import Update
 
 
 class UpdateEndpointsTest(APITestCase):
+
     def setUp(self):
         cache.clear()
         self.unit_under_test_name = 'goal'
@@ -219,14 +220,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['title'], self.update.title)
-
-    def test_get_goals(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('update-detail',
-                      kwargs={'object_uuid': self.update.object_uuid})
-        response = self.client.get(url)
-
-        self.assertEqual(response.data['goals'], [])
 
     def test_put(self):
         self.client.force_authenticate(user=self.user)

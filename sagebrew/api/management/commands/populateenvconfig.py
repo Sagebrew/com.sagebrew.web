@@ -8,6 +8,7 @@ logger = logging.getLogger('loggly_logs')
 
 
 class Command(BaseCommand):
+
     def add_arguments(self, parser):
         parser.add_argument('web_env', nargs='+', type=str)
         parser.add_argument('worker_env', nargs='+', type=str)

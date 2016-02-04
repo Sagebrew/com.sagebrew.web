@@ -13,6 +13,7 @@ from sb_privileges.neo_models import Privilege
 
 
 class TestRequirementModel(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)

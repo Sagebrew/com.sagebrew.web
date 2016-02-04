@@ -10,12 +10,13 @@ from neomodel import DoesNotExist
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
-from sb_quests.neo_models import Position, PoliticalCampaign
+from sb_quests.neo_models import Position, Quest
 from sb_public_official.tasks import create_and_attach_state_level_reps
 from sb_public_official.neo_models import PublicOfficial
 
 
 class TestCreateStateDistricts(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -77,9 +78,8 @@ class TestCreateStateDistricts(TestCase):
         while not res.ready():
             time.sleep(1)
         self.assertTrue(res.result)
-        camp = official.get_campaign()
-        self.assertTrue(camp in official.campaign)
-        self.assertTrue(self.lower_pos in camp.position)
+        camp = official.get_quest()
+        self.assertTrue(camp in official.quest)
         official.delete()
         camp.delete()
 
@@ -95,10 +95,9 @@ class TestCreateStateDistricts(TestCase):
                                   state_district="38",
                                   state_chamber="lower",
                                   state="mi").save()
-        campaign = PoliticalCampaign(first_name=official.first_name,
-                                     last_name=official.last_name).save()
-        official.campaign.connect(campaign)
-        campaign.public_official.connect(official)
+        campaign = Quest(first_name=official.first_name,
+                         last_name=official.last_name).save()
+        official.quest.connect(campaign)
         response = requests.get(self.lookup_url, headers=self.headers)
         json_response = response.json()
         res = create_and_attach_state_level_reps.apply_async(
@@ -106,6 +105,5 @@ class TestCreateStateDistricts(TestCase):
         while not res.ready():
             time.sleep(1)
         self.assertTrue(res.result)
-        self.assertTrue(self.lower_pos in campaign.position)
         official.delete()
         campaign.delete()

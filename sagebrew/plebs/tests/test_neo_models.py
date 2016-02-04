@@ -18,6 +18,7 @@ from plebs.neo_models import BetaUser, Pleb, Address
 
 
 class TestBetaUser(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -33,6 +34,7 @@ class TestBetaUser(TestCase):
 
 
 class TestPleb(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -41,8 +43,8 @@ class TestPleb(TestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
 
-    def test_update_campaign(self):
-        self.assertTrue(self.pleb.update_campaign())
+    def test_update_quest(self):
+        self.assertTrue(self.pleb.update_quest())
 
     def test_get_official_phone(self):
         self.assertIsNone(self.pleb.get_official_phone())
@@ -82,13 +84,13 @@ class TestPleb(TestCase):
         self.assertIsNotNone(self.pleb.get_friends())
 
     def test_get_donations(self):
-        donation = Donation().save()
+        donation = Donation(amount=100).save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
         self.assertFalse(self.pleb.get_donations())
 
     def test_get_sagebrew_donations(self):
-        donation = Donation().save()
+        donation = Donation(amount=100).save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
         self.assertTrue(self.pleb.get_sagebrew_donations())
@@ -126,6 +128,7 @@ class TestPleb(TestCase):
 
 
 class TestPlebReputationChange(TestCase):
+
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -230,6 +233,7 @@ class TestPlebReputationChange(TestCase):
 
 
 class TestAddress(TestCase):
+
     def setUp(self):
         self.address = Address(city="Wixom", state="MI").save()
         try:

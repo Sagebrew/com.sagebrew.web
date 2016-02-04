@@ -33,6 +33,7 @@ def quest(request, username):
 
 
 class LoginRequiredMixin(View):
+
     @classmethod
     def as_view(cls, **initkwargs):
         view = super(LoginRequiredMixin, cls).as_view(**initkwargs)
@@ -58,13 +59,9 @@ class QuestSettingsView(LoginRequiredMixin):
                 return redirect("404_Error")
         except(CypherException, ClientError):
             return redirect("500_Error")
+        res.one.pull()
         quest_obj = Quest.inflate(res.one)
         quest_ser = QuestSerializer(quest_obj,
                                     context={'request': request}).data
         quest_ser['account_type'] = quest_obj.account_type
         return render(request, self.template_name, {"quest": quest_ser})
-
-
-# DEPRECATED
-def saga(request, username):
-    return render(request, 'quest.html', {})

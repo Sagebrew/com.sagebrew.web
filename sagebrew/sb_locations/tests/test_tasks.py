@@ -14,6 +14,7 @@ from sb_locations.neo_models import Location
 
 
 class TestCreateLocationTreeTask(TestCase):
+
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
@@ -114,6 +115,7 @@ class TestCreateLocationTreeTask(TestCase):
 
 
 class TestConnectLocationElementTask(TestCase):
+
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"

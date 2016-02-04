@@ -18,6 +18,7 @@ from sb_registration.utils import create_user_util_test
 
 
 class SolutionEndpointTests(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -172,6 +173,7 @@ class SolutionEndpointTests(APITestCase):
 
 
 class TestSolutionRenderer(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
@@ -213,6 +215,7 @@ class TestSolutionRenderer(APITestCase):
 
 
 class TestSingleSolutionPage(APITestCase):
+
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"

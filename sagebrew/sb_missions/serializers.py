@@ -274,7 +274,8 @@ class MissionSerializer(SBSerializer):
         instance.active = validated_data.pop('active', instance.active)
         if initial_state is True and instance.active is False:
             remove_search_object(instance.object_uuid, 'mission')
-        instance.completed = validated_data.pop('completed', instance.completed)
+        instance.completed = validated_data.pop(
+            'completed', instance.completed)
         instance.title = validated_data.pop('title', instance.title)
         about = validated_data.get('about', instance.about)
         if about is not None:

@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.conf import settings
 
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist,
                       BooleanProperty)
@@ -34,7 +35,8 @@ class Mission(Searchable):
     #     state
     #     federal
     #     local
-    # For filtering purposes we combine state_upper and state_lower into "state"
+    # For filtering purposes we combine state_upper and state_lower into
+    # "state"
     level = StringProperty()
 
     # The mission may have seperate pages than the core Quest does
@@ -92,7 +94,8 @@ class Mission(Searchable):
 
     # Helper function that can be associated with on the serializer and gets
     # a focused on object.
-    focused_on = RelationshipTo('sb_search.neo_models.Searchable', 'FOCUSED_ON')
+    focused_on = RelationshipTo(
+        'sb_search.neo_models.Searchable', 'FOCUSED_ON')
 
     # Utilized to link a Mission to a Question or Solution. Two use cases are
     # currently possible. One is that a parent Quest provides a solution or
@@ -115,7 +118,6 @@ class Mission(Searchable):
     pledge_votes = RelationshipTo('plebs.neo_models.Pleb',
                                   'RECEIVED_PLEDGED_VOTE',
                                   model=VoteRelationship)
-    goals = RelationshipTo('sb_goals.neo_models.Goal', "WORKING_TOWARDS")
 
     @classmethod
     def get(cls, object_uuid):
@@ -123,12 +125,13 @@ class Mission(Searchable):
         if mission is None:
             query = 'MATCH (c:`Mission` {object_uuid: "%s"}) RETURN c' % \
                     object_uuid
-            res, col = db.cypher_query(query)
-            try:
-                mission = cls.inflate(res[0][0])
+            res, _ = db.cypher_query(query)
+            if res.one:
+                res.one.pull()
+                mission = cls.inflate(res.one)
                 cache.set("%s_mission" % object_uuid, mission)
-            except IndexError:
-                raise DoesNotExist("Quest does not exist")
+            else:
+                raise DoesNotExist("Mission does not exist")
         return mission
 
     @classmethod
@@ -179,7 +182,7 @@ class Mission(Searchable):
         editors = cache.get("%s_editors" % quest.owner_username)
         if editors is None:
             query = 'MATCH (quest:Quest {owner_username: "%s"})<-' \
-                    '[:EDITOR_OF]-(pleb:pleb) ' \
+                    '[:EDITOR_OF]-(pleb:Pleb) ' \
                     'RETURN pleb.username' % owner_username
             res, col = db.cypher_query(query)
             editors = [row[0] for row in res]
@@ -193,7 +196,7 @@ class Mission(Searchable):
         moderators = cache.get("%s_moderators" % quest.owner_username)
         if moderators is None:
             query = 'MATCH (quest:Quest {owner_username: "%s"})<-' \
-                    '[:MODERATOR_OF]-(pleb:pleb) ' \
+                    '[:MODERATOR_OF]-(pleb:Pleb) ' \
                     'RETURN pleb.username' % owner_username
             res, col = db.cypher_query(query)
             moderators = [row[0] for row in res]
@@ -202,10 +205,11 @@ class Mission(Searchable):
 
     @classmethod
     def get_donations(cls, object_uuid):
+        from sb_donations.neo_models import Donation
         query = 'MATCH (c:Mission {object_uuid:"%s"})<-' \
                 '[:CONTRIBUTED_TO]-(d:Donation) RETURN d' % object_uuid
         res, _ = db.cypher_query(query)
-        return [donation[0] for donation in res]
+        return [Donation.inflate(donation[0]) for donation in res]
 
     def get_mission_title(self):
         if self.title:
@@ -219,8 +223,16 @@ class Mission(Searchable):
         return title
 
     def get_total_donation_amount(self):
+        from sb_quests.neo_models import Quest
+        quest = Quest.get(owner_username=self.owner_username)
         query = 'MATCH (c:Mission {object_uuid:"%s"})<-' \
-                '[:CONTRIBUTED_TO]-(d:Donation) RETURN sum(d.amount)' \
-                % self.object_uuid
+                '[:CONTRIBUTED_TO]-(d:Donation) ' \
+                'RETURN sum(d.amount) - (sum(d.amount) * ' \
+                '(%f + %f) + count(d) * 30)' \
+                % (self.object_uuid, quest.application_fee,
+                   settings.STRIPE_TRANSACTION_PERCENT)
         res, _ = db.cypher_query(query)
-        return res.one
+        if res.one:
+            return '{:,.2f}'.format(float(res.one) / 100)
+        else:
+            return "0.00"

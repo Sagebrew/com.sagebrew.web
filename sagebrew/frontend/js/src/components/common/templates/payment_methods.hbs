@@ -48,8 +48,10 @@
                     </tr>
                 {{/each}}
             </table>
-            {{#if submit_payment }}
-                <button class="btn btn-primary btn-sm sb_btn" id="js-use-payment-method">Use This Payment Method</button>
+            {{#if cards }}
+                {{#if submit_payment }}
+                    <button class="btn btn-primary btn-sm sb_btn" id="js-use-payment-method">Use This Payment Method</button>
+                {{/if}}
             {{/if}}
             <button class="btn btn-primary btn-sm sb_btn" id="js-add-payment-method"><i class="fa fa-plus"></i> Add Payment Method</button>
         </div>

@@ -71,24 +71,21 @@ class PublicOfficial(Searchable):
     # access the term that the official is currently in
     term = RelationshipTo('govtrack.neo_models.Term', 'SERVED_TERM')
     current_term = RelationshipTo('govtrack.neo_models.Term', 'CURRENT_TERM')
-    campaign = RelationshipTo('sb_quests.neo_models.PoliticalCampaign',
-                              'HAS_CAMPAIGN')
     quest = RelationshipTo('sb_quests.neo_models.Quest', 'IS_HOLDING')
 
-    def get_campaign(self):
-        from sb_quests.neo_models import PoliticalCampaign
+    def get_quest(self):
+        from sb_quests.neo_models import Quest
         # DEPRECATED use get_mission or get_quest instead
         # Not adding a deprecation warning as we cover this with the migration
         # command. Once that is executed we'll need to fix or remove this
         query = 'MATCH (o:PublicOfficial {object_uuid:"%s"})-' \
-                '[:HAS_CAMPAIGN]->(c:PoliticalCampaign) RETURN c' \
+                '[:IS_HOLDING]->(c:Quest) RETURN c' \
                 % self.object_uuid
         res, _ = db.cypher_query(query)
-        try:
-            campaign = PoliticalCampaign.inflate(res[0][0])
-        except IndexError:
-            campaign = None
-        return campaign
+        if res.one:
+            return Quest.inflate(res.one)
+        else:
+            return None
 
 
 '''

@@ -14,11 +14,11 @@ from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DoesNotExist, MultipleNodesReturned)
 from neomodel import db
 
-from api.utils import flatten_lists, spawn_task, deprecation
+from api.utils import flatten_lists, spawn_task
 from api.neo_models import SBObject
 from sb_locations.neo_models import Location
 from sb_search.neo_models import Searchable, Impression
-from sb_base.neo_models import VoteRelationship, RelationshipWeight
+from sb_base.neo_models import RelationshipWeight
 
 
 def get_current_time():
@@ -267,10 +267,7 @@ class Pleb(Searchable):
     uploads = RelationshipTo('sb_uploads.neo_models.UploadedObject', 'UPLOADS')
     url_content = RelationshipTo('sb_uploads.neo_models.URLContent',
                                  'URL_CONTENT')
-    # This is relating to which campaigns will affect you specifically.
-    # So anyone who is running in your district will show up here.
-    related_campaigns = RelationshipTo('sb_quests.neo_models.Campaign',
-                                       'HAS_STAKE_IN')
+
     # Users can only have one campaign as the campaign is essentially their
     # action page and account information. They won't be able to create
     # multiple accounts or multiple action pages. We can then utilize the
@@ -278,7 +275,6 @@ class Pleb(Searchable):
     # things to. If a user is waging a `PoliticalCampaign` their Action page
     # changes a little and they start being able to receive pledged votes and
     # there are more limitations on how donations occur.
-    campaign = RelationshipTo('sb_quests.neo_models.Campaign', 'IS_WAGING')
     quest = RelationshipTo('sb_quests.neo_models.Quest', 'IS_WAGING')
 
     # Edits
@@ -298,8 +294,6 @@ class Pleb(Searchable):
     # utilize a different serializer that only enables up/off votes rather than
     # also allowing down votes to be cast. Then we can utilize the different
     # relationship to track any special items.
-    pledged_votes = RelationshipTo('sb_quests.neo_models.PoliticalCampaign',
-                                   'PLEDGED', model=VoteRelationship)
     donations = RelationshipTo('sb_donations.neo_models.Donation',
                                'DONATIONS_GIVEN')
     following = RelationshipTo('plebs.neo_models.Pleb', 'FOLLOWING',
@@ -309,27 +303,22 @@ class Pleb(Searchable):
     activity_interests = RelationshipTo('plebs.neo_models.ActivityInterest',
                                         'WILL_PARTICIPATE')
 
-    # DEPRECATED - use quest editor and accountant instead
-    campaign_editor = RelationshipTo('sb_quests.neo_models.Campaign',
-                                     'CAN_EDIT')
-    campaign_accountant = RelationshipTo('sb_quests.neo_models.Campaign',
-                                         'CAN_MANAGE_FINANCES')
-
     @property
     def customer_token(self):
         # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
         return None
 
     @classmethod
-    def get(cls, username):
+    def get(cls, username, cache_buster=False):
         profile = cache.get(username)
-        if profile is None:
+        if profile is None or cache_buster:
             res, _ = db.cypher_query(
                 "MATCH (a:%s {username:'%s'}) RETURN a" % (
                     cls.__name__, username))
-            try:
-                profile = cls.inflate(res[0][0])
-            except IndexError:
+            if res.one:
+                res.one.pull()
+                profile = cls.inflate(res.one)
+            else:
                 raise DoesNotExist('Profile with username: %s '
                                    'does not exist' % username)
             cache.set(username, profile)
@@ -371,24 +360,6 @@ class Pleb(Searchable):
         db.cypher_query(query)
 
     @classmethod
-    def get_campaign_donations(cls, username, campaign_uuid):
-        donation_amount = cache.get('%s_%s_donation_amount' % (username,
-                                                               campaign_uuid))
-        if donation_amount == 0 or donation_amount is None:
-            query = 'MATCH (p:`Pleb` {username: "%s"})-[:DONATIONS_GIVEN]->' \
-                    '(d:`Donation`)-[:DONATED_TO]->' \
-                    '(c:`Campaign` {object_uuid:"%s"}) RETURN sum(d.amount)' \
-                    % (username, campaign_uuid)
-            res, col = db.cypher_query(query)
-            try:
-                donation_amount = res[0][0]
-            except IndexError:
-                donation_amount = 0
-            cache.set('%s_%s_donation_amount' %
-                      (username, campaign_uuid), donation_amount)
-        return donation_amount
-
-    @classmethod
     def get_mission_political_donations(cls, username, mission_id):
         donation_amount = cache.get('%s_%s_donation_amount' % (username,
                                                                mission_id))
@@ -414,21 +385,6 @@ class Pleb(Searchable):
                 'RETURN c.owner_username' % self.username
         res, _ = db.cypher_query(query)
         return res.one
-
-    def get_campaign(self):
-        # DEPRECATED use get_quest instead
-        deprecation('Campaigns are deprecated, use Missions or Quests instead')
-        query = 'MATCH (p:Pleb {username: "%s"})-[:IS_WAGING]->(c:Campaign) ' \
-                'RETURN c.owner_username' % self.username
-        res, _ = db.cypher_query(query)
-        return res.one
-
-    def update_campaign(self):
-        query = 'MATCH (p:Pleb {username:"%s"})-[:IS_WAGING]->' \
-                '(c:Campaign) SET c.first_name="%s", c.last_name="%s"' % \
-                (self.username, self.first_name, self.last_name)
-        res, _ = db.cypher_query(query)
-        return True
 
     def get_official_phone(self):
         query = 'MATCH (p:Pleb {username:"%s"})-[:IS_AUTHORIZED_AS]->' \
@@ -502,6 +458,13 @@ class Pleb(Searchable):
         except CypherException as e:
             return e
 
+    def update_quest(self):
+        query = 'MATCH (p:Pleb {username:"%s"})-[:IS_WAGING]->' \
+                '(c:Quest) SET c.first_name="%s", c.last_name="%s"' % \
+                (self.username, self.first_name, self.last_name)
+        res, _ = db.cypher_query(query)
+        return True
+
     def update_weight_relationship(self, sb_object, modifier_type):
         rel = self.object_weight.relationship(sb_object)
         if modifier_type in self.search_modifiers.keys():
@@ -540,7 +503,7 @@ class Pleb(Searchable):
             total_rep = 0
         self.reputation = total_rep
         self.save()
-        cache.set(self.username, self)
+        cache.delete(self.username)
         return {"rep_list": rep_list,
                 "base_tags": base_tags,
                 "tags": tags,
@@ -615,7 +578,7 @@ class Pleb(Searchable):
 
     def determine_reps(self):
         from sb_public_official.utils import determine_reps
-        return determine_reps(self.username)
+        return determine_reps(self)
 
     def get_donations(self):
         query = 'MATCH (p:Pleb {username: "%s"})-[:DONATIONS_GIVEN]->' \
@@ -657,6 +620,7 @@ class Pleb(Searchable):
         """
         The username passed to this function is the user who will be following
         the user the method is called upon.
+        :param username:
         """
         query = 'MATCH (p:Pleb {username:"%s"}), (p2:Pleb {username:"%s"}) ' \
                 'WITH p, p2 CREATE UNIQUE (p)<-[r:FOLLOWING]-(p2) SET ' \
@@ -668,6 +632,7 @@ class Pleb(Searchable):
         """
         The username passed to this function is the user who will stop
         following the user the method is called upon.
+        :param username:
         """
         query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-(p2:Pleb ' \
                 '{username:"%s"}) SET r.active=false RETURN r.active' \
@@ -700,7 +665,7 @@ class Pleb(Searchable):
         if last_seen != self.vote_from_last_refresh:
             self.vote_from_last_refresh = res['last_created']
             self.save()
-            cache.set(self.username, self)
+            cache.delete(self.username)
         if reputation_change >= 1000 or reputation_change <= -1000:
             return "%dk" % (int(reputation_change / 1000.0))
         return reputation_change
@@ -784,7 +749,8 @@ class Address(SBObject):
             if Location.get_single_encompassed_by(
                     encompassed_by.object_uuid) != \
                     us.states.lookup(self.state).name:
-                # if a location node exists with an incorrect encompassing state
+                # if a location node exists with an incorrect encompassing
+                # state
                 raise DoesNotExist("This Location does not exist")
         except (Location.DoesNotExist, DoesNotExist):
             encompassed_by = Location(name=self.city, sector="local").save()
@@ -808,7 +774,8 @@ class Address(SBObject):
                 self.encompassed_by.connect(encompassed_by)
             if self not in encompassed_by.addresses:
                 encompassed_by.addresses.connect(self)
-        # get or create the state level districts and attach them to the address
+        # get or create the state level districts and attach them to the
+        # address
         spawn_task(task_func=connect_to_state_districts,
                    task_param={'object_uuid': self.object_uuid})
         return self

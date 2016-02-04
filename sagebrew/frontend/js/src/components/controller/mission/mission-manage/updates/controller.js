@@ -5,7 +5,7 @@ export const meta = {
     controller: "mission/mission-manage/updates",
     match_method: "path",
     check: [
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/manage\/updates"
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/manage\/updates$"
     ]
 };
 
@@ -24,6 +24,7 @@ export function load() {
     var $app = $(".app-sb"),
         missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         $updateWrapper = $("#js-update-wrapper");
+    console.log('here2');
     markdown($("textarea.markdown-input"));
     $app
         .on('click', '#submit', function(event) {

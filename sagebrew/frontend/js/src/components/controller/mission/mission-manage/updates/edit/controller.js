@@ -7,7 +7,7 @@ export const meta = {
     controller: "mission/mission-manage/updates",
     match_method: "path",
     check: [
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/manage\/updates\/[A-Za-z0-9.@_%+-]{36}\/edit"
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/manage\/updates\/[A-Za-z0-9.@_%+-]{36}\/edit$"
     ]
 };
 
@@ -24,14 +24,15 @@ export function init() {
  */
 export function load() {
     var $app = $(".app-sb"),
-        missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
-        updateId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[1],
+        missionId = window.location.pathname.match("([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})")[0],
+        updateId = window.location.pathname.match("([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})")[1],
         missionSlug = helpers.args(2);
+    console.log('here')
+    console.log(updateId);
     markdown($("textarea.markdown-input"));
     validators.editUpdateValidator($('updateForm'));
     $app
         .on('click', '#edit-update', function () {
-            "use strict";
             $(this).attr("disabled", "disabled");
             request.patch({url: "/v1/updates/" + updateId + "/", data: JSON.stringify({
                 "content": $("#wmd-input-0").val(),

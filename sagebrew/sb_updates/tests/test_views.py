@@ -62,4 +62,4 @@ class TestMissionUpdateView(TestCase):
                               "slug": slugify(
                                   self.mission.get_mission_title())})
         res = self.client.get(url)
-        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)

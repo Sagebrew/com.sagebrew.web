@@ -33,7 +33,7 @@ def update_search_query(username, query_param, keywords):
     :return:
     """
     try:
-        res, _ = db.cypher_query("MATCH (a:%s {username:'%s'}) RETURN a" %
+        res, _ = db.cypher_query("MATCH (a:Pleb {username:'%s'}) RETURN a" %
                                  username)
         if res.one:
             res.one.pull()

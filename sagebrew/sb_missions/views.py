@@ -139,12 +139,18 @@ class MissionSettingsView(LoginRequiredMixin):
         return super(MissionSettingsView, self).dispatch(*args, **kwargs)
 
     def get(self, request, object_uuid=None, slug=None):
+        # Do a second optional match to get the list of missions,
+        # the first is just to make sure we're dealing with the actual
+        # owner of the Mission.
         query = 'MATCH (pleb:Pleb {username: "%s"})-[:IS_WAGING]->' \
-            '(quest:Quest)-[:EMBARKS_ON]->(missions:Mission) ' \
+            '(quest:Quest) WITH quest ' \
+            'OPTIONAL MATCH (quest)-[:EMBARKS_ON]->(missions:Mission) ' \
             'RETURN missions, quest ' \
             'ORDER BY missions.created DESC' % request.user.username
         res, _ = db.cypher_query(query)
         if res.one is None:
+            return redirect("404_Error")
+        if res.one.missions is None:
             return redirect("select_mission")
         if object_uuid is None:
             # TODO handle if there aren't any missions yet
@@ -157,6 +163,8 @@ class MissionSettingsView(LoginRequiredMixin):
         missions = [MissionSerializer(Mission.inflate(row.missions)).data
                     for row in res]
         quest = Quest.inflate(res.one.quest)
+        if mission_obj.owner_username != quest.owner_username:
+            return redirect("404_Error")
         return render(request, self.template_name, {
             "missions": missions,
             "mission": MissionSerializer(mission_obj,

@@ -24,7 +24,8 @@ from sb_registration.views import (profile_information,
                                    logout_view,
                                    login_view, login_view_api,
                                    resend_email_verification,
-                                   email_verification, interests)
+                                   email_verification, interests,
+                                   advocacy, political_campaign)
 from sb_registration.models import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util_test
 from plebs.neo_models import Pleb, Address
@@ -479,6 +480,55 @@ class TestLoginView(TestCase):
         res = login_view(request)
 
         self.assertEqual(res.status_code, 200)
+
+
+class TestFeatureViews(TestCase):
+
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email, task=True)
+        self.assertNotEqual(res, False)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.user = User.objects.get(email=self.email)
+        self.pleb.email_verified = True
+        self.pleb.save()
+
+    def test_advocacy_view_success(self):
+        request = self.factory.request()
+        res = advocacy(request)
+
+        self.assertEqual(res.status_code, 200)
+
+    def test_advocacy_logged_in(self):
+        user = authenticate(username=self.user.username,
+                            password='test_test')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        res = advocacy(request)
+        self.assertEqual(res.status_code, 302)
+
+    def test_political_campaign_view_success(self):
+        request = self.factory.request()
+        res = political_campaign(request)
+
+        self.assertEqual(res.status_code, 200)
+
+    def test_political_campaign_logged_in(self):
+        user = authenticate(username=self.user.username,
+                            password='test_test')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        res = political_campaign(request)
+        self.assertEqual(res.status_code, 302)
 
 
 class TestLoginAPIView(TestCase):

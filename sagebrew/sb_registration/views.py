@@ -58,7 +58,14 @@ def political_campaign(request):
             return redirect('confirm_view')
         elif not user_profile.completed_profile_info:
             return redirect('profile_info')
-    return render(request, 'political_campaign.html')
+    try:
+        query = 'MATCH (position:Position) RETURN COUNT(position)'
+        res, _ = db.cypher_query(query)
+        position_count = res.one
+    except CypherException:
+        position_count = 7000
+    return render(request, 'political_campaign.html',
+                  {"position_count": position_count})
 
 
 def signup_view(request):

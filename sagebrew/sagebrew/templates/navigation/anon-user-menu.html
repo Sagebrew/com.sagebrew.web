@@ -1,4 +1,4 @@
-{% if request.path != "/" %}
+{% if request.path != "/" and request.path != "/advocacy/" and request.path != "/political/" %}
     <ul class="nav navbar-nav navbar-left sb_login sb-signup-btn">
         <li>
             <button class="btn btn-block btn-primary" id="js-sign-up">Signup</button>

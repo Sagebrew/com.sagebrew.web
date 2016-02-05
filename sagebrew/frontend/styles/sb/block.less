@@ -40,6 +40,9 @@
   .block-wrap {
     display: inline-block;
   }
+  .no-top-padding {
+    padding-top: 0;
+  }
 }
 .type-nav {
     @media only screen and (max-width: 992px) {
@@ -165,7 +168,10 @@
   }
   margin-right: 15px;
 }
-
+.header-lg-only {
+  font-weight:300;
+  font-size:2em;
+}
 .block-image-text-overlay {
   position: relative;
   height: 600px;
@@ -174,25 +180,10 @@
   overflow: hidden;
   align-items: center;
   width:100%;
-  h1 {
-    font-weight:300;
-    font-size:2em;
+  div {
     z-index: 2;
     position: absolute;
-    top: 40%;
-    left: 0;
-    right: 0;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    color: white;
-    margin-top: -13px; /* 1/2 height */
-    text-align: center;
-  }
-  button {
-    z-index: 3;
-    position: absolute;
-    top: 40%;
+    top: 30%;
     left: 0;
     right: 0;
     width: 100%;
@@ -200,7 +191,17 @@
     margin: 0;
     margin-top: -13px; /* 1/2 height */
     text-align: center;
+    h1 {
+      font-weight:300;
+      font-size:2em;
+      color: white;
+    }
+    button {
+      width: 200px;
+      height: 50px;
+    }
   }
+
   img{
     z-index: 1;
     flex: none;

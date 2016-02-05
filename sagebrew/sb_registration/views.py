@@ -29,6 +29,38 @@ from .utils import (verify_completed_registration, verify_verified_email)
 from .models import token_gen
 
 
+def advocacy(request):
+    if request.user.is_authenticated() is True:
+        try:
+            user_profile = Pleb.get(username=request.user.username,
+                                    cache_buster=True)
+        except DoesNotExist:
+            return redirect('404_Error')
+        if user_profile.completed_profile_info is True:
+            return redirect('newsfeed')
+        elif not user_profile.email_verified:
+            return redirect('confirm_view')
+        elif not user_profile.completed_profile_info:
+            return redirect('profile_info')
+    return render(request, 'advocacy.html')
+
+
+def political_campaign(request):
+    if request.user.is_authenticated() is True:
+        try:
+            user_profile = Pleb.get(username=request.user.username,
+                                    cache_buster=True)
+        except DoesNotExist:
+            return redirect('404_Error')
+        if user_profile.completed_profile_info is True:
+            return redirect('newsfeed')
+        elif not user_profile.email_verified:
+            return redirect('confirm_view')
+        elif not user_profile.completed_profile_info:
+            return redirect('profile_info')
+    return render(request, 'political_campaign.html')
+
+
 def signup_view(request):
     if request.user.is_authenticated() is True:
         try:
@@ -42,7 +74,7 @@ def signup_view(request):
             return redirect('confirm_view')
         elif not user_profile.completed_profile_info:
             return redirect('profile_info')
-    return render(request, 'sign_up_page/index.html')
+    return render(request, 'index.html')
 
 
 def quest_signup(request):

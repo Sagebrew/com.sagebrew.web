@@ -8,7 +8,7 @@ from django.conf.urls import patterns, url
 from django.contrib.sitemaps.views import sitemap
 
 from sb_registration.views import (login_view, logout_view, signup_view,
-                                   quest_signup)
+                                   quest_signup, advocacy, political_campaign)
 from sb_registration.forms import CustomPasswordResetForm
 from sb_questions.sitemap import QuestionSitemap, ConversationSitemap
 from sagebrew.sitemap import (StaticViewSitemap, SignupSitemap)
@@ -119,6 +119,8 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_locations.apis.v1')),
     (r'^v1/', include('sb_council.apis.v1')),
     (r'^v1/', include('sb_search.apis.v1')),
+    url(r'^advocacy/$', advocacy, name="advocacy"),
+    url(r'^political/$', political_campaign, name="advocacy"),
     url(r'^$', signup_view, name="signup"),
 )
 

@@ -101,7 +101,7 @@ def mission_updates(request, object_uuid, slug=None):
     query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
             '(mission:Mission {object_uuid: "%s"}) ' \
             'WITH quest, mission ' \
-            'MATCH (mission)<-[:ABOUT]-(updates:Update) ' \
+            'OPTIONAL MATCH (mission)<-[:ABOUT]-(updates:Update) ' \
             'RETURN quest, mission, ' \
             'CASE WHEN count(updates) > 0 ' \
             'THEN true ELSE false END AS update' % object_uuid

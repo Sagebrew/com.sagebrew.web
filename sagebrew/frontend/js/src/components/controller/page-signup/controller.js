@@ -77,7 +77,7 @@ export function load() {
         // to capture IE10
         vidFade();
     });
-    window.wistiaInit = function(W) {
+    window.wistiaInit = function() {
         var wistiaVideo = Wistia.api('intro-video');
         wistiaVideo.bind('play', function () {
             vid.pause();

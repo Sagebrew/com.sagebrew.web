@@ -288,3 +288,33 @@ export function addressValidator(addressVal) {
         }
     });
 }
+
+export function editUpdateValidator(updateVal) {
+    updateVal.formValidation({
+        framework: 'bootstrap',
+        live: 'enabled',
+        fields: {
+            title: {
+                selector: '#title_input',
+                validators: {
+                    notEmpty: {
+                        message: "Title is required"
+                    },
+                    stringLength: {
+                        min: 5,
+                        max: 140,
+                        message: "Title must be between 5 and 140 characters long"
+                    }
+                }
+            },
+            content: {
+                selector: '#update_content_input',
+                validators: {
+                    notEmpty: {
+                        message: "Content is required"
+                    }
+                }
+            }
+        }
+    });
+}

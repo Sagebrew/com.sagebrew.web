@@ -8,19 +8,17 @@
             </h1>
         </div>
         <div class="col-sm-1 hidden-xs">
-
-                {% if request.user.username == profile.username %}
-                    <button class="btn dropdown-toggle sb_btn_icon" type="button"
-                            data-toggle="dropdown">
-                        <span class="fa fa-cog sb_btn_icon_green_hover"></span>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
-                        role="menu" aria-labelledby="dropdown-menu">
-                        <li role="presentation"><a href="{% url 'edit_update' id %}">Edit</a>
-                        </li>
-                    </ul>
-                {% endif %}
-
+            {% if request.user.username == request_profile.username %}
+                <button class="btn dropdown-toggle sb_btn_icon" type="button"
+                        data-toggle="dropdown" style="margin-top: 20px;">
+                    <span class="fa fa-cog sb_btn_icon_green_hover"></span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right sb_post_dropdown"
+                    role="menu" aria-labelledby="dropdown-menu">
+                    <li role="presentation"><a href="{% url 'mission_edit_update' about.id about.slug id %}">Edit</a>
+                    </li>
+                </ul>
+            {% endif %}
         </div>
     </div>
     <div class="row">

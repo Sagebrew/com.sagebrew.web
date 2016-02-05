@@ -71,7 +71,6 @@ urlpatterns = patterns(
     (r'^search/', include('sb_search.urls')),
     (r'^quests/', include('sb_public_official.urls')),
     (r'^quests/', include('sb_quests.urls')),
-    (r'^updates/', include('sb_updates.urls')),
     (r'^missions/', include('sb_missions.urls')),
     (r'^council/', include('sb_council.urls')),
     (r'^posts/', include('sb_posts.urls')),

@@ -31,13 +31,13 @@ from .models import token_gen
 
 def advocacy(request):
     if request.user.is_authenticated() is True:
-        return redirect('signup_view')
+        return redirect('signup')
     return render(request, 'advocacy.html')
 
 
 def political_campaign(request):
     if request.user.is_authenticated() is True:
-        return redirect('signup_view')
+        return redirect('signup')
     try:
         query = 'MATCH (position:Position) RETURN COUNT(position)'
         res, _ = db.cypher_query(query)

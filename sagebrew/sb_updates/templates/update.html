@@ -8,7 +8,7 @@
             </h1>
         </div>
         <div class="col-sm-1 hidden-xs">
-            {% if request.user.username == request_profile.username %}
+            {% if about != None and request.user.username == about.owner_username %}
                 <button class="btn dropdown-toggle sb_btn_icon" type="button"
                         data-toggle="dropdown" style="margin-top: 20px;">
                     <span class="fa fa-cog sb_btn_icon_green_hover"></span>

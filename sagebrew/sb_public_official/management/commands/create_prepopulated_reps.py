@@ -77,11 +77,10 @@ class Command(BaseCommand):
                                             rep.bioguideid)).save()
                         rep.quest.connect(quest)
                     else:
-                        quest.profile_pic = "%s/representative_images/" \
-                                            "225x275/" \
-                                            "%s.jpg" % (
-                                                settings.LONG_TERM_STATIC_DOMAIN,
-                                                rep.bioguideid)
+                        quest.profile_pic = \
+                            "%s/representative_images/225x275/" \
+                            "%s.jpg" % (settings.LONG_TERM_STATIC_DOMAIN,
+                                        rep.bioguideid)
                         quest.save()
                         cache.set('%s_quest' % quest.object_uuid, quest)
                     rep.gt_person.connect(person)

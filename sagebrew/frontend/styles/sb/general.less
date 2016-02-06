@@ -2133,9 +2133,21 @@ textarea.sb_comment_input{
   justify-content: center;
   overflow: hidden;
   height: 132px;
+  @media only screen and (max-width: 480px){
+      height: 85px;
+  }
   img {
+    @media only screen and (max-width: 480px){
+      width: 65px;
+      height: 80px;
+    }
     flex: none;
   }
+}
+.feature-block {
+  background-color: #D8D8D8;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 .summary-block-img-wrapper {
@@ -2163,11 +2175,7 @@ textarea.sb_comment_input{
   top: 50px;
 }
 
-.feature-block {
-  background-color: #D8D8D8;
-  padding-left: 0;
-  padding-right: 0;
-}
+
 
 // Used in JS
 .additional-comments{

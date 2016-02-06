@@ -7,7 +7,7 @@ export const meta = {
     controller: "user-settings",
     match_method: "path",
     check: [
-       "^user/settings"
+       "^user/settings$"
     ]
 };
 

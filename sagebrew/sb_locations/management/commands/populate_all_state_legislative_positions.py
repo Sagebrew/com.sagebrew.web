@@ -49,7 +49,8 @@ class Command(BaseCommand):
                     if location not in position.location:
                         position.location.connect(location)
                     if not position.full_name:
-                        full_name = Position.get_full_name(position.object_uuid)
+                        full_name = Position.get_full_name(
+                            position.object_uuid)
                         position.full_name = full_name['full_name']
                         position.save()
 
@@ -85,7 +86,8 @@ class Command(BaseCommand):
                     if location not in position.location:
                         position.location.connect(location)
                     if not position.full_name:
-                        full_name = Position.get_full_name(position.object_uuid)
+                        full_name = Position.get_full_name(
+                            position.object_uuid)
                         position.full_name = full_name['full_name']
                         position.save()
 

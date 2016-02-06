@@ -27,6 +27,7 @@ export function load() {
         greyPage = document.getElementById('sb-greyout-page');
     $(".app-sb")
         .on('click', '#skip-step', function () {
+            greyPage.classList.remove('sb_hidden');
             if(settings.profile.mission_signup !== null && settings.profile.mission_signup !== undefined){
                 if(settings.profile.quest !== null){
                     greyPage.classList.add('sb_hidden');
@@ -39,6 +40,7 @@ export function load() {
                         });
                 }
             } else {
+                greyPage.classList.add('sb_hidden');
                 window.location.href = "/user/" + settings.profile.username + "/";
             }
         });

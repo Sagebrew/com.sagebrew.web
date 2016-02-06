@@ -6,7 +6,7 @@ import datetime
 from uuid import uuid1
 from json import loads
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth import login, authenticate
 from django.test import TestCase, RequestFactory, Client
 from django.contrib.sessions.backends.db import SessionStore
@@ -496,6 +496,10 @@ class TestFeatureViews(TestCase):
 
     def test_advocacy_view_success(self):
         request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        request.user = AnonymousUser()
         res = advocacy(request)
 
         self.assertEqual(res.status_code, 200)
@@ -514,6 +518,10 @@ class TestFeatureViews(TestCase):
 
     def test_political_campaign_view_success(self):
         request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        request.user = AnonymousUser()
         res = political_campaign(request)
 
         self.assertEqual(res.status_code, 200)

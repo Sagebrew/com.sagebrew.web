@@ -1,98 +1,105 @@
 {% extends "layout/hero-one-col.html" %}
 {% load staticfiles %}
+{% load humanize %}
 {% block title %} Political Campaigns {% endblock %}
 {% block body_class %}white-background{% endblock body_class %}
 {% block hero %}
     <div class="block-image-text-overlay">
         <img src="{% static "images/capitol_building.jpg" %}">
-        <h1>Free Crowdfunding and Campaigning Tools
-        that let you Focus on Stumping, Kissing Babies, and Winning Elections</h1>
-        <button class="btn btn-primary sb_btn"></button>
+        <div>
+            <h1>Free Crowdfunding and Campaigning Tools
+                that let you Focus on Stumping, Kissing Babies, and Winning Elections</h1>
+        <button class="btn btn-primary sb_btn" id="sign-up-redirect">Sign Up</button>
+        </div>
+
     </div>
 {% endblock %}
 
 {% block live %}
     <div class="block">
-        <div class="col-xs-3" style="background-color: #D8D8D8; padding-left: 0px; padding-right: 0px;">
+        <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
                 <img src="{% static "images/icons/money.svg" %}">
             </div>
         </div>
-        <div class="col-xs-8 col-xs-offset-1" style="background-color: white;">
-            <h3 class="block-title">
+        <div class="col-xs-8 col-xs-offset-1">
+            <h3 class="block-title no-top-padding">
                 Fundraising
             </h3>
             <p class="block-content">
-                Unlike other crowdfunding platforms we specifically focused on
+                Unlike other crowdfunding platforms we specifically focus on
                 advocacy and political campaigns. There's no time limits or
-                delays on fund releases. We know every dollar counts to your
-                movement and we're here to help you succeed.
+                delays on releasing donations. We know every dollar counts to your
+                campaign and we're here to help you succeed.
             </p>
         </div>
     </div>
     <div class="block">
-        <div class="col-xs-3" style="background-color: #D8D8D8; padding-left: 0px; padding-right: 0px;">
-            <div class="icon-block-img-wrapper" >
-                <img src="{% static "images/icons/shield.svg" %}">
-            </div>
-        </div>
-        <div class="col-xs-8 col-xs-offset-1" style="background-color: white;">
-            <h3 class="block-title">
-                Campaign Finance Compliance
-            </h3>
-            <p class="block-content">
-                We know most campaigns operate in areas with Campaign Finance Regulations.
-                That's why we gather the information you need for reporting like contributor's
-                name, address, contact information, employer and occupation. We also
-                give you the ability to set how much
-                individuals can donate in a given time period.
-            </p>
-        </div>
-    </div>
-    <div class="block">
-        <div class="col-xs-3" style="background-color: #D8D8D8; padding-left: 0px; padding-right: 0px;">
+        <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
                 <img src="{% static "images/icons/clipboard.svg" %}">
             </div>
         </div>
-        <div class="col-xs-8 col-xs-offset-1" style="background-color: white;">
-            <h3 class="block-title">
+        <div class="col-xs-8 col-xs-offset-1">
+            <h3 class="block-title no-top-padding">
                 Volunteers
             </h3>
             <p class="block-content">
-                Money isn't the only thing you need to succeed. We know how
-                important volunteers are to getting things done so we make it as
-                easy for people to volunteer for your movement as it is to donate.
+                Money isn't the only thing you need to win an election. We know how
+                important volunteers are to getting things done. That's why we make it as
+                easy for people to volunteer for your campaign as it is to donate.
             </p>
         </div>
     </div>
     <div class="block">
-        <div class="col-xs-3" style="background-color: #D8D8D8; padding-left: 0px; padding-right: 0px;">
+        <div class="col-xs-3 feature-block">
+            <div class="icon-block-img-wrapper" >
+                <img src="{% static "images/icons/shield.svg" %}">
+            </div>
+        </div>
+        <div class="col-xs-8 col-xs-offset-1">
+            <h3 class="block-title no-top-padding">
+                Campaign Finance Compliance
+            </h3>
+            <p class="block-content">
+                Most campaigns operate in areas with Campaign Finance Regulations.
+                That's why we gather the information you need for reporting. We gather
+                a contributor's name, address, contact information, employer and occupation
+                so that come reporting time, you're prepared. {% comment %}We also
+                give you the ability to set how much individuals can donate in
+                a given time period. {% endcomment %}
+            </p>
+        </div>
+    </div>
+    <div class="block">
+        <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
                 <img src="{% static "images/icons/responsive.svg" %}">
             </div>
         </div>
-        <div class="col-xs-8 col-xs-offset-1" style="background-color: white;">
-            <h3 class="block-title">
+        <div class="col-xs-8 col-xs-offset-1">
+            <h3 class="block-title no-top-padding">
                 Online Presence
             </h3>
             <p class="block-content">
-                We want to empower you to share your movement with the world.
-                You'll be able to setup a one pager with images, videos, and
-                anything else you need to get the word out. We handle making
-                it responsive to ensure you're not missing donations from phones,
-                tablets, or any other new device hitting the market.
+                We make it easy to share your platform with Sagebrew members who
+                can vote for you and everyone else on the internet.
+                You'll be able to setup a public page with images, videos, and
+                anything else you need to highlight what makes you the right candidate for
+                the job. We handle making
+                it responsive to ensure you're reaching supporters on their phones,
+                tablets, and any other device hitting the market.
             </p>
         </div>
     </div>
     <div class="block">
-        <div class="col-xs-3" style="background-color: #D8D8D8; padding-left: 0px; padding-right: 0px;">
+        <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
                 <img src="{% static "images/icons/lock.svg" %}">
             </div>
         </div>
-        <div class="col-xs-8 col-xs-offset-1" style="background-color: white;">
-            <h3 class="block-title">
+        <div class="col-xs-8 col-xs-offset-1">
+            <h3 class="block-title no-top-padding">
                 Security
             </h3>
             <p class="block-content">
@@ -103,17 +110,53 @@
         </div>
     </div>
     <div class="block">
-        <div class="col-xs-3" style="background-color: #D8D8D8; padding-left: 0px; padding-right: 0px;">
+        <div class="col-xs-3 feature-block">
+            <div class="icon-block-img-wrapper" >
+                <img src="{% static "images/icons/mountain.svg" %}">
+            </div>
+        </div>
+        <div class="col-xs-8 col-xs-offset-1">
+            <h3 class="block-title no-top-padding">
+                Scalable
+            </h3>
+            <p class="block-content">
+                From a local election for city council to a bid for President of
+                the United States we have you covered. Our platform is built to
+                scale so whether you're expecting $50 in donations or
+                over a $1,000,000 you don't need to worry about losing opportunities.
+            </p>
+        </div>
+    </div>
+    <div class="block">
+        <div class="col-xs-3 feature-block">
+            <div class="icon-block-img-wrapper" >
+                <img src="{% static "images/icons/retina.svg" %}">
+            </div>
+        </div>
+        <div class="col-xs-8 col-xs-offset-1">
+            <h3 class="block-title no-top-padding">
+                Voter Connection
+            </h3>
+            <p class="block-content">
+                We have {{ position_count|intcomma }} certified positions to
+                run for. If we don't have the position you're looking for we'll get
+                it added and make sure you're connected with all of our members
+                who can vote for it.
+            </p>
+        </div>
+    </div>
+    <div class="block">
+        <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
                 <img src="{% static "images/icons/safe.svg" %}">
             </div>
         </div>
-        <div class="col-xs-8 col-xs-offset-1" style="background-color: white;">
-            <h3 class="block-title">
+        <div class="col-xs-8 col-xs-offset-1">
+            <h3 class="block-title no-top-padding">
                 Customer Support
             </h3>
             <p class="block-content">
-                You need to focus on your movement, we know that. That's why we
+                You need to focus on your campaign, we know that. That's why we
                 provide an integrated support platform that you and your donors
                 can reach us with at anytime. We respond to every email and
                 every message we get.
@@ -121,38 +164,38 @@
         </div>
     </div>
     <div class="block">
-        <div class="col-xs-3" style="background-color: #D8D8D8; padding-left: 0px; padding-right: 0px;">
+        <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
                 <img src="{% static "images/icons/rocket.svg" %}">
             </div>
         </div>
-        <div class="col-xs-8 col-xs-offset-1" style="background-color: white;">
-            <h3 class="block-title">
+        <div class="col-xs-8 col-xs-offset-1">
+            <h3 class="block-title no-top-padding">
                 No Contract, No Surprises
             </h3>
             <p class="block-content">
-                We believe we should only make money if you're making money.
-                That's why signing up and having 5 active advocacy or political
-                missions at a time is Free. We take 7.9% + 30&cent; from each donation.
-                2.9% + 30&cent; goes to processing fees and 5% helps us
+                We believe we should only make money if you make money.
+                That's why signing up and having 5 active political
+                missions at a time is Free. We take 7% + 30&cent; from each donation.
+                2.9% + 30&cent; goes to processing fees and 4.1% helps us
                 to create new features for you and your donors. We'll direct
                 deposit donations minus the fee into your bank account as soon as they
                 are made. If your
-                movement is raising a lot of money we want to help you get more of
+                campaign is raising a lot of money we want to help you get more of
                 it. For $100 a month we'll lower the total transaction fee to
-                5.9% + 30&cent; and allow you to take unlimited number of missions
+                5% + 30&cent; and allow you to take an unlimited number of missions
                 active.
             </p>
         </div>
     </div>
     <div class="block" style="text-align: center">
-        <h1 >Who Can Join?</h1>
+        <h1 class="header-lg-only">Who Can Join?</h1>
         <p>Anyone can join! We focus on the tools you need and leave
         the agenda to you.</p>
     </div>
     <div class="block">
         <div class="col-md-6 col-md-offset-3">
-        <form id="account-info">
+            <form id="account-info">
                 <div class="form-group">
                     <input type="text"
                            id="first-name"
@@ -193,8 +236,8 @@
                            class="form-control">
                 </div>
 
-                <h3 class="sb_signup_headline_containter">Birthday</h3>
-                        <div class="form-group">
+                <h3>Birthday</h3>
+                <div class="form-group">
                     <input type="text"
                            id="birthday"
                            name="date_of_birth"
@@ -206,10 +249,20 @@
                         Register
                     </button>
                 <div>
-                    <small>By registering, you agree to our <a href="{% url "terms_and_conditions" %}">Terms of Service</a>.</small>
-
+                    <small>By registering, you agree to our
+                        <a href="{% url 'quest_terms_and_conditions' %}">Quest Terms of Service</a> and the <a href="https://stripe.com/connect/account-terms">Stripe Connected Account Agreement</a>.
+                    </small>
                 </div>
             </form>
         </div>
     </div>
 {% endblock %}
+
+
+{% block footer %}
+    <div class="sb-bottom-menu-white sb_footer">
+        <div class="container">
+            {% include "footer.html" %}
+        </div>
+    </div>
+{% endblock footer %}

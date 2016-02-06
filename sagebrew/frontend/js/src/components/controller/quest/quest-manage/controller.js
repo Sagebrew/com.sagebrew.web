@@ -24,7 +24,12 @@ export const meta = {
 export function load() {
     var greyPage = document.getElementById('sb-greyout-page'),
         $app = $(".app-sb"),
+        questID = null;
+    if(settings.profile !== undefined && settings.profile.quest !== null){
+        questID = settings.profile.quest.id;
+    } else {
         questID = helpers.args(1);
+    }
     $app
         .on('click', '#take-live', function () {
             event.preventDefault();

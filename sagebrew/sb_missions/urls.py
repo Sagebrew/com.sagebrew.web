@@ -14,8 +14,8 @@ urlpatterns = patterns(
     # Setup
     url(r'^select/$', select_mission, name="select_mission"),
     url(r'^public_office/$', public_office_mission,
-        name="public_office_mission"),
-    url(r'^advocate/$', advocate_mission, name="advocate_mission"),
+        name="public_office"),
+    url(r'^advocate/$', advocate_mission, name="advocate"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/$',
         mission_redirect_page, name="mission_redirect"),
 

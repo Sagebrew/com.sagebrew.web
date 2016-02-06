@@ -18,7 +18,8 @@ export function load() {
         districtSelector = document.getElementById('js-district-selector'),
         districtRow = document.getElementById('district-row'),
         advocateInput = document.getElementById('advocate-input'),
-        stateRequired = stateInput.options[0];
+        stateRequired = stateInput.options[0],
+        greyPage = document.getElementById('sb-greyout-page');
     if(typeof(Storage) !== "undefined") {
         // Clear out all of the storage for the page, we're starting a new mission!
         localStorage.removeItem(locationKey);
@@ -128,6 +129,7 @@ export function load() {
             }
         })
         .on('click', '#js-start-btn', function(){
+            greyPage.classList.remove('sb_hidden');
             var location;
             if(localStorage.getItem(levelKey) !== "local"){
                 location = localStorage.getItem(locationName);
@@ -144,6 +146,7 @@ export function load() {
                     focus_on_type: "advocacy"
                 })
             }).done(function (data) {
+                greyPage.classList.add('sb_hidden');
                 window.location.href = "/missions/" + data.id + "/";
             });
         })

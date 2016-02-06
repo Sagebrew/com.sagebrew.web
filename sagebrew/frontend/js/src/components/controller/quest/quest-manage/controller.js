@@ -2,7 +2,6 @@
  * @file
  */
 var request = require('api').request,
-    helpers = require('common/helpers'),
     settings = require('settings').settings;
 
 /**
@@ -24,7 +23,7 @@ export const meta = {
 export function load() {
     var greyPage = document.getElementById('sb-greyout-page'),
         $app = $(".app-sb"),
-        questID = helpers.args(1);
+        questID = settings.profile.quest.id;
     $app
         .on('click', '#take-live', function () {
             event.preventDefault();

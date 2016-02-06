@@ -31,34 +31,23 @@ from .models import token_gen
 
 def advocacy(request):
     if request.user.is_authenticated() is True:
-        try:
-            user_profile = Pleb.get(username=request.user.username,
-                                    cache_buster=True)
-        except DoesNotExist:
-            return redirect('404_Error')
-        if user_profile.completed_profile_info is True:
-            return redirect('newsfeed')
-        elif not user_profile.email_verified:
-            return redirect('confirm_view')
-        elif not user_profile.completed_profile_info:
-            return redirect('profile_info')
+        return redirect('signup')
     return render(request, 'advocacy.html')
 
 
 def political_campaign(request):
     if request.user.is_authenticated() is True:
-        try:
-            user_profile = Pleb.get(username=request.user.username,
-                                    cache_buster=True)
-        except DoesNotExist:
-            return redirect('404_Error')
-        if user_profile.completed_profile_info is True:
-            return redirect('newsfeed')
-        elif not user_profile.email_verified:
-            return redirect('confirm_view')
-        elif not user_profile.completed_profile_info:
-            return redirect('profile_info')
-    return render(request, 'political_campaign.html')
+        return redirect('signup')
+    try:
+        query = 'MATCH (position:Position) RETURN COUNT(position)'
+        res, _ = db.cypher_query(query)
+        position_count = res.one
+        if position_count is None:
+            position_count = 7274
+    except CypherException:
+        position_count = 7274
+    return render(request, 'political_campaign.html',
+                  {"position_count": position_count})
 
 
 def signup_view(request):

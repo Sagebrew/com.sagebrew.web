@@ -801,7 +801,8 @@ class MeViewSet(mixins.UpdateModelMixin,
                 permission_classes=(IsAuthenticated,))
     def donations(self, request):
         query = 'MATCH (a:Pleb {username:"%s"})-[:DONATIONS_GIVEN]->' \
-                '(d:Donation)-[:CONTRIBUTED_TO]->(:Mission) RETURN d' % \
+                '(d:Donation)-[:CONTRIBUTED_TO]->(:Mission) ' \
+                'RETURN d ORDER BY d.created DESC' % \
                 request.user.username
         res, _ = db.cypher_query(query)
         queryset = [Donation.inflate(row[0]) for row in res]

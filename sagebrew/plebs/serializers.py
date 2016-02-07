@@ -217,6 +217,8 @@ class PlebSerializerNeo(SBSerializer):
         :param validated_data:
         :return:
         """
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
         request, _, _, _, _ = gather_request_data(self.context)
         update_time = request.data.get('update_time', False)
         first_name = validated_data.get('first_name', instance.first_name)
@@ -234,6 +236,13 @@ class PlebSerializerNeo(SBSerializer):
         if email != instance.email:
             instance.email = email
             user_obj.email = email
+            if instance.get_quest():
+                quest = Quest.get(instance.username)
+                if quest.stripe_customer_id:
+                    customer = \
+                        stripe.Customer.retrieve(quest.stripe_customer_id)
+                    customer.email = email
+                    customer.save()
         if user_obj.check_password(validated_data.get('password', "")) is True:
             user_obj.set_password(validated_data.get(
                 'new_password', validated_data.get('password', "")))

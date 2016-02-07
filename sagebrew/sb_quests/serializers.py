@@ -92,7 +92,7 @@ class QuestSerializer(SBSerializer):
         account_type = validated_data.get('account_type', "free")
         owner = Pleb.get(username=request.user.username)
         if account_type == 'paid':
-            validated_data['application_fee'] = 0.021
+            validated_data['application_fee'] = settings.STRIPE_PAID_ACCOUNT_FEE
 
         if owner.get_quest():
             raise ValidationError(

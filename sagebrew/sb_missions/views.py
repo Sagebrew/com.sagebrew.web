@@ -7,6 +7,8 @@ from django.utils.decorators import method_decorator
 from py2neo.cypher.error import ClientError
 from neomodel import db, CypherException, DoesNotExist
 
+from sb_updates.neo_models import Update
+from sb_updates.serializers import UpdateSerializer
 from sb_registration.utils import (verify_completed_registration)
 from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
@@ -68,36 +70,55 @@ def mission(request, object_uuid, slug=None):
     })
 
 
-def mission_updates(request, object_uuid, slug=None):
-    query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
-            '(mission:Mission {object_uuid: "%s"})' \
-            'RETURN quest' % object_uuid
+def mission_edit_updates(request, object_uuid, slug=None, edit_id=None):
+    query = 'MATCH (update:Update {object_uuid: "%s"})-[:ABOUT]->' \
+            '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest)' \
+            'WITH update, mission, quest ' \
+            'MATCH (quest)-[:EMBARKS_ON]->(missions:Mission) ' \
+            'RETURN mission, quest, update, missions ' \
+            'ORDER BY missions.created DESC' % edit_id
+    res, _ = db.cypher_query(query)
+    if res.one is None:
+        return redirect("select_mission")
 
-    quest_res, _ = db.cypher_query(query)
+    missions = [MissionSerializer(Mission.inflate(row.missions)).data
+                for row in res]
+    mission_obj = Mission.inflate(res.one.mission)
+    return render(
+        request, 'manage/edit_update.html', {
+            "update": UpdateSerializer(
+                Update.inflate(res.one.update)).data,
+            "mission": MissionSerializer(mission_obj).data,
+            "slug": slugify(mission_obj.get_mission_title()),
+            "quest": QuestSerializer(Quest.inflate(res.one.quest)).data,
+            "missions": missions
+        })
+
+
+def mission_updates(request, object_uuid, slug=None):
     # Only need to check that at least one update exists here to mark that
     # updates are available for this mission.
-    query = 'MATCH (mission:Mission {object_uuid: "%s"})<-[:ABOUT]-' \
-            '(updates:Update) RETURN updates LIMIT 1' % object_uuid
+    query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
+            '(mission:Mission {object_uuid: "%s"}) ' \
+            'WITH quest, mission ' \
+            'OPTIONAL MATCH (mission)<-[:ABOUT]-(updates:Update) ' \
+            'RETURN quest, mission, ' \
+            'CASE WHEN count(updates) > 0 ' \
+            'THEN true ELSE false END AS update' % object_uuid
     res, _ = db.cypher_query(query)
-    if quest_res.one is None:
+    if res.one.quest is None:
         return redirect("404_Error")
     # Instead of doing inflation and serialization of all the updates here
     # without pagination lets just indicate if we have any or not and then
     # hit the endpoint to gather the actual updates.
-    if res.one:
-        updates = True
-    else:
-        updates = False
-    try:
-        mission_obj = Mission.get(object_uuid)
-    except (CypherException, ClientError, IOError):
-        return redirect("500_Error")
-    quest = Quest.inflate(quest_res.one)
-    return render(request, 'mission_updates.html',
-                  {"updates": updates,
-                   "mission": MissionSerializer(mission_obj).data,
-                   "slug": slugify(mission_obj.get_mission_title()),
-                   "quest": QuestSerializer(quest).data})
+    quest = Quest.inflate(res.one.quest)
+    mission_obj = Mission.inflate(res.one.mission)
+    return render(request, 'mission_updates.html', {
+        "updates": res.one.update,
+        "mission": MissionSerializer(mission_obj).data,
+        "slug": slugify(mission_obj.get_mission_title()),
+        "quest": QuestSerializer(quest).data
+    })
 
 
 class LoginRequiredMixin(View):
@@ -118,12 +139,18 @@ class MissionSettingsView(LoginRequiredMixin):
         return super(MissionSettingsView, self).dispatch(*args, **kwargs)
 
     def get(self, request, object_uuid=None, slug=None):
+        # Do a second optional match to get the list of missions,
+        # the first is just to make sure we're dealing with the actual
+        # owner of the Mission.
         query = 'MATCH (pleb:Pleb {username: "%s"})-[:IS_WAGING]->' \
-            '(quest:Quest)-[:EMBARKS_ON]->(missions:Mission) ' \
+            '(quest:Quest) WITH quest ' \
+            'OPTIONAL MATCH (quest)-[:EMBARKS_ON]->(missions:Mission) ' \
             'RETURN missions, quest ' \
             'ORDER BY missions.created DESC' % request.user.username
         res, _ = db.cypher_query(query)
         if res.one is None:
+            return redirect("404_Error")
+        if res.one.missions is None:
             return redirect("select_mission")
         if object_uuid is None:
             # TODO handle if there aren't any missions yet
@@ -136,6 +163,8 @@ class MissionSettingsView(LoginRequiredMixin):
         missions = [MissionSerializer(Mission.inflate(row.missions)).data
                     for row in res]
         quest = Quest.inflate(res.one.quest)
+        if mission_obj.owner_username != quest.owner_username:
+            return redirect("404_Error")
         return render(request, self.template_name, {
             "missions": missions,
             "mission": MissionSerializer(mission_obj,

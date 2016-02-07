@@ -272,8 +272,13 @@ class QuestViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticatedOrReadOnly,))
     def missions(self, request, owner_username):
-        query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
-                '[:EMBARKS_ON]->(m:Mission) RETURN m' % owner_username
+        if request.user.username == owner_username:
+            query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
+                    '[:EMBARKS_ON]->(m:Mission) RETURN m' % owner_username
+        else:
+            query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
+                '[:EMBARKS_ON]->(m:Mission) WHERE m.active=true' \
+                ' RETURN m' % owner_username
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
         queryset = [Mission.inflate(row[0]) for row in res]

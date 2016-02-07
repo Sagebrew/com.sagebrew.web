@@ -624,13 +624,26 @@ class QuestEndpointTests(APITestCase):
     def test_missions(self):
         self.client.force_authenticate(user=self.user)
         mission = Mission(title=str(uuid1()),
-                          owner_username=self.pleb.username).save()
+                          owner_username=self.pleb.username,
+                          active=False).save()
         self.quest.missions.connect(mission)
         url = reverse('quest-missions',
                       kwargs={'owner_username': self.quest.owner_username})
         response = self.client.get(url)
         self.assertContains(response, mission.object_uuid,
                             status_code=status.HTTP_200_OK)
+
+    def test_mission_not_owner(self):
+        self.client.force_authenticate(user=self.user2)
+        mission = Mission(title=str(uuid1()),
+                          owner_username=self.pleb.username,
+                          active=False).save()
+        self.quest.missions.connect(mission)
+        url = reverse('quest-missions',
+                      kwargs={'owner_username': self.quest.owner_username})
+        response = self.client.get(url)
+        self.assertNotContains(response, mission.object_uuid,
+                               status_code=status.HTTP_200_OK)
 
     def test_donation_data(self):
         self.client.force_authenticate(user=self.user)

@@ -1,7 +1,8 @@
 import time
+import stripe
+import shortuuid
 from datetime import datetime
 from uuid import uuid1
-import shortuuid
 from collections import OrderedDict
 
 from django.utils.text import slugify
@@ -236,6 +237,42 @@ class MeEndpointTests(APITestCase):
         res = self.client.patch(url, data)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_update_quest_customer(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-list')
+        quest = Quest(owner_username=self.pleb.username).save()
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe_res = stripe.Token.create(
+            card={
+                "exp_year": 2020,
+                "exp_month": 02,
+                "number": "4242424242424242",
+                "currency": "usd",
+                "cvc": 123,
+                "name": "Test Test"
+            }
+        )
+        customer = stripe.Customer.create(
+            description="Customer for %s Quest" % quest.object_uuid,
+            card=stripe_res['id'],
+            email=self.pleb.email
+        )
+        quest.stripe_customer_id = customer['id']
+        quest.save()
+        self.pleb.quest.connect(quest)
+        data = {
+            "wallpaper_pic": "http://example.com/",
+            "profile_pic": "http://example.com/",
+            "email": "bounce@simulator.amazonses.com"
+        }
+        cache.clear()
+        res = self.client.patch(url, data)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        new_customer = stripe.Customer.retrieve(quest.stripe_customer_id)
+        self.assertEqual(new_customer.email, data['email'])
+        self.pleb.email = self.email
+        self.pleb.save()
 
     def test_donations(self):
         quest = Quest(owner_username=str(uuid1())).save()

@@ -194,6 +194,7 @@ class Pleb(Searchable):
     # refreshes their page, allows us to easily swap it with
     # last_counted_vote_node when they check their reputation
     vote_from_last_refresh = StringProperty(default=None)
+    mission_signup = StringProperty(default=None)
 
     # Relationships
     privileges = RelationshipTo('sb_privileges.neo_models.Privilege', 'HAS',

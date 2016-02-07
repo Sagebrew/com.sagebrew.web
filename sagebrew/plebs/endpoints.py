@@ -582,7 +582,7 @@ class MeViewSet(mixins.UpdateModelMixin,
         # for post processing on unions as a whole to be added as a feature.
         # See Github issue #2725 for updates
         # https://github.com/neo4j/neo4j/issues/2725
-        then = (datetime.now(pytz.utc) - timedelta(days=90)).strftime("%s")
+        then = (datetime.now(pytz.utc) - timedelta(days=120)).strftime("%s")
         query = \
             '// Retrieve all the current users questions\n' \
             'MATCH (a:Pleb {username: "%s"})-[:OWNS_QUESTION]->' \
@@ -801,7 +801,8 @@ class MeViewSet(mixins.UpdateModelMixin,
                 permission_classes=(IsAuthenticated,))
     def donations(self, request):
         query = 'MATCH (a:Pleb {username:"%s"})-[:DONATIONS_GIVEN]->' \
-                '(d:Donation)-[:CONTRIBUTED_TO]->(:Mission) RETURN d' % \
+                '(d:Donation)-[:CONTRIBUTED_TO]->(:Mission) ' \
+                'RETURN d ORDER BY d.created DESC' % \
                 request.user.username
         res, _ = db.cypher_query(query)
         queryset = [Donation.inflate(row[0]) for row in res]

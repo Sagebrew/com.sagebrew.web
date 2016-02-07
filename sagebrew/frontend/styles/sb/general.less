@@ -2125,6 +2125,30 @@ textarea.sb_comment_input{
     font-size: 22px;
   }
 }
+.white-background {
+  background-color: white;
+}
+.icon-block-img-wrapper {
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  height: 132px;
+  @media only screen and (max-width: 480px){
+      height: 85px;
+  }
+  img {
+    @media only screen and (max-width: 480px){
+      width: 65px;
+      height: 80px;
+    }
+    flex: none;
+  }
+}
+.feature-block {
+  background-color: #D8D8D8;
+  padding-left: 0;
+  padding-right: 0;
+}
 
 .summary-block-img-wrapper {
   display: flex;
@@ -2150,6 +2174,8 @@ textarea.sb_comment_input{
 .has-feedback label~.form-control-feedback {
   top: 50px;
 }
+
+
 
 // Used in JS
 .additional-comments{

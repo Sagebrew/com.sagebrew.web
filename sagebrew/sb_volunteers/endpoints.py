@@ -35,15 +35,15 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         volunteer = Pleb.get(self.request.user.username)
-        mission = Mission.get(object_uuid=self.kwargs[self.lookup_field])
+        mission = Mission.get(object_uuid=self.kwargs["object_uuid"])
         serializer.save(mission=mission, volunteer=volunteer,
                         owner_username=volunteer.username)
 
     def list(self, request, *args, **kwargs):
-        moderators = Mission.get(
-            object_uuid=self.kwargs["object_uuid"])
+        moderators = Mission.get(object_uuid=self.kwargs["object_uuid"])
         if not (request.user.username in
-                moderators.get_moderators(moderators.owner_username)):
+                moderators.get_moderators(moderators.owner_username) and
+                request.method == "GET"):
             return Response({"status_code": status.HTTP_403_FORBIDDEN,
                              "detail": "You are not authorized to access "
                                        "this page."},

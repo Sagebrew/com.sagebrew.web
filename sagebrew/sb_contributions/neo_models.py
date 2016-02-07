@@ -18,4 +18,3 @@ class Volunteer(SBObject):
                                  'WANTS_TO')
     mission = RelationshipTo('sb_missions.neo_models.Mission',
                              'ON_BEHALF_OF')
-

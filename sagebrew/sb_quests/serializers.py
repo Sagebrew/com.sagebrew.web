@@ -219,29 +219,31 @@ class QuestSerializer(SBSerializer):
                     instance.stripe_customer_id)
                 card = customer.sources.create(source=customer_token)
                 instance.stripe_default_card_id = card['id']
-        instance.account_type = validated_data.get('account_type',
-                                                   instance.account_type)
-        if instance.account_type == "paid":
-            # if paid gets submitted create a subscription if it doesn't already
-            # exist
-            if instance.stripe_subscription_id is None and \
-                    instance.stripe_customer_id is not None:
-                customer = stripe.Customer.retrieve(
-                    instance.stripe_customer_id)
-                sub = customer.subscriptions.create(plan='quest_premium')
-                instance.stripe_subscription_id = sub['id']
-            instance.application_fee = settings.STRIPE_PAID_ACCOUNT_FEE
+        account_type = validated_data.get('account_type', instance.account_type)
+        if account_type != instance.account_type:
+            if instance.account_type == "paid":
+                # if paid gets submitted create a subscription if it doesn't already
+                # exist
+                if instance.stripe_subscription_id is None and \
+                        instance.stripe_customer_id is not None:
+                    customer = stripe.Customer.retrieve(
+                        instance.stripe_customer_id)
+                    sub = customer.subscriptions.create(plan='quest_premium')
+                    instance.stripe_subscription_id = sub['id']
+                instance.application_fee = settings.STRIPE_PAID_ACCOUNT_FEE
+                instance.account_type = account_type
 
-        elif instance.account_type == "free":
-            # if we get a free submission and the subscription is already set
-            # cancel it.
-            if instance.stripe_subscription_id is not None:
-                customer = stripe.Customer.retrieve(
-                    instance.stripe_customer_id)
-                customer.subscriptions.retrieve(
-                    instance.stripe_subscription_id).delete()
-                instance.stripe_subscription_id = None
-            instance.application_fee = settings.STRIPE_FREE_ACCOUNT_FEE
+            elif instance.account_type == "free":
+                # if we get a free submission and the subscription is already set
+                # cancel it.
+                if instance.stripe_subscription_id is not None:
+                    customer = stripe.Customer.retrieve(
+                        instance.stripe_customer_id)
+                    customer.subscriptions.retrieve(
+                        instance.stripe_subscription_id).delete()
+                    instance.stripe_subscription_id = None
+                instance.application_fee = settings.STRIPE_FREE_ACCOUNT_FEE
+                instance.account_type = account_type
 
         if stripe_token is not None:
             if instance.stripe_id is None or instance.stripe_id == "Not Set":

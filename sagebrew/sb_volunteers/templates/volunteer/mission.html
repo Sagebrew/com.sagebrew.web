@@ -1,4 +1,4 @@
-{% extends "donations/base.html" %}
+{% extends "volunteer/base.html" %}
 {% load staticfiles %}
 {% block title %}
     Empower Your Movement
@@ -23,5 +23,5 @@
 {% endblock %}
 
 {% block intercom %}
-    Intercom('trackEvent', 'visited-donation-mission-selector');
+    Intercom('trackEvent', 'visited-volunteer-mission-selector');
 {% endblock %}

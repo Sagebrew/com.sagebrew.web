@@ -1,4 +1,5 @@
-var request = require('api').request;
+var request = require('api').request,
+    helpers = require('common/helpers');
 
 export const meta = {
     controller: "registration/interests",
@@ -20,7 +21,7 @@ export function init() {
  * Load
  */
 export function load() {
-    selectAllFields();
+    helpers.selectAllFields('#select_all_checkboxes');
 
     $("[data-toggle='tooltip']").tooltip('hide');
 
@@ -77,46 +78,6 @@ export function load() {
             });
 
         });
-}
-
-function selectAllFields() {
-    /**
-     * This is the function that selects all the fields and deselects all the
-     * fields. It works even if fields are already selected or unselected.
-     * It also assigns the value to the checkbox of true or false with the
-     * end dot notation of .val(!ch).
-     */
-    $('.toggle-all :checkbox').on('click', function () {
-      var $this = $(this);
-      var ch = $this.prop('checked');
-      $('#select_all_checkboxes').find(':checkbox').radiocheck(!ch ? 'uncheck' : 'check');
-    });
-    $('[data-toggle="tooltip"]').tooltip();
-    $('[data-toggle="popover"]').popover();
-    $('[data-toggle="checkbox"]').radiocheck();
-
-    /**
-     * Does individual checkboxes and when they are clicked assigns the value
-     * associated with the checkbox input to either true or false since
-     * it appears bootstrap/flat ui rely on the class of the label to change
-     * between checked and a blank string rather then the actual value of the
-     * input. This is needed for Django to understand what was selected not
-     * for the actual view of the interface. The actual checkbox population in
-     * the interface is done automatically by flat ui's js files.
-     */
-    $('.checkbox-toggle input').each(function (ind, item) {
-        $(item).change(function () {
-            var label = $("label[for='" + $(item).attr('id') + "']")[1];
-            var label_class = $(label).attr('class');
-            var label_last = label_class.substr(label_class.lastIndexOf(' ') + 1);
-
-            if (label_last === "checked") {
-                $(item).val(true);
-            } else {
-                $(item).val(false);
-            }
-        });
-    });
 }
 
 /**

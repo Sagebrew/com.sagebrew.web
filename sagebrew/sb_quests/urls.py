@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, url
 
-from sb_donations.views import DonationQuestView
+from sb_contributions.views import ContributionQuestView
 
 from .views import (quest, QuestSettingsView)
 
@@ -8,9 +8,15 @@ urlpatterns = patterns(
     'sb_quests.views',
     # Donate
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/'
-        r'donate/choose/$', DonationQuestView.as_view(
+        r'donate/choose/$', ContributionQuestView.as_view(
             template_name='donations/mission.html'),
         name="donation_choose"),
+
+    # Volunteer
+    url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/'
+        r'volunteer/choose/$', ContributionQuestView.as_view(
+            template_name='volunteer/mission.html'),
+        name="volunteer_choose"),
 
     # Manage
     url(r'^(?P<username>[A-Za-z0-9.@_%+-]{2,36})/manage/banking/$',

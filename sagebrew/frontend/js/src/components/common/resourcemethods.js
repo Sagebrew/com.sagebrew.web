@@ -155,3 +155,17 @@ export function remove(options) {
     var settings = $.extend({}, defaultOptions, options);
     return $.ajax(settings);
 }
+
+/**
+ * OPTIONS
+ * delete is a reserved word in js so we cant use it as the function name
+ * =(
+ * @param options
+ * @returns {*}
+ */
+export function optionsMethod(options) {
+    var defaultOptions = baseOptions();
+    defaultOptions.type = "OPTIONS";
+    var settings = $.extend({}, defaultOptions, options);
+    return $.ajax(settings);
+}

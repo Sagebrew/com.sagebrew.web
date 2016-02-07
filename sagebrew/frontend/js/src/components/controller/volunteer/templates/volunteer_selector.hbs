@@ -1,0 +1,27 @@
+<div class="registration-tooltip">
+    <label class="checkbox toggle-all"
+        for="select_all">
+            I'm Ready To Help With Everything!
+            <input type="checkbox"
+                   value=""
+                   name="select_all"
+                   id="select_all"
+                   data-toggle="checkbox">
+    </label>
+</div>
+
+<div id="js-select-all">
+    {{#each options}}
+        <div class="registration-tooltip">
+            <label class="checkbox"
+                for="{{ this.value }}">
+                    {{ this.display_name }}
+                    <input type="checkbox"
+                           value="{{ this.value }}"
+                           name="options"
+                           id="{{ this.value }}"
+                           data-toggle="checkbox">
+            </label>
+        </div>
+    {{/each}}
+</div>

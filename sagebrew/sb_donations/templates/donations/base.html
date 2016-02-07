@@ -1,4 +1,4 @@
-{% extends "layout/hero-two-col-left.html" %}
+{% extends "contribute_base.html" %}
 {% load staticfiles %}
 {% block title %}
 {% endblock title %}
@@ -8,24 +8,7 @@
 
 {% block keywords %}
 {% endblock keywords %}
-{% block hero %}
-    <div class="block">
-        <div class="col-xs-12 text-center">
-            <h1>{% if selected.type == "mission" %}{% if selected.focus_on_type == "position" %}{% if selected.focused_on.full_name %}{{ selected.focused_on.full_name|title }}{% else %}{{ selected.focus_name_formatted }}{% endif %}{% else %}{% if selected.title %}{{ selected.title|title }}{% else %} {{ selected.focus_name_formatted|title }} {% endif %}{% endif %}{% else %} {% if quest.title %} {{ quest.title|title }} {% else %} {{ quest.first_name }} {{ quest.last_name }}{% endif %}{% endif %}</h1>
-            {% if selected.type == "mission" %}<a href="{% url "quest" username=quest.owner_username %}">By: {% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</a> {% endif %}
-        </div>
-    </div>
-    <div class="block">
-        <div class="block-content">
-            <ul class="nav">
-                {% comment %}
-                    For some reason if I remove this ul all the background color goes away
-                    for the hero section...
-                {% endcomment %}
-            </ul>
-        </div>
-    </div>
-{% endblock %}
+
 {% block secondary_nav %}
     <div class="block block-type-title">
         <div class="block-content clearfix">
@@ -57,16 +40,4 @@
         </div>
     </div>
 {% endblock %}
-{% block sidebar_left %}
-    <div class="block block-type-nav">
-        <div class="donation-img-wrapper">
-            {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
-            <img src="{{ selected.wallpaper_pic|default_if_none:default_wallpaper }}">
-        </div>
-    </div>
-    <div class="block">
-        <div class="block-content">
-            <small>{{ selected.about|default:"No information has been provided."|default_if_none:"No information has been provided." }}</small>
-        </div>
-    </div>
-{% endblock %}
+

@@ -137,6 +137,7 @@ TEMPLATES = [{
         '%s/sb_tags/templates/' % PROJECT_DIR,
         '%s/sb_updates/templates/' % PROJECT_DIR,
         '%s/sb_uploads/templates/' % PROJECT_DIR,
+        '%s/sb_volunteers/templates/' % PROJECT_DIR,
     ),
     'OPTIONS': {
         'loaders': [
@@ -210,6 +211,7 @@ INSTALLED_APPS = (
     'sb_tags',
     'sb_uploads',
     'sb_updates',
+    'sb_volunteers',
     'sb_votes',
     'sb_wall',
     'sb_oauth',

@@ -1,6 +1,8 @@
 from django.conf.urls import patterns, url
 
 from sb_donations.views import DonationMissionView
+from sb_volunteers.views import VolunteerMissionview
+
 from .views import (public_office_mission, advocate_mission, select_mission,
                     mission, mission_redirect_page, mission_updates,
                     MissionSettingsView, mission_list, mission_edit_updates)
@@ -55,6 +57,15 @@ urlpatterns = patterns(
         r'donate/payment/$',
         DonationMissionView.as_view(template_name='donations/payment.html'),
         name="mission_donation_payment"),
+
+    # Volunteer
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'volunteer/option/$', VolunteerMissionview.as_view(),
+        name="mission_volunteer_option"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'volunteer/name/$',
+        VolunteerMissionview.as_view(template_name='volunteer/name.html'),
+        name="mission_volunteer_name"),
 
     # View
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/updates/$',

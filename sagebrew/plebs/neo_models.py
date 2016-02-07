@@ -277,7 +277,8 @@ class Pleb(Searchable):
     # changes a little and they start being able to receive pledged votes and
     # there are more limitations on how donations occur.
     quest = RelationshipTo('sb_quests.neo_models.Quest', 'IS_WAGING')
-
+    volunteering = RelationshipTo('sb_volunteers.neo_models.Volunteer',
+                                  'VOLUNTEERS_TO')
     # Edits
     # Access if this Pleb can edit a Quest through:
     # Neomodel: editors Cypher: EDITOR_OF

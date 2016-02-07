@@ -87,9 +87,9 @@ function selectAllFields() {
      * end dot notation of .val(!ch).
      */
     $('.toggle-all :checkbox').on('click', function () {
-      var $this = $(this);
-      var ch = $this.prop('checked');
-      $('#select_all_checkboxes').find(':checkbox').radiocheck(!ch ? 'uncheck' : 'check');
+        var $this = $(this);
+        var ch = $this.prop('checked');
+        $('#select_all_checkboxes').find(':checkbox').radiocheck(!ch ? 'uncheck' : 'check');
     });
     $('[data-toggle="tooltip"]').tooltip();
     $('[data-toggle="popover"]').popover();

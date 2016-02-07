@@ -69,11 +69,14 @@ class IsUserOrAdmin(permissions.BasePermission):
 class IsAuthorizedAndVerified(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        if obj.email_verified and obj.completed_profile_info and \
-                request.user.is_authenticated():
-            return True
-        else:
-            return False
+        from plebs.neo_models import Pleb
+        if request.user.is_authenticated():
+            profile = Pleb.get(username=request.user.username)
+            if profile.email_verified and profile.completed_profile_info:
+                return True
+            else:
+                return False
+        return False
 
 
 class IsAdminOrReadOnly(permissions.BasePermission):

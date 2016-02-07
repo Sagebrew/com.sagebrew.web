@@ -14,12 +14,12 @@
     {{#each options}}
         <div class="registration-tooltip">
             <label class="checkbox"
-                for="{{ this.option }}">
-                    {{ this.title }}
+                for="{{ this.value }}">
+                    {{ this.display_name }}
                     <input type="checkbox"
-                           value="{{ this.option }}"
-                           name="{{ this.option }}"
-                           id="{{ this.option }}"
+                           value="{{ this.value }}"
+                           name="options"
+                           id="{{ this.value }}"
                            data-toggle="checkbox">
             </label>
         </div>

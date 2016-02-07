@@ -22,12 +22,51 @@ export function init() {
  * Load
  */
 export function load() {
-    var $selectAllList = $('#js-option-list');
+    var $selectAllList = $('#js-option-list'),
+        missionId = helpers.args(1),
+        slug = helpers.args(2),
+        greyPage = document.getElementById('sb-greyout-page'),
+        volunteeredId = null;
 
-    request.get({url:"/v1/volunteers/options/"})
+    request.optionsMethod({url:"/v1/missions/" + missionId + "/volunteers/"})
         .done(function (data) {
-            $selectAllList.append(templates.volunteer_selector({options: data}));
-            selectAllFields();
+            document.getElementById("select-loader").remove();
+            $selectAllList.append(templates.volunteer_selector({
+                options: data.actions.POST.activities.choices}));
+            helpers.selectAllFields('#js-select-all');
+            request.get({url:"/v1/missions/" + missionId + "/volunteers/me/"})
+                .done(function (data) {
+                    if(data.volunteered !== null) {
+                        for(var i = 0; i < data.volunteered.activities.length; i++) {
+                            document.getElementById(data.volunteered.activities[i]).checked = true;
+                        }
+                        volunteeredId = data.volunteered.id;
+                    }
+                });
+        });
+
+    $(".app-sb")
+        .on('click', '#js-continue-btn', function () {
+            greyPage.classList.remove('sb_hidden');
+            var checked = getCheckedBoxes("options");
+            if(volunteeredId === null){
+                request.post({
+                    url: "/v1/missions/" + missionId + "/volunteers/",
+                    data: JSON.stringify({activities: checked})
+                }).done(function () {
+                    greyPage.classList.add('sb_hidden');
+                    window.location.href = "/missions/" + missionId + "/" + slug + "/";
+                });
+            } else {
+                request.patch({
+                    url: "/v1/missions/" + missionId + "/volunteers/" + volunteeredId + "/",
+                    data: JSON.stringify({activities: checked})
+                }).done(function () {
+                    greyPage.classList.add('sb_hidden');
+                    window.location.href = "/missions/" + missionId + "/" + slug + "/";
+                });
+            }
+
         });
 }
 
@@ -40,41 +79,17 @@ export function postload() {
 }
 
 
-function selectAllFields() {
-    // TODO mostly duplicate from interests controller
-    /**
-     * This is the function that selects all the fields and deselects all the
-     * fields. It works even if fields are already selected or unselected.
-     * It also assigns the value to the checkbox of true or false with the
-     * end dot notation of .val(!ch).
-     */
-    $('.toggle-all :checkbox').on('click', function () {
-        var $this = $(this);
-        var ch = $this.prop('checked');
-        $('#js-select-all').find(':checkbox').radiocheck(!ch ? 'uncheck' : 'check');
-    });
-    $('[data-toggle="checkbox"]').radiocheck();
-
-    /**
-     * Does individual checkboxes and when they are clicked assigns the value
-     * associated with the checkbox input to either true or false since
-     * it appears bootstrap/flat ui rely on the class of the label to change
-     * between checked and a blank string rather then the actual value of the
-     * input. This is needed for Django to understand what was selected not
-     * for the actual view of the interface. The actual checkbox population in
-     * the interface is done automatically by flat ui's js files.
-     */
-    $('.checkbox-toggle input').each(function (ind, item) {
-        $(item).change(function () {
-            var label = $("label[for='" + $(item).attr('id') + "']")[1];
-            var label_class = $(label).attr('class');
-            var label_last = label_class.substr(label_class.lastIndexOf(' ') + 1);
-
-            if (label_last === "checked") {
-                $(item).val(true);
-            } else {
-                $(item).val(false);
-            }
-        });
-    });
+// Pass the checkbox name to the function
+function getCheckedBoxes(chkboxName) {
+    var checkboxes = document.getElementsByName(chkboxName);
+    var checkboxesChecked = [];
+    // loop over them all
+    for (var i=0; i < checkboxes.length; i++) {
+        // And stick the checked ones onto an array...
+        if (checkboxes[i].checked) {
+            checkboxesChecked.push(checkboxes[i].id);
+        }
+    }
+    // Return the array if it is non-empty, or null
+    return checkboxesChecked.length > 0 ? checkboxesChecked : [];
 }

@@ -122,6 +122,7 @@ TEMPLATES = [{
         '%s/sb_badges/templates/' % PROJECT_DIR,
         '%s/sb_base/templates/' % PROJECT_DIR,
         '%s/sb_comments/templates/' % PROJECT_DIR,
+        '%s/sb_contributions/templates/' % PROJECT_DIR,
         '%s/sb_council/templates' % PROJECT_DIR,
         '%s/sb_flag/templates/' % PROJECT_DIR,
         '%s/sb_missions/templates/' % PROJECT_DIR,
@@ -192,6 +193,7 @@ INSTALLED_APPS = (
     'sb_badges',
     'sb_base',
     'sb_comments',
+    'sb_contributions',
     'sb_council',
     'sb_docstore',
     'sb_donations',
@@ -435,6 +437,21 @@ OPENSTATES_DISTRICT_SEARCH_URL = "http://openstates.org/api/v1/legislators/" \
                                  "geo/?lat=%f&long=%f"
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+VOLUNTEER_ACTIVITIES = [
+    ("get_out_the_vote", "Get Out The Vote"),
+    ("assist_with_an_event", "Assist With An Event"),
+    ("leaflet_voters", "Leaflet Voters"),
+    ("write_letters_to_the_editor", "Write Letters To The Editor"),
+    ("work_in_a_campaign_office", "Work In A Campaign Office"),
+    ("table_at_events", "Table At Events"),
+    ("call_voters", "Call Voters"),
+    ("data_entry", "Data Entry"),
+    ("host_a_meeting", "Host A Meeting"),
+    ("host_a_fundraiser", "Host A Fundraiser"),
+    ("host_a_house_party", "Host A House Party"),
+    ("attend_a_house_party", "Attend A House Party")
+]
 
 EXPLICIT_STIES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',
                   'redtube.com', 'youporn.com', 'tube8.com', 'youjizz.com',

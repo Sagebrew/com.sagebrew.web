@@ -222,8 +222,8 @@ class QuestSerializer(SBSerializer):
         account_type = validated_data.get('account_type', instance.account_type)
         if account_type != instance.account_type:
             if instance.account_type == "paid":
-                # if paid gets submitted create a subscription if it doesn't already
-                # exist
+                # if paid gets submitted create a subscription if it doesn't
+                # already exist
                 if instance.stripe_subscription_id is None and \
                         instance.stripe_customer_id is not None:
                     customer = stripe.Customer.retrieve(
@@ -234,8 +234,8 @@ class QuestSerializer(SBSerializer):
                 instance.account_type = account_type
 
             elif instance.account_type == "free":
-                # if we get a free submission and the subscription is already set
-                # cancel it.
+                # if we get a free submission and the subscription is already
+                # set cancel it.
                 if instance.stripe_subscription_id is not None:
                     customer = stripe.Customer.retrieve(
                         instance.stripe_customer_id)

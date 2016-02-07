@@ -555,9 +555,11 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(stripe_charge['amount'], donation.amount)
         self.assertEqual(
             (stripe_charge['amount'] -
-             calc_stripe_application_fee(stripe_charge['amount'], .041)),
+             calc_stripe_application_fee(stripe_charge['amount'],
+                                         settings.STRIPE_FREE_ACCOUNT_FEE)),
             (donation.amount -
-             calc_stripe_application_fee(donation.amount, .041))
+             calc_stripe_application_fee(donation.amount,
+                                         settings.STRIPE_FREE_ACCOUNT_FEE))
         )
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 

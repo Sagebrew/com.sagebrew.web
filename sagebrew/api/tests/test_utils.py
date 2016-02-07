@@ -170,7 +170,7 @@ class TestCalcStripeApplicationFee(TestCase):
 
     def setUp(self):
         self.amount = 500
-        self.application_fee = .041
+        self.application_fee = settings.STRIPE_FREE_ACCOUNT_FEE
 
     def test_amount(self):
         res = calc_stripe_application_fee(self.amount, self.application_fee)

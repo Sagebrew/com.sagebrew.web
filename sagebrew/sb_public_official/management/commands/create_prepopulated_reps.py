@@ -5,10 +5,10 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.cache import cache
 
-from neomodel import CypherException, DoesNotExist
+from neomodel import CypherException, DoesNotExist, db
 
 from api.utils import spawn_task
-from govtrack.neo_models import GTRole
+from govtrack.neo_models import GTRole, GTPerson
 from govtrack.utils import populate_term_data
 from sb_search.tasks import update_search_object
 
@@ -21,69 +21,76 @@ logger = getLogger('loggly_logs')
 class Command(BaseCommand):
     help = 'Creates placeholder representatives.'
 
-    def create_placeholders(self):
-        try:
-            roles = GTRole.nodes.all()
-        except (IOError, CypherException):
-            return False
-        for role in roles:
-            if role.current:
-                try:
-                    person = role.person.all()[0]
-                except IndexError:
-                    continue
-                except (CypherException, IOError) as e:
-                    logger.exception(e)
-                    continue
-                try:
-                    rep = PublicOfficial.nodes.get(gt_id=person.gt_id)
-                except(DoesNotExist, PublicOfficial.DoesNotExist):
+    def create_prepopulated_reps(self):
+        count = 0
+        while True:
+            query = 'MATCH (role:GTRole) ' \
+                    'RETURN role SKIP %s LIMIT 25' % count
+            res, _ = db.cypher_query(query)
+            if not res.one:
+                break
+            count += 24
+            for role in [GTRole.inflate(row[0]) for row in res]:
+                if role.current:
+                    query = 'MATCH (role:GTRole {role_id: %s})' \
+                            '-[:IS]->(person:GTPerson) ' \
+                            'RETURN person' % role.role_id
+                    res, _ = db.cypher_query(query)
+                    if res.one is None:
+                        continue
+                    else:
+                        person = GTPerson.inflate(res.one)
+
                     try:
-                        state = dict(US_STATES)[role.state]
-                    except KeyError:
-                        state = role.state
-                    rep = PublicOfficial(
-                        first_name=person.firstname, last_name=person.lastname,
-                        gender=person.gender, date_of_birth=person.birthday,
-                        name_mod=person.namemod, current=role.current,
-                        bio=role.description, district=role.district,
-                        state=state, title=role.title,
-                        website=role.website, start_date=role.startdate,
-                        end_date=role.enddate, full_name=person.name,
-                        twitter=person.twitterid, youtube=person.youtubeid,
-                        gt_id=person.gt_id, gov_phone=role.phone,
-                        bioguideid=person.bioguideid)
-                    rep.save()
-                except (CypherException, IOError) as e:
-                    logger.exception(e)
-                    continue
-                quest = rep.get_quest()
-                if not quest:
-                    quest = Quest(
-                        about=rep.bio, youtube=rep.youtube,
-                        twitter=rep.twitter, website=rep.website,
-                        first_name=rep.first_name, last_name=rep.last_name,
-                        owner_username=rep.object_uuid,
-                        profile_pic="%s/representative_images/225x275/"
-                                    "%s.jpg" % (
-                                        settings.LONG_TERM_STATIC_DOMAIN,
-                                        rep.bioguideid)).save()
-                    rep.quest.connect(quest)
-                else:
-                    quest.profile_pic = "%s/representative_images/225x275/" \
+                        rep = PublicOfficial.nodes.get(gt_id=person.gt_id)
+                    except(DoesNotExist, PublicOfficial.DoesNotExist):
+                        try:
+                            state = dict(US_STATES)[role.state]
+                        except KeyError:
+                            state = role.state
+                        rep = PublicOfficial(
+                            first_name=person.firstname,
+                            last_name=person.lastname,
+                            gender=person.gender, date_of_birth=person.birthday,
+                            name_mod=person.namemod, current=role.current,
+                            bio=role.description, district=role.district,
+                            state=state, title=role.title,
+                            website=role.website, start_date=role.startdate,
+                            end_date=role.enddate, full_name=person.name,
+                            twitter=person.twitterid, youtube=person.youtubeid,
+                            gt_id=person.gt_id, gov_phone=role.phone,
+                            bioguideid=person.bioguideid)
+                        rep.save()
+                    except (CypherException, IOError) as e:
+                        logger.exception(e)
+                        continue
+                    quest = rep.get_quest()
+                    if not quest:
+                        quest = Quest(
+                            about=rep.bio, youtube=rep.youtube,
+                            twitter=rep.twitter, website=rep.website,
+                            first_name=rep.first_name, last_name=rep.last_name,
+                            owner_username=rep.object_uuid,
+                            profile_pic="%s/representative_images/225x275/"
                                         "%s.jpg" % (
                                             settings.LONG_TERM_STATIC_DOMAIN,
-                                            rep.bioguideid)
-                    quest.save()
-                    cache.set('%s_quest' % quest.object_uuid, quest)
-                rep.gt_person.connect(person)
-                rep.gt_role.connect(role)
-                task_data = {
-                    "object_uuid": quest.object_uuid,
-                    "label": 'quest',
-                }
-                spawn_task(update_search_object, task_data)
+                                            rep.bioguideid)).save()
+                        rep.quest.connect(quest)
+                    else:
+                        quest.profile_pic = \
+                            "%s/representative_images/225x275/" \
+                            "%s.jpg" % (settings.LONG_TERM_STATIC_DOMAIN,
+                                        rep.bioguideid)
+                        quest.save()
+                        cache.set('%s_quest' % quest.object_uuid, quest)
+                    rep.gt_person.connect(person)
+                    rep.gt_role.connect(role)
+                    task_data = {
+                        "object_uuid": quest.object_uuid,
+                        "label": 'quest',
+                    }
+                    spawn_task(update_search_object, task_data)
         populate_term_data()
 
     def handle(self, *args, **options):
-        self.create_placeholders()
+        self.create_prepopulated_reps()

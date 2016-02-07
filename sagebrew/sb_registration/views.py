@@ -29,6 +29,27 @@ from .utils import (verify_completed_registration, verify_verified_email)
 from .models import token_gen
 
 
+def advocacy(request):
+    if request.user.is_authenticated() is True:
+        return redirect('signup')
+    return render(request, 'advocacy.html')
+
+
+def political_campaign(request):
+    if request.user.is_authenticated() is True:
+        return redirect('signup')
+    try:
+        query = 'MATCH (position:Position) RETURN COUNT(position)'
+        res, _ = db.cypher_query(query)
+        position_count = res.one
+        if position_count is None:
+            position_count = 7274
+    except CypherException:
+        position_count = 7274
+    return render(request, 'political_campaign.html',
+                  {"position_count": position_count})
+
+
 def signup_view(request):
     if request.user.is_authenticated() is True:
         try:
@@ -42,7 +63,7 @@ def signup_view(request):
             return redirect('confirm_view')
         elif not user_profile.completed_profile_info:
             return redirect('profile_info')
-    return render(request, 'sign_up_page/index.html')
+    return render(request, 'index.html')
 
 
 def quest_signup(request):

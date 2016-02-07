@@ -21,7 +21,8 @@ export function load() {
         districtRow = document.getElementById('district-row'),
         startBtn = document.getElementById('js-start-btn'),
         districtSelector = document.getElementById('js-district-selector'),
-        positionSelector = document.getElementById('js-position-selector');
+        positionSelector = document.getElementById('js-position-selector'),
+        greyPage = document.getElementById('sb-greyout-page');
     // We just loaded the app, jam in some place holders to look nice.
     // Didn't include directly in the Django template so we don't have duplicate formatting
     positionSelector.innerHTML = templates.position_holder({static_url: settings.static_url});
@@ -135,6 +136,7 @@ export function load() {
             }
         })
         .on('click', '#js-start-btn', function(){
+            greyPage.classList.remove('sb_hidden');
             var location;
             if(localStorage.getItem(filterKey) !== "local"){
                 location = localStorage.getItem(locationName);
@@ -151,6 +153,7 @@ export function load() {
                     focus_on_type: "position"
                 })
             }).done(function (data) {
+                greyPage.classList.add('sb_hidden');
                 window.location.href = "/missions/" + data.id + "/";
             });
         })

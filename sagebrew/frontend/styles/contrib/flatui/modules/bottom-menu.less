@@ -48,6 +48,31 @@
   }
 }
 
+.sb-bottom-menu-white {
+  &:extend(.bottom-menu);
+  .bottom-menu-brand {
+    display: inline-block;
+    font-size: floor((@component-font-size-base * 1.6)); // ~24px
+    line-height: 1;
+    font-weight: 900;
+    margin: 0 15px 15px;
+    transition: none;
+
+    @media (min-width: @grid-float-breakpoint) {
+      margin: 0;
+    }
+  }
+  a {
+    color: @sb_green;
+
+    .active &,
+    &:hover,
+    &:focus {
+      color: @sb_green;
+    }
+  }
+}
+
 // Inversed bottom menu
 .bottom-menu-inverse {
   background-color: @bottom-menu-inverse-bg;

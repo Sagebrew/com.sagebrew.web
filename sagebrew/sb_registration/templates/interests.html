@@ -277,10 +277,6 @@
     </div>
 </div>
 {% endblock %}
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/interest_form.js' %}"></script>
-{% endblock scripts %}
 {% block intercom %}
    Intercom('trackEvent', 'interests-registration');
 {% endblock %}

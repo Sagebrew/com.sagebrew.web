@@ -145,6 +145,8 @@ class PlebSerializerNeo(SBSerializer):
     stripe_default_card_id = serializers.CharField(write_only=True,
                                                    required=False,
                                                    allow_blank=True)
+    mission_signup = serializers.CharField(required=False, allow_blank=True,
+                                           allow_null=True)
     # determine whether to show a notification about reputation change
     reputation_update_seen = serializers.BooleanField(
         required=False, validators=[ReputationNotificationValidator()])
@@ -189,6 +191,7 @@ class PlebSerializerNeo(SBSerializer):
                     date_of_birth=birthday)
         pleb.occupation_name = validated_data.get('occupation_name', None)
         pleb.employer_name = validated_data.get('employer_name', None)
+        pleb.mission_signup = validated_data.get('mission_signup', None)
         pleb.save()
         if not request.user.is_authenticated():
             user = authenticate(username=user.username,

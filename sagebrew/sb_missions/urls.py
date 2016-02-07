@@ -3,7 +3,7 @@ from django.conf.urls import patterns, url
 from sb_donations.views import DonationMissionView
 from .views import (public_office_mission, advocate_mission, select_mission,
                     mission, mission_redirect_page, mission_updates,
-                    MissionSettingsView, mission_list)
+                    MissionSettingsView, mission_list, mission_edit_updates)
 
 
 urlpatterns = patterns(
@@ -14,8 +14,8 @@ urlpatterns = patterns(
     # Setup
     url(r'^select/$', select_mission, name="select_mission"),
     url(r'^public_office/$', public_office_mission,
-        name="public_office_mission"),
-    url(r'^advocate/$', advocate_mission, name="advocate_mission"),
+        name="public_office"),
+    url(r'^advocate/$', advocate_mission, name="advocate"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/$',
         mission_redirect_page, name="mission_redirect"),
 
@@ -33,6 +33,10 @@ urlpatterns = patterns(
         r'manage/updates/$',
         MissionSettingsView.as_view(template_name='manage/updates.html'),
         name="mission_update_settings"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'manage/updates/(?P<edit_id>[A-Za-z0-9.@_%+-]{36})/edit/$',
+        mission_edit_updates,
+        name="mission_edit_update"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'manage/insights/$',
         MissionSettingsView.as_view(

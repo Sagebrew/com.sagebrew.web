@@ -210,21 +210,12 @@ class QuestEndpointTests(APITestCase):
         self.quest.updates.connect(update)
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        try:
+        with self.assertRaises(Quest.DoesNotExist):
             Quest.nodes.get(owner_username=self.pleb.username)
-            self.assertTrue(False)
-        except Quest.DoesNotExist:
-            self.assertTrue(True)
-        try:
+        with self.assertRaises(Mission.DoesNotExist):
             Mission.nodes.get(object_uuid=mission.object_uuid)
-            self.assertTrue(False)
-        except Mission.DoesNotExist:
-            self.assertTrue(True)
-        try:
+        with self.assertRaises(Update.DoesNotExist):
             Update.nodes.get(object_uuid=update.object_uuid)
-            self.assertTrue(False)
-        except Update.DoesNotExist:
-            self.assertTrue(True)
 
     def test_update_take_quest_active(self):
         self.client.force_authenticate(user=self.user)

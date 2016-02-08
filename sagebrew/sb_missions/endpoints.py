@@ -1,5 +1,4 @@
 import csv
-from django.conf import settings
 from django.http import HttpResponse
 from django.core.files.temp import NamedTemporaryFile
 from django.core.servers.basehttp import FileWrapper
@@ -9,6 +8,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 
+from api.utils import calc_stripe_application_fee
 from sb_donations.serializers import DonationExportSerializer
 from api.permissions import (IsOwnerOrModeratorOrReadOnly, IsOwnerOrModerator)
 
@@ -79,9 +79,8 @@ class MissionViewSet(viewsets.ModelViewSet):
             for donation in donation_info:
                 donation.update(donation.pop('owned_by', {}))
                 donation.update(donation.pop('address', {}))
-                application_fee = donation['amount'] * (
-                    quest.application_fee +
-                    settings.STRIPE_TRANSACTION_PERCENT) + 30
+                application_fee = calc_stripe_application_fee(
+                    donation['amount'], quest.application_fee)
                 donation['amount'] = '{:,.2f}'.format(
                     float(donation['amount'] - application_fee) / 100)
             for key in donation_info[0].keys():

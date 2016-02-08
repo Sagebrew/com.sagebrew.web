@@ -19,6 +19,7 @@ class VolunteerSerializer(SBSerializer):
     """
     activities = serializers.MultipleChoiceField(
         choices=settings.VOLUNTEER_ACTIVITIES)
+    href = serializers.SerializerMethodField()
     volunteer = serializers.SerializerMethodField()
     mission = serializers.SerializerMethodField()
 
@@ -40,10 +41,9 @@ class VolunteerSerializer(SBSerializer):
 
     def get_href(self, obj):
         request = self.context.get('request', None)
-        if request is None:
-            return None
         return reverse('volunteer-detail',
-                       kwargs={'name': obj.option}, request=request)
+                       kwargs={'volunteer_id': obj.object_uuid,
+                               'object_uuid': obj.mission_id}, request=request)
 
     def get_mission(self, obj):
         request = self.context.get('request', None)

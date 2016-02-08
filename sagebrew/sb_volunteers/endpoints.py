@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import list_route
+from rest_framework.exceptions import AuthenticationFailed
 
 from neomodel import db
 
@@ -38,6 +39,11 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         mission = Mission.get(object_uuid=self.kwargs["object_uuid"])
         serializer.save(mission=mission, volunteer=volunteer,
                         owner_username=volunteer.username)
+
+    def perform_destroy(self, instance):
+        if self.request.user.username != instance.owner_username:
+            raise AuthenticationFailed("Sorry you're not authorized to do that")
+        return super(VolunteerViewSet, self).perform_destroy(instance)
 
     def list(self, request, *args, **kwargs):
         moderators = Mission.get(object_uuid=self.kwargs["object_uuid"])

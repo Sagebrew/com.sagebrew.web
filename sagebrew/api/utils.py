@@ -216,7 +216,6 @@ def create_auto_tags(content):
 def wait_util(async_res):
     while not async_res['task_id'].ready():
         time.sleep(1)
-
     while not async_res['task_id'].result.ready():
         time.sleep(1)
     return async_res['task_id'].result.result
@@ -287,6 +286,15 @@ def flatten_lists(unflattened_list):
 
 def deprecation(message):
     warnings.warn(message, DeprecationWarning, stacklevel=2)
+
+
+def calc_stripe_application_fee(amount, quest_application_fee,
+                                total_donations=1):
+    return int(
+        (amount *
+         (quest_application_fee + settings.STRIPE_TRANSACTION_PERCENT)) +
+        (30 * total_donations)
+    )
 
 
 class SBUniqueValidator(UniqueValidator):

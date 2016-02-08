@@ -31,6 +31,7 @@ export function load() {
         congressionalKey = "addressCongressionalDistrict",
         validKey = "addressValid",
         originalKey = "addressOriginal",
+        contributionType = helpers.args(3),
         $app = $(".app-sb"),
         donateToID = helpers.args(1),
         missionSlug = helpers.args(2),
@@ -86,8 +87,13 @@ export function load() {
                 .done(function () {
                     requests.post({url: "/v1/addresses/", data: JSON.stringify(addressData)})
                         .done(function () {
-                            window.location.href = "/missions/" + donateToID + "/" +
-                                missionSlug + "/donate/payment/";
+                            if(contributionType === "volunteer") {
+                                    window.location.href = "/missions/" + donateToID + "/" +
+                                        missionSlug + "/" + contributionType + "/option/";
+                            } else {
+                                window.location.href = "/missions/" + donateToID + "/" +
+                                    missionSlug + "/donate/payment/";
+                            }
                         });
                 });
         });

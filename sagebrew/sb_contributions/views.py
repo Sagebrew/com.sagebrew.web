@@ -42,7 +42,7 @@ class ContributionQuestView(View):
     """
     template_name = 'volunteer/volunteer.html'
 
-    def get(self, request, username=None, slug=None):
+    def get(self, request, username=None):
         try:
             quest = Quest.get(username)
         except (Quest.DoesNotExist, DoesNotExist):
@@ -54,10 +54,10 @@ class ContributionQuestView(View):
                 'ORDER BY missions.created DESC' % quest.object_uuid
         res, _ = db.cypher_query(query)
         if res.one is None:
-            # TODO redirect to mission list page instead of 404
-            return redirect("404_Error")
-        missions = [MissionSerializer(Mission.inflate(row.missions)).data
-                    for row in res]
+            missions = None
+        else:
+            missions = [MissionSerializer(Mission.inflate(row.missions)).data
+                        for row in res]
         return render(request, self.template_name, {
             "selected": QuestSerializer(quest).data,
             "quest": QuestSerializer(quest).data,

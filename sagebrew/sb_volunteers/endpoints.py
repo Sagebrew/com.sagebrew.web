@@ -7,7 +7,6 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from neomodel import db
 
-from api.permissions import IsAuthorizedAndVerified
 from plebs.neo_models import Pleb
 from sb_missions.neo_models import Mission
 
@@ -18,7 +17,7 @@ from .neo_models import Volunteer
 class VolunteerViewSet(viewsets.ModelViewSet):
     serializer_class = VolunteerSerializer
     lookup_field = "volunteer_id"
-    permission_classes = (IsAuthorizedAndVerified,)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         query = 'MATCH (mission:Mission {object_uuid: "%s"})' \
@@ -42,7 +41,8 @@ class VolunteerViewSet(viewsets.ModelViewSet):
 
     def perform_destroy(self, instance):
         if self.request.user.username != instance.owner_username:
-            raise AuthenticationFailed("Sorry you're not authorized to do that")
+            raise AuthenticationFailed(
+                "Sorry you're not authorized to do that")
         return super(VolunteerViewSet, self).perform_destroy(instance)
 
     def list(self, request, *args, **kwargs):

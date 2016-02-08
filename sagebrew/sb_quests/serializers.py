@@ -92,7 +92,8 @@ class QuestSerializer(SBSerializer):
         account_type = validated_data.get('account_type', "free")
         owner = Pleb.get(username=request.user.username)
         if account_type == 'paid':
-            validated_data['application_fee'] = settings.STRIPE_PAID_ACCOUNT_FEE
+            validated_data[
+                'application_fee'] = settings.STRIPE_PAID_ACCOUNT_FEE
 
         if owner.get_quest():
             raise ValidationError(
@@ -219,7 +220,8 @@ class QuestSerializer(SBSerializer):
                     instance.stripe_customer_id)
                 card = customer.sources.create(source=customer_token)
                 instance.stripe_default_card_id = card['id']
-        account_type = validated_data.get('account_type', instance.account_type)
+        account_type = validated_data.get(
+            'account_type', instance.account_type)
         if account_type != instance.account_type:
             if instance.account_type == "paid":
                 # if paid gets submitted create a subscription if it doesn't

@@ -1,0 +1,47 @@
+{% extends "email_templates/email_base.html" %}
+
+
+{% block email_content %}
+        <h2 style="color: #397a69;
+                   font-size: 15pt">Sagebrew Premium Subscription Renewal Failure Notice</h2>
+        <p style="font-size: 12px;
+                  color: #000000;
+                  margin-bottom: 25px;
+                  line-height: 15px">
+        </p>
+        <p style="font-size: 12px;
+                  color: #000000;
+                  margin-top: 25px;
+                  line-height: 15px">
+            Sorry! There was a problem processing the payment for this month's Sagebrew Premium Subscription.
+
+            To review or update your card info please click this link:
+
+            {{ billing_url }}
+
+            If you believe that this is incorrect please contact us at: support@sagebrew.com
+        </p>
+        <p style="font-size: 12px;
+                  color: #000000">
+            With much sincerity,
+        </p>
+        <p style="font-size: 12px;
+                  color: #000000;
+                  margin-bottom: 25px">
+            The Sagebrew Team
+        </p>
+        <div style="background-color: #e0e7e1;
+                    padding: 1px 0px 1px 0px">
+        </div>
+        <div style="margin-top: 25px"
+             class="row-fluid">
+            <p style="font-size: 11px;
+                      color: #838c92;
+                      line-height: 10px">
+               You are receiving this email because you have registered at Sagebrew and agreed to receive emails
+               from us regarding new features, events, and special offers about Sagebrew services.
+            </p>
+            <h1 style="color:#838c92;
+                   font-size: 15pt">Sagebrew</h1>
+        </div>
+{% endblock email_content %}

@@ -55,7 +55,7 @@ class MissionViewTests(TestCase):
 
     def test_advocate_mission(self):
         self.client.login(username=self.user.username, password=self.password)
-        url = reverse('advocate_mission')
+        url = reverse('advocate')
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 

@@ -17,6 +17,7 @@ from sb_missions.neo_models import Mission
 
 
 class MissionViewTests(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.client = Client()

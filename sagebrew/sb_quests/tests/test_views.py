@@ -16,6 +16,7 @@ from sb_quests.neo_models import Quest
 
 
 class QuestViewTests(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.client = Client()

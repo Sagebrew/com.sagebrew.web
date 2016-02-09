@@ -1,5 +1,6 @@
 from django.views.generic import View
 from django.utils.text import slugify
+from django.core.urlresolvers import reverse
 
 from django.shortcuts import redirect, render
 
@@ -27,6 +28,22 @@ class ContributionMissionView(View):
         except (CypherException, ClientError, IOError):
             return redirect("500_Error")
         quest = Quest.get(mission.owner_username)
+        reverse_params = {"object_uuid": object_uuid, "slug": slug}
+        if "volunteer/option" in request.path and \
+                not request.user.is_authenticated():
+            return redirect("mission_volunteer_name", **reverse_params)
+        elif request.path == \
+                reverse("mission_volunteer_name", kwargs=reverse_params) and \
+                request.user.is_authenticated():
+            return redirect("mission_volunteer_option", **reverse_params)
+        elif request.path == request.path == \
+                reverse("mission_donation_name", kwargs=reverse_params) and \
+                request.user.is_authenticated():
+            return redirect("mission_donation_amount", **reverse_params)
+        elif request.path == request.path == \
+                reverse("mission_donation_payment", kwargs=reverse_params) and \
+                not request.user.is_authenticated():
+            return redirect("mission_donation_amount", **reverse_params)
         return render(request, self.template_name, {
             "selected": MissionSerializer(mission).data,
             "quest": QuestSerializer(quest).data,

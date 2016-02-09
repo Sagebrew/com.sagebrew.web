@@ -77,3 +77,37 @@ class ContributionViewTests(TestCase):
                       kwargs={'username': self.quest2.owner_username})
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_volunteer_option_not_authenticated(self):
+        url = reverse('mission_volunteer_option',
+                      kwargs={'object_uuid': self.mission.object_uuid,
+                              'slug':
+                                  slugify(self.mission.get_mission_title())})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
+    def test_volunteer_signup_authenticated(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('mission_volunteer_name',
+                      kwargs={'object_uuid': self.mission.object_uuid,
+                              'slug':
+                                  slugify(self.mission.get_mission_title())})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
+    def test_donate_signup_authenticated(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('mission_donation_name',
+                      kwargs={'object_uuid': self.mission.object_uuid,
+                              'slug':
+                                  slugify(self.mission.get_mission_title())})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
+    def test_donate_payment_unauthenticated(self):
+        url = reverse('mission_donation_payment',
+                      kwargs={'object_uuid': self.mission.object_uuid,
+                              'slug':
+                                  slugify(self.mission.get_mission_title())})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)

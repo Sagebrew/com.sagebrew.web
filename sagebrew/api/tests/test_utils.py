@@ -3,6 +3,7 @@ import time
 
 from django.core import signing
 from django.test import TestCase
+from django.conf import settings
 from django.contrib.auth.models import User
 from rest_framework.test import APIRequestFactory
 
@@ -12,7 +13,8 @@ from sb_registration.utils import create_user_util_test
 from api.utils import (add_failure_to_queue,
                        encrypt, decrypt, generate_short_token,
                        generate_long_token, smart_truncate,
-                       gather_request_data, flatten_lists)
+                       gather_request_data, flatten_lists,
+                       calc_stripe_application_fee)
 from sb_questions.neo_models import Question
 
 
@@ -162,3 +164,24 @@ class TestFlattenList(TestCase):
         res = flatten_lists(lists)
         self.assertEqual(list(res), ['this', 'is', 'a', 'test', 'list',
                                      'thing', 'test'])
+
+
+class TestCalcStripeApplicationFee(TestCase):
+
+    def setUp(self):
+        self.amount = 500
+        self.application_fee = settings.STRIPE_FREE_ACCOUNT_FEE
+
+    def test_amount(self):
+        res = calc_stripe_application_fee(self.amount, self.application_fee)
+        self.assertEqual(
+            res, int(self.amount *
+                     (self.application_fee +
+                      settings.STRIPE_TRANSACTION_PERCENT) + 30))
+
+    def test_amount_multiple_donations(self):
+        res = calc_stripe_application_fee(self.amount, self.application_fee, 4)
+        self.assertEqual(
+            res, int(self.amount *
+                     (self.application_fee +
+                      settings.STRIPE_TRANSACTION_PERCENT) + (4 * 30)))

@@ -205,6 +205,9 @@ class SBDonationSerializer(DonationSerializer):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         donor = Pleb.get(request.user.username)
         token = validated_data.pop('token', None)
+        # TODO add payment_method selection support to direct donations
+        # this pop is just to allow the donation to save using **validated_data
+        validated_data.pop('payment_method', None)
         donation = Donation(owner_username=donor.username,
                             **validated_data).save()
         if not donor.stripe_customer_id:
@@ -218,13 +221,15 @@ class SBDonationSerializer(DonationSerializer):
             donor.refresh()
         donor.donations.connect(donation)
         donation.owned_by.connect(donor)
-        stripe.Charge.create(
+        charge = stripe.Charge.create(
             amount=donation.amount,
             currency="usd",
             customer=donor.stripe_customer_id,
             receipt_email=donor.email,
             description="Donation to Sagebrew from %s" % donor.username
         )
+        donation.stripe_charge_id = charge['id']
+        donation.save()
         spawn_task(task_func=check_privileges,
                    task_param={"username": donor.username})
         return donation

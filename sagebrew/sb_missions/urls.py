@@ -1,6 +1,7 @@
 from django.conf.urls import patterns, url
 
-from sb_donations.views import DonationMissionView
+from sb_contributions.views import ContributionMissionView
+
 from .views import (public_office_mission, advocate_mission, select_mission,
                     mission, mission_redirect_page, mission_updates,
                     MissionSettingsView, mission_list, mission_edit_updates)
@@ -45,16 +46,28 @@ urlpatterns = patterns(
 
     # Donate
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
-        r'donate/amount/$', DonationMissionView.as_view(),
+        r'donate/amount/$', ContributionMissionView.as_view(
+            template_name="donations/amount.html"),
         name="mission_donation_amount"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'donate/name/$',
-        DonationMissionView.as_view(template_name='donations/name.html'),
+        ContributionMissionView.as_view(template_name='donations/name.html'),
         name="mission_donation_name"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'donate/payment/$',
-        DonationMissionView.as_view(template_name='donations/payment.html'),
+        ContributionMissionView.as_view(
+            template_name='donations/payment.html'),
         name="mission_donation_payment"),
+
+    # Volunteer
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'volunteer/option/$', ContributionMissionView.as_view(
+            template_name="volunteer/volunteer.html"),
+        name="mission_volunteer_option"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'volunteer/name/$',
+        ContributionMissionView.as_view(template_name='volunteer/name.html'),
+        name="mission_volunteer_name"),
 
     # View
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/updates/$',

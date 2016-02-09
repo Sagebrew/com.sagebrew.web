@@ -237,6 +237,13 @@ class PlebSerializerNeo(SBSerializer):
         if email != instance.email:
             instance.email = email
             user_obj.email = email
+            if instance.get_quest():
+                quest = Quest.get(instance.username)
+                if quest.stripe_customer_id:
+                    customer = \
+                        stripe.Customer.retrieve(quest.stripe_customer_id)
+                    customer.email = email
+                    customer.save()
         if user_obj.check_password(validated_data.get('password', "")) is True:
             user_obj.set_password(validated_data.get(
                 'new_password', validated_data.get('password', "")))

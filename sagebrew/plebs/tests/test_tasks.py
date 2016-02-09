@@ -179,7 +179,6 @@ class TestSendEmailTask(TestCase):
         res = send_email_task.apply_async(kwargs=task_data)
         while not res.ready():
             time.sleep(1)
-
         self.assertFalse(isinstance(res.result, Exception))
 
 

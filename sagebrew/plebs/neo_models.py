@@ -288,6 +288,11 @@ class Pleb(Searchable):
     # Neomodel: moderators Cypher: MODERATOR_OF
     # RelationshipTo('sb_quests.neo_models.Quest')
 
+    # Volunteer
+    # Access what this Pleb has volunteered to do through:
+    # Neomodel: volunteer Cypher: WANTS_TO
+    # RelationshipFrom('sb_volunteers.neo_models.Volunteer')
+
     # Use stripe_account on quest instead
     stripe_account = StringProperty()
     # Can this just be a vote? Have it set like we do with votable content

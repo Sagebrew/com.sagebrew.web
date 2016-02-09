@@ -1,0 +1,27 @@
+{% extends "contribute_base.html" %}
+{% load staticfiles %}
+{% block title %}
+    Empower Your Movement
+{% endblock title %}
+{% block description %}
+
+{% endblock description %}
+{% block keywords %}
+
+{% endblock keywords %}
+
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">
+            Missions
+        </h3>
+        <div class="block-content block-wrap" id="js-mission-list">
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-contribution-mission-selector');
+{% endblock %}

@@ -36,11 +36,11 @@ class ContributionMissionView(View):
                 reverse("mission_volunteer_name", kwargs=reverse_params) and \
                 request.user.is_authenticated():
             return redirect("mission_volunteer_option", **reverse_params)
-        elif request.path == request.path == \
+        elif request.path == \
                 reverse("mission_donation_name", kwargs=reverse_params) and \
                 request.user.is_authenticated():
             return redirect("mission_donation_amount", **reverse_params)
-        elif request.path == request.path == \
+        elif request.path == \
                 reverse("mission_donation_payment", kwargs=reverse_params) and \
                 not request.user.is_authenticated():
             return redirect("mission_donation_amount", **reverse_params)

@@ -106,7 +106,7 @@ def mission_updates(request, object_uuid, slug=None):
             'CASE WHEN count(updates) > 0 ' \
             'THEN true ELSE false END AS update' % object_uuid
     res, _ = db.cypher_query(query)
-    if res.one.quest is None:
+    if res.one is None:
         return redirect("404_Error")
     # Instead of doing inflation and serialization of all the updates here
     # without pagination lets just indicate if we have any or not and then

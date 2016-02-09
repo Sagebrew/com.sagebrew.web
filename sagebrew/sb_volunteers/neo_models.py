@@ -14,7 +14,5 @@ class Volunteer(SBObject):
     mission_id = StringProperty()
 
     # relationships
-    volunteer = RelationshipFrom('plebs.neo_models.Pleb',
-                                 'WANTS_TO')
-    mission = RelationshipTo('sb_missions.neo_models.Mission',
-                             'ON_BEHALF_OF')
+    volunteer = RelationshipFrom('plebs.neo_models.Pleb', 'WANTS_TO')
+    mission = RelationshipTo('sb_missions.neo_models.Mission', 'ON_BEHALF_OF')

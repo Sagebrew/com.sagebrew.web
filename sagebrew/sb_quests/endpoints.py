@@ -117,8 +117,9 @@ class QuestViewSet(viewsets.ModelViewSet):
         db.cypher_query(query)
         # Delete all updates associated with the Quest
         query = 'MATCH (:Quest {owner_username: "%s"})-[r:CREATED_AN]->' \
-                '(update:Update) ' \
-                'DELETE r, update' % instance.owner_username
+                '(update:Update) WITH r, update ' \
+                'OPTIONAL MATCH (update)-[r2]-() ' \
+                'DELETE r, r2, update' % instance.owner_username
         db.cypher_query(query)
         # Delete all endorsements associated with the Quest
         query = 'MATCH (:Quest {owner_username: "%s"})-[r:ENDORSES]->' \

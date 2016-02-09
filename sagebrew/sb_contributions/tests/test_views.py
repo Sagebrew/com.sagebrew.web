@@ -3,19 +3,19 @@ from uuid import uuid1
 from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
+from django.utils.text import slugify
 from django.contrib.auth.models import User
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 
 from sb_registration.utils import create_user_util_test
+from sb_quests.neo_models import Quest
 from plebs.neo_models import Pleb
 from sb_missions.neo_models import Mission
 
-from sb_quests.neo_models import Quest
 
-
-class QuestViewTests(TestCase):
+class ContributionViewTests(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -25,6 +25,10 @@ class QuestViewTests(TestCase):
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
+        self.email2 = "bounce@simulator.amazonses.com"
+        create_user_util_test(self.email2)
+        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.user2 = User.objects.get(email=self.email2)
         self.pleb.completed_profile_info = True
         self.pleb.email_verified = True
         self.pleb.save()
@@ -32,48 +36,44 @@ class QuestViewTests(TestCase):
         self.mission = Mission(owner_username=self.user.username,
                                title=str(uuid1())).save()
         self.quest = Quest(owner_username=self.pleb.username).save()
+        self.quest2 = Quest(owner_username=self.pleb2.username).save()
         self.quest.missions.connect(self.mission)
         self.pleb.quest.connect(self.quest)
 
-    def test_quest(self):
+    def test_contribution_mission_get(self):
         self.client.login(username=self.user.username, password=self.password)
-        url = reverse('quest', kwargs={'username': self.user.username})
+        url = reverse('mission_donation_amount',
+                      kwargs={'object_uuid': self.mission.object_uuid,
+                              'slug':
+                                  slugify(self.mission.get_mission_title())})
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    def test_quest_dne(self):
+    def test_contribution_mission_get_dne(self):
         self.client.login(username=self.user.username, password=self.password)
-        url = reverse('quest', kwargs={'username': str(uuid1())})
+        url = reverse('mission_donation_amount',
+                      kwargs={'object_uuid': str(uuid1()),
+                              'slug': "what_what"})
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
-    def test_quest_about_is_none(self):
+    def test_contribution_quest_get(self):
         self.client.login(username=self.user.username, password=self.password)
-        url = reverse('quest', kwargs={'username': self.user.username})
-        self.quest.about = None
-        self.quest.save()
+        url = reverse('volunteer_choose',
+                      kwargs={'username': self.quest.owner_username})
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
-    def test_quest_about_is_not_none(self):
+    def test_contribution_quest_get_dne(self):
         self.client.login(username=self.user.username, password=self.password)
-        url = reverse('quest', kwargs={'username': self.user.username})
-        self.quest.about = "Some Test Stuff!"
-        res = self.client.get(url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-    def test_quest_settings(self):
-        self.client.login(username=self.user.username, password=self.password)
-        url = reverse('quest_manage_settings',
-                      kwargs={'username': self.user.username})
-        res = self.client.get(url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-    def test_settings_no_quest(self):
-        self.client.login(username=self.user.username, password=self.password)
-        url = reverse('quest_manage_settings',
-                      kwargs={'username': self.user.username})
-        for quest in self.pleb.quest.all():
-            quest.delete()
+        url = reverse('volunteer_choose',
+                      kwargs={'username': "hello_world"})
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
+    def test_contribution_quest_no_mission(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('volunteer_choose',
+                      kwargs={'username': self.quest2.owner_username})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)

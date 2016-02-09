@@ -14,6 +14,7 @@ from plebs.tasks import send_email_task
 
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
+
     def enforce_csrf(self, request):
         return
 

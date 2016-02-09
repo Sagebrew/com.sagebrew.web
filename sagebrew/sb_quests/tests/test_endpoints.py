@@ -400,8 +400,8 @@ class QuestEndpointTests(APITestCase):
         }
         response = self.client.put(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.quest.refresh()
-        self.assertIsNotNone(self.quest.stripe_customer_id)
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertIsNotNone(quest.stripe_customer_id)
 
     def test_update_customer_token_exists(self):
         self.client.force_authenticate(user=self.user)
@@ -438,12 +438,15 @@ class QuestEndpointTests(APITestCase):
             "customer_token": stripe_res['id']
         }
         response = self.client.put(url, data=data, format='json')
-        self.quest.refresh()
-        self.assertIsNotNone(self.quest.stripe_customer_id)
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertIsNotNone(quest.stripe_customer_id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_paid(self):
         self.client.force_authenticate(user=self.user)
+        self.quest.stripe_subscription_id = None
+        self.quest.account_type = "free"
+        self.quest.save()
         url = reverse('quest-detail',
                       kwargs={'owner_username': self.quest.owner_username})
         stripe_res = stripe.Token.create(
@@ -460,11 +463,11 @@ class QuestEndpointTests(APITestCase):
             "customer_token": stripe_res['id'],
             "account_type": "paid"
         }
-        response = self.client.put(url, data=data, format='json')
-        self.quest.refresh()
-        self.assertIsNotNone(self.quest.stripe_subscription_id)
+        response = self.client.patch(url, data=data, format='json')
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertIsNotNone(quest.stripe_subscription_id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        customer = stripe.Customer.retrieve(self.quest.stripe_customer_id)
+        customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
 
     def test_update_free(self):
@@ -486,10 +489,10 @@ class QuestEndpointTests(APITestCase):
             "account_type": "free"
         }
         response = self.client.put(url, data=data, format='json')
-        self.quest.refresh()
-        self.assertIsNone(self.quest.stripe_subscription_id)
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertIsNone(quest.stripe_subscription_id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        customer = stripe.Customer.retrieve(self.quest.stripe_customer_id)
+        customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
 
     def test_stripe_token(self):
@@ -521,8 +524,8 @@ class QuestEndpointTests(APITestCase):
             "ein": "000000000"
         }
         response = self.client.put(url, data=data, format='json')
-        self.quest.refresh()
-        self.assertEqual(self.quest.last_four_soc, "0000")
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertEqual(quest.last_four_soc, "0000")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_moderators(self):

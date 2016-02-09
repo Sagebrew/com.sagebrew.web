@@ -17,6 +17,7 @@ from sb_missions.neo_models import Mission
 
 
 class MissionViewTests(TestCase):
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.client = Client()
@@ -49,7 +50,7 @@ class MissionViewTests(TestCase):
 
     def test_public_office(self):
         self.client.login(username=self.user.username, password=self.password)
-        url = reverse('public_office_mission')
+        url = reverse('public_office')
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 

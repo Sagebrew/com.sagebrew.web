@@ -84,14 +84,15 @@ export function load () {
                 })
                 .done(function (data) {
                     var commentContainer = commentSection.getElementsByClassName('js-comment-container')[0];
-                    commentContainer.innerHTML = commentContainer.innerHTML + data.html;
+                    $(commentContainer).append(data.html);
                     var additionalCommentWrapper = document.getElementById(
                         'additional-comment-wrapper-' + commentSection.dataset.id);
                     if (additionalCommentWrapper !== null) {
                         additionalCommentWrapper.remove();
-                        commentContainer.innerHTML = commentContainer.innerHTML + templates.show_more_comments({id: commentSection.dataset.id});
+                        $(commentContainer).append(templates.show_more_comments({id: commentSection.dataset.id}));
                     }
                     textArea.value = "";
+                    enableCommentFunctionality(data.ids);
                     $this.removeAttribute('disabled');
                 })
                 .fail(function () {

@@ -274,3 +274,12 @@ export function selectAllFields(wrapperDivID) {
         });
     });
 }
+
+
+export function humanizeString(toBeHumanized) {
+    var fragments = toBeHumanized.split('_');
+    for (var i = 0; i < fragments.length; i++) {
+        fragments[i] = fragments[i].charAt(0).toUpperCase() + fragments[i].slice(1);
+    }
+    return fragments.join(' ');
+}

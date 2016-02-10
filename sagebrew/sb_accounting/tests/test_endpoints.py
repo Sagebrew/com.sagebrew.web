@@ -17,6 +17,7 @@ from sb_quests.neo_models import Quest
 
 
 class AccountingHooksTests(APITestCase):
+
     def setUp(self):
         query = "match (n)-[r]-() delete n,r"
         db.cypher_query(query)

@@ -5,10 +5,10 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import list_route
+from rest_framework.exceptions import AuthenticationFailed
 
 from neomodel import db
 
-from api.permissions import IsAuthorizedAndVerified
 from plebs.neo_models import Pleb
 from sb_missions.neo_models import Mission
 
@@ -19,7 +19,7 @@ from .neo_models import Volunteer
 class VolunteerViewSet(viewsets.ModelViewSet):
     serializer_class = VolunteerSerializer
     lookup_field = "volunteer_id"
-    permission_classes = (IsAuthorizedAndVerified,)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         query = 'MATCH (mission:Mission {object_uuid: "%s"})' \
@@ -40,6 +40,12 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         mission = Mission.get(object_uuid=self.kwargs["object_uuid"])
         serializer.save(mission=mission, volunteer=volunteer,
                         owner_username=volunteer.username)
+
+    def perform_destroy(self, instance):
+        if self.request.user.username != instance.owner_username:
+            raise AuthenticationFailed(
+                "Sorry you're not authorized to do that")
+        return super(VolunteerViewSet, self).perform_destroy(instance)
 
     def list(self, request, *args, **kwargs):
         moderators = Mission.get(object_uuid=self.kwargs["object_uuid"])

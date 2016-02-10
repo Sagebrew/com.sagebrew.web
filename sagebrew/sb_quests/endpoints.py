@@ -18,6 +18,7 @@ from rest_framework import status
 
 from neomodel import db
 
+from api.utils import calc_stripe_application_fee
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrModerator,
                              IsOwnerOrEditor, IsOwnerOrModeratorOrReadOnly)
 
@@ -110,13 +111,15 @@ class QuestViewSet(viewsets.ModelViewSet):
             [cache.delete("%s_mission" % mission) for mission in res.one]
         # Delete all missions associated with the Quest
         query = 'MATCH (:Quest {owner_username: "%s"})-[r:EMBARKS_ON]->' \
-                '(mission:Mission)-[r2]-() ' \
+                '(mission:Mission) WITH mission, r ' \
+                'OPTIONAL MATCH (mission)-[r2]-() ' \
                 'DELETE r, r2, mission' % instance.owner_username
         db.cypher_query(query)
         # Delete all updates associated with the Quest
         query = 'MATCH (:Quest {owner_username: "%s"})-[r:CREATED_AN]->' \
-                '(update:Update) ' \
-                'DELETE r, update' % instance.owner_username
+                '(update:Update) WITH r, update ' \
+                'OPTIONAL MATCH (update)-[r2]-() ' \
+                'DELETE r, r2, update' % instance.owner_username
         db.cypher_query(query)
         # Delete all endorsements associated with the Quest
         query = 'MATCH (:Quest {owner_username: "%s"})-[r:ENDORSES]->' \
@@ -306,9 +309,8 @@ class QuestViewSet(viewsets.ModelViewSet):
             for donation in donation_info:
                 donation.update(donation.pop('owned_by', {}))
                 donation.update(donation.pop('address', {}))
-                application_fee = donation['amount'] * (
-                    quest.application_fee +
-                    settings.STRIPE_TRANSACTION_PERCENT) + 30
+                application_fee = calc_stripe_application_fee(
+                    donation['amount'], quest.application_fee)
                 donation['amount'] = '{:,.2f}'.format(
                     float(donation['amount'] - application_fee) / 100)
             for key in donation_info[0].keys():

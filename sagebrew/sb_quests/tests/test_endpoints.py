@@ -13,11 +13,12 @@ from neomodel import db
 from elasticsearch import Elasticsearch, TransportError
 
 from sb_privileges.neo_models import SBAction, Privilege
-from plebs.neo_models import Pleb
+from plebs.neo_models import Pleb, Address
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
 from sb_donations.neo_models import Donation
+from sb_updates.neo_models import Update
 
 from sb_quests.neo_models import Quest, Position
 from sb_quests.serializers import QuestSerializer
@@ -160,6 +161,62 @@ class QuestEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_delete(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        stripe_res = stripe.Token.create(
+            card={
+                "exp_year": 2020,
+                "exp_month": 02,
+                "number": "4242424242424242",
+                "currency": "usd",
+                "cvc": 123,
+                "name": "Test Test"
+            }
+        )
+        customer = stripe.Customer.create(
+            description="Customer for %s Quest" % self.quest.object_uuid,
+            card=stripe_res['id'],
+            email=self.pleb.email
+        )
+        account_token = stripe.Token.create(
+            bank_account={
+                "country": "US",
+                "currency": "usd",
+                "name": "Test Test",
+                "routing_number": "110000000",
+                "account_number": "000123456789",
+                "account_holder_type": "company"
+            }
+        )
+        account_res = stripe.Account.create(
+            managed=True,
+            country="US",
+            email=self.pleb.email
+        )
+        account = stripe.Account.retrieve(account_res['id'])
+        account.external_accounts.create(external_account=account_token['id'])
+        sub = customer.subscriptions.create(plan='quest_premium')
+        self.quest.stripe_customer_id = customer['id']
+        self.quest.account_type = "paid"
+        self.quest.stripe_subscription_id = sub['id']
+        self.quest.stripe_id = account_res['id']
+        self.quest.save()
+        cache.clear()
+        mission = Mission(title=str(uuid1())).save()
+        self.quest.missions.connect(mission)
+        update = Update().save()
+        self.quest.updates.connect(update)
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        with self.assertRaises(Quest.DoesNotExist):
+            Quest.nodes.get(owner_username=self.pleb.username)
+        with self.assertRaises(Mission.DoesNotExist):
+            Mission.nodes.get(object_uuid=mission.object_uuid)
+        with self.assertRaises(Update.DoesNotExist):
+            Update.nodes.get(object_uuid=update.object_uuid)
+
     def test_update_take_quest_active(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
@@ -301,6 +358,175 @@ class QuestEndpointTests(APITestCase):
         response = self.client.put(url, data=data, format='json')
 
         self.assertEqual(response.data['profile_pic'], data['profile_pic'])
+
+    def test_update_ssn_not_none(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "ssn": "000-00-0000"
+        }
+        response = self.client.put(url, data=data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_title_not_none(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "title": " "
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertIsNone(response.data['title'])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_customer_token(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        stripe_res = stripe.Token.create(
+            card={
+                "exp_year": 2020,
+                "exp_month": 02,
+                "number": "4242424242424242",
+                "currency": "usd",
+                "cvc": 123,
+                "name": "Test Test"
+            }
+        )
+        data = {
+            "customer_token": stripe_res['id']
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertIsNotNone(quest.stripe_customer_id)
+
+    def test_update_customer_token_exists(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        stripe_res = stripe.Token.create(
+            card={
+                "exp_year": 2020,
+                "exp_month": 02,
+                "number": "4242424242424242",
+                "currency": "usd",
+                "cvc": 123,
+                "name": "Test Test"
+            }
+        )
+        customer = stripe.Customer.create(
+            description="Customer for %s Quest" % self.quest.object_uuid,
+            card=stripe_res['id'],
+            email=self.pleb.email
+        )
+        stripe_res = stripe.Token.create(
+            card={
+                "exp_year": 2020,
+                "exp_month": 02,
+                "number": "4242424242424242",
+                "currency": "usd",
+                "cvc": 123,
+                "name": "Test Test"
+            }
+        )
+        self.quest.stripe_customer_id = customer['id']
+        self.quest.save()
+        data = {
+            "customer_token": stripe_res['id']
+        }
+        response = self.client.put(url, data=data, format='json')
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertIsNotNone(quest.stripe_customer_id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_paid(self):
+        self.client.force_authenticate(user=self.user)
+        self.quest.stripe_subscription_id = None
+        self.quest.account_type = "free"
+        self.quest.save()
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        stripe_res = stripe.Token.create(
+            card={
+                "exp_year": 2020,
+                "exp_month": 02,
+                "number": "4242424242424242",
+                "currency": "usd",
+                "cvc": 123,
+                "name": "Test Test"
+            }
+        )
+        data = {
+            "customer_token": stripe_res['id'],
+            "account_type": "paid"
+        }
+        response = self.client.patch(url, data=data, format='json')
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertIsNotNone(quest.stripe_subscription_id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        customer = stripe.Customer.retrieve(quest.stripe_customer_id)
+        customer.delete()
+
+    def test_update_free(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        stripe_res = stripe.Token.create(
+            bank_account={
+                "country": "US",
+                "currency": "usd",
+                "name": "Test Test",
+                "routing_number": "110000000",
+                "account_number": "000123456789",
+                "account_holder_type": "company"
+            }
+        )
+        data = {
+            "customer_token": stripe_res['id'],
+            "account_type": "free"
+        }
+        response = self.client.put(url, data=data, format='json')
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertIsNone(quest.stripe_subscription_id)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        customer = stripe.Customer.retrieve(quest.stripe_customer_id)
+        customer.delete()
+
+    def test_stripe_token(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        address = Address(street="125 Glenwood Drive",
+                          city="Walled Lake",
+                          state="Michigan",
+                          postal_code="48390",
+                          country="USA",
+                          county="Oakland",
+                          congressional_district=11,
+                          validated=True).save()
+        self.pleb.address.connect(address)
+        stripe_res = stripe.Token.create(
+            bank_account={
+                "country": "US",
+                "currency": "usd",
+                "name": "Test Test",
+                "routing_number": "110000000",
+                "account_number": "000123456789",
+                "account_holder_type": "company"
+            }
+        )
+        data = {
+            "stripe_token": stripe_res['id'],
+            "ssn": "000000000",
+            "ein": "000000000"
+        }
+        response = self.client.put(url, data=data, format='json')
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertEqual(quest.last_four_soc, "0000")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_moderators(self):
         self.client.force_authenticate(user=self.user)
@@ -451,6 +677,24 @@ class QuestEndpointTests(APITestCase):
         response = self.client.post(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_create(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('update-list',
+                      kwargs={'object_uuid': self.quest.owner_username}) + \
+            "?about_type=quest"
+        self.quest.moderators.connect(self.pleb)
+        self.quest.editors.connect(self.pleb)
+        cache.clear()
+        data = {
+            'title': str(uuid1()),
+            'content': str(uuid1()),
+            'about_type': 'quest',
+            'about_id': self.quest.owner_username
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(data['title'], response.data['title'])
 
 
 class PositionEndpointTests(APITestCase):

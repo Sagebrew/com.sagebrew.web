@@ -1,5 +1,6 @@
 var helpers = require('common/helpers'),
-    missions = require('common/missions');
+    missions = require('common/missions'),
+    settings = require('settings').settings;
 
 export const meta = {
     controller: "contribute/choose",
@@ -24,17 +25,19 @@ export function init() {
 export function load() {
     var $app = $(".app-sb"),
         missionList = document.getElementById('js-mission-list'),
-        contributionType = helpers.args(2),
-        nextUrl;
+        contributionType = helpers.args(2);
     missions.populateMissions(missionList, helpers.args(1));
     $app
         .on('click', '.js-position', function () {
             if(contributionType === "volunteer") {
-                nextUrl = "option";
+                if(settings.user.type === "anon"){
+                    window.location.href = "/missions/" + this.id + "/" + this.dataset.slug + "/" + contributionType + "/name/";
+                } else {
+                    window.location.href = "/missions/" + this.id + "/" + this.dataset.slug + "/" + contributionType + "/option/";
+                }
             } else {
-                nextUrl = "amount";
+                window.location.href = "/missions/" + this.id + "/" + this.dataset.slug + "/" + contributionType + "/amount/";
             }
-            window.location.href = "/missions/" + this.id + "/" + this.dataset.slug + "/" + contributionType + "/" + nextUrl + "/";
         });
 
 }

@@ -288,6 +288,6 @@ class VolunteerEndpointTests(APITestCase):
         url = reverse('volunteer-expanded-data',
                       kwargs={'object_uuid': str(uuid1())})
         response = self.client.get(url, format='json')
-        
+
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["get_out_the_vote"], [])

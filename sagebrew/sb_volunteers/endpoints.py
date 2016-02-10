@@ -104,7 +104,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
                  "email": row.plebs["email"],
                  "profile": reverse("profile_page",
                                     kwargs={"pleb_username":
-                                                row.plebs["username"]})}
+                                            row.plebs["username"]})}
                 for index, row in enumerate(res)
                 if item[0] in res[index].activities]
         return Response(filtered_dict, status=status.HTTP_200_OK)

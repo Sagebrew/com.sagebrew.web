@@ -83,7 +83,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_200_OK)
 
     @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
-    def contacts(self, request, object_uuid=None):
+    def expanded_data(self, request, object_uuid=None):
         """
         Determines if the currently authenticated user has already volunteered
         for the related mission.

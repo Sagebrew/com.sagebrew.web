@@ -1,4 +1,8 @@
+import csv
 from django.conf import settings
+from django.http import HttpResponse
+from django.core.files.temp import NamedTemporaryFile
+from django.core.servers.basehttp import FileWrapper
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
@@ -9,6 +13,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from neomodel import db
 
+from api.permissions import IsOwnerOrModerator
 from plebs.neo_models import Pleb
 from sb_missions.neo_models import Mission
 
@@ -108,3 +113,60 @@ class VolunteerViewSet(viewsets.ModelViewSet):
                 for index, row in enumerate(res)
                 if item[0] in res[index].activities]
         return Response(filtered_dict, status=status.HTTP_200_OK)
+
+    @list_route(methods=['GET'], permission_classes=(IsAuthenticated,))
+    def volunteer_export(self, request, object_uuid=None):
+        mission = Mission.get(object_uuid)
+        keys = []
+        query = 'MATCH (plebs:Pleb)-[:WANTS_TO]->(volunteer:Volunteer)' \
+                '-[:ON_BEHALF_OF]->(mission:Mission {object_uuid:"%s"}) ' \
+                'RETURN plebs, volunteer.activities AS activities' \
+                % (object_uuid)
+        res, _ = db.cypher_query(query)
+        try:
+            filtered = [
+                {"first_name": row.plebs["first_name"],
+                 "last_name": row.plebs["last_name"],
+                 "email": row.plebs["email"],
+                 "activities": [
+                     {item[0]: "x"} if item[0] in res[index].activities
+                     else {item[0]: ""}
+                     for item in settings.VOLUNTEER_ACTIVITIES]}
+                for index, row in enumerate(res)]
+            for item in filtered:
+                for activity in item["activities"]:
+                    item.update(activity)
+                item.pop('activities', None)
+            for key in filtered[0].keys():
+                new_key = key.replace('_', ' ').title()
+                for volunteer in filtered:
+                    volunteer[new_key] = volunteer[key]
+                    volunteer.pop(key, None)
+                keys.append(new_key)
+            fieldnames = ['First Name', 'Last Name', 'Email']
+            newfile = NamedTemporaryFile(suffix='.csv', delete=False)
+            newfile.name = "%s_mission_volunteers.csv" % mission.title
+            dict_writer = csv.DictWriter(newfile, keys)
+            dict_writer.writeheader()
+            dict_writer.writerows(filtered)
+            newfile.seek(0)
+            wrapper = FileWrapper(newfile)
+            httpresponse = HttpResponse(wrapper,
+                                        content_type="text/csv")
+            httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
+                                                  % newfile.name
+            return httpresponse
+        except IndexError:
+            pass
+        newfile = NamedTemporaryFile(suffix='.csv', delete=False)
+        newfile.name = "%s_mission_volunteers.csv" % mission.title
+        dict_writer = csv.DictWriter(newfile, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows([])
+        newfile.seek(0)
+        wrapper = FileWrapper(newfile)
+        httpresponse = HttpResponse(wrapper,
+                                    content_type="text/csv")
+        httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
+                                              % newfile.name
+        return httpresponse

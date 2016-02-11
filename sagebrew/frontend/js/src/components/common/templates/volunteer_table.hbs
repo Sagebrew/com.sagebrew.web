@@ -1,0 +1,46 @@
+    <div class="block">
+        <div class="block block-type-title">
+            <div class="block-content type-nav clearfix">
+                <h1>{{ block_name }}</h1>
+                <div class="title-important-actions">
+                    <a class="btn btn-primary sb_btn" href="mailto:{{#each volunteer}}{{this.email}},{{/each}}">Email All</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="block-content">
+            <table class="table table-striped payment-methods">
+                <tr>
+                    <th>
+                        First Name
+                    </th>
+                    <th>
+                        Last Name
+                    </th>
+                    <th>
+                        Actions
+                    </th>
+                </tr>
+                {{#each volunteer}}
+                    <tr>
+                        <td>
+                            {{ this.first_name }}
+                        </td>
+                        <td>
+                            {{ this.last_name }}
+                        </td>
+                        <td>
+                            <a class="sb-action-icon" href="mailto:{{ this.email }}"><i class="fa fa-envelope"></i></a>
+                            <a class="sb-action-icon" href="{{ profile }}"><i class="fa fa-user"></i></a>
+                        </td>
+                    </tr>
+                {{ else }}
+                    <tr>
+                        <td>
+                            No Current Volunteers
+                        </td>
+                    </tr>
+                {{/each}}
+            </table>
+        </div>
+    </div>

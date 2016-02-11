@@ -1,6 +1,8 @@
-from rest_framework import viewsets
+from django.conf import settings
+
+from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import list_route
 from rest_framework.exceptions import AuthenticationFailed
@@ -79,3 +81,30 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         return Response({"volunteered": volunteered,
                          "status_code": status.HTTP_200_OK},
                         status=status.HTTP_200_OK)
+
+    @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def expanded_data(self, request, object_uuid=None):
+        """
+        Determines if the currently authenticated user has already volunteered
+        for the related mission.
+        :param object_uuid:
+        :param request:
+        :return:
+        """
+        query = 'MATCH (plebs:Pleb)-[:WANTS_TO]->(volunteer:Volunteer)' \
+                '-[:ON_BEHALF_OF]->(mission:Mission {object_uuid:"%s"}) ' \
+                'RETURN plebs, volunteer.activities AS activities' \
+                % (object_uuid)
+        res, _ = db.cypher_query(query)
+        filtered_dict = {}
+        for item in settings.VOLUNTEER_ACTIVITIES:
+            filtered_dict[item[0]] = [
+                {"first_name": row.plebs["first_name"],
+                 "last_name": row.plebs["last_name"],
+                 "email": row.plebs["email"],
+                 "profile": reverse("profile_page",
+                                    kwargs={"pleb_username":
+                                            row.plebs["username"]})}
+                for index, row in enumerate(res)
+                if item[0] in res[index].activities]
+        return Response(filtered_dict, status=status.HTTP_200_OK)

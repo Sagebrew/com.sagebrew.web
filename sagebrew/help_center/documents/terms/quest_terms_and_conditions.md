@@ -38,7 +38,7 @@
 
 
 
-## Contributions and Goals ##
+## Contributions ##
 1.  You may collect up to $2,700 in contributions from any individual through the 
     Sagebrew service. You are responsible for refunding and managing any 
     excessive donations that could cause legal ramifications to be taken against 
@@ -61,12 +61,12 @@
     the Quest Subscriber on another web service. The responsibility to ensure the 
     legality of funds and contributions falls solely on the Quest Subscriber and 
     their selected Moderators. 
-6.  You are responsible for upholding any written Goals that are 
-    fulfilled in your Quest.
-7.  You will extend your “best effort” to fulfill a Donation Goal. Under the 
-    extreme circumstances you cannot complete a Donation Goal, you may do something 
-    equivalent to the unattainable Donation Goal and provide an update including an 
-    explanation as to why you couldn't complete your intended Donation Goal, and 
+6.  You are responsible for upholding any promises, assertions, or other communication
+    that are outlined within your Quest or Missions.
+7.  You will extend your “best effort” to fulfill milestones associated with Donation. Under the 
+    extreme circumstances you cannot complete a defined milestone, you may do something 
+    equivalent to the unattainable Donation milestone and provide an update including an 
+    explanation as to why you couldn't complete your intended Donation milestone, and 
     why the replacement will suffice
 8.  You shall not utilize any donation information collected from a donating 
     Subscriber to contact the Subscriber in any other way not explicitly outlined
@@ -116,8 +116,9 @@ For more information on filing with the FEC visit the [FEC website][3].
 
 
 ## Cancellation and Termination ##
-1.  Cancellation by the Quest Subscriber may only occur after a set of goals 
-    has been completed and prior to the next set starting (Between Rounds). 
+1.  Cancellation by the Quest Subscriber may only occur when there are no 
+    pending transactions. To accomplish this the user must first deactivate their 
+    Quest prior to deleting it. 
     Cancellation requires a phone call to validate the cancellation and an 
     inquiry to assure the proper closing of a Quest account.  Any donations 
     that have not yet been billed will be immediately canceled and removed 
@@ -125,11 +126,12 @@ For more information on filing with the FEC visit the [FEC website][3].
     responsible for returning any unused funds in compliance with the laws set
     by the governing body of the region they are campaigning in. The Quest 
     Subscriber is responsible for providing an update for the last milestone 
-    (Goal) that they set in their Quest page. Sagebrew reserves the right to 
+    that they set in their Quest page prior to cancellation. Sagebrew reserves the right to 
     deny a Cancellation request until the Quest Subscriber has fulfilled such 
     obligations. Cancellation of a Quest Account shall not result in the removal 
     of any content created by the Quest Subscriber or other contributors. 
-    Donations and pledge votes shall no longer be allowed to the Quest page 
+    Donations, votes, endorsements, nor any other form of support 
+    shall no longer be allowed to the Quest page 
     after termination.
 2.  Sagebrew reserves the right to reduce a Quest Subscriber's [Reputation][4] 
     or suspend and terminate a Quest Subscriber's account if they are known or 

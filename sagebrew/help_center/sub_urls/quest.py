@@ -5,19 +5,6 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
-    url(r'^goals/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "What are Goals and how should I set them?",
-            "description": "Goals give Representatives and Candidates "
-                           "a pragmatic way of interacting with their "
-                           "constituents. Gaining donations in turn for "
-                           "updates on how the funds are being used.",
-            "content_path":
-                "%sdonation_goals.html" % settings.HELP_DOCS_PATH,
-            "category": "quest"
-    },
-        name="donation_goals"),
     url(r'^funding-not-in-account/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -116,8 +103,6 @@ urlpatterns = patterns(
             "static_files": True
     },
         name="quest_signup"),
-    url(r'^donation_goals/$', RedirectView.as_view(
-        url='/help/quest/goals/', permanent=True), name='goals_redirect'),
     url(r'^funding_not_in_account/$', RedirectView.as_view(
         url='/help/quest/funding-not-in-account/', permanent=True),
         name='funding_not_in_account_redirect'),

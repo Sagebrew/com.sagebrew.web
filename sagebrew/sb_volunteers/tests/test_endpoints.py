@@ -272,3 +272,22 @@ class VolunteerEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsNone(response.data['volunteered'])
+
+    def test_expanded_data(self):
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('volunteer-expanded-data',
+                      kwargs={'object_uuid': self.mission.object_uuid})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn(self.pleb2.email,
+                      response.data["get_out_the_vote"][0]["email"])
+
+    def test_expanded_data_dne(self):
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('volunteer-expanded-data',
+                      kwargs={'object_uuid': str(uuid1())})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["get_out_the_vote"], [])

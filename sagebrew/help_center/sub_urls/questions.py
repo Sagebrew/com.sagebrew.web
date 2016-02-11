@@ -150,6 +150,9 @@ urlpatterns = patterns(
     url(r'^no_traffic/$', RedirectView.as_view(
         url='/help/questions/no-traffic/', permanent=True),
         name='no_traffic_redirect'),
+    url(r'^good_question/$', RedirectView.as_view(
+        url='/help/questions/formatting/', permanent=True),
+        name='good_question_redirect'),
     url(r'^quality_standards/$', RedirectView.as_view(
         url='/help/questions/quality-standards/', permanent=True),
         name='quality_standards_redirect'),

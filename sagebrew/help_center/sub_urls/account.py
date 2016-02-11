@@ -5,6 +5,18 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
+    url(r'^change-password/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "How do I change my password?",
+            "description": "Changing your password can be done on the "
+                           "settings page "
+                           "which you can reach through the navigation bar.",
+            "content_path":
+                "%schange_password.html" % settings.HELP_DOCS_PATH,
+            "category": "account"
+    },
+        name="change-password"),
     url(r'^delete-account/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={

@@ -31,33 +31,6 @@ urlpatterns = patterns(
             "category": "citizens"
     },
         name="donating_to_a_candidate"),
-    url(r'^goals/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "What are Goals?",
-            "description": "Goals are a way for a candidate running"
-                           " for office to fundraise and organize their "
-                           "campaign goals.",
-            "content_path":
-                "%sdonation_goals_citizen.html" % settings.HELP_DOCS_PATH,
-            "category": "citizens"
-    },
-        name="donation_goals_citizen"),
-    url(r'^pledging-votes/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "Why we think you should pledge a vote for your "
-                     "Representative",
-            "description": "Pledging a vote gives encouragement to candidates "
-                           "and helps them to gauge what their electability "
-                           "is. Don't pledge a vote lightly, make sure the "
-                           "candidate you give your vote to is who you will "
-                           "actually vote for.",
-            "content_path":
-                "%spledging_votes.html" % settings.HELP_DOCS_PATH,
-            "category": "citizens"
-    },
-        name="pledging_votes"),
     url(r'^contributions/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -87,15 +60,10 @@ urlpatterns = patterns(
             "category": "citizens"
     },
         name="quest_citizen"),
-    url(r'^donation_goals/$', RedirectView.as_view(
-        url='/help/donating/goals/', permanent=True), name='goals_redirect'),
     url(r'^after_donating_to_a_candidate/$', RedirectView.as_view(
         url='/help/donating/after-donating-to-a-candidate/', permanent=True),
         name='after_donating_to_a_candidate_redirect'),
     url(r'^donating_to_a_candidate/$', RedirectView.as_view(
         url='/help/donating/donating-to-a-candidate/', permanent=True),
-        name='donating_to_a_candidate_redirect'),
-    url(r'^pledging_votes/$', RedirectView.as_view(
-        url='/help/donating/pledging-votes/', permanent=True),
-        name='pledging_votes_redirect'),
+        name='donating_to_a_candidate_redirect')
 )

@@ -1,15 +1,19 @@
 # How do I change my password? #
-You may reset your password by accessing your account settings from your 
-profile page:
-(screenshot of a mouse hovering over account settings)
+## Overview ##
+![Change Your Password][1]
 
-Clicking on account security:
-(screenshot of the account security tab)
+## Steps ##
+1. You can reset your password by accessing your settings in the navigation bar:
 
-and navigating down to the "reset my password" link:
-(screenshot of the "reset my password" link)
+    ![Select Settings][2]
 
-You will be prompted to enter a new password, confirm that password, and click 
-"change my password":
-(screenshot of a filled out password text box and the mouse hovering over 
-"change my password")
+2. Once in the settings scroll down to the Change Password form:
+
+    ![Password Form][3]
+
+3. Now just enter your existing password and the password you'd like
+to change it to then click "Update Password".
+
+[1]: https://s3.amazonaws.com/sagebrew/long_term_static/help/change_password.gif
+[2]: https://s3.amazonaws.com/sagebrew/long_term_static/help/settings_select.png
+[3]: https://s3.amazonaws.com/sagebrew/long_term_static/help/password_form.png

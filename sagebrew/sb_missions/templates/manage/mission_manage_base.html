@@ -26,11 +26,6 @@
                         General
                     </a>
                 </li>
-                <li {% if "/manage/insights/" in request.path %}class="active" {% endif %}>
-                    <a href="{% url "mission_insights" mission.id slug %}">
-                        Insights
-                    </a>
-                </li>
                 <li {% if "/manage/epic/" in request.path %}class="active" {% endif %}>
                     <a href="{% url "mission_edit_epic" mission.id slug %}">
                         Epic
@@ -39,6 +34,16 @@
                 <li {% if "/manage/updates/" in request.path %}class="active" {% endif %}>
                     <a href="{% url "mission_update_settings" mission.id slug %}">
                         Updates
+                    </a>
+                </li>
+                <li {% if "/manage/insights/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_insights" mission.id slug %}">
+                        Donations
+                    </a>
+                </li>
+                <li {% if "/manage/volunteers/" in request.path %}class="active" {% endif %}>
+                    <a href="{% url "mission_volunteers" mission.id slug %}">
+                        Volunteers
                     </a>
                 </li>
             </ul>

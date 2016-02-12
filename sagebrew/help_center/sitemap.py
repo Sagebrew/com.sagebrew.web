@@ -37,8 +37,7 @@ class DonationsHelpSitemap(sitemaps.Sitemap):
 
     def items(self):
         return ['after_donating_to_a_candidate', 'donating_to_a_candidate',
-                'donation_goals_citizen',
-                'pledging_votes', 'campaign_contribution_rules',
+                'campaign_contribution_rules',
                 'quest_citizen']
 
     def location(self, item):
@@ -83,7 +82,7 @@ class QuestHelpSitemap(sitemaps.Sitemap):
     protocol = 'https'
 
     def items(self):
-        return ['donation_goals', 'funding_not_in_account',
+        return ['funding_not_in_account',
                 'how_to_export_contributions', 'how_to_get_on_the_ballot',
                 'how_to_run',
                 'name_on_ballot_to_run', 'need_more_help_repsagetribune',

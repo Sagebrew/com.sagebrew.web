@@ -4,7 +4,7 @@ as spam or for containing offensive, inappropriate, or harmful language or
 images. It could have also been caught and flagged by Sagebrew's system for 
 the same reasons and brought to the attention of the [Admin Council][2].
 
-Before a flagged piece of content is deleted it must be put up to a vote for the 
+Before a flagged piece of content is deleted it must be put up to a vote by the 
 Admin Council. A 2/3 majority of participating Admins is required for a 
 piece of content to be deleted. If multiple users are flagging the content and no 
 decisive action has been taken by the Admin Council then there will be an overlay

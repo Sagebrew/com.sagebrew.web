@@ -125,19 +125,3 @@ urlpatterns = patterns(
         url='/help/quest/principal-campaign-committee/', permanent=True),
         name='principal_campaign_committee_redirect'),
 )
-
-'''
-    url(r'^suspicious_public_servants/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "How do I report suspicious activity by a Quest?",
-            "description": "Sagebrew does its best to make sure all "
-                           "candidates and representatives are using the site "
-                           "in a legal and positive manner. We welcome the "
-                           "assistance of the community.",
-            "content_path":
-                "%ssuspicious_public_servants.html" % (settings.HELP_DOCS_PATH),
-            "category": "quest"
-        },
-        name="suspicious_public_servants"),
-'''

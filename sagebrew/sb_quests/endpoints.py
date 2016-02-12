@@ -18,7 +18,8 @@ from rest_framework import status
 
 from neomodel import db
 
-from api.utils import calc_stripe_application_fee
+from api.utils import (calc_stripe_application_fee, humanize_dict_keys,
+                       generate_csv_html_file_response)
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrModerator,
                              IsOwnerOrEditor, IsOwnerOrModeratorOrReadOnly)
 
@@ -313,34 +314,19 @@ class QuestViewSet(viewsets.ModelViewSet):
                     donation['amount'], quest.application_fee)
                 donation['amount'] = '{:,.2f}'.format(
                     float(donation['amount'] - application_fee) / 100)
-            for key in donation_info[0].keys():
-                new_key = key.replace('_', ' ').title()
-                for donation in donation_info:
-                    donation[new_key] = donation[key]
-                    donation.pop(key, None)
-                keys.append(new_key)
+            humanized, new_keys = humanize_dict_keys(
+                donation_info, donation_info[0].keys())
             # use of named temporary file here is to handle deletion of file
             # after we return the file, after the new file object is evicted
             # it gets deleted
             # http://stackoverflow.com/questions/3582414/removing-tmp-file-
             # after-return-httpresponse-in-django
-
+            return generate_csv_html_file_response(
+                "quest_donations.csv", humanized, new_keys)
         except IndexError:
             pass
-        newfile = NamedTemporaryFile(suffix='.csv', delete=False)
-        newfile.name = "quest_donations.csv"
-        dict_writer = csv.DictWriter(newfile, keys)
-        dict_writer.writeheader()
-        dict_writer.writerows(donation_info)
-        # the HttpResponse use here allows us to do an automatic download
-        # upon hitting the button
-        newfile.seek(0)
-        wrapper = FileWrapper(newfile)
-        httpresponse = HttpResponse(wrapper,
-                                    content_type="text/csv")
-        httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
-                                              % newfile.name
-        return httpresponse
+        return generate_csv_html_file_response(
+            "quest_donations.csv", donation_info, keys)
 
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated,))

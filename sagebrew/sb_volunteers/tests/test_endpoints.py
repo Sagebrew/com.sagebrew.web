@@ -291,38 +291,3 @@ class VolunteerEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["get_out_the_vote"], [])
-
-    def test_volunteer_export(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('volunteer-data-export',
-                      kwargs={'object_uuid': self.mission.object_uuid})
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("test,test,bounce@simulator.amazonses.com,x,,,,,,,,,,,",
-                      response.content)
-
-    def test_volunteer_export_dne(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('volunteer-data-export',
-                      kwargs={'object_uuid': str(uuid1())})
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-    def test_volunteer_export_no_volunteers(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('volunteer-data-export',
-                      kwargs={'object_uuid': self.mission.object_uuid})
-        self.volunteer.delete()
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.content, 'First Name,Last Name,Email,Get Out '
-                                           'The Vote,Assist With An Event,'
-                                           'Leaflet Voters,Write Letters To '
-                                           'The Editor,Work In A Campaign '
-                                           'Office,Table At Events,Call Voters,'
-                                           'Data Entry,Host A Meeting,Host A '
-                                           'Fundraiser,Host A House Party,'
-                                           'Attend A House Party\r\n')

@@ -1,6 +1,6 @@
 import warnings
 import time
-from logging import getLogger
+import csv
 import pytz
 import boto.sqs
 import requests
@@ -10,9 +10,13 @@ import collections
 from uuid import uuid1
 from json import dumps
 from datetime import datetime
+from logging import getLogger
 
 from django.core import signing
 from django.conf import settings
+from django.http import HttpResponse
+from django.core.servers.basehttp import FileWrapper
+from django.core.files.temp import NamedTemporaryFile
 
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import UniqueValidator
@@ -288,11 +292,29 @@ def humanize_dict_keys(inhuman_dicts, keys):
     new_keys = []
     for key in keys:
         new_key = key.replace('_', ' ').title()
-        for item in inhuman_dicts:
-            item[new_key] = item[key]
-            item.pop(key, None)
+        [item.update({new_key: item.pop(key, None)}) for item in inhuman_dicts]
         new_keys.append(new_key)
     return inhuman_dicts, new_keys
+
+
+def generate_csv_html_file_response(name, list_data, keys):
+    # use of named temporary file here is to handle deletion of file
+    # after we return the file, after the new file object is evicted
+    # it gets deleted
+    # http://stackoverflow.com/questions/3582414/removing-tmp-file-
+    # after-return-httpresponse-in-django
+    newfile = NamedTemporaryFile(suffix='.csv', delete=False)
+    newfile.name = name
+    dict_writer = csv.DictWriter(newfile, keys)
+    dict_writer.writeheader()
+    dict_writer.writerows(list_data)
+    newfile.seek(0)
+    wrapper = FileWrapper(newfile)
+    httpresponse = HttpResponse(wrapper,
+                                content_type="text/csv")
+    httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
+                                          % newfile.name
+    return httpresponse
 
 
 def deprecation(message):

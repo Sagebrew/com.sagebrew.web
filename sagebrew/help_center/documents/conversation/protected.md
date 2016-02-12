@@ -4,7 +4,7 @@ day and a member from the [Admin Council][1] has deemed "Protected." What
 this means is that in order to further contribute to the conversation, a user 
 must have at least 50 [Reputation][3]. A conversation may become Protected if:
 
-- It is generating excess Spam
+- It is generating excess spam
 - There are no relevant new Solutions being posed
 - A Solution has been determined, but it has not yet received 1000+ Upvotes
 

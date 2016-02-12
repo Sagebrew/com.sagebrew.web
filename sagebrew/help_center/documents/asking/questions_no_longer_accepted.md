@@ -13,7 +13,7 @@ an inability to spark Questions.
 - Your Questions have repeatedly been Downvoted and are
   determined to be largely unhelpful or unoriginal.
     - If you've been sparking Questions that aren't offensive
-      or inappropriate, but simply are of poor quality, your privilege to spark
+      or inappropriate, but simply are of poor quality, your privilege to create
       Questions may be temporarily suspended. In this case, we suggest
       reading through some other Questions and Solutions to get
       an idea of what is expected in a Question.
@@ -22,7 +22,7 @@ an inability to spark Questions.
 - Your account has been flagged for misconduct or inappropriate or offensive 
   activity.
     - If your account has been flagged for misconduct, all
-      of your privileges, including sparking Questions,
+      of your privileges, including starting Questions,
       will be temporarily suspended.
 
 Any suspensions in the Conversation Cloud are allocated by the Community

@@ -1,5 +1,5 @@
 # Why is adding Context to Questions important? #
-Providing context to Questions is very important because context allows other 
+Providing context to Questions is important because context allows other 
 users to fully understand your Question, where you're coming from, and gives 
 them a base understanding of what research and prior thought has gone into 
 your question. Context provides the who, what, where, when, and why of an 

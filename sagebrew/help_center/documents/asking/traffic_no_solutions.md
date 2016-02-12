@@ -10,7 +10,7 @@ items you may want to consider.
 - Maybe your Question is too difficult and other users simply don't know 
   where to start the conversation.
 
-The best thing to do if your Question is has been viewed by a large amount of
+The best thing to do if your Question has been viewed by a large amount of
 users and has received Upvotes or Downvotes but no Solution is to pose the first
 solution yourself! Often you'll find that getting the
 conversation started is the most difficult part,

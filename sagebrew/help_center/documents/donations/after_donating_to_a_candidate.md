@@ -1,16 +1,7 @@
-# What happens when I donate to a Quest? #
-After you've indicated you'd like to donate to a Quest you will receive an email 
-stating that you will donate the amount you specified to the candidate you selected 
-upon them reaching their [Goal][1]. 
+# What happens when I donate to a Mission? #
+After you've donated to a Mission you will receive an email containing
+a receipt for the donation you just submitted. 
 
-You will not be charged and your donation will not be provided to the Quest 
-until their Donation Goal has been reached. When the Goal is reached you will be
-billed and you will receive a second email with a notification that confirms your 
-donation. The candidate you donated to will also receive notice that you 
-have donated to their Quest.
-
-In the instance that a candidate does not reach their Goal, you will 
-not be charged.
-
-
-[1]: /help/donating/goals/
+As soon as you click donate we also start the process of getting the money you donated to
+the Mission you donated to. We'll direct deposit it into their account as soon as the Banks 
+let us so that they can continue to fund and excel at the cause you both care about.

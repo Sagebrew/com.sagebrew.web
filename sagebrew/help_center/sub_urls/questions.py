@@ -172,21 +172,3 @@ urlpatterns = patterns(
         url='/help/questions/traffic-no-solutions/', permanent=True),
         name='traffic_no_solutions_redirect'),
 )
-
-
-if settings.DEBUG is True:
-    url(r'^closure_of_a_question/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "What if I disagree with the closure of a question? "
-                     "How can I reopen it?",
-            "description": "If something you've contributed has been closed, "
-                           "the only way to get it reopened is by explaining "
-                           "your case to the Admin Council. They have the right"
-                           " to disagree with your case and keep the content "
-                           "closed.",
-            "content_path":
-                "%sclosure_of_a_question.html" % settings.HELP_DOCS_PATH,
-            "category": "questions"
-    },
-        name="closure_of_a_question"),

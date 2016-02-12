@@ -13,7 +13,7 @@ from rest_framework.exceptions import AuthenticationFailed
 
 from neomodel import db
 
-from api.permissions import IsOwnerOrModerator
+from api.utils import humanize_dict_keys
 from plebs.neo_models import Pleb
 from sb_missions.neo_models import Mission
 
@@ -115,9 +115,15 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         return Response(filtered_dict, status=status.HTTP_200_OK)
 
     @list_route(methods=['GET'], permission_classes=(IsAuthenticated,))
-    def volunteer_export(self, request, object_uuid=None):
+    def data_export(self, request, object_uuid=None):
         mission = Mission.get(object_uuid)
-        keys = []
+        defined_keys = ["First Name", "Last Name", "Email", "Get Out The Vote",
+                        "Assist With An Event", "Leaflet Voters",
+                        "Write Letters To The Editor",
+                        "Work In A Campaign Office",
+                        "Table At Events", "Call Voters", "Data Entry",
+                        "Host A Meeting", "Host A Fundraiser",
+                        "Host A House Party", "Attend A House Party"]
         query = 'MATCH (plebs:Pleb)-[:WANTS_TO]->(volunteer:Volunteer)' \
                 '-[:ON_BEHALF_OF]->(mission:Mission {object_uuid:"%s"}) ' \
                 'RETURN plebs, volunteer.activities AS activities' \
@@ -137,18 +143,13 @@ class VolunteerViewSet(viewsets.ModelViewSet):
                 for activity in item["activities"]:
                     item.update(activity)
                 item.pop('activities', None)
-            for key in filtered[0].keys():
-                new_key = key.replace('_', ' ').title()
-                for volunteer in filtered:
-                    volunteer[new_key] = volunteer[key]
-                    volunteer.pop(key, None)
-                keys.append(new_key)
-            fieldnames = ['First Name', 'Last Name', 'Email']
+            humanized, _ = \
+                humanize_dict_keys(filtered, filtered[0].keys())
             newfile = NamedTemporaryFile(suffix='.csv', delete=False)
             newfile.name = "%s_mission_volunteers.csv" % mission.title
-            dict_writer = csv.DictWriter(newfile, keys)
+            dict_writer = csv.DictWriter(newfile, defined_keys)
             dict_writer.writeheader()
-            dict_writer.writerows(filtered)
+            dict_writer.writerows(humanized)
             newfile.seek(0)
             wrapper = FileWrapper(newfile)
             httpresponse = HttpResponse(wrapper,
@@ -160,7 +161,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
             pass
         newfile = NamedTemporaryFile(suffix='.csv', delete=False)
         newfile.name = "%s_mission_volunteers.csv" % mission.title
-        dict_writer = csv.DictWriter(newfile, keys)
+        dict_writer = csv.DictWriter(newfile, defined_keys)
         dict_writer.writeheader()
         dict_writer.writerows([])
         newfile.seek(0)

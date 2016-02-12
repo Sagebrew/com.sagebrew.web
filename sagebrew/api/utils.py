@@ -284,6 +284,17 @@ def flatten_lists(unflattened_list):
             yield element
 
 
+def humanize_dict_keys(inhuman_dicts, keys):
+    new_keys = []
+    for key in keys:
+        new_key = key.replace('_', ' ').title()
+        for item in inhuman_dicts:
+            item[new_key] = item[key]
+            item.pop(key, None)
+        new_keys.append(new_key)
+    return inhuman_dicts, new_keys
+
+
 def deprecation(message):
     warnings.warn(message, DeprecationWarning, stacklevel=2)
 

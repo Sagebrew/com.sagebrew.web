@@ -8,7 +8,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 
-from api.utils import calc_stripe_application_fee
+from api.utils import calc_stripe_application_fee, humanize_dict_keys
 from sb_donations.serializers import DonationExportSerializer
 from api.permissions import (IsOwnerOrModeratorOrReadOnly, IsOwnerOrModerator)
 
@@ -83,12 +83,8 @@ class MissionViewSet(viewsets.ModelViewSet):
                     donation['amount'], quest.application_fee)
                 donation['amount'] = '{:,.2f}'.format(
                     float(donation['amount'] - application_fee) / 100)
-            for key in donation_info[0].keys():
-                new_key = key.replace('_', ' ').title()
-                for donation in donation_info:
-                    donation[new_key] = donation[key]
-                    donation.pop(key, None)
-                keys.append(new_key)
+            humanized, new_keys = \
+                humanize_dict_keys(donation_info, donation_info[0].keys())
             # use of named temporary file here is to handle deletion of file
             # after we return the file, after the new file object is evicted
             # it gets deleted
@@ -96,9 +92,9 @@ class MissionViewSet(viewsets.ModelViewSet):
             # after-return-httpresponse-in-django
             newfile = NamedTemporaryFile(suffix='.csv', delete=False)
             newfile.name = "%s_mission_donations.csv" % mission.title
-            dict_writer = csv.DictWriter(newfile, keys)
+            dict_writer = csv.DictWriter(newfile, new_keys)
             dict_writer.writeheader()
-            dict_writer.writerows(donation_info)
+            dict_writer.writerows(humanized)
             # the HttpResponse use here allows us to do an automatic download
             # upon hitting the button
             newfile.seek(0)

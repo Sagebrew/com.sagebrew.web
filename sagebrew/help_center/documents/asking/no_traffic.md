@@ -7,8 +7,8 @@ there may be a couple of issues with your Question.
   tagging it "Science") may result in your Question being lost without seeing 
   much traffic.
 - Your Question might have been poorly constructed. You may have asked a poor 
-  Question, or failed to support your Question with proper [Context][2]. To see an 
-  example of a good question, check out our [How do I create a good question?][1].
+  Question, or failed to support your Question with proper [Context][2]. For where to
+  start on asking a question, check out our [Asking a Question][1].
 
 If you believe you've put together a well constructed Question and provided 
 quality Context as well as proper Tags but your Question didn't generate any 
@@ -25,8 +25,8 @@ board and ask yourself a few questions.
 
 After you've addressed these issues, and maybe some others that are more 
 specific to your Question, go ahead and Upgrade your Question. Upgraded 
-Questions will make their way to the top of the "Most Recently Edited 
-Questions" filter in the Conversation Cloud search, giving your Question 
+Questions will make their way to the top of the "Recent Edits"
+filter in the Conversation Cloud search, giving your Question 
 another chance to be discovered.
 
 

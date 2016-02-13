@@ -20,9 +20,6 @@ from rest_framework.serializers import ValidationError
 
 from boto.sqs.message import Message
 
-from neomodel import db
-from neomodel.exception import CypherException
-
 from .alchemyapi import AlchemyAPI
 
 logger = getLogger('loggly_logs')
@@ -298,6 +295,8 @@ class SBUniqueValidator(UniqueValidator):
     def filter_queryset(self, value, queryset):
         """
         Filter the queryset to all instances matching the given attribute.
+        :param value:
+        :param queryset:
         """
         return [x for x in queryset if getattr(x, self.field_name) == value]
 
@@ -305,6 +304,7 @@ class SBUniqueValidator(UniqueValidator):
         """
         If an instance is being updated, then do not include
         that instance itself as a uniqueness conflict.
+        :param queryset:
         """
         if self.instance is not None:
             return [x for x in queryset

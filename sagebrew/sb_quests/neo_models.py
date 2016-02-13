@@ -242,8 +242,7 @@ class Quest(Searchable):
                 'WITH q, p CREATE UNIQUE (q)-[r:FOLLOWERS]->(p) SET ' \
                 'r.active=true RETURN r.active' % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
-        cache.set("%s_is_following_quest_%s" % (username, self.object_uuid),
-                  res.one)
+        cache.delete("%s_is_following_quest_%s" % (username, self.object_uuid))
         return res.one
 
     def unfollow(self, username):
@@ -256,8 +255,7 @@ class Quest(Searchable):
                 '{username:"%s"}) SET r.active=false RETURN r.active' \
                 % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
-        cache.set("%s_is_following_quest_%s" % (username, self.object_uuid),
-                  res.one)
+        cache.delete("%s_is_following_quest_%s" % (username, self.object_uuid))
         return res.one
 
     def get_followers(self):

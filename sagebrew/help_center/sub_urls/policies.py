@@ -67,18 +67,6 @@ urlpatterns = patterns(
             "category": "policies"
     },
         name="finding_topics_of_interest"),
-    url(r'^how-to-search/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "How do I search?",
-            "description": "With all the information around on Sagebrew it's "
-                           "important to know how we handle search. This "
-                           "article outlines that process.",
-            "content_path":
-                "%show_to_search.html" % settings.HELP_DOCS_PATH,
-            "category": "policies"
-    },
-        name="how_to_search"),
     url(r'^markdown-formatting/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={

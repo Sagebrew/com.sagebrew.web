@@ -44,7 +44,7 @@ def political_campaign(request):
         position_count = res.one
         if position_count is None:
             position_count = 7274
-    except CypherException:
+    except (CypherException, IOError):
         position_count = 7274
     return render(request, 'political_campaign.html',
                   {"position_count": position_count})

@@ -1,24 +1,22 @@
 # Be Nice #
 This is just a friendly reminder to be nice when conversing. Nobody 
 likes feeling alienated or put down. Sagebrew is a site for people 
-to work together and do some truly remarkable things, so lets keep it 
+to work together and do truly remarkable things, so lets keep it 
 courteous! There are many conversational behaviors that are frowned upon 
 at Sagebrew and might get you flagged for inappropriate conduct. Some general 
 guidelines:
 
 ## Do not use language that is: ##
 
-- Offensive (i.e. racist, sexist, ableist, classist, 
-  anti-religious...basically anything that takes aim at a marginalized group 
-  of people)
+- Offensive
 - Libelous (lying)
 - Obscene (profanity)
 - Insulting (anything that directly targets an individual, making little of 
-  their opinion or position)
+  their opinion, position, sex, race, education level, etc.)
 
 ## Be respectful of other's ideas ##
 This means respecting someone's position even if it is in direct opposition to 
-your own. As Aristotle said so long ago, "It is the mark of an educated mind 
+your own. As Aristotle said, "It is the mark of an educated mind 
 to be able to entertain a thought without accepting it." 
 
 Just because someone thinks something should be done differently doesn't

@@ -1,14 +1,12 @@
-import csv
-from django.http import HttpResponse
-from django.core.files.temp import NamedTemporaryFile
-from django.core.servers.basehttp import FileWrapper
+from django.conf import settings
 
 from neomodel import db
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 
-from api.utils import calc_stripe_application_fee
+from api.utils import (calc_stripe_application_fee, humanize_dict_keys,
+                       generate_csv_html_file_response)
 from sb_donations.serializers import DonationExportSerializer
 from api.permissions import (IsOwnerOrModeratorOrReadOnly, IsOwnerOrModerator)
 
@@ -83,44 +81,51 @@ class MissionViewSet(viewsets.ModelViewSet):
                     donation['amount'], quest.application_fee)
                 donation['amount'] = '{:,.2f}'.format(
                     float(donation['amount'] - application_fee) / 100)
-            for key in donation_info[0].keys():
-                new_key = key.replace('_', ' ').title()
-                for donation in donation_info:
-                    donation[new_key] = donation[key]
-                    donation.pop(key, None)
-                keys.append(new_key)
-            # use of named temporary file here is to handle deletion of file
-            # after we return the file, after the new file object is evicted
-            # it gets deleted
-            # http://stackoverflow.com/questions/3582414/removing-tmp-file-
-            # after-return-httpresponse-in-django
-            newfile = NamedTemporaryFile(suffix='.csv', delete=False)
-            newfile.name = "%s_mission_donations.csv" % mission.title
-            dict_writer = csv.DictWriter(newfile, keys)
-            dict_writer.writeheader()
-            dict_writer.writerows(donation_info)
-            # the HttpResponse use here allows us to do an automatic download
-            # upon hitting the button
-            newfile.seek(0)
-            wrapper = FileWrapper(newfile)
-            httpresponse = HttpResponse(wrapper,
-                                        content_type="text/csv")
-            httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
-                                                  % newfile.name
-            return httpresponse
+            humanized, new_keys = \
+                humanize_dict_keys(donation_info, donation_info[0].keys())
+            return generate_csv_html_file_response(
+                "%s_mission_donations.csv" % mission.title, humanized, new_keys)
         except IndexError:
             pass
-        newfile = NamedTemporaryFile(suffix='.csv', delete=False)
-        newfile.name = "quest_donations.csv"
-        dict_writer = csv.DictWriter(newfile, keys)
-        dict_writer.writeheader()
-        dict_writer.writerows(donation_info)
-        # the HttpResponse use here allows us to do an automatic download
-        # upon hitting the button
-        newfile.seek(0)
-        wrapper = FileWrapper(newfile)
-        httpresponse = HttpResponse(wrapper,
-                                    content_type="text/csv")
-        httpresponse['Content-Disposition'] = 'attachment; filename=%s' \
-                                              % newfile.name
-        return httpresponse
+        return generate_csv_html_file_response(
+            "%s_mission_donations.csv" % mission.title, [], keys)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
+                                                       IsOwnerOrModerator,))
+    def volunteer_data(self, request, object_uuid=None):
+        mission = Mission.get(object_uuid)
+        self.check_object_permissions(request, mission.owner_username)
+        defined_keys = ["First Name", "Last Name", "Email", "Get Out The Vote",
+                        "Assist With An Event", "Leaflet Voters",
+                        "Write Letters To The Editor",
+                        "Work In A Campaign Office",
+                        "Table At Events", "Call Voters", "Data Entry",
+                        "Host A Meeting", "Host A Fundraiser",
+                        "Host A House Party", "Attend A House Party"]
+        query = 'MATCH (plebs:Pleb)-[:WANTS_TO]->(volunteer:Volunteer)' \
+                '-[:ON_BEHALF_OF]->(mission:Mission {object_uuid:"%s"}) ' \
+                'RETURN plebs, volunteer.activities AS activities' \
+                % (object_uuid)
+        res, _ = db.cypher_query(query)
+        try:
+            filtered = [
+                {"first_name": row.plebs["first_name"],
+                 "last_name": row.plebs["last_name"],
+                 "email": row.plebs["email"],
+                 "activities": [
+                     {item[0]: "x"} if item[0] in res[index].activities
+                     else {item[0]: ""}
+                     for item in settings.VOLUNTEER_ACTIVITIES]}
+                for index, row in enumerate(res)]
+            for item in filtered:
+                [item.update(activity) for activity in item["activities"]]
+                item.pop('activities', None)
+            humanized, _ = \
+                humanize_dict_keys(filtered, filtered[0].keys())
+            return generate_csv_html_file_response(
+                "%s_mission_volunteers.csv" % mission.title, humanized,
+                defined_keys)
+        except IndexError:
+            pass
+        return generate_csv_html_file_response(
+            "%s_mission_volunteers.csv" % mission.title, [], defined_keys)

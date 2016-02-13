@@ -12,12 +12,14 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
+from plebs.neo_models import Pleb
 from api.utils import calc_stripe_application_fee
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
 from sb_donations.neo_models import Donation
 from sb_updates.neo_models import Update
+from sb_volunteers.neo_models import Volunteer
 
 from sb_quests.neo_models import Quest, Position
 
@@ -43,6 +45,10 @@ class MissionEndpointTests(APITestCase):
                                title=str(uuid1()),
                                focus_name="advocacy").save()
         self.quest.missions.connect(self.mission)
+        self.email2 = "bounce@simulator.amazonses.com"
+        create_user_util_test(self.email2)
+        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.user2 = User.objects.get(email=self.email2)
 
     def test_unauthorized(self):
         url = reverse('mission-list')
@@ -783,3 +789,44 @@ class MissionEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn(update.object_uuid, response.data['results']['ids'])
+
+    def test_volunteer_export(self):
+        self.client.force_authenticate(user=self.user)
+        self.volunteer = Volunteer(activities=["get_out_the_vote"],
+                                   mission_id=self.mission.object_uuid,
+                                   owner_username=self.pleb2.username).save()
+        self.volunteer.mission.connect(self.mission)
+        self.volunteer.volunteer.connect(self.pleb2)
+        url = "/v1/missions/%s/volunteer_data/" % self.mission.object_uuid
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("test,test,bounce@simulator.amazonses.com,x,,,,,,,,,,,",
+                      response.content)
+
+    def test_volunteer_export_dne(self):
+        self.client.force_authenticate(user=self.user)
+        self.volunteer = Volunteer(activities=["get_out_the_vote"],
+                                   mission_id=self.mission.object_uuid,
+                                   owner_username=self.pleb2.username).save()
+        self.volunteer.mission.connect(self.mission)
+        self.volunteer.volunteer.connect(self.pleb2)
+        url = "/v1/missions/%s/volunteer_data/" % str(uuid1())
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_volunteer_export_no_volunteers(self):
+        self.client.force_authenticate(user=self.user)
+        url = "/v1/missions/%s/volunteer_data/" % self.mission.object_uuid
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.content, 'First Name,Last Name,Email,Get Out '
+                                           'The Vote,Assist With An Event,'
+                                           'Leaflet Voters,Write Letters To '
+                                           'The Editor,Work In A Campaign '
+                                           'Office,Table At Events,Call Voters,'
+                                           'Data Entry,Host A Meeting,Host A '
+                                           'Fundraiser,Host A House Party,'
+                                           'Attend A House Party\r\n')

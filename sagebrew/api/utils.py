@@ -221,15 +221,6 @@ def wait_util(async_res):
     return async_res['task_id'].result.result
 
 
-def execute_cypher_query(query):
-    # Deprecated in DRF views as we handle raises in CypherException and
-    # IOError in the middleware now
-    try:
-        return db.cypher_query(query)
-    except(CypherException, IOError) as e:
-        return e
-
-
 def gather_request_data(context, expedite_param=None, expand_param=None):
     try:
         request = context['request']

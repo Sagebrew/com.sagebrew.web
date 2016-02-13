@@ -1,9 +1,9 @@
 from django.core.cache import cache
 
-from neomodel import DoesNotExist, CypherException
+from neomodel import DoesNotExist, CypherException, db
+from py2neo.cypher.error.transaction import ClientError
 
 from sb_base.decorators import apply_defense
-from api.utils import execute_cypher_query
 
 from .neo_models import Pleb, FriendRequest
 
@@ -24,7 +24,7 @@ def create_friend_request_util(from_username, to_username, object_uuid):
             to_citizen = Pleb.get(username=to_username, cache_buster=True)
         except(Pleb.DoesNotExist, DoesNotExist) as e:
             return e
-        except(CypherException, IOError) as e:
+        except(CypherException, IOError, ClientError) as e:
             return e
 
         query = 'match (p:Pleb) where p.username="%s" ' \
@@ -33,9 +33,11 @@ def create_friend_request_util(from_username, to_username, object_uuid):
                 'with p, r ' \
                 'match (r)-[:REQUEST_TO]->(p2:Pleb) where p2.username="%s" ' \
                 'return p2' % (from_username, to_username)
-        pleb2, meta = execute_cypher_query(query)
-        if isinstance(pleb2, Exception):
-            return pleb2
+        try:
+            pleb2, _ = db.cypher_query(query)
+        except(CypherException, IOError, ClientError) as e:
+            return e
+
         if pleb2:
             return True
 

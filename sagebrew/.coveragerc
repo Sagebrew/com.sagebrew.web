@@ -72,6 +72,8 @@ exclude_lines =
     if 0:
     if __name__ == .__main__.:
     except CypherException as e:
+    except JSONResponseError as e:
+    except(TypeError, IoError, BotoClientError, BotoServerError, AWSConnectionError, Exception) as e:
     except(CypherException, IOError) as e:
     except (CypherException, IOError):
     except (CypherException, IOError, ClientError) as e:

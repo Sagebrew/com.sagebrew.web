@@ -122,7 +122,7 @@ class Quest(Searchable):
         return None
 
     @property
-    def stripe_token(self):
+    def stripe_token(self):  # pragma: no cover
         # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
         return None
 
@@ -132,12 +132,12 @@ class Quest(Searchable):
         return None
 
     @property
-    def routing_number(self):
+    def routing_number(self):  # pragma: no cover
         # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
         return None
 
     @property
-    def account_number(self):
+    def account_number(self):  # pragma: no cover
         # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
         return None
 

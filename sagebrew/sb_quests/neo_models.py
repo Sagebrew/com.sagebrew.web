@@ -217,11 +217,19 @@ class Quest(Searchable):
         return [Donation.inflate(donation[0]) for donation in res]
 
     def is_following(self, username):
-        query = 'MATCH (q:Quest {object_uuid:"%s"})-[r:FOLLOWERS]->' \
-                '(p:Pleb {username:"%s"}) RETURN r.active' % \
-                (self.object_uuid, username)
-        res, _ = db.cypher_query(query)
-        return res.one
+        following = cache.get("%s_is_following_quest_%s" %
+                              (username, self.object_uuid))
+        if following is None:
+            query = 'MATCH (q:Quest {object_uuid:"%s"})-[r:FOLLOWERS]->' \
+                    '(p:Pleb {username:"%s"}) RETURN r.active' % \
+                    (self.object_uuid, username)
+            res, _ = db.cypher_query(query)
+            following = res.one
+            if following is None:
+                following = False
+            cache.set("%s_is_following_quest_%s" % (username, self.object_uuid),
+                      following)
+        return following
 
     def follow(self, username):
         """
@@ -234,6 +242,7 @@ class Quest(Searchable):
                 'WITH q, p CREATE UNIQUE (q)-[r:FOLLOWERS]->(p) SET ' \
                 'r.active=true RETURN r.active' % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
+        cache.delete("%s_is_following_quest_%s" % (username, self.object_uuid))
         return res.one
 
     def unfollow(self, username):
@@ -246,6 +255,7 @@ class Quest(Searchable):
                 '{username:"%s"}) SET r.active=false RETURN r.active' \
                 % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
+        cache.delete("%s_is_following_quest_%s" % (username, self.object_uuid))
         return res.one
 
     def get_followers(self):

@@ -122,7 +122,7 @@
                                 </li>
                             {% endif %}
                             <li>
-                                <button class="btn btn-primary sb_btn_fill js-follow-btn" {% if not user.is_authenticated %}disabled{% endif %}>{% if quest.is_following %}Unfollow{% else %}Follow{% endif %}</button>
+                                <a class="btn btn-primary sb_btn_fill js-follow-btn {% if not user.is_authenticated %}sb_btn_disabled{% endif %}" {% if not user.is_authenticated %}disabled data-toggle="tooltip" data-title="You must signup or login to Follow!" data-placement="top"{% endif %}>{% if quest.is_following %}Unfollow{% else %}Follow{% endif %}</a>
                             </li>
                         </ul>
                     {% endif %}

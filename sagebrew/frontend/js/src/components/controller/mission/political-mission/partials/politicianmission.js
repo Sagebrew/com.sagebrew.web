@@ -282,7 +282,7 @@ function checkIfDistricts(identifier, districtRow, positionInputRow) {
             fillDistricts("federal");
         }
     } else if(identifier === "Other") {
-        localStorage.removeItem(levelKey);
+        localStorage.setItem(levelKey, localStorage.getItem(filterKey));
         positionInputRow.classList.remove('hidden');
         districtRow.classList.add('hidden');
     } else {

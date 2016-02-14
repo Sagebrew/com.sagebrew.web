@@ -105,10 +105,11 @@ class MissionSerializer(SBSerializer):
                 if not res.one:
                     new_position = Position(verified=verified, name=focused_on,
                                         level=level).save()
-                    query = 'MATCH (location:Location {external_id: "%s"}) ' \
-                            'WITH location ' \
-                            'CREATE UNIQUE (position:Position {object_uuid: ' \
-                            '"%s"})<-[r:POSITIONS_AVAILABLE]-(location) ' \
+                    query = 'MATCH (location:Location {external_id: "%s"}), ' \
+                            '(position:Position {object_uuid:"%s"}) ' \
+                            'WITH location, position ' \
+                            'CREATE UNIQUE (position)' \
+                            '<-[r:POSITIONS_AVAILABLE]-(location) ' \
                             'RETURN position' % (location,
                                                  new_position.object_uuid)
                     res, _ = db.cypher_query(query)

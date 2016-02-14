@@ -1,5 +1,6 @@
 from django.core.cache import cache
 
+from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.decorators import list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -40,6 +41,16 @@ class UserNotificationViewSet(viewsets.ModelViewSet):
     def get_object(self):
         return Notification.nodes.get(
             object_uuid=self.kwargs[self.lookup_field])
+
+    def create(self, request, *args, **kwargs):
+        # Creation is performed by tasks in the backend
+        raise MethodNotAllowed(request.method,
+                               detail='Method "POST" not allowed.')
+
+    def destroy(self, request, *args, **kwargs):
+        # Users cannot destroy notifications
+        raise MethodNotAllowed(request.method,
+                               detail='Method "DELETE" not allowed.')
 
     def list(self, request, *args, **kwargs):
         """

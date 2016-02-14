@@ -273,6 +273,7 @@ class Quest(Searchable):
 class Position(SBObject):
     name = StringProperty()
     full_name = StringProperty()
+    verified = BooleanProperty(default=True)
     # Valid Levels:
     #     state_upper - State Senator Districts
     #     state_lower - State House Representative Districts

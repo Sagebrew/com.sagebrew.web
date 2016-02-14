@@ -8,13 +8,11 @@ urlpatterns = patterns(
     url(r'^funding-not-in-account/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "I've reached my Goal but there are no funds in"
-                     " my bank account",
-            "description": "Sometimes there are issues with releasing funds."
-                           " Have you provided an update for your last Goal?"
-                           " There might be issues with your account "
-                           "information. Contact us and we'll help figure it "
-                           "out.",
+            "title": "I've received a Donation but there are no "
+                     "funds in my bank account",
+            "description": "Funds will usually take up to two full business "
+                           "days to transfer into your account. If you're "
+                           "having issues though we're happy to help!",
             "content_path":
                 "%sfunding_not_in_account.html" % settings.HELP_DOCS_PATH,
             "category": "quest"
@@ -90,19 +88,6 @@ urlpatterns = patterns(
             "category": "quest"
     },
         name="principle_campaign_committee"),
-    url(r'^quest/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "Embarking on a Quest",
-            "description": "Quests are for anyone looking to run for public "
-                           "office. We know running a campaign is hard work"
-                           " and we're here to help you along your journey!",
-            "content_path":
-                "%squest_signup.html" % settings.HELP_DOCS_PATH,
-            "category": "quest",
-            "static_files": True
-    },
-        name="quest_signup"),
     url(r'^funding_not_in_account/$', RedirectView.as_view(
         url='/help/quest/funding-not-in-account/', permanent=True),
         name='funding_not_in_account_redirect'),

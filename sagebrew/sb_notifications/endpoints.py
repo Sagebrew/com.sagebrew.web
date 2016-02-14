@@ -46,6 +46,7 @@ class UserNotificationViewSet(viewsets.ModelViewSet):
         Had to overwrite this function to add a check for a query param being
         passed that when set to true will set all the user's current
         notifications to seen
+        :param request:
         """
         seen = request.query_params.get('seen', 'false').lower()
         if seen == "true":

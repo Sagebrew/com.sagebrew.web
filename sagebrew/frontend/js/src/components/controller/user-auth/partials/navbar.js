@@ -26,7 +26,6 @@ export function navbar() {
 
         //Notifications
         if (notificationData[0].count) {
-            console.log(settings);
             notifications = templates.notifications({
                 default_profile: settings.default_profile_pic,
                 notifications: notificationData[0].results
@@ -37,7 +36,6 @@ export function navbar() {
                     $('#js-notification_notifier_wrapper').append('<span class="navbar-new sb_notifier" id="js-sb_notifications_notifier">' + data.unseen + '</span>');
                 }
             });
-
         } else {
             $('#notification_wrapper').append("No new notifications.");
         }

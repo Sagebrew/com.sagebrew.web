@@ -136,7 +136,9 @@ class UserNotificationRetrieveTest(APITestCase):
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
         self.pleb.notifications.connect(notification)
-        url = "%s?seen=true" % reverse('notification-unseen')
+        url = "%s?seen=true" % reverse('notification-list')
+        self.client.get(url, format='json')
+        url = reverse('notification-unseen')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['unseen'], 0)
 

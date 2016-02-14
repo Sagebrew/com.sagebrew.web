@@ -33,10 +33,9 @@ urlpatterns = patterns(
     url(r'^formatting/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "How do I create a good question?",
-            "description": "A frequently asked question regarding what is"
-                           "expected from community members when they are"
-                           "asking a question.",
+            "title": "Asking a Question",
+            "description": "Some guidelines on how to start off a conversation "
+                           "with a Question.",
             "content_path":
                 "%sgood_question.html" % settings.HELP_DOCS_PATH,
             "category": "questions"

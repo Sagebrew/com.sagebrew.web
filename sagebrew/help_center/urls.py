@@ -20,9 +20,6 @@ urlpatterns = patterns(
     (r'^conversation/', include('help_center.sub_urls.conversation')),
     (r'^privileges/', include('help_center.sub_urls.privileges')),
     (r'^donating/', include('help_center.sub_urls.donations')),
-    url(r'^quests/quest/$', RedirectView.as_view(
-        url='/help/quest/quest/', permanent=True),
-        name='quest_redirect'),
     url(r'^quests/how_to_run/$', RedirectView.as_view(
         url='/help/quest/how-to-run/', permanent=True),
         name='s-how-to-run-redirect'),

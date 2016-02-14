@@ -129,64 +129,27 @@ class UserNotificationRetrieveTest(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'], [])
 
-    def test_list_seen_render(self):
+    def test_list_seen(self):
         self.client.force_authenticate(user=self.user)
         notification = Notification(
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
         self.pleb.notifications.connect(notification)
-        url = "%s?seen=true" % reverse('notification-render')
+        url = "%s?seen=true" % reverse('notification-unseen')
         response = self.client.get(url, format='json')
-        self.assertEqual(response.data['results']['unseen'], 0)
+        self.assertEqual(response.data['unseen'], 0)
 
-    def test_list_render_unseen(self):
+    def test_list_unseen(self):
         self.client.force_authenticate(user=self.user)
         notification = Notification(
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
         self.pleb.notifications.connect(notification)
-        url = reverse('notification-render')
+        url = reverse('notification-unseen')
         response = self.client.get(url, format='json')
-        self.assertGreater(response.data['results']['unseen'], 0)
-
-    def test_list_render_ids(self):
-        self.client.force_authenticate(user=self.user)
-        cache.clear()
-        notification = Notification(
-            action_name="This is it! a notification").save()
-        notification.notification_from.connect(self.pleb)
-        notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
-        url = reverse('notification-render')
-        response = self.client.get(url, format='json')
-        self.assertGreater(len(response.data['results']['ids']), 0)
-
-    def test_list_render_html(self):
-        self.client.force_authenticate(user=self.user)
-        cache.clear()
-        notification = Notification(
-            action_name="This is it! a notification").save()
-        notification.notification_from.connect(self.pleb)
-        notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
-        url = reverse('notification-render')
-        response = self.client.get(url, format='json')
-        self.assertGreater(len(response.data['results']['html']), 0)
-
-    def test_list_render_html_cached(self):
-        self.client.force_authenticate(user=self.user)
-        cache.clear()
-        notification = Notification(
-            action_name="This is it! a notification").save()
-        cache.set('%s_notifications' % self.user.username, [notification, ])
-        notification.notification_from.connect(self.pleb)
-        notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
-        url = reverse('notification-render')
-        response = self.client.get(url, format='json')
-        self.assertGreater(len(response.data['results']['html']), 0)
+        self.assertGreater(response.data['unseen'], 0)
 
     def test_get_id(self):
         self.client.force_authenticate(user=self.user)

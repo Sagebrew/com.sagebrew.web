@@ -4,8 +4,9 @@
  * TODO: Reorganize.
  * App: .app-navbar
  */
-var request = require('api').request;
-var settings = require('settings').settings;
+var request = require('api').request,
+    templates = require('template_build/templates'),
+    settings = require('settings').settings;
 
 
 /**
@@ -17,7 +18,7 @@ export function navbar() {
 
     //
     // Load navbar count(s)
-    var notifications = request.get({url: "/v1/me/notifications/render/"}),
+    var notifications = request.get({url: "/v1/me/notifications/"}),
         friends = request.get({url: "/v1/me/friend_requests/render/"});
     //Rep
     $("#reputation_total").append(settings.profile.reputation);
@@ -25,10 +26,18 @@ export function navbar() {
 
         //Notifications
         if (notificationData[0].count) {
-            $('#notification_wrapper').append(notificationData[0].results.html);
-            if (notificationData[0].results.unseen > 0) {
-                $('#js-notification_notifier_wrapper').append('<span class="navbar-new sb_notifier" id="js-sb_notifications_notifier">' + notificationData[0].results.unseen + '</span>');
-            }
+            console.log(settings);
+            notifications = templates.notifications({
+                default_profile: settings.default_profile_pic,
+                notifications: notificationData[0].results
+            });
+            $('#notification_wrapper').append(notifications);
+            request.get({url: "/v1/me/notifications/unseen/"}).done(function (data) {
+                if (data.unseen > 0) {
+                    $('#js-notification_notifier_wrapper').append('<span class="navbar-new sb_notifier" id="js-sb_notifications_notifier">' + data.unseen + '</span>');
+                }
+            });
+
         } else {
             $('#notification_wrapper').append("No new notifications.");
         }

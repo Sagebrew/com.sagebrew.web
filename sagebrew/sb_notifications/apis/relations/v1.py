@@ -1,17 +1,14 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import patterns, url, include
 
-from sb_notifications.endpoints import (UserNotificationList,
-                                        UserNotificationRetrieve,
-                                        notification_renderer)
+from rest_framework import routers
 
+from sb_notifications.endpoints import UserNotificationViewSet
+router = routers.SimpleRouter()
+router.register(r'notifications', UserNotificationViewSet,
+                base_name='notification')
 
 urlpatterns = patterns(
     'sb_notifications.endpoints',
-    url(r'^notifications/$',
-        UserNotificationList.as_view(), name='notification-list'),
-    url(r'^notifications/render/$', notification_renderer,
-        name='notification-render'),
-    url(r'^notifications/(?P<object_uuid>[A-Za-z0-9.@_%+-]{36,36})/$',
-        UserNotificationRetrieve.as_view(), name='notification-detail'),
+    url(r'^', include(router.urls)),
 
 )

@@ -4,6 +4,7 @@ import stripe
 
 from django.conf import settings
 from django.core.cache import cache
+from django.templatetags.static import static
 
 from neomodel import CypherException, DoesNotExist
 
@@ -23,6 +24,7 @@ def js_settings(request):
         'google_maps': environ.get('GOOGLE_MAPS_JS'),
         'user': {},
         'static_url': settings.STATIC_URL,
+        "default_profile_pic": static('images/sage_coffee_grey-01.png'),
         'version': environ.get("SHA1", "")
     }
     try:

@@ -1,0 +1,26 @@
+{{#each notifications}}
+    <div class="block sb_notification_block">
+        <div class="row notification-info">
+            <div class="col-lg-2 col-md-2">
+                <div class="thumbnail sb_thumbnail_sm">
+                    {{# if this.public_notification }}
+                        <a href="{{ this.url }}" class="notification sb_notification_link"><img src="{{ ../default_profile }}"></a>
+                    {{ else }}
+                        <a href="{{ this.url }}" class="notification sb_notification_link"><img src="{{ this.notification_from.profile_pic }}"></a>
+                    {{/if}}
+                </div>
+            </div>
+            <div class="col-lg-10 col-md-10">
+                <p class="sb_notification_link">
+                    <a href="{{ this.url }}" class="notification">
+                        {{# if this.public_notification }}
+                            {{{ this.action_name }}}
+                        {{ else }}
+                            {{ this.notification_from.first_name }} {{ this.notification_from.last_name }} {{{ this.action_name }}}
+                        {{/if}}
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+{{/each}}

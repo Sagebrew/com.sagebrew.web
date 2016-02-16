@@ -912,7 +912,8 @@ class TestQuestSignup(TestCase):
             about='Test Bio', owner_username=self.pleb.username).save()
         self.pleb.quest.connect(quest)
         res = quest_signup(request)
-        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+        self.assertIn(res.status_code, [status.HTTP_200_OK,
+                                        status.HTTP_302_FOUND])
         self.pleb.quest.disconnect(quest)
         quest.delete()
 

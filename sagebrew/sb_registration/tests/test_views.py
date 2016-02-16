@@ -494,6 +494,7 @@ class TestLoginView(TestCase):
     def test_login_view_authed(self):
         self.client.login(username=self.user.username, password='test_test')
         request = self.factory.request()
+        request.user = self.user
         res = login_view(request)
 
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)

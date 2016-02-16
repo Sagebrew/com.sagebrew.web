@@ -1,14 +1,11 @@
-from dateutil import parser
-
-from django.template.loader import render_to_string
-from django.template import RequestContext
 from django.core.cache import cache
 
-from rest_framework.decorators import (api_view, permission_classes)
+from rest_framework.exceptions import MethodNotAllowed
+from rest_framework.decorators import list_route
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.generics import (ListAPIView, RetrieveAPIView)
+
+from rest_framework import viewsets
 
 from neomodel import db
 
@@ -16,23 +13,7 @@ from .neo_models import Notification
 from .serializers import NotificationSerializer
 
 
-class UserNotificationRetrieve(RetrieveAPIView):
-    """
-    This endpoint assumes it is placed on a specific user endpoint where
-    it can really on the currently logged in user to gather notifications
-    for. It is not capable of being set on an arbitrary user's profile
-    endpoint like other method endpoints we have.
-    """
-    serializer_class = NotificationSerializer
-    lookup_field = "object_uuid"
-    permission_classes = (IsAuthenticated, )
-
-    def get_object(self):
-        return Notification.nodes.get(
-            object_uuid=self.kwargs[self.lookup_field])
-
-
-class UserNotificationList(ListAPIView):
+class UserNotificationViewSet(viewsets.ModelViewSet):
     """
     This endpoint assumes it is placed on a specific user endpoint where
     it can really on the currently logged in user to gather notifications
@@ -57,11 +38,26 @@ class UserNotificationList(ListAPIView):
                       notifications)
         return notifications
 
+    def get_object(self):
+        return Notification.nodes.get(
+            object_uuid=self.kwargs[self.lookup_field])
+
+    def create(self, request, *args, **kwargs):
+        # Creation is performed by tasks in the backend
+        raise MethodNotAllowed(request.method,
+                               detail='Method "POST" not allowed.')
+
+    def destroy(self, request, *args, **kwargs):
+        # Users cannot destroy notifications
+        raise MethodNotAllowed(request.method,
+                               detail='Method "DELETE" not allowed.')
+
     def list(self, request, *args, **kwargs):
         """
         Had to overwrite this function to add a check for a query param being
         passed that when set to true will set all the user's current
         notifications to seen
+        :param request:
         """
         seen = request.query_params.get('seen', 'false').lower()
         if seen == "true":
@@ -77,26 +73,6 @@ class UserNotificationList(ListAPIView):
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 
-
-@api_view(["GET"])
-@permission_classes((IsAuthenticated, ))
-def notification_renderer(request, object_uuid=None):
-    """
-    This is a intermediate step on the way to utilizing a JS Framework to
-    handle template rendering.
-    """
-    html_array = []
-    id_array = []
-    notifications = UserNotificationList.as_view()(request)
-    for notification in notifications.data.get('results', []):
-        notification['time_sent'] = parser.parse(notification['time_sent'])
-        context = RequestContext(request, notification)
-        html_array.append(render_to_string('general_notification_block.html',
-                                           context))
-        id_array.append(notification["id"])
-
-    notifications.data['results'] = {
-        "html": html_array, "ids": id_array,
-        "unseen": Notification.unseen(request.user.username)
-    }
-    return Response(notifications.data, status=status.HTTP_200_OK)
+    @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def unseen(self, request):
+        return Response({"unseen": Notification.unseen(request.user.username)})

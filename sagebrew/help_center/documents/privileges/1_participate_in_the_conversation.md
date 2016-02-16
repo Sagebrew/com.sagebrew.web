@@ -9,21 +9,10 @@
 - Ability to Edit Own Questions
 - Until user attains 10 [Reputation][2] (leave "new user" status) they are 
   limited to a sum of 3 Questions and Solutions per day
-{% if debug == True %}
-- Ability to Concede to more viable Solutions
-{% endif %}
 
 
 ### Description ###
 This is the most basic privilege: the ability to communicate with others.
-
-{% if debug == True %}
-You can reach out to your friends and start Private Conversations. Consider 
-Private Conversations a testing ground where you can discuss issues with your 
-friends and family without worrying about Reputation. This is a place to 
-practice proper discussion etiquette, or to blow off etiquette altogether if 
-you’d like. It’s your space. Have fun.
-{% endif %}
 
 You can create Questions and provide Solutions in the Conversation Cloud. This is 
 your opportunity to lend your voice to the ongoing discussions, 
@@ -31,14 +20,6 @@ allowing you to interact with other like-minded visionaries and find solutions
 to real problems. Note that Reputation is on the line in the 
 Conversation Cloud. You may amass Reputation for quality Questions and 
 Solutions, or you may lose Reputation for poor quality Questions and Solutions. 
-
-{% if debug == True %}
-Lastly, you'll be able to Concede your Solutions to more viable/invested 
-Solutions if you desire. If somebody comes up with a Solution that seems to 
-cover more ground than yours, there is no shame in Conceding to that person's 
-solution! In fact, by Conceding to a better solution, you've shown that you're 
-here to find the best solution to a problem and not to argue a moot point! 
-{% endif %}
 
 Time to stir the brew!  
  
@@ -54,45 +35,17 @@ A good Question is a Question that has no clear solution and involves multiple
 points of view. A good Question should be backed up with facts drawn from 
 reliable sources. 
 
-#### Example of a Good Question ####
-** **
-##### How can we reduce the amount of NO2 pollution in the atmosphere? ####
-NO2 is a greenhouse gas 300 times more harmful to the environment than CO2, 
-and the levels of NO2 in the environment are rising far above average 
-atmospheric fluctuation. Large scale agriculture is a main culprit, as 
-Nitrogen rich fertilizers are spreading too much nitrogen into the fields, 
-causing microbes in the soil to break release that extra nitrogen into the 
-atmosphere. What can farmers do to reduce the amount of NO2 being placed into 
-the atmosphere? 
-
-Sources: http://epa.gov/climatechange/ghgemissions/gases/n2o.html
-** **
 ### What's a bad Question look like? ###
 A Question is a bad Question if it is: offensive, only has one side, 
 has an obvious solution, is not aimed at finding a solution, does not make 
 sense etc. 
-{% if debug == True %}
-If you aren't sure if your Question is good or bad, start a 
-Private Conversation first and see what kind of feedback you get. If it 
-seems to spark a good conversation with multiple sides, it's probably okay. 
-If it doesn't, well, take it back to the drawing board and rework it. 
-{% endif %}
-
-#### Example of a Bad Question #####
-** **
-##### Why do republicans keep wasting their time fighting Obamacare? #####
-** **
-
-Note how there is no [context][3], no information provided other than the Question, 
-and the Question is posed as a one-sided question. To make this a good Question,
-a more in-depth look at the Affordable Care Act and the politics behind it is 
-needed, as well as fact-based context to provide further insight. 
 
 ### When should I provide a Solution? ##
 You should provide a Solution if you have anything relevant to add to the 
 conversation. If there is an angle or a thought that has not been presented 
-yet, and you can lend merit to that thought, create a Solution. Don't 
-provide a Solution that has already been provided, and don't provide a 
+yet, and you can lend merit to that thought, create a Solution. 
+
+Don't provide a Solution that has already been provided or a 
 Solution that doesn't add new information to the conversation. 
 
 ### What happens to my Question? ###
@@ -103,11 +56,6 @@ your Question may continue to gain attention as new, relevant
 information comes to light, and might remain a contesting Question for a 
 long time. Regardless, all Questions are archived and you'll be able to review 
 them at any time you'd like. 
-{% if debug == True %}
-If your Question was part of a 
-Private Conversation it will remain archived on your page for you 
-and your friends to see should they so choose. 
-{% endif %}
 
 {% if debug == True %}
 ### When should I Concede to another Solution? ###
@@ -174,8 +122,6 @@ and updating context simply won't do the Question justice, it's best to simply
 start a new Question. 
 
 You will be limited to associating 5 tags with a given question. 
-## 1 Up! ##
-All new users will receive 1 Free Upvote! Use carefully! 
 
 {% if debug == True %}
 ### Badges Associated with Conversing ###

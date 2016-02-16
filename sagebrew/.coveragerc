@@ -32,6 +32,13 @@ omit =
     */management/commands/create_prepopulated_reps.py
     */management/commands/populate_president.py
     */management/commands/update_posts.py
+    */management/commands/update_pleb_search.py
+    */management/commands/update_existing_expanded_content.py
+    */management/commands/remove_duplicate_plebs_search.py
+    */management/commands/add_full_name_to_positions.py
+    */management/commands/remove_duplicates_from_search.py
+    */management/commands/populate_state_external_ids.py
+    */management/commands/connect_addresses_to_federal_districts.py
     */management/commands/create_subscription_plans.py
     */management/commands/empty_elasticsearch.py
     */management/commands/update_official_search.py
@@ -65,6 +72,13 @@ exclude_lines =
     if 0:
     if __name__ == .__main__.:
     except CypherException as e:
+    except JSONResponseError as e:
+    except(TypeError, IoError, BotoClientError, BotoServerError, AWSConnectionError, Exception) as e:
+    except(CypherException, IOError) as e:
+    except (CypherException, IOError):
+    except (CypherException, IOError, ClientError) as e:
+    except (CypherException, IOError, ClientError):
+    except CypherException:
     pass
 
 

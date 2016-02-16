@@ -26,6 +26,7 @@ export function load() {
         afterAfterImgCropCallback: afterAfterImgCropCallback
     };
     addCroppic(croppicContainerOptions);
+    $('[data-toggle="tooltip"]').tooltip();
 }
 
 

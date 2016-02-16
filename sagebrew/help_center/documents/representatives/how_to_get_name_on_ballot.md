@@ -17,5 +17,11 @@ election office in your state). They will assist you in getting your
 name on the ballot. For more information regarding federal campaign 
 procedure, visit the [Federal Election Commission website][1].
 
+Please keep in mind getting on a ballot often times requires you to acquire a 
+large amount of signatures. We've created a volunteer interface for people supporting
+your cause to register to help you achieve this but even with volunteers it 
+can be a multi-month process that you'll want to get started on sooner rather 
+than later.
+
 
 [1]: http://www.fec.gov

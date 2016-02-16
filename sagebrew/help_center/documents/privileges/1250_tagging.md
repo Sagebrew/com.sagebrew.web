@@ -1,5 +1,5 @@
 # Ability to Create Tags #
-*Reputation needed: 1250*
+*Reputation needed: 1,250*
 
 ## Description ##
 You now have the ability to create your own Tags! This will allow you to more 

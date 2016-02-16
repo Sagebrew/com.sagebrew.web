@@ -11,7 +11,7 @@ disagreement.
 You can Downvote a Question when you don't believe it is relevant, warrants 
 further conversation, or if you just disagree with its premise. You should Downvote
 Solutions if you disagree with them. For example, if there's a Question
-posed about how to deal with the crisis in Ukraine and a Solution is 
+posed about how to deal with a crisis in Ukraine and a Solution is 
 pro-military invasion. The Solution highlights the historical context of 
 military invasion and past issues with Russia, laying out a valid position. 
 But you are a dire pacifist, than you should Downvote that Solution.

@@ -16,6 +16,9 @@ like Mona can "test the waters" so to speak without having to register. Her
 next move while testing the waters is to put together a prospective campaign 
 committee.
 
+Please note the $5000 applies to Presidential bids for office and if you're 
+running for a state or local office this figure may range.
+
 ## Put together a campaign committee ##
 First Mona will carefully select her campaign committee. This team will be 
 responsible for handling the day to day affairs of the campaign and are crucial 
@@ -90,9 +93,6 @@ campaign plan, Mona will outline:
 A campaign plan will help to set a pragmatic goal for the campaign and will 
 provide a reference to check progress during the campaign.  
 
-With Sagebrew's donation system, Mona will be able to set up her [Goals][3] 
-and keep better track of her fundraising and campaign activity. This is just 
-one way that Sagebrew can assist Mona with her campaign.
 
 ## Fundraising ##
 While fundraising, Mona and her committee should use all resources available to 
@@ -138,9 +138,7 @@ progress, and even gauge her popularity among her constituents. There are many
 ways to utilize Sagebrew to engage the public. Remember, votes win elections, 
 and recognition wins votes.
 
-If Mona pays attention to all of the details and works hard to stay on top of 
-her schedule, she is putting forth her best effort to win the election. No 
-election is a guarantee, but by following the guidelines above and staying true 
+No election is a guarantee, but by following the guidelines above and staying true 
 to her campaign, she can assure that she stands the best possible chance.
 
 For a more long-winded but more detailed outline of running for federal office, 
@@ -149,5 +147,4 @@ the FEC has this [campaign guideline][2].
 
 [1]: http://www.fec.gov/ans/answers_general.shtml
 [2]: http://www.fec.gov/pdf/candgui.pdf
-[3]: /help/quest/goals/
 [4]: /help/quest/principal_campaign_committee/

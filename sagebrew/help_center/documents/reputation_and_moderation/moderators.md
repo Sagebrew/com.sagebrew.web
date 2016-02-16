@@ -27,6 +27,13 @@ keep Sagebrew a mature and friendly space. The Admin Council's duties include:
       but it is decided to be a good Conversation, an Admin may place Protection on 
       that conversation so that only members with higher reputation can interact
       with the content.
+- Verify User Added Positions for Missions to Run For
+    - There are so many public offices that people can run for that Sagebrew 
+      allows Quests to create a Position they would like to wage a Mission 
+      towards. Sagebrew must verify all of these publicly added Positions to 
+      maintain trust with the community and not allow non-existent Positions 
+      to be displayed. The Admin council must approve newly created Positions 
+      as valid by a 2/3rds vote of those who participate.
 
 Think of the Admin Council as the "elders" of the Sagebrew community. They've 
 been around and can be trusted to take care of their responsibilities. 

@@ -10,7 +10,9 @@ you wish to present.
 ## The Specifics ##
 
 ### Spaces and Lines ###
-If you wish to begin a new paragraph, you'll need to hit enter twice to tell Markdown you wish to begin a new paragraph. Markdown does not reconginze a single line as a new line. For example:
+If you wish to begin a new paragraph, you'll need to hit enter twice to tell 
+Markdown you wish to begin a new paragraph. Markdown does not reconginze a 
+single line as a new line. For example:
 
     this
     is 

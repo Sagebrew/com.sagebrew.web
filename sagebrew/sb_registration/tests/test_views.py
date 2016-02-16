@@ -19,13 +19,15 @@ from rest_framework import status
 
 from neomodel import DoesNotExist
 
+from sb_quests.neo_models import Position
 from sb_public_official.neo_models import PublicOfficial
 from sb_registration.views import (profile_information,
                                    logout_view,
                                    login_view, login_view_api,
                                    resend_email_verification,
                                    email_verification, interests,
-                                   advocacy, political_campaign)
+                                   advocacy, political_campaign,
+                                   quest_signup, signup_view)
 from sb_registration.models import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util_test
 from plebs.neo_models import Pleb, Address
@@ -98,15 +100,6 @@ class InterestsTest(TestCase):
         response = interests(request)
 
         self.assertEqual(response.status_code, 302)
-
-    def test_random_cat_selected_no_topics_selected(self):
-        pass
-
-    def test_random_cat_selected_random_topics_selected(self):
-        pass
-
-    def test_no_cat_selected_random_topics_selected(self):
-        pass
 
     def test_get_request(self):
         request = self.factory.get('/registration/interests')
@@ -462,6 +455,42 @@ class TestSignupView(TestCase):
         self.assertIn(response.status_code, [200, 302])
         self.client.logout()
 
+    def test_signup_email_verified(self):
+        user = authenticate(username=self.user.username,
+                            password='test_test')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        self.pleb.email_verified = True
+        self.pleb.save()
+        res = signup_view(request)
+        self.assertIn(res.status_code, [status.HTTP_200_OK,
+                                        status.HTTP_302_FOUND])
+        self.pleb.email_verified = False
+        self.pleb.save()
+
+    def test_signup_completed_profile(self):
+        user = authenticate(username=self.user.username,
+                            password='test_test')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        self.pleb.email_verified = True
+        self.pleb.completed_profile_info = True
+        self.pleb.save()
+        res = signup_view(request)
+        self.assertIn(res.status_code, [status.HTTP_200_OK,
+                                        status.HTTP_302_FOUND])
+        self.pleb.email_verified = False
+        self.pleb.completed_profile_info = False
+        self.pleb.save()
+
 
 class TestLoginView(TestCase):
 
@@ -479,7 +508,16 @@ class TestLoginView(TestCase):
         request = self.factory.request()
         res = login_view(request)
 
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_login_view_authed(self):
+        self.client.login(username=self.user.username, password='test_test')
+        request = self.factory.request()
+        request.user = self.user
+        res = login_view(request)
+
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+        self.client.logout()
 
 
 class TestFeatureViews(TestCase):
@@ -522,6 +560,18 @@ class TestFeatureViews(TestCase):
         s.save()
         request.session = s
         request.user = AnonymousUser()
+        res = political_campaign(request)
+
+        self.assertEqual(res.status_code, 200)
+
+    def test_political_campaign_view_no_positions(self):
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        request.user = AnonymousUser()
+        for campaign in Position.nodes.all():
+            campaign.delete()
         res = political_campaign(request)
 
         self.assertEqual(res.status_code, 200)
@@ -860,13 +910,30 @@ class TestQuestSignup(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
+        self.factory = RequestFactory()
         self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
+        self.user.username = self.pleb.username
+        self.user.save()
         self.client.login(username=self.pleb.username, password='test_test')
 
     def test_quest_signup_get(self):
         url = reverse('quest_info')
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_quest_already_exists(self):
+        self.client.login(username=self.user.username, password='test_test')
+        request = self.factory.request()
+        request.user = self.user
+        quest = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
+        self.pleb.quest.connect(quest)
+        res = quest_signup(request)
+        self.assertIn(res.status_code, [status.HTTP_200_OK,
+                                        status.HTTP_302_FOUND])
+        self.pleb.quest.disconnect(quest)
+        quest.delete()
 
     def test_quest_signup_post(self):
         url = reverse('quest_info')
@@ -890,9 +957,9 @@ class TestProfilePicture(TestCase):
         self.pleb.email_verified = True
         self.pleb.save()
         cache.set(self.pleb.username, self.pleb)
-        self.client.login(username=self.user.username, password='test_test')
 
     def test_profile_picture(self):
+        self.client.login(username=self.user.username, password='test_test')
         url = reverse("profile_picture")
         res = self.client.get(url)
 

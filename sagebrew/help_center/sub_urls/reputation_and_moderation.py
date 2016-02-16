@@ -118,31 +118,3 @@ urlpatterns = patterns(
         url='/help/reputation/voting-importance/', permanent=True),
         name='voting_importance_redirect'),
 )
-
-
-if settings.DEBUG is True:
-    url(r'^conceding/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "What happens if I concede to another solution?",
-            "description": "The goal is always to find the best solution that "
-                           "has the greatest outcome for the largest group of "
-                           "people. Conceding allows for the community to "
-                           "focus in on the top solutions.",
-            "content_path":
-                "%sconceding.html" % settings.HELP_DOCS_PATH,
-            "category": "Reputation and Moderation"
-    },
-        name="conceding"),
-    url(r'^what_are_badges/$', TemplateView.as_view(
-        template_name="help_page.html"),
-        kwargs={
-            "title": "What are badges?",
-            "description": "Reputation isn't the only puzzle piece that you "
-                           "need to advance in Sagebrew. Badges are another "
-                           "key component of distinguishing yourself.",
-            "content_path":
-                "%swhat_are_badges.html" % settings.HELP_DOCS_PATH,
-            "category": "Reputation and Moderation"
-    },
-        name="what_are_badges"),

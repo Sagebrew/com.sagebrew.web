@@ -27,7 +27,7 @@ from sb_registration.views import (profile_information,
                                    resend_email_verification,
                                    email_verification, interests,
                                    advocacy, political_campaign,
-                                   quest_signup)
+                                   quest_signup, signup_view)
 from sb_registration.models import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util_test
 from plebs.neo_models import Pleb, Address
@@ -456,19 +456,37 @@ class TestSignupView(TestCase):
         self.client.logout()
 
     def test_signup_email_verified(self):
+        user = authenticate(username=self.user.username,
+                            password='test_test')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
         self.pleb.email_verified = True
         self.pleb.save()
-        res = self.client.get(reverse('signup'))
-        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+        res = signup_view(request)
+        self.assertIn(res.status_code, [status.HTTP_200_OK,
+                                        status.HTTP_302_FOUND])
         self.pleb.email_verified = False
         self.pleb.save()
 
     def test_signup_completed_profile(self):
+        user = authenticate(username=self.user.username,
+                            password='test_test')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
         self.pleb.email_verified = True
         self.pleb.completed_profile_info = True
         self.pleb.save()
-        res = self.client.get(reverse('signup'))
-        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+        res = signup_view(request)
+        self.assertIn(res.status_code, [status.HTTP_200_OK,
+                                        status.HTTP_302_FOUND])
         self.pleb.email_verified = False
         self.pleb.completed_profile_info = False
         self.pleb.save()

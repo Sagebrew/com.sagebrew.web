@@ -20,6 +20,7 @@ community and to lead through example.
   [Deleted][3] or [Closed][4].
 - Close [Duplicates][5]
 - Ability to [Protect][7] a Conversation
+- Certify newly added positions that Missions can run for
 {% comment %}
     Upon implementation of Reach Posts elected officials shall have the capability
     to retain their additional reach posts granted at Tribune status until the 

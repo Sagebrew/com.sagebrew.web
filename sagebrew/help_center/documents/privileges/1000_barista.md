@@ -1,5 +1,5 @@
 # Barista #
-*Reputation needed: 1000*
+*Reputation needed: 1,000*
 
 ## Description ##
 You’ve reached a new Rank! As a Regular Brewer you’ll gain the following perks:

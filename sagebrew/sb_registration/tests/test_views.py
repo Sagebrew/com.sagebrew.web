@@ -895,6 +895,8 @@ class TestQuestSignup(TestCase):
         self.factory = RequestFactory()
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
+        self.user.username = self.pleb.username
+        self.user.save()
         self.client.login(username=self.pleb.username, password='test_test')
 
     def test_quest_signup_get(self):

@@ -274,6 +274,7 @@ class Position(SBObject):
     name = StringProperty()
     full_name = StringProperty()
     verified = BooleanProperty(default=True)
+    user_created = BooleanProperty(default=False)
     # Valid Levels:
     #     state_upper - State Senator Districts
     #     state_lower - State House Representative Districts

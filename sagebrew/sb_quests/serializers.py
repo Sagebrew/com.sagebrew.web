@@ -491,9 +491,18 @@ class AccountantSerializer(serializers.Serializer):
 class PositionSerializer(SBSerializer):
     name = serializers.CharField()
     full_name = serializers.CharField()
+    verified = serializers.BooleanField()
+    user_created = serializers.BooleanField()
 
     href = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
+    location_name = serializers.SerializerMethodField()
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.full_name = validated_data.get('full_name', instance.full_name)
+        instance.verified = validated_data.get('verified', instance.verified)
+        return instance.save()
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
@@ -509,6 +518,9 @@ class PositionSerializer(SBSerializer):
                            kwargs={'object_uuid': location},
                            request=request)
         return location
+
+    def get_location_name(self, obj):
+        return Position.get_location_name(obj.object_uuid)
 
 
 class PositionManagerSerializer(SBSerializer):

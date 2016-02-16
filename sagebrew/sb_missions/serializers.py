@@ -103,13 +103,17 @@ class MissionSerializer(SBSerializer):
                         (location, focused_on, level)
                 res, _ = db.cypher_query(query)
                 if not res.one:
-                    new_position = Position(verified=verified, name=focused_on,
-                                        level=level).save()
+                    focused_on = focused_on.title().replace('-', ' ')\
+                        .replace('_', ' ')
+                    new_position = Position(verified=False, name=focused_on,
+                                            level=level,
+                                            user_created=True).save()
                     query = 'MATCH (location:Location {external_id: "%s"}), ' \
                             '(position:Position {object_uuid:"%s"}) ' \
                             'WITH location, position ' \
                             'CREATE UNIQUE (position)' \
-                            '<-[r:POSITIONS_AVAILABLE]-(location) ' \
+                            '<-[r:POSITIONS_AVAILABLE]-(location), ' \
+                            '(position)-[:AVAILABLE_WITHIN]->(location) ' \
                             'RETURN position' % (location,
                                                  new_position.object_uuid)
                     res, _ = db.cypher_query(query)

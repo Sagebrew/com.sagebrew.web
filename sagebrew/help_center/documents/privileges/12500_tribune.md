@@ -1,16 +1,17 @@
 # Tribune #
-*Reputation needed: 12500*
+*Reputation needed: 25,000*
 
 *Amount of Badges Required: TBD*
 
 ## Description ##
-You now have the option to start a Quest! This is exciting news!
-You can use this page to expand awareness on topics that you're passionate 
-about. With this page you now have the ability to have a stronger presence in
+You now receive free access to the paid Quest account! This means you can have 
+unlimited missions with our lowest processing fee for donations. 
+You can use this to expand awareness on topics that you're passionate 
+about. With this system you now have the ability to have a stronger presence in
 the Sagebrew Community.
 
 ## What exactly to I gain? ##
-- Questing capabilities
+- Paid Quest Account for Free
 {% comment %}
 - You now have 3 Reach Posts per week and they reach your entire county
 - 8 Reach Posts to interact with those that represent you

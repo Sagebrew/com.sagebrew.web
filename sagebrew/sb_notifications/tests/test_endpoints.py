@@ -153,6 +153,20 @@ class UserNotificationRetrieveTest(APITestCase):
         response = self.client.get(url, format='json')
         self.assertGreater(response.data['unseen'], 0)
 
+    def test_cannot_destroy(self):
+        self.client.force_authenticate(user=self.user)
+        cache.clear()
+        notification = Notification(
+            action_name="This is it! a notification").save()
+        notification.notification_from.connect(self.pleb)
+        notification.notification_to.connect(self.pleb)
+        self.pleb.notifications.connect(notification)
+        url = reverse('notification-detail',
+                      kwargs={'object_uuid': notification.object_uuid})
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
     def test_get_id(self):
         self.client.force_authenticate(user=self.user)
         cache.clear()

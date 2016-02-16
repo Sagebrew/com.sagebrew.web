@@ -26,7 +26,8 @@ from sb_registration.views import (profile_information,
                                    login_view, login_view_api,
                                    resend_email_verification,
                                    email_verification, interests,
-                                   advocacy, political_campaign)
+                                   advocacy, political_campaign,
+                                   quest_signup)
 from sb_registration.models import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util_test
 from plebs.neo_models import Pleb, Address
@@ -891,7 +892,9 @@ class TestQuestSignup(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
+        self.factory = RequestFactory()
         self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.client.login(username=self.pleb.username, password='test_test')
 
     def test_quest_signup_get(self):
@@ -900,11 +903,13 @@ class TestQuestSignup(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_quest_already_exists(self):
-        url = reverse('quest_info')
+        self.client.login(username=self.user.username, password='test_test')
+        request = self.factory.request()
+        request.user = self.user
         quest = Quest(
             about='Test Bio', owner_username=self.pleb.username).save()
         self.pleb.quest.connect(quest)
-        res = self.client.get(url)
+        res = quest_signup(request)
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
         self.pleb.quest.disconnect(quest)
         quest.delete()

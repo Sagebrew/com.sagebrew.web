@@ -3,16 +3,19 @@
 
 ## General ##
 1.  You (the "Quest Subscriber", "Quest Account", "You", or "you") will use 
-    the Service to try to achieve the office you pursue.  You will NOT advocate 
-    or solicit material outside of your current political campaign agenda or 
-    push the agendas of others. 
+    the Service to try to achieve the office you pursue or the advocacy
+    campaign you have outlined.  You will NOT advocate 
+    or solicit material outside of the political realm and will not use the 
+    service to incorrectly characterize another individual or cause. 
 2.  By registering for a Quest account you agree that you are legally allowed 
     to run for the office you seek as dictated by all local, state, and federal laws. 
 3.  You agree to all of the User Terms and Conditions 
     ([http://www.sagebrew.com/help/terms/][5])
 4.  By registering for a Quest account you are acknowledging your bid to run 
-    for your selected office. By taking your Quest active you are legally 
-    "campaigning" for your selected office. By doing so you agree to adhere to 
+    for your selected office or to advocate for the selected advocacy agenda.
+     By taking your Quest active you are legally 
+    "campaigning" for your selected office if you start a Public Office based 
+    Mission. By doing so you agree to adhere to 
     all regulations and laws set by the governing body of the region you have 
     selected to campaign in.
 5.  If you are a sitting member of public office you may open up a Standard 
@@ -20,10 +23,10 @@
     page you will need to register for a Quest account.
 6.  You will not solicit or accept "quid pro quo" interactions that may affect 
     policies or cause illegal activity under the regulations and laws set forth 
-    by the governing body of the region you are campaigning in.
+    by the governing body of the region you are campaigning or advocating in.
 7.  You commit to giving a best effort to achieve what you indicate you will be 
     doing through the service. You'll put forth your best effort to fulfill 
-    updates and keep your constituents informed as your campaign progresses.
+    updates and keep your constituents informed as your campaign or advocacy progresses.
 8.  Sagebrew holds the right to suspend moderation of flagged content and access 
     to council interfaces (Administrator Privileges) on a Quest account for any 
     reason. The following are predefined reasons Administrator Privileges shall 
@@ -39,10 +42,9 @@
 
 
 ## Contributions ##
-1.  You may collect up to $2,700 in contributions from any individual through the 
-    Sagebrew service. You are responsible for refunding and managing any 
-    excessive donations that could cause legal ramifications to be taken against 
-    your campaign. 
+1.  You are responsible for managing any contribution limits placed on you 
+    or your campaign by the governing body that holds legal authority over the area 
+    you are campaigning or advocating within. 
 2.  Sagebrew will collect a total of 5% + 30 cents of contributions from Paid
     Quest accounts and 7% + 30 cents of contributions from unpaid Quest accounts.
 3.  Sagebrew is not responsible for verifying the identity of any contributors.
@@ -63,12 +65,7 @@
     their selected Moderators. 
 6.  You are responsible for upholding any promises, assertions, or other communication
     that are outlined within your Quest or Missions.
-7.  You will extend your “best effort” to fulfill milestones associated with Donation. Under the 
-    extreme circumstances you cannot complete a defined milestone, you may do something 
-    equivalent to the unattainable Donation milestone and provide an update including an 
-    explanation as to why you couldn't complete your intended Donation milestone, and 
-    why the replacement will suffice
-8.  You shall not utilize any donation information collected from a donating 
+7.  You shall not utilize any donation information collected from a donating 
     Subscriber to contact the Subscriber in any other way not explicitly outlined
     in these Terms of Service, including but not limited to adding the Subscriber 
     to mailing lists or phone lists. 
@@ -88,7 +85,8 @@ by Stripe.
 
 ## Donation Reporting ##
 Quest Subscribers are responsible for reporting contributions correctly to the 
-FEC. Sagebrew will provide the following, if provided by the Subscriber and 
+FEC if their campaign falls within it's jurisdiction. 
+Sagebrew will provide the following, if provided by the Subscriber and 
 Donator, to the Quest Subscriber specifically for filing to the FEC and for 
 no other reason other than what is explicitly stated in this document:
 
@@ -106,7 +104,7 @@ no other reason other than what is explicitly stated in this document:
 Filing contributions with the FEC is solely the responsibility of the Quest 
 Subscriber. Sagebrew provides no guarantees that the information you receive 
 from Sagebrew shall qualify as ready to report. It is up to the Quest 
-Subscriber's Committee Treasurer to file the Quest Subscriber's campaign 
+Owner to file the Quest Subscriber's campaign 
 reports correctly.
 
 Sagebrew is not held responsible for any legal issues that arise from your use 
@@ -119,14 +117,11 @@ For more information on filing with the FEC visit the [FEC website][3].
 1.  Cancellation by the Quest Subscriber may only occur when there are no 
     pending transactions. To accomplish this the user must first deactivate their 
     Quest prior to deleting it. 
-    Cancellation requires a phone call to validate the cancellation and an 
-    inquiry to assure the proper closing of a Quest account.  Any donations 
+    Any donations 
     that have not yet been billed will be immediately canceled and removed 
     upon verification of the cancellation request. The Quest Subscriber is 
     responsible for returning any unused funds in compliance with the laws set
-    by the governing body of the region they are campaigning in. The Quest 
-    Subscriber is responsible for providing an update for the last milestone 
-    that they set in their Quest page prior to cancellation. Sagebrew reserves the right to 
+    by the governing body of the region they are campaigning in. Sagebrew reserves the right to 
     deny a Cancellation request until the Quest Subscriber has fulfilled such 
     obligations. Cancellation of a Quest Account shall not result in the removal 
     of any content created by the Quest Subscriber or other contributors. 

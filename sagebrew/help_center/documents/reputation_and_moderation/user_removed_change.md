@@ -1,7 +1,6 @@
 # Why do I have a Reputation change on my Reputation page that says "User was removed"? #
 The only circumstance that would lead to this happening is if another user's 
-account was terminated due to an abuse of [Upvoting][1] or [Downvoting][2] or 
-if their account was terminated for vote manipulation.
+account was terminated due to an abuse of [Upvoting][1] or [Downvoting][2].
 
 For example: say you posed a Solution to a Question and another user 
 Downvoted your Solution. If that user has been caught trolling or 
@@ -13,7 +12,7 @@ caught manipulating the voting system, any Reputation you gained as a result
 of that user's Upvote will be taken away. 
 
 The primary reason for this is to discourage unfair or manipulative voting. 
-We want the Conversation here to be honest and truthful, and we want Reputation 
+We want the conversation here to be honest and truthful, and we want Reputation 
 to reflect that honesty and truth.
 
 

@@ -1,6 +1,5 @@
 # Community Values #
-Here at Sagebrew our goal is to provide an efficient
-and working system that fosters collaboration, trust, and
+Here at Sagebrew our goal is to provide a system that fosters collaboration, trust, and
 honesty. We work hard to solve issues with the site, we
 actively listen to you, the community, for your needs and
 desires, and we encourage open communication so we can
@@ -8,10 +7,11 @@ make Sagebrew a great experience for everyone.
 
 ## A few things for general users ##
 - Sagebrew provides a great platform for those seeking
-  to run for public office to do so. However, not all campaigns
-  will be successful and we advise you research your candidates
+  to run for public office, advocate for change, or endorse other's missions.
+  However, not all Missions
+  will be successful and we advise you research candidates and advocacy campaigns
   well before donating to them. We do our best to provide you
-  as full of a picture as possible of each candidate, but
+  as full of a picture as possible of each Mission, but
   ultimately we cannot provide every last detail. You should
   check multiple sources before choosing to donate.
 
@@ -34,8 +34,9 @@ make Sagebrew a great experience for everyone.
   reported any issues or problems with the site, and we trust that
   you'll report them and not attempt to exploit them in any way.
 
-- Make sure to open communication with your representatives and those running 
-  for office in your area. Open communication is what a democracy is all about.
+- Make sure to open communication with your representatives, those running 
+  for office in your area, and those advocating for change that affects you. 
+  Open communication is what a democracy is all about.
   The more information exchanged between individuals and those representing 
   groups of individuals, the better.
 
@@ -44,7 +45,7 @@ make Sagebrew a great experience for everyone.
   solve problems, how you strategize, and why you stand for your ideals.
 
 ## Sagebrew's role here ##
-- Our algorithms do their best to flag things like spam, someone selling products, etc
+- Our algorithms do their best to flag things like spam, someone selling products, etc,
   for the [Admin Council][5] to review prior to it being seen by the general Community.
   If it's clearly not legitimate, we do our best to tidy it up. We like to run a clean
   ship. Rest assured anything our systems flag goes through the same process it would if a 

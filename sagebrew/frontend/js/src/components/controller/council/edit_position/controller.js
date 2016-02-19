@@ -1,5 +1,4 @@
 var request = require('api').request,
-    templates = require('template_build/templates'),
     helpers = require('common/helpers');
 
 
@@ -24,7 +23,6 @@ export function init() {
 export function load() {
     var nameInput = $("#js-position-edit"),
         submitEdit = $("#js-submit-edit");
-    console.log(helpers.args());
     submitEdit.on("click", function(){
         request.patch({url: "/v1/positions/" + helpers.args(2) + "/council_update/", data:JSON.stringify({name: nameInput.val()})})
             .done(function(data){

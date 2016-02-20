@@ -8,11 +8,10 @@ urlpatterns = patterns(
     url(r'^formatting/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
-            "title": "How do I write a good solution?",
-            "description": "Writing a good solution takes time, dedication, "
-                           "and a lot of thought. A good solution doesn't "
-                           "appear overnight. Here are some tips on what to "
-                           "keep in mind when crafting a Solution.",
+            "title": "What should a solution contain?",
+            "description": "Here are some ideas on what you might want to "
+                           "include in your solution to ensure you gain as "
+                           "much reputation as possible.",
             "content_path":
                 "%sgood_solution.html" % settings.HELP_DOCS_PATH,
             "category": "solutions"

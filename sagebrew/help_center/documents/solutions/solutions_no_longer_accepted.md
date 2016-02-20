@@ -22,7 +22,7 @@ There are a few reasons that might lead to an inability to post Solutions.
       of your privileges, including providing Solutions,
       will be temporarily suspended.
 
-If you are unhappy with Community's and [Admin Council's][3] decision to suspend 
+If you are unhappy with the Community's and [Admin Council's][3] decision to suspend 
 any of your privileges we are sorry but we cannot assist in this matter. 
 Outside of waiting out the suspension there are no tools for any Sagebrew 
 Staff to reduce, remove, or modify, in any fashion, restrictions placed on a 

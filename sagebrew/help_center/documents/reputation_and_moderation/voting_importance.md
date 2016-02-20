@@ -3,15 +3,15 @@ Voting on Questions, Solutions and [Comments][5] is important because it provide
 helpful feedback and allows the community at large to see which ideas are the 
 most popular and the most encompassing. Think of a vote as an indicator that 
 you either agree with a Question, Solution, or Comment ([Upvote][1]), or that 
-you disagree with a Question, Solution, or Comment ([Downvote][2]). Thus, 
+you disagree ([Downvote][2]). Thus, 
 voting is Sagebrew's simplest way to show support or opposition and using 
 your votes helps other users ensure that the [Conversation][3] is moving 
 in the right direction. 
 
 ## Two types of votes ##
 ### Upvoting ###
-Shows support for a Question, Solution, or Comment. Upvote any Question, 
-Solution, or Comment that you agree with to let that user know that 
+Shows support for a Question, Solution, or Comment. Upvote anything 
+that you agree with to let that user know that 
 you are interested in what they have to say and that you're on the same boat.
 
 #### Requirements & Limitations ####
@@ -23,9 +23,9 @@ you are interested in what they have to say and that you're on the same boat.
 - Upvotes on Solutions result in 10 Reputation awarded to the author
 
 ### Downvoting ###
-Downvoting shows opposition to a Question, Solution, or Comment. Downvote a 
-Question, Solution, or Comment that you strongly disagree with to let the 
-author know that you are opposed to their solution. It might be beneficial to 
+Downvoting shows opposition to a Question, Solution, or Comment. Downvote something 
+that you strongly disagree with to let the 
+author know that you are opposed to their view point. It might be beneficial to 
 leave a Comment when Downvoting to explain your position, but it is not 
 necessary. 
 

@@ -913,3 +913,49 @@ class PositionEndpointTests(APITestCase):
         self.user.is_staff = False
         self.user.save()
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_council_update(self):
+        try:
+            user = User.objects.get(username="tyler_wiersing")
+            self.client.force_authenticate(user=user)
+        except User.DoesNotExist:
+            self.user.username = 'tyler_wiersing'
+            self.user.save()
+            self.client.force_authenticate(user=self.user)
+        self.pleb.username = 'tyler_wiersing'
+        self.pleb.save()
+        cache.clear()
+        position = Position(verified=False, name="Test Update").save()
+
+        url = reverse('position-council-update',
+                      kwargs={'object_uuid': position.object_uuid})
+        res = self.client.put(url, data={'verified': True, 'name': "New Name"},
+                              format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['name'], 'New Name')
+        self.assertTrue(res.data['verified'])
+        position.delete()
+        self.pleb.username = 'test_test'
+        self.pleb.save()
+
+    def test_council_update_unauthorized(self):
+        cache.clear()
+        position = Position(verified=False, name="Test Update").save()
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('position-council-update',
+                      kwargs={'object_uuid': position.object_uuid})
+        res = self.client.put(url, data={'verified': True, 'name': "New Name"},
+                              format='json')
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+        position.delete()
+
+    def test_user_created(self):
+        position = Position(name="Some Random Test Name",
+                            user_created=True).save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('position-user-created')
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(position.object_uuid, res.data[0]['id'])
+        position.delete()

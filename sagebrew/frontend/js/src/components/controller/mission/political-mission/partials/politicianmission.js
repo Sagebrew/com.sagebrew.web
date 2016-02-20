@@ -39,16 +39,16 @@ export function load() {
         localStorage.removeItem(levelKey);
     }
     var engine = new Bloodhound({
-        local: ["district-attorney", "mayor", "governor", "city-council",
-            "lieutenant-governor", "treasurer", "controller", "auditor",
-            "attorney-general", "superintendent-of-schools",
-            "agriculture-commissioner", "natural-resources-commissioner",
-            "labor-commissioner", "public-service-commissioner",
-            "member-of-the-state-board-of-education", "sheriff",
-            "chief-of-police", "district-court-of-appeals-judge",
-            "port-authority", "member-of-board-of-county-commissioners",
-            "circuit-judge", "member-of-school-baord", "prosecuting-attorney",
-            "railroad-commissioner"],
+        local: ["District Attorney", "Mayor", "Governor", "City Council",
+            "Lieutenant Governor", "Treasurer", "Controller", "Auditor",
+            "Attorney General", "Superintendent of Schools",
+            "Agriculture Commissioner", "Natural Resources Commissioner",
+            "Labor Commissioner", "Public Service Commissioner",
+            "Member of the State Board of Education", "Sheriff",
+            "Chief of Police", "District Court of Appeals Judge",
+            "Port Authority", "Member of Board of County Commissioners",
+            "Circuit Judge", "Member of School Board", "Prosecuting Attorney",
+            "Railroad Commissioner"],
         datumTokenizer: Bloodhound.tokenizers.whitespace,
         queryTokenizer: Bloodhound.tokenizers.whitespace
     });

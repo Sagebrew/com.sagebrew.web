@@ -22,8 +22,8 @@ The  basic contribution limits are as follows:
 PAC is short for Political Action Committee. A PAC is an organization usually 
 formed with the intent of raising money to elect certain candidates and defeat 
 others. PACs usually represent business, labor, or ideological interests.
-We currently only enable individuals to donate to campaigns who have signed up
-for a [Quest][3] account. Sorry PACs!
+We currently only enable individuals to donate to campaigns who have setup
+an [Advocacy][4] or [Political][3] Mission.
 
 ### Who can form a PAC? ###
 Anyone! The process for registering is fairly simple and is detailed on 
@@ -68,4 +68,5 @@ fundraising and expenditures to the FEC.
 
 [1]: http://www.fec.gov/ans/answers_pac.shtml#connected
 [2]: http://www.fec.gov/pages/brochures/contrib.shtml#Chart
-[3]: /quest/
+[3]: /political/
+[4]: /advocacy/

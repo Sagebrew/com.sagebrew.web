@@ -67,11 +67,17 @@
                 {% endif %}
             </div>
             <div class="block">
+                {% if quest.about != None or quest.owner_username == request.user.username %}
                 <div class="block-title">
                     <h4 class="tight">About</h4>
                 </div>
+                {% endif %}
                 <div class="block-content" style="padding-bottom: 0;">
-                    <p>{{ quest.about|default_if_none:"A short summary about the Quest Owner or Group in 128 characters" }}</p>
+                    {% if quest.about != None %}
+                        <p>{{ quest.about }}</p>
+                    {% elif quest.about == None and quest.owner_username == request.user.username %}
+                        <p>A short summary about the Quest Owner or Group in 128 characters</p>
+                    {% endif %}
                     <ul class="list-inline">
                         {% if quest.website %}
                             <li>

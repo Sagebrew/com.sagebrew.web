@@ -40,7 +40,7 @@
         {% block footer %}
         {% endblock footer %}
     </div>
-
+{% include "partials/intercom.html" %}
 {% block scripts %}
     <script src="{% static 'dist/js/vendor.js' %}"></script>
     <script src="{% static 'dist/js/sagebrew.js' %}"></script>
@@ -49,7 +49,7 @@
 {% block external_scripts %}
 {% endblock external_scripts %}
 
-{% include "partials/intercom.html" %}
+
 <script>
     {% if request.user.is_authenticated %}
         {%  block intercom %}

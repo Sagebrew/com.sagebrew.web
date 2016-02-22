@@ -1,4 +1,4 @@
- /*global Croppic*/
+ /*global Intercom, Croppic*/
 var request = require('api').request,
     settings = require('settings').settings,
     helpers = require('common/helpers');
@@ -28,6 +28,7 @@ export function load() {
     $(".app-sb")
         .on('click', '#skip-step', function () {
             greyPage.classList.remove('sb_hidden');
+            Intercom('trackEvent', 'skip-profile-picture-setup');
             if(settings.profile.mission_signup !== null && settings.profile.mission_signup !== undefined){
                 if(settings.profile.quest !== null){
                     greyPage.classList.add('sb_hidden');
@@ -60,6 +61,11 @@ export function load() {
                 cache: false,
                 processData: false
             }).done(function (data) {
+                var metadata = {
+                    profile_picture: data.profile_pic,
+                    saved_url: arg1.url
+                };
+                Intercom('trackEvent', 'save-profile-picture', metadata);
                 if(data.mission_signup !== null && settings.profile.mission_signup !== undefined){
                     if(data.quest !== null){
                         greyPage.classList.add('sb_hidden');

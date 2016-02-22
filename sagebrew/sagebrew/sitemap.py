@@ -20,7 +20,7 @@ class SignupSitemap(sitemaps.Sitemap):
     protocol = 'https'
 
     def items(self):
-        return ['signup']
+        return ['signup', 'advocacy', 'political']
 
     def location(self, item):
         return reverse(item)

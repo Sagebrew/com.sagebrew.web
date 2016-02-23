@@ -3,12 +3,21 @@
 {% load humanize %}
 {% block title %} Political Campaigns {% endblock %}
 {% block body_class %}white-background{% endblock body_class %}
+{% block description %}
+    <meta name="description" content="The tools your campaign needs to win.
+    Crowdfunding made for campaigns, volunteer registration, easy to setup public page
+    to showcase your platform, direct connection with your constituents, and more. All built
+    to make campaigning easier.">
+{% endblock description %}
+{% block keywords %}
+    <meta name="keywords" content="political network, advocacy network, political campaign, problem solving, crowdfunding, campaign software, campaign tools, campaign funding, campaign volunteers">
+{% endblock keywords %}
 {% block hero %}
     <div class="block-image-text-overlay">
         <img src="{% static "images/capitol_building.jpg" %}">
         <div>
             <h1>Free Crowdfunding and Campaigning Tools
-                that let you Focus on Stumping, Kissing Babies, and Winning Elections</h1>
+                That Let You Focus On Stumping and Winning Elections</h1>
         <button class="btn btn-primary sb_btn" id="sign-up-redirect">Sign Up</button>
         </div>
 

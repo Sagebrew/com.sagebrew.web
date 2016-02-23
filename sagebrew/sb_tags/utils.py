@@ -53,7 +53,7 @@ def calc_spheres():
                     'reduce(dist = 0, rel in rels(path) | dist + rel.count' \
                     ') as distance ' \
                     'return distance' % (tag.name, base_tag.name)
-            execute_cypher_query(query)
+            db.cypher_query(query)
 """
 
 

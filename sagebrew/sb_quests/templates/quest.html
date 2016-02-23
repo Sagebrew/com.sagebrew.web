@@ -67,11 +67,17 @@
                 {% endif %}
             </div>
             <div class="block">
+                {% if quest.about != None or quest.owner_username == request.user.username %}
                 <div class="block-title">
                     <h4 class="tight">About</h4>
                 </div>
+                {% endif %}
                 <div class="block-content" style="padding-bottom: 0;">
-                    <p>{{ quest.about|default_if_none:"A short summary about the Quest Owner or Group in 128 characters" }}</p>
+                    {% if quest.about != None %}
+                        <p>{{ quest.about }}</p>
+                    {% elif quest.about == None and quest.owner_username == request.user.username %}
+                        <p>A short summary about the Quest Owner or Group in 128 characters</p>
+                    {% endif %}
                     <ul class="list-inline">
                         {% if quest.website %}
                             <li>
@@ -122,7 +128,7 @@
                                 </li>
                             {% endif %}
                             <li>
-                                <button class="btn btn-primary sb_btn_fill js-follow-btn" {% if not user.is_authenticated %}disabled{% endif %}>{% if quest.is_following %}Unfollow{% else %}Follow{% endif %}</button>
+                                <a class="btn btn-primary sb_btn_fill js-follow-btn {% if not user.is_authenticated %}sb_btn_disabled{% endif %}" {% if not user.is_authenticated %}disabled data-toggle="tooltip" data-title="You must signup or login to Follow!" data-placement="top"{% endif %}>{% if quest.is_following %}Unfollow{% else %}Follow{% endif %}</a>
                             </li>
                         </ul>
                     {% endif %}

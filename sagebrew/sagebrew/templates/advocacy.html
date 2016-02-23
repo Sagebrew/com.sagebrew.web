@@ -2,12 +2,21 @@
 {% load staticfiles %}
 {% block title %} Advocacy Campaigns {% endblock %}
 {% block body_class %}white-background{% endblock body_class %}
+{% block description %}
+    <meta name="description" content="The tools you need to advocate and enact the change
+    you want. Crowdfunding made for advocates, volunteer registration, easy to setup public page
+    to showcase your message, connection with allies to your cause, and more. All built
+    to help make advocating easier.">
+{% endblock description %}
+{% block keywords %}
+    <meta name="keywords" content="political network, advocacy network, problem solving, crowdfunding, advocacy software, advocacy tools, advocacy funding, advocacy volunteers">
+{% endblock keywords %}
 {% block hero %}
     <div class="block-image-text-overlay">
         <img src="{% static "images/jefferson_memorial.jpg" %}">
         <div>
             <h1>Free Crowdfunding and Advocacy Tools
-                that let you Focus on your Mission</h1>
+                That Let You Focus On Your Mission</h1>
             <button class="btn btn-primary sb_btn" id="sign-up-redirect">Sign Up</button>
         </div>
 

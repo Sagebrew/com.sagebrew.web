@@ -11,7 +11,7 @@ Question.
 When you can assist another user with a Solution or Question. If you see a 
 Solution that is close but you believe it's missing something or needs 
 help being pushed in the right direction, you should leave a Comment that 
-offers relevant material aimed at improving the Solution. Comments are about 
+offers relevant material aimed at improving it. Comments are about 
 helping derive the best Solutions possible and making Questions understandable
 and complete. Comments are there to help you have a conversation with another 
 individual, on a specific piece of content, and help to iteratively improve 

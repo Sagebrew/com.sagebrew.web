@@ -32,7 +32,7 @@ be exposed to such materials. You agree to use the Service at your own risk.
 3.  You understand that Sagebrew uses third-party vendors and hosting partners 
     to provide the necessary hardware, software, networking, storage, and 
     related technology required to run the Service.
-4.  You may not attempt to modify, modify, adapt or hack the Service or modify 
+4.  You may not attempt to modify, adapt, or hack the Service or modify 
     another website so as to falsely imply that it is associated with the 
     Service, Sagebrew, or any other Sagebrew service.
 5.  You agree not to reproduce, duplicate, copy, sell, resell or exploit 
@@ -40,12 +40,12 @@ be exposed to such materials. You agree to use the Service at your own risk.
     without the express written permission of Sagebrew.
 6.  We may, but have no obligation to, hide Content and Accounts containing 
     Content that we determine in our sole discretion to be unlawful, 
-    offensive, threatening, libelous, defamatory, pornographic, obscene or 
+    offensive, threatening, libelous, defamatory, pornographic, obscene, or 
     otherwise objectionable or that violates any party's intellectual property 
     rights or these Terms of Service. We reserve the right to remove content 
     that is illegal in nature (such as child pornography) at our sole discretion 
     and without notice at any time. 
-7.  Verbal, physical, written or other abuse (including threats of abuse or 
+7.  Verbal, physical, written, or other abuse (including threats of abuse or 
     retribution) directed at any Sagebrew customer, employee, member, or 
     officer will result in immediate account suspension. Further investigation 
     may result in termination of the account. 
@@ -128,7 +128,7 @@ be exposed to such materials. You agree to use the Service at your own risk.
 4.  All fees are exclusive of all taxes, levies, or duties imposed by taxing 
     authorities, and you shall be responsible for payment of all such taxes, 
     levies, or duties, excluding only United States (federal or state) taxes.
-5.  Switching between a Quest account and a standard account may cause the 
+5.  Deleting a Quest account or a standard account may cause the 
     loss of content, features, or capacity of your Account. Sagebrew is not 
     liable for any such loss.
 
@@ -172,7 +172,7 @@ be exposed to such materials. You agree to use the Service at your own risk.
     against, and for reasonable attorney’s fees incurred by, Sagebrew in 
     connection with any such claim, demand, suit or proceeding; provided, 
     that Sagebrew provides to You all reasonable assistance, at Your expense.
-5.  The look and feel of the Service is copyright ©2015 Sagebrew LLC. All 
+5.  The look and feel of the Service is copyright ©2016 Sagebrew LLC. All 
     rights reserved. You may not duplicate, copy, or reuse any portion of the 
     HTML/CSS, JavaScript, or visual design elements or concepts without express 
     written permission from Sagebrew.
@@ -220,7 +220,7 @@ Software and all intellectual property rights therein.
 
 ### Subscriber Content ###
 You agree that all Subscriber Content that You contribute to the Service in the 
-Conversation or Quest Areas ("Public Content") is perpetually and irrevocably 
+Conversation Cloud, Quest Area, or Mission Areas ("Public Content") is perpetually and irrevocably 
 licensed to Sagebrew under the [Creative Commons Attribution Share Alike license][10]. 
 Subscriber Content contributed to the Service in Personal Profiles 
 (“Private Content”) shall not fall under the Creative Commons Attribution 
@@ -265,10 +265,9 @@ license as follows:
     blurb, or some other unobtrusive but clear visual indication.
 2.  You will ensure that any such Internet use of Subscriber Content includes 
     a hyperlink directly to the original question on the source site on the 
-    Network (e.g., http://sagebrew.com/conversation/12345)
+    Network (e.g., http://sagebrew.com/conversation/12345/)
 3.  You will ensure that any such use of Public Content visually display or 
-    otherwise clearly indicate the author names for every Question and 
-    Solution so used.
+    otherwise clearly indicate the author names for every piece of content so used.
 4.  You will ensure that any such Internet use of Public Content Hyperlink 
     each author name directly back to his or her user profile page on the source 
     site on the Service (e.g., http://sagebrew.com/users/{username}/), directly 
@@ -284,13 +283,14 @@ who contributed the work.
 
 
 ## Donations ##
-### Quest Donations ###
-When donating to Quests or campaigns, Subscribers agree that they are complying 
+### Mission Donations ###
+When donating to Missions, Subscribers agree that they are complying 
 with current federal election regulations and will provide all necessary 
-information needed by the Quest to properly file with the FEC. Subscribers that 
-are not legally allowed to donate to a Quest shall not use the Service to do so. 
+information needed by the Quest to properly file with the governing body of the 
+region they are campaigning or advocating in. Subscribers that 
+are not legally allowed to donate to a Mission shall not use the Service to do so. 
 
-By donating to a Quest the Subscriber guarantees the following:
+By donating to a Mission the Subscriber guarantees the following:
 
 1.  This contribution is made from Subscriber's own funds, and funds are not 
     being provided to Subscriber by another person or entity for the purpose 
@@ -311,13 +311,21 @@ information to meet their legal obligations to the governing body of their
 Quest's region, this may include but is not limited to filing with bodies such 
 as the FEC.  
 
-
 ### Direct Donations ###
 By making a donation directly to Sagebrew (Direct Donation) the Subscriber 
 grants Sagebrew the right to utilize their information from the Service to 
 file tax documentation and to fulfill any other action required by the law. 
 The Subscriber also permits Sagebrew to contact them regarding the donation 
 if additional information is required.
+
+
+### Volunteering ###
+If you volunteer to assist a Quest on a specific Mission you give that Quest 
+the right to contact you in regards to the action you volunteered to perform.
+By volunteering you also authorize the Quest to view your email, name, city, 
+and state to enable them to properly connect with you. Sagebrew shall not share 
+your street address and it is up to the Subscriber to share that information with 
+the Quest.
 
 ## Other Websites ##
 
@@ -348,7 +356,7 @@ if additional information is required.
 
 1.  We don’t become involved in disputes between users, or between users and 
     any third party relating to the use of the Services. We don’t oversee the 
-    performance or punctuality of Quests, and we don’t endorse any content 
+    performance or punctuality of Quests and their Missions, and we don’t endorse any content 
     users submit to the Site. 
 
 ## Cancellation and Termination ##
@@ -356,8 +364,7 @@ if additional information is required.
 1.  You are solely responsible for properly canceling your account. An email or 
     phone request to cancel your account is not considered cancellation. You 
     can cancel your account at any time by clicking on the Settings link in 
-    the global navigation bar at the top of the screen. The Settings screen 
-    provides a simple one-question cancellation link.
+    the global navigation bar at the top of the screen.
 2.  If You have a paid account and cancel the Service before the end of your 
     current paid up month, your cancellation will take effect immediately and 
     you will not be charged again.
@@ -427,6 +434,8 @@ effective upon receipt, when sent by confirmed e-mail to [support@sagebrew.com][
 *   Flag: A flag is used to alert the Admin Council that there is something 
     wrong with a piece of Public Content or Sagebrew Staff that something is 
     wrong with a piece of Private Content.
+*   Mission: A advocacy campaign or campaign for public office undertaken by a 
+    Quest.
 
 
 

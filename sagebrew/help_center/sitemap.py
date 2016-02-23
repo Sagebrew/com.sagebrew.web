@@ -53,7 +53,7 @@ class PoliciesHelpSitemap(sitemaps.Sitemap):
         return ['advertising', 'be_nice',
                 'do_not_spam',
                 'feedback', 'finding_topics_of_interest',
-                'how_to_search', 'markdown_formatting',
+                'markdown_formatting',
                 'support', 'reporting_suspicious_behavior',
                 'user_behavior', 'what_is_markdown']
 
@@ -86,7 +86,7 @@ class QuestHelpSitemap(sitemaps.Sitemap):
                 'how_to_export_contributions', 'how_to_get_on_the_ballot',
                 'how_to_run',
                 'name_on_ballot_to_run', 'need_more_help_repsagetribune',
-                'principle_campaign_committee', 'quest_signup']
+                'principle_campaign_committee']
 
     def location(self, item):
         return reverse(item)

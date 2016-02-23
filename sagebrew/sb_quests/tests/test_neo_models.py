@@ -137,6 +137,10 @@ class TestQuest(TestCase):
         res = self.quest.is_following(self.owner.username)
         self.assertTrue(res)
 
+    def test_is_following_not_cached(self):
+        res = self.quest.is_following(self.owner.username)
+        self.assertFalse(res)
+
     def test_follow(self):
         self.quest.follow(self.owner.username)
         self.assertTrue(self.owner in self.quest.followers)

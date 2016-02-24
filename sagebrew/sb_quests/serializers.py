@@ -493,6 +493,10 @@ class PositionSerializer(SBSerializer):
     full_name = serializers.CharField()
     verified = serializers.BooleanField()
     user_created = serializers.BooleanField()
+    office_type = serializers.ChoiceField(required=False,
+                                          allow_blank=True, choices=[
+        ('executive', "Executive"), ('legislative', "Legislative"),
+        ('judicial', "Judicial"), ('enforcement', 'Enforcement')])
 
     href = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
@@ -502,7 +506,13 @@ class PositionSerializer(SBSerializer):
         instance.name = validated_data.get('name', instance.name)
         instance.full_name = validated_data.get('full_name', instance.full_name)
         instance.verified = validated_data.get('verified', instance.verified)
-        return instance.save()
+        office_type = validated_data.get('office_type', instance.office_type)
+        if office_type:
+            instance.office_type = validated_data.get('office_type',
+                                                      instance.office_type)
+        instance.save()
+        cache.delete(instance.object_uuid)
+        return instance
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)

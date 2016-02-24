@@ -275,6 +275,12 @@ class Position(SBObject):
     full_name = StringProperty()
     verified = BooleanProperty(default=True)
     user_created = BooleanProperty(default=False)
+    # Valid Options:
+    #     executive
+    #     legislative
+    #     judicial
+    #     enforcement
+    office_type = StringProperty(default="executive")
     # Valid Levels:
     #     state_upper - State Senator Districts
     #     state_lower - State House Representative Districts
@@ -323,11 +329,15 @@ class Position(SBObject):
     @classmethod
     def get_location_name(cls, object_uuid):
         query = 'MATCH (p:Position {object_uuid: "%s"})-' \
-                '[:AVAILABLE_WITHIN]->(location:Location) ' \
-                'RETURN location.name' % object_uuid
+                '[:AVAILABLE_WITHIN]->(location:Location) WITH p, location ' \
+                'OPTIONAL MATCH (location)-[:ENCOMPASSED_BY]->' \
+                '(location2:Location) ' \
+                'RETURN location.name as first_name, ' \
+                'location2.name as second_name' % object_uuid
         res, col = db.cypher_query(query)
         try:
-            location = res[0][0]
+            res = res[0]
+            location = "%s, %s" % (res.first_name, res.second_name)
         except IndexError:
             location = None
         return location

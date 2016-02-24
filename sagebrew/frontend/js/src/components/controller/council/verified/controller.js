@@ -1,5 +1,6 @@
 var request = require('api').request,
-    templates = require('template_build/templates');
+    templates = require('template_build/templates'),
+    moment = require('moment');
 
 
 export const meta = {
@@ -25,6 +26,11 @@ export function load() {
     request.get({url: "/v1/positions/user_created/"})
         .done(function(data){
             positionWrapper.append(templates.verified_positions({positions:data}));
+            $(".position-created").each(function(){
+                var $this = $(this),
+                    momentTime = moment($this.html()).format("dddd, MMMM Do YYYY, h:mm a");
+                $this.html(momentTime);
+            });
             $('[data-toggle="tooltip"]').tooltip();
             $(".js-verify-position").on('click', function(event){
                 event.preventDefault();

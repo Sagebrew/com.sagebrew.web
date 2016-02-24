@@ -368,9 +368,9 @@ class PositionViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get_queryset(self, user_created='false'):
-        query = 'MATCH (p:`Position`) WHERE p.user_created=%s RETURN p' % \
-                user_created
+    def get_queryset(self, user_created='false', verified='true'):
+        query = 'MATCH (p:`Position`) WHERE p.user_created=%s ' \
+                'AND p.verified=%s RETURN p' % (user_created, verified)
         res, col = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Position.inflate(row[0]) for row in res]

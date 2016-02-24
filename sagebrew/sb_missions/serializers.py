@@ -95,6 +95,9 @@ class MissionSerializer(SBSerializer):
                        '<-[:POSITIONS_AVAILABLE]-(location:Location) ' \
                        'CREATE UNIQUE (mission)-[:WITHIN]->(location) ' \
                        'RETURN mission' % mission.object_uuid
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
+        logger.info(validated_data)
         if focus_type == "position":
             if not verified:
                 query = 'MATCH (location:Location {external_id:"%s"})-' \

@@ -11,6 +11,9 @@
                 Location
             </th>
             <th>
+                Branch
+            </th>
+            <th>
                 User Created
             </th>
             <th>
@@ -22,11 +25,14 @@
                 <td>
                     {{this.name}}
                 </td>
-                <td>
+                <td class="position-created">
                     {{this.created}}
                 </td>
                 <td>
                     {{this.location_name}}
+                </td>
+                <td>
+                    {{this.office_type}}
                 </td>
                 <td>
                     {{this.user_created}}
@@ -45,7 +51,7 @@
         {{ else }}
             <tr>
                 <td>
-                    No Current Unverified Positions
+                    No Current Verified Positions
                 </td>
             </tr>
         {{/each}}

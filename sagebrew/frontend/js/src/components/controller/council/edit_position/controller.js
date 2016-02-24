@@ -21,10 +21,18 @@ export function init() {
  * Load
  */
 export function load() {
-    var nameInput = $("#js-position-edit"),
-        submitEdit = $("#js-submit-edit");
+    var nameInput = $("#js-name"),
+        submitEdit = $("#js-submit-edit"),
+        branchInput = $("#branch-input"),
+        id = helpers.args(2);
+    request.get({url: "/v1/positions/" + id + "/"})
+        .done(function(data){
+            nameInput.val(data.name);
+            branchInput.val(data.office_type);
+        });
     submitEdit.on("click", function(){
-        request.patch({url: "/v1/positions/" + helpers.args(2) + "/council_update/", data:JSON.stringify({name: nameInput.val()})})
+        console.log(branchInput.val());
+        request.patch({url: "/v1/positions/" + helpers.args(2) + "/council_update/", data:JSON.stringify({name: nameInput.val(), office_type: branchInput.val()})})
             .done(function(data){
                 window.location.href = "/council/positions/";
             });

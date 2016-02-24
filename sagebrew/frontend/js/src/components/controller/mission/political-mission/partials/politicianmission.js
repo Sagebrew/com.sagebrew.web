@@ -74,6 +74,25 @@ export function load() {
         localStorage.removeItem(verifiedKey);
         localStorage.setItem(verifiedKey, false);
     });
+    positionInput.keyup(function() {
+        var $this = $(this);
+        if ($this.val().length <= 0) {
+            startBtn.disabled = true;
+
+        } else {
+
+            // Should remove the previous item to ensure that only the most
+            // recent input is passed to the endpoint
+            localStorage.removeItem(positionKey);
+            localStorage.setItem(positionKey, $this.val());
+            // Make sure that if the position is being set here we default
+            // verified to false so we can check to make sure it is verified later
+            localStorage.removeItem(verifiedKey);
+            localStorage.setItem(verifiedKey, false);
+            // Activate button after a position has been input
+            startBtn.disabled = false;
+        }
+    });
     $app
         .on('click', '.radio-image-selector', function(event) {
             event.preventDefault();
@@ -170,6 +189,8 @@ export function load() {
                 if(localStorage.getItem(positionKey) === "Senator" || localStorage.getItem(positionKey) === "President") {
                     // Presidents and Senators don't have districts so we can enable the start button
                     startBtn.disabled = false;
+                    localStorage.removeItem(verifiedKey);
+                    localStorage.setItem(verifiedKey, true);
                 } else if (localStorage.getItem(districtKey) === null){
                     // If we're not talking about Presidents or Senators we need a district so disable the
                     // start button until a district is selected.
@@ -286,6 +307,7 @@ function checkIfDistricts(identifier, districtRow, positionInputRow) {
         positionInputRow.classList.remove('hidden');
         districtRow.classList.add('hidden');
     } else {
+        localStorage.setItem(verifiedKey, true);
         localStorage.setItem(positionKey, identifier);
         districtRow.classList.add('hidden');
     }

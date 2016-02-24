@@ -45,6 +45,9 @@ class MissionViewSet(viewsets.ModelViewSet):
     def get_object(self):
         return Mission.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
+    def perform_create(self, serializer):
+        serializer.save(verified=self.request.data['verified'])
+
     def create(self, request, *args, **kwargs):
         query = 'MATCH (a:Pleb {username: "%s"})-[IS_WAGING]->(b:Quest)' \
                 'RETURN b' % request.user.username

@@ -141,9 +141,9 @@ def finalize_citizen_creation(username):
     # TODO look into celery chaining and/or grouping
     try:
         pleb = Pleb.get(username=username, cache_buster=True)
-    except DoesNotExist as e:
+    except (DoesNotExist, Exception) as e:
         raise finalize_citizen_creation.retry(
-            exc=e, countdown=3, max_retries=None)
+            exc=e, countdown=5, max_retries=None)
     task_list = {}
     task_data = {
         "object_uuid": pleb.object_uuid,

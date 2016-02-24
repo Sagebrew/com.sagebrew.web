@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.core.cache import cache
 
 from elasticsearch import Elasticsearch
 
@@ -12,9 +13,14 @@ class Command(BaseCommand):
 
     def update_pleb_search(self):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        for pleb in Pleb.nodes.all():
-            es.index(index='full-search-base', doc_type='profile',
-                     id=pleb.object_uuid, body=PlebSerializerNeo(pleb).data)
+        pleb = Pleb.nodes.get(username="chris_cunningham")
+        res = es.index(index='full-search-base', doc_type='profile',
+                       id=pleb.object_uuid, body=PlebSerializerNeo(pleb).data)
+        pleb.search_id = res['_id']
+        pleb.populated_es_index = True
+        pleb.save()
+        cache.delete("%s_vote_search_update" % pleb.object_uuid)
+        cache.delete("%s" % pleb.username)
 
     def handle(self, *args, **options):
         self.update_pleb_search()

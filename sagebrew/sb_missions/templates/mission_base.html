@@ -22,7 +22,6 @@
         </div>
     </div>
     <div class="block">
-
         <div class="block-content ">
             <a href="{% if mission.active == False%}#{% else %}{% url 'mission_donation_amount' mission.id mission.slug %}{% endif %}"
                class="hidden-sm hidden-md hidden-lg btn btn-primary btn-lg sb_btn sb_btn_fill" {% if mission.active == False%}disabled{% endif %}

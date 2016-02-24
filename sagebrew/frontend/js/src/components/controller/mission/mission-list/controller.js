@@ -27,7 +27,7 @@ export function load() {
         greyPage = document.getElementById('sb-greyout-page'),
         $affectFilter = $("#js-affect-filter");
     $app
-        .on('click', '#js-quest-signup', function(event) {
+        .on('click', '.js-quest-signup', function(event) {
             event.preventDefault();
             greyPage.classList.remove('sb_hidden');
             if(settings.profile.quest !== null){

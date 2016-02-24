@@ -195,3 +195,7 @@
     {% endif %}
 
 {% endblock scripts %}
+{% block intercom %}
+    Intercom('trackEvent', 'visited-{{ title|slugify }}-conversation');
+    Intercom('trackEvent', 'visited-conversation-page');
+{% endblock %}

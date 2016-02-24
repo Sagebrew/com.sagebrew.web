@@ -20,7 +20,7 @@ class Command(BaseCommand):
         pleb.populated_es_index = True
         pleb.save()
         cache.delete("%s_vote_search_update" % pleb.object_uuid)
-        cache.delete("%s" % pleb.username)
+        cache.delete(pleb.username)
 
     def handle(self, *args, **options):
         self.update_pleb_search()

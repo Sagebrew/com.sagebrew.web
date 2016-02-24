@@ -4,7 +4,7 @@ from sub_urls.donations import urlpatterns as donations
 from sub_urls.conversation import urlpatterns as conversation
 from sub_urls.policies import urlpatterns as policies
 from sub_urls.privileges import urlpatterns as privileges
-from sub_urls.quest import urlpatterns as representatives
+from sub_urls.quest import urlpatterns as quest
 from sub_urls.reputation_and_moderation import (
     urlpatterns as reputation_and_moderation)
 from sub_urls.security import urlpatterns as security
@@ -26,7 +26,7 @@ def populate_urls():
         urlpatterns.append(item)
     for item in privileges:
         urlpatterns.append(item)
-    for item in representatives:
+    for item in quest:
         urlpatterns.append(item)
     for item in reputation_and_moderation:
         urlpatterns.append(item)

@@ -78,3 +78,7 @@
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     {{ block.super }}
 {% endblock scripts %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'manage-quest-banking-page');
+{% endblock %}

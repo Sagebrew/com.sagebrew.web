@@ -493,10 +493,11 @@ class PositionSerializer(SBSerializer):
     full_name = serializers.CharField()
     verified = serializers.BooleanField()
     user_created = serializers.BooleanField()
-    office_type = serializers.ChoiceField(required=False,
-                                          allow_blank=True, choices=[
-        ('executive', "Executive"), ('legislative', "Legislative"),
-        ('judicial', "Judicial"), ('enforcement', 'Enforcement')])
+    office_type = serializers.ChoiceField(
+        required=False, allow_blank=True, choices=[
+            ('executive', "Executive"), ('legislative', "Legislative"),
+            ('judicial', "Judicial"), ('enforcement', 'Enforcement')]
+    )
 
     href = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()

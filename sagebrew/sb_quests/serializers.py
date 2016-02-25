@@ -1,8 +1,9 @@
 import pytz
-from datetime import datetime
 import time
 import stripe
+from datetime import datetime
 from stripe.error import InvalidRequestError
+from dateutil.relativedelta import relativedelta
 
 from django.conf import settings
 from django.core.cache import cache
@@ -230,9 +231,15 @@ class QuestSerializer(SBSerializer):
                         instance.stripe_customer_id is not None:
                     customer = stripe.Customer.retrieve(
                         instance.stripe_customer_id)
-                    sub = customer.subscriptions.create(
-                        plan='quest_premium',
-                        trial_end='')
+                    if datetime.now() < datetime(2016, 6, 16):
+                        next_year = datetime.now() + relativedelta(years=+1)
+                        unix_stamp = time.mktime(next_year.timetuple())
+                        sub = customer.subscriptions.create(
+                            plan='quest_premium',
+                            trial_end=int(unix_stamp))
+                    else:
+                        sub = customer.subscriptions.create(
+                            plan='quest_premium')
                     instance.stripe_subscription_id = sub['id']
                 instance.application_fee = settings.STRIPE_PAID_ACCOUNT_FEE
 

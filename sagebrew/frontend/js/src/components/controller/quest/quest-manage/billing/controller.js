@@ -1,7 +1,8 @@
 /*global Stripe*/
 var templates = require('template_build/templates'),
     helpers = require('common/helpers'),
-    settings = require('settings').settings;
+    settings = require('settings').settings,
+    moment = require('moment');
 
 export const meta = {
     controller: "quest/quest-manage/billing",
@@ -37,7 +38,7 @@ export function load() {
             exp_year: settings.profile.quest.card.exp_year
         };
         if(settings.profile.quest.subscription !== null) {
-            paymentData.next_due_date = settings.profile.quest.subscription.current_period_end;
+            paymentData.next_due_date = moment.unix(settings.profile.quest.subscription.current_period_end).format("MM/DD/YYYY");
             paymentData.bill_rate = settings.profile.quest.subscription.amount / 100;
         } else {
             paymentData.next_due_date = "Never";

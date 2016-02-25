@@ -230,7 +230,9 @@ class QuestSerializer(SBSerializer):
                         instance.stripe_customer_id is not None:
                     customer = stripe.Customer.retrieve(
                         instance.stripe_customer_id)
-                    sub = customer.subscriptions.create(plan='quest_premium')
+                    sub = customer.subscriptions.create(
+                        plan='quest_premium',
+                        trial_end='')
                     instance.stripe_subscription_id = sub['id']
                 instance.application_fee = settings.STRIPE_PAID_ACCOUNT_FEE
 

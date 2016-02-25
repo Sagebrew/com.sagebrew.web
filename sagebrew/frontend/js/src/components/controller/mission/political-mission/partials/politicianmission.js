@@ -443,7 +443,7 @@ function fillPositions(identifier) {
                 } else if (name === "Mayor") {
                     image_path = settings.static_url + "images/executive_bw.png";
                 } else {
-                    image_path = settings.static_url + "images/executive_bw.png";
+                    image_path = settings.static_url + "images/legislative_bw.png";
                 }
                 context = {
                     name: name,

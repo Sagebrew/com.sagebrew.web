@@ -169,6 +169,11 @@ class QuestSerializer(SBSerializer):
         if ssn is not None:
             ssn = ssn.replace('-', "")
         active = validated_data.pop('active', instance.active)
+        account_type = validated_data.get(
+            'account_type', instance.account_type)
+        if datetime.now() < datetime(2016, 6, 16):
+            if active and not instance.active:
+                account_type = 'paid'
         instance.active = active
         title = validated_data.pop('title', instance.title)
         if title is not None:
@@ -221,8 +226,7 @@ class QuestSerializer(SBSerializer):
                     instance.stripe_customer_id)
                 card = customer.sources.create(source=customer_token)
                 instance.stripe_default_card_id = card['id']
-        account_type = validated_data.get(
-            'account_type', instance.account_type)
+
         if account_type != instance.account_type:
             if account_type == "paid":
                 # if paid gets submitted create a subscription if it doesn't

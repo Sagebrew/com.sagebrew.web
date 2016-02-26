@@ -1,4 +1,4 @@
-/*global google, Intercom*/
+/*global google, Intercom, Bloodhound*/
 var request = require('api').request,
     radioSelector = require('common/radioimage').radioSelector,
     helpers = require('common/helpers'),
@@ -10,6 +10,7 @@ var request = require('api').request,
     positionKey = 'politicianMissionPosition',
     districtKey = 'politicianMissionDistrict',
     levelKey = 'politicianMissionLevel',
+    verifiedKey = 'politicianMissionPositionVerified',
     stateUpper = "state_upper",
     stateLower = "state_lower";
 
@@ -22,7 +23,9 @@ export function load() {
         startBtn = document.getElementById('js-start-btn'),
         districtSelector = document.getElementById('js-district-selector'),
         positionSelector = document.getElementById('js-position-selector'),
-        greyPage = document.getElementById('sb-greyout-page');
+        positionInputRow = document.getElementById('position-input-row'),
+        greyPage = document.getElementById('sb-greyout-page'),
+        positionInput = $('#position-input');
     // We just loaded the app, jam in some place holders to look nice.
     // Didn't include directly in the Django template so we don't have duplicate formatting
     positionSelector.innerHTML = templates.position_holder({static_url: settings.static_url});
@@ -35,6 +38,61 @@ export function load() {
         localStorage.removeItem(locationName);
         localStorage.removeItem(levelKey);
     }
+    var engine = new Bloodhound({
+        local: ["District Attorney", "Mayor", "Governor", "City Council",
+            "Lieutenant Governor", "Treasurer", "Controller", "Auditor",
+            "Attorney General", "Superintendent of Schools",
+            "Agriculture Commissioner", "Natural Resources Commissioner",
+            "Labor Commissioner", "Public Service Commissioner",
+            "Member of the State Board of Education", "Sheriff",
+            "Chief of Police", "District Court of Appeals Judge",
+            "Port Authority", "Member of Board of County Commissioners",
+            "Circuit Judge", "Member of School Board", "Prosecuting Attorney",
+            "Railroad Commissioner"],
+        datumTokenizer: Bloodhound.tokenizers.whitespace,
+        queryTokenizer: Bloodhound.tokenizers.whitespace
+    });
+    engine.initialize();
+    positionInput.typeahead(
+        {
+            highlight: true,
+            hint: true
+        },
+        {
+             source: engine
+        });
+    $("#position-input-tokenfield").attr("name", "tag_box");
+    positionInput.bind('typeahead:select', function(ev, suggestion) {
+        // Activate button after a suggestion has been selected
+        startBtn.disabled = false;
+        // Should remove the previous item to ensure that only the most
+        // recent input is passed to the endpoint
+        localStorage.removeItem(positionKey);
+        localStorage.setItem(positionKey, suggestion);
+        // Make sure that if the position is being set here we default
+        // verified to false so we can check to make sure it is verified later
+        localStorage.removeItem(verifiedKey);
+        localStorage.setItem(verifiedKey, false);
+    });
+    positionInput.keyup(function() {
+        var $this = $(this);
+        if ($this.val().length <= 0) {
+            startBtn.disabled = true;
+
+        } else {
+
+            // Should remove the previous item to ensure that only the most
+            // recent input is passed to the endpoint
+            localStorage.removeItem(positionKey);
+            localStorage.setItem(positionKey, $this.val());
+            // Make sure that if the position is being set here we default
+            // verified to false so we can check to make sure it is verified later
+            localStorage.removeItem(verifiedKey);
+            localStorage.setItem(verifiedKey, false);
+            // Activate button after a position has been input
+            startBtn.disabled = false;
+        }
+    });
     $app
         .on('click', '.radio-image-selector', function(event) {
             event.preventDefault();
@@ -94,7 +152,7 @@ export function load() {
                     // Since a position has been selected we can get the districts and enable the selector,
                     // if we need to.
                     localStorage.removeItem(districtKey);
-                    checkIfDistricts(this.id, districtRow);
+                    checkIfDistricts(this.id, districtRow, positionInputRow);
                 }
             }
             radioSelector(this);
@@ -123,15 +181,23 @@ export function load() {
             // Enabling the button is handled by on change of js-district-selector select above
             if(localStorage.getItem(filterKey) === "state" && localStorage.getItem(districtKey) === null) {
                 startBtn.disabled = true;
+                if(localStorage.getItem(positionKey) !== null) {
+                    startBtn.disabled = false;
+                }
             }
             if(localStorage.getItem(filterKey) === "federal") {
                 if(localStorage.getItem(positionKey) === "Senator" || localStorage.getItem(positionKey) === "President") {
                     // Presidents and Senators don't have districts so we can enable the start button
                     startBtn.disabled = false;
+                    localStorage.removeItem(verifiedKey);
+                    localStorage.setItem(verifiedKey, true);
                 } else if (localStorage.getItem(districtKey) === null){
-                    // If we're not talking about Presidents or Senators we need a district so diable the
+                    // If we're not talking about Presidents or Senators we need a district so disable the
                     // start button until a district is selected.
                     startBtn.disabled = true;
+                    if(localStorage.getItem(positionKey) !== null) {
+                        startBtn.disabled = false;
+                    }
                 }
             }
         })
@@ -150,7 +216,8 @@ export function load() {
                     district: localStorage.getItem(districtKey),
                     level: localStorage.getItem(levelKey),
                     location_name: location,
-                    focus_on_type: "position"
+                    focus_on_type: "position",
+                    verified: localStorage.getItem(verifiedKey)
                 })
             }).done(function (data) {
                 greyPage.classList.add('sb_hidden');
@@ -212,9 +279,10 @@ function districtSelection(level, stateInput, placeInput, positionSelector) {
     document.getElementById('js-district-selector').innerHTML = templates.district_holder();
 }
 
-function checkIfDistricts(identifier, districtRow) {
+function checkIfDistricts(identifier, districtRow, positionInputRow) {
     if(identifier.indexOf('Senator') > -1) {
         localStorage.setItem(positionKey, identifier);
+        localStorage.setItem(verifiedKey, true);
         if (localStorage.getItem(filterKey) === "state"){
             districtRow.classList.remove('hidden');
             localStorage.setItem(levelKey, stateUpper);
@@ -225,6 +293,7 @@ function checkIfDistricts(identifier, districtRow) {
         }
     } else if(identifier.indexOf("House Representative") > -1) {
         localStorage.setItem(positionKey, identifier);
+        localStorage.setItem(verifiedKey, true);
         districtRow.classList.remove('hidden');
         if (localStorage.getItem(filterKey) === "state"){
             localStorage.setItem(levelKey, stateLower);
@@ -233,11 +302,12 @@ function checkIfDistricts(identifier, districtRow) {
             localStorage.setItem(levelKey, "federal");
             fillDistricts("federal");
         }
-    } else if(identifier === "Other (Contact Us)") {
-        localStorage.removeItem(levelKey);
+    } else if(identifier === "Other") {
+        localStorage.setItem(levelKey, localStorage.getItem(filterKey));
+        positionInputRow.classList.remove('hidden');
         districtRow.classList.add('hidden');
-        Intercom("showNewMessage", "Hi I would like to run but cannot find my position. Could you add [insert what you'd like to run for :)...]");
     } else {
+        localStorage.setItem(verifiedKey, true);
         localStorage.setItem(positionKey, identifier);
         districtRow.classList.add('hidden');
     }
@@ -372,6 +442,8 @@ function fillPositions(identifier) {
                     image_path = settings.static_url + "images/legislative_bw.png";
                 } else if (name === "Mayor") {
                     image_path = settings.static_url + "images/executive_bw.png";
+                } else {
+                    image_path = settings.static_url + "images/legislative_bw.png";
                 }
                 context = {
                     name: name,
@@ -380,7 +452,7 @@ function fillPositions(identifier) {
                 positionList.push(context);
             }
             context = {
-                name: "Other (Contact Us)",
+                name: "Other",
                 image_path: settings.static_url + "images/glass_bw.png"
             };
             positionList.push(context);

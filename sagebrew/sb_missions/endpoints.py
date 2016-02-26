@@ -23,7 +23,8 @@ class MissionViewSet(viewsets.ModelViewSet):
         if self.request.query_params.get('affects', "") == "me":
             query = 'MATCH (pleb:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(address:Address)-[:ENCOMPASSED_BY*..]->' \
-                    '(location:Location)<-[:WITHIN]-' \
+                    '(location:Location)<-[:AVAILABLE_WITHIN]-' \
+                    '(p:Position {verified:true})<-[:FOCUSED_ON]-' \
                     '(mission:Mission {active: true})<-[:EMBARKS_ON]-' \
                     '(quest:Quest {active: true}) ' \
                     'RETURN DISTINCT mission' % self.request.user.username
@@ -31,12 +32,14 @@ class MissionViewSet(viewsets.ModelViewSet):
             query = 'MATCH (pleb:Pleb {username: "%s"})-[:FRIENDS_WITH]' \
                     '->(friends:Pleb)-[:LIVES_AT]->' \
                     '(address:Address)-[:ENCOMPASSED_BY*..]->' \
-                    '(location:Location)<-[:WITHIN]-' \
+                    '(location:Location)<-[:AVAILABLE_WITHIN]-' \
+                    '(p:Position {verified:true})<-[:FOCUSED_ON]-' \
                     '(mission:Mission {active: true})<-[:EMBARKS_ON]-' \
                     '(quest:Quest {active: true}) ' \
                     'RETURN DISTINCT mission' % self.request.user.username
         else:
-            query = 'MATCH (a:Mission {active: true})<-[:EMBARKS_ON]-' \
+            query = 'MATCH (p:Position {verified:true})<-[:FOCUSED_ON]-' \
+                    '(a:Mission {active: true})<-[:EMBARKS_ON]-' \
                     '(quest:Quest {active: true}) RETURN a'
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
@@ -44,6 +47,9 @@ class MissionViewSet(viewsets.ModelViewSet):
 
     def get_object(self):
         return Mission.nodes.get(object_uuid=self.kwargs[self.lookup_field])
+
+    def perform_create(self, serializer):
+        serializer.save(verified=self.request.data.get('verified', 'true'))
 
     def create(self, request, *args, **kwargs):
         query = 'MATCH (a:Pleb {username: "%s"})-[IS_WAGING]->(b:Quest)' \

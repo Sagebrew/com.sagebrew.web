@@ -71,7 +71,7 @@ function getParameterByName(name) {
 $(document).ready(function () {
     "use strict";
     activateVoting();
-    $("#flag-voting-wrapper").spin('small');
+    $("#js-flag-voting-wrapper").spin('small');
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",
@@ -79,12 +79,12 @@ $(document).ready(function () {
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function (data) {
-            $("#flag-voting-wrapper").spin(false);
+            $("#js-flag-voting-wrapper").spin(false);
             if (data.count === 0) {
-                $("#flag-voting-wrapper").append('<div>Sorry! There seems to be nothing here!</div>');
+                $("#js-flag-voting-wrapper").append('<div>Sorry! There seems to be nothing here!</div>');
             } else {
                 for (var i = 0; i < data.results.length; i++) {
-                    $("#flag-voting-wrapper").append(data.results[i].html);
+                    $("#js-flag-voting-wrapper").append(data.results[i].html);
                 }
             }
             activateVoting();

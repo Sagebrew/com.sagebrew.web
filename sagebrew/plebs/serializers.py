@@ -185,8 +185,8 @@ class PlebSerializerNeo(SBSerializer):
             password=validated_data['password'], username=username)
         user.save()
         pleb = Pleb(email=user.email,
-                    first_name=user.first_name,
-                    last_name=user.last_name,
+                    first_name=user.first_name.title(),
+                    last_name=user.last_name.title(),
                     username=user.username,
                     date_of_birth=birthday)
         pleb.occupation_name = validated_data.get('occupation_name', None)

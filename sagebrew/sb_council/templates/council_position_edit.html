@@ -1,0 +1,76 @@
+{% extends "layout/hero-two-col-left.html" %}
+{% load staticfiles %}
+
+{% block hero %}
+    <div class="block block-type-title">
+        <div class="block-content type-nav clearfix">
+            <h1>Council Area</h1>
+            <ul class="nav nav-pills">
+                <li class="{% if "/positions/" not in request.path %}active{% endif %}">
+                    <a href="/council/">Flagged Objects</a>
+                </li>
+                <li class="{% if "/positions/" in request.path %}active{% endif %}">
+                    <a href="/council/positions/">Positions</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block sidebar_left %}
+    <div class="block block-type-nav">
+        <div class="block-content ">
+            <ul class="nav nav-list nav-list-vivid">
+                {% comment %}
+                The use of request.GET.urlencode here is to capture query params, best way I
+                can think of to determine active for the buttons.
+                {% endcomment %}
+                <li class="{% if "verified" not in request.path %}active{% endif %}">
+                    <a class=""
+                       data-filter=""
+                       href="/council/positions/">
+                        Unverified
+                    </a>
+                </li>
+                <li class="{% if "verified" in request.path %}active{% endif %}">
+                    <a class=""
+                       data-filter="verified"
+                       href="/council/positions/verified">
+                        Verified
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title">Edit Position</h3>
+        <div class="block-content" id="js-position-verification-wrapper">
+            <form id="js-position-info">
+                <div class="form-group has-success">
+                    <label for="js-name">Name</label>
+                    <input type="text"
+                           name="name"
+                           id="js-name" class="form-control">
+                </div>
+                <div class="form-group has-success">
+                    <label for="branch-input" hidden="">Branch</label>
+                    <select id="branch-input" name="office_type" class="form-control mission-input">
+                        <option selected="" value="">Select a Branch</option>
+                        <option value="executive">Executive</option>
+                        <option value="judicial">Judicial</option>
+                        <option value="legislative">Legislative</option>
+                        <option value="enforcement">Enforcement</option>
+                    </select>
+                </div>
+            </form>
+            <div class="row">
+                <div class="col-md-6 col-lg-4">
+                    <button class="btn btn-primary sb_btn sb_btn_fill" id="js-submit-edit">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

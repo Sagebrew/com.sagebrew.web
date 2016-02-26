@@ -59,7 +59,7 @@ class MissionSerializer(SBSerializer):
     location = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        from sb_quests.neo_models import Quest
+        from sb_quests.neo_models import Quest, Position
         request, _, _, _, _ = gather_request_data(self.context)
         query = 'MATCH (quest:Quest {owner_username: "%s"})-[:EMBARKS_ON]->' \
                 '(mission:Mission) ' \
@@ -77,6 +77,7 @@ class MissionSerializer(SBSerializer):
                                 "status_code": status.HTTP_400_BAD_REQUEST})
         add_location = ""
         add_district = ""
+        verified = validated_data.get('verified')
         focus_type = validated_data.get('focus_on_type')
         level = validated_data.get('level')
         location = validated_data.get('location_name')
@@ -95,6 +96,27 @@ class MissionSerializer(SBSerializer):
                        'CREATE UNIQUE (mission)-[:WITHIN]->(location) ' \
                        'RETURN mission' % mission.object_uuid
         if focus_type == "position":
+            if verified == 'false':
+                query = 'MATCH (location:Location {external_id:"%s"})-' \
+                        '[:POSITIONS_AVAILABLE]->(position:Position ' \
+                        '{name:"%s", level:"%s"}) RETURN position' % \
+                        (location, focused_on, level)
+                res, _ = db.cypher_query(query)
+                if not res.one:
+                    focused_on = focused_on.title().replace('-', ' ')\
+                        .replace('_', ' ')
+                    new_position = Position(verified=False, name=focused_on,
+                                            level=level,
+                                            user_created=True).save()
+                    query = 'MATCH (location:Location {external_id: "%s"}), ' \
+                            '(position:Position {object_uuid:"%s"}) ' \
+                            'WITH location, position ' \
+                            'CREATE UNIQUE (position)' \
+                            '<-[r:POSITIONS_AVAILABLE]-(location), ' \
+                            '(position)-[:AVAILABLE_WITHIN]->(location) ' \
+                            'RETURN position' % (location,
+                                                 new_position.object_uuid)
+                    res, _ = db.cypher_query(query)
             if level == "local":
                 query = 'MATCH (location:Location {external_id: "%s"})-' \
                         '[:POSITIONS_AVAILABLE]->' \

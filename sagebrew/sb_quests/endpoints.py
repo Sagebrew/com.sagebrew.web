@@ -368,8 +368,9 @@ class PositionViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get_queryset(self):
-        query = 'MATCH (p:`Position`) RETURN p'
+    def get_queryset(self, user_created='false', verified='true'):
+        query = 'MATCH (p:`Position`) WHERE p.user_created=%s ' \
+                'AND p.verified=%s RETURN p' % (user_created, verified)
         res, col = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Position.inflate(row[0]) for row in res]
@@ -387,3 +388,29 @@ class PositionViewSet(viewsets.ReadOnlyModelViewSet):
             return Response(PositionSerializer(serializer).data,
                             status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['put', 'patch'],
+                  serializer_class=PositionSerializer)
+    def council_update(self, request, object_uuid=None):
+        if request.user.username == "tyler_wiersing" \
+                or request.user.username == "devon_bleibtrey":
+            queryset = self.get_object()
+            serializer = PositionSerializer(
+                queryset, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            {"detail": "You are not authorized to perform this action.",
+             "status": status.HTTP_403_FORBIDDEN},
+            status.HTTP_403_FORBIDDEN)
+
+    @list_route(methods=['get'],
+                serializer_class=PositionSerializer)
+    def user_created(self, request):
+        queryset = self.get_queryset('true')
+        serializer = PositionSerializer(queryset, many=True)
+        return Response(serializer.data,
+                        status=status.HTTP_200_OK)

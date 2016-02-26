@@ -25,18 +25,18 @@
                 The use of request.GET.urlencode here is to capture query params, best way I
                 can think of to determine active for the buttons.
                 {% endcomment %}
-                <li class="{% if "voted" not in request.GET.urlencode %}active{% endif %}">
-                    <a class="query_council"
+                <li class="{% if "verified" not in request.path %}active{% endif %}">
+                    <a class=""
                        data-filter=""
-                       href="">
-                        Not Voted On
+                       href="/council/positions/">
+                        Unverified
                     </a>
                 </li>
-                <li class="{% if "voted" in request.GET.urlencode %}active{% endif %}">
-                    <a class="query_council"
-                       data-filter="voted"
-                       href="">
-                        Already Voted On
+                <li class="{% if "verified" in request.path %}active{% endif %}">
+                    <a class=""
+                       data-filter="verified"
+                       href="/council/positions/verified">
+                        Verified
                     </a>
                 </li>
             </ul>
@@ -46,15 +46,8 @@
 
 {% block live %}
     <div class="block">
-        <h3 class="block-title">Flagged Content</h3>
-        <div class="block-content" id="js-flag-voting-wrapper">
+        <h3 class="block-title">Unverified Positions</h3>
+        <div class="block-content" id="js-position-verification-wrapper">
         </div>
     </div>
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/vendor/foggy.min.js' %}"></script>
-    <script src="{% static 'js/vote_on_flagged.js' %}"></script>
-
 {% endblock %}

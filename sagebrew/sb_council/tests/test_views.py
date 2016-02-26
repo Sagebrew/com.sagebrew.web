@@ -29,3 +29,11 @@ class ProfilePageTest(APITestCase):
         url = reverse("council_page")
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+    def test_council_page_authorized(self):
+        self.pleb.reputation = 10000
+        self.pleb.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse("council_page")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -44,10 +44,18 @@ export function load() {
             paymentData.next_due_date = "Never";
             paymentData.bill_rate = "0.00";
         }
-    } else if (settings.profile.quest.account_type === "paid") {
+    } else if (settings.profile.quest.account_type === "paid" ||
+            settings.profile.quest.account_type === "promotion") {
+        var subscription = settings.profile.quest.subscription,
+            formattedPaymentDate;
+        if(subscription !== "undefined" && subscription !== undefined && subscription !== null){
+            formattedPaymentDate = moment.unix(subscription.current_period_end).format("MM/DD/YYYY");
+        } else {
+            formattedPaymentDate = "You need to add a payment method";
+        }
         paymentData = {
             card_on_file: false,
-            next_due_date: "You need to add a payment method",
+            next_due_date: formattedPaymentDate,
             bill_rate: "100.00"
         };
     } else {

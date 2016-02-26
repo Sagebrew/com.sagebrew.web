@@ -1,7 +1,7 @@
 import pytz
+from datetime import datetime
 import time
 import stripe
-from datetime import datetime
 from stripe.error import InvalidRequestError
 from dateutil.relativedelta import relativedelta
 
@@ -69,9 +69,11 @@ class QuestSerializer(SBSerializer):
     routing_number = serializers.CharField(write_only=True, required=False)
     account_number = serializers.CharField(write_only=True, required=False)
     ssn = serializers.CharField(write_only=True, required=False)
+    promotion_key = serializers.CharField(write_only=True, required=False)
     account_type = serializers.ChoiceField(
         required=False,
-        choices=[('paid', "Paid"), ('free', "Free")])
+        choices=[('paid', "Paid"), ('free', "Free"),
+                 ('promotion', "Promotion")])
     account_verified = serializers.ChoiceField(
         read_only=True,
         choices=[('unverified', "Unverified"), ('pending', "Pending"),
@@ -92,10 +94,6 @@ class QuestSerializer(SBSerializer):
         request = self.context.get('request', None)
         account_type = validated_data.get('account_type', "free")
         owner = Pleb.get(username=request.user.username)
-        if account_type == 'paid':
-            validated_data[
-                'application_fee'] = settings.STRIPE_PAID_ACCOUNT_FEE
-
         if owner.get_quest():
             raise ValidationError(
                 detail={"detail": "You may only have one Quest!",
@@ -160,8 +158,11 @@ class QuestSerializer(SBSerializer):
     def update(self, instance, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe_token = validated_data.pop('stripe_token', None)
+        promotion_key = validated_data.pop('promotion_key', None)
         customer_token = validated_data.pop('customer_token',
                                             instance.customer_token)
+        account_type = validated_data.get(
+            'account_type', instance.account_type)
         initial_state = instance.active
         ein = validated_data.pop('ein', instance.ein)
         ssn = validated_data.pop('ssn', instance.ssn)
@@ -169,11 +170,6 @@ class QuestSerializer(SBSerializer):
         if ssn is not None:
             ssn = ssn.replace('-', "")
         active = validated_data.pop('active', instance.active)
-        account_type = validated_data.get(
-            'account_type', instance.account_type)
-        if datetime.now() < datetime(2016, 6, 16):
-            if active and not instance.active:
-                account_type = 'paid'
         instance.active = active
         title = validated_data.pop('title', instance.title)
         if title is not None:
@@ -226,41 +222,38 @@ class QuestSerializer(SBSerializer):
                     instance.stripe_customer_id)
                 card = customer.sources.create(source=customer_token)
                 instance.stripe_default_card_id = card['id']
+        elif customer_token is None and account_type == "promotion":
+            customer = stripe.Customer.create(
+                description="Customer for %s Quest" % instance.object_uuid,
+                email=owner.email)
+            instance.stripe_customer_id = customer['id']
 
         if account_type != instance.account_type:
+            customer = stripe.Customer.retrieve(instance.stripe_customer_id)
             if account_type == "paid":
                 # if paid gets submitted create a subscription if it doesn't
                 # already exist
-                if instance.stripe_subscription_id is None and \
-                        instance.stripe_customer_id is not None:
-                    try:
-                        customer = stripe.Customer.retrieve(
-                            instance.stripe_customer_id)
-                    except stripe.InvalidRequestError:
-                        customer = stripe.Customer.create(
-                            description="Customer for %s Quest"
-                                        % instance.object_uuid,
-                            email=owner.email
-                        )
-                        instance.stripe_customer_id = customer['id']
-                    if datetime.now() < datetime(2016, 6, 16):
-                        next_year = datetime.now() + relativedelta(years=+1)
-                        unix_stamp = time.mktime(next_year.timetuple())
-                        sub = customer.subscriptions.create(
-                            plan='quest_premium',
-                            trial_end=int(unix_stamp))
-                    else:
-                        sub = customer.subscriptions.create(
-                            plan='quest_premium')
+                if instance.stripe_subscription_id is None:
+                    sub = customer.subscriptions.create(plan='quest_premium')
                     instance.stripe_subscription_id = sub['id']
                 instance.application_fee = settings.STRIPE_PAID_ACCOUNT_FEE
-
+            elif account_type == "promotion":
+                if promotion_key in settings.PROMOTION_KEYS \
+                        and settings.PRO_QUEST_PROMOTION:
+                    if datetime.now() < settings.PRO_QUEST_END_DATE:
+                        next_year = datetime.now() + relativedelta(years=+1)
+                        unix_stamp = time.mktime(next_year.timetuple())
+                        if instance.stripe_subscription_id is None:
+                            sub = customer.subscriptions.create(
+                                plan='quest_premium',
+                                trial_end=int(unix_stamp))
+                            instance.stripe_subscription_id = sub['id']
+                            instance.application_fee = \
+                                settings.STRIPE_PAID_ACCOUNT_FEE
             elif account_type == "free":
                 # if we get a free submission and the subscription is already
                 # set cancel it.
                 if instance.stripe_subscription_id is not None:
-                    customer = stripe.Customer.retrieve(
-                        instance.stripe_customer_id)
                     customer.subscriptions.retrieve(
                         instance.stripe_subscription_id).delete()
                     instance.stripe_subscription_id = None
@@ -519,7 +512,7 @@ class PositionSerializer(SBSerializer):
             ('executive', "Executive"), ('legislative', "Legislative"),
             ('judicial', "Judicial"), ('enforcement', 'Enforcement')]
     )
-
+    level = serializers.CharField()
     href = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
     location_name = serializers.SerializerMethodField()
@@ -528,6 +521,7 @@ class PositionSerializer(SBSerializer):
         instance.name = validated_data.get('name', instance.name)
         instance.full_name = validated_data.get('full_name', instance.full_name)
         instance.verified = validated_data.get('verified', instance.verified)
+        instance.level = validated_data.get('level', instance.level)
         office_type = validated_data.get('office_type', instance.office_type)
         if office_type:
             instance.office_type = validated_data.get('office_type',

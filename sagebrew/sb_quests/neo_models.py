@@ -40,6 +40,8 @@ class Quest(Searchable):
     # Valid options are:
     #     free
     #     paid
+    #     promotion
+    #     custom
     account_type = StringProperty()
     # A Quest is always active after the stripe account has been activated.
     # A Quest must have a Mission to take donations towards.
@@ -138,6 +140,11 @@ class Quest(Searchable):
 
     @property
     def account_number(self):  # pragma: no cover
+        # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
+        return None
+
+    @property
+    def promotion_key(self):  # pragma: no cover
         # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
         return None
 

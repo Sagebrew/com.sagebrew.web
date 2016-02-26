@@ -3,7 +3,8 @@
  */
 var request = require('api').request,
     helpers = require('common/helpers'),
-    settings = require('settings').settings;
+    settings = require('settings').settings,
+    moment = require('moment');
 
 /**
  * Meta.
@@ -39,11 +40,14 @@ export function load() {
                 $.notify('You must add a credit card under "Billing" or change your account to free prior to taking the Quest live', {type: "danger"});
             } else {
                 greyPage.classList.remove('sb_hidden');
+                var takeLiveDict = {active: true};
+                if(moment().diff([2016, 5, 16]) <= 0){
+                    takeLiveDict.account_type = "promotion";
+                    takeLiveDict.promotion_key = settings.quest_promo_key;
+                }
                 request.patch({
                     url: "/v1/quests/" + questID + "/",
-                    data: JSON.stringify({
-                        active: true
-                    })
+                    data: JSON.stringify(takeLiveDict)
                 }).done(function () {
                     window.location.reload();
                 }).fail(function () {

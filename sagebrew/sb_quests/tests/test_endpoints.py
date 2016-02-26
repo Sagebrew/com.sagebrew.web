@@ -442,6 +442,26 @@ class QuestEndpointTests(APITestCase):
         self.assertIsNotNone(quest.stripe_customer_id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_update_promotion(self):
+        self.client.force_authenticate(user=self.user)
+        self.quest.stripe_subscription_id = None
+        self.quest.account_type = "free"
+        self.quest.save()
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "customer_token": "",
+            "account_type": "promotion"
+        }
+        response = self.client.patch(url, data=data, format='json')
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertIsNotNone(quest.stripe_subscription_id)
+        self.assertEqual(quest.account_type, "promotion")
+        self.assertEqual(quest.application_fee, 0.021)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        customer = stripe.Customer.retrieve(quest.stripe_customer_id)
+        customer.delete()
+
     def test_update_paid(self):
         self.client.force_authenticate(user=self.user)
         self.quest.stripe_subscription_id = None
@@ -466,6 +486,8 @@ class QuestEndpointTests(APITestCase):
         response = self.client.patch(url, data=data, format='json')
         quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
         self.assertIsNotNone(quest.stripe_subscription_id)
+        self.assertEqual(quest.account_type, "paid")
+        self.assertEqual(quest.application_fee, 0.021)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
@@ -492,6 +514,8 @@ class QuestEndpointTests(APITestCase):
         quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
         self.assertIsNone(quest.stripe_subscription_id)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(quest.account_type, "free")
+        self.assertEqual(quest.application_fee, 0.041)
         customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
 

@@ -1,8 +1,9 @@
 import pytz
-from datetime import datetime
 import time
 import stripe
+from datetime import datetime
 from stripe.error import InvalidRequestError
+from dateutil.relativedelta import relativedelta
 
 from django.conf import settings
 from django.core.cache import cache
@@ -168,6 +169,11 @@ class QuestSerializer(SBSerializer):
         if ssn is not None:
             ssn = ssn.replace('-', "")
         active = validated_data.pop('active', instance.active)
+        account_type = validated_data.get(
+            'account_type', instance.account_type)
+        if datetime.now() < datetime(2016, 6, 16):
+            if active and not instance.active:
+                account_type = 'paid'
         instance.active = active
         title = validated_data.pop('title', instance.title)
         if title is not None:
@@ -220,17 +226,32 @@ class QuestSerializer(SBSerializer):
                     instance.stripe_customer_id)
                 card = customer.sources.create(source=customer_token)
                 instance.stripe_default_card_id = card['id']
-        account_type = validated_data.get(
-            'account_type', instance.account_type)
+
         if account_type != instance.account_type:
             if account_type == "paid":
                 # if paid gets submitted create a subscription if it doesn't
                 # already exist
                 if instance.stripe_subscription_id is None and \
                         instance.stripe_customer_id is not None:
-                    customer = stripe.Customer.retrieve(
-                        instance.stripe_customer_id)
-                    sub = customer.subscriptions.create(plan='quest_premium')
+                    try:
+                        customer = stripe.Customer.retrieve(
+                            instance.stripe_customer_id)
+                    except stripe.InvalidRequestError:
+                        customer = stripe.Customer.create(
+                            description="Customer for %s Quest"
+                                        % instance.object_uuid,
+                            email=owner.email
+                        )
+                        instance.stripe_customer_id = customer['id']
+                    if datetime.now() < datetime(2016, 6, 16):
+                        next_year = datetime.now() + relativedelta(years=+1)
+                        unix_stamp = time.mktime(next_year.timetuple())
+                        sub = customer.subscriptions.create(
+                            plan='quest_premium',
+                            trial_end=int(unix_stamp))
+                    else:
+                        sub = customer.subscriptions.create(
+                            plan='quest_premium')
                     instance.stripe_subscription_id = sub['id']
                 instance.application_fee = settings.STRIPE_PAID_ACCOUNT_FEE
 

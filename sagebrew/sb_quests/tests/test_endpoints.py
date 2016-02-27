@@ -450,8 +450,8 @@ class QuestEndpointTests(APITestCase):
         url = reverse('quest-detail',
                       kwargs={'owner_username': self.quest.owner_username})
         data = {
-            "customer_token": "",
-            "account_type": "promotion"
+            "account_type": "promotion",
+            "promotion_key": settings.PROMOTION_KEYS[0]
         }
         response = self.client.patch(url, data=data, format='json')
         quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)

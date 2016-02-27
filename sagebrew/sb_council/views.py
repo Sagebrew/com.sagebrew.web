@@ -7,16 +7,6 @@ from plebs.neo_models import Pleb
 from sb_registration.utils import verify_completed_registration
 
 
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def council_page(request):
-    if request.user.username == 'tyler_wiersing' \
-            or request.user.username == 'devon_bleibtrey':
-        return render(request, 'council_page.html')
-    return redirect('profile_page', pleb_username=request.user.username)
-
-
 class LoginRequiredMixin(View):
 
     @classmethod

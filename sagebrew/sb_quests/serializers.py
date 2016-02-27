@@ -167,7 +167,9 @@ class QuestSerializer(SBSerializer):
         customer = None
         ein = validated_data.pop('ein', instance.ein)
         ssn = validated_data.pop('ssn', instance.ssn)
-        # Remove any dashses from the ssn input.
+
+        # ** Standard Settings Update **
+        # Remove any dashes from the ssn input.
         if ssn is not None:
             ssn = ssn.replace('-', "")
         active = validated_data.pop('active', instance.active)
@@ -205,6 +207,8 @@ class QuestSerializer(SBSerializer):
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
         owner = Pleb.get(username=instance.owner_username)
+
+        # ** Customer Creation/Card Assignment If Provided **
         if customer_token is not None:
             # Customers must provide a credit card for us to create a customer
             # with stripe. Get the credit card # and create a customer instance
@@ -229,6 +233,8 @@ class QuestSerializer(SBSerializer):
                     description="Customer for %s Quest" % instance.object_uuid,
                     email=owner.email)
                 instance.stripe_customer_id = customer['id']
+
+        # ** Account plan updating process **
         if account_type != instance.account_type:
             if customer is None:
                 customer = stripe.Customer.retrieve(instance.stripe_customer_id)
@@ -269,6 +275,7 @@ class QuestSerializer(SBSerializer):
 
             instance.account_type = account_type
 
+        # ** Managed Account Setup **
         if stripe_token is not None:
             if instance.stripe_id is None or instance.stripe_id == "Not Set":
                 stripe_res = stripe.Account.create(managed=True, country="US",
@@ -343,6 +350,8 @@ class QuestSerializer(SBSerializer):
             instance.last_four_soc = ssn[-4:]
         instance.save()
         cache.delete("%s_quest" % instance.owner_username)
+
+        # ** Search Update **
         if instance.active:
             return super(QuestSerializer, self).update(instance, validated_data)
         return instance

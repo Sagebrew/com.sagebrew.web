@@ -48,9 +48,6 @@ class MissionViewSet(viewsets.ModelViewSet):
     def get_object(self):
         return Mission.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
-    def perform_create(self, serializer):
-        serializer.save(verified=self.request.data.get('verified', 'true'))
-
     def create(self, request, *args, **kwargs):
         query = 'MATCH (a:Pleb {username: "%s"})-[IS_WAGING]->(b:Quest)' \
                 'RETURN b' % request.user.username
@@ -113,7 +110,7 @@ class MissionViewSet(viewsets.ModelViewSet):
                 'WITH plebs, volunteer ' \
                 'OPTIONAL MATCH (plebs)-[:LIVES_AT]->(address:Address) ' \
                 'RETURN plebs, volunteer.activities AS activities, address' \
-                % (object_uuid)
+                % object_uuid
         res, _ = db.cypher_query(query)
         try:
             filtered = [

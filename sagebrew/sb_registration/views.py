@@ -21,7 +21,6 @@ from api.utils import spawn_task
 from plebs.tasks import send_email_task, update_address_location
 from plebs.neo_models import Pleb, Address
 
-from sb_quests.serializers import QuestSerializer
 from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm,
                     LoginForm)
@@ -67,25 +66,7 @@ def signup_view(request):
 
 
 def quest_signup(request):
-    quest = cache.get('%s_quest' % request.user.username)
-    if quest is None:
-        query = 'MATCH (pleb:Pleb {username: "%s"})-' \
-                '[:IS_WAGING]->(q:Quest) RETURN q' % request.user.username
-        res, _ = db.cypher_query(query)
-        if res.one:
-            return redirect('quest', username=request.user.username)
-    if request.method == 'POST':
-        if request.user.is_authenticated():
-            data = {"account_type": request.POST['account_type']}
-            serializer = QuestSerializer(data=data,
-                                         context={'request': request})
-            if serializer.is_valid():
-                quest = serializer.save()
-                return redirect('quest', username=quest.owner_username)
-            else:
-                return redirect('500_Error')
-        return redirect('signup')
-    return render(request, 'quest_details.html')
+    return redirect('political')
 
 
 def login_view(request):

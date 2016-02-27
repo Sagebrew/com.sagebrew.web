@@ -1,4 +1,4 @@
-/*global google, Intercom, Bloodhound*/
+/*global google, Bloodhound*/
 var request = require('api').request,
     radioSelector = require('common/radioimage').radioSelector,
     helpers = require('common/helpers'),
@@ -10,7 +10,6 @@ var request = require('api').request,
     positionKey = 'politicianMissionPosition',
     districtKey = 'politicianMissionDistrict',
     levelKey = 'politicianMissionLevel',
-    verifiedKey = 'politicianMissionPositionVerified',
     stateUpper = "state_upper",
     stateLower = "state_lower";
 
@@ -69,10 +68,6 @@ export function load() {
         // recent input is passed to the endpoint
         localStorage.removeItem(positionKey);
         localStorage.setItem(positionKey, suggestion);
-        // Make sure that if the position is being set here we default
-        // verified to false so we can check to make sure it is verified later
-        localStorage.removeItem(verifiedKey);
-        localStorage.setItem(verifiedKey, false);
     });
     positionInput.keyup(function() {
         var $this = $(this);
@@ -85,10 +80,6 @@ export function load() {
             // recent input is passed to the endpoint
             localStorage.removeItem(positionKey);
             localStorage.setItem(positionKey, $this.val());
-            // Make sure that if the position is being set here we default
-            // verified to false so we can check to make sure it is verified later
-            localStorage.removeItem(verifiedKey);
-            localStorage.setItem(verifiedKey, false);
             // Activate button after a position has been input
             startBtn.disabled = false;
         }
@@ -96,7 +87,9 @@ export function load() {
     $app
         .on('click', '.radio-image-selector', function(event) {
             event.preventDefault();
-
+            if(this.id !== "Other") {
+                positionInputRow.classList.add('hidden');
+            }
             if(this.classList.contains("radio-selected") && this.classList.contains("js-level")){
                 // If we select a level that was already selected we need to disable the inputs
                 // and clear the currently selected position and re-disable positions and districts
@@ -116,6 +109,7 @@ export function load() {
                 // the stored off position. We also need to disable the start button until a district is selected
                 localStorage.removeItem(districtKey);
                 localStorage.removeItem(positionKey);
+                positionInputRow.classList.add('hidden');
                 districtSelector.innerHTML = templates.district_holder();
             } else {
                 // If we select a level, enable the inputs
@@ -189,8 +183,6 @@ export function load() {
                 if(localStorage.getItem(positionKey) === "Senator" || localStorage.getItem(positionKey) === "President") {
                     // Presidents and Senators don't have districts so we can enable the start button
                     startBtn.disabled = false;
-                    localStorage.removeItem(verifiedKey);
-                    localStorage.setItem(verifiedKey, true);
                 } else if (localStorage.getItem(districtKey) === null){
                     // If we're not talking about Presidents or Senators we need a district so disable the
                     // start button until a district is selected.
@@ -216,8 +208,7 @@ export function load() {
                     district: localStorage.getItem(districtKey),
                     level: localStorage.getItem(levelKey),
                     location_name: location,
-                    focus_on_type: "position",
-                    verified: localStorage.getItem(verifiedKey)
+                    focus_on_type: "position"
                 })
             }).done(function (data) {
                 greyPage.classList.add('sb_hidden');
@@ -282,7 +273,6 @@ function districtSelection(level, stateInput, placeInput, positionSelector) {
 function checkIfDistricts(identifier, districtRow, positionInputRow) {
     if(identifier.indexOf('Senator') > -1) {
         localStorage.setItem(positionKey, identifier);
-        localStorage.setItem(verifiedKey, true);
         if (localStorage.getItem(filterKey) === "state"){
             districtRow.classList.remove('hidden');
             localStorage.setItem(levelKey, stateUpper);
@@ -293,7 +283,6 @@ function checkIfDistricts(identifier, districtRow, positionInputRow) {
         }
     } else if(identifier.indexOf("House Representative") > -1) {
         localStorage.setItem(positionKey, identifier);
-        localStorage.setItem(verifiedKey, true);
         districtRow.classList.remove('hidden');
         if (localStorage.getItem(filterKey) === "state"){
             localStorage.setItem(levelKey, stateLower);
@@ -307,7 +296,6 @@ function checkIfDistricts(identifier, districtRow, positionInputRow) {
         positionInputRow.classList.remove('hidden');
         districtRow.classList.add('hidden');
     } else {
-        localStorage.setItem(verifiedKey, true);
         localStorage.setItem(positionKey, identifier);
         districtRow.classList.add('hidden');
     }

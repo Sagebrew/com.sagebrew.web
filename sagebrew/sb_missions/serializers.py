@@ -6,11 +6,10 @@ from django.conf import settings
 
 from rest_framework import serializers, status
 from rest_framework.reverse import reverse
-from rest_framework.exceptions import ValidationError
 
 from neomodel import db, DoesNotExist
 
-from api.utils import gather_request_data
+from api.utils import gather_request_data, clean_url, empty_text_to_none
 from api.serializers import SBSerializer
 from sb_locations.serializers import LocationSerializer
 from sb_tags.neo_models import Tag
@@ -68,16 +67,15 @@ class MissionSerializer(SBSerializer):
         res, _ = db.cypher_query(query)
         if res.one is not None:
             quest = Quest.inflate(res.one['quest'])
-            if quest.account_type != "paid":
+            if quest.account_type == "free":
                 if res.one['mission_count'] >= settings.FREE_MISSIONS:
-                    raise ValidationError(
+                    raise serializers.ValidationError(
                         detail={"detail": "Sorry free Quests can only "
                                           "have 5 Missions.",
                                 "developer_message": "",
                                 "status_code": status.HTTP_400_BAD_REQUEST})
         add_location = ""
         add_district = ""
-        verified = validated_data.get('verified')
         focus_type = validated_data.get('focus_on_type')
         level = validated_data.get('level')
         location = validated_data.get('location_name')
@@ -96,27 +94,60 @@ class MissionSerializer(SBSerializer):
                        'CREATE UNIQUE (mission)-[:WITHIN]->(location) ' \
                        'RETURN mission' % mission.object_uuid
         if focus_type == "position":
-            if verified == 'false':
-                query = 'MATCH (location:Location {external_id:"%s"})-' \
-                        '[:POSITIONS_AVAILABLE]->(position:Position ' \
-                        '{name:"%s", level:"%s"}) RETURN position' % \
-                        (location, focused_on, level)
+            if level == "federal":
+                if district:
+                    loc_query = '(:Location {name: ' \
+                                '"United States of America"})' \
+                                '-[:ENCOMPASSES]->(:Location {name: "%s"})' \
+                                '-[:ENCOMPASSES]->(location:Location ' \
+                                '{name: "%s", sector: "federal"})' % (
+                                    location, district)
+                elif location:
+                    loc_query = '(:Location {name: ' \
+                                '"United States of America"})' \
+                                '-[:ENCOMPASSES]->' \
+                                '(location:Location {name: "%s"})' % location
+                else:
+                    loc_query = 'MATCH (location:Location {name: ' \
+                                '"United States of America"})'
+            elif level == "state_upper" or level == "state_lower" \
+                    or level == "state":
+                parent_location = "location"
+                if district:
+                    add_district = '-[:ENCOMPASSES]->' \
+                                   '(location:Location ' \
+                                   '{name: "%s", sector: "%s"})' \
+                                   '' % (district, level)
+                    parent_location = "b"
+                # use sector for level input since we're talking about
+                # state_upper and state_lower with the position
+                # and level input here only has state, federal, and local
+                loc_query = '(a:Location {name: "United States of America"})' \
+                            '-[:ENCOMPASSES]->' \
+                            '(%s:Location {name: "%s"})%s' % (
+                                parent_location, location, add_district)
+            else:
+                loc_query = '(location:Location {external_id:"%s"})' % location
+            query = 'MATCH %s-' \
+                    '[:POSITIONS_AVAILABLE]->(position:Position ' \
+                    '{name:"%s", level:"%s"}) RETURN position' % \
+                    (loc_query, focused_on, level)
+            res, _ = db.cypher_query(query)
+            if not res.one:
+                focused_on = focused_on.title().replace('-', ' ')\
+                    .replace('_', ' ')
+                new_position = Position(verified=False, name=focused_on,
+                                        level=level,
+                                        user_created=True).save()
+                query = 'MATCH %s, ' \
+                        '(position:Position {object_uuid:"%s"}) ' \
+                        'WITH location, position ' \
+                        'CREATE UNIQUE (position)' \
+                        '<-[r:POSITIONS_AVAILABLE]-(location), ' \
+                        '(position)-[:AVAILABLE_WITHIN]->(location) ' \
+                        'RETURN position' % (loc_query,
+                                             new_position.object_uuid)
                 res, _ = db.cypher_query(query)
-                if not res.one:
-                    focused_on = focused_on.title().replace('-', ' ')\
-                        .replace('_', ' ')
-                    new_position = Position(verified=False, name=focused_on,
-                                            level=level,
-                                            user_created=True).save()
-                    query = 'MATCH (location:Location {external_id: "%s"}), ' \
-                            '(position:Position {object_uuid:"%s"}) ' \
-                            'WITH location, position ' \
-                            'CREATE UNIQUE (position)' \
-                            '<-[r:POSITIONS_AVAILABLE]-(location), ' \
-                            '(position)-[:AVAILABLE_WITHIN]->(location) ' \
-                            'RETURN position' % (location,
-                                                 new_position.object_uuid)
-                    res, _ = db.cypher_query(query)
             if level == "local":
                 query = 'MATCH (location:Location {external_id: "%s"})-' \
                         '[:POSITIONS_AVAILABLE]->' \
@@ -285,10 +316,6 @@ class MissionSerializer(SBSerializer):
                         'RETURN mission' % (focused_on, owner_username,
                                             mission.object_uuid, loc_query)
                 res, _ = db.cypher_query(query)
-        elif focus_type == "question":
-            return None
-        else:
-            return None
         return mission
 
     def update(self, instance, validated_data):
@@ -299,27 +326,15 @@ class MissionSerializer(SBSerializer):
         instance.completed = validated_data.pop(
             'completed', instance.completed)
         instance.title = validated_data.pop('title', instance.title)
-        about = validated_data.get('about', instance.about)
-        if about is not None:
-            about = about.strip()
-            if about == "":
-                about = None
-        instance.about = about
+        instance.about = empty_text_to_none(
+            validated_data.get('about', instance.about))
         instance.epic = validated_data.pop('epic', instance.epic)
         instance.facebook = validated_data.pop('facebook', instance.facebook)
         instance.linkedin = validated_data.pop('linkedin', instance.linkedin)
         instance.youtube = validated_data.pop('youtube', instance.youtube)
         instance.twitter = validated_data.pop('twitter', instance.twitter)
-        website = validated_data.get('website', instance.website)
-        if website is None:
-            instance.website = website
-        elif "https://" in website or "http://" in website:
-            instance.website = website
-        else:
-            if website.strip() == "":
-                instance.website = None
-            else:
-                instance.website = "http://" + website
+        instance.website = clean_url(
+            validated_data.get('website', instance.website))
         instance.wallpaper_pic = validated_data.pop('wallpaper_pic',
                                                     instance.wallpaper_pic)
         instance.save()

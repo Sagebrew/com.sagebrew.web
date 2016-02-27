@@ -25,6 +25,7 @@ export function load() {
     $app
         .on('click', '#deactivate-quest', function (event) {
             event.preventDefault();
+            greyPage.classList.remove('sb_hidden');
             request.patch({url: "/v1/quests/" + questID + "/",
                 data: JSON.stringify({"active": false})
             }).done(function (){

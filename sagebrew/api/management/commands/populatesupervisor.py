@@ -152,4 +152,5 @@ def populate_general_values(data, user, worker_count):
                         environ.get("GOOGLE_MAPS_JS", ""))
     data = data.replace("%(ENV_SUNLIGHT_FOUNDATION_KEY)s",
                         environ.get("SUNLIGHT_FOUNDATION_KEY", ""))
+    data = data.replace("%(ENV_WEBHOSE_KEY)s", environ.get("WEBHOSE_KEY", ""))
     return data

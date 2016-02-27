@@ -24,9 +24,6 @@ from sb_search.utils import remove_search_object
 
 from .neo_models import (Position, Quest)
 
-from logging import getLogger
-logger = getLogger("loggly_logs")
-
 
 class AllowVoteValidator:
 
@@ -232,9 +229,6 @@ class QuestSerializer(SBSerializer):
                     description="Customer for %s Quest" % instance.object_uuid,
                     email=owner.email)
                 instance.stripe_customer_id = customer['id']
-        logger.critical("check account type")
-        logger.critical(account_type)
-        logger.critical(instance.account_type)
         if account_type != instance.account_type:
             if customer is None:
                 customer = stripe.Customer.retrieve(instance.stripe_customer_id)
@@ -246,16 +240,9 @@ class QuestSerializer(SBSerializer):
                     instance.stripe_subscription_id = sub['id']
                 instance.application_fee = settings.STRIPE_PAID_ACCOUNT_FEE
             elif account_type == "promotion":
-                logger.critical("promotion keys")
-                logger.critical(promotion_key)
-                logger.critical(settings.PROMOTION_KEYS)
                 if promotion_key in settings.PROMOTION_KEYS \
                         and settings.PRO_QUEST_PROMOTION:
-                    logger.critical("date check")
                     if datetime.now() < settings.PRO_QUEST_END_DATE:
-                        logger.critical("date check successful")
-                        logger.critical("sub id")
-                        logger.critical(instance.stripe_subscription_id)
                         next_year = datetime.now() + relativedelta(years=+1)
                         unix_stamp = time.mktime(next_year.timetuple())
                         # Only allow people without subscriptions to create
@@ -265,11 +252,9 @@ class QuestSerializer(SBSerializer):
                         # duplicate subscriptions associated with one
                         # user.
                         if instance.stripe_subscription_id is None:
-                            logger.critical("create promotional account")
                             sub = customer.subscriptions.create(
                                 plan='quest_premium',
                                 trial_end=int(unix_stamp))
-                            logger.critical(sub['id'])
                             instance.stripe_subscription_id = sub['id']
                             instance.application_fee = \
                                 settings.STRIPE_PAID_ACCOUNT_FEE
@@ -277,7 +262,6 @@ class QuestSerializer(SBSerializer):
                 # if we get a free submission and the subscription is already
                 # set cancel it.
                 if instance.stripe_subscription_id is not None:
-                    logger.critical("some how delete the sub")
                     customer.subscriptions.retrieve(
                         instance.stripe_subscription_id).delete()
                     instance.stripe_subscription_id = None
@@ -357,8 +341,6 @@ class QuestSerializer(SBSerializer):
                     'verification']['status']
             instance.account_verified = verification
             instance.last_four_soc = ssn[-4:]
-        logger.critical(instance.stripe_subscription_id)
-        logger.critical(instance.account_type)
         instance.save()
         cache.delete("%s_quest" % instance.owner_username)
         if instance.active:

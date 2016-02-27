@@ -10,37 +10,19 @@ from django.core.cache import cache
 
 from rest_framework import serializers, status
 from rest_framework.reverse import reverse
-from rest_framework.exceptions import ValidationError
 
 from neomodel import db
 from neomodel.exception import DoesNotExist
 
 from api.serializers import SBSerializer
-from api.utils import gather_request_data, spawn_task
+from api.utils import (gather_request_data, spawn_task, clean_url,
+                       empty_text_to_none)
 from plebs.neo_models import Pleb
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
 from sb_search.utils import remove_search_object
 
 from .neo_models import (Position, Quest)
-
-
-class AllowVoteValidator:
-
-    def __init__(self):
-        pass
-
-    def __call__(self, value):
-        if not self.allow_vote:
-            message = 'Sorry you cannot vote on a quest not in your area.'
-            raise serializers.ValidationError(message)
-        return value
-
-    def set_context(self, serializer_field):
-        try:
-            self.allow_vote = serializer_field.parent.allow_vote
-        except AttributeError:
-            self.allow_vote = False
 
 
 class QuestSerializer(SBSerializer):
@@ -60,7 +42,7 @@ class QuestSerializer(SBSerializer):
     last_name = serializers.CharField(read_only=True)
     stripe_token = serializers.CharField(write_only=True, required=False)
     customer_token = serializers.CharField(write_only=True, required=False)
-    tos_acceptance = serializers.BooleanField(read_only=True)
+    tos_acceptance = serializers.BooleanField(required=False)
     stripe_default_card_id = serializers.CharField(write_only=True,
                                                    required=False,
                                                    allow_blank=True)
@@ -93,9 +75,10 @@ class QuestSerializer(SBSerializer):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         request = self.context.get('request', None)
         account_type = validated_data.get('account_type', "free")
+        tos_acceptance = validated_data.get('tos_acceptance', False)
         owner = Pleb.get(username=request.user.username)
         if owner.get_quest():
-            raise ValidationError(
+            raise serializers.ValidationError(
                 detail={"detail": "You may only have one Quest!",
                         "developer_message": "",
                         "status_code": status.HTTP_400_BAD_REQUEST})
@@ -107,20 +90,16 @@ class QuestSerializer(SBSerializer):
         owner.quest.connect(quest)
         quest.editors.connect(owner)
         quest.moderators.connect(owner)
-        if quest.stripe_id is None or quest.stripe_id == "Not Set":
-            stripe_res = stripe.Account.create(managed=True, country="US",
-                                               email=owner.email)
-            quest.stripe_id = stripe_res['id']
-        # TODO is this necessary or can we use the repsonse from the
-        # creation?
-        account = stripe.Account.retrieve(quest.stripe_id)
+        account = stripe.Account.create(managed=True, country="US",
+                                        email=owner.email)
+        quest.stripe_id = account['id']
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]
         else:
             ip = request.META.get('REMOTE_ADDR')
         account.legal_entity.additional_owners = []
-        if "quest/" in request.path:
+        if tos_acceptance:
             account.tos_acceptance.ip = ip
             account.tos_acceptance.date = int(time.time())
             quest.account_verified_date = datetime.now(pytz.utc)
@@ -174,34 +153,18 @@ class QuestSerializer(SBSerializer):
             ssn = ssn.replace('-', "")
         active = validated_data.pop('active', instance.active)
         instance.active = active
-        title = validated_data.pop('title', instance.title)
-        if title is not None:
-            title = title.strip()
-            if title == "":
-                title = None
-        instance.title = title
+        instance.title = empty_text_to_none(
+            validated_data.pop('title', instance.title))
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
         instance.youtube = validated_data.get('youtube', instance.youtube)
         instance.twitter = validated_data.get('twitter', instance.twitter)
         if initial_state is True and active is False:
             remove_search_object(instance.object_uuid, "quest")
-        website = validated_data.get('website', instance.website)
-        if website is None:
-            instance.website = website
-        elif "https://" in website or "http://" in website:
-            instance.website = website
-        else:
-            if website.strip() == "":
-                instance.website = None
-            else:
-                instance.website = "http://" + website
-        about = validated_data.get('about', instance.about)
-        if about is not None:
-            about = about.strip()
-            if about == "":
-                about = None
-        instance.about = about
+        instance.website = clean_url(validated_data.get(
+            'website', instance.website))
+        instance.about = empty_text_to_none(
+            validated_data.get('about', instance.about))
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
         instance.profile_pic = validated_data.get('profile_pic',
@@ -264,6 +227,10 @@ class QuestSerializer(SBSerializer):
                             instance.stripe_subscription_id = sub['id']
                             instance.application_fee = \
                                 settings.STRIPE_PAID_ACCOUNT_FEE
+                    else:
+                        account_type = instance.account_type
+                else:
+                    account_type = instance.account_type
             elif account_type == "free":
                 # if we get a free submission and the subscription is already
                 # set cancel it.
@@ -288,7 +255,7 @@ class QuestSerializer(SBSerializer):
             try:
                 account.external_accounts.create(external_account=stripe_token)
             except InvalidRequestError:
-                raise ValidationError(
+                raise serializers.ValidationError(
                     detail={"detail": "Looks like we're having server "
                                       "issus, please contact us using the "
                                       "bubble in the bottom right",
@@ -317,21 +284,18 @@ class QuestSerializer(SBSerializer):
                 month=owner.date_of_birth.month,
                 year=owner.date_of_birth.year
             )
+            street_additional = empty_text_to_none(
+                owner_address.street_additional)
+
             account.legal_entity.address.line1 = owner_address.street
-            if owner_address.street_additional == "":
-                owner_address.street_additional = None
-            account.legal_entity.address.line2 = \
-                owner_address.street_additional
+            account.legal_entity.address.line2 = street_additional
             account.legal_entity.address.city = owner_address.city
             account.legal_entity.address.state = owner_address.state
             account.legal_entity.address.postal_code = \
                 owner_address.postal_code
             account.legal_entity.address.country = "US"
             account.legal_entity.personal_address.line1 = owner_address.street
-            if owner_address.street_additional == "":
-                owner_address.street_additional = None
-            account.legal_entity.personal_address.line2 = \
-                owner_address.street_additional
+            account.legal_entity.personal_address.line2 = street_additional
             account.legal_entity.personal_address.city = owner_address.city
             account.legal_entity.personal_address.state = owner_address.state
             account.legal_entity.personal_address.postal_code = \

@@ -65,7 +65,6 @@ urlpatterns = patterns(
     url(r'^o/', include('oauth2_provider.urls', namespace='oauth2_provider')),
     (r'^registration/', include('sb_registration.urls')),
     (r'^help/', include('help_center.urls')),
-    (r'^relationships/', include('plebs.relation_urls')),
     (r'^user/', include('plebs.urls')),
     (r'^conversations/', include('sb_questions.urls')),
     (r'^search/', include('sb_search.urls')),

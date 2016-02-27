@@ -29,12 +29,14 @@ export function load() {
         .on('click', '#skip-step', function () {
             greyPage.classList.remove('sb_hidden');
             Intercom('trackEvent', 'skip-profile-picture-setup');
-            if(settings.profile.mission_signup !== null && settings.profile.mission_signup !== undefined){
+            if(settings.profile.mission_signup !== null
+                    && settings.profile.mission_signup !== undefined
+                    && settings.profile.mission_signup !== "undefined"){
                 if(settings.profile.quest !== null){
                     greyPage.classList.add('sb_hidden');
                     window.location.href = "/missions/" + settings.profile.mission_signup +"/";
                 } else {
-                    request.post({url: "/v1/quests/", data: {}})
+                    request.post({url: "/v1/quests/", data: {tos_acceptance: true}})
                         .done(function () {
                             greyPage.classList.add('sb_hidden');
                             window.location.href = "/missions/" + settings.profile.mission_signup +"/";

@@ -350,3 +350,25 @@ class SBUniqueValidator(UniqueValidator):
         queryset = self.exclude_current_instance(queryset)
         if queryset:
             raise ValidationError(self.message)
+
+
+def clean_url(url_data):
+    if url_data is None:
+        return url_data
+    elif "https://" in url_data or "http://" in url_data:
+        return url_data.strip()
+    else:
+        if url_data.strip() == "":
+            return None
+        else:
+            return "http://" + url_data.strip()
+
+
+def empty_text_to_none(data):
+    if data is not None:
+        result = data.strip()
+        if data == "":
+            return None
+    else:
+        return data
+    return result

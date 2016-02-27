@@ -31,7 +31,6 @@ from sb_registration.views import (profile_information,
 from sb_registration.models import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util_test
 from plebs.neo_models import Pleb, Address
-from sb_quests.neo_models import Quest
 
 
 class InterestsTest(TestCase):
@@ -918,30 +917,16 @@ class TestQuestSignup(TestCase):
         self.client.login(username=self.pleb.username, password='test_test')
 
     def test_quest_signup_get(self):
-        url = reverse('quest_info')
-        res = self.client.get(url)
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        request = self.factory.get('/%s' % self.pleb.username)
+        request.user = AnonymousUser()
+        response = quest_signup(request)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
-    def test_quest_already_exists(self):
-        self.client.login(username=self.user.username, password='test_test')
-        request = self.factory.request()
+    def test_quest_signup_existing_user(self):
+        request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username).save()
-        self.pleb.quest.connect(quest)
-        res = quest_signup(request)
-        self.assertIn(res.status_code, [status.HTTP_200_OK,
-                                        status.HTTP_302_FOUND])
-        self.pleb.quest.disconnect(quest)
-        quest.delete()
-
-    def test_quest_signup_post(self):
-        url = reverse('quest_info')
-        for quest in Quest.nodes.all():
-            quest.delete()
-        cache.clear()
-        res = self.client.post(url, data={"account_type": "paid"})
-        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+        response = quest_signup(request)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
 
 class TestProfilePicture(TestCase):

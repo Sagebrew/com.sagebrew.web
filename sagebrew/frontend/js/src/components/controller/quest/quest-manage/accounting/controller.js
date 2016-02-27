@@ -66,6 +66,7 @@ function stripeBankHandler(status, response){
         var questID = helpers.args(1),
             data = helpers.getFormData(document.getElementById('bankingForm'));
         data.stripe_token = response.id;
+        data.tos_acceptance = true;
         request.patch({url: "/v1/quests/" + questID + "/",
             data: JSON.stringify(data)
         }).done(function (){

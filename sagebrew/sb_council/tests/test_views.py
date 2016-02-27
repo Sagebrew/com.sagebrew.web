@@ -2,10 +2,9 @@ from rest_framework import status
 from rest_framework.test import APIRequestFactory
 
 from django.test import TestCase, Client
-from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.auth.models import AnonymousUser
 from django.core.cache import cache
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
 
 from sb_registration.utils import create_user_util_test
 from sb_council.views import CouncilView

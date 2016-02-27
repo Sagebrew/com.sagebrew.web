@@ -7,6 +7,7 @@ from copy import deepcopy
 
 from django.conf import settings
 
+from rest_framework import serializers
 from rest_framework.views import exception_handler
 from rest_framework import status
 from rest_framework.response import Response
@@ -80,6 +81,9 @@ def custom_exception_handler(exc, context):
                                 status=status.HTTP_204_NO_CONTENT)
         data = errors.DOES_NOT_EXIST_EXCEPTION
         return Response(data, status=status.HTTP_404_NOT_FOUND)
+
+    if isinstance(exc, serializers.ValidationError):
+        return Response(exc.detail, status=status.HTTP_400_BAD_REQUEST)
 
     response = exception_handler(exc, context)
 

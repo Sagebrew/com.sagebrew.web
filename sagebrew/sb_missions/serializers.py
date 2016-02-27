@@ -6,7 +6,6 @@ from django.conf import settings
 
 from rest_framework import serializers, status
 from rest_framework.reverse import reverse
-from rest_framework.exceptions import ValidationError
 
 from neomodel import db, DoesNotExist
 
@@ -70,7 +69,7 @@ class MissionSerializer(SBSerializer):
             quest = Quest.inflate(res.one['quest'])
             if quest.account_type == "free":
                 if res.one['mission_count'] >= settings.FREE_MISSIONS:
-                    raise ValidationError(
+                    raise serializers.ValidationError(
                         detail={"detail": "Sorry free Quests can only "
                                           "have 5 Missions.",
                                 "developer_message": "",
@@ -317,10 +316,6 @@ class MissionSerializer(SBSerializer):
                         'RETURN mission' % (focused_on, owner_username,
                                             mission.object_uuid, loc_query)
                 res, _ = db.cypher_query(query)
-        elif focus_type == "question":
-            return None
-        else:
-            return None
         return mission
 
     def update(self, instance, validated_data):

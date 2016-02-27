@@ -227,10 +227,11 @@ class QuestSerializer(SBSerializer):
                 card = customer.sources.create(source=customer_token)
                 instance.stripe_default_card_id = card['id']
         elif customer_token is None and account_type == "promotion":
-            customer = stripe.Customer.create(
-                description="Customer for %s Quest" % instance.object_uuid,
-                email=owner.email)
-            instance.stripe_customer_id = customer['id']
+            if instance.stripe_customer_id is None:
+                customer = stripe.Customer.create(
+                    description="Customer for %s Quest" % instance.object_uuid,
+                    email=owner.email)
+                instance.stripe_customer_id = customer['id']
         logger.critical("check account type")
         logger.critical(account_type)
         logger.critical(instance.account_type)

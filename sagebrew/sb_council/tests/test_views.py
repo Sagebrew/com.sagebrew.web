@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from django.core.cache import cache
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 
@@ -31,8 +32,9 @@ class ProfilePageTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_council_page_authorized(self):
-        self.pleb.reputation = 10000
+        self.pleb.reputation = 10001
         self.pleb.save()
+        cache.clear()
         self.client.force_authenticate(user=self.user)
         url = reverse("council_page")
         response = self.client.get(url)

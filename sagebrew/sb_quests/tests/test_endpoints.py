@@ -232,6 +232,15 @@ class QuestEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_list_no_quests(self):
+        for quest in Quest.nodes.all():
+            quest.delete()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-list')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'], [])
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_delete(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
@@ -1005,12 +1014,33 @@ class QuestEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_already_follow(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-follow',
+                      kwargs={'owner_username': self.quest.owner_username})
+        self.client.post(url)
+        response = self.client.post(url)
+        self.assertEqual(response.data['detail'], "Already following user.")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_unfollow(self):
         self.client.force_authenticate(user=self.user)
+        url = reverse('quest-follow',
+                      kwargs={'owner_username': self.quest.owner_username})
+        self.client.post(url)
         url = reverse('quest-unfollow',
                       kwargs={'owner_username': self.quest.owner_username})
         response = self.client.post(url)
 
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_already_unfollow(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-unfollow',
+                      kwargs={'owner_username': self.quest.owner_username})
+        self.client.post(url)
+        response = self.client.post(url)
+        self.assertEqual(response.data['detail'], "Already not following user.")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_update_create(self):
@@ -1266,12 +1296,36 @@ class PositionEndpointTests(APITestCase):
                       kwargs={'object_uuid': position.object_uuid})
         res = self.client.put(url, data={'verified': True, 'name': "New Name"},
                               format='json')
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['name'], 'New Name')
-        self.assertTrue(res.data['verified'])
         position.delete()
         self.pleb.username = 'test_test'
         self.pleb.save()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['name'], 'New Name')
+        self.assertTrue(res.data['verified'])
+
+    def test_council_serializer_errors(self):
+        try:
+            user = User.objects.get(username="tyler_wiersing")
+            self.client.force_authenticate(user=user)
+        except User.DoesNotExist:
+            self.user.username = 'tyler_wiersing'
+            self.user.save()
+            self.client.force_authenticate(user=self.user)
+        self.pleb.username = 'tyler_wiersing'
+        self.pleb.save()
+        cache.clear()
+        position = Position(verified=False, name="Test Update").save()
+
+        url = reverse('position-council-update',
+                      kwargs={'object_uuid': position.object_uuid})
+        res = self.client.put(url, data={'verified': "hello"},
+                              format='json')
+        position.delete()
+        self.pleb.username = 'test_test'
+        self.pleb.save()
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(res.data['verified'],
+                         ["\"hello\" is not a valid boolean."])
 
     def test_council_update_unauthorized(self):
         cache.clear()

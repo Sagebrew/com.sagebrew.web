@@ -39,11 +39,8 @@ class QuestViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         query = "MATCH (c:Quest) RETURN c"
         res, col = db.cypher_query(query)
-        try:
-            [row[0].pull() for row in res]
-            return [Quest.inflate(row[0]) for row in res]
-        except IndexError:
-            return []
+        [row[0].pull() for row in res]
+        return [Quest.inflate(row[0]) for row in res]
 
     def get_object(self):
         return Quest.get(owner_username=self.kwargs[self.lookup_field])

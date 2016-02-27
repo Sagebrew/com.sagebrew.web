@@ -83,9 +83,6 @@ class QuestViewSet(viewsets.ModelViewSet):
         # Delete credit card info associated with a Quest that had a
         # subscription
         if instance.stripe_customer_id is not None:
-            from logging import getLogger
-            logger = getLogger("loggly_logs")
-            logger.critical("Deleting customer")
             customer = stripe.Customer.retrieve(instance.stripe_customer_id)
             if instance.stripe_subscription_id is not None:
                 customer.subscriptions.retrieve(

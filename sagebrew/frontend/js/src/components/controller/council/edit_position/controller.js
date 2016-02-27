@@ -31,7 +31,6 @@ export function load() {
             branchInput.val(data.office_type);
         });
     submitEdit.on("click", function(){
-        console.log(branchInput.val());
         request.patch({url: "/v1/positions/" + helpers.args(2) + "/council_update/", data:JSON.stringify({name: nameInput.val(), office_type: branchInput.val()})})
             .done(function(){
                 window.location.href = "/council/positions/";

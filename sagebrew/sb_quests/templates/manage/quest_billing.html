@@ -26,7 +26,9 @@
                 {% if quest.account_type == "paid" or quest.account_type == "promotion" %}
                     <div class="progress-bar" style="width: 0;"></div>
                 {% else %}
-                    <div class="progress-bar" style="width: {% widthratio quest.missions|length free_missions 100 %}%;"></div>
+                    <div class="progress-bar" style="width: {% widthratio quest.missions|length free_missions 100 %}%;
+                            {% if quest.missions|length > free_missions %}background: red; {% endif %}
+                            {% if quest.missions|length == free_missions %}background: blue; {% endif %}"></div>
                 {% endif %}
             </div>
             <div class="row">

@@ -78,7 +78,7 @@ def js_settings(request):
                                     "exp_month": credit_card['exp_month'],
                                     "exp_year": credit_card['exp_year']
                                 }
-                            if quest.stripe_subscription_id:
+                            if quest.stripe_subscription_id is not None:
                                 subscription = customer.subscriptions.retrieve(
                                     quest.stripe_subscription_id)
 

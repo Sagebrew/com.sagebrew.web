@@ -78,11 +78,15 @@ class MissionEndpointTests(APITestCase):
     def test_create_position_focus_federal_president(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('mission-list')
+        usa = Location(name="United States of America").save()
+        michigan = Location(name="Michigan").save()
+        usa.encompasses.connect(michigan)
+        michigan.encompassed_by.connect(usa)
         data = {
             "focus_on_type": "position",
             "location_name": "Michigan",
-            "district": "some district",
             "level": "federal",
+            "district": None,
             "focus_name": "President"
         }
         response = self.client.post(url, data=data, format='json')
@@ -100,8 +104,8 @@ class MissionEndpointTests(APITestCase):
         data = {
             "focus_on_type": "position",
             "location_name": "Michigan",
-            "district": "some district",
             "level": "federal",
+            "district": None,
             "focus_name": "Senator"
         }
         response = self.client.post(url, data=data, format='json')
@@ -302,7 +306,9 @@ class MissionEndpointTests(APITestCase):
 
     def test_create_advocacy_federal_usa(self):
         self.client.force_authenticate(user=self.user)
-        Location(name="United States of America").save()
+        usa = Location(name="United States of America").save()
+        mich = Location(name="Michigan").save()
+        usa.encompasses.connect(mich)
         url = reverse('mission-list')
         data = {
             "focus_on_type": "advocacy",
@@ -456,7 +462,11 @@ class MissionEndpointTests(APITestCase):
             "focus_name": "some random stuff"
         }
         response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['detail'], "We couldn't find a Quest "
+                                                  "for this Mission. Please "
+                                                  "contact us if this "
+                                                  "problem continues.")
 
     def test_update(self):
         self.client.force_authenticate(user=self.user)

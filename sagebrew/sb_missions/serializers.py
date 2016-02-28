@@ -60,9 +60,9 @@ class MissionSerializer(SBSerializer):
     def create(self, validated_data):
         from sb_quests.neo_models import Quest, Position
         request, _, _, _, _ = gather_request_data(self.context)
-        query = 'MATCH (quest:Quest {owner_username: "%s"})-[:EMBARKS_ON]->' \
-                '(mission:Mission) ' \
-                'RETURN quest, ' \
+        query = 'MATCH (quest:Quest {owner_username: "%s"}) WITH quest ' \
+                'OPTIONAL MATCH (quest)-[:EMBARKS_ON]->' \
+                '(mission:Mission) RETURN quest, ' \
                 'count(mission) as mission_count' % request.user.username
         res, _ = db.cypher_query(query)
         if res.one is not None:
@@ -74,6 +74,13 @@ class MissionSerializer(SBSerializer):
                                           "have 5 Missions.",
                                 "developer_message": "",
                                 "status_code": status.HTTP_400_BAD_REQUEST})
+        else:
+            raise serializers.ValidationError(
+                detail={"detail": "We couldn't find a Quest for this "
+                                  "Mission. Please contact us if this "
+                                  "problem continues.",
+                        "developer_message": "",
+                        "status_code": status.HTTP_404_NOT_FOUND})
         add_district = ""
         focus_type = validated_data.get('focus_on_type')
         level = validated_data.get('level')

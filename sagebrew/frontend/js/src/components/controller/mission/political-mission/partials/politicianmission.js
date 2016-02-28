@@ -412,7 +412,6 @@ function fillPositions(identifier) {
     if (locality !== "" && locality !== undefined){
         url = url + "&filter=" + locality;
     }
-    console.log(url)
     request.get({url:url})
         .done(function(data) {
             var context, positionList = [], name,

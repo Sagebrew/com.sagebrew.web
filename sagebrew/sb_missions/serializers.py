@@ -17,8 +17,6 @@ from sb_search.utils import remove_search_object
 
 from .neo_models import Mission
 
-from logging import getLogger
-logger = getLogger("loggly_logs")
 
 class MissionSerializer(SBSerializer):
     active = serializers.BooleanField(required=False)
@@ -114,7 +112,6 @@ class MissionSerializer(SBSerializer):
                                 '"United States of America"})'
             elif level == "state_upper" or level == "state_lower" \
                     or level == "state":
-                logger.critical("state check")
                 parent_location = "location"
                 if district:
                     add_district = '-[:ENCOMPASSES]->' \
@@ -135,7 +132,6 @@ class MissionSerializer(SBSerializer):
                     '[:POSITIONS_AVAILABLE]->(position:Position ' \
                     '{name:"%s", level:"%s"}) RETURN position' % \
                     (loc_query, focused_on, level)
-            logger.critical(query)
             res, _ = db.cypher_query(query)
             if not res.one:
                 focused_on = focused_on.title().replace('-', ' ')\
@@ -149,7 +145,6 @@ class MissionSerializer(SBSerializer):
                         '<-[r:POSITIONS_AVAILABLE]-(location) ' \
                         'RETURN position' % (loc_query,
                                              new_position.object_uuid)
-                logger.critical(query)
                 res, _ = db.cypher_query(query)
             query = 'MATCH %s-' \
                     '[:POSITIONS_AVAILABLE]->' \
@@ -163,7 +158,6 @@ class MissionSerializer(SBSerializer):
                     'RETURN mission' % (
                         loc_query, focused_on, level, mission.object_uuid,
                         owner_username)
-            logger.critical(query)
             res, _ = db.cypher_query(query)
             return Mission.inflate(res.one)
         elif focus_type == "advocacy":
@@ -194,7 +188,8 @@ class MissionSerializer(SBSerializer):
                                 '"United States of America"})' \
                                 '-[:ENCOMPASSES]->(:Location {name: "%s"})' \
                                 '-[:ENCOMPASSES]->(location:Location ' \
-                                '{name: "%s", sector: "federal"}) ' % (location, district)
+                                '{name: "%s", sector: "federal"}) ' % (
+                                    location, district)
                 elif location and focused_on != "President":
                     loc_query = '(:Location {name: ' \
                                 '"United States of America"})' \
@@ -220,7 +215,6 @@ class MissionSerializer(SBSerializer):
                     'RETURN mission' % (focused_on,
                                         owner_username, mission.object_uuid,
                                         loc_query)
-            logger.critical(query)
             res, _ = db.cypher_query(query)
             return Mission.inflate(res.one)
         return mission

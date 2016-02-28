@@ -63,7 +63,6 @@ export function load() {
                 localStorage.removeItem(levelKey);
                 stateInput.selectedIndex = 0;
                 districtRow.classList.add('hidden');
-                console.log('here2')
                 startBtn.disabled = true;
             } else {
                 // TODO: REUSE
@@ -78,7 +77,6 @@ export function load() {
                     localStorage.setItem(levelKey, "local");
                     // To the user we clear the place input so we need to
                     // disable the start button and clear the locations
-                    console.log('here3')
                     startBtn.disabled = true;
                     placeInput.value = "";
                     localStorage.removeItem(locationKey);
@@ -172,7 +170,6 @@ function districtSelection(level, stateInput, placeInput, startBtn, districtRow)
         // to remove the location key and reset the state input to 0.
         localStorage.removeItem(locationKey);
         stateInput.selectedIndex = 0;
-        console.log('here1')
         startBtn.disabled = true;
     }
     stateInput.classList.remove('hidden');

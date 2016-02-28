@@ -46,7 +46,7 @@ export function load() {
             event.preventDefault();
 
             if(!this.parentNode.classList.contains("active")){
-                document.getElementById('js-mission-list').innerHTML = '<div class="loader"></div>';
+                document.getElementById('js-mission-list').innerHTML = '<div id="js-mission-container"></div><div class="loader"></div>';
                 var affectFilterList = document.getElementById('js-affect-filter');
                 for (var i = 0; i < affectFilterList.childNodes.length; i++) {
                     if (affectFilterList.childNodes[i].className === "active"){
@@ -69,7 +69,8 @@ export function postload() {
 }
 
 function loadMissions(affectsFilter) {
-    var $missionList = $('#js-mission-list');
+    var $missionList = $('#js-mission-list'),
+        $missionContainer = $('#js-mission-container');
     $missionList.sb_contentLoader({
         emptyDataMessage: 'Start your Mission Today :)',
         url: '/v1/missions/',
@@ -103,7 +104,7 @@ function loadMissions(affectsFilter) {
                     data.results[i].wallpaper_pic = settings.static_url + "images/wallpaper_capitol_2.jpg";
                 }
             }
-            $missionList.append(templates.mission_list_block({missions: data.results}));
+            $missionContainer.append(templates.mission_list_block({missions: data.results}));
         }
     });
 }

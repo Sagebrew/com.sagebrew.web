@@ -552,7 +552,6 @@ class PositionManagerSerializer(SBSerializer):
                 pass
         position = Position(**validated_data).save()
         if location is not None:
-            location.positions.connect(position)
             position.location.connect(location)
         position.full_name = Position.get_full_name(position.object_uuid)
         position.save()

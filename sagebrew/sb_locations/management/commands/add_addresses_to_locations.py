@@ -21,7 +21,6 @@ class Command(BaseCommand):
                         (state, district)
                 res, _ = db.cypher_query(query)
                 district = Location.inflate(res[0][0])
-                district.addresses.connect(address)
                 address.encompassed_by.connect(district)
 
     def handle(self, *args, **options):

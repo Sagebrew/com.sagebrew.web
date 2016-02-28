@@ -23,24 +23,27 @@ class MissionViewSet(viewsets.ModelViewSet):
         if self.request.query_params.get('affects', "") == "me":
             query = 'MATCH (pleb:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(address:Address)-[:ENCOMPASSED_BY*..]->' \
-                    '(location:Location)<-[:AVAILABLE_WITHIN]-' \
-                    '(p:Position {verified:true})<-[:FOCUSED_ON]-' \
+                    '(location:Location)<-[:WITHIN]-' \
                     '(mission:Mission {active: true})<-[:EMBARKS_ON]-' \
                     '(quest:Quest {active: true}) ' \
-                    'RETURN DISTINCT mission' % self.request.user.username
+                    'WHERE NOT((mission)-[:FOCUSED_ON]->' \
+                    '(:Position {verified:false})) ' \
+                    'RETURN DISTINCT mission ' \
+                    'ORDER BY mission.created DESC' % self.request.user.username
         elif self.request.query_params.get('affects', "") == "friends":
             query = 'MATCH (pleb:Pleb {username: "%s"})-[:FRIENDS_WITH]' \
                     '->(friends:Pleb)-[:LIVES_AT]->' \
                     '(address:Address)-[:ENCOMPASSED_BY*..]->' \
-                    '(location:Location)<-[:AVAILABLE_WITHIN]-' \
-                    '(p:Position {verified:true})<-[:FOCUSED_ON]-' \
+                    '(location:Location)<-[:WITHIN]-' \
                     '(mission:Mission {active: true})<-[:EMBARKS_ON]-' \
                     '(quest:Quest {active: true}) ' \
                     'RETURN DISTINCT mission' % self.request.user.username
         else:
-            query = 'MATCH (p:Position {verified:true})<-[:FOCUSED_ON]-' \
-                    '(a:Mission {active: true})<-[:EMBARKS_ON]-' \
-                    '(quest:Quest {active: true}) RETURN a'
+            query = 'MATCH (mission:Mission {active: true})<-[:EMBARKS_ON]-' \
+                    '(quest:Quest {active: true}) ' \
+                    'WHERE NOT((mission)-[:FOCUSED_ON]->' \
+                    '(:Position {verified:false})) ' \
+                    'RETURN mission ORDER BY mission.created DESC'
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Mission.inflate(row[0]) for row in res]
@@ -64,7 +67,7 @@ class MissionViewSet(viewsets.ModelViewSet):
         containing all of the data for donations given to the mission.
 
         :param request:
-        :param owner_username:
+        :param object_uuid:
         :return:
         """
         mission = self.get_object()

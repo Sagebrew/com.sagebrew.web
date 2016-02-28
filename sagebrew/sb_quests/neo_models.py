@@ -305,8 +305,8 @@ class Position(SBObject):
     #     local - Everything else :)
     level = StringProperty(default="federal")
 
-    location = RelationshipTo('sb_locations.neo_models.Location',
-                              'AVAILABLE_WITHIN')
+    location = RelationshipFrom('sb_locations.neo_models.Location',
+                                'POSITIONS_AVAILABLE')
     currently_held_by = RelationshipTo('sb_public_official.neo_models.'
                                        'PublicOfficial', "CURRENTLY_HELD_BY")
     restrictions = RelationshipTo('sb_privileges.neo_models.Restriction',
@@ -332,8 +332,8 @@ class Position(SBObject):
     def get_location(cls, object_uuid):
         location = cache.get("%s_location" % object_uuid)
         if location is None:
-            query = 'MATCH (p:`Position` {object_uuid: "%s"})-' \
-                    '[:AVAILABLE_WITHIN]->(c:`Location`) ' \
+            query = 'MATCH (p:`Position` {object_uuid: "%s"})<-' \
+                    '[:POSITIONS_AVAILABLE]-(c:`Location`) ' \
                     'RETURN c.object_uuid' % object_uuid
             res, col = db.cypher_query(query)
             try:
@@ -345,8 +345,8 @@ class Position(SBObject):
 
     @classmethod
     def get_location_name(cls, object_uuid):
-        query = 'MATCH (p:Position {object_uuid: "%s"})-' \
-                '[:AVAILABLE_WITHIN]->(location:Location) WITH p, location ' \
+        query = 'MATCH (p:Position {object_uuid: "%s"})<-' \
+                '[:POSITIONS_AVAILABLE]-(location:Location) WITH p, location ' \
                 'OPTIONAL MATCH (location)-[:ENCOMPASSED_BY]->' \
                 '(location2:Location) ' \
                 'RETURN location.name as first_name, ' \
@@ -370,8 +370,8 @@ class Position(SBObject):
         """
         full_name = cache.get("%s_full_name" % object_uuid)
         if full_name is None:
-            query = 'MATCH (p:Position {object_uuid: "%s"})-' \
-                    '[:AVAILABLE_WITHIN]->(l:Location) WITH p, l ' \
+            query = 'MATCH (p:Position {object_uuid: "%s"})<-' \
+                    '[:POSITIONS_AVAILABLE]-(l:Location) WITH p, l ' \
                     'OPTIONAL MATCH (l:Location)-[:ENCOMPASSED_BY]->' \
                     '(l2:Location) WHERE l2.name<>"United States of ' \
                     'America" RETURN p.name as position_name, ' \

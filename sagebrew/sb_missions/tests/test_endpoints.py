@@ -94,6 +94,25 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_create_position_focus_federal_president_us(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('mission-list')
+        usa = Location(name="United States of America").save()
+        michigan = Location(name="Michigan").save()
+        usa.encompasses.connect(michigan)
+        michigan.encompassed_by.connect(usa)
+        data = {
+            "focus_on_type": "position",
+            "location_name": None,
+            "level": "federal",
+            "district": None,
+            "focus_name": "President"
+        }
+        response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def test_create_position_focus_federal_not_pres_no_district(self):
         self.client.force_authenticate(user=self.user)
         usa = Location(name="United States of America").save()
@@ -304,7 +323,7 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-    def test_create_advocacy_federal_usa(self):
+    def test_create_advocacy_federal_mich_usa(self):
         self.client.force_authenticate(user=self.user)
         usa = Location(name="United States of America").save()
         mich = Location(name="Michigan").save()
@@ -313,6 +332,24 @@ class MissionEndpointTests(APITestCase):
         data = {
             "focus_on_type": "advocacy",
             "location_name": "Michigan",
+            "district": None,
+            "level": "federal",
+            "focus_name": "some random stuff"
+        }
+        response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_advocacy_federal_usa(self):
+        self.client.force_authenticate(user=self.user)
+        usa = Location(name="United States of America").save()
+        mich = Location(name="Michigan").save()
+        usa.encompasses.connect(mich)
+        url = reverse('mission-list')
+        data = {
+            "focus_on_type": "advocacy",
+            "location_name": None,
             "district": None,
             "level": "federal",
             "focus_name": "some random stuff"

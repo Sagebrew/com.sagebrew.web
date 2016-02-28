@@ -29,9 +29,7 @@ export function load() {
         .on('click', '#skip-step', function () {
             greyPage.classList.remove('sb_hidden');
             Intercom('trackEvent', 'skip-profile-picture-setup');
-            if(settings.profile.mission_signup !== null
-                    && settings.profile.mission_signup !== undefined
-                    && settings.profile.mission_signup !== "undefined"){
+            if(settings.profile.mission_signup !== null && settings.profile.mission_signup !== undefined && settings.profile.mission_signup !== "undefined"){
                 if(settings.profile.quest !== null){
                     greyPage.classList.add('sb_hidden');
                     window.location.href = "/missions/" + settings.profile.mission_signup +"/";

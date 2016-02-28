@@ -75,7 +75,6 @@ def update_address_location(object_uuid):
         res, _ = db.cypher_query(query)
         if res.one is not None:
             district = Location.inflate(res.one)
-            district.addresses.connect(address)
             address.encompassed_by.connect(district)
         address.set_encompassing()
     except (CypherException, IOError, ClientError) as e:
@@ -126,8 +125,6 @@ def connect_to_state_districts(object_uuid):
                                                        max_retries=None)
             if state_district not in address.encompassed_by:
                 address.encompassed_by.connect(state_district)
-            if address not in state_district.addresses:
-                state_district.addresses.connect(address)
         spawn_task(task_func=create_and_attach_state_level_reps,
                    task_param={"rep_data": response_json})
         return True

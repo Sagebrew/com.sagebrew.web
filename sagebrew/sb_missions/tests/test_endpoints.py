@@ -79,7 +79,6 @@ class MissionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         usa = Location(name="United States of America").save()
         pres = Position(name="President", level="federal").save()
-        usa.positions.connect(pres)
         url = reverse('mission-list')
         data = {
             "focus_on_type": "position",
@@ -100,7 +99,6 @@ class MissionEndpointTests(APITestCase):
         usa.encompasses.connect(michigan)
         michigan.encompassed_by.connect(usa)
         position = Position(name="Senator", level="federal").save()
-        michigan.positions.connect(position)
         url = reverse('mission-list')
         data = {
             "focus_on_type": "position",
@@ -125,7 +123,6 @@ class MissionEndpointTests(APITestCase):
         d11.encompassed_by.connect(michigan)
         position = Position(name="House Representative",
                             level="federal").save()
-        d11.positions.connect(position)
         url = reverse('mission-list')
         data = {
             "focus_on_type": "position",
@@ -150,7 +147,6 @@ class MissionEndpointTests(APITestCase):
         michigan.encompasses.connect(d11)
         d11.encompassed_by.connect(michigan)
         position = Position(name="House Representative", level="local").save()
-        d11.positions.connect(position)
         url = reverse('mission-list')
         data = {
             "focus_on_type": "position",
@@ -176,7 +172,6 @@ class MissionEndpointTests(APITestCase):
         michigan.encompassed_by.connect(usa)
         position = Position(name="House Representative",
                             level="state_upper").save()
-        michigan.positions.connect(position)
         url = reverse('mission-list')
         data = {
             "focus_on_type": "position",
@@ -197,7 +192,6 @@ class MissionEndpointTests(APITestCase):
         michigan.encompassed_by.connect(usa)
         position = Position(name="House Representative",
                             level="state_upper").save()
-        michigan.positions.connect(position)
         url = reverse('mission-list')
         data = {
             "focus_on_type": "position",
@@ -219,7 +213,6 @@ class MissionEndpointTests(APITestCase):
         michigan.encompassed_by.connect(usa)
         position = Position(name="House Representative",
                             level="state_lower").save()
-        michigan.positions.connect(position)
         url = reverse('mission-list')
         data = {
             "focus_on_type": "position",
@@ -244,7 +237,6 @@ class MissionEndpointTests(APITestCase):
         d11.encompassed_by.connect(michigan)
         position = Position(name="House Representative",
                             level="state_lower").save()
-        d11.positions.connect(position)
         url = reverse('mission-list')
         data = {
             "focus_on_type": "position",
@@ -269,7 +261,6 @@ class MissionEndpointTests(APITestCase):
         michigan.encompasses.connect(d11)
         d11.encompassed_by.connect(michigan)
         position = Position(name="House Representative", level="local").save()
-        d11.positions.connect(position)
         url = reverse('mission-list')
         data = {
             "focus_on_type": "advocacy",

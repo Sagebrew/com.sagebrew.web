@@ -1,3 +1,5 @@
+from uuid import uuid1
+
 from django.template.loader import render_to_string
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -23,7 +25,8 @@ from sb_registration.utils import (verify_completed_registration)
 
 
 from .serializers import PlebSerializerNeo
-from .tasks import send_email_task
+from .tasks import create_friend_request_task, send_email_task
+from .forms import (SubmitFriendRequestForm)
 from .serializers import BetaUserSerializer, AddressSerializer
 
 
@@ -189,6 +192,46 @@ def invite_beta_user(request, email):
                                    " some server difficulties"},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response({"detail": None}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def create_friend_request(request):
+    """
+    calls the task which creates a friend request, it also creates the id
+    for the
+    request here
+
+    :param request:
+    :return:
+    """
+    # TODO return uuid of friend request and add to javascript hide button
+    # when uuid received
+    # if action is True hide friend request button and show a delete friend
+    # request button
+    friend_request_data = request.data
+    if isinstance(friend_request_data, dict) is False:
+        return Response({'detail': 'attribute error'}, status=400)
+    request_form = SubmitFriendRequestForm(friend_request_data)
+    # TODO Think we're moving this kind of stuff out to the JS system
+    # But until then needs to come after the form since it can cause
+    # Type errors if someone passes something other than a dict
+    object_uuid = str(uuid1())
+
+    if request_form.is_valid() is True:
+        task_data = {
+            "from_username": request.user.username,
+            "to_username": request_form.cleaned_data['to_username'],
+            "object_uuid": object_uuid
+        }
+        spawned = spawn_task(task_func=create_friend_request_task,
+                             task_param=task_data)
+        if isinstance(spawned, Exception) is True:
+            return Response({'detail': 'server error'}, status=500)
+        return Response({"action": True,
+                         "friend_request_id": object_uuid}, status=200)
+    else:
+        return Response({'detail': 'invalid form'}, status=400)
 
 
 class ListBetaUsers(ListAPIView):

@@ -89,8 +89,7 @@ class MissionSerializer(SBSerializer):
         location = validated_data.get('location_name')
         if location is not None:
             location = location.replace(
-                " Of", " of").replace(
-                " And", " and").replace(" Or", " or")
+                " Of", " of").replace(" And", " and").replace(" Or", " or")
         focused_on = validated_data.get('focus_name')
         district = validated_data.get('district')
         # TODO what happens if a moderator makes the mission?

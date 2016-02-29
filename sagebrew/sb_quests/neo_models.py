@@ -108,7 +108,8 @@ class Quest(Searchable):
     # Donations to these missions do not come back to this Quest.
     endorses = RelationshipTo('sb_missions.neo_models.Mission', "ENDORSES")
     holds = RelationshipTo('sb_quests.neo_models.Seat', "HOLDS")
-
+    news_articles = RelationshipTo('sb_news.neo_models.NewsArticle',
+                                   "NEWS")
     # Followers are users which have decided to follow a Quest, this means that
     # they will get a notification whenever the quest makes an update.
     followers = RelationshipTo('plebs.neo_models.Pleb', "FOLLOWERS")

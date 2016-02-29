@@ -168,7 +168,7 @@ def get_positions(identifier, filter_param="", lookup="name", distinct=False,
     non_external_id = ""
     if filter_param == "state":
         constructed_filter = 'WHERE p.level="state_upper" ' \
-                             'OR p.level="state_lower"'
+                             'OR p.level="state_lower" OR p.level="state"'
     elif filter_param == '' or filter_param is None or filter_param == "local":
         constructed_filter = ''
     else:

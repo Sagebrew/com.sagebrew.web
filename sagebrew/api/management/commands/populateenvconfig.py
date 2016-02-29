@@ -322,4 +322,5 @@ def populate_general_values(data):
                         environ.get("AWS_DEFAULT_REGION", ""))
     data = data.replace("<SUNLIGHT_FOUNDATION_KEY>",
                         environ.get("SUNLIGHT_FOUNDATION_KEY", ""))
+    data = data.replace("<WEBHOSE_KEY>", environ.get("WEBHOSE_KEY", ""))
     return data

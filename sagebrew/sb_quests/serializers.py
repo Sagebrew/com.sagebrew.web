@@ -3,43 +3,26 @@ from datetime import datetime
 import time
 import stripe
 from stripe.error import InvalidRequestError
+from dateutil.relativedelta import relativedelta
 
 from django.conf import settings
 from django.core.cache import cache
 
 from rest_framework import serializers, status
 from rest_framework.reverse import reverse
-from rest_framework.exceptions import ValidationError
 
 from neomodel import db
 from neomodel.exception import DoesNotExist
 
 from api.serializers import SBSerializer
-from api.utils import gather_request_data, spawn_task
+from api.utils import (gather_request_data, spawn_task, clean_url,
+                       empty_text_to_none)
 from plebs.neo_models import Pleb
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
 from sb_search.utils import remove_search_object
 
 from .neo_models import (Position, Quest)
-
-
-class AllowVoteValidator:
-
-    def __init__(self):
-        pass
-
-    def __call__(self, value):
-        if not self.allow_vote:
-            message = 'Sorry you cannot vote on a quest not in your area.'
-            raise serializers.ValidationError(message)
-        return value
-
-    def set_context(self, serializer_field):
-        try:
-            self.allow_vote = serializer_field.parent.allow_vote
-        except AttributeError:
-            self.allow_vote = False
 
 
 class QuestSerializer(SBSerializer):
@@ -59,7 +42,7 @@ class QuestSerializer(SBSerializer):
     last_name = serializers.CharField(read_only=True)
     stripe_token = serializers.CharField(write_only=True, required=False)
     customer_token = serializers.CharField(write_only=True, required=False)
-    tos_acceptance = serializers.BooleanField(read_only=True)
+    tos_acceptance = serializers.BooleanField(required=False)
     stripe_default_card_id = serializers.CharField(write_only=True,
                                                    required=False,
                                                    allow_blank=True)
@@ -68,9 +51,11 @@ class QuestSerializer(SBSerializer):
     routing_number = serializers.CharField(write_only=True, required=False)
     account_number = serializers.CharField(write_only=True, required=False)
     ssn = serializers.CharField(write_only=True, required=False)
+    promotion_key = serializers.CharField(write_only=True, required=False)
     account_type = serializers.ChoiceField(
         required=False,
-        choices=[('paid', "Paid"), ('free', "Free")])
+        choices=[('paid', "Paid"), ('free', "Free"),
+                 ('promotion', "Promotion")])
     account_verified = serializers.ChoiceField(
         read_only=True,
         choices=[('unverified', "Unverified"), ('pending', "Pending"),
@@ -90,13 +75,10 @@ class QuestSerializer(SBSerializer):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         request = self.context.get('request', None)
         account_type = validated_data.get('account_type', "free")
+        tos_acceptance = validated_data.get('tos_acceptance', False)
         owner = Pleb.get(username=request.user.username)
-        if account_type == 'paid':
-            validated_data[
-                'application_fee'] = settings.STRIPE_PAID_ACCOUNT_FEE
-
         if owner.get_quest():
-            raise ValidationError(
+            raise serializers.ValidationError(
                 detail={"detail": "You may only have one Quest!",
                         "developer_message": "",
                         "status_code": status.HTTP_400_BAD_REQUEST})
@@ -108,20 +90,16 @@ class QuestSerializer(SBSerializer):
         owner.quest.connect(quest)
         quest.editors.connect(owner)
         quest.moderators.connect(owner)
-        if quest.stripe_id is None or quest.stripe_id == "Not Set":
-            stripe_res = stripe.Account.create(managed=True, country="US",
-                                               email=owner.email)
-            quest.stripe_id = stripe_res['id']
-        # TODO is this necessary or can we use the repsonse from the
-        # creation?
-        account = stripe.Account.retrieve(quest.stripe_id)
+        account = stripe.Account.create(managed=True, country="US",
+                                        email=owner.email)
+        quest.stripe_id = account['id']
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
             ip = x_forwarded_for.split(',')[0]
         else:
             ip = request.META.get('REMOTE_ADDR')
         account.legal_entity.additional_owners = []
-        if "quest/" in request.path:
+        if tos_acceptance:
             account.tos_acceptance.ip = ip
             account.tos_acceptance.date = int(time.time())
             quest.account_verified_date = datetime.now(pytz.utc)
@@ -159,49 +137,41 @@ class QuestSerializer(SBSerializer):
     def update(self, instance, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe_token = validated_data.pop('stripe_token', None)
+        promotion_key = validated_data.pop('promotion_key', None)
         customer_token = validated_data.pop('customer_token',
                                             instance.customer_token)
+        account_type = validated_data.get(
+            'account_type', instance.account_type)
         initial_state = instance.active
+        customer = None
         ein = validated_data.pop('ein', instance.ein)
         ssn = validated_data.pop('ssn', instance.ssn)
-        # Remove any dashses from the ssn input.
+
+        # ** Standard Settings Update **
+        # Remove any dashes from the ssn input.
         if ssn is not None:
             ssn = ssn.replace('-', "")
         active = validated_data.pop('active', instance.active)
         instance.active = active
-        title = validated_data.pop('title', instance.title)
-        if title is not None:
-            title = title.strip()
-            if title == "":
-                title = None
-        instance.title = title
+        instance.title = empty_text_to_none(
+            validated_data.pop('title', instance.title))
         instance.facebook = validated_data.get('facebook', instance.facebook)
         instance.linkedin = validated_data.get('linkedin', instance.linkedin)
         instance.youtube = validated_data.get('youtube', instance.youtube)
         instance.twitter = validated_data.get('twitter', instance.twitter)
         if initial_state is True and active is False:
             remove_search_object(instance.object_uuid, "quest")
-        website = validated_data.get('website', instance.website)
-        if website is None:
-            instance.website = website
-        elif "https://" in website or "http://" in website:
-            instance.website = website
-        else:
-            if website.strip() == "":
-                instance.website = None
-            else:
-                instance.website = "http://" + website
-        about = validated_data.get('about', instance.about)
-        if about is not None:
-            about = about.strip()
-            if about == "":
-                about = None
-        instance.about = about
+        instance.website = clean_url(validated_data.get(
+            'website', instance.website))
+        instance.about = empty_text_to_none(
+            validated_data.get('about', instance.about))
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
         owner = Pleb.get(username=instance.owner_username)
+
+        # ** Customer Creation/Card Assignment If Provided **
         if customer_token is not None:
             # Customers must provide a credit card for us to create a customer
             # with stripe. Get the credit card # and create a customer instance
@@ -220,26 +190,51 @@ class QuestSerializer(SBSerializer):
                     instance.stripe_customer_id)
                 card = customer.sources.create(source=customer_token)
                 instance.stripe_default_card_id = card['id']
-        account_type = validated_data.get(
-            'account_type', instance.account_type)
+        elif customer_token is None and account_type == "promotion":
+            if instance.stripe_customer_id is None:
+                customer = stripe.Customer.create(
+                    description="Customer for %s Quest" % instance.object_uuid,
+                    email=owner.email)
+                instance.stripe_customer_id = customer['id']
+
+        # ** Account plan updating process **
         if account_type != instance.account_type:
+            if customer is None:
+                customer = stripe.Customer.retrieve(instance.stripe_customer_id)
             if account_type == "paid":
                 # if paid gets submitted create a subscription if it doesn't
                 # already exist
-                if instance.stripe_subscription_id is None and \
-                        instance.stripe_customer_id is not None:
-                    customer = stripe.Customer.retrieve(
-                        instance.stripe_customer_id)
+                if instance.stripe_subscription_id is None:
                     sub = customer.subscriptions.create(plan='quest_premium')
                     instance.stripe_subscription_id = sub['id']
                 instance.application_fee = settings.STRIPE_PAID_ACCOUNT_FEE
-
+            elif account_type == "promotion":
+                if promotion_key in settings.PROMOTION_KEYS \
+                        and settings.PRO_QUEST_PROMOTION:
+                    if datetime.now() < settings.PRO_QUEST_END_DATE:
+                        next_year = datetime.now() + relativedelta(years=+1)
+                        unix_stamp = time.mktime(next_year.timetuple())
+                        # Only allow people without subscriptions to create
+                        # a new one with a trial.
+                        # TODO for existing customers we need to create
+                        # coupons through Stripe so that we don't have
+                        # duplicate subscriptions associated with one
+                        # user.
+                        if instance.stripe_subscription_id is None:
+                            sub = customer.subscriptions.create(
+                                plan='quest_premium',
+                                trial_end=int(unix_stamp))
+                            instance.stripe_subscription_id = sub['id']
+                            instance.application_fee = \
+                                settings.STRIPE_PAID_ACCOUNT_FEE
+                    else:
+                        account_type = instance.account_type
+                else:
+                    account_type = instance.account_type
             elif account_type == "free":
                 # if we get a free submission and the subscription is already
                 # set cancel it.
                 if instance.stripe_subscription_id is not None:
-                    customer = stripe.Customer.retrieve(
-                        instance.stripe_customer_id)
                     customer.subscriptions.retrieve(
                         instance.stripe_subscription_id).delete()
                     instance.stripe_subscription_id = None
@@ -247,6 +242,7 @@ class QuestSerializer(SBSerializer):
 
             instance.account_type = account_type
 
+        # ** Managed Account Setup **
         if stripe_token is not None:
             if instance.stripe_id is None or instance.stripe_id == "Not Set":
                 stripe_res = stripe.Account.create(managed=True, country="US",
@@ -259,7 +255,7 @@ class QuestSerializer(SBSerializer):
             try:
                 account.external_accounts.create(external_account=stripe_token)
             except InvalidRequestError:
-                raise ValidationError(
+                raise serializers.ValidationError(
                     detail={"detail": "Looks like we're having server "
                                       "issus, please contact us using the "
                                       "bubble in the bottom right",
@@ -288,21 +284,18 @@ class QuestSerializer(SBSerializer):
                 month=owner.date_of_birth.month,
                 year=owner.date_of_birth.year
             )
+            street_additional = empty_text_to_none(
+                owner_address.street_additional)
+
             account.legal_entity.address.line1 = owner_address.street
-            if owner_address.street_additional == "":
-                owner_address.street_additional = None
-            account.legal_entity.address.line2 = \
-                owner_address.street_additional
+            account.legal_entity.address.line2 = street_additional
             account.legal_entity.address.city = owner_address.city
             account.legal_entity.address.state = owner_address.state
             account.legal_entity.address.postal_code = \
                 owner_address.postal_code
             account.legal_entity.address.country = "US"
             account.legal_entity.personal_address.line1 = owner_address.street
-            if owner_address.street_additional == "":
-                owner_address.street_additional = None
-            account.legal_entity.personal_address.line2 = \
-                owner_address.street_additional
+            account.legal_entity.personal_address.line2 = street_additional
             account.legal_entity.personal_address.city = owner_address.city
             account.legal_entity.personal_address.state = owner_address.state
             account.legal_entity.personal_address.postal_code = \
@@ -320,8 +313,9 @@ class QuestSerializer(SBSerializer):
             instance.account_verified = verification
             instance.last_four_soc = ssn[-4:]
         instance.save()
-        instance.refresh()
-        cache.set("%s_quest" % instance.object_uuid, instance)
+        cache.delete("%s_quest" % instance.owner_username)
+
+        # ** Search Update **
         if instance.active:
             return super(QuestSerializer, self).update(instance, validated_data)
         return instance
@@ -491,9 +485,30 @@ class AccountantSerializer(serializers.Serializer):
 class PositionSerializer(SBSerializer):
     name = serializers.CharField()
     full_name = serializers.CharField()
-
+    verified = serializers.BooleanField()
+    user_created = serializers.BooleanField()
+    office_type = serializers.ChoiceField(
+        required=False, allow_blank=True, choices=[
+            ('executive', "Executive"), ('legislative', "Legislative"),
+            ('judicial', "Judicial"), ('enforcement', 'Enforcement')]
+    )
+    level = serializers.CharField()
     href = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
+    location_name = serializers.SerializerMethodField()
+
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get('name', instance.name)
+        instance.full_name = validated_data.get('full_name', instance.full_name)
+        instance.verified = validated_data.get('verified', instance.verified)
+        instance.level = validated_data.get('level', instance.level)
+        office_type = validated_data.get('office_type', instance.office_type)
+        if office_type:
+            instance.office_type = validated_data.get('office_type',
+                                                      instance.office_type)
+        instance.save()
+        cache.delete(instance.object_uuid)
+        return instance
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
@@ -509,6 +524,9 @@ class PositionSerializer(SBSerializer):
                            kwargs={'object_uuid': location},
                            request=request)
         return location
+
+    def get_location_name(self, obj):
+        return Position.get_location_name(obj.object_uuid)
 
 
 class PositionManagerSerializer(SBSerializer):
@@ -534,7 +552,6 @@ class PositionManagerSerializer(SBSerializer):
                 pass
         position = Position(**validated_data).save()
         if location is not None:
-            location.positions.connect(position)
             position.location.connect(location)
         position.full_name = Position.get_full_name(position.object_uuid)
         position.save()

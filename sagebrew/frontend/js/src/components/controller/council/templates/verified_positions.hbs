@@ -1,0 +1,65 @@
+<div class="block-content">
+    <table class="table table-striped payment-methods">
+        <tbody><tr>
+            <th>
+                Position Name
+            </th>
+            <th>
+                Created
+            </th>
+            <th>
+                Location
+            </th>
+            <th>
+                Branch
+            </th>
+            <th>
+                Level
+            </th>
+            <th>
+                User Created
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+        {{#each positions}}
+            <tr>
+                <td>
+                    {{this.name}}
+                </td>
+                <td class="position-created">
+                    {{this.created}}
+                </td>
+                <td>
+                    {{this.location_name}}
+                </td>
+                <td>
+                    {{this.office_type}}
+                </td>
+                <td>
+                    {{this.level}}
+                </td>
+                <td>
+                    {{this.user_created}}
+                </td>
+                <td>
+                    <a href=""
+                       class="sb-action-icon js-verify-position"
+                       data-object_uuid="{{this.id}}"
+                       data-toggle="tooltip"
+                       data-title="Unverify Position"
+                       data-placement="top">
+                        <i class="fa fa-ban"></i>
+                    </a>
+                </td>
+            </tr>
+        {{ else }}
+            <tr>
+                <td>
+                    No Current Verified Positions
+                </td>
+            </tr>
+        {{/each}}
+    </tbody></table>
+</div>

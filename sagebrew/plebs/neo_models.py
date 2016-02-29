@@ -778,8 +778,6 @@ class Address(SBObject):
         if encompassed_by is not None:
             if encompassed_by not in self.encompassed_by:
                 self.encompassed_by.connect(encompassed_by)
-            if self not in encompassed_by.addresses:
-                encompassed_by.addresses.connect(self)
         # get or create the state level districts and attach them to the
         # address
         spawn_task(task_func=connect_to_state_districts,

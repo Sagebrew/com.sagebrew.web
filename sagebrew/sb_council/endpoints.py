@@ -3,8 +3,10 @@ from operator import attrgetter
 
 from django.template.loader import render_to_string
 
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.decorators import list_route
 from rest_framework.permissions import IsAuthenticated
-from rest_framework import viewsets
 
 from neomodel import db
 
@@ -18,6 +20,8 @@ from sb_questions.serializers import QuestionSerializerNeo
 from sb_solutions.serializers import SolutionSerializerNeo
 from sb_comments.serializers import CommentSerializer
 from sb_posts.serializers import PostSerializerNeo
+from sb_quests.neo_models import Position
+from sb_quests.serializers import PositionSerializer
 
 from .serializers import CouncilVoteSerializer
 
@@ -134,3 +138,12 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
                 }
             council_list.append(council_object)
         return self.get_paginated_response(council_list)
+
+    @list_route(serializer_class=PositionSerializer,
+                permission_classes=(IsAuthenticated,))
+    def positions(self, request):
+        query = 'MATCH (p:Position {verified: false}) RETURN p'
+        res, _ = db.cypher_query(query)
+        return Response(
+            [PositionSerializer(Position.inflate(row[0])).data
+             for row in res], status=status.HTTP_200_OK)

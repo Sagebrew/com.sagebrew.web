@@ -25,7 +25,6 @@ class Command(BaseCommand):
         positions = [row[0] for row in res]
         if "President" not in positions:
             pres = Position(name="President").save()
-            usa.positions.connect(pres)
             pres.location.connect(usa)
         for root, dirs, files in \
                 os.walk('sb_locations/management/commands/states/'):
@@ -52,7 +51,6 @@ class Command(BaseCommand):
                     if "Senator" not in positions:
                         senator = Position(name='Senator').save()
                         senator.location.connect(state)
-                        state.positions.connect(senator)
         for root, dirs, files in \
                 os.walk('sb_locations/management/commands/districts/'):
             try:
@@ -91,7 +89,6 @@ class Command(BaseCommand):
                                 house_rep = Position(
                                     name="House Representative").save()
                                 house_rep.location.connect(district)
-                                district.positions.connect(house_rep)
             except IndexError:
                 pass
         return True

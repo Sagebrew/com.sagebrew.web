@@ -84,6 +84,7 @@ export function load() {
                 } else if (this.id === "state-selection"){
                     // The state level was selected
                     stateRequired.innerHTML = 'Select a State (Required)';
+                    localStorage.setItem(levelKey, "state");
                     districtRow.classList.remove('hidden');
                     districtSelection('state', stateInput, placeInput, startBtn, districtRow);
                 } else if (this.id === "federal-selection"){
@@ -165,7 +166,7 @@ function districtSelection(level, stateInput, placeInput, startBtn, districtRow)
      * the position and districts as the place id is set to an incorrect location.
      */
     if(localStorage.getItem(levelKey) === "local"){
-        // If the level was previously local and now we're changin it we need
+        // If the level was previously local and now we're changing it we need
         // to remove the location key and reset the state input to 0.
         localStorage.removeItem(locationKey);
         stateInput.selectedIndex = 0;
@@ -264,15 +265,15 @@ function initAutocomplete() {
             map.setZoom(12);
         }
         localStorage.setItem(locationKey, place.place_id);
-
         /**
          * If a location is selected the district should always be replaced by the holder and the position
          * removed from local storage
          * This selection always changes the positions and districts which is why this is necessary
          */
-        request.post({url: '/v1/locations/async_add/', data: JSON.stringify(place)});
-        // This is a local city search, if we find something we should enable the start button
-        document.getElementById('js-start-btn').disabled = false;
+        request.post({url: '/v1/locations/async_add/', data: JSON.stringify(place)}).done(function() {
+            // This is a local city search, if we find something we should enable the start button
+            document.getElementById('js-start-btn').disabled = false;
+        });
     });
 
     function callback(results, status) {
@@ -286,7 +287,9 @@ function initAutocomplete() {
                 map.setZoom(12);
             }
             localStorage.setItem(locationKey, place.place_id);
-            request.post({url: '/v1/locations/async_add/', data: JSON.stringify(place)});
+            request.post({url: '/v1/locations/async_add/', data: JSON.stringify(place)}).done(function () {
+                document.getElementById('js-start-btn').disabled = false;
+            });
         }
         fillDistricts('federal');
     }

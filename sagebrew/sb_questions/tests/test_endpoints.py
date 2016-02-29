@@ -694,8 +694,6 @@ class QuestionEndpointTests(APITestCase):
                          ['Cannot edit Title when there have already '
                           'been solutions provided'])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data['status_code'],
-                         status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Question.get(self.question.object_uuid).title,
                          self.title)
 

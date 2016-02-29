@@ -9,6 +9,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from plebs.neo_models import Pleb
+from sb_quests.neo_models import Position
 from sb_questions.neo_models import Question
 from sb_solutions.neo_models import Solution
 from sb_posts.neo_models import Post
@@ -326,3 +327,12 @@ class CouncilEndpointTests(APITestCase):
         time.sleep(10)  # allow for task to finish
         get_response = self.client.get(url, format='json')
         self.assertTrue(get_response.data['is_closed'])
+
+    def test_positions(self):
+        self.client.force_authenticate(user=self.user)
+        url = '/v1/council/positions/'
+        position = Position(verified=False, name="Some Test Position").save()
+        res = self.client.get(url, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(position.object_uuid, res.data[0]['id'])
+        position.delete()

@@ -20,7 +20,8 @@ export function init () {
     // Load up the wall.
     var $appWall = $(".app-wall");
     $appWall.sb_contentLoader({
-        emptyDataMessage: 'Add a Spark :)',
+        emptyDataMessage: '<h3>Add a Spark :)</h3>' +
+        '<p style="color: #838c92;">Sparks are posts that will always remain private and will only be shared with your friends.</p>',
         url: '/v1/profiles/' + profile_page_user + '/wall/render/',
         params: {
             expand: 'true',

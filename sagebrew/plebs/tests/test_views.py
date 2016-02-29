@@ -1,6 +1,4 @@
 from uuid import uuid1
-from base64 import b64encode
-from json import loads
 
 from rest_framework import status
 from rest_framework.test import APIRequestFactory
@@ -8,7 +6,6 @@ from rest_framework.test import APIRequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
-from django.conf import settings
 from django.core.cache import cache
 
 from sb_comments.neo_models import Comment
@@ -17,7 +14,7 @@ from sb_registration.utils import create_user_util_test
 from api.utils import wait_util
 
 from plebs.neo_models import Pleb, FriendRequest
-from plebs.views import (ProfileView, create_friend_request)
+from plebs.views import ProfileView
 
 
 class ProfilePageTest(TestCase):
@@ -290,115 +287,6 @@ class ProfilePageTest(TestCase):
         response = profile_page(request, 'fake_username')
 
         self.assertEqual(response.status_code, 302)
-
-
-class TestCreateFriendRequestView(TestCase):
-
-    def setUp(self):
-        self.factory = APIRequestFactory()
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
-        self.user2 = User.objects.get(email=self.email2)
-
-    def test_create_friend_request_view_success(self):
-        data = {
-            'from_username': self.user.username,
-            'to_username': self.user2.username,
-        }
-        request = self.factory.post('/relationships/create_friend_request',
-                                    data=data, format='json')
-        request.user = self.user
-
-        res = create_friend_request(request)
-
-        res.render()
-
-        self.assertEqual(res.status_code, 200)
-        self.assertTrue(loads(res.content)['action'])
-
-    def test_create_friend_request_view_invalid_form(self):
-        data = {
-            'from_username': self.user.username,
-            'totallyincorrectform': self.user2.username,
-            'object_uuid': ''
-        }
-        request = self.factory.post('/relationships/create_friend_request',
-                                    data=data, format='json')
-        request.user = self.user
-
-        res = create_friend_request(request)
-
-        res.render()
-
-        self.assertEqual(res.status_code, 400)
-        self.assertEqual(loads(res.content)['detail'], 'invalid form')
-
-    def test_create_friend_request_view_incorrect_data_int(self):
-        request = self.factory.post('/relationships/create_friend_request',
-                                    data=1123123, format='json')
-        request.user = self.user
-
-        res = create_friend_request(request)
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_create_friend_request_view_incorrect_data_string(self):
-        request = self.factory.post('/relationships/create_friend_request',
-                                    data='1123123', format='json')
-        request.user = self.user
-
-        res = create_friend_request(request)
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_create_friend_request_view_incorrect_data_float(self):
-        request = self.factory.post('/relationships/create_friend_request',
-                                    data=11.23123, format='json')
-        request.user = self.user
-
-        res = create_friend_request(request)
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_create_friend_request_view_incorrect_data_list(self):
-        request = self.factory.post('/relationships/create_friend_request',
-                                    data=[], format='json')
-        request.user = self.user
-
-        res = create_friend_request(request)
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_create_friend_request_view_incorrect_data_dict(self):
-        request = self.factory.post('/relationships/create_friend_request',
-                                    data={}, format='json')
-        request.user = self.user
-
-        res = create_friend_request(request)
-
-        self.assertEqual(res.status_code, 400)
-
-    def test_create_friend_request_view_incorrect_data_image(self):
-        with open("%s/sb_posts/tests/images/test_image.jpg" % (
-                settings.PROJECT_DIR), "rb") as image_file:
-            image = b64encode(image_file.read())
-
-        request = self.factory.post('/relationships/create_friend_request',
-                                    data=image, format='json')
-        request.user = self.user
-
-        res = create_friend_request(request)
-
-        self.assertEqual(res.status_code, 400)
 
 
 class TestSettingPages(TestCase):

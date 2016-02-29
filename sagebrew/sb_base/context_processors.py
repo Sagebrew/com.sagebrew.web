@@ -25,7 +25,8 @@ def js_settings(request):
         'user': {},
         'static_url': settings.STATIC_URL,
         "default_profile_pic": static('images/sage_coffee_grey-01.png'),
-        'version': environ.get("SHA1", "")
+        'version': environ.get("SHA1", ""),
+        'quest_promo_key': settings.PROMOTION_KEYS[0]
     }
     try:
         if request.user.is_authenticated():
@@ -77,7 +78,7 @@ def js_settings(request):
                                     "exp_month": credit_card['exp_month'],
                                     "exp_year": credit_card['exp_year']
                                 }
-                            if quest.stripe_subscription_id:
+                            if quest.stripe_subscription_id is not None:
                                 subscription = customer.subscriptions.retrieve(
                                     quest.stripe_subscription_id)
 

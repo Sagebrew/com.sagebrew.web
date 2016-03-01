@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from os import environ, path, makedirs
 from unipath import Path
 import multiprocessing
+from datetime import datetime
 from celery.schedules import crontab
 from logentries import LogentriesHandler
 import logging
@@ -272,6 +273,7 @@ ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 # Used for JS
 ADDRESS_AUTH_ID = environ.get("ADDRESS_AUTH_ID", '')
 LONG_TERM_STATIC_DOMAIN = "https://d2m0mj9tyf6rjw.cloudfront.net"
+WEBHOSE_KEY = environ.get("WEBHOSE_KEY", '')
 STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", '')
 STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
 STRIPE_TRANSACTION_PERCENT = .029
@@ -437,6 +439,9 @@ OPERATOR_DICT = {
 SUNLIGHT_FOUNDATION_KEY = environ.get("SUNLIGHT_FOUNDATION_KEY")
 OPENSTATES_DISTRICT_SEARCH_URL = "http://openstates.org/api/v1/legislators/" \
                                  "geo/?lat=%f&long=%f"
+PRO_QUEST_PROMOTION = True
+PRO_QUEST_END_DATE = datetime(2016, 6, 16)
+PROMOTION_KEYS = ["8UN96FNPP8ntv8JeaOyP", ]
 
 CORS_ORIGIN_ALLOW_ALL = True
 

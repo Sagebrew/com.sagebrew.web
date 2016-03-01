@@ -26,7 +26,10 @@ class MissionViewSet(viewsets.ModelViewSet):
                     '(location:Location)<-[:WITHIN]-' \
                     '(mission:Mission {active: true})<-[:EMBARKS_ON]-' \
                     '(quest:Quest {active: true}) ' \
-                    'RETURN DISTINCT mission' % self.request.user.username
+                    'WHERE NOT((mission)-[:FOCUSED_ON]->' \
+                    '(:Position {verified:false})) ' \
+                    'RETURN DISTINCT mission ' \
+                    'ORDER BY mission.created DESC' % self.request.user.username
         elif self.request.query_params.get('affects', "") == "friends":
             query = 'MATCH (pleb:Pleb {username: "%s"})-[:FRIENDS_WITH]' \
                     '->(friends:Pleb)-[:LIVES_AT]->' \
@@ -36,8 +39,11 @@ class MissionViewSet(viewsets.ModelViewSet):
                     '(quest:Quest {active: true}) ' \
                     'RETURN DISTINCT mission' % self.request.user.username
         else:
-            query = 'MATCH (a:Mission {active: true})<-[:EMBARKS_ON]-' \
-                    '(quest:Quest {active: true}) RETURN a'
+            query = 'MATCH (mission:Mission {active: true})<-[:EMBARKS_ON]-' \
+                    '(quest:Quest {active: true}) ' \
+                    'WHERE NOT((mission)-[:FOCUSED_ON]->' \
+                    '(:Position {verified:false})) ' \
+                    'RETURN mission ORDER BY mission.created DESC'
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Mission.inflate(row[0]) for row in res]
@@ -61,7 +67,7 @@ class MissionViewSet(viewsets.ModelViewSet):
         containing all of the data for donations given to the mission.
 
         :param request:
-        :param owner_username:
+        :param object_uuid:
         :return:
         """
         mission = self.get_object()
@@ -107,7 +113,7 @@ class MissionViewSet(viewsets.ModelViewSet):
                 'WITH plebs, volunteer ' \
                 'OPTIONAL MATCH (plebs)-[:LIVES_AT]->(address:Address) ' \
                 'RETURN plebs, volunteer.activities AS activities, address' \
-                % (object_uuid)
+                % object_uuid
         res, _ = db.cypher_query(query)
         try:
             filtered = [

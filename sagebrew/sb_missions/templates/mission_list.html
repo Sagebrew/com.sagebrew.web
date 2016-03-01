@@ -1,7 +1,9 @@
-{% extends "layout/two-col-left.html" %}
+{% extends "layout/hero-two-col-left.html" %}
 {% load staticfiles %}
 {% block title %}Missions{% endblock %}
-
+{% block hero %}
+    {% include "mission_promotion.html" %}
+{% endblock hero %}
 {% block sidebar_left %}
     {% if request.user.is_authenticated %}
         <div class="block block-type-nav">
@@ -9,7 +11,7 @@
                 Start a Mission
             </div>
             <div class="block-content">
-                <a class="btn btn-primary sb_btn sb_btn_fill" id="js-quest-signup" href="#"><i class="fa fa-rocket quest-rocket"></i> Embark</a>
+                <a class="btn btn-primary sb_btn sb_btn_fill js-quest-signup" href="#"><i class="fa fa-rocket quest-rocket"></i> Embark</a>
             </div>
         </div>
     {% endif %}
@@ -41,6 +43,7 @@
 
 {% block live %}
         <div id="js-mission-list">
+            <div id="js-mission-container"></div>
             <div class="loader"></div>
         </div>
 {% endblock %}

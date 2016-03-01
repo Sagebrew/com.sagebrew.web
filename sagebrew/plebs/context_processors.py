@@ -26,11 +26,16 @@ def request_profile(request):
     try:
         if request.user.is_authenticated():
             try:
+                if "/missions/" in request.path:
+                    expand = True
+                else:
+                    expand = False
                 return {
                     "free_missions": settings.FREE_MISSIONS,
                     "request_profile":
                         PlebSerializerNeo(Pleb.get(request.user.username),
-                                          context={"request": request}).data}
+                                          context={"request": request,
+                                                   "expand": expand}).data}
             except(CypherException, IOError, Pleb.DoesNotExist, DoesNotExist):
                 return default_response
         else:

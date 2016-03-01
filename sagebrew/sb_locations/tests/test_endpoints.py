@@ -35,11 +35,8 @@ class LocationEndpointTests(APITestCase):
         self.school = Position(name="School Board", level="local").save()
         self.location.encompasses.connect(self.city)
         self.city.encompassed_by.connect(self.location)
-        self.location.positions.connect(self.senator)
         self.senator.location.connect(self.location)
-        self.location.positions.connect(self.house_rep)
         self.house_rep.location.connect(self.location)
-        self.city.positions.connect(self.school)
         self.school.location.connect(self.city)
         cache.clear()
 

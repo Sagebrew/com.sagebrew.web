@@ -61,3 +61,4 @@ pyyaml==3.11
 us==0.9.0
 unidecode==0.04.18
 python-intercom==2.1.1
+webhose==0.1.4

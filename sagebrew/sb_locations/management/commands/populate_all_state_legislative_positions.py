@@ -44,8 +44,6 @@ class Command(BaseCommand):
                         state_node.encompasses.connect(location)
                     if state_node not in location.encompasses:
                         location.encompassed_by.connect(state_node)
-                    if position not in location.positions:
-                        location.positions.connect(position)
                     if location not in position.location:
                         position.location.connect(location)
                     if not position.full_name:
@@ -81,8 +79,6 @@ class Command(BaseCommand):
                         state_node.encompasses.connect(location)
                     if state_node not in location.encompasses:
                         location.encompassed_by.connect(state_node)
-                    if position not in location.positions:
-                        location.positions.connect(position)
                     if location not in position.location:
                         position.location.connect(location)
                     if not position.full_name:

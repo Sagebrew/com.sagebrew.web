@@ -23,6 +23,7 @@ from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
 from sb_donations.serializers import DonationExportSerializer
 from sb_search.utils import remove_search_object
+from plebs.neo_models import Pleb
 
 from .serializers import (EditorSerializer, ModeratorSerializer,
                           PositionSerializer,
@@ -38,11 +39,8 @@ class QuestViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         query = "MATCH (c:Quest) RETURN c"
         res, col = db.cypher_query(query)
-        try:
-            [row[0].pull() for row in res]
-            return [Quest.inflate(row[0]) for row in res]
-        except IndexError:
-            return []
+        [row[0].pull() for row in res]
+        return [Quest.inflate(row[0]) for row in res]
 
     def get_object(self):
         return Quest.get(owner_username=self.kwargs[self.lookup_field])
@@ -368,9 +366,9 @@ class PositionViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = "object_uuid"
     permission_classes = (IsAuthenticatedOrReadOnly,)
 
-    def get_queryset(self, user_created='false'):
-        query = 'MATCH (p:`Position`) WHERE p.user_created=%s RETURN p' % \
-                user_created
+    def get_queryset(self, user_created='false', verified='true'):
+        query = 'MATCH (p:`Position`) WHERE p.user_created=%s ' \
+                'AND p.verified=%s RETURN p' % (user_created, verified)
         res, col = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Position.inflate(row[0]) for row in res]
@@ -392,8 +390,10 @@ class PositionViewSet(viewsets.ReadOnlyModelViewSet):
     @detail_route(methods=['put', 'patch'],
                   serializer_class=PositionSerializer)
     def council_update(self, request, object_uuid=None):
+        profile = Pleb.get(username=request.user.username)
         if request.user.username == "tyler_wiersing" \
-                or request.user.username == "devon_bleibtrey":
+                or request.user.username == "devon_bleibtrey"\
+                or profile.reputation >= 10000:
             queryset = self.get_object()
             serializer = PositionSerializer(
                 queryset, data=request.data, partial=True)
@@ -411,6 +411,5 @@ class PositionViewSet(viewsets.ReadOnlyModelViewSet):
                 serializer_class=PositionSerializer)
     def user_created(self, request):
         queryset = self.get_queryset('true')
-        serializer = PositionSerializer(queryset, many=True)
-        return Response(serializer.data,
+        return Response(PositionSerializer(queryset, many=True).data,
                         status=status.HTTP_200_OK)

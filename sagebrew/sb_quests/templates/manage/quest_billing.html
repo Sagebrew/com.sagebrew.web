@@ -8,18 +8,33 @@
             Plan
         </h3>
         <div class="block-content">
-           <p>{{ quest.account_type|default:"free"|title }} - Using {{ quest.missions|length }} of {% if quest.account_type == "paid" %}&infin;{% else %}{{ free_missions }}{% endif %} Available Missions</p>
+           <p>
+               {% if quest.account_type == "paid" or quest.account_type == "promotion" %}
+                   Pro
+               {% else %}
+                   Free
+               {% endif %}
+                   - Using {{ quest.missions|length }} of
+                   {% if quest.account_type == "paid" or quest.account_type == "promotion" %}
+                       &infin;
+                   {% else %}
+                       {{ free_missions }}
+                   {% endif %} Available Missions
+           </p>
             <small>Active Missions</small>
             <div class="progress">
-                {% if quest.account_type == "paid" %}
+                {% if quest.account_type == "paid" or quest.account_type == "promotion" %}
                     <div class="progress-bar" style="width: 0;"></div>
                 {% else %}
-                    <div class="progress-bar" style="width: {% widthratio quest.missions|length free_missions 100 %}%;"></div>
+                    <div class="progress-bar" style="width: {% widthratio quest.missions|length free_missions 100 %}%;
+                            {% if quest.missions|length > free_missions %}background: red; {% endif %}
+                            {% if quest.missions|length == free_missions %}background: blue; {% endif %}"></div>
                 {% endif %}
             </div>
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-xs-12">
-                    <a class="btn btn-primary sb_btn sb_btn_fill" href="/quests/{{ quest.id }}/manage/plan/">
+                    <a class="btn btn-primary sb_btn sb_btn_fill"
+                       href="/quests/{{ quest.id }}/manage/plan/">
                         Update Plan
                     </a>
                 </div>
@@ -43,3 +58,7 @@
     <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
     {{ block.super }}
 {% endblock scripts %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'manage-quest-billing-page');
+{% endblock %}

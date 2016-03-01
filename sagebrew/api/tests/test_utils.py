@@ -14,7 +14,8 @@ from api.utils import (add_failure_to_queue,
                        encrypt, decrypt, generate_short_token,
                        generate_long_token, smart_truncate,
                        gather_request_data, flatten_lists,
-                       calc_stripe_application_fee)
+                       calc_stripe_application_fee, clean_url,
+                       empty_text_to_none)
 from sb_questions.neo_models import Question
 
 
@@ -185,3 +186,60 @@ class TestCalcStripeApplicationFee(TestCase):
             res, int(self.amount *
                      (self.application_fee +
                       settings.STRIPE_TRANSACTION_PERCENT) + (4 * 30)))
+
+
+class TestCleanUrl(TestCase):
+
+    def test_empty_url(self):
+        res = clean_url("")
+        self.assertIsNone(res)
+
+    def test_none(self):
+        res = clean_url(None)
+        self.assertIsNone(res)
+
+    def test_no_http(self):
+        url = "www.google.com"
+        res = clean_url(url)
+        self.assertEqual(res, "http://%s" % url)
+
+    def test_with_http(self):
+        url = "http://www.google.com"
+        res = clean_url(url)
+        self.assertEqual(res, url)
+
+    def test_with_https(self):
+        url = "https://www.google.com"
+        res = clean_url(url)
+        self.assertEqual(res, url)
+
+    def test_with_https_and_padding(self):
+        url = "   https://www.google.com   "
+        res = clean_url(url)
+        self.assertEqual(res, "https://www.google.com")
+
+    def test_with_http_and_padding(self):
+        url = "   http://www.google.com   "
+        res = clean_url(url)
+        self.assertEqual(res, "http://www.google.com")
+
+
+class TestEmptyTextToNone(TestCase):
+
+    def test_no_text(self):
+        res = empty_text_to_none("")
+        self.assertIsNone(res)
+
+    def test_text(self):
+        text = "hello world this is great"
+        res = empty_text_to_none(text)
+        self.assertEqual(res, text)
+
+    def test_text_with_padding(self):
+        text = "    hello world this is great      "
+        res = empty_text_to_none(text)
+        self.assertEqual(res, "hello world this is great")
+
+    def test_none(self):
+        res = empty_text_to_none(None)
+        self.assertIsNone(res)

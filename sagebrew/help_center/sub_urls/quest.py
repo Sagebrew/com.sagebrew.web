@@ -5,6 +5,17 @@ from django.conf import settings
 
 urlpatterns = patterns(
     'help_center.views',
+    url(r'^epic-management/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "Managing Your Epic",
+            "description": "This article will help you setup and manage "
+                           "the Epic for your Mission.",
+            "content_path":
+                "%sepic_management.html" % settings.HELP_DOCS_PATH,
+            "category": "Quest and Missions"
+    },
+        name="epic_management"),
     url(r'^funding-not-in-account/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -15,7 +26,7 @@ urlpatterns = patterns(
                            "having issues though we're happy to help!",
             "content_path":
                 "%sfunding_not_in_account.html" % settings.HELP_DOCS_PATH,
-            "category": "quest"
+            "category": "Quest and Missions"
     },
         name="funding_not_in_account"),
     url(r'^how-to-export-contributions/$', TemplateView.as_view(
@@ -27,7 +38,7 @@ urlpatterns = patterns(
                            "contributions they've received.",
             "content_path":
                 "%show_export_contributions.html" % settings.HELP_DOCS_PATH,
-            "category": "quest"
+            "category": "Quest and Missions"
     },
         name="how_to_export_contributions"),
     url(r'^how-to-get-on-the-ballot/$', TemplateView.as_view(
@@ -38,7 +49,7 @@ urlpatterns = patterns(
                            "getting their name on the ballot.",
             "content_path":
                 "%show_to_get_name_on_ballot.html" % settings.HELP_DOCS_PATH,
-            "category": "quest"
+            "category": "Quest and Missions"
     },
         name="how_to_get_on_the_ballot"),
     url(r'^how-to-run/$', TemplateView.as_view(
@@ -49,7 +60,7 @@ urlpatterns = patterns(
                            "want to run for public office.",
             "content_path":
                 "%show_to_run_for_office.html" % settings.HELP_DOCS_PATH,
-            "category": "quest"
+            "category": "Quest and Missions"
     },
         name="how_to_run"),
     url(r'^name-on-ballot-to-run/$', TemplateView.as_view(
@@ -62,7 +73,7 @@ urlpatterns = patterns(
                            "article provides an solution to that question.",
             "content_path":
                 "%sname_on_ballot_to_run.html" % settings.HELP_DOCS_PATH,
-            "category": "quest"
+            "category": "Quest and Missions"
     },
         name="name_on_ballot_to_run"),
     url(r'^need-more-help-public-official/$', TemplateView.as_view(
@@ -74,9 +85,20 @@ urlpatterns = patterns(
             "content_path":
                 "%sneed_more_help_repsagetribune.html" % (
                     settings.HELP_DOCS_PATH),
-            "category": "quest"
+            "category": "Quest and Missions"
     },
         name="need_more_help_repsagetribune"),
+    url(r'^update-management/$', TemplateView.as_view(
+        template_name="help_page.html"),
+        kwargs={
+            "title": "Managing Updates",
+            "description": "This article discusses Mission Updates and "
+                           "what they they're designed for.",
+            "content_path":
+                "%supdate_management.html" % settings.HELP_DOCS_PATH,
+            "category": "Quest and Missions"
+    },
+        name="update_management"),
     url(r'^principal-campaign-committee/$', TemplateView.as_view(
         template_name="help_page.html"),
         kwargs={
@@ -85,7 +107,7 @@ urlpatterns = patterns(
             "content_path":
                 "%swhat_is_principle_campaign_committee.html" % (
                     settings.HELP_DOCS_PATH),
-            "category": "quest"
+            "category": "Quest and Missions"
     },
         name="principle_campaign_committee"),
     url(r'^funding_not_in_account/$', RedirectView.as_view(

@@ -30,7 +30,6 @@ class TestPosition(TestCase):
         state.encompasses.connect(district)
         district.encompassed_by.connect(state)
         self.position.location.connect(district)
-        district.positions.connect(self.position)
         res = Position.get_full_name(self.position.object_uuid)
         self.assertEqual(res['full_name'], "House Representative for "
                                            "Michigan's 11th district")
@@ -41,7 +40,6 @@ class TestPosition(TestCase):
         self.position.save()
         state = Location(name="Michigan", level="federal").save()
         self.position.location.connect(state)
-        state.positions.connect(self.position)
         res = Position.get_full_name(self.position.object_uuid)
         self.assertEqual(res['full_name'], "Senator of Michigan")
 
@@ -54,7 +52,6 @@ class TestPosition(TestCase):
         state.encompasses.connect(district)
         district.encompassed_by.connect(state)
         self.position.location.connect(district)
-        district.positions.connect(self.position)
         res = Position.get_full_name(self.position.object_uuid)
         self.assertEqual(res['full_name'], "State Senator for Michigan's "
                                            "38th district")
@@ -68,7 +65,6 @@ class TestPosition(TestCase):
         state.encompasses.connect(district)
         district.encompassed_by.connect(state)
         self.position.location.connect(district)
-        district.positions.connect(self.position)
         res = Position.get_full_name(self.position.object_uuid)
         self.assertEqual(res['full_name'], "State House Representative"
                                            " for Michigan's 15th district")

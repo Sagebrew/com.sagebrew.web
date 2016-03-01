@@ -1,7 +1,8 @@
 /*global Stripe*/
 var templates = require('template_build/templates'),
     helpers = require('common/helpers'),
-    settings = require('settings').settings;
+    settings = require('settings').settings,
+    moment = require('moment');
 
 export const meta = {
     controller: "quest/quest-manage/billing",
@@ -37,16 +38,24 @@ export function load() {
             exp_year: settings.profile.quest.card.exp_year
         };
         if(settings.profile.quest.subscription !== null) {
-            paymentData.next_due_date = settings.profile.quest.subscription.current_period_end;
+            paymentData.next_due_date = moment.unix(settings.profile.quest.subscription.current_period_end).format("MM/DD/YYYY");
             paymentData.bill_rate = settings.profile.quest.subscription.amount / 100;
         } else {
             paymentData.next_due_date = "Never";
             paymentData.bill_rate = "0.00";
         }
-    } else if (settings.profile.quest.account_type === "paid") {
+    } else if (settings.profile.quest.account_type === "paid" ||
+            settings.profile.quest.account_type === "promotion") {
+        var subscription = settings.profile.quest.subscription,
+            formattedPaymentDate;
+        if(subscription !== "undefined" && subscription !== undefined && subscription !== null){
+            formattedPaymentDate = moment.unix(subscription.current_period_end).format("MM/DD/YYYY");
+        } else {
+            formattedPaymentDate = "You need to add a payment method";
+        }
         paymentData = {
             card_on_file: false,
-            next_due_date: "You need to add a payment method",
+            next_due_date: formattedPaymentDate,
             bill_rate: "100.00"
         };
     } else {

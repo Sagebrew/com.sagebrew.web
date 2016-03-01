@@ -3,17 +3,31 @@ var request = require('api').request,
     settings = require('settings').settings;
 
 export function populateMissions(loadElement, questID){
-    request.get({url: '/v1/quests/' + questID + '/missions/'})
-        .done(function (data) {
-            if(data.results.length === 0) {
-                loadElement.innerHTML = templates.position_holder({static_url: settings.static_url});
-            } else {
-                for(var i=0; i < data.results.length; i++){
-                    data.results[i].title = determineTitle(data.results[i]);
-                }
-                loadElement.innerHTML = templates.mission_summary({missions: data.results, static_url: settings.static_url});
+    var $missionList = $('#js-mission-list'),
+        $missionContainer = $('#js-mission-container');
+    $missionList.sb_contentLoader({
+        emptyDataMessage: templates.position_holder({static_url: settings.static_url}),
+        url: '/v1/quests/' + questID + '/missions/',
+        loadingMoreItemsMessage: "",
+        loadMoreMessage: "",
+        dataCallback: function(base_url, params) {
+            var urlParams = $.param(params);
+            var url;
+            if (urlParams) {
+                url = base_url + "?" + urlParams;
             }
-        });
+            else {
+                url = base_url;
+            }
+            return request.get({url:url});
+        },
+        renderCallback: function($container, data) {
+            for(var i=0; i < data.results.length; i++){
+                data.results[i].title = determineTitle(data.results[i]);
+            }
+            $missionContainer.append(templates.mission_summary({missions: data.results, static_url: settings.static_url}));
+        }
+    });
 }
 
 export function determineTitle(mission) {

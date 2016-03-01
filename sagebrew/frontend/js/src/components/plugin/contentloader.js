@@ -100,13 +100,13 @@
             //Do we even have more data to get?
             //Subtract one to fix not loading the last page of data from api
             if (totalItems > ((currentPage - 1) * ItemsPerPage)) {
-                $loadMore.text("Please wait, loading more items").addClass("currently-loading");
+                $loadMore.text(base.options.loadingMoreItemsMessage).addClass("currently-loading");
                 base.getData().done(function(data) {
                     currentPage++;
 
                     base.options.renderCallback($listContainer, data);
 
-                    $loadMore.text("Load more.").removeClass("currently-loading");
+                    $loadMore.text(base.options.loadMoreMessage).removeClass("currently-loading");
                     Waypoint.refreshAll();
                 });
 
@@ -161,6 +161,8 @@
 
     $.sb.contentLoader.defaultOptions = {
         emptyDataMessage: 'Please add some data.',
+        loadingMoreItemsMessage: "Please wait, loading more items",
+        loadMoreMessage: "Load more.",
         url: '',
         params: {
 

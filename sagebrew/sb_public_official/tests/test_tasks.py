@@ -38,10 +38,8 @@ class TestCreateStateDistricts(TestCase):
         self.mi.encompasses.connect(self.upper)
         self.upper.encompassed_by.connect(self.mi)
         self.lower_pos = Position().save()
-        self.lower.positions.connect(self.lower_pos)
         self.lower_pos.location.connect(self.lower)
         self.upper_pos = Position().save()
-        self.upper.positions.connect(self.upper_pos)
         self.upper_pos.location.connect(self.upper)
 
     def tearDown(self):

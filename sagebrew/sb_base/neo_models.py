@@ -85,6 +85,7 @@ class VotableContent(NotificationCapable):
     # optimizations
     owner_username = StringProperty()
     initial_vote_time = DateTimeProperty()
+    rendered_content = StringProperty()
     # initial_vote_time is a property which lets us check if five days have
     # passed since the first council vote or if five days have passed since
     # the last time the task that checks for reputation recalculation has run.

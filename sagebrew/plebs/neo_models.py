@@ -316,6 +316,8 @@ class Pleb(Searchable):
 
     @classmethod
     def get(cls, username, cache_buster=False):
+        if username is None:
+            return None
         profile = cache.get(username)
         if profile is None or cache_buster:
             res, _ = db.cypher_query(

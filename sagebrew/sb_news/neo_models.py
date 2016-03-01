@@ -1,4 +1,4 @@
-from neomodel import (StringProperty, RelationshipTo, DateTimeProperty,
+from neomodel import (StringProperty, DateTimeProperty,
                       IntegerProperty, FloatProperty, ArrayProperty)
 
 from sb_base.neo_models import TitledContent
@@ -16,14 +16,14 @@ class NewsArticle(TitledContent):
     #     webhose
     #     alchemyapi
     provider = StringProperty(default="webhose")
-    external_id = StringProperty(index=True)
+    external_id = StringProperty(unique_index=True)
     url = StringProperty()
 
     site_full = StringProperty()
     site = StringProperty()
     site_section = StringProperty()
     section_title = StringProperty()
-    title = StringProperty()
+    title = StringProperty(index=True)
     title_full = StringProperty()
     highlight_title = StringProperty()
     highlight_text = StringProperty()

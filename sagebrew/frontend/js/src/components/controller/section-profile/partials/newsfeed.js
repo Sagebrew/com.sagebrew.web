@@ -7,7 +7,9 @@
  *
  */
 var request = require('api').request,
-    Autolinker = require('autolinker');
+    Autolinker = require('autolinker'),
+    templates = require('template_build/templates'),
+    moment = require('moment');
 
 require('plugin/contentloader');
 
@@ -39,9 +41,15 @@ export function init () {
         },
         renderCallback: function($container, data) {
             for (var i = 0; i < data.results.length; i++) {
+                if (data.results[i].type === "news_article") {
+                    data.results[i].published = moment(data.results[i].published).format("dddd, MMMM Do YYYY, h:mm a");
+                    // Until we have all the templates in handlebars lets just keep them in the array
+                    data.results[i].html = templates.news(data.results[i])
+                }
+                console.log(data.results[i]);
                 $container.append(Autolinker.link(data.results[i].html));
                 enableContentFunctionality(data.results[i].id, data.results[i].type);
-                if(data.results[i].type !== "quest" && data.results[i].type !== "update"){
+                if(data.results[i].type !== "quest" && data.results[i].type !== "update" && data.results[i].type !== "news_article"){
                     populateComments([data.results[i].id], data.results[i].type + "s");
                 }
 

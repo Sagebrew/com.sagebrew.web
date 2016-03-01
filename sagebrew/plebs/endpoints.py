@@ -44,6 +44,8 @@ from sb_quests.neo_models import Quest
 from sb_quests.serializers import QuestSerializer
 from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
+from sb_news.neo_models import NewsArticle
+from sb_news.serializers import NewsArticleSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
                           FriendRequestSerializer, PoliticalPartySerializer,
                           InterestsSerializer)
@@ -590,7 +592,18 @@ class MeViewSet(mixins.UpdateModelMixin,
             'WHERE questions.to_be_deleted = False AND questions.created > %s' \
             ' RETURN questions, NULL AS solutions, NULL AS posts, ' \
             'questions.created AS created, NULL AS s_question, ' \
-            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests, ' \
+            'NULL AS news UNION ' \
+            '' \
+            '// Retrieve all the news articles the user may be \n' \
+            '// interested in\n' \
+            'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+            '(tag:Tag)<-[:TAGGED_AS]-(news:NewsArticle) ' \
+            'WHERE news.published > %s' \
+            ' RETURN DISTINCT news, NULL AS solutions, NULL AS posts, ' \
+            'news.published AS created, NULL AS s_question, ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests, ' \
+            'NULL AS questions UNION ' \
             '' \
             '// Retrieve all the current users solutions\n' \
             'MATCH (a:Pleb {username: "%s"})-' \
@@ -599,14 +612,16 @@ class MeViewSet(mixins.UpdateModelMixin,
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
             ' RETURN solutions, NULL AS questions, NULL AS posts, ' \
             'solutions.created AS created, s_question AS s_question,' \
-            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests, ' \
+            'NULL AS news UNION ' \
             '' \
             '// Retrieve all the current users posts\n' \
             'MATCH (a:Pleb {username: "%s"})-[:OWNS_POST]->(posts:Post) ' \
             'WHERE posts.to_be_deleted = False AND posts.created > %s ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
             'posts.created AS created, NULL AS s_question,' \
-            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests, ' \
+            'NULL AS news UNION ' \
             '' \
             '// Retrieve all the posts on the current users wall that are \n' \
             '// not owned by the current user \n' \
@@ -616,7 +631,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             'posts.to_be_deleted = False AND posts.created > %s ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
             'posts.created AS created, NULL AS s_question,' \
-            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests, ' \
+            'NULL AS news UNION ' \
             '' \
             '// Retrieve the quests affecting the given user\n' \
             'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->(:Address)-' \
@@ -626,7 +642,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             'WHERE quests.active = True AND quests.created > %s ' \
             'RETURN quests, NULL AS solutions, NULL AS posts, ' \
             'NULL AS questions, quests.created AS created, ' \
-            'NULL AS s_question, NULL AS updates, NULL AS q_quests UNION ' \
+            'NULL AS s_question, NULL AS updates, NULL AS q_quests, ' \
+            'NULL AS news UNION ' \
             '' \
             '// Retrieve the quests updates affecting the given user\n' \
             'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->(:Address)-' \
@@ -637,7 +654,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             'WHERE q_quests.active = True AND updates.created > %s ' \
             'RETURN updates, NULL AS solutions, NULL AS posts, ' \
             'NULL AS questions, updates.created AS created, ' \
-            'NULL AS s_question, NULL as quests, q_quests UNION ' \
+            'NULL AS s_question, NULL as quests, q_quests, ' \
+            'NULL AS news UNION ' \
             '' \
             "// Retrieve all the current user's friends posts on their \n" \
             '// walls\n' \
@@ -649,7 +667,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             'AND posts.created > %s ' \
             'RETURN posts, NULL AS questions, NULL AS solutions, ' \
             'posts.created AS created, NULL AS s_question, ' \
-            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests, ' \
+            'NULL AS news UNION ' \
             '' \
             '// Retrieve all the current users friends and friends of friends' \
             '// questions \n' \
@@ -660,7 +679,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             'questions.created > %s ' \
             'RETURN questions, NULL AS posts, NULL AS solutions, ' \
             'questions.created AS created, NULL AS s_question, ' \
-            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests, ' \
+            'NULL AS news UNION ' \
             '' \
             '// Retrieve all the current users friends and friends of friends' \
             '// solutions \n' \
@@ -672,7 +692,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
             ' RETURN solutions, NULL AS posts, NULL AS questions, ' \
             'solutions.created AS created, s_question AS s_question,' \
-            'NULL AS quests, NULL AS updates, NULL AS q_quests UNION ' \
+            'NULL AS quests, NULL AS updates, NULL AS q_quests, ' \
+            'NULL AS news UNION ' \
             '' \
             '// Retrieve all the users questions that the current user is ' \
             '// following \n' \
@@ -683,7 +704,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             'RETURN NULL AS solutions, NULL AS posts, ' \
             'questions AS questions, questions.created AS created, ' \
             'NULL AS s_question, NULL AS quests, NULL AS updates, ' \
-            'NULL AS q_quests UNION ' \
+            'NULL AS q_quests, ' \
+            'NULL AS news UNION ' \
             '' \
             '// Retrieve all the users solutions that the current user is ' \
             '// following \n' \
@@ -695,14 +717,15 @@ class MeViewSet(mixins.UpdateModelMixin,
             'RETURN solutions, NULL AS posts, ' \
             'NULL AS questions, solutions.created AS created, ' \
             's_question as s_question, NULL AS quests, NULL AS updates, ' \
-            'NULL AS q_quests' \
+            'NULL AS q_quests, ' \
+            'NULL AS news' \
             % (
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then,
-                request.user.username, then)
+                request.user.username, then, request.user.username, then)
         news = []
         article_html = None
         html = request.query_params.get('html', 'false').lower()
@@ -788,12 +811,18 @@ class MeViewSet(mixins.UpdateModelMixin,
                     article_html = render_to_string(
                         'update_news.html', RequestContext(
                             request, news_article))
+            elif row.news is not None:
+                row.news.pull()
+                news_article = NewsArticleSerializer(
+                    NewsArticle.inflate(row.news),
+                    context={'request': request}).data
             if html == "true":
-                news_article = {
-                    "html": article_html,
-                    "id": news_article['id'],
-                    'type': news_article['type']
-                }
+                if news_article['type'] != 'news_article':
+                    news_article = {
+                        "html": article_html,
+                        "id": news_article['id'],
+                        'type': news_article['type']
+                    }
             news.append(news_article)
         return self.get_paginated_response(news)
 

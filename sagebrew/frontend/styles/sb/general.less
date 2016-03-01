@@ -1535,6 +1535,22 @@ textarea.sb_comment_input{
   display: inline-block;
   vertical-align: text-top;
 }
+
+.image-wrapper {
+  max-height: 500px;
+  vertical-align: middle;
+  text-align: center;
+  overflow: hidden;
+  img {
+    max-width: 100%;
+    max-height: 300px;
+    cursor: pointer;
+  }
+  img.sb-post-image-tall {
+    margin-top: -50%;
+  }
+}
+
 .sb-post-image-wrapper {
   position: relative;
   float: left;

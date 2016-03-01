@@ -4,12 +4,12 @@ from django.conf import settings
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from api.serializers import SBSerializer
+from sb_base.serializers import VotableContentSerializer
 
 from .neo_models import NewsArticle
 
 
-class NewsArticleSerializer(SBSerializer):
+class NewsArticleSerializer(VotableContentSerializer):
     provider = serializers.ChoiceField(choices=[
         ('sb_crawler', "Sagebrew Crawler"), ('webhose', "Webhose.io"),
         ('alchemyapi', 'IBM Alchemy API')
@@ -38,6 +38,9 @@ class NewsArticleSerializer(SBSerializer):
     locations = serializers.ListField(child=serializers.CharField())
     organizations = serializers.ListField(child=serializers.CharField())
     author = serializers.CharField()
+    rendered_content = serializers.CharField()
+    # Owner Username is defined in the parent class but not needed here
+    owner_username = serializers.HiddenField(default=None)
 
     def create(self, validated_data):
         instance = NewsArticle(**validated_data).save()
@@ -45,6 +48,9 @@ class NewsArticleSerializer(SBSerializer):
 
     def update(self, instance, validated_data):
         return instance
+
+    def get_type(self, obj):
+        return "news_article"
 
     def get_href(self, obj):
         return reverse('news-detail',

@@ -11,6 +11,7 @@ from django.conf import settings
 
 from neomodel import DoesNotExist, db
 
+from api.utils import smart_truncate
 from .neo_models import NewsArticle
 
 logger = getLogger("loggly_logs")
@@ -54,6 +55,8 @@ def query_webhose(query):
         "q": query,
     }
     query = "https://webhose.io/search"
+    # TODO in development mode get info from file not pinging server so we
+    # don't use all our api tokens
     response = requests.get(query, params=payload,
                             headers={"Accept": "text/plain"},
                             timeout=60)
@@ -117,29 +120,6 @@ def query_webhose(query):
                         # If we get through the for loop without finding an
                         # article too similar to the proposed article then
                         # lets save it off
-                        embedly_query = {
-                            "url": url,
-                            "key": settings.EMBEDLY_KEY,
-                            'type': 'card'
-                        }
-                        embedly_res = requests.get(
-                            'https://api.embedly.com/1/oembed',
-                            params=embedly_query)
-                        try:
-                            embedly_json = embedly_res.json()
-                            logger.critical(embedly_json)
-                            rendered_content = embedly_json['html']
-                            img_width = embedly_json['width']
-                            img_height = embedly_json['height']
-                            thumbnail_url = embedly_json['thumbnail_url']
-                            thumbnail_width = embedly_json['thumbnail_width']
-                            thumbnail_height = embedly_json['thumbnail_height']
-                            description = embedly_json['description']
-                            media_type = embedly_json['type']
-                        except ValueError as exc:
-                            logger.exception(exc)
-                            logger.critical(response.text)
-                            rendered_content = None
                         article = NewsArticle(
                             external_id=external_id,
                             url=url,
@@ -157,7 +137,7 @@ def query_webhose(query):
                             main_image=thread['main_image'],
                             performance_score=thread['performance_score'],
                             crawled=crawled, published=published,
-                            rendered_content=rendered_content,
+                            summary=smart_truncate(content, length=220),
                             **post).save()
                         articles.append(article)
     return articles, results['requestsLeft']

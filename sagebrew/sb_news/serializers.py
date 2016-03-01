@@ -16,6 +16,7 @@ class NewsArticleSerializer(VotableContentSerializer):
     ])
     external_id = serializers.UUIDField()
     url = serializers.URLField()
+    summary = serializers.CharField(read_only=True)
     site_full = serializers.CharField()
     site_section = serializers.CharField()
     section_title = serializers.CharField()
@@ -38,7 +39,6 @@ class NewsArticleSerializer(VotableContentSerializer):
     locations = serializers.ListField(child=serializers.CharField())
     organizations = serializers.ListField(child=serializers.CharField())
     author = serializers.CharField()
-    rendered_content = serializers.CharField()
     # Owner Username is defined in the parent class but not needed here
     owner_username = serializers.HiddenField(default=None)
 

@@ -18,7 +18,7 @@ class NewsArticle(TitledContent):
     provider = StringProperty(default="webhose")
     external_id = StringProperty(unique_index=True)
     url = StringProperty()
-
+    summary = StringProperty()
     site_full = StringProperty()
     site = StringProperty()
     site_section = StringProperty()

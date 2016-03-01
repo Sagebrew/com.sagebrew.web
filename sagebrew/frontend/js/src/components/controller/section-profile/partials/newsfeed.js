@@ -44,9 +44,8 @@ export function init () {
                 if (data.results[i].type === "news_article") {
                     data.results[i].published = moment(data.results[i].published).format("dddd, MMMM Do YYYY, h:mm a");
                     // Until we have all the templates in handlebars lets just keep them in the array
-                    data.results[i].html = templates.news(data.results[i])
+                    data.results[i].html = templates.news(data.results[i]);
                 }
-                console.log(data.results[i]);
                 $container.append(Autolinker.link(data.results[i].html));
                 enableContentFunctionality(data.results[i].id, data.results[i].type);
                 if(data.results[i].type !== "quest" && data.results[i].type !== "update" && data.results[i].type !== "news_article"){

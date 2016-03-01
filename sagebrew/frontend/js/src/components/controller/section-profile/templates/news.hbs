@@ -10,9 +10,11 @@
            <i class="fa fa-users" style="margin-right: 10px;"></i>Public
         </small>
     </div>
-    <div class="block-content image-wrapper">
-        <!-- <a href="{{ main_image }}" data-lightbox="{{ id }}"><img alt="{{title}}" class="sb-post-image sb-post-image-tall js-enlarge-post-image" src="{{ main_image }}"></a>
-        -->
-        {{{ rendered_content }}}
+    <div class="block-content">
+        <div class="image-wrapper">
+            <!-- <a href="{{ main_image }}" data-lightbox="{{ id }}"><img alt="{{title}}" class="sb-post-image sb-post-image-tall js-enlarge-post-image" src="{{ main_image }}"></a>
+            --><a href="{{ url }}" target="_blank"><img alt="{{ title }}" class="sb-post-image js-enlarge-post-image" src="{{ main_image }}"></a>
+        </div>
+        {{ summary }}
     </div>
 </div>

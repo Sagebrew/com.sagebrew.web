@@ -48,9 +48,9 @@ var paths = {
         'bower_components/Croppie/croppie.min.js',
         'node_modules/bootstrap-tokenfield/dist/bootstrap-tokenfield.min.js', // TODO Remove this after transitioning registration and tag input to new format and use require
         'js/vendor/flatui/radiocheck.js',
+        'js/vendor/flatui/fileinput.js',
         'bower_components/typeahead.js/dist/typeahead.bundle.min.js',
         'js/vendor/liveaddress.min.js',
-        'js/vendor/jasny-bootstrap.min.js',
         'js/vendor/formvalidation/formValidation.min.js',
         'js/vendor/formvalidation/bootstrap.min.js',
         'js/vendor/card.js',

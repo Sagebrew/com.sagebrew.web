@@ -38,6 +38,7 @@ export function load() {
     }
     if(settings.profile.quest.verification.upload_id === true && (settings.profile.quest.stripe_identification_sent === false || settings.profile.quest.stripe_identification_sent === null)){
         document.getElementById("identification-upload").classList.remove("sb_hidden");
+        document.getElementById('js-identification-warning').innerHTML = "Personal Identification Image Upload Required";
     }
     $('.fileinput').fileinput();
     $app
@@ -89,7 +90,7 @@ export function load() {
                 .fail(function () {
                     greyPage.classList.add('sb_hidden');
                 });
-        })
+        });
 }
 
 

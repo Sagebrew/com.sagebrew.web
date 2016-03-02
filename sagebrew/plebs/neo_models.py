@@ -11,7 +11,7 @@ from django.templatetags.static import static
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
-                      DoesNotExist, MultipleNodesReturned)
+                      DoesNotExist, MultipleNodesReturned, exception)
 from neomodel import db
 
 from api.utils import flatten_lists, spawn_task
@@ -768,7 +768,7 @@ class Address(SBObject):
                 encompassed_by.encompassed_by.connect(city_encompassed)
             if encompassed_by not in city_encompassed.encompasses:
                 city_encompassed.encompasses.connect(encompassed_by)
-        except MultipleNodesReturned:
+        except (MultipleNodesReturned, Exception) as e:
             query = 'MATCH (l1:Location {name:"%s"})-[:ENCOMPASSED_BY]->' \
                     '(l2:Location {name:"%s"}) RETURN l1' % \
                     (self.city, self.state)

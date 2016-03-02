@@ -24,7 +24,7 @@ class Quest(Searchable):
     stripe_subscription_id = StringProperty()
     # The credit card associated with the quest
     stripe_default_card_id = StringProperty()
-    stripe_identification_sent = BooleanProperty()
+    stripe_identification_sent = BooleanProperty(default=False)
     # Did the user accept the Stripe Terms of Service?
     tos_acceptance = BooleanProperty(default=False)
     # Stripe Account Type valid options:

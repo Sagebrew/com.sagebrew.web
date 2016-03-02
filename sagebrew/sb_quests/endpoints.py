@@ -1,14 +1,8 @@
-import os
 import stripe
 from stripe.error import InvalidRequestError
 
-from copy import deepcopy
-from PIL import Image
-
-from django.core.files.uploadhandler import TemporaryUploadedFile
 from django.conf import settings
 from django.core.cache import cache
-from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
@@ -376,9 +370,9 @@ class QuestViewSet(viewsets.ModelViewSet):
         file_object = request.data.get('img', None)
         quest = Quest.get(owner_username=owner_username)
         stripe_response = stripe.FileUpload.create(
-          purpose='identity_document',
-          file=ContentFile(file_object.read()),
-          stripe_account=quest.stripe_customer_id
+            purpose='identity_document',
+            file=ContentFile(file_object.read()),
+            stripe_account=quest.stripe_customer_id
         )
         account = stripe.Account.retrieve(quest.stripe_id)
         account.legal_entity.verification.document = stripe_response['id']

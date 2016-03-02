@@ -26,6 +26,11 @@ class Quest(Searchable):
     stripe_default_card_id = StringProperty()
     # Did the user accept the Stripe Terms of Service?
     tos_acceptance = BooleanProperty(default=False)
+    # Stripe Account Type valid options:
+    #     business
+    #     individual
+    stripe_account_type = StringProperty(default="business")
+    account_owner = StringProperty()
     # Has stripe verified the account we are managing for the Quest yet?
     # TODO this should get set by a callback listener that watches for
     # Stripe to send back a verified notification. Then if stripe say it's

@@ -22,19 +22,27 @@ export const meta = {
  */
 export function load() {
     var $app = $(".app-sb"),
-        greyPage = document.getElementById('sb-greyout-page');
+        greyPage = document.getElementById('sb-greyout-page'),
+        account_type;
     Stripe.setPublishableKey(settings.api.stripe);
     $app
         .on('click', '#submit', function(event) {
             event.preventDefault();
             var data = helpers.getFormData(document.getElementById('bankingForm'));
+            if (data.stripe_account_type === "business"){
+                account_type = "company";
+            } else {
+                account_type = "individual";
+            }
             if (data.ssn && data.routing_number && data.account_number) {
                 greyPage.classList.remove('sb_hidden');
                 Stripe.bankAccount.createToken({
                     country: "US",
                     currency: "USD",
                     routing_number: data.routing_number,
-                    account_number: data.account_number
+                    account_number: data.account_number,
+                    name: data.account_owner,
+                    account_holder_type: account_type
                 }, stripeBankHandler);
             } else {
                 if(!data.ssn){

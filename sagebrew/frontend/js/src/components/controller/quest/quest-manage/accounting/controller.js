@@ -4,6 +4,7 @@
  */
 var request = require('api').request,
     helpers = require('common/helpers'),
+    moment = require('moment'),
     settings = require('settings').settings;
 /**
  * Meta.
@@ -23,8 +24,18 @@ export const meta = {
 export function load() {
     var $app = $(".app-sb"),
         greyPage = document.getElementById('sb-greyout-page'),
-        account_type;
+        account_type,
+        questID = helpers.args(1);
     Stripe.setPublishableKey(settings.api.stripe);
+    if(settings.profile.quest.verification.fields_needed !== null && settings.profile.quest.verification.fields_needed !== "" && settings.profile.quest.verification.fields_needed !== undefined && settings.profile.quest.verification.fields_needed !== "undefined") {
+        document.getElementById('js-fields-needed').innerHTML = String("Fields Needed: " + settings.profile.quest.verification.fields_needed).replace('Business Name', 'Name of Entity Managing Bank').replace('Business Tax Id', "EIN of Managing Bank");
+    }
+    if(settings.profile.quest.verification.due_date !== null && settings.profile.quest.verification.due_date !== "" && settings.profile.quest.verification.due_date !== undefined && settings.profile.quest.verification.due_date !== "undefined") {
+        document.getElementById('js-due-date').innerHTML = "Fields Needed By: " + moment.unix(1458604799).format("dddd, MMMM Do YYYY, h:mm a");
+    }
+    if(settings.profile.quest.verification.disabled_reason !== null && settings.profile.quest.verification.disabled_reason !== undefined && settings.profile.quest.verification.disabled_reason !== 'undefined') {
+        document.getElementById('js-disabled-reason').innerHTML = "Disabled: " + settings.profile.quest.verification.disabled_reason
+    }
     $app
         .on('click', '#submit', function(event) {
             event.preventDefault();

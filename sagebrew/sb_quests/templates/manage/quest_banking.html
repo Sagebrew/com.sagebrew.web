@@ -10,12 +10,15 @@
         <div class="block-content">
             <div id="account-verification-status">
                 {% if quest.account_verified == "unverified" %}
-                    <span class="label label-danger">Verification: Incomplete</span>
+                    <span class="label label-danger js-verified">Verification: Incomplete</span>
                 {% elif quest.account_verified == "pending" %}
-                    <span class="label label-warning">Verification: Pending</span>
+                    <span class="label label-warning js-verified">Verification: Pending</span>
                 {% else %}
-                    <span class="label label-success">Verification: Completed</span>
+                    <span class="label label-success js-verified">Verification: Completed</span>
                 {% endif %}
+                <span class="label label-warning" id="js-fields-needed"></span>
+                <span class="label label-warning" id="js-due-date"></span>
+                <span class="label label-alert" id="js-disabled-reason"></span>
             </div>
 
             <form id="bankingForm">

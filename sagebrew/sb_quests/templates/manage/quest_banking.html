@@ -20,6 +20,15 @@
 
             <form id="bankingForm">
                 <div class="form-group">
+                    <label for="account-type">
+                        Account Type
+                    </label>
+                    <select id="account-type" class="form-control" name="stripe_account_type">
+                      <option {% if quest.stripe_account_type != "individual" %}selected{% endif %} value="business">Business</option>
+                      <option {% if quest.stripe_account_type == "individual" %}selected{% endif %} value="individual">Individual</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="ssn">
                         Social Security Number
                     </label>
@@ -27,8 +36,14 @@
                     <p class="help-block">We don't store this.</p>
                 </div>
                 <div class="form-group">
+                    <label for="account-owner">
+                        Name of Entity Managing Bank (Required for Non-Individual Accounts)
+                    </label>
+                    <input {% if quest.account_owner %}value="{{ quest.account_owner }}" {% endif %} id="account-owner" type="text" class="form-control" name="account_owner">
+                </div>
+                <div class="form-group">
                     <label for="ein">
-                        EIN for political campaign committee or other entity managing bank account (optional)
+                        EIN of Entity Managing Bank (Required for Non-Individual Accounts)
                     </label>
                     <input id="ein" type="text" class="form-control" name="ein">
                     <p class="help-block">We don't store this.</p>

@@ -50,6 +50,7 @@ var paths = {
         'js/vendor/flatui/radiocheck.js',
         'bower_components/typeahead.js/dist/typeahead.bundle.min.js',
         'js/vendor/liveaddress.min.js',
+        'js/vendor/jasny-bootstrap.min.js',
         'js/vendor/formvalidation/formValidation.min.js',
         'js/vendor/formvalidation/bootstrap.min.js',
         'js/vendor/card.js',

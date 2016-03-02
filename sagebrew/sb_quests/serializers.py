@@ -43,6 +43,10 @@ class QuestSerializer(SBSerializer):
     stripe_token = serializers.CharField(write_only=True, required=False)
     customer_token = serializers.CharField(write_only=True, required=False)
     tos_acceptance = serializers.BooleanField(required=False)
+    stripe_account_type = serializers.ChoiceField(
+        required=False,
+        choices=[('business', "Business"), ('individual', "Individual")],)
+    account_owner = serializers.CharField(required=False, allow_blank=True)
     stripe_default_card_id = serializers.CharField(write_only=True,
                                                    required=False,
                                                    allow_blank=True)
@@ -142,6 +146,10 @@ class QuestSerializer(SBSerializer):
                                             instance.customer_token)
         account_type = validated_data.get(
             'account_type', instance.account_type)
+        instance.stripe_account_type = validated_data.get(
+            'stripe_account_type', instance.stripe_account_type)
+        instance.account_owner = validated_data.get('account_owner',
+                                                    instance.account_owner)
         initial_state = instance.active
         customer = None
         ein = validated_data.pop('ein', instance.ein)

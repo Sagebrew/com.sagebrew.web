@@ -43,6 +43,10 @@ class QuestSerializer(SBSerializer):
     stripe_token = serializers.CharField(write_only=True, required=False)
     customer_token = serializers.CharField(write_only=True, required=False)
     tos_acceptance = serializers.BooleanField(required=False)
+    stripe_account_type = serializers.ChoiceField(
+        required=False,
+        choices=[('business', "Business"), ('individual', "Individual")],)
+    account_owner = serializers.CharField(required=False, allow_blank=True)
     stripe_default_card_id = serializers.CharField(write_only=True,
                                                    required=False,
                                                    allow_blank=True)
@@ -142,6 +146,10 @@ class QuestSerializer(SBSerializer):
                                             instance.customer_token)
         account_type = validated_data.get(
             'account_type', instance.account_type)
+        instance.stripe_account_type = validated_data.get(
+            'stripe_account_type', instance.stripe_account_type)
+        instance.account_owner = validated_data.get('account_owner',
+                                                    instance.account_owner)
         initial_state = instance.active
         customer = None
         ein = validated_data.pop('ein', instance.ein)
@@ -248,7 +256,7 @@ class QuestSerializer(SBSerializer):
                 stripe_res = stripe.Account.create(managed=True, country="US",
                                                    email=owner.email)
                 instance.stripe_id = stripe_res['id']
-            owner_address = owner.get_address()
+
             # TODO is this necessary or can we use the repsonse from the
             # creation?
             account = stripe.Account.retrieve(instance.stripe_id)
@@ -260,6 +268,7 @@ class QuestSerializer(SBSerializer):
                                       "issus, please contact us using the "
                                       "bubble in the bottom right",
                             "status_code": status.HTTP_400_BAD_REQUEST})
+            owner_address = owner.get_address()
             if not instance.tos_acceptance:
                 request = self.context.get('request', None)
                 if request is not None:
@@ -278,7 +287,14 @@ class QuestSerializer(SBSerializer):
                 account.legal_entity.business_tax_id = ein
             account.legal_entity.first_name = owner.first_name
             account.legal_entity.last_name = owner.last_name
-            account.legal_entity.type = "company"
+            if instance.account_owner != "" \
+                    and instance.account_owner is not None:
+                account.business_name = instance.account_owner
+                account.legal_entity.business_name = instance.account_owner
+            stripe_account_type = instance.stripe_account_type
+            if stripe_account_type == "business":
+                stripe_account_type = 'company'
+            account.legal_entity.type = stripe_account_type
             account.legal_entity.dob = dict(
                 day=owner.date_of_birth.day,
                 month=owner.date_of_birth.month,

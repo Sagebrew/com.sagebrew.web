@@ -3,6 +3,7 @@ from stripe.error import InvalidRequestError
 
 from django.conf import settings
 from django.core.cache import cache
+from django.core.files.base import ContentFile
 
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly,
                                         IsAuthenticated, IsAdminUser)
@@ -11,6 +12,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.parsers import FileUploadParser
 
 from neomodel import db
 
@@ -359,6 +361,26 @@ class QuestViewSet(viewsets.ModelViewSet):
         return Response({"detail": "Successfully unfollowed user.",
                          "status": status.HTTP_200_OK},
                         status=status.HTTP_200_OK)
+
+    @detail_route(methods=['post'],
+                  permission_classes=(IsAuthenticated,),
+                  parser_classes=(FileUploadParser, ))
+    def upload_identification(self, request, owner_username=None):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        file_object = request.data.get('img', None)
+        quest = Quest.get(owner_username=owner_username)
+        stripe_response = stripe.FileUpload.create(
+            purpose='identity_document',
+            file=ContentFile(file_object.read()),
+            stripe_account=quest.stripe_customer_id
+        )
+        account = stripe.Account.retrieve(quest.stripe_id)
+        account.legal_entity.verification.document = stripe_response['id']
+        account.save()
+        quest.stripe_identification_sent = True
+        quest.save()
+        cache.delete("%s_quest" % quest.owner_username)
+        return Response({"detail": "success"}, status=status.HTTP_200_OK)
 
 
 class PositionViewSet(viewsets.ReadOnlyModelViewSet):

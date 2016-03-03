@@ -57,12 +57,18 @@ def js_settings(request):
                         # a webhook to accept updates from stripe on the
                         # verification process
                         account = stripe.Account.retrieve(quest.stripe_id)
+                        data['profile']['quest'][
+                            'stripe_identification_sent'] = \
+                            quest.stripe_identification_sent
                         data['profile']['quest']['verification'] = {}
                         quest.account_verified = account[
                             'legal_entity']['verification']['status']
                         fields_needed = account[
                             'verification']['fields_needed']
-
+                        if "legal_entity.verification.document" in \
+                                fields_needed:
+                            data['profile']['quest'][
+                                'verification']['upload_id'] = True
                         if fields_needed is not None:
                             fields_needed = ", ".join(
                                 [field.replace('legal_entity.', "").replace(

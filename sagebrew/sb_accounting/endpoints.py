@@ -40,7 +40,7 @@ class AccountingViewSet(viewsets.ViewSet):
             email_data = {
                 "source": "support@sagebrew.com",
                 "to": [pleb.email],
-                "subject": "Representative Authentication",
+                "subject": "Subscription Failure Notice",
                 "html_content": render_to_string(
                     "email_templates/email_subscription_failure_notice.html",
                     {"billing_url":

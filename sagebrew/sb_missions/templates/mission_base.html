@@ -31,10 +31,7 @@
                class="hidden-sm hidden-md hidden-lg btn btn-primary btn-lg sb_btn sb_btn_fill" {% if mission.active == False%}disabled{% endif %}
                {% if mission.active == False%}data-toggle="tooltip"
                data-original-title="Mission must be active to volunteer."{% endif %}>Volunteer</a>
-            <a href="{% if mission.active == False%}#{% else %}{% url 'mission_volunteer_option' mission.id mission.slug %}{% endif %}"
-               class="hidden-sm hidden-md hidden-lg btn btn-primary btn-lg sb_btn sb_btn_fill" {% if mission.active == False%}disabled{% endif %}
-               {% if mission.active == False%}data-toggle="tooltip"
-               data-original-title="Mission must be active to volunteer."{% endif %}>Endorse</a>
+
             {% if quest.is_moderator or quest.is_editor or request.user.username == quest.owner_username %}
                 <a class="hidden-sm hidden-md hidden-lg btn btn-primary btn-lg sb_btn sb_btn_fill" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
             {% endif %}
@@ -54,18 +51,29 @@
                 <li {% if "updates" not in request.path %} class="active" {% endif %}><a href="{% url 'mission' mission.id mission.slug %}">Epic <span class="sr-only">(current)</span></a></li>
                 <li {% if "updates" in request.path %} class="active" {% endif %}><a href="{% url "mission_updates" mission.id mission.slug %}">Updates</a></li>
             </ul>
-            <div class="title-important-actions tight">
+            <div class="title-important-actions">
                 {% if quest.is_moderator or quest.is_editor or request.user.username == quest.owner_username %}
                     <a class="hidden-xs btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
                 {% endif %}
-                <a href="{% if mission.active == False%}#{% else %}{% url 'mission_donation_amount' mission.id mission.slug %}{% endif %}"
-                   class="hidden-xs btn btn-primary btn-lg sb_btn" {% if mission.active == False%}disabled{% endif %}
-                   {% if mission.active == False%}data-toggle="tooltip"
-                   data-original-title="Mission must be active to donate."{% endif %}>Donate</a>
-                <a href="{% if mission.active == False%}#{% else %}{% url 'mission_volunteer_option' mission.id mission.slug %}{% endif %}"
-                   class="hidden-xs btn btn-primary btn-lg sb_btn" {% if mission.active == False%}disabled{% endif %}
-                   {% if mission.active == False%}data-toggle="tooltip"
-                   data-original-title="Mission must be active to volunteer."{% endif %}>Volunteer</a>
+                <div class="btn-group" role="group">
+                    <a href="{% if mission.active == False%}#{% else %}{% url 'mission_donation_amount' mission.id mission.slug %}{% endif %}"
+                       class="hidden-xs btn btn-primary btn-lg sb_btn" {% if mission.active == False%}disabled{% endif %}
+                       {% if mission.active == False%}data-toggle="tooltip"
+                       data-original-title="Mission must be active to donate."{% endif %}>Donate</a>
+                    <a href="{% if mission.active == False%}#{% else %}{% url 'mission_volunteer_option' mission.id mission.slug %}{% endif %}"
+                       class="hidden-xs btn btn-primary btn-lg sb_btn" {% if mission.active == False%}disabled{% endif %}
+                       {% if mission.active == False%}data-toggle="tooltip"
+                       data-original-title="Mission must be active to volunteer."{% endif %}>Volunteer</a>
+                    <div class="btn-group " role="group">
+                        <button class="hidden-xs btn btn-primary btn-lg sb_btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Endorse
+                        <span class="caret"></span></button>
+                        <ul class="dropdown-menu">
+                            <li><a href="#">Endorse as Me</a></li>
+                            <li class="{% if not request_user.quest %}disabled{% else %}{% endif %}"><a href="#">Endorse as my Quest</a></li>
+                        </ul>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

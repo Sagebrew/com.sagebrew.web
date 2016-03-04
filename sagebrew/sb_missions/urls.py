@@ -4,7 +4,8 @@ from sb_contributions.views import ContributionMissionView
 
 from .views import (public_office_mission, advocate_mission, select_mission,
                     mission, mission_redirect_page, mission_updates,
-                    MissionSettingsView, mission_list, mission_edit_updates)
+                    MissionSettingsView, mission_list, mission_edit_updates,
+                    mission_endorsements)
 
 
 urlpatterns = patterns(
@@ -77,6 +78,9 @@ urlpatterns = patterns(
     # View
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/updates/$',
         mission_updates, name="mission_updates"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'endorsements/$',
+        mission_endorsements, name="mission_endorsements"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/$',
         mission, name="mission"),
 )

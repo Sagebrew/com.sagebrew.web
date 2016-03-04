@@ -46,6 +46,8 @@ class MissionSerializer(SBSerializer):
     rendered_epic = serializers.SerializerMethodField()
     is_editor = serializers.SerializerMethodField()
     is_moderator = serializers.SerializerMethodField()
+    has_endorsed_quest = serializers.SerializerMethodField()
+    has_endorsed_pleb = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
     focus_name_formatted = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
@@ -56,6 +58,7 @@ class MissionSerializer(SBSerializer):
         ('state_lower', "State Lower"),
         ('federal', "Federal"), ('state', "State")])
     location = serializers.SerializerMethodField()
+
 
     def create(self, validated_data):
         from sb_quests.neo_models import Quest, Position
@@ -317,3 +320,15 @@ class MissionSerializer(SBSerializer):
 
     def get_total_donation_amount(self, obj):
         return obj.get_total_donation_amount()
+
+    def get_has_endorsed_pleb(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return obj.get_has_endorsed_pleb(request.user.username)
+
+    def get_has_endorsed_quest(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return obj.get_has_endorsed_quest(request.user.username)

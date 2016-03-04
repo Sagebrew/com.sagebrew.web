@@ -62,7 +62,8 @@ def mission(request, object_uuid, slug=None):
         return redirect("404_Error")
     except (CypherException, ClientError, IOError):
         return redirect("500_Error")
-    mission_dict = MissionSerializer(mission_obj).data
+    mission_dict = MissionSerializer(
+        mission_obj, context={'request': request}).data
     mission_dict['slug'] = slugify(mission_obj.get_mission_title())
     return render(request, 'mission.html', {
         "mission": mission_dict,
@@ -118,6 +119,36 @@ def mission_updates(request, object_uuid, slug=None):
         "mission": MissionSerializer(mission_obj).data,
         "slug": slugify(mission_obj.get_mission_title()),
         "quest": QuestSerializer(quest).data
+    })
+
+
+def mission_endorsements(request, object_uuid, slug=None):
+    # Just check if there are any endorsements either from a Pleb or a Quest
+    query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
+            '(mission:Mission {object_uuid: "%s"}) ' \
+            'WITH quest, mission ' \
+            'OPTIONAL MATCH (mission)<-[:ENDORSES]-(pleb:Pleb) ' \
+            'WITH quest, mission, pleb ' \
+            'OPTIONAL MATCH (mission)<-[:ENDORSES]-(e_quest:Quest) ' \
+            'RETURN quest, mission, ' \
+            'CASE WHEN count(pleb) > 0 ' \
+            'THEN true ELSE false END AS p_endorsements, ' \
+            'CASE WHEN count(e_quest) > 0 ' \
+            'THEN true ELSE false END AS q_endorsements' % object_uuid
+    res, _ = db.cypher_query(query)
+    if res.one is None:
+        return redirect("404_Error")
+    # Instead of doing inflation and serialization of all the updates here
+    # without pagination lets just indicate if we have any or not and then
+    # hit the endpoint to gather the actual updates.
+    quest = Quest.inflate(res.one.quest)
+    mission_obj = Mission.inflate(res.one.mission)
+    return render(request, 'mission_endorsements.html', {
+        "quest": QuestSerializer(quest).data,
+        "mission": MissionSerializer(mission_obj).data,
+        "slug": slugify(mission_obj.get_mission_title()),
+        "endorsements": True if res.one.p_endorsements or
+                                res.one.q_endorsements else False
     })
 
 

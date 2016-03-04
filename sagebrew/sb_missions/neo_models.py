@@ -211,6 +211,24 @@ class Mission(Searchable):
         res, _ = db.cypher_query(query)
         return [Donation.inflate(donation[0]) for donation in res]
 
+    @classmethod
+    def get_endorsements(self, object_uuid):
+        from plebs.neo_models import Pleb
+        from plebs.serializers import PlebSerializerNeo
+        from sb_quests.neo_models import Quest
+        from sb_quests.serializers import QuestSerializer
+        endorsements = []
+        query = 'MATCH (m:Mission {object_uuid:"%s"})<-[:ENDORSES]-(e) ' \
+                'RETURN e, labels(e) as labels' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        for row in res:
+            if "Pleb" in row.labels:
+                endorsements.append(PlebSerializerNeo(Pleb.inflate(row.e)).data)
+            if "Quest" in row.labels:
+                endorsements.append(QuestSerializer(Quest.inflate(row.e)).data)
+        return endorsements
+
     def get_mission_title(self):
         if self.title:
             title = self.title
@@ -236,3 +254,37 @@ class Mission(Searchable):
             return '{:,.2f}'.format(float(res.one) / 100)
         else:
             return "0.00"
+
+    def endorse(self, username, endorsing_as="quest"):
+        from sb_quests.neo_models import Quest
+        from plebs.neo_models import Pleb
+        if endorsing_as == "quest":
+            endorsed_by = Quest.get(username)
+        else:
+            endorsed_by = Pleb.get(username)
+        endorsed_by.endorses.connect(self)
+        return True
+
+    def unendorse(self, username, endorsing_as="quest"):
+        from sb_quests.neo_models import Quest
+        from plebs.neo_models import Pleb
+        if endorsing_as == "quest":
+            endorsed_by = Quest.get(username)
+        else:
+            endorsed_by = Pleb.get(username)
+        endorsed_by.endorses.disconnect(self)
+        return True
+
+    def get_has_endorsed_pleb(self, username=None):
+        query = 'MATCH (m:Mission {object_uuid:"%s"})<-[:ENDORSES]-' \
+                '(pleb:Pleb {username:"%s"}) RETURN pleb' \
+                % (self.object_uuid, username)
+        res, _ = db.cypher_query(query)
+        return bool(res)
+
+    def get_has_endorsed_quest(self, username=None):
+        query = 'MATCH (m:Mission {object_uuid:"%s"})<-[:ENDORSES]-' \
+                '(quest:Quest {owner_username:"%s"}) RETURN quest' \
+                % (self.object_uuid, username)
+        res, _ = db.cypher_query(query)
+        return bool(res)

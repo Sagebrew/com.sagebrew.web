@@ -1,7 +1,8 @@
 from django.conf import settings
 
 from neomodel import db
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.response import Response
 from rest_framework.decorators import detail_route
 from rest_framework.permissions import IsAuthenticated
 
@@ -139,3 +140,34 @@ class MissionViewSet(viewsets.ModelViewSet):
             pass
         return generate_csv_html_file_response(
             "%s_mission_volunteers.csv" % mission.title, [], defined_keys)
+
+    @detail_route(methods=['POST'], permission_classes=(IsAuthenticated,
+                                                       IsOwnerOrModerator,))
+    def endorse(self, request, object_uuid=None):
+        endorse_as = request.data.get('endorse_as')
+        if not endorse_as:
+            return Response({"detail": "You must specify if you will be "
+                                       "endorsing as a User or as a Quest",
+                             "status": status.HTTP_400_BAD_REQUEST},
+                            status=status.HTTP_400_BAD_REQUEST)
+        mission = self.get_object()
+        mission.endorse(request.user.username, endorse_as)
+        return Response({"detail": "Successfully Endorsed Mission",
+                         "status_code": status.HTTP_200_OK},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['POST'], permission_classes=(IsAuthenticated,
+                                                       IsOwnerOrModerator,))
+    def unendorse(self, request, object_uuid=None):
+        endorse_as = request.data.get('endorse_as')
+        mission = self.get_object()
+        mission.unendorse(request.user.username, endorse_as)
+        return Response({"detail": "Successfully Endorsed Mission",
+                         "status_code": status.HTTP_200_OK},
+                        status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
+                                                       IsOwnerOrModerator,))
+    def endorsements(self, request, object_uuid=None):
+        return Response(Mission.get_endorsements(object_uuid),
+                        status=status.HTTP_200_OK)

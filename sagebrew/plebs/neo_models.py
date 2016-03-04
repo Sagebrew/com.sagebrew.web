@@ -278,6 +278,8 @@ class Pleb(Searchable):
     # there are more limitations on how donations occur.
     quest = RelationshipTo('sb_quests.neo_models.Quest', 'IS_WAGING')
 
+    endorses = RelationshipTo('sb_missions.neo_models.Mission', "ENDORSES")
+
     # Edits
     # Access if this Pleb can edit a Quest through:
     # Neomodel: editors Cypher: EDITOR_OF

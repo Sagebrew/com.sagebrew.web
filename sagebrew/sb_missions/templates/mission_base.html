@@ -48,8 +48,9 @@
     <div class="block block-type-title">
         <div class="block-content ">
             <ul class="nav nav-pills">
-                <li {% if "updates" not in request.path %} class="active" {% endif %}><a href="{% url 'mission' mission.id mission.slug %}">Epic <span class="sr-only">(current)</span></a></li>
+                <li {% if "updates" not in request.path and "endorsements" not in request.path %} class="active" {% endif %}><a href="{% url 'mission' mission.id mission.slug %}">Epic <span class="sr-only">(current)</span></a></li>
                 <li {% if "updates" in request.path %} class="active" {% endif %}><a href="{% url "mission_updates" mission.id mission.slug %}">Updates</a></li>
+                <li {% if "endorsements" in request.path %} class="active" {% endif %}><a href="{% url "mission_endorsements" mission.id mission.slug %}">Endorsements</a></li>
             </ul>
             <div class="title-important-actions">
                 {% if quest.is_moderator or quest.is_editor or request.user.username == quest.owner_username %}
@@ -68,8 +69,8 @@
                         <button class="hidden-xs btn btn-primary btn-lg sb_btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Endorse
                         <span class="caret"></span></button>
                         <ul class="dropdown-menu">
-                            <li><a href="#">Endorse as Me</a></li>
-                            <li class="{% if not request_user.quest %}disabled{% else %}{% endif %}"><a href="#">Endorse as my Quest</a></li>
+                            <li><a id="js-endorse-pleb" href="#">{% if mission.has_endorsed_pleb %}Cancel My Endorsement{% else %}Endorse as Me{% endif %}</a></li>
+                            <li class="{% if not request_profile.quest %}disabled{% endif %}"><a id="js-endorse-quest" href="#">{% if mission.has_endorsed_quest %}Cancel My Quest's Endorsement{% else %}Endorse as My Quest{% endif %}</a></li>
                         </ul>
                     </div>
                 </div>

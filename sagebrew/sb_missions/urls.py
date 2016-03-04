@@ -5,7 +5,7 @@ from sb_contributions.views import ContributionMissionView
 from .views import (public_office_mission, advocate_mission, select_mission,
                     mission, mission_redirect_page, mission_updates,
                     MissionSettingsView, mission_list, mission_edit_updates,
-                    mission_endorsements)
+                    mission_endorsements, mission_endorse)
 
 
 urlpatterns = patterns(
@@ -74,6 +74,10 @@ urlpatterns = patterns(
         r'volunteer/name/$',
         ContributionMissionView.as_view(template_name='volunteer/name.html'),
         name="mission_volunteer_name"),
+
+    # Endorse
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'endorse/$', mission_endorse, name="mission_endorse"),
 
     # View
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/updates/$',

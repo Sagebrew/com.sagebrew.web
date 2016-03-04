@@ -7,16 +7,15 @@
         {% if is_editor or is_moderator or request.user.username == quest.owner_username and not endorsements %}
             <div class="block block-holder-lg sb_markdown" id="epic-parent">
                 <div class="block-content">
-                    <p>Updates are distributed to anyone that
-                    has donated to or pledged to vote for your
-                    Quest and will show up on their Newsfeed. We
-                    recommend using them to share:</p>
+                    <p>Endorsements are shown to anyone who visits this
+                        Mission's page. Having endorsements from with large
+                        amounts of reputation or who are largely trusted by
+                        the community may have the following benefits to your Mission: </p>
                     <ul>
-                        <li>Progress regarding your Mission</li>
-                        <li>Information you'd like to bring attention to</li>
-                        <li>Upcoming events related to your Mission</li>
+                        <li>Increased Contributions</li>
+                        <li>Increased Publicity</li>
+                        <li>Mission Success</li>
                     </ul>
-                    <p>You can add updates in your <a href="{% url 'mission_update_settings' mission.id mission.slug %}">settings</a>.</p>
                 </div>
             </div>
         {% else %}

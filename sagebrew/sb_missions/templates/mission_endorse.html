@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %} Mission Selection {% endblock %}
+{% block content %}
+    <div class="block registration">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>Endorse this Mission</h1>
+                <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-6">
+                <div class="sb-profile-not-friend-element">
+                    <div class="js-hover-overlay-activate">
+                        <h4 class="sb-profile-not-friend-header">As My Quest</h4>
+                        <div class="row sb-profile-not-friend-image-wrapper">
+                            <img class="sb-profile-not-friend-element-image" src="{% static "images/running_bw.png" %}">
+                        </div>
+                        <div class="sb-overlay">
+                            <div class="sb-overlay-text">
+                                <div>
+                                    If you want your Quest to show up on this quests
+                                    Endorsement Page you should Endorse as your Quest! <br/><br/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
+                    <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+                        <button class="btn btn-primary sb_btn_fill" id="js-endorse-quest">{% if mission.has_endorsed_quest %}Cancel My Quest's Endorsement{% else %}Endorse with My Quest{% endif %}</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <div class="sb-profile-not-friend-element">
+                    <div class="js-hover-overlay-activate">
+                        <h4 class="sb-profile-not-friend-header">As Me</h4>
+                        <div class="row sb-profile-not-friend-image-wrapper">
+                            <img class="sb-profile-not-friend-element-image" src="{% static "images/advocate_bw.png" %}">
+                        </div>
+                        <div class="sb-overlay">
+                            <div class="sb-overlay-text">
+                                <div>
+                                    If you want your profile to show up on this mission's
+                                    Endorsement Page you should Endorse as yourself! <br/><br/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+                            <button class="btn btn-primary sb_btn_fill" id="js-endorse-pleb">{% if mission.has_endorsed_pleb %}Cancel My Endorsement{% else %}Endorse as Me{% endif %}</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

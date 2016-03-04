@@ -1,5 +1,4 @@
-var wallpaper = require('./partials/wallpaper'),
-    endorse = require('./partials/endorse');
+var wallpaper = require('./partials/wallpaper');
 
 export const meta = {
     controller: "mission/mission-view",
@@ -24,7 +23,6 @@ export function load() {
     $('[data-toggle="tooltip"]').tooltip();
     $('[data-toggle="popover"]').popover();
     wallpaper.load();
-    endorse.load();
 }
 
 /**

@@ -70,6 +70,20 @@ def mission(request, object_uuid, slug=None):
         "quest": QuestSerializer(Quest.get(mission_obj.owner_username)).data
     })
 
+def mission_endorse(request, object_uuid, slug=None):
+    try:
+        mission_obj = Mission.get(object_uuid)
+    except (Mission.DoesNotExist, DoesNotExist):
+        return redirect("404_Error")
+    except (CypherException, ClientError, IOError):
+        return redirect("500_Error")
+    mission_dict = MissionSerializer(
+        mission_obj, context={'request': request}).data
+    mission_dict['slug'] = slugify(mission_obj.get_mission_title())
+    return render(request, 'mission_endorse.html', {
+        "mission": mission_dict
+    })
+
 
 def mission_edit_updates(request, object_uuid, slug=None, edit_id=None):
     query = 'MATCH (update:Update {object_uuid: "%s"})-[:ABOUT]->' \

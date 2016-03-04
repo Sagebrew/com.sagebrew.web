@@ -322,6 +322,11 @@ class QuestViewSet(viewsets.ModelViewSet):
         return generate_csv_html_file_response(
             "quest_donations.csv", donation_info, keys)
 
+    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def endorsed(self, request, owner_username):
+        return Response(Quest.get_endorsed(owner_username, True),
+                        status.HTTP_200_OK)
+
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated,))
     def follow(self, request, owner_username=None):

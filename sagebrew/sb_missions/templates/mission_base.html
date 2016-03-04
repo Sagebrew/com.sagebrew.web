@@ -44,6 +44,33 @@
         </div>
     </div>
 {% endblock %}
+{% block tertiary_nav %}
+    <div class="radio-button-selector-nav">
+        <ul class="block-content block-container-radio-nav block-float-background ">
+            <li class="radio-li-nav-selector">
+                <a href="{% if mission.active == False%}#{% else %}{% url 'mission_donation_amount' mission.id mission.slug %}{% endif %}">
+                    <div class="radio-image-selector-white-nav js-contribution">
+                        <h4 class="sb-profile-not-friend-header"><i class="fa fa-money"></i> Donate</h4>
+                    </div>
+                </a>
+            </li>
+            <li class="radio-li-nav-selector">
+                <a href="{% if mission.active == False%}#{% else %}{% url 'mission_volunteer_option' mission.id mission.slug %}{% endif %}">
+                    <div class="radio-image-selector-white-nav js-contribution">
+                        <h4 class="sb-profile-not-friend-header"><i class="fa fa-calendar"></i> Volunteer</h4>
+                    </div>
+                </a>
+            </li>
+            <li class="radio-li-nav-selector">
+                <a href="{% if mission.active == False%}#{% else %}{% url 'mission_endorse' mission.id mission.slug %}{% endif %}">
+                    <div class="radio-image-selector-white-nav js-contribution">
+                        <h4 class="sb-profile-not-friend-header"><i class="fa fa-check-circle-o"></i> Endorse</h4>
+                    </div>
+                </a>
+            </li>
+        </ul>
+    </div>
+{% endblock %}
 {% block secondary_nav %}
     <div class="block block-type-title">
         <div class="block-content ">
@@ -57,6 +84,7 @@
                     <a class="hidden-xs btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
                 {% endif %}
                 <div class="btn-group" role="group">
+                    {% comment %}
                     <a href="{% if mission.active == False%}#{% else %}{% url 'mission_donation_amount' mission.id mission.slug %}{% endif %}"
                        class="hidden-xs btn btn-primary btn-lg sb_btn" {% if mission.active == False%}disabled{% endif %}
                        {% if mission.active == False%}data-toggle="tooltip"
@@ -72,7 +100,9 @@
                             <li><a id="js-endorse-pleb" href="#">{% if mission.has_endorsed_pleb %}Cancel My Endorsement{% else %}Endorse as Me{% endif %}</a></li>
                             <li class="{% if not request_profile.quest %}disabled{% endif %}"><a id="js-endorse-quest" href="#">{% if mission.has_endorsed_quest %}Cancel My Quest's Endorsement{% else %}Endorse as My Quest{% endif %}</a></li>
                         </ul>
+
                     </div>
+                    {% endcomment %}
                 </div>
 
             </div>

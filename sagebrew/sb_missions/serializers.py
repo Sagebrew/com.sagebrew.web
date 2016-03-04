@@ -59,7 +59,6 @@ class MissionSerializer(SBSerializer):
         ('federal', "Federal"), ('state', "State")])
     location = serializers.SerializerMethodField()
 
-
     def create(self, validated_data):
         from sb_quests.neo_models import Quest, Position
         request, _, _, _, _ = gather_request_data(self.context)

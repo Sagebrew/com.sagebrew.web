@@ -142,7 +142,7 @@ class MissionViewSet(viewsets.ModelViewSet):
             "%s_mission_volunteers.csv" % mission.title, [], defined_keys)
 
     @detail_route(methods=['POST'], permission_classes=(IsAuthenticated,
-                                                       IsOwnerOrModerator,))
+                                                        IsOwnerOrModerator,))
     def endorse(self, request, object_uuid=None):
         endorse_as = request.data.get('endorse_as')
         if not endorse_as:
@@ -157,7 +157,7 @@ class MissionViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['POST'], permission_classes=(IsAuthenticated,
-                                                       IsOwnerOrModerator,))
+                                                        IsOwnerOrModerator,))
     def unendorse(self, request, object_uuid=None):
         endorse_as = request.data.get('endorse_as')
         mission = self.get_object()

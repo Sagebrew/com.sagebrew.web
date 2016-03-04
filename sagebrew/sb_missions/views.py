@@ -70,6 +70,7 @@ def mission(request, object_uuid, slug=None):
         "quest": QuestSerializer(Quest.get(mission_obj.owner_username)).data
     })
 
+
 def mission_endorse(request, object_uuid, slug=None):
     try:
         mission_obj = Mission.get(object_uuid)
@@ -161,8 +162,8 @@ def mission_endorsements(request, object_uuid, slug=None):
         "quest": QuestSerializer(quest).data,
         "mission": MissionSerializer(mission_obj).data,
         "slug": slugify(mission_obj.get_mission_title()),
-        "endorsements": True if res.one.p_endorsements or
-                                res.one.q_endorsements else False
+        "endorsements":
+            True if res.one.p_endorsements or res.one.q_endorsements else False
     })
 
 

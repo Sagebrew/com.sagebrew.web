@@ -1,5 +1,6 @@
 var helpers = require('common/helpers'),
     request = require('api').request,
+    settings = require('settings').settings,
     templates = require('template_build/templates');
 
 export function load() {
@@ -14,7 +15,7 @@ export function load() {
                     $container.append(templates.quest_endorsed(data[i]));
                 }
             } else {
-                $container.append("<p>This Quest has not Endorsed any Missions yet!<p>");
+                $container.append(templates.position_holder({static_url: settings.static_url}));
             }
         });
 }

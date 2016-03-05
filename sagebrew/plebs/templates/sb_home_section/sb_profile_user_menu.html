@@ -10,19 +10,20 @@
                 </li>
             {% endif %}
             <li>
-                <a {% if 'donations' not in request.path and 'friends' not in request.path and 'about' not in request.path and 'reputation' not in request.path and 'feed' not in request.path and 'quest' not in request.path %}class="active"{% endif %}
+                <a {% if 'endorsements' not in request.path and 'donations' not in request.path and 'friends' not in request.path and 'about' not in request.path and 'reputation' not in request.path and 'feed' not in request.path and 'quest' not in request.path %}class="active"{% endif %}
                    href="{% url 'profile_page' page_user.username %}">Profile</a>
             </li>
             {% if debug == True %}
                 {% comment %}
                     # TODO BETA ADD IN feature
-                {% endcomment %}
+
                 <li>
                     <a href="#">About</a>
                 </li>
                 <li>
                     <a href="#">Reputation</a>
                 </li>
+                {% endcomment %}
             {% endif %}
             <li>
                 <a {% if 'friends' in request.path %}class="active"{% endif %}
@@ -39,6 +40,9 @@
                     <a href="{% url 'quest' page_user.username %}">Quest</a>
                 </li>
             {% endif %}
+            <li>
+                <a {% if "endorsements" in request.path %}class="active"{% endif %} href="{% url 'pleb_endorsements' page_user.username %}">Endorsements</a>
+            </li>
             {% if request.user.username == 'tyler_wiersing' and request.user.username == page_user.username or request.user.username == 'devon_bleibtrey' and request.user.username == page_user.username %}
                 <li>
                     <a href="{% url 'council_page' %}">Council</a>

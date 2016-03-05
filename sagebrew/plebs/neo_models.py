@@ -690,6 +690,18 @@ class Pleb(Searchable):
         res, _ = db.cypher_query(query)
         return [row[0] for row in res]
 
+    @classmethod
+    def get_endorsed(cls, username, serialize=False):
+        from sb_missions.neo_models import Mission
+        from sb_missions.serializers import MissionSerializer
+        query = 'MATCH (p:Pleb {username:"%s"})-' \
+                '[:ENDORSES]->(m:Mission) RETURN m' % username
+        res, _ = db.cypher_query(query)
+        if not serialize:
+            return [Mission.inflate(mission[0]) for mission in res]
+        return [MissionSerializer(Mission.inflate(mission[0])).data
+                for mission in res]
+
     """
     def update_tag_rep(self, base_tags, tags):
         from sb_tags.neo_models import Tag

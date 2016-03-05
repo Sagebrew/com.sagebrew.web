@@ -994,3 +994,35 @@ class MissionEndpointTests(APITestCase):
                                            'Data Entry,Host A Meeting,Host A '
                                            'Fundraiser,Host A House Party,'
                                            'Attend A House Party\r\n')
+
+    def test_endorse(self):
+        self.client.force_authenticate(user=self.user)
+        url = "/v1/missions/%s/endorse/" % self.mission.object_uuid
+        response = self.client.post(url, data={"endorse_as": "pleb"},
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.mission in self.pleb.endorses)
+
+    def test_unendorse(self):
+        self.client.force_authenticate(user=self.user)
+        url = "/v1/missions/%s/unendorse/" % self.mission.object_uuid
+        response = self.client.post(url, data={"endorse_as": "pleb"},
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(self.mission in self.pleb.endorses)
+
+    def test_endorsements(self):
+        self.client.force_authenticate(user=self.user)
+        self.pleb.endorses.connect(self.mission)
+        url = "/v1/missions/%s/endorsements/" % self.mission.object_uuid
+        res = self.client.get(url, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data[0]['id'], self.pleb.username)
+
+    def test_endorsements_quest(self):
+        self.client.force_authenticate(user=self.user)
+        self.quest.endorses.connect(self.mission)
+        url = "/v1/missions/%s/endorsements/" % self.mission.object_uuid
+        res = self.client.get(url, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data[0]['id'], self.quest.object_uuid)

@@ -110,3 +110,23 @@ class TestMission(TestCase):
         donation2.mission.connect(self.mission)
         res = self.mission.get_total_donation_amount()
         self.assertEqual(res, "2.19")
+
+    def test_endorse_pleb(self):
+        res = self.mission.endorse(self.owner.username, "pleb")
+        self.assertTrue(res)
+
+    def test_endorse_quest(self):
+        res = self.mission.endorse(self.owner.username)
+        self.assertTrue(res)
+
+    def test_unendorse_pleb(self):
+        res = self.mission.endorse(self.owner.username, "pleb")
+        self.assertTrue(res)
+        res = self.mission.unendorse(self.owner.username, "pleb")
+        self.assertTrue(res)
+
+    def test_unendorse_quest(self):
+        res = self.mission.endorse(self.owner.username)
+        self.assertTrue(res)
+        res = self.mission.unendorse(self.owner.username)
+        self.assertTrue(res)

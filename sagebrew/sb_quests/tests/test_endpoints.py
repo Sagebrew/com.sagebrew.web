@@ -1061,6 +1061,17 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(data['title'], response.data['title'])
 
+    def test_endorsements(self):
+        mission = Mission(owner_username=self.pleb.username).save()
+        self.quest.missions.connect(mission)
+        self.quest.endorses.connect(mission)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-endorsed',
+                      kwargs={'owner_username': self.pleb.username})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(mission.object_uuid, res.data[0]['id'])
+
 
 class PositionEndpointTests(APITestCase):
 

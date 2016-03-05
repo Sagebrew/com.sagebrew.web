@@ -504,6 +504,11 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                        context={'request': request})
         return self.get_paginated_response(serializer.data)
 
+    @detail_route(methods=["GET"], serializer_class=MissionSerializer,
+                  permission_classes=(IsAuthenticated,))
+    def endorsed(self, request, username):
+        return Response(Pleb.get_endorsed(username, True))
+
 
 class MeViewSet(mixins.UpdateModelMixin,
                 mixins.ListModelMixin, viewsets.GenericViewSet):

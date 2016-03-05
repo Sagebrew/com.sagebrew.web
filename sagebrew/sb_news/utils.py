@@ -65,7 +65,8 @@ def query_webhose(query):
     language = 'english'
     sentence_count = 7
     summary_length = 250
-    time_exp = re.compile(r'(1[012]|[1-9]):[0-5][0-9](\\s)?(?i)(am|pm|AM|PM)')
+    time_exp = re.compile(
+        r'(1[012]|[1-9]):[0-5][0-9](\\s)?(?i)\s?(am|pm|AM|PM)')
     exclude_sentences = ["Story highlights", ]
     stemmer = Stemmer(language)
     summarizer = LexRankSummarizer(stemmer)

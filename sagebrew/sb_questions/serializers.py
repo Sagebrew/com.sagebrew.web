@@ -121,6 +121,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
     external_location_id = serializers.CharField(write_only=True,
                                                  required=False,
                                                  allow_null=True)
+    tags_formatted = serializers.SerializerMethodField()
 
     def validate_title(self, value):
         # We need to escape quotes prior to passing the title to the query.
@@ -266,3 +267,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         return reverse(
             'question-detail', kwargs={'object_uuid': obj.object_uuid},
             request=request)
+
+    def get_tags_formatted(self, obj):
+        return ", ".join([tag.replace("-", " ").replace("_", " ").title()
+                         for tag in obj.get_tags()])

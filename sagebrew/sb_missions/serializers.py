@@ -3,6 +3,7 @@ import markdown
 from django.core.cache import cache
 from django.utils.text import slugify
 from django.conf import settings
+from django.templatetags.static import static
 
 from rest_framework import serializers, status
 from rest_framework.reverse import reverse
@@ -100,7 +101,9 @@ class MissionSerializer(SBSerializer):
         mission = Mission(owner_username=owner_username, level=level,
                           focus_on_type=focus_type,
                           focus_name=focused_on,
-                          title=title).save()
+                          title=title,
+                          wallpaper_pic=static(
+                              'images/wallpaper_capitol_2.jpg')).save()
         if focus_type == "position":
             if level == "federal":
                 if district:

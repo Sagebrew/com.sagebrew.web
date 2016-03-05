@@ -1,54 +1,33 @@
 {% load staticfiles %}
 {% load humanize %}
-<div class="block sb_solution_news block_{{ object_uuid }}">
-    <div class="js-page-object" data-object_uuid="{{ object_uuid }}" style="display: None"></div>
-    <div class="row">
-        <div class="col-sm-1 hidden-xs">
-            <div class="sb_thumbnail_sm thumbnail">
-                {% static 'images/sage_coffee_grey-01.png' as default_profile %}
-                <img src="{{ profile.profile_pic|default_if_none:default_profile }}"/>
-            </div>
-        </div>
-        <div class="col-xs-9" style="margin-top:-6px;  margin-bottom: -10px">
-            <small>
-                <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a> proposed a Solution
-            </small>
-        </div>
-        <div class="col-sm-2 hidden-xs" style="margin-top:-6px;  margin-bottom: -10px;">
-            <small>
-               <i class="fa fa-users" style="margin-right: 10px;"></i>Public
-            </small>
-        </div>
-        <div class="col-xs-2 col-xs-offset-1 hidden-sm hidden-md hidden-lg" style="margin-top:-6px;  margin-bottom: -10px;">
-            <small>
-               <i class="fa fa-users"></i>
-            </small>
-        </div>
-        <div class="col-xs-11">
-            <small>
-                <b>Conversation:</b> <a href="{{ question.url }}">{{ question.title|truncatechars:110 }}</a>
-            </small>
-        </div>
+<div class="block block_{{ object_uuid }}">
+    <div class="block-title">
+        <a href="{{ question.url }}">
+            Solution To: {{ question.title}}
+        </a>
     </div>
-    <div class="row">
-        <div class="vote_small vote_count_medium">
+    <div class="block-content" style="padding-top: 0; padding-bottom: 0;">
+        <small>Author: <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>  <b>&middot;</b>
+            Topics: {{ tags_formatted }} <b>&middot;</b>
+            {{ created }} </small>
+        <small class="pull-right">
+           <i class="fa fa-users" style="margin-right: 10px;"></i>Public
+        </small>
+    </div>
+    <div class="block-content">
+        <div class="row">
             <div class="hidden-xs col-sm-1 sb_vote_wrapper">
-                {% include "vote.html" %}
+                <div class="vote_lg vote_count_large">
+                    {% include "vote.html" %}
+                </div>
             </div>
-        </div>
-        <div class="col-xs-11">
-            <h4 class="sb-header-news">
-                Solution
-            </h4>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-xs-12 col-sm-11 col-sm-offset-1">
-            <div class="sb-content-body-news">
-                <div class="sb_markdown block-vertical-news{% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
-                    {% autoescape off %}
-                        {{ html_content }}
-                    {% endautoescape %}
+            <div class="col-xs-12 col-sm-11">
+                <div class="sb-content-body-news">
+                    <div class="sb_markdown block-vertical-news {% if is_closed %} sb_blurred_content{% endif %}" id="sb_content_{{ object_uuid }}">
+                        {% autoescape off %}
+                            {{ html_content }}
+                        {% endautoescape %}
+                    </div>
                 </div>
             </div>
         </div>
@@ -58,27 +37,29 @@
          data-type="{{ type }}">
         <div class="js-comment-container newsfeed-comment" id="sb_comments_container_{{ id }}">
         </div>
-        <div class="row">
-            {% if "comment" in request_profile.privileges and not is_closed %}
-                <form id="commentSubmitForm">
-                    <div class="input-group sb_comment comment-input" id="comment-input-{{ id }}">
-                            <textarea class="input-group form-control sb_comment_input"
-                                      rows="2" name="comment_content"
-                                      placeholder="Help improve the Solution by providing feedback"></textarea>
-                            <a class="btn input-group-btn comment-btn"
-                               data-id="{{ id }}"><span class="fa fa-plus"></span></a>
-                        </div>
-                </form>
-            {% else %}
-                <div><small>
-                    <span class="sb_comment_disabled" data-toggle="tooltip"
-                          data-placement="top"
-                          data-title="Requirement: 20+ Rep"
-                          id="post_comment_on_{{ object_uuid }}">
-                        comment
-                    </span>
-                </small></div>
-            {% endif %}
+        <div class="block">
+            <div class="block-content">
+                {% if "comment" in request_profile.privileges and not is_closed %}
+                    <form id="commentSubmitForm">
+                        <div class="input-group sb_comment comment-input" id="comment-input-{{ id }}">
+                                <textarea class="input-group form-control sb_comment_input"
+                                          rows="2" name="comment_content"
+                                          placeholder="Help improve the Question by providing feedback"></textarea>
+                                <a class="btn input-group-btn comment-btn"
+                                   data-id="{{ id }}"><span class="fa fa-plus"></span></a>
+                            </div>
+                    </form>
+                {% else %}
+                    <div class="block-content"><small>
+                        <span class="sb_comment_disabled" data-toggle="tooltip"
+                              data-placement="top"
+                              data-title="Requirement: 20+ Rep"
+                              id="post_comment_on_{{ object_uuid }}">
+                            comment
+                        </span>
+                    </small></div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>

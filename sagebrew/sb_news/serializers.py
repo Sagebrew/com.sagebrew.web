@@ -41,6 +41,7 @@ class NewsArticleSerializer(VotableContentSerializer):
     author = serializers.CharField()
     # Owner Username is defined in the parent class but not needed here
     owner_username = serializers.HiddenField(default=None)
+    profile = serializers.HiddenField(default=None)
 
     def create(self, validated_data):
         instance = NewsArticle(**validated_data).save()

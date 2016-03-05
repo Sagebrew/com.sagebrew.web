@@ -91,6 +91,7 @@ function loadMissions(affectsFilter) {
         },
         renderCallback: function($container, data) {
             for(var i=0; i < data.results.length; i++){
+                // TODO This is replicated in newsfeed, need to move it to a fxn
                 data.results[i].title = missions.determineTitle(data.results[i]);
                 if (data.results[i].focus_on_type === "position"){
                     if(data.results[i].quest.title !== "" && data.results[i].quest.title !== null){
@@ -98,9 +99,9 @@ function loadMissions(affectsFilter) {
                     } else {
                         data.results[i].title = data.results[i].quest.first_name + " " + data.results[i].quest.last_name + "'s mission for " + data.results[i].title;
                     }
-
                 }
                 if(data.results[i].wallpaper_pic === "" || data.results[i].wallpaper_pic === undefined || data.results[i].wallpaper_pic === null){
+                    // This is legacy and should be handled for all new missions from March 03 16
                     data.results[i].wallpaper_pic = settings.static_url + "images/wallpaper_capitol_2.jpg";
                 }
             }

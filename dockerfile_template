@@ -1,4 +1,4 @@
-FROM {{PROJECT_NAME}}/django.web.primary.{{IMAGE_TYPE}}:v{{VERSION}}
+FROM {{PROJECT_NAME}}/django.web.primary.{{IMAGE_TYPE}}:v16
 
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 

@@ -9,4 +9,3 @@ def find_tag_news():
     find_news(limit_offset_query,
               'MATCH (tag:Tag) WHERE NOT tag:AutoTag RETURN count(tag)',
               tag_callback)
-

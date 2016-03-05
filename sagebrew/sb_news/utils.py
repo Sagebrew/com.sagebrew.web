@@ -106,8 +106,8 @@ def query_webhose(query):
                 soup = BeautifulSoup(intermediate_page.text)
                 for script in soup.find_all('script'):
                     index_value = str(script).find('window.location.href')
-                    chop_string = str(script)[
-                                  index_value+len('window.location.href="'):]
+                    chop_string = str(
+                        script)[index_value + len('window.location.href="'):]
                     url = str(chop_string)[:chop_string.find('"')]
             logger.critical(thread)
             logger.critical(post)

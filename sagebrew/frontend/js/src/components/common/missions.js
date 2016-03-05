@@ -25,7 +25,15 @@ export function populateMissions(loadElement, questID){
             for(var i=0; i < data.results.length; i++){
                 data.results[i].title = determineTitle(data.results[i]);
             }
-            $missionContainer.append(templates.mission_summary({missions: data.results, static_url: settings.static_url}));
+            $missionContainer.append(templates.mission_summary(
+                {
+                    missions: data.results,
+                    static_url: settings.static_url,
+                    free_account: settings.profile.quest.free_quest,
+                    available_missions: settings.profile.quest.available_missions,
+                    is_owner: settings.profile.quest.is_owner
+                }
+            ));
         }
     });
 }

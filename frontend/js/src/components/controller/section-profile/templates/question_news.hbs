@@ -16,7 +16,7 @@
         <div class="row">
             <div class="hidden-xs col-sm-1 sb_vote_wrapper">
                 <div class="vote_lg vote_count_large">
-                    {{> vote id=id restricted=restricted
+                    {{> 'common/vote/templates/vote.hbs' id=id restricted=restricted
                     is_owner=is_owner has_reputation=has_reputation
                     vote_count=vote_count upvote=upvote downvote=downvote type=type}}
                 </div>

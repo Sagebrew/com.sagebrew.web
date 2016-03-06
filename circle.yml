@@ -16,11 +16,11 @@ dependencies:
     - sudo apt-get -y install libjpeg-dev
     - npm install -g gulp
     - npm prune && npm install:
-        pwd: frontend
+        pwd: ../frontend
     - bower prune && bower install:
-        pwd: frontend
+        pwd: ../frontend
     - gulp build --env production:
-        pwd: frontend
+        pwd: ../frontend
 
   post:
     - pip install -r ~/com.sagebrew.web/requirements/test.txt --exists-action=w

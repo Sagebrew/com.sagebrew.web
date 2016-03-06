@@ -9,7 +9,9 @@
 var request = require('api').request,
     Autolinker = require('autolinker'),
     missions = require('common/missions'),
-    templates = require('template_build/templates'),
+    newsTemplate = require('controller/section-profile/templates/news.hbs'),
+    missionNewsTemplate = require('controller/section-profile/templates/mission_news.hbs'),
+    questionNewsTemplate = require('controller/section-profile/templates/question_news.hbs'),
     vote = require('common/vote/vote').vote,
     settings = require('settings').settings,
     moment = require('moment');
@@ -47,7 +49,7 @@ export function init () {
                 if (data.results[i].type === "news_article") {
                     data.results[i].published = moment(data.results[i].published).format("dddd, MMMM Do YYYY, h:mm a");
                     // Until we have all the templates in handlebars lets just keep them in the array
-                    data.results[i].html = templates.news(data.results[i]);
+                    data.results[i].html = newsTemplate(data.results[i]);
                 } else if (data.results[i].type === "mission") {
                     data.results[i].title = missions.determineTitle(data.results[i]);
                     // TODO this should probably be done in the backend and saved off since it's just repeated all the time
@@ -64,7 +66,7 @@ export function init () {
                     }
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
                     // Until we have all the templates in handlebars lets just keep them in the array
-                    data.results[i].html = templates.mission_news(data.results[i]);
+                    data.results[i].html = missionNewsTemplate(data.results[i]);
                 } else if (data.results[i].type === "question") {
                     if(data.results[i].profile.id === settings.profile.username){
                         data.results[i].is_owner = true;
@@ -80,7 +82,7 @@ export function init () {
                     }
 
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
-                    data.results[i].html = templates.question_news(data.results[i]);
+                    data.results[i].html = questionNewsTemplate(data.results[i]);
                 }
                 $container.append(Autolinker.link(data.results[i].html));
                 enableContentFunctionality(data.results[i].id, data.results[i].type);

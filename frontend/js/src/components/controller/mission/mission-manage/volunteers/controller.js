@@ -1,5 +1,5 @@
 var request = require('api').request,
-    templates = require('template_build/templates'),
+    volunteerTableTemplate = require('common/templates/volunteer_table.hbs'),
     humanize = require('common/helpers').humanizeString,
     handlebarsHelpers = require('common/handlebars_helpers').installHandleBarsHelpers;
 
@@ -29,7 +29,7 @@ export function load() {
         .done(function (data) {
             for (var volunteerType in data) {
                 handlebarsHelpers();
-                $volunteerWrapper.append(templates.volunteer_table({
+                $volunteerWrapper.append(volunteerTableTemplate({
                     volunteer: data[volunteerType],
                     block_name: humanize(volunteerType)
                 }));

@@ -44,10 +44,12 @@ def js_settings(request):
                     if "/quests/%s/" % quest.owner_username in request.path or \
                             "/quests/%s/" % quest.object_uuid in request.path:
                         data['profile']['quest']['is_owner'] = True
+                    data['profile']['quest']['available_missions'] = False
                     if quest.account_type == "free":
                         data['profile']['quest']['free_quest'] = True
-                    if len(quest.missions) >= settings.FREE_MISSIONS:
-                        data['profile']['quest']['available_missions'] = True
+                        if len(quest.missions) >= settings.FREE_MISSIONS:
+                            data['profile']['quest'][
+                                'available_missions'] = True
                     stripe.api_key = settings.STRIPE_SECRET_KEY
                     if "quest" in request.path:
                         # If we're in a place where we're telling the user

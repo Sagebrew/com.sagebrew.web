@@ -9,7 +9,8 @@ from rest_framework.reverse import reverse
 
 from neomodel import db, DoesNotExist
 
-from api.utils import gather_request_data, clean_url, empty_text_to_none
+from api.utils import (gather_request_data, clean_url, empty_text_to_none,
+                       smart_truncate)
 from api.serializers import SBSerializer
 from sb_locations.serializers import LocationSerializer
 from sb_tags.neo_models import Tag
@@ -56,6 +57,7 @@ class MissionSerializer(SBSerializer):
         ('state_lower', "State Lower"),
         ('federal', "Federal"), ('state', "State")])
     location = serializers.SerializerMethodField()
+    title_summary = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         from sb_quests.neo_models import Quest, Position
@@ -233,7 +235,9 @@ class MissionSerializer(SBSerializer):
             remove_search_object(instance.object_uuid, 'mission')
         instance.completed = validated_data.pop(
             'completed', instance.completed)
-        instance.title = validated_data.pop('title', instance.title)
+        title = validated_data.pop('title', instance.title)
+        if empty_text_to_none(title) is not None:
+            instance.title = title
         instance.about = empty_text_to_none(
             validated_data.get('about', instance.about))
         instance.epic = validated_data.pop('epic', instance.epic)
@@ -317,3 +321,9 @@ class MissionSerializer(SBSerializer):
 
     def get_total_donation_amount(self, obj):
         return obj.get_total_donation_amount()
+
+    def get_title_summary(self, obj):
+        if obj.title is not None:
+            if len(obj.title) > 20:
+                return smart_truncate(obj.title, 20)
+        return obj.title

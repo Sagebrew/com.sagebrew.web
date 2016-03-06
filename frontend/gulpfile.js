@@ -17,7 +17,6 @@ var gulp = require('gulp'),
     es    = require('event-stream'),
     gutil = require('gulp-util'),
     minifycss = require('gulp-minify-css'),
-    del = require('del'),
     argv = require('yargs').argv;
 
 
@@ -54,13 +53,13 @@ var paths = {
         'js/vendor/formvalidation/formValidation.min.js',
         'js/vendor/formvalidation/bootstrap.min.js',
         'js/vendor/card.js',
-        '../sagebrew/static/js/vendor/spin.min.js',
-        '../sagebrew/static/js/vendor/jquery.spin.js',
-        '../sagebrew/static/js/vendor/foggy.min.js',
-        '../sagebrew/static/js/vendor/jquery.pagedown-bootstrap.combined.min.js',
-        '../sagebrew/static/js/vendor/sortable.min.js',
-        '../sagebrew/static/js/uuid.js',
-        '../sagebrew/static/js/sbcropic.js', // This is needed rather than bower becausae we've made custom mods
+        '../sagebrew/sagebrew/static/js/vendor/spin.min.js',
+        '../sagebrew/sagebrew/static/js/vendor/jquery.spin.js',
+        '../sagebrew/sagebrew/static/js/vendor/foggy.min.js',
+        '../sagebrew/sagebrew/static/js/vendor/jquery.pagedown-bootstrap.combined.min.js',
+        '../sagebrew/sagebrew/static/js/vendor/sortable.min.js',
+        '../sagebrew/sagebrew/static/js/uuid.js',
+        '../sagebrew/sagebrew/static/js/sbcropic.js', // This is needed rather than bower becausae we've made custom mods
                                             // to the file to resolve some issues and the package appears to
                                             // be primarily unmaintained now.
         '../sagebrew/static/js/sb_utils.js', // These need to updated to support the new JS structure.
@@ -80,31 +79,16 @@ var paths = {
     images: [
         'bower_components/lightbox2/dist/images/*',
         'bower_components/croppic/assets/img/*',
-        '../sagebrew/static/images/*.png',
-        '../sagebrew/static/images/*.gif',
-        '../sagebrew/static/images/*.jpg',
-        '../sagebrew/static/media/*',
+        '../sagebrew/sagebrew/static/images/*.png',
+        '../sagebrew/sagebrew/static/images/*.gif',
+        '../sagebrew/sagebrew/static/images/*.jpg',
+        '../sagebrew/sagebrew/static/media/*',
         'images/**'
 
     ]
 };
 
 var production = argv.env === 'production';
-
-//
-// TODO: Make this work. Clean BAF again.
-gulp.task('clean', function() {
-  return del(['dist']);
-});
-
-//
-// LR Server
-// TODO: make this work.
-gulp.task('lr-server', function() {
-    server.listen(35729, function(err) {
-        if(err) return console.log(err);
-    });
-});
 
 //
 // App Scripts - Lint
@@ -170,7 +154,7 @@ gulp.task('scripts:global', function () {
             .pipe(buffer())
             .pipe(gulpif(production, uglify())) // now gulp-uglify works
             .on('error', gutil.log)
-            .pipe(gulp.dest('../sagebrew/static/dist/js/'));
+            .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/js/'));
         });
 
     // create a merged stream
@@ -184,12 +168,15 @@ gulp.task('scripts:vendor', function () {
         .pipe(concat('vendor.js'))
         .pipe(gulpif(production, uglify()))
         .on('error', gutil.log)
-        .pipe(gulp.dest('../sagebrew/static/dist/js'));
+        .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/js'));
 });
 
 //
 // JS
-gulp.task('scripts', ['scripts:lint', 'scripts:global', 'scripts:vendor',
+gulp.task('scripts', [
+    'scripts:lint',
+    'scripts:global',
+    'scripts:vendor',
     'scripts:templates']);
 
 //
@@ -200,7 +187,7 @@ gulp.task('styles', function () {
         .on('error', gutil.log)
         .pipe(minifycss())
         .on('error', gutil.log)
-        .pipe(gulp.dest('../sagebrew/static/dist/css/'));
+        .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/css/'));
 });
 
 //
@@ -208,7 +195,7 @@ gulp.task('styles', function () {
 gulp.task('fonts', function() {
     return gulp.src(paths.fonts)
             .on('error', gutil.log)
-            .pipe(gulp.dest('../sagebrew/static/dist/fonts/'));
+            .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/fonts/'));
 });
 
 //
@@ -217,7 +204,7 @@ gulp.task('fonts', function() {
 gulp.task('images:hotfix', function() {
     return gulp.src(['css/vendor/img/**'])
             .on('error', gutil.log)
-           .pipe(gulp.dest('../sagebrew/static/dist/css/vendor/img/'));
+           .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/css/vendor/img/'));
 });
 
 //
@@ -225,7 +212,7 @@ gulp.task('images:hotfix', function() {
 gulp.task('images', ['images:hotfix'], function() {
     return gulp.src(paths.images)
             .on('error', gutil.log)
-            .pipe(gulp.dest('../sagebrew/static/dist/images/'));
+            .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/images/'));
 });
 
 

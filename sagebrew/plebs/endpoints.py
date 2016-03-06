@@ -746,16 +746,6 @@ class MeViewSet(mixins.UpdateModelMixin,
                 news_article = QuestionSerializerNeo(
                     Question.inflate(row.questions),
                     context={'request': request}).data
-                if html == "true":
-                    news_article['last_edited_on'] = parser.parse(
-                        news_article['last_edited_on']).replace(microsecond=0)
-                    news_article['created'] = parser.parse(
-                        news_article['created']).replace(microsecond=0)
-                    news_article['tags'] = [tag.replace('_', ' ')
-                                            for tag in news_article['tags']]
-                    article_html = render_to_string(
-                        'question_news.html', RequestContext(
-                            request, news_article))
             elif row.solutions is not None:
                 row.s_question.pull()
                 row.solutions.pull()
@@ -816,7 +806,8 @@ class MeViewSet(mixins.UpdateModelMixin,
                     context={'request': request}).data
             if html == "true":
                 if news_article['type'] != 'news_article' and \
-                        news_article['type'] != 'mission':
+                        news_article['type'] != 'mission' and \
+                        news_article['type'] != 'question':
                     news_article = {
                         "html": article_html,
                         "id": news_article['id'],

@@ -2,7 +2,10 @@
 var request = require('api').request,
     radioSelector = require('common/radioimage').radioSelector,
     helpers = require('common/helpers'),
-    templates = require('template_build/templates'),
+    positionHolderTemplate = require('../templates/position_holder.hbs'),
+    districtHolderTemplate = require('../templates/district_holder.hbs'),
+    districtOptionsTemplate = require('../templates/district_options.hbs'),
+    positionImageTemplate = require('../templates/position_image_radio.hbs'),
     settings = require('settings').settings,
     filterKey = 'politicianMissionLocationFilter',
     locationKey = 'politicianMissionLocationID',
@@ -27,7 +30,7 @@ export function load() {
         positionInput = $('#position-input');
     // We just loaded the app, jam in some place holders to look nice.
     // Didn't include directly in the Django template so we don't have duplicate formatting
-    positionSelector.innerHTML = templates.position_holder({static_url: settings.static_url});
+    positionSelector.innerHTML = positionHolderTemplate({static_url: settings.static_url});
     if(typeof(Storage) !== "undefined") {
         // Clear out all of the storage for the page, we're starting a new mission!
         localStorage.removeItem(locationKey);
@@ -95,8 +98,8 @@ export function load() {
                 // and clear the currently selected position and re-disable positions and districts
                 stateInput.disabled = true;
                 placeInput.disabled = true;
-                positionSelector.innerHTML = templates.position_holder({static_url: settings.static_url});
-                districtSelector.innerHTML = templates.district_holder();
+                positionSelector.innerHTML = positionHolderTemplate({static_url: settings.static_url});
+                districtSelector.innerHTML = districtHolderTemplate();
                 localStorage.removeItem(positionKey);
                 localStorage.removeItem(districtKey);
                 localStorage.removeItem(locationKey);
@@ -110,7 +113,7 @@ export function load() {
                 localStorage.removeItem(districtKey);
                 localStorage.removeItem(positionKey);
                 positionInputRow.classList.add('hidden');
-                districtSelector.innerHTML = templates.district_holder();
+                districtSelector.innerHTML = districtHolderTemplate();
             } else {
                 // If we select a level, enable the inputs
                 stateInput.disabled = false;
@@ -126,7 +129,7 @@ export function load() {
                     districtRow.classList.add('hidden');
                     localStorage.setItem(filterKey, "local");
                     localStorage.setItem(levelKey, "local");
-                    positionSelector.innerHTML = templates.position_holder({static_url: settings.static_url});
+                    positionSelector.innerHTML = positionHolderTemplate({static_url: settings.static_url});
                     placeInput.value = "";
                 } else if (this.id === "state-selection"){
                     // The state level was selected
@@ -234,7 +237,7 @@ function districtSelection(level, stateInput, placeInput, positionSelector) {
         // to remove the location key and reset the state input to 0.
         localStorage.removeItem(locationKey);
         stateInput.selectedIndex = 0;
-        positionSelector.innerHTML = templates.position_holder({static_url: settings.static_url});
+        positionSelector.innerHTML = positionHolderTemplate({static_url: settings.static_url});
     }
     stateInput.classList.remove('hidden');
     placeInput.classList.add('hidden');
@@ -267,7 +270,7 @@ function districtSelection(level, stateInput, placeInput, positionSelector) {
     // We do this like this so we don't bind or try to change a element that is consistently
     // changing. It enables us to bind to the parent div that remains stable and eliminates
     // race conditions.
-    document.getElementById('js-district-selector').innerHTML = templates.district_holder();
+    document.getElementById('js-district-selector').innerHTML = districtHolderTemplate();
 }
 
 function checkIfDistricts(identifier, districtRow, positionInputRow) {
@@ -359,7 +362,7 @@ function initAutocomplete() {
          * This selection always changes the positions and districts which is why this is necessary
          */
         localStorage.removeItem(positionKey);
-        document.getElementById('js-district-selector').innerHTML = templates.district_holder();
+        document.getElementById('js-district-selector').innerHTML = districtHolderTemplate();
         request.post({url: '/v1/locations/async_add/', data: JSON.stringify(place)});
     });
 
@@ -380,7 +383,7 @@ function initAutocomplete() {
              * This selection always changes the positions and districts which is why this is necessary
              */
             localStorage.removeItem(positionKey);
-            document.getElementById('js-district-selector').innerHTML = templates.district_holder();
+            document.getElementById('js-district-selector').innerHTML = districtHolderTemplate();
             request.post({url: '/v1/locations/async_add/', data: JSON.stringify(place)});
         }
     }
@@ -400,7 +403,7 @@ function fillDistricts(filterParam) {
                 context = {name: name};
                 districtList.push(context);
             }
-            document.getElementById('js-district-selector').innerHTML = templates.district_options({districts: districtList, option_holder: "Select a District"});
+            document.getElementById('js-district-selector').innerHTML = districtOptionsTemplate({districts: districtList, option_holder: "Select a District"});
         });
 }
 
@@ -444,7 +447,7 @@ function fillPositions(identifier) {
                 image_path: settings.static_url + "images/glass_bw.png"
             };
             positionList.push(context);
-            document.getElementById('js-position-selector').innerHTML = templates.position_image_radio({positions: positionList});
+            document.getElementById('js-position-selector').innerHTML = positionImageTemplate({positions: positionList});
         });
 
 

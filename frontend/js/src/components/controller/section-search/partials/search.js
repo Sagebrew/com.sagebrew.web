@@ -2,7 +2,11 @@ var request = require('api').request,
     settings = require('settings').settings,
     getArgs = require('common/helpers').getQueryParam,
     moment = require('moment'),
-    templates = require('template_build/templates'),
+    emptySearchTemplate = require('../templates/search_empty.hbs'),
+    questionSearchTemplate = require('../templates/question_search.hbs'),
+    profileSearchTemplate = require('../templates/user_search.hbs'),
+    questSearchTemplate = require('../templates/quest_search.hbs'),
+    missionSearchTemplate = require('../templates/mission_search.hbs'),
     handlebarsHelpers = require('common/handlebars_helpers').installHandleBarsHelpers;
 
 
@@ -14,7 +18,7 @@ export function submitSearch() {
         .done(function (data) {
             $(".loader").remove();
             if (data.results.length === 0) {
-                searchResults.innerHTML += templates.search_empty();
+                searchResults.innerHTML += emptySearchTemplate();
             }
             $.each(data.results, function(index, value) {
                 var source = value._source;
@@ -22,15 +26,15 @@ export function submitSearch() {
                     source.created = moment.parseZone(value._source.created).fromNow();
                     source.last_edited_on = moment.parseZone(value._source.last_edited_on).fromNow();
                     source.current_username = settings.user.username;
-                    searchResults.innerHTML += templates.question_search(value._source);
+                    searchResults.innerHTML += questionSearchTemplate(value._source);
                 } else if (value._type === 'profile') {
                     source.current_username = settings.user.username;
-                    searchResults.innerHTML += templates.user_search(source);
+                    searchResults.innerHTML += profileSearchTemplate(source);
                 } else if (value._type === 'campaign' || value._type === 'politicalcampaign' || value._type === "quest") {
                     if (!source.title) {
                         source.title = source.first_name + " " + source.last_name;
                     }
-                    searchResults.innerHTML += templates.quest_search(value._source);
+                    searchResults.innerHTML += questSearchTemplate(value._source);
                 } else if (value._type === 'mission') {
                     if (!source.profile_pic) {
                         source.profile_pic = source.quest.profile_pic;
@@ -38,7 +42,7 @@ export function submitSearch() {
                     if (!source.quest.title) {
                         source.quest.title = source.quest.first_name + " " + source.quest.last_name;
                     }
-                    searchResults.innerHTML += templates.mission_search(value._source);
+                    searchResults.innerHTML += missionSearchTemplate(value._source);
                 }
             });
     });

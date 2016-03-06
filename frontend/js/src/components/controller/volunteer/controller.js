@@ -1,6 +1,6 @@
 var helpers = require('common/helpers'),
     request = require('api').request,
-    templates = require('template_build/templates');
+    volunteerTemplate = require('controller/volunteer/templates/volunteer_selector.hbs');
 
 export const meta = {
     controller: "volunteer",
@@ -31,7 +31,7 @@ export function load() {
     request.optionsMethod({url:"/v1/missions/" + missionId + "/volunteers/"})
         .done(function (data) {
             document.getElementById("select-loader").remove();
-            $selectAllList.append(templates.volunteer_selector({
+            $selectAllList.append(volunteerTemplate({
                 options: data.actions.POST.activities.choices}));
             helpers.selectAllFields('#js-select-all');
             request.get({url:"/v1/missions/" + missionId + "/volunteers/me/"})

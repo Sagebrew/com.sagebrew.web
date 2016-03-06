@@ -1,7 +1,7 @@
 var request = require('api').request,
     missions = require('common/missions'),
     settings = require('settings').settings,
-    templates = require('template_build/templates');
+    missionListBlockTemplate = require('controller/mission/mission-list/templates/mission_list_block.hbs');
 
 export const meta = {
     controller: "mission/mission-list",
@@ -105,7 +105,7 @@ function loadMissions(affectsFilter) {
                     data.results[i].wallpaper_pic = settings.static_url + "images/wallpaper_capitol_2.jpg";
                 }
             }
-            $missionContainer.append(templates.mission_list_block({missions: data.results}));
+            $missionContainer.append(missionListBlockTemplate({missions: data.results}));
         }
     });
 }

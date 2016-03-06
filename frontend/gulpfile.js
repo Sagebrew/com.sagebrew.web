@@ -3,8 +3,8 @@ var gulp = require('gulp'),
     handlebars = require('gulp-handlebars'),
     concat = require('gulp-concat'),
     browserify = require('browserify'),
-    bulkify = require('bulkify'),
     globify = require('require-globify'),
+    hbsfy = require('hbsfy'),
     babelify = require("babelify"),
     less = require('gulp-less'),
     wrap = require('gulp-wrap'),
@@ -17,7 +17,6 @@ var gulp = require('gulp'),
     es    = require('event-stream'),
     gutil = require('gulp-util'),
     minifycss = require('gulp-minify-css'),
-    del = require('del'),
     argv = require('yargs').argv;
 
 
@@ -54,18 +53,24 @@ var paths = {
         'js/vendor/formvalidation/formValidation.min.js',
         'js/vendor/formvalidation/bootstrap.min.js',
         'js/vendor/card.js',
-        '../sagebrew/static/js/vendor/spin.min.js',
-        '../sagebrew/static/js/vendor/jquery.spin.js',
-        '../sagebrew/static/js/vendor/foggy.min.js',
-        '../sagebrew/static/js/vendor/jquery.pagedown-bootstrap.combined.min.js',
-        '../sagebrew/static/js/vendor/sortable.min.js',
-        '../sagebrew/static/js/uuid.js',
-        '../sagebrew/static/js/sbcropic.js', // This is needed rather than bower becausae we've made custom mods
-                                            // to the file to resolve some issues and the package appears to
-                                            // be primarily unmaintained now.
-        '../sagebrew/static/js/sb_utils.js', // These need to updated to support the new JS structure.
-                          // Considering them global vendor like scripts for now. to prevent the site from breaking.
-        '../sagebrew/static/js/sign_up_btn.js'
+        'js/vendor/spin.min.js',
+        'js/vendor/jquery.spin.js',
+        'js/vendor/foggy.min.js',
+        'js/vendor/jquery.pagedown-bootstrap.combined.min.js',
+        'js/vendor/sortable.min.js',
+
+
+        /**
+         *  Various "legacy" Js Files still in use somewhere.
+         *
+         *  sbcroppic: This is needed rather than bower because we've made custom mods
+         *  to the file to resolve some issues and the package appears to
+         *  be primarily unmaintained now.
+         */
+        'js/legacy/uuid.js',
+        'js/legacy/sbcropic.js',
+        'js/legacy/sb_utils.js',
+        'js/legacy/sign_up_btn.js'
     ],
     global_modules: [
         'js/src/sagebrew.js'
@@ -75,36 +80,19 @@ var paths = {
     ],
     fonts: [
         'bower_components/fontawesome/fonts/*',
-        'fonts/**'
+        'assets/fonts/**'
+    ],
+    videos: [
+        'assets/videos/**'
     ],
     images: [
         'bower_components/lightbox2/dist/images/*',
         'bower_components/croppic/assets/img/*',
-        '../sagebrew/static/images/*.png',
-        '../sagebrew/static/images/*.gif',
-        '../sagebrew/static/images/*.jpg',
-        '../sagebrew/static/media/*',
-        'images/**'
-
+        'assets/images/**'
     ]
 };
 
 var production = argv.env === 'production';
-
-//
-// TODO: Make this work. Clean BAF again.
-gulp.task('clean', function() {
-  return del(['dist']);
-});
-
-//
-// LR Server
-// TODO: make this work.
-gulp.task('lr-server', function() {
-    server.listen(35729, function(err) {
-        if(err) return console.log(err);
-    });
-});
 
 //
 // App Scripts - Lint
@@ -155,7 +143,10 @@ gulp.task('scripts:global', function () {
                 './js/src/components'
             ]
         });
-        bundler.transform(babelify);
+
+
+        bundler.transform(babelify, {presets: ["es2015", "react"]});
+        bundler.transform(hbsfy);
         bundler.transform(globify);
 
         bundler.require(__dirname + "/" + entry, { expose: module_name});
@@ -170,7 +161,7 @@ gulp.task('scripts:global', function () {
             .pipe(buffer())
             .pipe(gulpif(production, uglify())) // now gulp-uglify works
             .on('error', gutil.log)
-            .pipe(gulp.dest('../sagebrew/static/dist/js/'));
+            .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/js/'));
         });
 
     // create a merged stream
@@ -184,12 +175,15 @@ gulp.task('scripts:vendor', function () {
         .pipe(concat('vendor.js'))
         .pipe(gulpif(production, uglify()))
         .on('error', gutil.log)
-        .pipe(gulp.dest('../sagebrew/static/dist/js'));
+        .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/js'));
 });
 
 //
 // JS
-gulp.task('scripts', ['scripts:lint', 'scripts:global', 'scripts:vendor',
+gulp.task('scripts', [
+    'scripts:lint',
+    'scripts:global',
+    'scripts:vendor',
     'scripts:templates']);
 
 //
@@ -200,49 +194,66 @@ gulp.task('styles', function () {
         .on('error', gutil.log)
         .pipe(minifycss())
         .on('error', gutil.log)
-        .pipe(gulp.dest('../sagebrew/static/dist/css/'));
+        .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/css/'));
 });
+
 
 //
 // Fonts
-gulp.task('fonts', function() {
+gulp.task('assets:fonts', function() {
     return gulp.src(paths.fonts)
             .on('error', gutil.log)
-            .pipe(gulp.dest('../sagebrew/static/dist/fonts/'));
+            .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/fonts/'));
+});
+
+//
+// videos
+gulp.task('assets:videos', function() {
+    return gulp.src(paths.videos)
+            .on('error', gutil.log)
+            .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/videos/'));
 });
 
 //
 // Hotfix for lightbox images.
 // TODO: Fix.
-gulp.task('images:hotfix', function() {
+gulp.task('assets:imageshotfix', function() {
     return gulp.src(['css/vendor/img/**'])
             .on('error', gutil.log)
-           .pipe(gulp.dest('../sagebrew/static/dist/css/vendor/img/'));
+           .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/css/vendor/img/'));
 });
 
 //
 // Images
-gulp.task('images', ['images:hotfix'], function() {
+gulp.task('assets:images',  function() {
     return gulp.src(paths.images)
             .on('error', gutil.log)
-            .pipe(gulp.dest('../sagebrew/static/dist/images/'));
+            .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/images/'));
 });
 
+
+//
+// Assets
+gulp.task('assets', [
+    'assets:fonts',
+    'assets:videos',
+    'assets:imageshotfix',
+    'assets:images']);
 
 //
 // Default task.
 gulp.task('watch', function () {
     'use strict';
     gulp.watch(paths.styles, ['styles']);
-    gulp.watch(['js/src/**'], ['scripts:lint', 'scripts:global',
+    gulp.watch(['./js/src/**', '!./js/src/components/template_build'], ['scripts:lint', 'scripts:global',
         'scripts:templates']);
 
 });
 
 //
 // Build
-gulp.task('build', ['scripts', 'styles', 'images', 'fonts']);
+gulp.task('build', ['scripts', 'styles', 'assets']);
 
 //
 // Default task.
-gulp.task('default', ['watch', 'scripts', 'styles', 'images', 'fonts']);
+gulp.task('default', ['watch', 'scripts', 'styles', 'assets']);

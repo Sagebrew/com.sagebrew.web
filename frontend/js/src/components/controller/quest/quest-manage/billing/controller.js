@@ -1,6 +1,5 @@
 /*global Stripe*/
-var //// templates = require('template_build/templates'),
-    helpers = require('common/helpers'),
+var helpers = require('common/helpers'),
     settings = require('settings').settings,
     moment = require('moment');
 
@@ -13,6 +12,7 @@ export const meta = {
     check: [
        "^quests\/[A-Za-z0-9.@_%+-]{1,36}\/manage\/billing"
     ]
+
 };
 
 
@@ -27,6 +27,7 @@ export function init() {
  * Load
  */
 export function load() {
+
     var $app = $(".app-sb"),
         questID = helpers.args(1),
         paymentInfo = document.getElementById('js-payment-info-block'),

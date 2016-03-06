@@ -53,18 +53,24 @@ var paths = {
         'js/vendor/formvalidation/formValidation.min.js',
         'js/vendor/formvalidation/bootstrap.min.js',
         'js/vendor/card.js',
-        '../sagebrew/sagebrew/static/js/vendor/spin.min.js',
-        '../sagebrew/sagebrew/static/js/vendor/jquery.spin.js',
-        '../sagebrew/sagebrew/static/js/vendor/foggy.min.js',
-        '../sagebrew/sagebrew/static/js/vendor/jquery.pagedown-bootstrap.combined.min.js',
-        '../sagebrew/sagebrew/static/js/vendor/sortable.min.js',
-        '../sagebrew/sagebrew/static/js/uuid.js',
-        '../sagebrew/sagebrew/static/js/sbcropic.js', // This is needed rather than bower becausae we've made custom mods
-                                            // to the file to resolve some issues and the package appears to
-                                            // be primarily unmaintained now.
-        '../sagebrew/static/js/sb_utils.js', // These need to updated to support the new JS structure.
-                          // Considering them global vendor like scripts for now. to prevent the site from breaking.
-        '../sagebrew/static/js/sign_up_btn.js'
+        'js/vendor/spin.min.js',
+        'js/vendor/jquery.spin.js',
+        'js/vendor/foggy.min.js',
+        'js/vendor/jquery.pagedown-bootstrap.combined.min.js',
+        'js/vendor/sortable.min.js',
+
+
+        /**
+         *  Various "legacy" Js Files still in use somewhere.
+         *
+         *  sbcroppic: This is needed rather than bower because we've made custom mods
+         *  to the file to resolve some issues and the package appears to
+         *  be primarily unmaintained now.
+         */
+        'js/legacy/uuid.js',
+        'js/legacy/sbcropic.js',
+        'js/legacy/sb_utils.js',
+        'js/legacy/sign_up_btn.js'
     ],
     global_modules: [
         'js/src/sagebrew.js'
@@ -74,17 +80,15 @@ var paths = {
     ],
     fonts: [
         'bower_components/fontawesome/fonts/*',
-        'fonts/**'
+        'assets/fonts/**'
+    ],
+    videos: [
+        'assets/videos/**'
     ],
     images: [
         'bower_components/lightbox2/dist/images/*',
         'bower_components/croppic/assets/img/*',
-        '../sagebrew/sagebrew/static/images/*.png',
-        '../sagebrew/sagebrew/static/images/*.gif',
-        '../sagebrew/sagebrew/static/images/*.jpg',
-        '../sagebrew/sagebrew/static/media/*',
-        'images/**'
-
+        'assets/images/**'
     ]
 };
 
@@ -190,18 +194,27 @@ gulp.task('styles', function () {
         .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/css/'));
 });
 
+
 //
 // Fonts
-gulp.task('fonts', function() {
+gulp.task('assets:fonts', function() {
     return gulp.src(paths.fonts)
             .on('error', gutil.log)
             .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/fonts/'));
 });
 
 //
+// videos
+gulp.task('assets:videos', function() {
+    return gulp.src(paths.videos)
+            .on('error', gutil.log)
+            .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/videos/'));
+});
+
+//
 // Hotfix for lightbox images.
 // TODO: Fix.
-gulp.task('images:hotfix', function() {
+gulp.task('assets:imageshotfix', function() {
     return gulp.src(['css/vendor/img/**'])
             .on('error', gutil.log)
            .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/css/vendor/img/'));
@@ -209,12 +222,21 @@ gulp.task('images:hotfix', function() {
 
 //
 // Images
-gulp.task('images', ['images:hotfix'], function() {
+gulp.task('assets:images',  function() {
     return gulp.src(paths.images)
             .on('error', gutil.log)
             .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/images/'));
 });
 
+
+//
+// Assets
+gulp.task('assets', [
+    'assets:fonts',
+    'assets:videos',
+    'assets:imageshotfix',
+    'assets:images',
+    'scripts:templates']);
 
 //
 // Default task.
@@ -228,8 +250,8 @@ gulp.task('watch', function () {
 
 //
 // Build
-gulp.task('build', ['scripts', 'styles', 'images', 'fonts']);
+gulp.task('build', ['scripts', 'styles', 'assets']);
 
 //
 // Default task.
-gulp.task('default', ['watch', 'scripts', 'styles', 'images', 'fonts']);
+gulp.task('default', ['watch', 'scripts', 'styles', 'assets']);

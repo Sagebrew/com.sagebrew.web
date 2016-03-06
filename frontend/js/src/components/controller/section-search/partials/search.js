@@ -2,11 +2,11 @@ var request = require('api').request,
     settings = require('settings').settings,
     getArgs = require('common/helpers').getQueryParam,
     moment = require('moment'),
-    emptySearchTemplate = require('controller/section-search/templates/search_empty.hbs'),
-    questionSearchTemplate = require('controller/section-search/templates/question_search.hbs'),
-    profileSearchTemplate = require('controller/section-search/templates/user_search.hbs'),
-    questSearchTemplate = require('controller/section-search/templates/quest_search.hbs'),
-    missionSearchTemplate = require('controller/section-search/templates/mission_search.hbs'),
+    emptySearchTemplate = require('../templates/search_empty.hbs'),
+    questionSearchTemplate = require('../templates/question_search.hbs'),
+    profileSearchTemplate = require('../templates/user_search.hbs'),
+    questSearchTemplate = require('../templates/quest_search.hbs'),
+    missionSearchTemplate = require('../templates/mission_search.hbs'),
     handlebarsHelpers = require('common/handlebars_helpers').installHandleBarsHelpers;
 
 

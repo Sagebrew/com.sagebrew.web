@@ -145,7 +145,7 @@ gulp.task('scripts:global', function () {
 
 
         bundler.transform(babelify, {presets: ["es2015", "react"]});
-        bundler.transform(hbsfy);
+        bundler.transform(hbsfy,  { traverse: true });
         bundler.transform(globify);
 
         bundler.require(__dirname + "/" + entry, { expose: module_name});

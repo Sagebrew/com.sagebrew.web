@@ -26,7 +26,7 @@ export function populateMissions(loadElement, questID){
                 data.results[i].title = determineTitle(data.results[i]);
             }
             var missionLoaderPackage;
-            if(settings.profile.quest === null || settings.profile.quest === "undefined" || settings.profile.quest === undefined){
+            if(settings.profile === null || settings.profile === "undefined" || settings.profile === undefined){
                 missionLoaderPackage = {
                     missions: data.results,
                     static_url: settings.static_url,
@@ -35,14 +35,25 @@ export function populateMissions(loadElement, questID){
                     is_owner: false
                 }
             } else {
-                missionLoaderPackage = {
-                    missions: data.results,
-                    static_url: settings.static_url,
-                    free_account: settings.profile.quest.free_quest,
-                    available_missions: settings.profile.quest.available_missions,
-                    is_owner: settings.profile.quest.is_owner
-                };
+                if(settings.profile.quest === null || settings.profile.quest === "undefined" || settings.profile.quest === undefined){
+                    missionLoaderPackage = {
+                        missions: data.results,
+                        static_url: settings.static_url,
+                        free_account: true,
+                        available_missions: false,
+                        is_owner: false
+                    }
+                } else {
+                    missionLoaderPackage = {
+                        missions: data.results,
+                        static_url: settings.static_url,
+                        free_account: settings.profile.quest.free_quest,
+                        available_missions: settings.profile.quest.available_missions,
+                        is_owner: settings.profile.quest.is_owner
+                    };
+                }
             }
+
             $missionContainer.append(templates.mission_summary(missionLoaderPackage));
         }
     });

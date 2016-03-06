@@ -1,0 +1,20 @@
+<div class="block">
+    <div class="block-title">
+        <a href="{{ url }}">
+            Mission: {{ title }}
+        </a>
+    </div>
+    <div class="block-content" style="padding-top: 0; padding-bottom: 0;">
+        <small>{{ created }}</small>
+        <small class="pull-right">
+           <i class="fa fa-users" style="margin-right: 10px;"></i>Public
+        </small>
+    </div>
+    <div class="block-content">
+        <div class="image-wrapper">
+            <!-- <a href="{{ wallpaper_pic }}" data-lightbox="{{ id }}"><img alt="{{title}}" class="sb-post-image sb-post-image-tall js-enlarge-post-image" src="{{ main_image }}"></a>
+            --><a href="{{ url }}"><img alt="{{ title }}" class="sb-post-image js-enlarge-post-image" src="{{ wallpaper_pic }}"></a>
+        </div>
+        <p>{{ summary }}</p>
+    </div>
+</div>

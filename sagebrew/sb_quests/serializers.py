@@ -253,13 +253,12 @@ class QuestSerializer(SBSerializer):
         # ** Managed Account Setup **
         if stripe_token is not None:
             if instance.stripe_id is None or instance.stripe_id == "Not Set":
-                stripe_res = stripe.Account.create(managed=True, country="US",
-                                                   email=owner.email)
-                instance.stripe_id = stripe_res['id']
+                account = stripe.Account.create(managed=True, country="US",
+                                                email=owner.email)
+                instance.stripe_id = account['id']
+            else:
+                account = stripe.Account.retrieve(instance.stripe_id)
 
-            # TODO is this necessary or can we use the repsonse from the
-            # creation?
-            account = stripe.Account.retrieve(instance.stripe_id)
             try:
                 account.external_accounts.create(external_account=stripe_token)
             except InvalidRequestError:

@@ -1,0 +1,33 @@
+<div class="block">
+    <div class="block-title">
+        <a href="{{ url }}">
+            Question: {{ title }}
+        </a>
+    </div>
+    <div class="block-content" style="padding-top: 0; padding-bottom: 0;">
+        <small>Author: <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>  <b>&middot;</b>
+            Topics: {{ tags_formatted }} <b>&middot;</b>
+            {{ created }} </small>
+        <small class="pull-right">
+           <i class="fa fa-users" style="margin-right: 10px;"></i>Public
+        </small>
+    </div>
+    <div class="block-content">
+        <div class="row">
+            <div class="hidden-xs col-sm-1 sb_vote_wrapper">
+                <div class="vote_lg vote_count_large">
+                    {{> vote id=id restricted=restricted
+                    is_owner=is_owner has_reputation=has_reputation
+                    vote_count=vote_count upvote=upvote downvote=downvote type=type}}
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-11">
+                <div class="sb-content-body-news">
+                    <div class="sb_markdown block-vertical-news">
+                        {{{ html_content }}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

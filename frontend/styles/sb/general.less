@@ -46,7 +46,7 @@ h6 {
 }
 
 p {
-  font-size: 18px;
+  font-size: 16px;
   line-height: 25px;
 }
 
@@ -1068,7 +1068,7 @@ a {
   padding-right: 15px;
 }
 .sb_content_body{
-  font-size: 12pt;
+  font-size: 16pt;
   hanging-punctuation: force-end;
   min-height: 65px;
   border-radius: @sb_common_radius;
@@ -1090,7 +1090,7 @@ a {
 }
 .sb_post_body{
   margin-left: @sb_common_margin_positive;
-  font-size: 12pt;
+  font-size: 16px;
   padding: @sb_common_padding_positive;
   margin-bottom: @sb_common_margin_positive;
   hanging-punctuation: force-end;
@@ -1250,7 +1250,7 @@ textarea.sb_comment_input{
 .sb_restricted{
   color: @sb_green_extra_light;
   :hover{
-    color: @sb_green_extra_light;
+    color: @sb_green_extra_light !important;
   }
 }
 
@@ -1535,6 +1535,23 @@ textarea.sb_comment_input{
   display: inline-block;
   vertical-align: text-top;
 }
+
+.image-wrapper {
+  max-height: 500px;
+  vertical-align: middle;
+  text-align: center;
+  overflow: hidden;
+  margin-bottom: 20px;
+  img {
+    max-width: 100%;
+    max-height: 300px;
+    cursor: pointer;
+  }
+  img.sb-post-image-tall {
+    margin-top: -50%;
+  }
+}
+
 .sb-post-image-wrapper {
   position: relative;
   float: left;

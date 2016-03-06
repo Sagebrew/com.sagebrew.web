@@ -1,8 +1,11 @@
+from logging import getLogger
 from celery import shared_task
 
 from api.utils import spawn_task
 
 from .utils import create_tag_relations_util, update_tags_util
+
+logger = getLogger("loggly_logs")
 
 
 @shared_task()

@@ -1,12 +1,13 @@
 var request = require('api').request,
-    templates = require('template_build/templates'),
+    positionHolderTemplate = require('controller/mission/political-mission/templates/position_holder.hbs'),
+    missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summary.hbs'),
     settings = require('settings').settings;
 
 export function populateMissions(loadElement, questID){
     var $missionList = $('#js-mission-list'),
         $missionContainer = $('#js-mission-container');
     $missionList.sb_contentLoader({
-        emptyDataMessage: templates.position_holder({static_url: settings.static_url}),
+        emptyDataMessage: positionHolderTemplate({static_url: settings.static_url}),
         url: '/v1/quests/' + questID + '/missions/',
         loadingMoreItemsMessage: "",
         loadMoreMessage: "",
@@ -25,15 +26,36 @@ export function populateMissions(loadElement, questID){
             for(var i=0; i < data.results.length; i++){
                 data.results[i].title = determineTitle(data.results[i]);
             }
-            $missionContainer.append(templates.mission_summary(
-                {
+            var missionLoaderPackage;
+            if(settings.profile === null || settings.profile === "undefined" || settings.profile === undefined){
+                missionLoaderPackage = {
                     missions: data.results,
                     static_url: settings.static_url,
-                    free_account: settings.profile.quest.free_quest,
-                    available_missions: settings.profile.quest.available_missions,
-                    is_owner: settings.profile.quest.is_owner
+                    free_account: true,
+                    available_missions: false,
+                    is_owner: false
+                };
+            } else {
+                if(settings.profile.quest === null || settings.profile.quest === "undefined" || settings.profile.quest === undefined){
+                    missionLoaderPackage = {
+                        missions: data.results,
+                        static_url: settings.static_url,
+                        free_account: true,
+                        available_missions: false,
+                        is_owner: false
+                    };
+                } else {
+                    missionLoaderPackage = {
+                        missions: data.results,
+                        static_url: settings.static_url,
+                        free_account: settings.profile.quest.free_quest,
+                        available_missions: settings.profile.quest.available_missions,
+                        is_owner: settings.profile.quest.is_owner
+                    };
                 }
-            ));
+            }
+
+            $missionContainer.append(missionSummaryTemplate(missionLoaderPackage));
         }
     });
 }

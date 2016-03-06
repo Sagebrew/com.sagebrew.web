@@ -3,7 +3,8 @@
  * TODO refactor and include the above globals.
  */
 var request = require('api').request,
-    templates = require('template_build/templates'),
+    commentInputTemplate = require('common/templates/comment_input.hbs'),
+    showMoreCommentsTemplate = require('common/templates/show_more_comments.hbs'),
     helpers = require('common/helpers');
 
 function queryComments(url, objectUuid) {
@@ -35,7 +36,7 @@ export function load () {
             }
             commentInput.classList.remove('hidden');
             this.classList.add('hidden');
-            commentInput.innerHTML = templates.comment_input({
+            commentInput.innerHTML = commentInputTemplate({
                 parent_type: parent.dataset.type,
                 parent_id: parent.dataset.id,
                 placeholder_text: placeHolderText
@@ -89,7 +90,7 @@ export function load () {
                         'additional-comment-wrapper-' + commentSection.dataset.id);
                     if (additionalCommentWrapper !== null) {
                         additionalCommentWrapper.remove();
-                        $(commentContainer).append(templates.show_more_comments({id: commentSection.dataset.id}));
+                        $(commentContainer).append(showMoreCommentsTemplate({id: commentSection.dataset.id}));
                     }
                     textArea.value = "";
                     enableCommentFunctionality(data.ids);

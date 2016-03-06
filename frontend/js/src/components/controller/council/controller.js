@@ -1,5 +1,5 @@
 var request = require('api').request,
-    templates = require('template_build/templates'),
+    unverifiedPositionTemplate = require('controller/council/templates/unverified_positions.hbs'),
     moment = require('moment');
 
 
@@ -25,7 +25,7 @@ export function load() {
     var positionWrapper = $("#js-position-verification-wrapper");
     request.get({url: "/v1/council/positions/"})
         .done(function(data){
-            positionWrapper.append(templates.unverified_positions({positions:data}));
+            positionWrapper.append(unverifiedPositionTemplate({positions:data}));
             $(".position-created").each(function(){
                 var $this = $(this),
                     momentTime = moment($this.html()).format("dddd, MMMM Do YYYY, h:mm a");

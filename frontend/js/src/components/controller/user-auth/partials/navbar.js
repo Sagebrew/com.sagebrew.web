@@ -5,7 +5,7 @@
  * App: .app-navbar
  */
 var request = require('api').request,
-    templates = require('template_build/templates'),
+    notificationTemplate = require('controller/user-auth/templates/notifications.hbs'),
     settings = require('settings').settings;
 
 
@@ -26,7 +26,7 @@ export function navbar() {
 
         //Notifications
         if (notificationData[0].count) {
-            notifications = templates.notifications({
+            notifications = notificationTemplate({
                 default_profile: settings.default_profile_pic,
                 notifications: notificationData[0].results
             });

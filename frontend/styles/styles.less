@@ -1,62 +1,60 @@
 //
 // VARIABLES
 // -------------------------------------------------
-@import "variables/bootstrap-variables";
-@import "variables/flatui-variables";
-@import "variables/sb-variables";
+@import "sb-variables";
 
 //
 // BOOTSTRAP
 // -------------------------------------------------
 // Core variables and mixins
-@import "../bower_components/bootstrap/less/mixins";
+@import "bootstrap/less/mixins";
 
 // Reset and dependencies
-@import "../bower_components/bootstrap/less/normalize";
-@import "../bower_components/bootstrap/less/print";
-//@import "../bower_components/bootstrap/less/glyphicons";
+@import "bootstrap/less/normalize";
+@import "bootstrap/less/print";
+//@import "bootstrap/less/glyphicons";
 
 // Core CSS
-@import "../bower_components/bootstrap/less/scaffolding";
-@import "../bower_components/bootstrap/less/type";
-@import "../bower_components/bootstrap/less/code"; // Needed for preformatted text
-@import "../bower_components/bootstrap/less/grid";
-@import "../bower_components/bootstrap/less/tables";
-@import "../bower_components/bootstrap/less/forms";
-@import "../bower_components/bootstrap/less/buttons";
+@import "bootstrap/less/scaffolding";
+@import "bootstrap/less/type";
+@import "bootstrap/less/code"; // Needed for preformatted text
+@import "bootstrap/less/grid";
+@import "bootstrap/less/tables";
+@import "bootstrap/less/forms";
+@import "bootstrap/less/buttons";
 
 // Components
-@import "../bower_components/bootstrap/less/component-animations";
-@import "../bower_components/bootstrap/less/dropdowns";
-@import "../bower_components/bootstrap/less/button-groups";
-@import "../bower_components/bootstrap/less/input-groups";
-@import "../bower_components/bootstrap/less/navs";
-@import "../bower_components/bootstrap/less/navbar";
-//@import "../bower_components/bootstrap/less/breadcrumbs";
-//@import "../bower_components/bootstrap/less/pagination";
-//@import "../bower_components/bootstrap/less/pager";
-@import "../bower_components/bootstrap/less/labels";
-//@import "../bower_components/bootstrap/less/badges";
-//@import "../bower_components/bootstrap/less/jumbotron";
-@import "../bower_components/bootstrap/less/thumbnails";
-@import "../bower_components/bootstrap/less/alerts";
-@import "../bower_components/bootstrap/less/progress-bars";
-//@import "../bower_components/bootstrap/less/media";
-@import "../bower_components/bootstrap/less/list-group";
-//@import "../bower_components/bootstrap/less/panels";
-@import "../bower_components/bootstrap/less/responsive-embed";
-//@import "../bower_components/bootstrap/less/wells";
-@import "../bower_components/bootstrap/less/close";
+@import "bootstrap/less/component-animations";
+@import "bootstrap/less/dropdowns";
+@import "bootstrap/less/button-groups";
+@import "bootstrap/less/input-groups";
+@import "bootstrap/less/navs";
+@import "bootstrap/less/navbar";
+//@import "bootstrap/less/breadcrumbs";
+//@import "bootstrap/less/pagination";
+//@import "bootstrap/less/pager";
+@import "bootstrap/less/labels";
+//@import "bootstrap/less/badges";
+//@import "bootstrap/less/jumbotron";
+@import "bootstrap/less/thumbnails";
+@import "bootstrap/less/alerts";
+@import "bootstrap/less/progress-bars";
+//@import "bootstrap/less/media";
+@import "bootstrap/less/list-group";
+//@import "bootstrap/less/panels";
+@import "bootstrap/less/responsive-embed";
+//@import "bootstrap/less/wells";
+@import "bootstrap/less/close";
 
 // Components w/ JavaScript
-@import "../bower_components/bootstrap/less/modals";
-@import "../bower_components/bootstrap/less/tooltip";
-@import "../bower_components/bootstrap/less/popovers";
-//@import "../bower_components/bootstrap/less/carousel";
+@import "bootstrap/less/modals";
+@import "bootstrap/less/tooltip";
+@import "bootstrap/less/popovers";
+//@import "bootstrap/less/carousel";
 
 // Utility classes
-@import "../bower_components/bootstrap/less/utilities";
-@import "../bower_components/bootstrap/less/responsive-utilities";
+@import "bootstrap/less/utilities";
+@import "bootstrap/less/responsive-utilities";
 
 //
 // FLAT UI
@@ -122,8 +120,8 @@
 //
 // LESS Contrib
 // -------------------------------------------------
-@import "../bower_components/fontawesome/less/font-awesome";
-@import "../bower_components/bootstrap-switch/src/less/bootstrap3/bootstrap-switch";
+@import "fontawesome/less/font-awesome";
+@import "bootstrap-switch/src/less/bootstrap3/bootstrap-switch";
 
 //
 // NON LESS Contrib
@@ -135,8 +133,9 @@
 @import "contrib/misc/transitions.css";
 @import "contrib/misc/dropzone.css";
 @import "contrib/misc/animate.min.css";
-@import "../bower_components/croppic/assets/css/croppic.css";
-@import '../bower_components/Croppie/croppie.css';
+
+@import "../bower_components/Croppic/assets/css/croppic.css";
+@import "../bower_components/Croppie/croppie.css";
 
 // Typeahead Styling Has custom updates to fix offset of token issue
 @import "contrib/misc/bootstrap-tokenfield.min.css";

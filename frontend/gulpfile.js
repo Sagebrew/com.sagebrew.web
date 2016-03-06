@@ -196,7 +196,12 @@ gulp.task('assets:images',  function() {
 // Styles
 gulp.task('styles', function () {
     return gulp.src(['styles/styles.less'])
-        .pipe(less())
+        .pipe(less({
+            paths: [
+                path.join(__dirname, 'styles'),
+                path.join(__dirname, 'bower_components')
+            ]
+        }))
         .on('error', gutil.log)
         .pipe(minifycss())
         .on('error', gutil.log)

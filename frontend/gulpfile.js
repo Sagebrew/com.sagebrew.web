@@ -3,8 +3,8 @@ var gulp = require('gulp'),
     handlebars = require('gulp-handlebars'),
     concat = require('gulp-concat'),
     browserify = require('browserify'),
-    bulkify = require('bulkify'),
     globify = require('require-globify'),
+    hbsfy = require('hbsfy'),
     babelify = require("babelify"),
     less = require('gulp-less'),
     wrap = require('gulp-wrap'),
@@ -143,7 +143,10 @@ gulp.task('scripts:global', function () {
                 './js/src/components'
             ]
         });
-        bundler.transform(babelify);
+
+
+        bundler.transform(babelify, {presets: ["es2015", "react"]});
+        bundler.transform(hbsfy);
         bundler.transform(globify);
 
         bundler.require(__dirname + "/" + entry, { expose: module_name});
@@ -235,8 +238,7 @@ gulp.task('assets', [
     'assets:fonts',
     'assets:videos',
     'assets:imageshotfix',
-    'assets:images',
-    'scripts:templates']);
+    'assets:images']);
 
 //
 // Default task.

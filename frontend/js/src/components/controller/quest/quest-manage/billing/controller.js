@@ -1,8 +1,11 @@
 /*global Stripe*/
-var templates = require('template_build/templates'),
+var //// templates = require('template_build/templates'),
     helpers = require('common/helpers'),
     settings = require('settings').settings,
     moment = require('moment');
+
+
+var template_payment_info = require('common/templates/payment_info.hbs');
 
 export const meta = {
     controller: "quest/quest-manage/billing",
@@ -69,7 +72,7 @@ export function load() {
             bill_rate: "0.00"
         };
     }
-    paymentInfo.innerHTML = templates.payment_info(paymentData);
+    paymentInfo.innerHTML = template_payment_info(paymentData);
     $app
         .on('click', '#js-payment-method', function(event) {
             event.preventDefault();

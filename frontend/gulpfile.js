@@ -20,12 +20,10 @@ var gulp = require('gulp'),
     argv = require('yargs').argv;
 
 
-//
-// Path definitions.
-// Most setups don't separate vendor scripts from app scripts. But we're going to do it anyway.
-// TODO: Cleanup file system so that we can use entire folders.
-// TODO: Do this better.
-var paths = {
+/**
+ * Config 
+ */
+var config = {
     libraries: [
         'bower_components/jquery/dist/jquery.js',
         'bower_components/bootstrap/js/alert.js',
@@ -89,7 +87,8 @@ var paths = {
         'bower_components/lightbox2/dist/images/*',
         'bower_components/croppic/assets/img/*',
         'assets/images/**'
-    ]
+    ],
+    build_dir: "build/"
 };
 
 var production = argv.env === 'production';
@@ -126,7 +125,7 @@ gulp.task('scripts:templates', function(){
 //
 // App Scripts - Global
 gulp.task('scripts:global', function () {
-    var tasks = paths.global_modules.map(function(entry) {
+    var tasks = config.global_modules.map(function(entry) {
 
         var source_name = path.basename(entry);
         var module_name = path.basename(entry, '.js');
@@ -161,7 +160,7 @@ gulp.task('scripts:global', function () {
             .pipe(buffer())
             .pipe(gulpif(production, uglify())) // now gulp-uglify works
             .on('error', gutil.log)
-            .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/js/'));
+            .pipe(gulp.dest(config.build_dir+'js/'));
         });
 
     // create a merged stream
@@ -171,11 +170,11 @@ gulp.task('scripts:global', function () {
 //
 // JS - Vendor aka catchall.
 gulp.task('scripts:vendor', function () {
-    return gulp.src(paths.libraries)
+    return gulp.src(config.libraries)
         .pipe(concat('vendor.js'))
         .pipe(gulpif(production, uglify()))
         .on('error', gutil.log)
-        .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/js'));
+        .pipe(gulp.dest(config.build_dir+'js/'));
 });
 
 //
@@ -194,24 +193,24 @@ gulp.task('styles', function () {
         .on('error', gutil.log)
         .pipe(minifycss())
         .on('error', gutil.log)
-        .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/css/'));
+        .pipe(gulp.dest(config.build_dir+'css/'));
 });
 
 
 //
 // Fonts
 gulp.task('assets:fonts', function() {
-    return gulp.src(paths.fonts)
+    return gulp.src(config.fonts)
             .on('error', gutil.log)
-            .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/fonts/'));
+            .pipe(gulp.dest(config.build_dir+'fonts/'));
 });
 
 //
 // videos
 gulp.task('assets:videos', function() {
-    return gulp.src(paths.videos)
+    return gulp.src(config.videos)
             .on('error', gutil.log)
-            .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/videos/'));
+            .pipe(gulp.dest(config.build_dir+'videos/'));
 });
 
 //
@@ -220,15 +219,15 @@ gulp.task('assets:videos', function() {
 gulp.task('assets:imageshotfix', function() {
     return gulp.src(['css/vendor/img/**'])
             .on('error', gutil.log)
-           .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/css/vendor/img/'));
+           .pipe(gulp.dest(config.build_dir+'css/vendor/img/'));
 });
 
 //
 // Images
 gulp.task('assets:images',  function() {
-    return gulp.src(paths.images)
+    return gulp.src(config.images)
             .on('error', gutil.log)
-            .pipe(gulp.dest('../sagebrew/sagebrew/static/dist/images/'));
+            .pipe(gulp.dest(config.build_dir+'images/'));
 });
 
 
@@ -244,7 +243,7 @@ gulp.task('assets', [
 // Default task.
 gulp.task('watch', function () {
     'use strict';
-    gulp.watch(paths.styles, ['styles']);
+    gulp.watch(config.styles, ['styles']);
     gulp.watch(['./js/src/**', '!./js/src/components/template_build'], ['scripts:lint', 'scripts:global',
         'scripts:templates']);
 

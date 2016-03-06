@@ -1,5 +1,5 @@
 /*global Stripe, Card*/
-var paymentMethodTemplate = require('common/templates/payment_method.hbs'),
+var paymentMethodTemplate = require('common/templates/payment_methods.hbs'),
     addPaymentMethodTemplate = require('common/templates/add_payment.hbs'),
     settings = require('settings').settings,
     request = require('api').request,

@@ -34,7 +34,7 @@ export function populateMissions(loadElement, questID){
                     free_account: true,
                     available_missions: false,
                     is_owner: false
-                }
+                };
             } else {
                 if(settings.profile.quest === null || settings.profile.quest === "undefined" || settings.profile.quest === undefined){
                     missionLoaderPackage = {
@@ -43,7 +43,7 @@ export function populateMissions(loadElement, questID){
                         free_account: true,
                         available_missions: false,
                         is_owner: false
-                    }
+                    };
                 } else {
                     missionLoaderPackage = {
                         missions: data.results,

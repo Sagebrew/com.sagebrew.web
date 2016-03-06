@@ -1,4 +1,4 @@
-{% extends "sb_plebs_base/profile_page.html" %}
+{% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
 {% block title %}{{ page_user.first_name }}'s Newsfeed{% endblock title %}
 {% block description %}
@@ -10,23 +10,25 @@
 {% block keywords %}
     <meta name="keywords" content="news, community, nonpartisan, questions, solutions, privacy">
 {% endblock keywords %}
-{%  block midsection %}
-<div class="col-md-4 hidden-sm hidden-xs">
-   {% include "sb_home_section/potential_representative_col.html" %}
+
+
+{% block hero %}
+    {% comment %}
+    Rolling with the hero layout so that we can display
+    promotions, system notifications, etc at the top of the newsfeed
+    {% endcomment %}
+{% endblock %}
+{% block secondary_nav %}
+{% endblock %}
+
+{% block sidebar_right %}
+    {% include "sb_home_section/potential_representative_col.html" %}
     {% include "sb_home_section/representative_col.html" %}
-</div>
-<div class="col-md-8">
+{% endblock %}
+
+{% block live %}
     {% include "post_create.html" %}
     <div class="app-newsfeed" id="wall_app">
 
     </div>
-</div>
-{% endblock %}
-{% block post_scripts %}
-{% endblock %}
-{% comment %}
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/newsfeed.js' %}"></script>
-{% endblock %}
-{% endcomment %}
+{% endblock live %}

@@ -316,6 +316,8 @@ class Pleb(Searchable):
 
     @classmethod
     def get(cls, username, cache_buster=False):
+        if username is None:
+            return None
         profile = cache.get(username)
         if profile is None or cache_buster:
             res, _ = db.cypher_query(
@@ -766,7 +768,7 @@ class Address(SBObject):
                 encompassed_by.encompassed_by.connect(city_encompassed)
             if encompassed_by not in city_encompassed.encompasses:
                 city_encompassed.encompasses.connect(encompassed_by)
-        except MultipleNodesReturned:
+        except (MultipleNodesReturned, Exception):
             query = 'MATCH (l1:Location {name:"%s"})-[:ENCOMPASSED_BY]->' \
                     '(l2:Location {name:"%s"}) RETURN l1' % \
                     (self.city, self.state)

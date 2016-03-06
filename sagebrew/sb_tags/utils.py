@@ -1,3 +1,4 @@
+from neomodel import db
 from neomodel.exception import CypherException
 
 from sb_base.decorators import apply_defense
@@ -79,3 +80,10 @@ def update_tags_util(tags):
                 pass
 
     return tags
+
+
+def limit_offset_query(skip, limit):
+    query = 'MATCH (tag:Tag) WHERE NOT tag:AutoTag ' \
+            'RETURN tag SKIP %s LIMIT %s' % (skip, limit)
+    res, _ = db.cypher_query(query)
+    return [Tag.inflate(row[0]) for row in res]

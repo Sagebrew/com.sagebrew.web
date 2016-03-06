@@ -3314,7 +3314,7 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['results'][0]['profile'],
                          self.pleb.username)
 
-    def test_get_quests(self):
+    def test_get_missions(self):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
@@ -3335,13 +3335,14 @@ class NewsfeedTests(APITestCase):
         pres = Position(name="President").save()
         pres.location.connect(usa)
         mission.position.connect(pres)
+        mission.location.connect(usa)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 1)
 
-    def test_get_quests_website(self):
+    def test_get_mission_website(self):
         website = "www.sagebrew.com"
         quest = Quest(
             active=True, about="Hey there this is my campaign. "
@@ -3356,13 +3357,14 @@ class NewsfeedTests(APITestCase):
         pres = Position(name="President").save()
         pres.location.connect(usa)
         mission.position.connect(pres)
+        mission.location.connect(usa)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['website'], website)
 
-    def test_get_quests_rendered(self):
+    def test_get_mission_title(self):
         quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
@@ -3377,48 +3379,7 @@ class NewsfeedTests(APITestCase):
         pres = Position(name="President").save()
         pres.location.connect(usa)
         mission.position.connect(pres)
-        self.address.encompassed_by.connect(usa)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('me-newsfeed')
-        response = self.client.get(url, format='json')
-        self.assertTrue('html' in response.data['results'][0])
-
-    def test_get_quests_rendered_expedite(self):
-        quest = Quest(
-            active=True, about="Hey there this is my campaign. "
-                               "Feel free to drop me a line!",
-            facebook="dbleibtrey", youtube="devonbleibtrey",
-            website="www.sagebrew.com", owner_username=self.pleb.username,
-            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
-            profile_pic=self.pleb.profile_pic).save()
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        self.pleb.quest.connect(quest)
-        usa = Location(name="United States of America").save()
-        pres = Position(name="President").save()
-        pres.location.connect(usa)
-        mission.position.connect(pres)
-        self.address.encompassed_by.connect(usa)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
-        response = self.client.get(url, format='json')
-        self.assertTrue('html' in response.data['results'][0])
-
-    def test_get_quests_title(self):
-        quest = Quest(
-            active=True, about="Hey there this is my campaign. "
-                               "Feel free to drop me a line!",
-            facebook="dbleibtrey", youtube="devonbleibtrey",
-            website="www.sagebrew.com", owner_username=self.pleb.username,
-            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
-            profile_pic=self.pleb.profile_pic).save()
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        self.pleb.quest.connect(quest)
-        usa = Location(name="United States of America").save()
-        pres = Position(name="President").save()
-        pres.location.connect(usa)
-        mission.position.connect(pres)
+        mission.location.connect(usa)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
@@ -3426,7 +3387,7 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['results'][0]['owner_username'],
                          self.pleb.username)
 
-    def test_get_quest_updates(self):
+    def test_get_mission_updates(self):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
@@ -3460,7 +3421,7 @@ class NewsfeedTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 2)
 
-    def test_get_quest_update_content(self):
+    def test_get_mission_update_content(self):
         quest = Quest(
             active=True, about="Hey there this is my campaign. "
                                "Feel free to drop me a line!",
@@ -3474,71 +3435,18 @@ class NewsfeedTests(APITestCase):
         update = Update(content=content, title="This is a title",
                         owner_username=self.pleb.username).save()
         update.about.connect(quest)
-        quest.updates.connect(update)
+        mission.updates.connect(update)
         self.pleb.quest.connect(quest)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         pres.location.connect(usa)
         mission.position.connect(pres)
+        mission.location.connect(usa)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['content'], content)
-
-    def test_get_quest_updates_rendered(self):
-        quest = Quest(
-            active=True, about="Hey there this is my campaign. "
-                               "Feel free to drop me a line!",
-            facebook="dbleibtrey", youtube="devonbleibtrey",
-            website="www.sagebrew.com", owner_username=self.pleb.username,
-            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
-            profile_pic=self.pleb.profile_pic).save()
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        update = Update(content="This is a new update",
-                        title="This is a title",
-                        owner_username=self.pleb.username).save()
-        update.quest.connect(quest)
-        quest.updates.connect(update)
-        self.pleb.quest.connect(quest)
-        usa = Location(name="United States of America").save()
-        pres = Position(name="President").save()
-        pres.location.connect(usa)
-        mission.position.connect(pres)
-        self.address.encompassed_by.connect(usa)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('me-newsfeed')
-        response = self.client.get(url, format='json')
-        self.assertTrue('html' in response.data['results'][0])
-        self.assertTrue('html' in response.data['results'][1])
-
-    def test_get_quest_updates_rendered_expedite(self):
-        quest = Quest(
-            active=True, about="Hey there this is my campaign. "
-                               "Feel free to drop me a line!",
-            facebook="dbleibtrey", youtube="devonbleibtrey",
-            website="www.sagebrew.com", owner_username=self.pleb.username,
-            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
-            profile_pic=self.pleb.profile_pic).save()
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        update = Update(content="This is a new update",
-                        title="This is a title",
-                        owner_username=self.pleb.username).save()
-        update.about.connect(quest)
-        quest.updates.connect(update)
-        self.pleb.quest.connect(quest)
-        usa = Location(name="United States of America").save()
-        pres = Position(name="President").save()
-        pres.location.connect(usa)
-        mission.position.connect(pres)
-        self.address.encompassed_by.connect(usa)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
-        response = self.client.get(url, format='json')
-        self.assertTrue('html' in response.data['results'][0])
-        self.assertTrue('html' in response.data['results'][1])
 
     def test_get_update_title(self):
         quest = Quest(

@@ -41,6 +41,13 @@ def js_settings(request):
                 data['profile']['stripe_customer_id'] = pleb.stripe_account
                 if data['profile']['quest'] is not None:
                     quest = Quest.get(pleb.username)
+                    if "/quests/%s/" % quest.owner_username in request.path or \
+                            "/quests/%s/" % quest.object_uuid in request.path:
+                        data['profile']['quest']['is_owner'] = True
+                    if quest.account_type == "free":
+                        data['profile']['quest']['free_quest'] = True
+                    if len(quest.missions) >= settings.FREE_MISSIONS:
+                        data['profile']['quest']['available_missions'] = True
                     stripe.api_key = settings.STRIPE_SECRET_KEY
                     if "quest" in request.path:
                         # If we're in a place where we're telling the user

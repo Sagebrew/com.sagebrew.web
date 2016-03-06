@@ -1,12 +1,13 @@
 var request = require('api').request,
-    templates = require('template_build/templates'),
+    positionHolderTemplate = require('controller/mission/political-mission/templates/position_holder.hbs'),
+    missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summary.hbs'),
     settings = require('settings').settings;
 
 export function populateMissions(loadElement, questID){
     var $missionList = $('#js-mission-list'),
         $missionContainer = $('#js-mission-container');
     $missionList.sb_contentLoader({
-        emptyDataMessage: templates.position_holder({static_url: settings.static_url}),
+        emptyDataMessage: positionHolderTemplate({static_url: settings.static_url}),
         url: '/v1/quests/' + questID + '/missions/',
         loadingMoreItemsMessage: "",
         loadMoreMessage: "",
@@ -54,7 +55,7 @@ export function populateMissions(loadElement, questID){
                 }
             }
 
-            $missionContainer.append(templates.mission_summary(missionLoaderPackage));
+            $missionContainer.append(missionSummaryTemplate(missionLoaderPackage));
         }
     });
 }

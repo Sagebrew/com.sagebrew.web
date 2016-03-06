@@ -65,7 +65,7 @@ export function init () {
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
                     // Until we have all the templates in handlebars lets just keep them in the array
                     data.results[i].html = templates.mission_news(data.results[i]);
-                } /** else if (data.results[i].type === "question") {
+                } else if (data.results[i].type === "question") {
                     if(data.results[i].profile.id === settings.profile.username){
                         data.results[i].is_owner = true;
                         data.results[i].restricted = true;
@@ -81,7 +81,7 @@ export function init () {
 
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
                     data.results[i].html = templates.question_news(data.results[i]);
-                } **/
+                }
                 $container.append(Autolinker.link(data.results[i].html));
                 enableContentFunctionality(data.results[i].id, data.results[i].type);
                 if(data.results[i].type !== "mission" && data.results[i].type !== "update" && data.results[i].type !== "news_article"){

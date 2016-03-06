@@ -2,7 +2,8 @@
 var request = require('api').request,
     radioSelector = require('common/radioimage').radioSelector,
     helpers = require('common/helpers'),
-    templates = require('template_build/templates'),
+    districtHolderTemplate = require('controller/mission/political-mission/templates/district_holder.hbs'),
+    districtOptionsTemplate = require('controller/mission/political-mission/templates/district_options.hbs'),
     settings = require('settings').settings,
     locationKey = 'advocateMissionLocationID',
     locationName = "advocateMissionLocationName",
@@ -56,7 +57,7 @@ export function load() {
                 // and clear the currently selected position and re-disable positions and districts
                 stateInput.disabled = true;
                 placeInput.disabled = true;
-                districtSelector.innerHTML = templates.district_holder();
+                districtSelector.innerHTML = districtHolderTemplate();
                 localStorage.removeItem(districtKey);
                 localStorage.removeItem(locationKey);
                 localStorage.removeItem(locationName);
@@ -201,7 +202,7 @@ function fillDistricts(filterParam) {
                 context = {name: name};
                 districtList.push(context);
             }
-            document.getElementById('js-district-selector').innerHTML = templates.district_options({districts: districtList, option_holder: "Select a District (Optional)"});
+            document.getElementById('js-district-selector').innerHTML = districtOptionsTemplate({districts: districtList, option_holder: "Select a District (Optional)"});
         });
 }
 

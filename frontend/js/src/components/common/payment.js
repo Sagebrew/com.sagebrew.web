@@ -1,5 +1,6 @@
 /*global Stripe, Card*/
-var templates = require('template_build/templates'),
+var paymentMethodTemplate = require('common/templates/payment_method.hbs'),
+    addPaymentMethodTemplate = require('common/templates/add_payment.hbs'),
     settings = require('settings').settings,
     request = require('api').request,
     paymentMethodKey = "selectedPaymentMethod";
@@ -38,7 +39,7 @@ export function getPaymentMethods(submitPayment, callback) {
         greyPage = document.getElementById('sb-greyout-page');
     request.get({url: "/v1/me/payment_methods/"})
         .done(function (data) {
-            paymentMethods.innerHTML = templates.payment_methods({
+            paymentMethods.innerHTML = paymentMethodTemplate({
                 cards: data.results,
                 submit_payment: submitPayment === true
             });
@@ -73,7 +74,7 @@ export function addPayment(responseHandler, cancelRedirect) {
             addWarning: true
         };
     }
-    paymentForm.innerHTML = templates.add_payment(templateContext);
+    paymentForm.innerHTML = addPaymentMethodTemplate(templateContext);
 
     new Card({
         form: 'form',

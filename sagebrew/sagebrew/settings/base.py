@@ -65,7 +65,6 @@ STATICFILES_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
     '%s/frontend/build/' % REPO_DIR, #Frontend Repo
     '%s/help_center/static/' % PROJECT_DIR,
-    '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_missions/static/' % PROJECT_DIR,
     '%s/sb_notifications/static/' % PROJECT_DIR,

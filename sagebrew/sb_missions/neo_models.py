@@ -1,11 +1,16 @@
 from django.core.cache import cache
 from django.conf import settings
+from django.templatetags.static import static
 
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist,
                       BooleanProperty)
 
 from sb_search.neo_models import Searchable
 from sb_base.neo_models import VoteRelationship
+
+
+def get_default_wallpaper_pic():
+    return static('images/wallpaper_capitol_2.jpg')
 
 
 class Mission(Searchable):
@@ -47,7 +52,7 @@ class Mission(Searchable):
     website = StringProperty()
 
     # Allow the mission to have it's own wallpaper and a title
-    wallpaper_pic = StringProperty()
+    wallpaper_pic = StringProperty(default=get_default_wallpaper_pic)
     title = StringProperty()
 
     # Optimizations

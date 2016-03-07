@@ -9,9 +9,10 @@
 var request = require('api').request,
     Autolinker = require('autolinker'),
     missions = require('common/missions'),
-    newsTemplate = require('controller/section-profile/templates/news.hbs'),
-    missionNewsTemplate = require('controller/section-profile/templates/mission_news.hbs'),
-    questionNewsTemplate = require('controller/section-profile/templates/question_news.hbs'),
+    newsTemplate = require('../templates/news.hbs'),
+    missionNewsTemplate = require('../templates/mission_news.hbs'),
+    questionNewsTemplate = require('../templates/question_news.hbs'),
+    solutionNewsTemplate = require('../templates/solution_news.hbs'),
     vote = require('common/vote/vote').vote,
     settings = require('settings').settings,
     moment = require('moment');
@@ -80,9 +81,25 @@ export function init () {
                     } else if (data.results[i].vote_type === false){
                         data.results[i].downvote = true;
                     }
-
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
+                    data.results[i].can_comment = settings.profile.reputation >= 20;
                     data.results[i].html = questionNewsTemplate(data.results[i]);
+                } else if (data.results[i].type === "solution") {
+                    if(data.results[i].profile.id === settings.profile.username){
+                        data.results[i].is_owner = true;
+                        data.results[i].restricted = true;
+                    }
+                    if(settings.profile.reputation < 100) {
+                        data.results[i].has_reputation = true;
+                    }
+                    if(data.results[i].vote_type === true){
+                        data.results[i].upvote = true;
+                    } else if (data.results[i].vote_type === false){
+                        data.results[i].downvote = true;
+                    }
+                    data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
+                    data.results[i].can_comment = settings.profile.reputation >= 20;
+                    data.results[i].html = solutionNewsTemplate(data.results[i]);
                 }
                 $container.append(Autolinker.link(data.results[i].html));
                 enableContentFunctionality(data.results[i].id, data.results[i].type);

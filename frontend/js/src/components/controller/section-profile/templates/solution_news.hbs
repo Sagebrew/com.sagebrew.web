@@ -1,18 +1,19 @@
 <div class="block">
     <div class="block-title">
-        <a href="{{ url }}">
-            Question: {{ title }}
+        <a href="{{ question.url }}">
+            Solution To: {{ question.title }}
         </a>
     </div>
     <div class="block-content" style="padding-top: 0; padding-bottom: 0;">
         <small>Author: <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>  <b>&middot;</b>
-            Topics: {{ tags_formatted }} <b>&middot;</b>
+            Topics: {{ question.tags_formatted }} <b>&middot;</b>
             {{ created }} </small>
         <small class="pull-right">
            <i class="fa fa-users" style="margin-right: 10px;"></i>Public
         </small>
     </div>
     <div class="block-content">
+
         <div class="row">
             <div class="hidden-xs col-sm-1 sb_vote_wrapper">
                 <div class="vote_lg vote_count_large">
@@ -42,7 +43,7 @@
                     <div class="input-group sb_comment comment-input" id="comment-input-{{ id }}">
                             <textarea class="input-group form-control sb_comment_input"
                                       rows="2" name="comment_content"
-                                      placeholder="Help improve the Question by providing feedback"></textarea>
+                                      placeholder="Help improve the Solution by providing feedback"></textarea>
                             <a class="btn input-group-btn comment-btn"
                                data-id="{{ id }}"><span class="fa fa-plus"></span></a>
                         </div>

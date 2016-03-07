@@ -1,6 +1,7 @@
 from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.cache import cache
 from django.conf import settings
+from django.templatetags.static import static
 
 from rest_framework.reverse import reverse
 
@@ -9,6 +10,10 @@ from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
                       DateTimeProperty)
 
 from sb_search.neo_models import Searchable, SBObject
+
+
+def get_default_wallpaper_pic():
+    return static('images/wallpaper_capitol_2.jpg')
 
 
 class Quest(Searchable):
@@ -64,7 +69,7 @@ class Quest(Searchable):
     # These are the wallpaper and profile specific to the campaign/action page
     # That way they have separation between the campaign and their personal
     # image.
-    wallpaper_pic = StringProperty()
+    wallpaper_pic = StringProperty(default=get_default_wallpaper_pic)
     profile_pic = StringProperty()
     # Application fee's total up to 7% + 30 cents for a Free Subscription and
     # 5% + 30 cents for a paid $100 subscription. .029 and the 30 comes from

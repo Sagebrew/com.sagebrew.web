@@ -228,8 +228,7 @@ gulp.task('assets', [
 gulp.task('watch', function () {
     'use strict';
     gulp.watch(config.styles, ['styles']);
-    gulp.watch(['./js/src/**', '!./js/src/components/template_build'], ['scripts:lint', 'scripts:global',
-        'scripts:templates']);
+    gulp.watch(['./js/src/**'], ['scripts:lint', 'scripts:global']);
 
 });
 

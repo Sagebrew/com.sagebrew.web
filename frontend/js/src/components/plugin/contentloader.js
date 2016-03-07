@@ -27,7 +27,6 @@
 
         // Data store.
         var totalItems,
-            ItemsPerPage = 5, //We could probably make this configurable.
             currentPage = 1,
             isInited = false;
 
@@ -89,7 +88,7 @@
                 params.page = currentPage;
             }
 
-            params.page_size = ItemsPerPage;
+            params.page_size = base.options.ItemsPerPage;
             return base.options.dataCallback(base.options.url, params);
         };
 
@@ -99,7 +98,7 @@
         base.loadMoreContent = function() {
             //Do we even have more data to get?
             //Subtract one to fix not loading the last page of data from api
-            if (totalItems > ((currentPage - 1) * ItemsPerPage)) {
+            if (totalItems > ((currentPage - 1) * base.options.ItemsPerPage)) {
                 $loadMore.text(base.options.loadingMoreItemsMessage).addClass("currently-loading");
                 base.getData().done(function(data) {
                     currentPage++;
@@ -163,6 +162,7 @@
         emptyDataMessage: 'Please add some data.',
         loadingMoreItemsMessage: "Please wait, loading more items",
         loadMoreMessage: "Load more.",
+        itemsPerPage: 5,
         url: '',
         params: {
 

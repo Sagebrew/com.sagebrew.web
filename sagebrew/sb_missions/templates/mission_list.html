@@ -1,10 +1,10 @@
-{% extends "layout/hero-two-col-left.html" %}
+{% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
 {% block title %}Missions{% endblock %}
 {% block hero %}
     {% include "mission_promotion.html" %}
 {% endblock hero %}
-{% block sidebar_left %}
+{% block sidebar_right %}
     {% if request.user.is_authenticated %}
         <div class="block block-type-nav">
             <div class="block-title">

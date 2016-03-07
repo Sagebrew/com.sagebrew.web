@@ -1,7 +1,6 @@
 var request = require('api').request,
     positionHolderTemplate = require('controller/mission/political-mission/templates/position_holder.hbs'),
     missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summary.hbs'),
-    addMissionTemplate = require('controller/quest/quest-view/templates/add_mission.hbs'),
     settings = require('settings').settings;
 
 export function populateMissions(loadElement, questID){
@@ -11,6 +10,7 @@ export function populateMissions(loadElement, questID){
         emptyDataMessage: positionHolderTemplate({static_url: settings.static_url}),
         url: '/v1/quests/' + questID + '/missions/',
         loadingMoreItemsMessage: "",
+        itemsPerPage: 3,
         loadMoreMessage: "",
         dataCallback: function(base_url, params) {
             var urlParams = $.param(params);
@@ -24,22 +24,19 @@ export function populateMissions(loadElement, questID){
             return request.get({url:url});
         },
         renderCallback: function($container, data) {
+
+            console.log(data);
+
             for(var i=0; i < data.results.length; i++){
                 data.results[i].title = determineTitle(data.results[i]);
             }
+
+            console.log(data);
+
             $missionContainer.append(missionSummaryTemplate({
                 missions: data.results,
                 static_url: settings.static_url
             }));
-            if(settings.profile !== null && settings.profile !== "undefined" && settings.profile !== undefined) {
-                if (settings.profile.quest !== null && settings.profile.quest !== "undefined" && settings.profile.quest !== undefined) {
-                    if (settings.profile.quest.is_owner === true && settings.profile.quest.available_missions === false) {
-                        if (data.next === null) {
-                            $missionContainer.append(addMissionTemplate({static_url: settings.static_url}));
-                        }
-                    }
-                }
-            }
         }
     });
 }

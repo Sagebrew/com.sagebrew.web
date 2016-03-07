@@ -14,7 +14,7 @@ export function vote() {
                 voteCount = parseInt(voteCountElem.text(), 10),
                 voteUp = $(this);
             if (voteUp.hasClass('is_owner')) {
-                $.notify({message: "You cannot vote on your own Questions"}, {type: 'info'});
+                $.notify({message: "You cannot vote on your own Conversation Cloud Content"}, {type: 'info'});
             } else {
                 voteUp.attr("disabled", "disabled");
                 if (voteUp.hasClass('vote_up_active')) {
@@ -53,9 +53,9 @@ export function vote() {
                 voteCount = parseInt(voteCountElem.text(), 10),
                 voteDown = $(this);
             if (this.classList.contains('is_owner')) {
-                $.notify({message: "You cannot vote on your own Questions"}, {type: 'info'});
+                $.notify({message: "You cannot vote on your own Conversation Cloud Content"}, {type: 'info'});
             } else if(this.classList.contains('js-needs-rep')){
-                $.notify({message: "You must have 100+ Reputation to Downvote Questions"}, {type: 'info'});
+                $.notify({message: "You must have 100+ Reputation to Downvote"}, {type: 'info'});
             } else {
                 voteDown.attr("disabled", "disabled");
                 if (voteDown.hasClass('vote_down_active')) {

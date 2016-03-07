@@ -31,6 +31,7 @@
             </div>
             {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
         {% endif %}
+
         {% if quest.active %}
             {% if quest.missions %}
                 <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
@@ -45,6 +46,7 @@
                 </div>
             {% endif %}
         {% endif %}
+
         <div class="hidden-xs col-sm-5">
             <div class="block">
                 <div class="block-title no-underline">
@@ -138,14 +140,20 @@
 
         </div>
     </div>
-    <div class="row block block-padding-bottom-15 row-no-margin">
-        <div class="col-xs-12">
-            <h2 class="block-title">Missions</h2>
-            <div id="js-mission-list">
-                <div id="js-mission-container"></div>
-                <div class="loader"></div>
+
+    <div class="block block-type-title">
+        <div class="block-content">
+            <h1>Missions
+            </h1>
+            <div class="title-important-actions">
+                <a class="btn btn-primary">Embark on a Mission</a>
             </div>
         </div>
+
+    </div>
+    <div id="js-mission-list">
+        <div id="js-mission-container"></div>
+        <div class="loader"></div>
     </div>
 {% endblock %}
 

@@ -1,12 +1,24 @@
-<div class="radio-button-selector">
-    {{#each missions}}
-        <div class="col-xs-12 col-sm-4">
-            <div class="radio-image-selector js-position" id="{{ this.id }}" data-slug="{{ this.slug }}">
-                <h4 class="sb-profile-not-friend-header">{{ this.title_summary }}</h4>
-                <div class="row radio-image-selector-image-wrapper">
-                    <img class="radio-image-selector-image" src="{{ ../static_url }}images/legislative_bw.png">
+{{#grouped_each 3 missions}}
+    <div class="row row-eq-height">
+        {{#each this }}
+            <div class="col-sm-4">
+                <div class="block {{#if this.active }}block-state-active{{else}}block-state-inactive{{/if}} {{#if this.complete }}block-state-complete{{else}}block-state-incomplete{{/if}}" id="{{ this.id }}" data-slug="{{ this.slug }}">
+                    <div class="block-hero-image">
+                        <img src="{{this.wallpaper_pic}}" />
+                    </div>
+                    <a class="block-title" href="{{this.url}}">{{ this.title_summary }}</a>
+                    <div class="block-content">
+                        <p>
+                            {{#if this.about }}
+                                {{this.about}}
+                            {{else}}
+                                A {{this.level}} level {{this.focus_on_type}} mission.
+                            {{/if}}
+                        </p>
+                        <a href="{{this.url}}" class="btn btn-primary">View More</a>
+                    </div>
                 </div>
             </div>
-        </div>
-    {{/each}}
-</div>
+        {{/each}}
+    </div>
+{{/grouped_each}}

@@ -1,6 +1,5 @@
 var gulp = require('gulp'),
     path = require('path'),
-    handlebars = require('gulp-handlebars'),
     concat = require('gulp-concat'),
     browserify = require('browserify'),
     globify = require('require-globify'),
@@ -101,27 +100,6 @@ gulp.task('scripts:lint', function () {
             .pipe(gulpif(!production, jshint.reporter('jshint-stylish')))
             .on('error', gutil.log);
 });
-
-//
-// App Templates - Templates
-gulp.task('scripts:templates', function(){
-    gulp.src('js/src/**/templates/*.hbs')
-        .pipe(handlebars({
-            handlebars: require('handlebars')
-        }))
-        .pipe(wrap('Handlebars.template(<%= contents %>)'))
-        .pipe(declare({
-            root: 'exports',
-            noRedeclare: true
-        }))
-        .pipe(concat('templates.js'))
-        // Add the Handlebars module in the final output
-        .pipe(wrap('var Handlebars = require("handlebars");\n <%= contents %>'))
-        .pipe(gulpif(production, uglify()))
-        .on('error', gutil.log)
-        .pipe(gulp.dest('js/src/components/template_build/'));
-});
-
 //
 // App Scripts - Global
 gulp.task('scripts:global', function () {
@@ -177,24 +155,6 @@ gulp.task('scripts:vendor', function () {
         .pipe(gulp.dest(config.build_dir+'js/'));
 });
 
-//
-// JS
-gulp.task('scripts', [
-    'scripts:lint',
-    'scripts:global',
-    'scripts:vendor',
-    'scripts:templates']);
-
-//
-// Styles
-gulp.task('styles', function () {
-    return gulp.src(['styles/styles.less'])
-        .pipe(less())
-        .on('error', gutil.log)
-        .pipe(minifycss())
-        .on('error', gutil.log)
-        .pipe(gulp.dest(config.build_dir+'css/'));
-});
 
 
 //
@@ -231,6 +191,30 @@ gulp.task('assets:images',  function() {
 });
 
 
+
+//
+// Styles
+gulp.task('styles', function () {
+    return gulp.src(['styles/styles.less'])
+        .pipe(less({
+            paths: [
+                path.join(__dirname, 'styles'),
+                path.join(__dirname, 'bower_components')
+            ]
+        }))
+        .on('error', gutil.log)
+        .pipe(minifycss())
+        .on('error', gutil.log)
+        .pipe(gulp.dest(config.build_dir+'css/'));
+});
+
+//
+// JS
+gulp.task('scripts', [
+    'scripts:lint',
+    'scripts:global',
+    'scripts:vendor']);
+
 //
 // Assets
 gulp.task('assets', [
@@ -244,8 +228,7 @@ gulp.task('assets', [
 gulp.task('watch', function () {
     'use strict';
     gulp.watch(config.styles, ['styles']);
-    gulp.watch(['./js/src/**', '!./js/src/components/template_build'], ['scripts:lint', 'scripts:global',
-        'scripts:templates']);
+    gulp.watch(['./js/src/**'], ['scripts:lint', 'scripts:global']);
 
 });
 

@@ -308,17 +308,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             senators = [PublicOfficial.inflate(row[0]) for row in res]
             cache.set("%s_senators" % username, senators, timeout=1800)
         if len(senators) == 0:
-            return Response("<small>Sorry we could not find your "
-                            "Senators. Please alert us to our error!"
-                            "</small>", status=status.HTTP_200_OK)
-        html = self.request.query_params.get('html', 'false').lower()
-        if html == 'true':
-            sen_html = []
-            for sen in senators:
-                sen_html.append(
-                    render_to_string('sb_home_section/sitting_rep_block.html',
-                                     PublicOfficialSerializer(sen).data))
-            return Response(sen_html, status=status.HTTP_200_OK)
+            return Response([], status=status.HTTP_200_OK)
         return Response(PublicOfficialSerializer(senators, many=True).data,
                         status=status.HTTP_200_OK)
 
@@ -337,16 +327,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 cache.set("%s_house_representative" % username, house_rep,
                           timeout=1800)
             except IndexError:
-                return Response("<small>Sorry we could not find your "
-                                "House Representative. Please alert us to "
-                                "our error!</small>",
-                                status=status.HTTP_200_OK)
-        html = self.request.query_params.get('html', 'false').lower()
-        if html == 'true':
-            house_rep_html = render_to_string(
-                'sb_home_section/sitting_rep_block.html',
-                PublicOfficialSerializer(house_rep).data)
-            return Response(house_rep_html, status=status.HTTP_200_OK)
+                return Response({}, status=status.HTTP_200_OK)
         return Response(PublicOfficialSerializer(house_rep).data,
                         status=status.HTTP_200_OK)
 
@@ -361,16 +342,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 president = PublicOfficial.inflate(res[0][0])
                 cache.set("%s_president" % username, president, timeout=1800)
             except IndexError:
-                return Response("<small>Sorry we could not find your "
-                                "President. Please alert us to our error"
-                                "!</small>",
-                                status=status.HTTP_200_OK)
-        html = self.request.query_params.get('html', 'false').lower()
-        if html == 'true':
-            return Response(
-                render_to_string('sb_home_section/sitting_rep_block.html',
-                                 PublicOfficialSerializer(president).data),
-                status=status.HTTP_200_OK)
+                return Response({}, status=status.HTTP_200_OK)
         return Response(PublicOfficialSerializer(president).data,
                         status=status.HTTP_200_OK)
 
@@ -396,17 +368,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
             possible_reps = [Quest.inflate(row[0]) for row in res]
             cache.set('%s_possible_house_representatives' % username,
                       possible_reps, timeout=1800)
-        html = self.request.query_params.get('html', 'false').lower()
-        if html == 'true':
-            if not possible_reps:
-                return Response("<small>Currently No Registered Campaigning "
-                                "Representatives In Your Area</small>",
-                                status=status.HTTP_200_OK)
-            possible_rep_html = [
-                render_to_string('sb_home_section/sb_potential_rep.html',
-                                 possible_rep) for possible_rep in
-                QuestSerializer(possible_reps, many=True).data]
-            return Response(possible_rep_html, status=status.HTTP_200_OK)
         return Response(QuestSerializer(possible_reps, many=True).data,
                         status=status.HTTP_200_OK)
 
@@ -652,7 +613,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             '[:ENCOMPASSED_BY*..]->' \
             '(:Location)<-[:WITHIN]-(q_mission:Mission {active: true})' \
             '<-[:EMBARKS_ON]-(quest:Quest {active: true}) WITH q_mission ' \
-            'MATCH (q_mission)-[:CREATED_AN]->(updates:Update) ' \
+            'MATCH (q_mission)<-[:ABOUT]-(updates:Update) ' \
             'WHERE NOT((q_mission)-[:FOCUSED_ON]' \
             '->(:Position {verified:false}))' \
             ' AND updates.created > %s ' \
@@ -760,13 +721,6 @@ class MeViewSet(mixins.UpdateModelMixin,
                 news_article = PostSerializerNeo(
                     Post.inflate(row.posts),
                     context={'request': request, 'force_expand': True}).data
-                if html == "true":
-                    news_article['last_edited_on'] = parser.parse(
-                        news_article['last_edited_on']).replace(microsecond=0)
-                    news_article['created'] = parser.parse(
-                        news_article['created']).replace(microsecond=0)
-                    article_html = render_to_string(
-                        'post_news.html', RequestContext(request, news_article))
             elif row.mission is not None:
                 row.mission.pull()
                 news_article = MissionSerializer(
@@ -776,36 +730,18 @@ class MeViewSet(mixins.UpdateModelMixin,
                     username=news_article['owner_username']).reputation
             elif row.updates is not None:
                 row.updates.pull()
-                row.q_quests.pull()
+                row.q_mission.pull()
                 news_article = UpdateSerializer(
                     Update.inflate(row.updates),
                     context={'request': request}).data
-                news_article['campaign'] = QuestSerializer(
-                    Quest.inflate(row.q_quests),
+                news_article['mission'] = MissionSerializer(
+                    Mission.inflate(row.q_mission),
                     context={'request': request}).data
-                if html == "true":
-                    news_article['last_edited_on'] = parser.parse(
-                        news_article['last_edited_on']).replace(microsecond=0)
-                    news_article['created'] = parser.parse(
-                        news_article['created']).replace(microsecond=0)
-                    article_html = render_to_string(
-                        'update_news.html', RequestContext(
-                            request, news_article))
             elif row.news is not None:
                 row.news.pull()
                 news_article = NewsArticleSerializer(
                     NewsArticle.inflate(row.news),
                     context={'request': request}).data
-            if html == "true":
-                if news_article['type'] != 'news_article' and \
-                        news_article['type'] != 'mission' and \
-                        news_article['type'] != 'question' and \
-                        news_article['type'] != 'solution':
-                    news_article = {
-                        "html": article_html,
-                        "id": news_article['id'],
-                        'type': news_article['type']
-                    }
             news.append(news_article)
         return self.get_paginated_response(news)
 

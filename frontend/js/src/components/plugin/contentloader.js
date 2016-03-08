@@ -88,7 +88,7 @@
                 params.page = currentPage;
             }
 
-            params.page_size = base.options.ItemsPerPage;
+            params.page_size = base.options.itemsPerPage;
             return base.options.dataCallback(base.options.url, params);
         };
 
@@ -98,7 +98,7 @@
         base.loadMoreContent = function() {
             //Do we even have more data to get?
             //Subtract one to fix not loading the last page of data from api
-            if (totalItems > ((currentPage - 1) * base.options.ItemsPerPage)) {
+            if (totalItems > ((currentPage - 1) * base.options.itemsPerPage)) {
                 $loadMore.text(base.options.loadingMoreItemsMessage).addClass("currently-loading");
                 base.getData().done(function(data) {
                     currentPage++;

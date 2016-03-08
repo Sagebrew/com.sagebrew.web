@@ -1,0 +1,25 @@
+<div class="block">
+    <div class="block-title">
+        <a href="{{ url }}">
+            Update: {{ title }}
+        </a>
+    </div>
+    <div class="block-content" style="padding-top: 0; padding-bottom: 0;">
+        <small>Author: <a href="{{ mission.url }}">{{ mission.title }}</a>  <b>&middot;</b>
+            {{ created }} </small>
+        <small class="pull-right" style="padding-top: 5px;">
+           <i class="fa fa-users" style="margin-right: 10px;"></i>Public
+        </small>
+    </div>
+    <div class="block-content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="sb-content-body-news">
+                    <div class="sb_markdown block-vertical-news">
+                        {{{ html_content }}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

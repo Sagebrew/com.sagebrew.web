@@ -13,7 +13,10 @@ var request = require('api').request,
     missionNewsTemplate = require('../templates/mission_news.hbs'),
     questionNewsTemplate = require('../templates/question_news.hbs'),
     solutionNewsTemplate = require('../templates/solution_news.hbs'),
+    postNewsTemplate = require('../templates/post_news.hbs'),
+    updateNewsTemplate = require('../templates/update_news.hbs'),
     vote = require('common/vote/vote').vote,
+    comment = require('common/comment/comment').comment,
     settings = require('settings').settings,
     moment = require('moment');
 
@@ -27,6 +30,7 @@ export function init () {
     // Load up the wall.
     var $appNewsfeed = $(".app-newsfeed");
     vote();
+    comment();
     $appNewsfeed.sb_contentLoader({
         emptyDataMessage: 'Get out there and make some news :)',
         url: '/v1/me/newsfeed/',
@@ -100,6 +104,28 @@ export function init () {
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
                     data.results[i].can_comment = settings.profile.reputation >= 20;
                     data.results[i].html = solutionNewsTemplate(data.results[i]);
+                } else if (data.results[i].type === "post") {
+                    // For voting logic to indicate this is a post or content
+                    // associated with a post
+                    data.results[i].post = true;
+                    if(data.results[i].profile.id === settings.profile.username){
+                        data.results[i].is_owner = true;
+                        data.results[i].restricted = false;
+                    }
+                    data.results[i].has_reputation = true;
+                    if(data.results[i].vote_type === true){
+                        data.results[i].upvote = true;
+                    } else if (data.results[i].vote_type === false){
+                        data.results[i].downvote = true;
+                    }
+                    data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
+                    data.results[i].can_comment = true;
+                    data.results[i].html = postNewsTemplate(data.results[i]);
+                } else if (data.results[i].type === "update") {
+                    // For voting logic to indicate this is a post or content
+                    // associated with a post
+                    data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
+                    data.results[i].html = updateNewsTemplate(data.results[i]);
                 }
                 $container.append(Autolinker.link(data.results[i].html));
                 enableContentFunctionality(data.results[i].id, data.results[i].type);

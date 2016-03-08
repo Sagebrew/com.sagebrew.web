@@ -1,0 +1,57 @@
+<div class="block">
+    <div class="block-content" style="padding-top: 0; padding-bottom: 0;">
+        <small>Author: <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>  <b>&middot;</b>
+            {{ created }} </small>
+        <small class="pull-right" style="padding-top: 5px;">
+           <i class="fa fa-user-secret" style="margin-right: 10px;"></i>Private
+        </small>
+    </div>
+    <div class="block-content">
+        <div class="row">
+            <div class="hidden-xs col-sm-1 sb_vote_wrapper">
+                <div class="vote_lg vote_count_large">
+                    {{> 'common/vote/templates/vote.hbs' id=id restricted=restricted
+                    is_owner=is_owner has_reputation=has_reputation
+                    vote_count=vote_count upvote=upvote downvote=downvote type=type
+                    post=post}}
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-11">
+                <div class="block-content" id="sb_content_{{ object_uuid }}">
+                    <p>{{ content }}</p>
+                    {{# if uploaded_objects }}
+                        <div class="row sb-post-image-wrapper">
+                            {% for uploaded_object in uploaded_objects %}
+                                {% include "contained_image.html" %}
+                            {% endfor %}
+                        </div>
+                    {{/if}}
+                    {{# if first_url_content }}
+                        {% include "expanded_url_content.html" %}
+                    {{/if}}
+                </div>
+                <div id="edit_container_{{ object_uuid }}" style="display: none">
+                    <div class="row-fluid">
+                        <textarea class="form-control edit_post_input_class"
+                                  id="{{ object_uuid }}"
+                                  name="edit_post_input"
+                                  rows="1">{{ content }}</textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-8">
+                            <button class='btn btn-block btn-primary sb_btn_fill edit_object-action edit_{{ object_uuid }}'
+                               id="edit_post_button_id"
+                               data-parent_object="{{ profile.username }}"
+                               data-object_uuid="{{ object_uuid }}"
+                               data-created="{{ created }}">Save</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{> 'common/comment/templates/comments.hbs' parent_id=id restricted=restricted
+                    is_owner=is_owner has_reputation=has_reputation
+                    vote_count=vote_count upvote=upvote downvote=downvote type=type
+                    post=post}}
+</div>

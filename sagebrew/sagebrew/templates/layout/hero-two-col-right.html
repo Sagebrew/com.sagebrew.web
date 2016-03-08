@@ -13,14 +13,13 @@
         {% endblock %}
     </div></div></div>
     <div class="row">
-
-        <div class="col-md-9"><div class="live">
-            {% block live %}
+        <div class="col-md-3 col-md-push-9"><div class="sidebar-right">
+            {% block sidebar_right %}
             {% endblock %}
         </div></div>
 
-        <div class="col-md-3"><div class="sidebar-right">
-            {% block sidebar_right %}
+        <div class="col-md-9 col-md-pull-3"><div class="live">
+            {% block live %}
             {% endblock %}
         </div></div>
     </div>

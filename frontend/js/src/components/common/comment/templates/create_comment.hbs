@@ -1,0 +1,23 @@
+<div class="block">
+    <div class="block-content">
+        {{#if can_comment }}
+            <form id="commentSubmitForm" data-parent_id="{{ parent_id }}"
+                  data-parent_type="{{ parent_type }}">
+                <div class="input-group sb_comment comment-input">
+                        <textarea class="input-group form-control sb_comment_input"
+                                  rows="2" name="comment_content"
+                                  placeholder="{{ comment_description }}"></textarea>
+                        <a class="btn input-group-btn comment-btn"><span class="fa fa-plus"></span></a>
+                    </div>
+            </form>
+        {{ else }}
+            <div class="block-content"><small>
+                <span class="sb_comment_disabled" data-toggle="tooltip"
+                      data-placement="top"
+                      data-title="{{ reason_for_restriction }}">
+                    comment
+                </span>
+            </small></div>
+        {{/if}}
+    </div>
+</div>

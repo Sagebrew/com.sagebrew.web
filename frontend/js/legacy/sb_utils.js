@@ -90,7 +90,7 @@ function populateComment(objectUuid, resource) {
                 // TODO this may break in IE
                 commentContainer.append(
                         '<div class="row" id="additional-comment-wrapper-' + objectUuid + '">' +
-                        '<div class="col-sm-5 col-xs-offset-1">' +
+                        '<div class="col-sm-5 col-x-offset-1">' +
                         '<a href="javascript:;" class="additional-comments" id="additional-comments-' + objectUuid + '">Show Older Comments ...</a>' +
                         '</div>' +
                         '</div>');

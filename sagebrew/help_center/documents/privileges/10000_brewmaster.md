@@ -21,13 +21,6 @@ community and to lead through example.
 - Close [Duplicates][5]
 - Ability to [Protect][7] a Conversation
 - Certify newly added positions that Missions can run for
-{% comment %}
-    Upon implementation of Reach Posts elected officials shall have the capability
-    to retain their additional reach posts granted at Tribune status until the 
-    end of their second term. For Presidential we'll probably want to remove 
-    these powers immediately after election. For Senators probably after their
-    first term.
-{% endcomment %}
 
 ## Limitations ##
 Admin and up privileges are suspended if you open a Quest account or are 

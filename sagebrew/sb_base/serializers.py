@@ -291,7 +291,8 @@ class VotableContentSerializer(SBSerializer):
                          " Conversation Cloud content."
                 short_detail = "Requirement: 100+ Reputation"
         elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
-                (obj.parent_type == "question" or obj_type == "solution"):
+                (obj.parent_type == "question" or
+                    obj.parent_type == "solution"):
             can_downvote = "downvote" in Pleb.get(
                 username=request.user.username).get_privileges()
             detail = "You must have 100+ reputation to downvote" \
@@ -308,7 +309,8 @@ class VotableContentSerializer(SBSerializer):
         if obj_type == "question" or obj_type == "solution":
             return False
         elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
-                (obj.parent_type == "question" or obj_type == "solution"):
+                (obj.parent_type == "question" or
+                    obj.parent_type == "solution"):
             return False
         elif obj_type == "post":
             return True

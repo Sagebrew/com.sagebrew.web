@@ -27,6 +27,7 @@ export function comment() {
                                 '</div>' +
                                 '</div>');
                     }
+                    $('[data-toggle="tooltip"]').tooltip();
                 });
         })
 }

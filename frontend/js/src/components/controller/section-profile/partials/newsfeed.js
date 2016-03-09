@@ -73,8 +73,7 @@ export function init () {
                     // Until we have all the templates in handlebars lets just keep them in the array
                     data.results[i].html = missionNewsTemplate(data.results[i]);
                 } else if (data.results[i].type === "question") {
-                    if(data.results[i].profile.id === settings.profile.username){
-                        data.results[i].is_owner = true;
+                    if(data.results[i].is_owner){
                         data.results[i].restricted = true;
                     }
                     if(settings.profile.reputation < 100) {
@@ -89,8 +88,7 @@ export function init () {
                     data.results[i].can_comment = settings.profile.reputation >= 20;
                     data.results[i].html = questionNewsTemplate(data.results[i]);
                 } else if (data.results[i].type === "solution") {
-                    if(data.results[i].profile.id === settings.profile.username){
-                        data.results[i].is_owner = true;
+                    if(data.results[i].is_owner){
                         data.results[i].restricted = true;
                     }
                     if(settings.profile.reputation < 100) {
@@ -108,8 +106,7 @@ export function init () {
                     // For voting logic to indicate this is a post or content
                     // associated with a post
                     data.results[i].post = true;
-                    if(data.results[i].profile.id === settings.profile.username){
-                        data.results[i].is_owner = true;
+                    if(data.results[i].is_owner){
                         data.results[i].restricted = false;
                     }
                     data.results[i].has_reputation = true;

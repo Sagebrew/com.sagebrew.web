@@ -58,6 +58,11 @@ function showEditComment() {
 
 
 function populateComment(objectUuid, resource) {
+    request.get({url:"/v1/" + resource + "/" + objectUuid + "/comments/?page_size=3"})
+        .done(function () {
+            "use strict";
+
+        })
     $.ajax({
         xhrFields: {withCredentials: true},
         type: "GET",

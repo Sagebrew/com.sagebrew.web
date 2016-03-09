@@ -17,20 +17,19 @@
                 </div>
             </div>
             <div class="col-xs-12 col-sm-11">
-                <div class="block-content" id="sb_content_{{ object_uuid }}">
-                    <p>{{ content }}</p>
+                <div class="block-content">
+                    <p>{{{ html_content }}}</p>
                     {{# if uploaded_objects }}
                         <div class="row sb-post-image-wrapper">
                             {% for uploaded_object in uploaded_objects %}
                                 {% include "contained_image.html" %}
                             {% endfor %}
                         </div>
-                    {{/if}}
-                    {{# if first_url_content }}
+                    {{ else if first_url_content }}
                         {% include "expanded_url_content.html" %}
                     {{/if}}
                 </div>
-                <div id="edit_container_{{ object_uuid }}" style="display: none">
+                <div id="edit_container" style="display: none">
                     <div class="row-fluid">
                         <textarea class="form-control edit_post_input_class"
                                   id="{{ object_uuid }}"
@@ -39,7 +38,7 @@
                     </div>
                     <div class="row">
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-8">
-                            <button class='btn btn-block btn-primary sb_btn_fill edit_object-action edit_{{ object_uuid }}'
+                            <button class='btn btn-block btn-primary sb_btn_fill edit_object-action'
                                id="edit_post_button_id"
                                data-parent_object="{{ profile.username }}"
                                data-object_uuid="{{ object_uuid }}"
@@ -50,8 +49,9 @@
             </div>
         </div>
     </div>
-    {{> 'common/comment/templates/comments.hbs' parent_id=id restricted=restricted
+
+    {{> 'common/comment/templates/create_comment.hbs' parent_id=id restricted=restricted
                     is_owner=is_owner has_reputation=has_reputation
                     vote_count=vote_count upvote=upvote downvote=downvote type=type
-                    post=post}}
+                    post=post comment_description="Leave a comment..."}}
 </div>

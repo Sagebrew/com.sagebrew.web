@@ -56,6 +56,10 @@ class VotableContentSerializer(SBSerializer):
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
+    is_owner = serializers.SerializerMethodField()
+    can_flag = serializers.SerializerMethodField()
+    can_comment = serializers.SerializerMethodField()
+    html_content = serializers.SerializerMethodField()
 
     def get_profile(self, obj):
         request, expand, _, relation, _ = gather_request_data(
@@ -120,6 +124,103 @@ class VotableContentSerializer(SBSerializer):
 
     def get_view_count(self, obj):
         return obj.get_view_count()
+
+    def get_is_owner(self, obj):
+        """
+        Determine if the currently logged in user is the owner of this object.
+        :param obj:
+        :return:
+        """
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return False
+        if not request.user.is_authenticated():
+            return False
+        if hasattr(obj, 'owner_username'):
+            return obj.owner_username == request.user.username
+        else:
+            return False
+
+    def get_html_content(self, obj):
+        return obj.content.replace('\n', "<br />")
+
+    def get_can_comment(self, obj):
+        """
+        Determine if the currently logged in user can flag this object.
+        :param obj:
+        :return:
+        """
+        request, _, _, _, _ = gather_request_data(self.context)
+        detail = None
+        if request is None:
+            can_flag = False
+            detail = "You must be logged in to comment on content."
+        if not request.user.is_authenticated():
+            can_flag = False
+            detail = "You must be logged in to comment on content."
+        obj_type = obj.__class__.__name__.lower()
+        if obj_type == "question" or obj_type == "solution":
+            can_flag = "flag" in Pleb.get(
+                username=request.user.username).get_privileges()
+            if not can_flag:
+                detail = "You currently don't have the privilege required to " \
+                         "comment on Conversation Cloud content."
+        elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
+                (obj.parent_type == "question" or obj_type == "solution"):
+            can_flag = "flag" in Pleb.get(
+                username=request.user.username).get_privileges()
+            detail = "Commenting on Conversation Cloud content requires "
+        else:
+            can_flag = True
+
+        return {"status": can_flag, "detail": detail}
+
+    def get_can_flag(self, obj):
+        """
+        Determine if the currently logged in user can flag this object.
+        :param obj:
+        :return:
+        """
+        request, _, _, _, _ = gather_request_data(self.context)
+        detail = None
+        if request is None:
+            can_flag = False
+            detail = "You must be logged in to flag content."
+        if not request.user.is_authenticated():
+            can_flag = False
+            detail = "You must be logged in to flag content."
+        obj_type = obj.__class__.__name__.lower()
+        if obj_type == "question" or obj_type == "solution":
+            can_flag = "flag" in Pleb.get(
+                username=request.user.username).get_privileges()
+            if not can_flag:
+                detail = "You currently don't have the privilege required to " \
+                         "flag Conversation Cloud content."
+        elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
+                (obj.parent_type == "question" or obj_type == "solution"):
+            can_flag = "flag" in Pleb.get(
+                username=request.user.username).get_privileges()
+            detail = "You currently don't have the privilege required to " \
+                     "flag Conversation Cloud content."
+        else:
+            can_flag = True
+
+        return {"status": can_flag, "detail": detail}
+
+    def get_flagged(self, obj):
+        """
+        Determine if the currently logged in user has already flagged this
+        object
+        :param obj:
+        :return:
+        """
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return False
+        if not request.user.is_authenticated():
+            return False
+
+        return request.user.username in obj.get_flagged_by()
 
 
 class ContentSerializer(VotableContentSerializer):

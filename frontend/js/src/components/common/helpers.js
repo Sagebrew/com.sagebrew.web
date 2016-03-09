@@ -281,6 +281,11 @@ export function selectAllFields(wrapperDivID) {
     });
 }
 
+export function replaceAll(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+}
+
 
 export function humanizeString(toBeHumanized) {
     var fragments = toBeHumanized.split('_');

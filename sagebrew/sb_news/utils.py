@@ -56,6 +56,11 @@ def find_news(limit_offset_fxn, count_query, link_objects_callback):
 
 
 def query_webhose(query):
+    import nltk
+    try:
+        nltk.download('all', halt_on_error=False)
+    except Exception as e:
+        logger.exception(e)
 
     language = 'english'
     sentence_count = 7

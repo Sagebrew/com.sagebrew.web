@@ -551,7 +551,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             'MATCH (a:Pleb {username: "%s"})-[:OWNS_QUESTION]->' \
             '(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND questions.created > %s' \
-            ' RETURN questions, NULL AS solutions, NULL AS posts, ' \
+            ' AND questions.is_closed = False ' \
+            'RETURN questions, NULL AS solutions, NULL AS posts, ' \
             'questions.created AS created, NULL AS s_question, ' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
             'NULL AS news UNION ' \
@@ -560,7 +561,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// interested in\n' \
             'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
             '(tag:Tag)<-[:TAGGED_AS]-(news:NewsArticle) ' \
-            'WHERE news.published > %s' \
+            'WHERE news.published > %s AND news.is_closed = False ' \
             ' RETURN DISTINCT news, NULL AS solutions, NULL AS posts, ' \
             'news.published AS created, NULL AS s_question, ' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
@@ -571,7 +572,9 @@ class MeViewSet(mixins.UpdateModelMixin,
             '[:OWNS_SOLUTION]->(solutions:Solution)-' \
             '[:POSSIBLE_ANSWER_TO]->(s_question:Question) ' \
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
-            ' RETURN solutions, NULL AS questions, NULL AS posts, ' \
+            ' AND solutions.is_closed = False ' \
+            'AND s_question.is_closed = False ' \
+            'RETURN solutions, NULL AS questions, NULL AS posts, ' \
             'solutions.created AS created, s_question AS s_question,' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
             'NULL AS news UNION ' \
@@ -579,6 +582,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// Retrieve all the current users posts\n' \
             'MATCH (a:Pleb {username: "%s"})-[:OWNS_POST]->(posts:Post) ' \
             'WHERE posts.to_be_deleted = False AND posts.created > %s ' \
+            'AND posts.is_closed = False ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
             'posts.created AS created, NULL AS s_question,' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
@@ -590,6 +594,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             '-[:HAS_POST]->(posts:Post) ' \
             'WHERE NOT (posts)<-[:OWNS_POST]-(a) AND ' \
             'posts.to_be_deleted = False AND posts.created > %s ' \
+            'AND posts.is_closed = False ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
             'posts.created AS created, NULL AS s_question,' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
@@ -616,7 +621,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'MATCH (q_mission)<-[:ABOUT]-(updates:Update) ' \
             'WHERE NOT((q_mission)-[:FOCUSED_ON]' \
             '->(:Position {verified:false}))' \
-            ' AND updates.created > %s ' \
+            ' AND updates.created > %s AND updates.is_closed = False ' \
             'RETURN updates, NULL AS solutions, NULL AS posts, ' \
             'NULL AS questions, updates.created AS created, ' \
             'NULL AS s_question, NULL as mission, q_mission, ' \
@@ -629,7 +634,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             '[:OWNS_POST]->(posts:Post) ' \
             'WHERE (posts)-[:POSTED_ON]->(:Wall)<-[:OWNS_WALL]-(p) AND ' \
             'HAS(r.active) AND posts.to_be_deleted = False ' \
-            'AND posts.created > %s ' \
+            'AND posts.created > %s AND posts.is_closed = False ' \
             'RETURN posts, NULL AS questions, NULL AS solutions, ' \
             'posts.created AS created, NULL AS s_question, ' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
@@ -641,7 +646,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             '[manyFriends:FRIENDS_WITH*..2 {active: True}]' \
             '->(:Pleb)-[:OWNS_QUESTION]->(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND ' \
-            'questions.created > %s ' \
+            'questions.created > %s AND questions.is_closed = False ' \
             'RETURN questions, NULL AS posts, NULL AS solutions, ' \
             'questions.created AS created, NULL AS s_question, ' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
@@ -655,7 +660,9 @@ class MeViewSet(mixins.UpdateModelMixin,
             '(solutions:Solution)-[:POSSIBLE_ANSWER_TO]->' \
             '(s_question:Question) ' \
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
-            ' RETURN solutions, NULL AS posts, NULL AS questions, ' \
+            ' AND solutions.is_closed = False ' \
+            'AND s_question.is_closed = False ' \
+            'RETURN solutions, NULL AS posts, NULL AS questions, ' \
             'solutions.created AS created, s_question AS s_question,' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
             'NULL AS news UNION ' \
@@ -665,7 +672,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
             '(:Pleb)-[:OWNS_QUESTION]->(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND ' \
-            'questions.created > %s ' \
+            'questions.created > %s AND questions.is_closed = False ' \
             'RETURN NULL AS solutions, NULL AS posts, ' \
             'questions AS questions, questions.created AS created, ' \
             'NULL AS s_question, NULL AS mission, NULL AS updates, ' \
@@ -678,7 +685,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             '(:Pleb)-[:OWNS_SOLUTION]->(solutions:Solution)-' \
             '[:POSSIBLE_ANSWER_TO]->(s_question:Question) ' \
             'WHERE solutions.to_be_deleted = False AND ' \
-            'solutions.created > %s ' \
+            'solutions.created > %s AND solutions.is_closed = False ' \
             'RETURN solutions, NULL AS posts, ' \
             'NULL AS questions, solutions.created AS created, ' \
             's_question as s_question, NULL AS mission, NULL AS updates, ' \

@@ -31,33 +31,7 @@
             </div>
         </div>
     </div>
-    <div class="js-comment-section"
-         data-id="{{ id }}"
-         data-type="{{ type }}">
-    <div class="js-comment-container newsfeed-comment" id="sb_comments_container_{{ id }}">
-    </div>
-    <div class="block">
-        <div class="block-content">
-            {{#if can_comment }}
-                <form id="commentSubmitForm">
-                    <div class="input-group sb_comment comment-input" id="comment-input-{{ id }}">
-                            <textarea class="input-group form-control sb_comment_input"
-                                      rows="2" name="comment_content"
-                                      placeholder="Help improve the Solution by providing feedback"></textarea>
-                            <a class="btn input-group-btn comment-btn"
-                               data-id="{{ id }}"><span class="fa fa-plus"></span></a>
-                        </div>
-                </form>
-            {{ else }}
-                <div class="block-content"><small>
-                    <span class="sb_comment_disabled" data-toggle="tooltip"
-                          data-placement="top"
-                          data-title="Requirement: 20+ Rep"
-                          id="post_comment_on_{{ object_uuid }}">
-                        comment
-                    </span>
-                </small></div>
-            {{/if}}
-        </div>
-    </div>
+    {{> 'common/comment/templates/create_comment.hbs' parent_id=id
+            can_comment=can_comment
+            comment_description="Leave a comment..."}}
 </div>

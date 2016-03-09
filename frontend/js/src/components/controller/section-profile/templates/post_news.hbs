@@ -10,10 +10,9 @@
         <div class="row">
             <div class="hidden-xs col-sm-1 sb_vote_wrapper">
                 <div class="vote_lg vote_count_large">
-                    {{> 'common/vote/templates/vote.hbs' id=id restricted=restricted
-                    is_owner=is_owner has_reputation=has_reputation
+                    {{> 'common/vote/templates/vote.hbs' id=id
                     vote_count=vote_count upvote=upvote downvote=downvote type=type
-                    post=post}}
+                    can_upvote=can_upvote can_downvote=can_downvote }}
                 </div>
             </div>
             <div class="col-xs-12 col-sm-11">
@@ -49,9 +48,7 @@
             </div>
         </div>
     </div>
-
-    {{> 'common/comment/templates/create_comment.hbs' parent_id=id restricted=restricted
-                    is_owner=is_owner has_reputation=has_reputation
-                    vote_count=vote_count upvote=upvote downvote=downvote type=type
-                    post=post comment_description="Leave a comment..."}}
+    {{> 'common/comment/templates/create_comment.hbs' parent_id=id
+        can_comment=can_comment
+        comment_description="Leave a comment..."}}
 </div>

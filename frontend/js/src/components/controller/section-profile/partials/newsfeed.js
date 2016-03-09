@@ -28,7 +28,8 @@ require('plugin/contentloader');
 export function init () {
     //
     // Load up the wall.
-    var $appNewsfeed = $(".app-newsfeed");
+    var $appNewsfeed = $(".app-newsfeed"),
+        $app = $(".app-sb");
     vote();
     comment();
     $appNewsfeed.sb_contentLoader({
@@ -73,50 +74,30 @@ export function init () {
                     // Until we have all the templates in handlebars lets just keep them in the array
                     data.results[i].html = missionNewsTemplate(data.results[i]);
                 } else if (data.results[i].type === "question") {
-                    if(data.results[i].is_owner){
-                        data.results[i].restricted = true;
-                    }
-                    if(settings.profile.reputation < 100) {
-                        data.results[i].has_reputation = true;
-                    }
                     if(data.results[i].vote_type === true){
                         data.results[i].upvote = true;
                     } else if (data.results[i].vote_type === false){
                         data.results[i].downvote = true;
                     }
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
-                    data.results[i].can_comment = settings.profile.reputation >= 20;
                     data.results[i].html = questionNewsTemplate(data.results[i]);
                 } else if (data.results[i].type === "solution") {
-                    if(data.results[i].is_owner){
-                        data.results[i].restricted = true;
-                    }
-                    if(settings.profile.reputation < 100) {
-                        data.results[i].has_reputation = true;
-                    }
                     if(data.results[i].vote_type === true){
                         data.results[i].upvote = true;
                     } else if (data.results[i].vote_type === false){
                         data.results[i].downvote = true;
                     }
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
-                    data.results[i].can_comment = settings.profile.reputation >= 20;
                     data.results[i].html = solutionNewsTemplate(data.results[i]);
                 } else if (data.results[i].type === "post") {
-                    // For voting logic to indicate this is a post or content
-                    // associated with a post
-                    data.results[i].post = true;
-                    if(data.results[i].is_owner){
-                        data.results[i].restricted = false;
-                    }
-                    data.results[i].has_reputation = true;
+                    // Have to do this because null indicates that no vote is selected
+                    // but handlebars treats false and null the same way.
                     if(data.results[i].vote_type === true){
                         data.results[i].upvote = true;
                     } else if (data.results[i].vote_type === false){
                         data.results[i].downvote = true;
                     }
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
-                    data.results[i].can_comment = true;
                     data.results[i].html = postNewsTemplate(data.results[i]);
                 } else if (data.results[i].type === "update") {
                     // For voting logic to indicate this is a post or content
@@ -126,8 +107,9 @@ export function init () {
                 }
                 $container.append(Autolinker.link(data.results[i].html));
                 enableContentFunctionality(data.results[i].id, data.results[i].type);
+                $('[data-toggle="tooltip"]').tooltip();
                 if(data.results[i].type !== "mission" && data.results[i].type !== "update" && data.results[i].type !== "news_article"){
-                    populateComments([data.results[i].id], data.results[i].type + "s");
+                    $app.trigger("sb:populate:comments", {id: data.results[i].id, type: data.results[i].type});
                 }
 
             }

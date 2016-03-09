@@ -13,9 +13,7 @@ export function vote() {
                 voteCountElem = $(this).parents('div.vote-wrapper').find(".vote_count_wrapper").find('.vote_count'),
                 voteCount = parseInt(voteCountElem.text(), 10),
                 voteUp = $(this);
-            if (voteUp.hasClass('is_owner')) {
-                $.notify({message: "You cannot vote on your own Conversation Cloud Content"}, {type: 'info'});
-            } else {
+            if (!voteUp.hasClass('sb_restricted')) {
                 voteUp.attr("disabled", "disabled");
                 if (voteUp.hasClass('vote_up_active')) {
                     voteUp.removeClass('vote_up_active');
@@ -52,18 +50,14 @@ export function vote() {
                 voteCountElem = $(this).parents('div.vote-wrapper').find(".vote_count_wrapper").find('.vote_count'),
                 voteCount = parseInt(voteCountElem.text(), 10),
                 voteDown = $(this);
-            if (this.classList.contains('is_owner')) {
-                $.notify({message: "You cannot vote on your own Conversation Cloud Content"}, {type: 'info'});
-            } else if(this.classList.contains('js-needs-rep')){
-                $.notify({message: "You must have 100+ Reputation to Downvote"}, {type: 'info'});
-            } else {
+            if (!voteDown.hasClass('sb_restricted')) {
                 voteDown.attr("disabled", "disabled");
                 if (voteDown.hasClass('vote_down_active')) {
                     voteDown.removeClass('vote_down_active');
                     voteCount += 1;
-                     voteBackup = 1;
+                    voteBackup = 1;
                 } else {
-                    if(voteUp.hasClass('vote_up_active')){
+                    if (voteUp.hasClass('vote_up_active')) {
                         voteUp.removeClass('vote_up_active');
                         voteDown.addClass('vote_down_active');
                         voteCount -= 2;
@@ -77,7 +71,7 @@ export function vote() {
                 request.post({
                     url: "/v1/" + this.dataset.parent_type + "s/" + this.dataset.parent_id + "/votes/?expedite=true",
                     data: JSON.stringify({'vote_type': false})
-                }).done(function() {
+                }).done(function () {
                     voteDown.removeAttr("disabled");
                     voteCountElem.text(voteCount);
                 }).fail(function () {

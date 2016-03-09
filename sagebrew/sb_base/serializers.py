@@ -59,6 +59,9 @@ class VotableContentSerializer(SBSerializer):
     is_owner = serializers.SerializerMethodField()
     can_flag = serializers.SerializerMethodField()
     can_comment = serializers.SerializerMethodField()
+    can_upvote = serializers.SerializerMethodField()
+    can_downvote = serializers.SerializerMethodField()
+    is_private = serializers.SerializerMethodField()
     html_content = serializers.SerializerMethodField()
 
     def get_profile(self, obj):
@@ -152,28 +155,40 @@ class VotableContentSerializer(SBSerializer):
         """
         request, _, _, _, _ = gather_request_data(self.context)
         detail = None
+        short_detail = None
         if request is None:
-            can_flag = False
-            detail = "You must be logged in to comment on content."
+            return {"status": False,
+                    "detail": "You must be logged in to comment on content.",
+                    "short_detail": "Signup To Comment"}
         if not request.user.is_authenticated():
-            can_flag = False
-            detail = "You must be logged in to comment on content."
+            return {"status": False,
+                    "detail": "You must be logged in to comment on content.",
+                    "short_detail": "Signup To Comment"}
+        if hasattr(obj, 'owner_username'):
+            if obj.owner_username == request.user.username:
+                # Always allow the owner to comment on their own content
+                return {"status": True, "detail": detail,
+                        "short_detail": short_detail}
         obj_type = obj.__class__.__name__.lower()
         if obj_type == "question" or obj_type == "solution":
-            can_flag = "flag" in Pleb.get(
+            can_comment = "comment" in Pleb.get(
                 username=request.user.username).get_privileges()
-            if not can_flag:
-                detail = "You currently don't have the privilege required to " \
-                         "comment on Conversation Cloud content."
+            if not can_comment:
+                detail = "You must have 20+ reputation to comment on " \
+                         "Conversation Cloud content."
+                short_detail = "Requirement: 20+ Reputation"
         elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
                 (obj.parent_type == "question" or obj_type == "solution"):
-            can_flag = "flag" in Pleb.get(
+            can_comment = "comment" in Pleb.get(
                 username=request.user.username).get_privileges()
-            detail = "Commenting on Conversation Cloud content requires "
+            detail = "You must have 20+ reputation to comment on " \
+                     "Conversation Cloud content."
+            short_detail = "Requirement: 20+ Reputation"
         else:
-            can_flag = True
+            can_comment = True
 
-        return {"status": can_flag, "detail": detail}
+        return {"status": can_comment, "detail": detail,
+                "short_detail": short_detail}
 
     def get_can_flag(self, obj):
         """
@@ -183,29 +198,35 @@ class VotableContentSerializer(SBSerializer):
         """
         request, _, _, _, _ = gather_request_data(self.context)
         detail = None
+        short_detail = None
         if request is None:
-            can_flag = False
-            detail = "You must be logged in to flag content."
+            return {"status": False,
+                    "detail": "You must be logged in to flag content.",
+                    "short_detail": "Signup To Flag"}
         if not request.user.is_authenticated():
-            can_flag = False
-            detail = "You must be logged in to flag content."
+            return {"status": False,
+                    "detail": "You must be logged in to flag content.",
+                    "short_detail": "Signup To Flag"}
         obj_type = obj.__class__.__name__.lower()
         if obj_type == "question" or obj_type == "solution":
             can_flag = "flag" in Pleb.get(
                 username=request.user.username).get_privileges()
             if not can_flag:
-                detail = "You currently don't have the privilege required to " \
-                         "flag Conversation Cloud content."
+                detail = "You must have 50+ reputation to flag Conversation " \
+                         "Cloud content."
+                short_detail = "Requirement: 50+ Reputation"
         elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
                 (obj.parent_type == "question" or obj_type == "solution"):
             can_flag = "flag" in Pleb.get(
                 username=request.user.username).get_privileges()
-            detail = "You currently don't have the privilege required to " \
-                     "flag Conversation Cloud content."
+            detail = "You must have 50+ reputation to flag Conversation " \
+                     "Cloud content."
+            short_detail = "Requirement: 50+ Reputation"
         else:
             can_flag = True
 
-        return {"status": can_flag, "detail": detail}
+        return {"status": can_flag, "detail": detail,
+                "short_detail": short_detail}
 
     def get_flagged(self, obj):
         """
@@ -221,6 +242,81 @@ class VotableContentSerializer(SBSerializer):
             return False
 
         return request.user.username in obj.get_flagged_by()
+
+    def get_can_upvote(self, obj):
+        """
+        Determine if the currently logged in user can up vote this object.
+        :param obj:
+        :return:
+        """
+        request, _, _, _, _ = gather_request_data(self.context)
+        detail = None
+        short_detail = None
+        if request is None:
+            return {"status": False,
+                    "detail": "You must be logged in to upvote content.",
+                    "short_detail": "Signup To Vote"}
+        if not request.user.is_authenticated():
+            return {"status": False,
+                    "detail": "You must be logged in to upvote content.",
+                    "short_detail": "Signup To Vote"}
+        # Currently we allow everyone to upvote without regulation. This is
+        # to generate an initial base of reputation.
+
+        return {"status": True, "detail": detail, "short_detail": short_detail}
+
+    def get_can_downvote(self, obj):
+        """
+        Determine if the currently logged in user can down vote this object.
+        :param obj:
+        :return:
+        """
+        request, _, _, _, _ = gather_request_data(self.context)
+        detail = None
+        short_detail = None
+        if request is None:
+            return {"status": False,
+                    "detail": "You must be logged in to downvote content.",
+                    "short_detail": "Signup To Vote"}
+        if not request.user.is_authenticated():
+            return {"status": False,
+                    "detail": "You must be logged in to downvote content.",
+                    "short_detail": "Signup To Vote"}
+        obj_type = obj.__class__.__name__.lower()
+        if obj_type == "question" or obj_type == "solution":
+            can_downvote = "downvote" in Pleb.get(
+                username=request.user.username).get_privileges()
+            if not can_downvote:
+                detail = "You must have 100+ reputation to downvote" \
+                         " Conversation Cloud content."
+                short_detail = "Requirement: 100+ Reputation"
+        elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
+                (obj.parent_type == "question" or obj_type == "solution"):
+            can_downvote = "downvote" in Pleb.get(
+                username=request.user.username).get_privileges()
+            detail = "You must have 100+ reputation to downvote" \
+                     " Conversation Cloud content."
+            short_detail = "Requirement: 100+ Reputation"
+        else:
+            can_downvote = True
+
+        return {"status": can_downvote, "detail": detail,
+                "short_detail": short_detail}
+
+    def get_is_private(self, obj):
+        obj_type = obj.__class__.__name__.lower()
+        if obj_type == "question" or obj_type == "solution":
+            return False
+        elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
+                (obj.parent_type == "question" or obj_type == "solution"):
+            return False
+        elif obj_type == "post":
+            return True
+        elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
+                obj.parent_type == "post":
+            return True
+        else:
+            return False
 
 
 class ContentSerializer(VotableContentSerializer):

@@ -1,4 +1,145 @@
-<h1>Sagebrew Web Backend</h1>
-<p>Must run <code>sudo apt-get install postfix</code> for email to work correctly on local 
-environment. </p>
-<p>Refresh</p>
+<h1>Bootstrap Notify</h1>
+<p>This is a simple plugin that turns standard Bootstrap alerts into "Growl-like" notifications.</p>
+<h2>Bower Officially Supported</h2>
+<p>I would like to thank <a href="https://github.com/IjinPL">Błażej Krysiak</a> for doing this!</p>
+<pre><code>bower install remarkable-bootstrap-notify
+</code></pre>
+
+<h2>Meteor Officially Supported</h2>
+<p>Meteor integration by <a href="https://github.com/zimme">zimme</a>.</p>
+<pre><code class="sh">meteor add mouse0270:bootstrap-notify
+</code></pre>
+
+<h2>Changelog</h2>
+<h5>Version 3.1.3</h5>
+<ul>
+<li>Added Meteor Support</li>
+<li>Fixed issue with Glyphicons Pro</li>
+<li>Updating version pattern. </li>
+</ul>
+<pre><code>x.y.z
+x = Main version of the plugin
+y = New features were added to the plugin
+z = Fixes/patches to existing features of the plugin
+</code></pre>
+
+<h5><a href="http://bootstrap-notify.remabledesigns.com/3.0.2/">Version 3.0.2</a></h5>
+<ul>
+<li>Fixed update for backwards compatibility</li>
+</ul>
+<h5><a href="http://bootstrap-notify.remabledesigns.com/3.0.1/">Version 3.0.1</a></h5>
+<ul>
+<li>Add the ability to update multiple values in one call</li>
+<li>Turn off Progress bar</li>
+<li>Set Progress bar value / Progress bar not shown by default</li>
+</ul>
+<pre><code class="javascript">//Update
+var notify = $.notify('&lt;strong&gt;Saving&lt;/strong&gt; Do not close this page...', { allow_dismiss: false });
+notify.update({ type: 'success', '&lt;strong&gt;Success&lt;/strong&gt; Your page has been saved!' });
+
+// Turn of Progress bar on
+$.notify('I have a progress bar', { showProgressbar: true });
+
+// Update Progress bar
+var notify = $.notify('&lt;strong&gt;Saving&lt;/strong&gt; Do not close this page...', { allow_dismiss: false });
+notify.update({ type: 'warning', '&lt;strong&gt;Oops&lt;/strong&gt; Something happened. Correcting Now', progress: 20 });
+</code></pre>
+
+<h5><a href="http://bootstrap-notify.remabledesigns.com/3.0.0/">Version 3.0.0</a></h5>
+<ul>
+<li>New template structure</li>
+<li>Better event handling for onShow, onShown, onClose, onClosed</li>
+<li>updating notification content will reposition growls below it</li>
+<li>Fixed updating icon images</li>
+<li>Fixed IE Issues with Growl URL not being able to be clicked on</li>
+<li>Added the ability to show progress bars</li>
+<li>Added the ability to pass position in the settings</li>
+<li>Added <em><em>newest_on_top</em></em> option that allows new growls to push down old growls</li>
+<li>Added Transition CSS to plugin</li>
+</ul>
+<pre><code class="css">tranition: all 0.5 ease-in-out;
+</code></pre>
+
+<ul>
+<li>Remember to read to documenation. I use custom css style's for the progress bar that you can find there. This was left out of the plugin so you could choose to use the default progressbar styles provided for bootstrap or write your own.</li>
+</ul>
+<h5><a href="http://bootstrap-growl.remabledesigns.com/2.0.1/">Version 2.0.1</a></h5>
+<ul>
+<li>Added the ability to set an X and Y value within the offset option</li>
+<li>Added callback options onShow, onShown, onHide and onHidden</li>
+<li>Added a close all method to close all open growls</li>
+</ul>
+<h5><a href="http://bootstrap-growl.remabledesigns.com/2.0.0a3/">Version 2.0.0a3</a></h5>
+<ul>
+<li>Fixed issue with growl not closing if there was no CSS animations</li>
+</ul>
+<h5><a href="http://bootstrap-growl.remabledesigns.com/2.0.0a2/">Version 2.0.0a2</a> (with IE8 Support)</h5>
+<ul>
+<li>Changed animate.in to animate.enter for IE8 compatibility</li>
+<li>Changed animate.out to animate.exit for IE8 compatibility</li>
+<li>Modified .is(':hover') for IE8 compatibility</li>
+</ul>
+<h5><a href="http://bootstrap-growl.remabledesigns.com/2.0.0a1/">Version 2.0.0a1</a></h5>
+<ul>
+<li>Better Minification</li>
+</ul>
+<h5><a href="http://bootstrap-growl.remabledesigns.com/2.0.0a1/">Version 2.0.0a</a></h5>
+<ul>
+<li>Major rewright of the plugin file.</li>
+<li>Added the ability to pass the growl a link making it clickable.</li>
+<li>Added the ability to control the growl animations in and out using css.</li>
+<li>Added the ability to set growl settings globally.</li>
+<li>Removed jQuery fadeIn (use css to control growl animations)</li>
+</ul>
+<h5><a href="http://bootstrap-growl.remabledesigns.com/1.0.6/">Version 1.0.6</a></h5>
+<ul>
+<li>Added onGrowlShow and onGrowlShown callback functionality.</li>
+</ul>
+<h5>Version 1.0.5</h5>
+<ul>
+<li>Better positioning when using CSS animations after growl closes.</li>
+</ul>
+<h5>Version 1.0.4</h5>
+<ul>
+<li>Updated $.growl() to return a wrapper object with a small API to let you control individual notifications after they have been created.</li>
+<li>Added onGrowlClose and onGrowlClosed callback functionality.</li>
+</ul>
+<h5>Version 1.0.3</h5>
+<ul>
+<li>Made jQuery $.extend() Recursive so when you change just one option under position or template the script wont fail</li>
+</ul>
+<h5>Version 1.0.2</h5>
+<ul>
+<li>Fixed an issue where $.growl("message") would thrown an exception | Provided by <a href="https://github.com/DannyJo/bootstrap-growl">DannyJo</a></li>
+</ul>
+<h5>Version 1.0.0</h5>
+<ul>
+<li>Initial Release</li>
+</ul>
+<h2>Demo</h2>
+<p>I have created a small demo to show off some of the features that you can use with this plugin. http://bootstrap-growl.remabledesigns.com/</p>
+<h2>Dependencies</h2>
+<ul>
+<li><a href="http://jquery.com/">jQuery v1.10.2</a></li>
+<li><a href="http://getbootstrap.com/">Bootstrap v2.0.0 - 3.2.0</a></li>
+</ul>
+<h2>Documentation</h2>
+<p>There is alot of documentation on the website. Click the link below to read it.
+- <a href="http://bootstrap-notify.remabledesigns.com/#documentation">Documentation</a></p>
+<h2>Copyright and License</h2>
+<p>The MIT License (MIT)
+Copyright (c) 2014 Robert McIntosh</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+the Software, and to permit persons to whom the Software is furnished to do so,
+subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>

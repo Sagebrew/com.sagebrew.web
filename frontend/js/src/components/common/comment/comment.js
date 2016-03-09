@@ -1,6 +1,7 @@
 var Handlebars = require('handlebars'),
     request = require('api').request,
     createCommentTemplate = require('./templates/create_comment.hbs'),
+    moment = require('moment'),
     commentsTemplate = require('./templates/comments.hbs');
 
 
@@ -9,10 +10,24 @@ export function comment() {
     Handlebars.registerPartial('comments', commentsTemplate);
     var $app = $(".app-sb");
     $app
-        .on('initialize', '.js-comment-load', function (event) {
-            console.log('here')
-            var parentId = this.dataset.parent_id;
-            console.log(parentId);
+        .on("sb:populate:comments", function (event, commentParentData) {
+            request.get({url:"/v1/" + commentParentData.type + "s/" + commentParentData.id + "/comments/?expand=true&page_size=3"})
+                .done(function (data) {
+                    var commentContainer = $('#comment-' + commentParentData.id);
+                    for (var i = 0; i < data.results.length; i ++) {
+                        data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
+                    }
+                    commentContainer.append(commentsTemplate({"comments": data.results}));
+                    if (data.count > 3) {
+                        // TODO this may break in IE
+                        commentContainer.append(
+                                '<div class="row" id="additional-comment-wrapper-' + commentParentData.id + '">' +
+                                '<div class="col-sm-5 col-xs-offset-1">' +
+                                '<a href="javascript:;" class="additional-comments" id="additional-comments-' + commentParentData.id + '">Show Older Comments ...</a>' +
+                                '</div>' +
+                                '</div>');
+                    }
+                });
         })
 }
 
@@ -53,42 +68,6 @@ function showEditComment() {
         $('#edit_container_' + objectUuid).show();
         var textarea = $('textarea#' + $(this).data('comment_uuid'));
         textarea.height(textarea[0].scrollHeight);
-    });
-}
-
-
-function populateComment(objectUuid, resource) {
-    request.get({url:"/v1/" + resource + "/" + objectUuid + "/comments/?page_size=3"})
-        .done(function () {
-            "use strict";
-
-        })
-    $.ajax({
-        xhrFields: {withCredentials: true},
-        type: "GET",
-        // TODO probably want to make a /v1/content/ endpoint so that it's more
-        // explanitory that comments can be on any piece of content.
-        // Then use /posts/questions/solutions where needed
-        url: "/v1/" + resource + "/" + objectUuid + "/comments/render/?expedite=true&expand=true&html=true&page_size=3",
-        contentType: "application/json; charset=utf-8",
-        dataType: "json",
-        success: function (data) {
-            var commentContainer = $('#sb_comments_container_' + objectUuid);
-            commentContainer.append(data.results.html);
-            if (data.count > 3) {
-                // TODO this may break in IE
-                commentContainer.append(
-                        '<div class="row" id="additional-comment-wrapper-' + objectUuid + '">' +
-                        '<div class="col-sm-5 col-xs-offset-1">' +
-                        '<a href="javascript:;" class="additional-comments" id="additional-comments-' + objectUuid + '">Show Older Comments ...</a>' +
-                        '</div>' +
-                        '</div>');
-            }
-            enableCommentFunctionality(data.results.ids);
-        },
-        error: function (XMLHttpRequest) {
-            errorDisplay(XMLHttpRequest);
-        }
     });
 }
 

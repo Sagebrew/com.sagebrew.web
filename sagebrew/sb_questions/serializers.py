@@ -171,7 +171,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
                     # we can remove this.
                     if (request.user.username == "devon_bleibtrey" or
                             request.user.username == "tyler_wiersing"):
-                        tag_obj = Tag(name=tag.lower()).save()
+                        tag_obj = Tag(name=slugify(tag.lower())).save()
                         question.tags.connect(tag_obj)
                     else:
                         continue

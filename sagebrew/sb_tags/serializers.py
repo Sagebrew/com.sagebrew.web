@@ -1,3 +1,5 @@
+from django.utils.text import slugify
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -13,4 +15,4 @@ class TagSerializer(SBSerializer):
         if request is None:
             return None
         return reverse('tag-detail',
-                       kwargs={'name': obj.name}, request=request)
+                       kwargs={'name': slugify(obj.name)}, request=request)

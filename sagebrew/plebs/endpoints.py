@@ -699,8 +699,6 @@ class MeViewSet(mixins.UpdateModelMixin,
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then)
         news = []
-        article_html = None
-        html = request.query_params.get('html', 'false').lower()
         res, _ = db.cypher_query(query)
         # Profiled with ~50 objects and it was still performing under 1 ms.
         # By the time sorting in python becomes an issue the above mentioned

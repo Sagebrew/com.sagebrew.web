@@ -1,3 +1,5 @@
+from django.utils.text import slugify
+
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
@@ -5,7 +7,7 @@ from api.serializers import SBSerializer
 
 
 class TagSerializer(SBSerializer):
-    name = serializers.CharField(max_length=140)
+    name = serializers.CharField(max_length=240)
     href = serializers.SerializerMethodField()
 
     def get_href(self, obj):
@@ -13,4 +15,4 @@ class TagSerializer(SBSerializer):
         if request is None:
             return None
         return reverse('tag-detail',
-                       kwargs={'name': obj.name}, request=request)
+                       kwargs={'name': slugify(obj.name)}, request=request)

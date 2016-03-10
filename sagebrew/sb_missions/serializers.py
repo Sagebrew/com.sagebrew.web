@@ -175,7 +175,7 @@ class MissionSerializer(SBSerializer):
             res, _ = db.cypher_query(query)
             return Mission.inflate(res.one)
         elif focus_type == "advocacy":
-            focused_on = '-'.join(focused_on.replace('_', '-').lower().split())
+            focused_on = slugify(focused_on)
             try:
                 Tag.nodes.get(name=focused_on)
             except (DoesNotExist, Tag.DoesNotExist):

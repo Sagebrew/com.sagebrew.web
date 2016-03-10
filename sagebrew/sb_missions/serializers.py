@@ -93,7 +93,9 @@ class MissionSerializer(SBSerializer):
             location = location.replace(
                 " Of", " of").replace(
                 " And", " and").replace(" Or", " or")
-        focused_on = validated_data.get('focus_name').replace('.', '')
+        focused_on = validated_data.get('focus_name')
+        if focus_type == "advocacy":
+            focused_on = slugify(focused_on)
         district = validated_data.get('district')
         # TODO what happens if a moderator makes the mission?
         owner_username = request.user.username

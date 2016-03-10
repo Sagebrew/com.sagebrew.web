@@ -38,7 +38,7 @@ class MissionSerializer(SBSerializer):
                                   allow_blank=True)
     owner_username = serializers.CharField(read_only=True)
     location_name = serializers.CharField(required=False, allow_null=True)
-    focus_name = serializers.CharField()
+    focus_name = serializers.CharField(max_length=240)
     focus_formal_name = serializers.CharField(read_only=True)
 
     url = serializers.SerializerMethodField()
@@ -93,7 +93,7 @@ class MissionSerializer(SBSerializer):
             location = location.replace(
                 " Of", " of").replace(
                 " And", " and").replace(" Or", " or")
-        focused_on = validated_data.get('focus_name')
+        focused_on = validated_data.get('focus_name').replace('.', '')
         district = validated_data.get('district')
         # TODO what happens if a moderator makes the mission?
         owner_username = request.user.username

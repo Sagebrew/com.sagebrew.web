@@ -106,7 +106,7 @@ class TagEndpointTest(APITestCase):
     def test_get_non_url_friendly(self):
         name = ' !@#$%^&*()_+~`1234567890-=[]\{}|;:",./<>?qwer  lsls., '
         tag2 = Tag(
-            name=name,
+            name=slugify(name),
             owner_username=self.pleb.username).save()
         self.client.force_authenticate(user=self.user)
         url = reverse('tag-detail',
@@ -118,7 +118,7 @@ class TagEndpointTest(APITestCase):
     def test_list_non_url_friendly(self):
         name = ' 112@#$%^&*()_+~`1234567890-=[]\{}|;:",./<>?qwer  lsls., '
         tag2 = Tag(
-            name=name,
+            name=slugify(name),
             owner_username=self.pleb.username).save()
         self.client.force_authenticate(user=self.user)
         url = reverse('tag-detail',

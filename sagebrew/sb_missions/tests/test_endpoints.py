@@ -200,7 +200,8 @@ class MissionEndpointTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
         mission = Mission.nodes.get(object_uuid=response.data['id'])
         self.assertEqual(mission.focus_on_type, data['focus_on_type'])
-        self.assertEqual(mission.focus_name, slugify(name))
+        self.assertEqual(mission.focus_name, slugify(
+            name).title().replace('-', ' ').replace('_', ' '))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_with_no_quest(self):

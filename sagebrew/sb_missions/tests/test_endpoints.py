@@ -2,6 +2,7 @@ import stripe
 import datetime
 from uuid import uuid1
 
+from django.utils.text import slugify
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
@@ -177,6 +178,32 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(mission.focus_on_type, data['focus_on_type'])
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_create_position_focus_local_new_non_url_position(self):
+        self.client.force_authenticate(user=self.user)
+        name = ' 112@#$%^&*()_+~`1234567890-=[]\{}|;:",./<>?qwer  lsls., '
+        usa = Location(name="United States of America").save()
+        michigan = Location(name="Michigan").save()
+        d11 = Location(name="Walled Lake", sector="local",
+                       external_id="Walled Lake").save()
+        usa.encompasses.connect(michigan)
+        michigan.encompassed_by.connect(usa)
+        michigan.encompasses.connect(d11)
+        d11.encompassed_by.connect(michigan)
+        url = reverse('mission-list')
+        data = {
+            "focus_on_type": "position",
+            "location_name": "Walled Lake",
+            "district": "11",
+            "level": "local",
+            "focus_name": name
+        }
+        response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
+        self.assertEqual(mission.focus_name, slugify(
+            name).title().replace('-', ' ').replace('_', ' '))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
     def test_create_with_no_quest(self):
         self.client.force_authenticate(user=self.user)
         for quest in self.pleb.quest.all():
@@ -280,6 +307,31 @@ class MissionEndpointTests(APITestCase):
         response = self.client.post(url, data=data, format='json')
         mission = Mission.nodes.get(object_uuid=response.data['id'])
         self.assertEqual(mission.focus_on_type, data['focus_on_type'])
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_create_advocacy_local_url_unfriendly_focus(self):
+        self.client.force_authenticate(user=self.user)
+        name = ' 112@#$%^&*()_+~`1234567890-=[]\{}|;:",./<>?qwer  lsls., '
+        usa = Location(name="United States of America").save()
+        michigan = Location(name="Michigan").save()
+        d11 = Location(name="Walled Lake", sector="local",
+                       external_id="Walled Lake").save()
+        usa.encompasses.connect(michigan)
+        michigan.encompassed_by.connect(usa)
+        michigan.encompasses.connect(d11)
+        d11.encompassed_by.connect(michigan)
+        url = reverse('mission-list')
+        data = {
+            "focus_on_type": "advocacy",
+            "location_name": "Walled Lake",
+            "district": "11",
+            "level": "local",
+            "focus_name": name
+        }
+        response = self.client.post(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.focus_on_type, data['focus_on_type'])
+        self.assertEqual(mission.focus_name, slugify(name))
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_advocacy_state(self):

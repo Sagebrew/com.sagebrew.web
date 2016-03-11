@@ -1,12 +1,7 @@
-{% extends 'base.html' %}
-<!-- Because this .html file extends an html file with '
-    js/query_questions.js' it will cause a 400 error
-    from one of the views. We can fix this by not having this html
-    extend html that includes 'js/query_questions.js' -->
+{% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
 {% block title %}{{ title }}{% endblock title %}
 {% block description %}
-    <meta name="fragment" content="!">
     <meta name="description" content="{{ description }}">
 {% endblock description %}
 {% block keywords %}
@@ -15,186 +10,160 @@
     {% endif %}
     <meta name="author" content="{{ authors }}">
 {% endblock keywords %}
-{% block content %}
-<div class="action" style="display: none" data-action="write_question"></div>
-<div class="action" style="display: none" data-action="write_comment"></div>
-<div class="action" style="display: none" data-action="write_solution"></div>
-<div class="row">
-    <div class="col-lg-9">
-        <div class="sb_wall sb_conversation_wall">
-            <h3>
-                <a href="{% url 'question_page'%}">
-                   Conversations
-                </a>
-            </h3>
-            <div>
-            {% if to_be_deleted == True %}
-                <div class="row">
-                        <div class="col-xs-10">
-                            <div>
-                                <h1>
-                                    Sorry, the creator of this question has deleted it!
-                                </h1>
-                            </div>
-                        </div>
-                </div>
-            {% else %}
-                {% if html_snapshot %}
-                    {% include "question.html" %}
-                {% else %}
-                    <div class="question" id="single_question_wrapper">
-                    </div>
-                {% endif %}
-                <div class="row sb_tertiary_nav">
-                    <div class="col-xs-12 col-sm-8">
-                        {% if html_snapshot %}
-                            <h3><span id="solution_count">{{ solution_count }}</span> Solution<span id="solution_plural"></span></h3>
-                        {% else %}
-                            <h3 id="js-solution-count-header"><span id="solution_count">--</span> Solution<span id="solution_plural"></span></h3>
-                        {% endif %}
-                    </div>
-                  {% if debug %}
-                    <div class="col-sm-4 hidden-xs" align="right">
-                        <a class="btn sb_tab_question active"
-                           data-sort_by="most_recent">Most Recent</a>
-                        <a class="btn sb_tab_question"
-                           data-sort_by="least_recent">Least Recent</a>
-                    </div>
-                  {% endif %}
-                </div>
-                <div class="row">
-                    {% if html_snapshot %}
-                        <div id="solution_container">
-                            {% for solution in solutions %}
-                                {% with profile=solution.profile %}
-                                    {% include "solution_include.html" %}
-                                {% endwith %}
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div id="solution_container">
-                        </div>
-                    {% endif %}
-                </div>
-                {% if not is_closed and not request.user.is_anonymous and not html_snapshot and request_profile.email_verified and request_profile.completed_profile_info %}
-                    <div class="row">
-                        <div class="block sb_markdown sb_solution">
-                            <form id="solutionSubmitForm">
-                            <div class="col-lg-12">
-                                <h4>Provide a Solution</h4>
-                            </div>
-                                <div class="col-lg-12">
-                                    <textarea class="form-control sb_solution_input_area markdown-input"
-                                              id="solution_content_id"
-                                              name="solution_content"
-                                              placeholder="Write your solution..."></textarea>
-                                </div>
-                                <div class="col-md-4">
-                                    <button class="btn btn-primary sb_btn sb_btn_fill submit_solution-action"
-                                            id="submit_solution"
-                                            data-object_uuid="{{ uuid }}"
-                                            data-url="/solutions/submit_solution_api/">
-                                        Submit
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                {% endif %}
-                {% if request.user.is_anonymous  %}
-                    <div class="row">
-                        <div class="col-md-4">
-                            <button class="btn sb_restricted sb_btn_disabled"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    data-title="Signup to Provide a Solution">
-                                Submit Solution
-                            </button>
-                        </div>
-                    </div>
-                {% elif not request_profile.email_verified %}
-                    <div class="row">
-                        <div class="col-md-4">
-                            <button class="btn sb_restricted sb_btn_disabled"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    data-title="Please Verify Your Email">
-                                Submit Solution
-                            </button>
-                        </div>
-                    </div>
-                {% elif not request_profile.completed_profile_info %}
-                    <div class="row">
-                        <div class="col-md-4">
-                            <button class="btn sb_restricted sb_btn_disabled"
-                                    data-toggle="tooltip"
-                                    data-placement="top"
-                                    data-title="Please Complete Registration">
-                                Submit Solution
-                            </button>
-                        </div>
-                    </div>
-                {% endif %}
-            {% endif %}
+{% block sidebar_right %}
+    <div class="conversation-meta">
+        <div class="meta">
+            <div class="row">
+                <div class="col-xs-12"><h5 align="center">Topic{{ tags|length|pluralize }}</h5></div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12"><h6 align="center">{{ tags|join:", "|title|default:" No Tags Set on Conversation" }}</h6></div>
             </div>
         </div>
     </div>
-    {% include "conversation_side_content.html" %}
-</div>
-<div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="btn btn-sm sb_btn close" data-dismiss="modal" aria-hidden="true">×</button>
-                <h3 id="fileModalLabel">Upload Images</h3>
+    <div class="conversation-meta" style="margin-top: 30px;">
+        <div class="meta">
+            <div class="row">
+                <div class="col-xs-12"><h5 align="center">Focus</h5></div>
             </div>
-            <div class="modal-form">
-                <div class="tabbable tabs-left">
-                    <ul class="nav nav-tabs">
-                        <li class="active"><a href="#tab1" data-toggle="tab">Upload</a></li>
-                        <li><a href="#tab2" data-toggle="tab">Enter URL</a></li>
-                    </ul>
-                    <div class="tab-content">
-                        <div class="tab-pane active" id="tab1">
-                            <div class="preview" id="preview" >
-                                <input id="upload_image" type="file" name="img">
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="tab2">
-                            <p><input type="text" class="form-control input-lg img-url" placeholder="Ex: http://yoursite.com/image.jpg" id="img-url" /></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <div class="col-xs-12 col-md-6 col-lg-4">
-                    <button class="btn btn-primary sb_btn sb_btn_fill" id="insert_image_post">Insert Image</button>
-                </div>
-                <div class="col-xs-12 col-md-6 col-lg-4">
-                    <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove" data-dismiss="modal" aria-hidden="true">Close</button>
-                </div>
+            <div class="row">
+                <div class="col-xs-12"><h6 align="center">{{ question.affected_area|default:"World" }}</h6></div>
             </div>
         </div>
     </div>
-</div>
+    <div class="map-viewer-conversation">
+        <div id="map"></div>
+    </div>
 
-<div class="div_data_hidden"
-     data-sort_by="uuid"
-     data-question_uuid="{{ uuid }}"></div>
-    {% include "flag_modal.html" %}
-{% endblock content %}
-{% block scripts %}
+    <div class="hidden-sm hidden-md sb_questions_side_container">
+        <h3 align="center">
+            Things to Keep in Mind
+        </h3>
+        <div class="sb_deco_line"></div>
+        <h5 align="left">Be Respectful</h5>
+        <div class="sb_deco_line"></div>
+        <h5 align="left">Consider All Sides</h5>
+        <div class="sb_deco_line"></div>
+        <h5 align="left">Link to Supporting Info</h5>
+        <div class="sb_deco_line"></div>
+    </div>
+{% endblock sidebar_right %}
 
-    {{ block.super }}
-
-    {% if not html_snapshot %}
-        <script src="{% static 'js/edit_question.js' %}"></script>
-        <script src="{% static 'js/flag_modal.js' %}"></script>
-        <script src="{% static 'js/solution_validator.js' %}"></script>
-        <script src="{% static 'js/activate_tooltips.js' %}"></script>
+{% block live %}
+    <div class="block">
+        <h1 class="block-title no-underline center-title">Conversation</h1>
+    </div>
+    {% if to_be_deleted == True %}
+        <div class="block">
+            <h1 class="block-title">
+                Sorry, the creator of this question has deleted it!
+            </h1>
+        </div>
+    {% else %}
+        <div class="question" id="js-conversation-question"></div>
     {% endif %}
 
-{% endblock scripts %}
+    <div class="block">
+        <h2 class="block-title no-underline center-title">Solutions</h2>
+    </div>
+    <div id="js-conversation-solutions">
+        <div class="loader"></div>
+    </div>
+    {% if not is_closed and not request.user.is_anonymous and not html_snapshot and request_profile.email_verified and request_profile.completed_profile_info %}
+    <div class="block">
+        <h4 class="block-title">Provide a Solution</h4>
+        <div class="sb_markdown sb_solution">
+            <div class="block-content">
+                <form id="solutionSubmitForm">
+                        <textarea class="form-control sb_solution_input_area markdown-input"
+                                  id="solution_content_id"
+                                  name="solution_content"
+                                  placeholder="Write your solution..."></textarea>
+                        <button class="btn btn-primary sb_btn sb_btn_fill submit_solution-action"
+                                id="submit_solution"
+                                data-object_uuid="{{ uuid }}"
+                                data-url="/solutions/submit_solution_api/">
+                            Submit
+                        </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if request.user.is_anonymous  %}
+        <div class="block">
+            <div class="block-content">
+                <button class="btn sb_restricted sb_btn_disabled"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        data-title="Signup to Provide a Solution">
+                    Submit Solution
+                </button>
+            </div>
+        </div>
+    {% elif not request_profile.email_verified %}
+        <div class="block">
+            <div class="block-content">
+                <button class="btn sb_restricted sb_btn_disabled"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        data-title="Please Verify Your Email">
+                    Submit Solution
+                </button>
+            </div>
+        </div>
+    {% elif not request_profile.completed_profile_info %}
+        <div class="block">
+            <div class="block-content">
+                <button class="btn sb_restricted sb_btn_disabled"
+                        data-toggle="tooltip"
+                        data-placement="top"
+                        data-title="Please Complete Registration">
+                    Submit Solution
+                </button>
+            </div>
+        </div>
+    {% endif %}
+    <div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn btn-sm sb_btn close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="fileModalLabel">Upload Images</h3>
+                </div>
+                <div class="modal-form">
+                    <div class="tabbable tabs-left">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#tab1" data-toggle="tab">Upload</a></li>
+                            <li><a href="#tab2" data-toggle="tab">Enter URL</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="tab1">
+                                <div class="preview" id="preview" >
+                                    <input id="upload_image" type="file" name="img">
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="tab2">
+                                <p><input type="text" class="form-control input-lg img-url" placeholder="Ex: http://yoursite.com/image.jpg" id="img-url" /></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="col-xs-12 col-md-6 col-lg-4">
+                        <button class="btn btn-primary sb_btn sb_btn_fill" id="insert_image_post">Insert Image</button>
+                    </div>
+                    <div class="col-xs-12 col-md-6 col-lg-4">
+                        <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove" data-dismiss="modal" aria-hidden="true">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock live%}
+
+{% include "flag_modal.html" %}
+
 {% block intercom %}
     Intercom('trackEvent', 'visited-{{ title|slugify }}-conversation');
     Intercom('trackEvent', 'visited-conversation-page');

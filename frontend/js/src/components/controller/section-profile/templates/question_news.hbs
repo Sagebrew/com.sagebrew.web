@@ -16,7 +16,7 @@
         <div class="row">
             <div class="hidden-xs col-sm-1 sb_vote_wrapper">
                 <div class="vote_lg vote_count_large">
-                    {{> 'common/vote/templates/vote.hbs' id=id
+                    {{> 'controller/vote/templates/vote.hbs' id=id
                     vote_count=vote_count upvote=upvote downvote=downvote type=type
                     can_upvote=can_upvote can_downvote=can_downvote }}
                 </div>
@@ -30,7 +30,8 @@
             </div>
         </div>
     </div>
-    {{> 'common/comment/templates/create_comment.hbs' parent_id=id
+    {{> 'controller/comments/templates/create_comment.hbs' parent_id=id
+            parent_type=type
             can_comment=can_comment
             comment_description="Help improve the Question by providing feedback"}}
 </div>

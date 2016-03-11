@@ -160,7 +160,6 @@ class TestGetQuestionView(APITestCase):
                           owner_username=self.pleb.username,
                           parent_type='question').save()
         question.owned_by.connect(self.pleb)
-        solution.solution_to.connect(question)
         question.solutions.connect(solution)
         question.comments.connect(comment)
         comment.comment_on.connect(question)

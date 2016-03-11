@@ -250,6 +250,7 @@ class VotableContentSerializer(SBSerializer):
         :return:
         """
         request, _, _, _, _ = gather_request_data(self.context)
+        can_upvote = True
         detail = None
         short_detail = None
         if request is None:
@@ -260,10 +261,32 @@ class VotableContentSerializer(SBSerializer):
             return {"status": False,
                     "detail": "You must be logged in to upvote content.",
                     "short_detail": "Signup To Vote"}
+        obj_type = obj.__class__.__name__.lower()
+        # Duplicated logic for sake of readability
+        if obj_type == "question" or obj_type == "solution":
+            if hasattr(obj, 'owner_username'):
+                if obj.owner_username == request.user.username:
+                    can_upvote = False
+                    detail = "You cannot upvote your own " \
+                             "Conversation Cloud content"
+                    short_detail = "Cannot Upvote Own " \
+                                   "Conversation Cloud Content"
+        elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
+            (obj.parent_type == "question" or
+                obj.parent_type == "solution"):
+            if hasattr(obj, 'owner_username'):
+                if obj.owner_username == request.user.username:
+                    can_upvote = False
+                    detail = "You cannot upvote your own " \
+                             "Conversation Cloud content"
+                    short_detail = "Cannot Upvote Own " \
+                                   "Conversation Cloud Content"
+
         # Currently we allow everyone to upvote without regulation. This is
         # to generate an initial base of reputation.
 
-        return {"status": True, "detail": detail, "short_detail": short_detail}
+        return {"status": can_upvote, "detail": detail,
+                "short_detail": short_detail}
 
     def get_can_downvote(self, obj):
         """
@@ -274,6 +297,7 @@ class VotableContentSerializer(SBSerializer):
         request, _, _, _, _ = gather_request_data(self.context)
         detail = None
         short_detail = None
+        can_downvote = False
         if request is None:
             return {"status": False,
                     "detail": "You must be logged in to downvote content.",
@@ -286,18 +310,34 @@ class VotableContentSerializer(SBSerializer):
         if obj_type == "question" or obj_type == "solution":
             can_downvote = "downvote" in Pleb.get(
                 username=request.user.username).get_privileges()
-            if not can_downvote:
+            if hasattr(obj, 'owner_username') and \
+                    obj.owner_username == request.user.username:
+                can_downvote = False
+                detail = "You cannot downvote your own " \
+                         "Conversation Cloud content"
+                short_detail = "Cannot Downvote Own " \
+                               "Conversation Cloud Content"
+            elif not can_downvote:
+                can_downvote = False
                 detail = "You must have 100+ reputation to downvote" \
                          " Conversation Cloud content."
                 short_detail = "Requirement: 100+ Reputation"
         elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
                 (obj.parent_type == "question" or
                     obj.parent_type == "solution"):
-            can_downvote = "downvote" in Pleb.get(
-                username=request.user.username).get_privileges()
-            detail = "You must have 100+ reputation to downvote" \
-                     " Conversation Cloud content."
-            short_detail = "Requirement: 100+ Reputation"
+            if hasattr(obj, 'owner_username') and \
+                    obj.owner_username == request.user.username:
+                can_downvote = False
+                detail = "You cannot downvote your own " \
+                         "Conversation Cloud content"
+                short_detail = "Cannot Downvote Own " \
+                               "Conversation Cloud Content"
+            elif "downvote" not in Pleb.get(
+                    username=request.user.username).get_privileges():
+                can_downvote = False
+                detail = "You must have 100+ reputation to downvote" \
+                         " Conversation Cloud content."
+                short_detail = "Requirement: 100+ Reputation"
         else:
             can_downvote = True
 

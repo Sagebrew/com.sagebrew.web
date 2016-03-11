@@ -1,13 +1,14 @@
 {{#each comments }}
-    <div class="block">
+    <div class="block" id="comment-block-{{ id }}">
         <div class="col-xs-12 col-sm-11 col-sm-offset-1">
             <div class="sb_post_comments">
                 <div class="comment-container">
-                    <div class="row sb-comment-rows">
+                    <div class="row sb-comment-rows comment-header">
                         <div class="col-xs-12">
                             <small>Author: <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>
                                 <b>&middot;</b>
                                 {{ created }} </small>
+                            {{!--
                             {{# if is_owner }}
                                 <button class="btn dropdown-toggle sb_btn_icon"
                                         type="button" id="dropdownMenu1" data-toggle="dropdown"
@@ -15,52 +16,55 @@
                                     <span class="fa fa-cog sb_btn_icon_green_hover"></span>
                                 </button>
                                 <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
-                                    <li><a class="sb_post_dropdown_menu show_edit_comment_class"
-                                                               data-comment_uuid="{{ object_uuid }}"
-                                                               type="submit">Edit</a>
+                                    <li><a class="sb_post_dropdown_menu js-edit-comment"
+                                           data-id="{{ id }}"
+                                           type="submit">Edit</a>
                                     </li>
                                     <li class="sb_divider"></li>
 
                                     <li>
-                                        <a class='sb_post_dropdown_menu delete_object-action delete_{{ object_uuid }}'>
+                                        <a class='sb_post_dropdown_menu js-delete-comment'
+                                                data-id="{{ id }}" data-parent_id="{{ parent_id }}"
+                                                data-parent_type="{{ parent_type }}">
                                             Delete
                                         </a>
                                     </li>
                                 </ul>
                             {{ else }}
-                                {{> 'common/flag/templates/create_flag.hbs' id=id
+                                {{> 'controller/flag/templates/create_flag.hbs' id=id
                                     can_flag=can_flag flagged=flagged href=href }}
                             {{/if }}
+                            --}}
                         </div>
                     </div>
                     <div class="row sb-comment-rows">
                         <div class="hidden-xs col-sm-1 sb_vote_wrapper">
                             <div class="vote_small vote_count_small">
-                                {{> 'common/vote/templates/vote.hbs' id=id
+                                {{> 'controller/vote/templates/vote.hbs' id=id
                                     vote_count=vote_count upvote=upvote downvote=downvote type=type
                                     can_upvote=can_upvote can_downvote=can_downvote }}
                             </div>
                         </div>
                         <div class="col-xs-9">
-                            <div class="block-content">
+                            <div class="block-content" id="js-comment-{{ id }}">
                                 {{{ html_content }}}
                             </div>
-                            <div id="edit_container_{{ object_uuid }}" style="display: none">
-                                <div class="row-fluid">
-                                    <textarea class="form-control edit_comment_input_class" style="resize: vertical;"
-                                              id="{{ object_uuid }}"
-                                              name="edit_comment_input"
-                                              rows="1">{{ content }}</textarea>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-5 col-md-5 col-sm-4 col-xs-12 col-lg-offset-7 col-md-offset-7 col-sm-offset-8">
-                                        <button class='btn btn-block btn-primary sb_btn_fill edit_object-action edit_{{ object_uuid }}'
-                                           id="edit_comment_button_id_{{ object_uuid }}"
-                                           data-parent_object="{{ object_uuid }}"
-                                           data-object_uuid="{{ object_uuid }}"
-                                           data-created="{{ created }}">Save</button>
+                            <div id="js-edit-container-{{ id }}" style="display: none">
+                                <form class="js-edit-comment-form" action="" method="POST"
+                                      data-parent_type="{{ parent_type }}"
+                                      data-id="{{ id }}"
+                                      data-parent_id="{{ parent_id }}">
+                                    <div class="row">
+                                        <textarea class="form-control edit_comment_input_class" style="resize: vertical;"
+                                                  name="content" rows="1">{{ content }}</textarea>
                                     </div>
-                                </div>
+                                    <div class="row">
+                                        <div class="col-lg-5 col-md-5 col-sm-4 col-xs-12 col-lg-offset-7 col-md-offset-7 col-sm-offset-8">
+                                            <button type="submit" class='btn btn-block btn-primary sb_btn_fill js-edit-comment-btn'
+                                                >Save</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>

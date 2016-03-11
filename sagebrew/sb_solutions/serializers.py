@@ -7,6 +7,7 @@ from datetime import datetime
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+from api.utils import gather_request_data
 from sb_base.serializers import MarkdownContentSerializer
 from plebs.neo_models import Pleb
 
@@ -18,7 +19,8 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
     content = serializers.CharField(min_length=15)
     href = serializers.HyperlinkedIdentityField(view_name='solution-detail',
                                                 lookup_field="object_uuid")
-    solution_to = serializers.SerializerMethodField()
+    parent_id = serializers.CharField(read_only=True)
+    question = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         request = self.context["request"]
@@ -31,12 +33,11 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         href = reverse('solution-detail', kwargs={"object_uuid": uuid},
                        request=request)
         solution = Solution(url=question.url, href=href, object_uuid=uuid,
+                            parent_id=question.object_uuid,
                             **validated_data).save()
         solution.owned_by.connect(owner)
         owner.solutions.connect(solution)
-        if question is not None:
-            question.solutions.connect(solution)
-            solution.solution_to.connect(question)
+        question.solutions.connect(solution)
 
         return solution
 
@@ -51,11 +52,16 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
     def get_url(self, obj):
         return obj.get_url(self.context.get('request', None))
 
-    def get_solution_to(self, obj):
-        try:
-            question = obj.solution_to.all()[0]
-        except IndexError:
-            return None
+    def get_question(self, obj):
+        from sb_questions.neo_models import Question
+        from sb_questions.serializers import QuestionSerializerNeo
+        request, expand, _, relations, expedite = gather_request_data(
+            self.context,
+            expedite_param=self.context.get('expedite_param', None),
+            expand_param=self.context.get('expand_param', None))
+        question = Question.get(object_uuid=obj.parent_id)
+        if expand:
+            return QuestionSerializerNeo(question).data
         return reverse('question-detail',
                        kwargs={'object_uuid': question.object_uuid},
                        request=self.context.get('request', None))

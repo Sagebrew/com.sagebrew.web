@@ -3592,7 +3592,6 @@ class NewsfeedTests(APITestCase):
         solution.owned_by.connect(self.pleb)
         self.pleb.solutions.connect(solution)
         question.solutions.connect(solution)
-        solution.solution_to.connect(question)
 
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
@@ -3613,7 +3612,6 @@ class NewsfeedTests(APITestCase):
         solution.owned_by.connect(self.pleb)
         self.pleb.solutions.connect(solution)
         question.solutions.connect(solution)
-        solution.solution_to.connect(question)
 
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
@@ -3646,7 +3644,6 @@ class NewsfeedTests(APITestCase):
         solution_two.owned_by.connect(self.pleb)
         self.pleb.solutions.connect(solution_two)
         question.solutions.connect(solution)
-        solution.solution_to.connect(question)
 
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
@@ -3667,7 +3664,6 @@ class NewsfeedTests(APITestCase):
         solution.owned_by.connect(self.pleb)
         self.pleb.solutions.connect(solution)
         question.solutions.connect(solution)
-        solution.solution_to.connect(question)
 
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true" % reverse('me-newsfeed')
@@ -3688,7 +3684,6 @@ class NewsfeedTests(APITestCase):
         solution.owned_by.connect(self.pleb)
         self.pleb.solutions.connect(solution)
         question.solutions.connect(solution)
-        solution.solution_to.connect(question)
 
         self.client.force_authenticate(user=self.user)
         url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
@@ -3716,7 +3711,6 @@ class NewsfeedTests(APITestCase):
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
         question.solutions.connect(solution)
-        solution.solution_to.connect(question)
         self.pleb.solutions.connect(solution)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
@@ -3744,7 +3738,6 @@ class NewsfeedTests(APITestCase):
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
         question.solutions.connect(solution)
-        solution.solution_to.connect(question)
         self.pleb.solutions.connect(solution)
 
         self.client.force_authenticate(user=self.user)
@@ -3799,7 +3792,6 @@ class TestFollowNewsfeed(APITestCase):
         self.client.force_authenticate(user=self.user)
         solution = Solution(content="Some arbitrary solution content").save()
         self.question.solutions.connect(solution)
-        solution.solution_to.connect(self.question)
         self.pleb.solutions.connect(solution)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')

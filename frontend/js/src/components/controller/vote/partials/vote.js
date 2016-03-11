@@ -1,9 +1,9 @@
 var Handlebars = require('handlebars'),
     request = require('api').request,
-    votingTemplate = require('common/vote/templates/vote.hbs');
+    votingTemplate = require('../templates/vote.hbs');
 
 
-export function vote() {
+export function load() {
     Handlebars.registerPartial('vote', votingTemplate);
     var $app = $(".app-sb"),
         voteBackup;

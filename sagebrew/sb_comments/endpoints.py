@@ -58,6 +58,7 @@ class ObjectCommentsListCreate(ListCreateAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
+        page = page[::-1]
         [row[0].pull() for row in page]
         page = [Comment.inflate(row[0]) for row in page]
         serializer = self.get_serializer(page, many=True)
@@ -113,7 +114,8 @@ def comment_renderer(request, object_uuid=None):
     comments = ObjectCommentsListCreate.as_view()(
         request, object_uuid=object_uuid)
     # reasoning behind [::-1] is here
-    # http://stackoverflow.com/questions/10201977/how-to-reverse-tuples-in-python?lq=1
+    # http://stackoverflow.com/questions/10201977/how-to-reverse-tuples-
+    # in-python?lq=1
     # basically using [::-1] allows us to loop through the list backwards
     # without creating a new variable, also this method works for tuples,
     # lists, dict

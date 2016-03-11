@@ -1,7 +1,11 @@
-/*global $, enableContentFunctionality, enableQuestionFunctionality, enableSolutionFunctionality, populateComment, showEditPosts*/
-var request = require('api').request;
-
-require('plugin/contentloader');
+/*global $ */
+var request = require('api').request,
+    helpers = require('common/helpers'),
+    questionTemplate = require('controller/section-conversation/templates/question.hbs'),
+    solutionTemplate = require('controller/section-conversation/templates/solution.hbs'),
+    postNewsTemplate = require('controller/section-profile/templates/post_news.hbs'),
+    settings = require('settings').settings,
+    moment = require('moment');
 
 
 function loadSingleContent() {
@@ -10,6 +14,7 @@ function loadSingleContent() {
         objectType,
         formattedObjectType,
         capitalizedOjbectType,
+        $app = $(".app-sb"),
         parsed = (window.location.href).match(/^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$/);
     /*
     parsed in an array of different strings which makes up the full url.
@@ -23,58 +28,34 @@ function loadSingleContent() {
     7: query params ex. '?this=query_param'
     8: hash params ex. '#this-is-my-anchor'
      */
-    objectURL = "/v1" + parsed[4] + parsed[6] + "?html=true";
+    objectURL = "/v1" + parsed[4] + parsed[6] + "?expand=true";
     objectType = parsed[4].replace(/\//g, '');
     formattedObjectType = objectType.slice(0, -1);
     capitalizedOjbectType = formattedObjectType.charAt(0).toUpperCase() + formattedObjectType.slice(1);
-    wrapper.sb_contentLoader({
-        emptyDataMessage: "Woops! We can't find this object!",
-        url: objectURL,
-        params: {
-            expand: 'true',
-            expedite: 'true',
-            html: 'true'
-        },
-        dataCallback: function (base_url, params) {
-            var urlParams = $.param(params), url;
-            if (urlParams) {
-                url = base_url + "?" + urlParams;
-            } else {
-                url = base_url;
-            }
+    request.get({url: objectURL})
+        .done(function (data) {
+            console.log(data);
+            var renderedTemplate;
 
-            return request.get({url: url});
-        },
-        renderCallback: function ($container, data) {
-            if (data.results.to_be_deleted) {
-                wrapper.append("<h1>Sorry this " + capitalizedOjbectType + " has been removed by the owner!</h1>");
-                if (formattedObjectType === "solution" || formattedObjectType === "question") {
-                    wrapper.append('<small><a href="' + data.results.url + '">You can still view the whole Conversation here.</a></small>');
-                }
+            if (formattedObjectType === "solution" || formattedObjectType === "question") {
+                wrapper.append('<h1 class="block-title"><a href="' + data.question.url + '"> Solution To: ' + data.question.title + ' </a></h1>');
             } else {
-                wrapper.prepend('<h1>' + capitalizedOjbectType + '</h1>');
-                if (formattedObjectType === "solution" || formattedObjectType === "question") {
-                    wrapper.append('<small><a href="' + data.results.url + '">View the full Conversation</a></small>');
-                }
-                wrapper.append(data.html);
-                if (formattedObjectType === "question") {
-                    // TODO refactor this
-                    enableQuestionFunctionality([data.id]);
-                } else if (formattedObjectType === "solution") {
-                    // TODO refactor this
-                    enableSolutionFunctionality([data.id]);
-                } else if (formattedObjectType === "post") {
-                    showEditPosts([data.id]);
-                    enableContentFunctionality(data.id, formattedObjectType);
-                } else {
-                    // TODO refactor this
-                    enableContentFunctionality(data.id, formattedObjectType);
-                }
-                populateComment(data.id, objectType);
+                wrapper.prepend('<h1 class="block-title">' + capitalizedOjbectType + '</h1>');
             }
-
-        }
-    });
+            data = helpers.votableContentPrep([data])[0];
+            if (formattedObjectType === "question") {
+                renderedTemplate = questionTemplate(data);
+            } else if (formattedObjectType === "solution") {
+                renderedTemplate = solutionTemplate(data);
+            } else if (formattedObjectType === "post") {
+                renderedTemplate = postNewsTemplate(data);
+            } else {
+                renderedTemplate = ""
+            }
+            wrapper.append(Autolinker.link(renderedTemplate));
+             $('[data-toggle="tooltip"]').tooltip();
+            $app.trigger("sb:populate:comments", {id: data.id, type: data.type});
+        })
 }
 
 

@@ -9,21 +9,16 @@ from sb_base.neo_models import SBPublicContent
 class Solution(SBPublicContent):
     table = StringProperty(default='public_solutions')
     action_name = StringProperty(default="offered a solution to your question")
+    parent_id = StringProperty()
     visibility = StringProperty(default="public")
     up_vote_adjustment = IntegerProperty(default=10)
     down_vote_adjustment = IntegerProperty(default=-10)
     down_vote_cost = IntegerProperty(default=-2)
 
-    # relationships
-    solution_to = RelationshipTo('sb_questions.neo_models.Question',
-                                 'POSSIBLE_ANSWER_TO')
-
     def get_url(self, request=None):
-        try:
-            question = self.solution_to.all()[0]
-        except IndexError:
-            return None
+        from sb_questions.neo_models import Question
+        question = Question.get(object_uuid=self.parent_id)
         return reverse('question_detail_page',
-                       kwargs={'question_uuid': question.object_uuid,
+                       kwargs={'question_uuid': self.parent_id,
                                'slug': slugify(question.title)},
                        request=request)

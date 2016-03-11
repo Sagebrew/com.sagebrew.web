@@ -1,14 +1,14 @@
-/* global enableSinglePostFunctionality */
 /**
  * @file
  * For post creation. Giving this a dedicated file since it's on multiple pages.
- * TODO refactor and include the above globals.
  *
  */
 var request = require('api').request,
     helpers = require('common/helpers'),
     settings = require('settings').settings,
-    content = require('common/content');
+    content = require('common/content'),
+    postNewsTemplate = require('../templates/post_news.hbs'),
+    moment = require('moment');
 
 
 
@@ -97,7 +97,7 @@ export function init () {
         }
         parsedText.always(function () {
             request.post({
-                url: "/v1/profiles/" + profile_page_user + "/wall/?html=true",
+                url: "/v1/profiles/" + profile_page_user + "/wall/?expand=true",
                 data: JSON.stringify({
                     'content': $input.val(),
                     'images': imageIds,
@@ -108,8 +108,7 @@ export function init () {
                 $preview.hide();
                 $input.css('margin-bottom', 0);
                 $input.val("");
-                $("#wall_app").prepend(data.html);
-                enableSinglePostFunctionality(data.ids);
+                $("#wall_app").prepend(postNewsTemplate(helpers.votableContentPrep([data])[0]));
                 var placeHolder = $(".list-empty");
                 if (placeHolder !== undefined) {
                     placeHolder.remove();

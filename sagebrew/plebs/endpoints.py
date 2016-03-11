@@ -725,7 +725,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                 row.posts.pull()
                 news_article = PostSerializerNeo(
                     Post.inflate(row.posts),
-                    context={'request': request, 'force_expand': True}).data
+                    context={'request': request}).data
             elif row.mission is not None:
                 row.mission.pull()
                 news_article = MissionSerializer(

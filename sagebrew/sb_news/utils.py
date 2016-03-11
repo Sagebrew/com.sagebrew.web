@@ -1,5 +1,4 @@
 # -*- coding: utf8 -*-
-import re
 import unicodedata as ud
 import requests
 from bs4 import BeautifulSoup
@@ -56,18 +55,11 @@ def find_news(limit_offset_fxn, count_query, link_objects_callback):
 
 
 def query_webhose(query):
-    import nltk
-    try:
-        nltk.download('all', halt_on_error=False)
-    except Exception as e:
-        logger.exception(e)
-
     language = 'english'
-    sentence_count = 7
-    summary_length = 250
-    time_exp = re.compile(
-        r'(1[012]|[1-9]):[0-5][0-9](\\s)?(?i)\s?(am|pm|AM|PM)')
-    exclude_sentences = ["Story highlights", ]
+    sentence_count = settings.DEFAULT_SENTENCE_COUNT
+    summary_length = settings.DEFAULT_SUMMARY_LENGTH
+    time_exp = settings.TIME_EXCLUSION_REGEX
+    exclude_sentences = settings.DEFAULT_EXCLUDE_SENTENCES
     stemmer = Stemmer(language)
     summarizer = LexRankSummarizer(stemmer)
     summarizer.stop_words = get_stop_words(language)
@@ -189,7 +181,7 @@ def query_webhose(query):
                                         if exclude in sentence]
                             if time_exp.search(sentence) is None \
                                     and len(summary) < summary_length \
-                                    and not excluded:
+                                    and excluded not in sentence:
                                 summary += " " + sentence
                         article.summary = summary
                         article.save()

@@ -29,10 +29,11 @@ function controllerMetaInfo() {
 /**
  * @param match_method
  * @param checks
+ * * @param does_not_include
  * TODO: Fix bug:
  *  -- The path generated strips out the trailing slash.
  */
-function matchController(match_method, checks) {
+function matchController(match_method, checks, does_not_include) {
     // Support multiple checks.
     if (!(checks instanceof Array)) {
         checks = [checks];
@@ -52,6 +53,15 @@ function matchController(match_method, checks) {
                     break;
                 case 'path':
                     var match = path.match(value);
+                    if (does_not_include !== undefined && does_not_include !== "undefined") {
+                        for(var check_not in does_not_include) {
+                            if (does_not_include.hasOwnProperty(check_not)) {
+                                if (path.match(does_not_include[check_not]) !== null) {
+                                    return false;
+                                }
+                            }
+                        }
+                    }
                     if (match !== null) {
                         return true;
                     }
@@ -72,7 +82,8 @@ function finder() {
     for (var key in meta) {
         if (meta.hasOwnProperty(key)) {
             var controller = meta[key];
-            if (matchController(controller.match_method, controller.check)) {
+            if (matchController(controller.match_method, controller.check,
+                    controller.does_not_include)) {
                 load.push(controller.controller);
             }
         }

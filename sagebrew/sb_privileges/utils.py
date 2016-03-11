@@ -89,10 +89,8 @@ def manage_privilege_relation(username):
         # task
         sleep(1)
     cache.delete(username)
-    cache.set("%s_privileges" % username,
-              pleb.get_privileges(cache_buster=True))
-    cache.set("%s_actions" % username,
-              pleb.get_actions(cache_buster=True))
+    cache.delete("%s_privileges" % username)
+    cache.delete("%s_actions" % username)
     return True
 
 

@@ -1,6 +1,9 @@
 var mapLocation = require('./partials/map-location'),
     question = require('./partials/question'),
-    solution = require('./partials/solution');
+    solution = require('./partials/solution'),
+    solutionValidator = require('common/validators').solutionValidator,
+    addMarkdown = require('common/markdown').addMarkdown;
+
 
 /**
  * Meta.
@@ -17,8 +20,9 @@ export const meta = {
  */
 export function load() {
     // Sidebar
-    question.load();
-    solution.load();
     mapLocation.init();
+    solution.load();
+    question.load();
+    addMarkdown($('#js-solution-markdown'));
 }
 

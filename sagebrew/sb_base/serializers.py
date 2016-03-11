@@ -53,7 +53,7 @@ class VotableContentSerializer(SBSerializer):
     view_count = serializers.SerializerMethodField()
 
     profile = serializers.SerializerMethodField()
-
+    flagged = serializers.SerializerMethodField()
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
     is_owner = serializers.SerializerMethodField()

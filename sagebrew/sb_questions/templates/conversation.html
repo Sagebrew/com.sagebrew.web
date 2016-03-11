@@ -74,15 +74,12 @@
         <h4 class="block-title">Provide a Solution</h4>
         <div class="sb_markdown sb_solution">
             <div class="block-content">
-                <form id="solutionSubmitForm">
+                <form id="solutionSubmitForm" data-parent_id="{{ uuid }}">
                         <textarea class="form-control sb_solution_input_area markdown-input"
-                                  id="solution_content_id"
-                                  name="solution_content"
+                                  id="js-solution-markdown"
+                                  name="content"
                                   placeholder="Write your solution..."></textarea>
-                        <button class="btn btn-primary sb_btn sb_btn_fill submit_solution-action"
-                                id="submit_solution"
-                                data-object_uuid="{{ uuid }}"
-                                data-url="/solutions/submit_solution_api/">
+                        <button class="btn btn-primary sb_btn sb_btn_fill" id="js-solution-submit" type="submit">
                             Submit
                         </button>
                 </form>
@@ -160,9 +157,8 @@
             </div>
         </div>
     </div>
+    {% include "flag_modal.html" %}
 {% endblock live%}
-
-{% include "flag_modal.html" %}
 
 {% block intercom %}
     Intercom('trackEvent', 'visited-{{ title|slugify }}-conversation');

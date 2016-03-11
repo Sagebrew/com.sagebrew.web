@@ -1,0 +1,28 @@
+{{# each conversations }}
+    <div class="block" id="question-block-{{ id }}">
+        <div class="block-title">
+            <a href="{{ url }}">
+                {{ title }}
+            </a>
+        </div>
+        <div class="block-content" style="padding-top: 0; padding-bottom: 0;">
+            <small>Author: <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a></small>
+        </div>
+        <div class="block-content">
+            <div class="row">
+                <div class="hidden-xs col-sm-1 sb_vote_wrapper">
+                    <div class="vote_lg vote_count_large">
+                        {{> 'controller/vote/templates/vote.hbs' id=id
+                        vote_count=vote_count upvote=upvote downvote=downvote type=type
+                        can_upvote=can_upvote can_downvote=can_downvote }}
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-11">
+                    <div class="block-content">
+                        <p>{{ summary }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/each}}

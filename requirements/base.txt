@@ -61,5 +61,5 @@ pyyaml==3.11
 us==0.9.0
 unidecode==0.04.18
 python-intercom==2.1.1
-numpy==1.10.4
 sumy==0.4.0
+numpy==1.10.4

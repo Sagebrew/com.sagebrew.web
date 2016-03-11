@@ -318,3 +318,25 @@ export function editUpdateValidator(updateVal) {
         }
     });
 }
+
+
+export function solutionValidator (solutionForm) {
+    solutionForm.formValidation({
+        framework: 'bootstrap',
+        live: 'enabled',
+        fields: {
+            content: {
+                selector: 'js-solution-markdown',
+                validators: {
+                    notEmpty: {
+                        message: "Content is required"
+                    },
+                    stringLength: {
+                        min: 15,
+                        message: "Solutions must be at least 15 characters long"
+                    }
+                }
+            }
+        }
+    });
+}

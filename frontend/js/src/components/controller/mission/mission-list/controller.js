@@ -23,24 +23,7 @@ export function init() {
  * Load
  */
 export function load() {
-    var $app = $(".app-sb"),
-        greyPage = document.getElementById('sb-greyout-page'),
-        $affectFilter = $("#js-affect-filter");
-    $app
-        .on('click', '.js-quest-signup', function(event) {
-            event.preventDefault();
-            greyPage.classList.remove('sb_hidden');
-            if(settings.profile.quest !== null){
-                greyPage.classList.add('sb_hidden');
-                window.location.href = "/missions/select/";
-            } else {
-                request.post({url: "/v1/quests/", data: {}})
-                    .done(function () {
-                        greyPage.classList.add('sb_hidden');
-                        window.location.href = "/missions/select/";
-                    });
-            }
-        });
+    var $affectFilter = $("#js-affect-filter");
     $affectFilter
         .on('click', '.js-affect-filter', function (event) {
             event.preventDefault();

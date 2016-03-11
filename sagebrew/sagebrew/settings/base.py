@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 from os import environ, path, makedirs
+import re
 from unipath import Path
 import multiprocessing
 from datetime import datetime
@@ -63,7 +64,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '%s/frontend/build/' % REPO_DIR, #Frontend Repo
+    '%s/frontend/build/' % REPO_DIR, # Frontend Repo
     '%s/help_center/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_missions/static/' % PROJECT_DIR,
@@ -73,7 +74,6 @@ STATICFILES_DIRS = (
     '%s/sb_quests/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
     '%s/sb_public_official/static/' % PROJECT_DIR,
-    '%s/sb_solutions/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
 )
 
@@ -472,6 +472,12 @@ VOLUNTEER_ACTIVITIES = [
     ("host_a_house_party", "Host A House Party"),
     ("attend_a_house_party", "Attend A House Party")
 ]
+
+DEFAULT_SENTENCE_COUNT = 7
+DEFAULT_SUMMARY_LENGTH = 250
+TIME_EXCLUSION_REGEX = re.compile(
+    r'(1[012]|[1-9]):[0-5][0-9](\\s)?(?i)\s?(am|pm|AM|PM)')
+DEFAULT_EXCLUDE_SENTENCES = ["Story highlights", "#", "##"]
 
 EXPLICIT_STIES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',
                   'redtube.com', 'youporn.com', 'tube8.com', 'youjizz.com',

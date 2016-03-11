@@ -12,7 +12,7 @@ from rest_framework.reverse import reverse
 
 from neomodel import db
 
-from api.utils import spawn_task, gather_request_data
+from api.utils import spawn_task, gather_request_data, smart_truncate
 from sb_base.serializers import TitledContentSerializer
 from plebs.neo_models import Pleb
 from sb_locations.tasks import create_location_tree
@@ -23,7 +23,8 @@ from sb_solutions.serializers import SolutionSerializerNeo
 from sb_solutions.neo_models import Solution
 
 from .neo_models import Question
-from .tasks import add_auto_tags_to_question_task
+from .tasks import (add_auto_tags_to_question_task,
+                    create_question_summary_task)
 
 
 def solution_count(question_uuid):
@@ -102,6 +103,7 @@ def limit_5_tags(value):
 class QuestionSerializerNeo(TitledContentSerializer):
     content = serializers.CharField(min_length=15)
     href = serializers.SerializerMethodField()
+    summary = serializers.CharField(read_only=True)
     # This might be better as a choice field
     tags = serializers.ListField(
         source='get_tags',
@@ -157,6 +159,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
                        request=request)
 
         question = Question(url=url, href=href, object_uuid=uuid,
+                            summary=smart_truncate(validated_data['content']),
                             **validated_data).save()
         question.owned_by.connect(owner)
         owner.questions.connect(question)
@@ -185,6 +188,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
                 "external_id": question.external_location_id})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": question.object_uuid})
+        spawn_task(task_func=create_question_summary_task, task_param={
+            'object_uuid': question.object_uuid
+        })
         question.refresh()
         cache.set(question.object_uuid, question)
         return question
@@ -219,6 +225,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
                 "external_id": instance.external_location_id})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
+        spawn_task(task_func=create_question_summary_task, task_param={
+            'object_uuid': instance.object_uuid
+        })
         return super(QuestionSerializerNeo, self).update(
             instance, validated_data)
 

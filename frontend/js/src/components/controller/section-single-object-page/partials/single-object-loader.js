@@ -1,8 +1,8 @@
 /*global $ */
 var request = require('api').request,
     helpers = require('common/helpers'),
-    questionTemplate = require('controller/section-conversation/templates/question.hbs'),
-    solutionTemplate = require('controller/section-conversation/templates/solution.hbs'),
+    questionTemplate = require('controller/conversation/conversation-view/templates/question.hbs'),
+    solutionTemplate = require('controller/conversation/conversation-view/templates/solution.hbs'),
     postNewsTemplate = require('controller/section-profile/templates/post_news.hbs'),
     settings = require('settings').settings,
     moment = require('moment');

@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "layout/hero-two-col-right.html" %}
 {% load i18n %}
 {% load staticfiles %}
 {% block title %}Conversation Cloud{% endblock title %}
@@ -12,82 +12,66 @@
 {% block keywords %}
     <meta name="keywords" content="debate, community, nonpartisan, questions, problem solving, solutions">
 {% endblock keywords %}
-{% block content %}
-<div class="row">
-    <div class="col-xs-12 col-lg-9" style="margin-bottom: 35px;">
-        <div class="sb_wall sb_conversation_wall">
-            <div class="row">
-                <div class="col-xs-12 col-md-11">
-                    <h3>Conversations</h3>
-                </div>
-                <div class="col-md-1 hidden-sm hidden-xs"
-                     align="right">
-                    <button class="btn sb_btn sb_btn_icon sb_btn_icon_green"
-                            id="advanced_filters">
-                        <span class="fui-list-large-thumbnails"></span>
-                    </button>
-                </div>
+{% block sidebar_right %}
+    {% if request.user.is_authenticated %}
+        <div class="block block-type-nav">
+            <div class="block-title">
+                Start a Conversation
             </div>
-            <div class="row-fluid">
-                <div class="hidden-sm hidden-xs sb_border sb_border_categories"
-                     style="display:none;"
-                     id="filter_box">
-                {% for tag in base_tags %}
-                    <div class="col-lg-2">
-                        <a class="btn sb_tab_question query_questions-action"
-                           data-tagged_as="{{ tag.default }}">{{ tag.display|title }}</a>
-                    </div>
-                {% endfor %}
-                </div>
-            </div>
-            <div class="js-question-list">
-                <div class="row sb_tertiary_nav" style="padding-left: 15px; padding-right: 15px;">
-                    <div class="hidden-xs col-sm-2">
-                        <a class="btn sb_tab_question query_questions-action active"
-                           data-sort_by="-created">Most Recent</a>
-                    </div>
-                    <div class="hidden-xs col-sm-2">
-                        <a class="btn sb_tab_question query_questions-action"
-                           data-sort_by="created">Least Recent</a>
-                    </div>
-                    <div class="hidden-xs col-sm-2">
-                        <a class="btn sb_tab_question query_questions-action"
-                           data-sort_by="vote_count">Most Votes</a>
-                    </div>
-                    <div class="hidden-xs col-sm-2">
-                        <a class="btn sb_tab_question query_questions-action"
-                           data-sort_by="last_edited_on">Recent Edits</a>
-                    </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 col-sm-offset-1 col-md-offset-1 col-lg-offset-1">
-                         <a href="{% url 'save_question_page' %}" class='btn btn-block btn-primary sb_btn_fill' style="color: white">
-                             Start a Conversation</a>
-                    </div>
-                </div>
-                {% if html_snapshot %}
-                    {% for question in questions %}
-                        {% include "question_summary_include.html" %}
-                    {% endfor %}
-                {% else %}
-                    <div id="question_wrapper">
-                    </div>
-                {% endif %}
-                <div class="col-md-offset-3" id="js-no_result" style="display: none"><h3>Sorry! There seems to be nothing here!</h3></div>
+            <div class="block-content">
+                <a class="btn btn-primary sb_btn sb_btn_fill" href="/conversations/submit_question/"><i class="fa fa-cloud  quest-rocket"></i> Discuss</a>
             </div>
         </div>
+    {% endif %}
+    <div class="block block-type-nav">
+        <div class="block-title">
+            Sorting
+        </div>
+        <div class="block-content">
+            <ul class="nav nav-list nav-list-vivid" id="js-sort-filter">
+                <li class="active">
+                    <a class="js-sort-filter" id="js-most-recent" data-ordering="created" href="#">
+                        Most Recent
+                    </a>
+                </li>
+                <li>
+                    <a class="js-sort-filter" id="js-least-recent" data-ordering="-created" href="#">
+                        Least Recent
+                    </a>
+                </li>
+                <li>
+                    <a class="js-sort-filter" id="js-most-votes" data-ordering="vote_count" href="#">
+                        Most Votes
+                    </a>
+                </li>
+                <li>
+                    <a class="js-sort-filter" id="js-recent-edits" data-ordering="last_edited_on" href="#">
+                        Recent Edits
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
-    {%  include "side_content.html" %}
-</div>
-
+    <div class="sb_questions_side_container">
+        <h3 align="center">
+          Things to Keep in Mind
+        </h3>
+        <div class="sb_deco_line"></div>
+        <h5 align="left">Be Respectful</h5>
+        <div class="sb_deco_line"></div>
+        <h5 align="left">Consider All Sides</h5>
+        <div class="sb_deco_line"></div>
+        <h5 align="left">Link to Supporting Info</h5>
+        <div class="sb_deco_line"></div>
+    </div>
 {% endblock %}
 
-{% block scripts %}
-    {{ block.super }}
-    {% if not html_snapshot %}
-        <script src="{% static 'js/query_questions.js' %}"></script>
-    {% endif %}
-    <script src="{% static 'js/question_ui.js' %}"></script>
-    <script src="{% static 'js/toggle_filters.js' %}"></script>
-{% endblock scripts %}
+{% block live %}
+        <div id="js-conversation-list">
+            <div id="js-conversation-container"></div>
+            <div class="loader"></div>
+        </div>
+{% endblock %}
 
 {% block intercom %}
     {% if not request.user.is_anonymous %}

@@ -46,7 +46,6 @@ function fixDisplay(width, height) {
  */
 export function init () {
     var profile_page_user = helpers.args(1);
-
     // Newsroom doesn't have username in the url.
     if (profile_page_user === "newsfeed") {
         profile_page_user = settings.user.username;
@@ -212,4 +211,44 @@ export function init () {
             });
         }
     });
+}
+
+
+export function load () {
+    var $app = $(".app-sb");
+    $app
+        .on('click', '.js-edit-post', function () {
+            console.log('here')
+            $("#js-post-" + this.dataset.id).hide();
+            $('#js-edit-container-' + this.dataset.id).show();
+        })
+        .on('submit', '.js-edit-post-form', function(event) {
+            event.preventDefault();
+            var update = helpers.getFormData(this),
+                objectID = this.dataset.id;
+            var $form = $(this);
+            $form.find('button').prop('disabled', true);
+
+            request.patch({
+                url: "/v1/posts/" + this.dataset.id + "/",
+                data: JSON.stringify(update)
+            }).done(function (data) {
+                $form.find('button').prop('disabled', false);
+                document.getElementById("js-post-" + data.id).innerHTML = "<p>" + data.html_content + "</p>";
+                $('#js-edit-container-' + objectID).hide();
+                $("#js-post-" + objectID).show();
+            }).fail(function () {
+                $form.find('button').prop('disabled', false);
+                $('#js-edit-container-' + objectID).hide();
+                $("#js-post-" + objectID).show();
+            });
+        })
+        .on('click', '.js-delete-post', function() {
+            var objectID = this.dataset.id;
+            request.remove({
+                url: "/v1/posts/" + this.dataset.id + "/"
+            }).done(function () {
+                document.getElementById("post-block-" + objectID).remove();
+            });
+        });
 }

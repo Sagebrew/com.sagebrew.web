@@ -1,10 +1,7 @@
-{% extends "base.html" %}
+{% extends "layout/hero-three-col.html" %}
 {% load staticfiles %}
 {% block title %}{{ page_user.first_name }} {{ page_user.last_name }}{% endblock title %}
-{% block content %}
-    <div id="user_info" style="display: none"
-         data-current_user_username="{{ request.user.username }}"
-         data-page_user_username="{{ page_user.username }}"></div>
+{% block hero %}
     <div class="row">
         <div class="col-md-12 wallpaper-wrapper">
             <div class="thumbnail sb_profile_pic">
@@ -39,32 +36,48 @@
             </div>
         </div>
     </div>
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="clearfix sb_nav sb_secondary_nav sb_secondary_nav_bar profile-nav-wrapper">
-                {% include "sb_home_section/sb_profile_user_menu.html" %}
-            </div>
-        </div>
+    <div class="block"></div>
+{% endblock hero %}
+{% block sidebar_left %}
+    {% include "sb_home_section/representative_col.html" %}
+{% endblock sidebar_left %}
+{% block sidebar_right %}
+    <div class="block">
+        <h6 class="block-title">Network Size</h6>
+        <div class="block-content" id="president_wrapper"></div>
     </div>
-    <div class="row">
-        {% if page_user.username == request.user.username or is_friend == True %}
-            {% block midsection %}
-                {% include "sb_home_section/sb_home.html" %}
-            {% endblock %}
-        {% elif not is_friend %}
-            {% include "sb_home_section/sb_not_friend_home.html" %}
-        {% endif %}
+    <div class="block">
+        <h6 class="block-title">Follow</h6>
+        <div class="block-content" id="president_wrapper"></div>
+    </div>
+{% endblock sidebar_right %}
+{% block live %}
+    <div class="block">
+        <h6 class="block-title">Interests</h6>
+        <div class="block-content" id="president_wrapper"></div>
+    </div>
+    <div class="block">
+        <h6 class="block-title">Recent Public Contributions</h6>
+        <div class="block-content" id="president_wrapper"></div>
+    </div>
+    <div class="block">
+        <h6 class="block-title">Reputation</h6>
+        <div class="block-content" id="president_wrapper"></div>
+    </div>
+    <div class="block">
+        <h6 class="block-title">Endorsements</h6>
+        <div class="block-content" id="president_wrapper"></div>
+    </div>
+    <div class="block">
+        <h6 class="block-title">Missions</h6>
+        <div class="block-content" id="president_wrapper"></div>
     </div>
     {% include "flag_modal.html" %}
-{% endblock %}
-{% block footer %}
-{% endblock %}
+{% endblock live %}
+
 
 {% block scripts %}
     {{ block.super }}
-    <script src="{% static 'js/send_notification.js' %}"></script>
-    <script src="{% static 'js/flag_modal.js' %}"></script>
     <script src="{% static 'js/profile_pic_croppic.js' %}"></script>
     <script src="{% static 'js/wallpaper_pic_croppic.js' %}"></script>
 

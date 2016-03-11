@@ -9,10 +9,16 @@ var request = require('api').request,
 
 
 export function load () {
-    var $app = $(".app-sb");
+    var $app = $(".app-sb"),
+        newsfeed = helpers.args(1),
+        commentsRenderTemplate;
     Handlebars.registerPartial('create_comment', createCommentTemplate);
     Handlebars.registerPartial('comments', commentsTemplate);
-
+    if(newsfeed === "newsfeed"){
+        commentsRenderTemplate = commentsNewsTemplate
+    } else {
+        commentsRenderTemplate = commentsTemplate
+    }
     $app
         .on('click', '.additional-comments', function (event) {
             event.preventDefault();
@@ -60,7 +66,7 @@ export function load () {
                         additionalCommentWrapper.remove();
                         $(commentContainer).append(wrapperString);
                     }
-                    $(commentContainer).prepend(commentsTemplate({comments: helpers.votableContentPrep(data.results)}));
+                    $(commentContainer).prepend(commentsRenderTemplate({comments: helpers.votableContentPrep(data.results)}));
 
 
                 }
@@ -81,7 +87,7 @@ export function load () {
                 .done(function (data) {
                     var commentContainer = document.getElementById("comment-" + thisHolder.dataset.id);
                     data.created = moment(data.created).format("dddd, MMMM Do YYYY, h:mm a");
-                    $(commentContainer).append(commentsTemplate({comments: [data]}));
+                    $(commentContainer).append(commentsRenderTemplate({comments: [data]}));
                     var additionalCommentWrapper = document.getElementById(
                         'additional-comment-wrapper-' + thisHolder.dataset.id);
                     if (additionalCommentWrapper !== null) {
@@ -98,8 +104,6 @@ export function load () {
         .on('click', '.js-edit-comment', function () {
             $("#js-comment-" + this.dataset.id).hide();
             $('#js-edit-container-' + this.dataset.id).show();
-            var textarea = $('textarea#' + this.dataset.id);
-            textarea.height(textarea[0].scrollHeight);
         })
         .on('submit', '.js-edit-comment-form', function(event) {
             event.preventDefault();
@@ -131,16 +135,10 @@ export function load () {
             });
         })
         .on("sb:populate:comments", function (event, commentParentData) {
-            var commentRenderingTemplate;
-            if(commentParentData.commentType === "undefined" || commentParentData.commentType === undefined || commentParentData.commentType === "news"){
-                commentRenderingTemplate = commentsNewsTemplate;
-            } else {
-                commentRenderingTemplate = commentsTemplate;
-            }
             request.get({url:"/v1/" + commentParentData.type + "s/" + commentParentData.id + "/comments/?expand=true&page_size=3"})
                 .done(function (data) {
                     var commentContainer = $('#comment-' + commentParentData.id);
-                    commentContainer.append(commentRenderingTemplate({"comments": helpers.votableContentPrep(data.results)}));
+                    commentContainer.append(commentsRenderTemplate({"comments": helpers.votableContentPrep(data.results)}));
                     if (data.count > 3) {
                         // TODO this may break in IE
                         commentContainer.append(

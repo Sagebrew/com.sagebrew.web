@@ -9,6 +9,7 @@ var representatives = require('./partials/representatives'),
     postcreate = require('./partials/postcreate'),
     profile = require('./partials/profile'),
     newsfeed = require('./partials/newsfeed'),
+    solutions = require('controller/conversation/conversation-view/partials/solution'),
     follow = require('./partials/follow'),
     request = require('api').request,
     settings = require('settings').settings;
@@ -47,6 +48,8 @@ export function load() {
     newsfeed.init();
     // Follow functionality
     follow.init();
+    postcreate.load();
+    solutions.load();
     $app
         .on('click', '#js-quest-signup', function(event) {
             event.preventDefault();

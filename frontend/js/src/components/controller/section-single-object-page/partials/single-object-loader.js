@@ -1,11 +1,9 @@
-/*global $ */
+/*global $, Autolinker */
 var request = require('api').request,
     helpers = require('common/helpers'),
     questionTemplate = require('controller/conversation/conversation-view/templates/question.hbs'),
     solutionTemplate = require('controller/conversation/conversation-view/templates/solution.hbs'),
-    postNewsTemplate = require('controller/section-profile/templates/post_news.hbs'),
-    settings = require('settings').settings,
-    moment = require('moment');
+    postNewsTemplate = require('controller/section-profile/templates/post_news.hbs');
 
 
 function loadSingleContent() {
@@ -50,12 +48,12 @@ function loadSingleContent() {
             } else if (formattedObjectType === "post") {
                 renderedTemplate = postNewsTemplate(data);
             } else {
-                renderedTemplate = ""
+                renderedTemplate = "";
             }
             wrapper.append(Autolinker.link(renderedTemplate));
              $('[data-toggle="tooltip"]').tooltip();
             $app.trigger("sb:populate:comments", {id: data.id, type: data.type});
-        })
+        });
 }
 
 

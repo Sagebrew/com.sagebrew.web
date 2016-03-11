@@ -1,16 +1,33 @@
-<div class="block">
+<div class="block" id="question-block-{{ id }}">
     <div class="block-title">
         <a href="{{ url }}">
             Question: {{ title }}
         </a>
     </div>
     <div class="block-content" style="padding-top: 0; padding-bottom: 0;">
-        <small>Author: <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>  <b>&middot;</b>
-            Topics: {{ tags_formatted }} <b>&middot;</b>
-            {{ created }} </small>
-        <small class="pull-right" style="padding-top: 5px;">
-           <i class="fa fa-users" style="margin-right: 10px;"></i>Public
-        </small>
+        <div class="dropdown">
+            <small>Author: <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>  <b>&middot;</b>
+                Topics: {{ tags_formatted }} <b>&middot;</b>
+                {{ created }} <b>&middot;</b> Public </small>
+            <div class="pull-right" style="margin-bottom: -5px; margin-top: -7px;">
+                {{# if is_owner }}
+                    <button class="btn dropdown-toggle sb_btn_icon"
+                            type="button" id="dropdownMenu1" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="true">
+                        <span class="fa fa-caret-down sb_btn_icon_green_hover"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><a class="sb_post_dropdown_menu js-edit-question"
+                               data-id="{{ id }}"
+                               href="/conversations/questions/{{ id }}/edit/">Edit</a>
+                        </li>
+                    </ul>
+                {{ else }}
+                    {{> 'controller/flag/templates/create_flag.hbs' id=id
+                        can_flag=can_flag flagged=flagged href=href }}
+                {{/if }}
+            </div>
+        </div>
     </div>
     <div class="block-content">
         <div class="row">

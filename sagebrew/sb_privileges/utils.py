@@ -38,10 +38,6 @@ def manage_privilege_relation(username):
     :return:
     """
     try:
-        pleb = Pleb.get(username=username, cache_buster=True)
-    except (CypherException, IOError, DoesNotExist, Pleb.DoesNotExist) as e:
-        return e
-    try:
         privileges = Privilege.nodes.all()
     except(CypherException, IOError) as e:
         return e

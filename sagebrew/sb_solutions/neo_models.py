@@ -1,7 +1,7 @@
 from django.utils.text import slugify
 from rest_framework.reverse import reverse
 
-from neomodel import (RelationshipTo, StringProperty, IntegerProperty)
+from neomodel import (StringProperty, IntegerProperty)
 
 from sb_base.neo_models import SBPublicContent
 

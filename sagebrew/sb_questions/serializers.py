@@ -124,6 +124,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
                                                  required=False,
                                                  allow_null=True)
     tags_formatted = serializers.SerializerMethodField()
+    views = serializers.SerializerMethodField()
+    mission = serializers.SerializerMethodField()
+
 
     def validate_title(self, value):
         # We need to escape quotes prior to passing the title to the query.
@@ -280,3 +283,15 @@ class QuestionSerializerNeo(TitledContentSerializer):
     def get_tags_formatted(self, obj):
         return ", ".join([tag.replace("-", " ").replace("_", " ").title()
                          for tag in obj.get_tags()])
+
+    def get_mission(self, obj):
+        from sb_missions.serializers import MissionSerializer
+        query = 'MATCH (question:Question)<-[:ASSOCIATED_WITH]-' \
+                '(mission:Mission) RETURN mission'
+        res, _ = db.cypher_query(query)
+        if res.one:
+            return MissionSerializer(res.one).data
+        return res.one
+
+    def get_views(self, obj):
+        return obj.get_view_count()

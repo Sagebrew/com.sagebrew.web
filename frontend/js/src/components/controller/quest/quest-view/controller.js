@@ -23,6 +23,7 @@ export const meta = {
  * Load.
  */
 export function load() {
+    require('common/handlebars_helpers');
     quest.load();
     follow.load();
 }

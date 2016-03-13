@@ -6,7 +6,8 @@
                     <div class="block-hero-image">
                         <img src="{{this.wallpaper_pic}}" />
                     </div>
-                    <a class="block-title" href="{{this.url}}">{{ this.title_summary }}</a>
+                    <a class="block-title js-position" data-id="{{ this.id }}"
+                       data-slug="{{ this.slug }}" href="#">{{ this.title_summary }}</a>
                     <div class="block-content">
                         <p>
                             {{#if this.about }}
@@ -15,7 +16,8 @@
                                 A {{this.level}} level {{this.focus_on_type}} mission.
                             {{/if}}
                         </p>
-                        <a href="{{this.url}}" class="btn btn-primary">View More</a>
+                        <a href="#" class="btn btn-primary sb_btn js-position" data-id="{{ this.id }}"
+                            data-slug="{{ this.slug }}">Select</a>
                     </div>
                 </div>
             </div>

@@ -1,12 +1,12 @@
 {% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
-{% block title %}{{ title }}{% endblock title %}
+{% block title %}{{ question.title }}{% endblock title %}
 {% block description %}
-    <meta name="description" content="{{ description }}">
+    <meta name="description" content="{{ question.summary }}">
 {% endblock description %}
 {% block keywords %}
-    {% if tags %}
-        <meta name="keywords" content="{{ tags|join:", "|title}}">
+    {% if question.tags %}
+        <meta name="keywords" content="{{ question.tags_formatted }}">
     {% endif %}
     <meta name="author" content="{{ authors }}">
 {% endblock keywords %}
@@ -14,10 +14,10 @@
     <div class="conversation-meta">
         <div class="meta">
             <div class="row">
-                <div class="col-xs-12"><h5 align="center">Topic{{ tags|length|pluralize }}</h5></div>
+                <div class="col-xs-12"><h5 align="center">Topic{{ question.tags|length|pluralize }}</h5></div>
             </div>
             <div class="row">
-                <div class="col-xs-12"><h6 align="center">{{ tags|join:", "|title|default:" No Tags Set on Conversation" }}</h6></div>
+                <div class="col-xs-12"><h6 align="center">{{ question.tags_formatted|default:" No Tags Set on Conversation" }}</h6></div>
             </div>
         </div>
     </div>
@@ -53,7 +53,7 @@
     <div class="block">
         <h1 class="block-title no-underline center-title">Conversation</h1>
     </div>
-    {% if to_be_deleted == True %}
+    {% if question.to_be_deleted == True %}
         <div class="block">
             <h1 class="block-title">
                 Sorry, the creator of this question has deleted it!
@@ -69,12 +69,12 @@
     <div id="js-conversation-solutions">
         <div class="loader"></div>
     </div>
-    {% if not is_closed and not request.user.is_anonymous and not html_snapshot and request_profile.email_verified and request_profile.completed_profile_info %}
+    {% if not question.is_closed and not request.user.is_anonymous and request_profile.email_verified and request_profile.completed_profile_info %}
     <div class="block">
         <h4 class="block-title">Provide a Solution</h4>
         <div class="sb_markdown sb_solution">
             <div class="block-content">
-                <form id="solutionSubmitForm" data-parent_id="{{ uuid }}">
+                <form id="solutionSubmitForm" data-parent_id="{{ question.id }}">
                         <textarea class="form-control sb_solution_input_area markdown-input"
                                   id="js-solution-markdown"
                                   name="content"
@@ -161,6 +161,6 @@
 {% endblock live%}
 
 {% block intercom %}
-    Intercom('trackEvent', 'visited-{{ title|slugify }}-conversation');
+    Intercom('trackEvent', 'visited-{{ question.title|slugify }}-conversation');
     Intercom('trackEvent', 'visited-conversation-page');
 {% endblock %}

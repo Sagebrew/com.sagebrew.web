@@ -38,7 +38,7 @@ var $app = $(".app-sb");
                 loadConversations(this.dataset.ordering);
             }
         });
-    loadConversations("created");
+    loadConversations("-created");
 }
 
 /**

@@ -24,9 +24,6 @@ export function populateMissions(loadElement, questID){
             return request.get({url:url});
         },
         renderCallback: function($container, data) {
-
-            console.log(data);
-
             for(var i=0; i < data.results.length; i++){
                 data.results[i].title = determineTitle(data.results[i]);
             }

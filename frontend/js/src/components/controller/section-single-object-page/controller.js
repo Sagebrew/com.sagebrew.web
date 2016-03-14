@@ -12,6 +12,9 @@ export const meta = {
     match_method: "path",
     check: [
         "^questions|solutions|posts\/[A-Za-z0-9.@_%+-]{2,36}$"
+    ],
+    does_not_include: [
+        'edit'
     ]
 };
 

@@ -2,6 +2,7 @@ from json import loads, dumps
 from logging import getLogger
 from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.utils.text import slugify
 
 from elasticsearch import Elasticsearch
 from neomodel import DoesNotExist, CypherException
@@ -22,9 +23,9 @@ class Command(BaseCommand):
             data = loads(data_file.read())
             for tag in data['tags']:
                 try:
-                    tag_node = Tag.nodes.get(name=tag['name'])
+                    tag_node = Tag.nodes.get(name=slugify(tag['name']))
                 except (Tag.DoesNotExist, DoesNotExist):
-                    tag_node = Tag(name=tag['name'], base=True).save()
+                    tag_node = Tag(name=slugify(tag['name']), base=True).save()
                 except (CypherException, IOError):
                     logger.exception(
                         dumps(

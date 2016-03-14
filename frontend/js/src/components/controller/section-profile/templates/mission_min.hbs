@@ -1,0 +1,15 @@
+{{#each missions }}
+    <div class="block">
+        <h3 class="block-title no-underline" style="font-size: 16px;">
+            <a href="{{ this.url }}">{{ this.title_summary }}</a></h3>
+        <div class="block-content" style="padding-top: 0;">
+             <small>
+                {{#if this.about }}
+                    {{this.about}}
+                {{else}}
+                    A {{this.level}} level {{this.focus_on_type}} mission.
+                {{/if}}
+            </small>
+        </div>
+    </div>
+{{/each}}

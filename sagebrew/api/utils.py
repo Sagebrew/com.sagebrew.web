@@ -12,6 +12,12 @@ from json import dumps
 from datetime import datetime
 from logging import getLogger
 
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.lex_rank import LexRankSummarizer
+from sumy.nlp.stemmers import Stemmer
+from sumy.utils import get_stop_words
+
 from django.core import signing
 from django.conf import settings
 from django.http import HttpResponse
@@ -372,3 +378,27 @@ def empty_text_to_none(data):
     else:
         return data
     return result
+
+
+def generate_summary(content):
+    language = "english"
+    stemmer = Stemmer(language)
+    summarizer = LexRankSummarizer(stemmer)
+    summarizer.stop_words = get_stop_words(language)
+    summary = ""
+    sentence_list = [
+        unicode(sentence) for sentence in summarizer(
+            PlaintextParser.from_string(
+                content.encode(
+                    'utf-8').strip().decode('utf-8'),
+                Tokenizer(language)).document,
+            settings.DEFAULT_SENTENCE_COUNT)]
+    for sentence in sentence_list:
+        excluded = [exclude
+                    for exclude in settings.DEFAULT_EXCLUDE_SENTENCES
+                    if exclude in sentence]
+        if settings.TIME_EXCLUSION_REGEX.search(sentence) is None \
+                and len(summary) < settings.DEFAULT_SUMMARY_LENGTH \
+                and excluded not in sentence:
+            summary += " " + sentence
+    return summary

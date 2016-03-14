@@ -146,7 +146,9 @@
             <h1>Missions
             </h1>
             <div class="title-important-actions">
-                <a class="btn btn-primary">Embark on a Mission</a>
+                {% if request.user.username == quest.owner_username %}
+                    <a class="btn btn-primary js-quest-signup">Embark on a Mission</a>
+                {% endif %}
             </div>
         </div>
 

@@ -51,7 +51,7 @@ export function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
                         $.notify({message: notification.detail}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
                     } else{
                         for (var key in notification) {
-                          $.notify({message: notification[key][0]}, {type: 'danger'});
+                          $.notify({message: "" + helpers.toTitleCase(key) + ": " + notification[key][0]}, {type: 'danger'});
                         }
                     }
                     notification = [];
@@ -62,9 +62,9 @@ export function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
                     for (var message in notification[badItem]) {
                         if (notification[badItem].hasOwnProperty(message)) {
                             if (typeof(notification[badItem]) === 'object'){
-                                reportMsg = notification[badItem][message].message;
+                                reportMsg = "" + helpers.toTitleCase(badItem)+ ": " + notification[badItem][message].message;
                             } else {
-                                reportMsg = notification[badItem][message];
+                                reportMsg = "" + helpers.toTitleCase(badItem) + ": " + notification[badItem][message];
                             }
                             badItemCap = badItem.charAt(0).toUpperCase() + badItem.slice(1);
                             errorMessage = badItemCap + ": " + reportMsg;

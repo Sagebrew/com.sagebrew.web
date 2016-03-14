@@ -62,7 +62,6 @@ class TestQuestionNeoModel(TestCase):
     def test_one_solution_by_same_author(self):
         solution = Solution(content=uuid1(),
                             owner_username=self.pleb.username).save()
-        solution.solution_to.connect(self.question)
         self.question.solutions.connect(solution)
         authors = self.question.get_conversation_authors()
         self.assertEqual("%s %s" % (self.pleb.first_name, self.pleb.last_name),
@@ -75,8 +74,6 @@ class TestQuestionNeoModel(TestCase):
                             owner_username=self.pleb.username).save()
         solution2 = Solution(content=uuid1(),
                              owner_username=pleb.username).save()
-        solution.solution_to.connect(self.question)
-        solution2.solution_to.connect(self.question)
         self.question.solutions.connect(solution)
         self.question.solutions.connect(solution2)
         authors = self.question.get_conversation_authors()
@@ -97,9 +94,6 @@ class TestQuestionNeoModel(TestCase):
                              owner_username=pleb.username).save()
         solution3 = Solution(content=uuid1(),
                              owner_username=pleb2.username).save()
-        solution.solution_to.connect(self.question)
-        solution2.solution_to.connect(self.question)
-        solution3.solution_to.connect(self.question)
         self.question.solutions.connect(solution)
         self.question.solutions.connect(solution2)
         self.question.solutions.connect(solution3)

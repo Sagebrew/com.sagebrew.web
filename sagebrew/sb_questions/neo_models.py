@@ -69,10 +69,6 @@ class Question(TitledContent):
         res, _ = db.cypher_query(query)
         return [row[0] for row in res]
 
-    def get_tags_humanized(self):
-        return [tag.replace('-', ' ').replace('_', ' ')
-                for tag in self.get_tags()]
-
     def get_tags_string(self):
         try:
             return ", ".join(self.get_tags())

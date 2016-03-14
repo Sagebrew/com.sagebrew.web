@@ -116,29 +116,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         queryset = self.get_object()
         single_object = QuestionSerializerNeo(
-            queryset, context={'request': request}).data
-        if self.request.query_params.get('html', 'false').lower() == "true":
-            if request.user.is_authenticated():
-                spawn_task(update_view_count_task,
-                           {'object_uuid': queryset.object_uuid,
-                            'username': request.user.username})
-            single_object['last_edited_on'] = parser.parse(
-                single_object['last_edited_on']).replace(microsecond=0)
-            single_object['created'] = parser.parse(
-                single_object['created']).replace(microsecond=0)
-            # This will be moved to JS Framework but don't need intermediate
-            # step at the time being as this doesn't require pagination
-            return Response(
-                {
-                    "html": render_to_string(
-                        'question.html',
-                        RequestContext(request, single_object)),
-                    "ids": [single_object["object_uuid"]],
-                    "id": single_object["object_uuid"],
-                    "results": single_object,
-                    "solution_count": single_object['solution_count']
-                }, status=status.HTTP_200_OK)
-
+            queryset, context={'request': request, "expand_param": True}).data
         return Response(single_object, status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'])
@@ -155,23 +133,3 @@ class QuestionViewSet(viewsets.ModelViewSet):
     def protect(self, request, object_uuid=None):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
-
-    @list_route(methods=['get'])
-    def render(self, request):
-        """
-        This is a intermediate step on the way to utilizing a JS Framework to
-        handle template rendering.
-        """
-        html_array = []
-        id_array = []
-        questions = self.list(request)
-        for question in questions.data['results']:
-            question['last_edited_on'] = parser.parse(
-                question['last_edited_on']).replace(microsecond=0)
-            question['created'] = parser.parse(
-                question['created']).replace(microsecond=0)
-            html_array.append(render_to_string(
-                'question_summary.html', RequestContext(request, question)))
-            id_array.append(question["object_uuid"])
-        questions.data['results'] = {"html": html_array, "ids": id_array}
-        return Response(questions.data, status=status.HTTP_200_OK)

@@ -26,7 +26,7 @@ export function init() {
 export function load() {
     var solutionID = helpers.args(2),
         $app = $(".app-sb");
-    addMarkdown($('#solution_content_id'));
+    addMarkdown($('#js-solution-markdown'));
     request.get({url: "/v1/solutions/" + solutionID + "/"})
         .done(function (data) {
             var solution_content = $('#wmd-input-0');

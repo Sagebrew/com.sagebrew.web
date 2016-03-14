@@ -46,7 +46,7 @@ class LoginRequiredMixin(View):
 
 
 class ProfileView(LoginRequiredMixin):
-    template_name = 'sb_plebs_base/profile_page.html'
+    template_name = 'profile_page.html'
 
     @method_decorator(user_passes_test(
         verify_completed_registration,

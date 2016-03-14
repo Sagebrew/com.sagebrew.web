@@ -2,7 +2,6 @@ import requests
 from bs4 import BeautifulSoup
 
 from django.conf import settings
-from django.template.loader import render_to_string
 
 from rest_framework import serializers, status
 
@@ -36,7 +35,7 @@ class FileSize:
         pass
 
     def __call__(self, value):
-        if (value > 20000000):
+        if value > 20000000:
             message = "Your file cannot be larger than 20mb. Please select " \
                       "a smaller file."
             raise serializers.ValidationError(message)
@@ -49,8 +48,7 @@ class UploadSerializer(SBSerializer):
     width = serializers.IntegerField(read_only=True)
     height = serializers.IntegerField(read_only=True)
     url = serializers.CharField(read_only=True)
-
-    html = serializers.SerializerMethodField()
+    is_portrait = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         owner = validated_data.pop('owner')
@@ -74,9 +72,8 @@ class UploadSerializer(SBSerializer):
     def update(self, instance, validated_data):
         return None
 
-    def get_html(self, instance):
-        return render_to_string('contained_image.html',
-                                {"uploaded_object": instance})
+    def get_is_portrait(self, instance):
+        return instance.height > instance.width
 
 
 class ModifiedSerializer(UploadSerializer):
@@ -122,8 +119,9 @@ class URLContentSerializer(SBSerializer):
     image_width = serializers.IntegerField(read_only=True)
     image_height = serializers.IntegerField(read_only=True)
     is_explicit = serializers.BooleanField(read_only=True)
-
+    image_viewable = serializers.SerializerMethodField()
     images = serializers.SerializerMethodField()
+    is_portrait = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         owner = validated_data.pop('owner')
@@ -173,3 +171,9 @@ class URLContentSerializer(SBSerializer):
 
     def get_images(self, instance):
         return instance.get_images()
+
+    def get_image_viewable(self, instance):
+        return instance.selected_image and not instance.is_explicit
+
+    def get_is_portrait(self, instance):
+        return instance.image_height > instance.image_width

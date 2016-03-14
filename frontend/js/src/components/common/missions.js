@@ -3,15 +3,26 @@ var request = require('api').request,
     missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summary.hbs'),
     settings = require('settings').settings;
 
-export function populateMissions(loadElement, questID){
-    var $missionList = $('#js-mission-list'),
-        $missionContainer = $('#js-mission-container');
-    $missionList.sb_contentLoader({
-        emptyDataMessage: positionHolderTemplate({static_url: settings.static_url}),
+export function populateMissions(loadElement, questID, template, container, emptyMessage){
+    require('common/handlebars_helpers');
+    if(emptyMessage === undefined || emptyMessage === "undefined" || emptyMessage === null){
+        emptyMessage = positionHolderTemplate({static_url: settings.static_url});
+    }
+    if(template === undefined || template === "undefined" || template === null){
+        template = missionSummaryTemplate;
+    }
+    if(container === undefined || container === "undefined" || container === null){
+        container = $('#js-mission-container');
+    }
+    if(loadElement === undefined || loadElement === "undefined" || loadElement === null) {
+        loadElement = $(".app-sb");
+    }
+    loadElement.sb_contentLoader({
+        emptyDataMessage: emptyMessage,
         url: '/v1/quests/' + questID + '/missions/',
-        loadingMoreItemsMessage: "",
+        loadingMoreItemsMessage: " ",
         itemsPerPage: 3,
-        loadMoreMessage: "",
+        loadMoreMessage: " ",
         dataCallback: function(base_url, params) {
             var urlParams = $.param(params);
             var url;
@@ -24,16 +35,52 @@ export function populateMissions(loadElement, questID){
             return request.get({url:url});
         },
         renderCallback: function($container, data) {
-
-            console.log(data);
-
             for(var i=0; i < data.results.length; i++){
                 data.results[i].title = determineTitle(data.results[i]);
             }
+            container.append(template({
+                missions: data.results,
+                static_url: settings.static_url
+            }));
+        }
+    });
+}
 
-            console.log(data);
-
-            $missionContainer.append(missionSummaryTemplate({
+export function populateEndorsements(loadElement, questID, template, container){
+    require('common/handlebars_helpers');
+    var useTemplate, $missionContainer;
+    if(template === undefined || template === "undefined" || template === null){
+        useTemplate = missionSummaryTemplate;
+    } else {
+        useTemplate = template;
+    }
+    if(container === undefined || container === "undefined" || container === null){
+        $missionContainer = $('#js-mission-container');
+    } else {
+        $missionContainer = container;
+    }
+    loadElement.sb_contentLoader({
+        emptyDataMessage: '<div class="block"><div class="block-content">No Endorsements</div></div>',
+        url: '/v1/profiles/' + questID + '/endorsements/',
+        loadingMoreItemsMessage: " ",
+        itemsPerPage: 3,
+        loadMoreMessage: " ",
+        dataCallback: function(base_url, params) {
+            var urlParams = $.param(params);
+            var url;
+            if (urlParams) {
+                url = base_url + "?" + urlParams;
+            }
+            else {
+                url = base_url;
+            }
+            return request.get({url:url});
+        },
+        renderCallback: function($container, data) {
+            for(var i=0; i < data.results.length; i++){
+                data.results[i].title = determineTitle(data.results[i]);
+            }
+            $missionContainer.append(useTemplate({
                 missions: data.results,
                 static_url: settings.static_url
             }));

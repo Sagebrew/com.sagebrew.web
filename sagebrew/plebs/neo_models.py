@@ -214,20 +214,6 @@ class Pleb(Searchable):
     interests = RelationshipTo("sb_tags.neo_models.Tag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
     # Optimization
-    # Due to the large amounts of content it is more performant to explicitly
-    # have relationships with each of the different pieces of content rather
-    # than just OWNS
-    posts = RelationshipTo('sb_posts.neo_models.Post', 'OWNS_POST',
-                           model=PostObjectCreated)
-    questions = RelationshipTo('sb_questions.neo_models.Question',
-                               'OWNS_QUESTION',
-                               model=PostObjectCreated)
-    solutions = RelationshipTo('sb_solutions.neo_models.Solution',
-                               'OWNS_SOLUTION',
-                               model=PostObjectCreated)
-    comments = RelationshipTo('sb_comments.neo_models.Comment',
-                              'OWNS_COMMENT',
-                              model=PostObjectCreated)
     wall = RelationshipTo('sb_wall.neo_models.Wall', 'OWNS_WALL')
     notifications = RelationshipTo(
         'sb_notifications.neo_models.Notification', 'RECEIVED_A')

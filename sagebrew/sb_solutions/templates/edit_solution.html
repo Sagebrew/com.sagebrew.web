@@ -5,10 +5,10 @@
     <div class="block">
         <h5 class="block-title">Edit Solution</h5>
         <div class="block-content solution-manager sb_markdown">
-            <label for="solution_content_id"></label>
+            <label for="js-solution-markdown"></label>
             <textarea class="form-control markdown-input"
-                      id="solution_content_id"
-                      name="solution_content">
+                      id="js-solution-markdown"
+                      name="content">
             </textarea>
             <ul class="list-inline list-inline-btns">
                 <li>
@@ -22,9 +22,4 @@
 
     </div>
 
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/solution_validator.js' %}"></script>
 {% endblock %}

@@ -1,22 +1,9 @@
-{% extends "base.html" %}
+{% extends "layout/one-col.html" %}
 {% load staticfiles %}
 {% block title %}Single Object Page{% endblock %}
-{% block content %}
-    <div class="row">
-        <div class="col-xs-8 col-xs-offset-2">
-            <div id="js-content-wrapper" class="sb_conversation_wall sb-single-object-wall">
+{% block live %}
+    <div id="js-content-wrapper" class="block">
 
-            </div>
-        </div>
     </div>
     {% include "flag_modal.html" %}
 {% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/send_notification.js' %}"></script>
-    <script src="{% static 'js/flag_modal.js' %}"></script>
-    <script src="{% static 'js/profile_pic_croppic.js' %}"></script>
-    <script src="{% static 'js/wallpaper_pic_croppic.js' %}"></script>
-
-{% endblock scripts %}

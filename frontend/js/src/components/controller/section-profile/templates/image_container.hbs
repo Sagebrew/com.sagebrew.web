@@ -1,0 +1,7 @@
+{{#each uploaded_objects }}
+    {{# if this.is_portrait }}
+        <a href="{{ this.url }}" data-lightbox="{{ this.id }}"><img class="sb-post-image sb-post-image-tall js-enlarge-post-image" src="{{ this.url }}"></a>
+    {{ else }}
+        <a href="{{ this.url }}" data-lightbox="{{ this.id }}"><img class="sb-post-image js-enlarge-post-image" src="{{ this.url }}"></a>
+    {{/if}}
+{{/each}}

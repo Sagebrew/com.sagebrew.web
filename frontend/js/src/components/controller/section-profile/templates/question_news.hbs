@@ -1,24 +1,41 @@
-<div class="block">
+<div class="block" id="question-block-{{ id }}">
     <div class="block-title">
         <a href="{{ url }}">
             Question: {{ title }}
         </a>
     </div>
     <div class="block-content" style="padding-top: 0; padding-bottom: 0;">
-        <small>Author: <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>  <b>&middot;</b>
-            Topics: {{ tags_formatted }} <b>&middot;</b>
-            {{ created }} </small>
-        <small class="pull-right">
-           <i class="fa fa-users" style="margin-right: 10px;"></i>Public
-        </small>
+        <div class="dropdown">
+            <small>Author: <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>  <b>&middot;</b>
+                Topics: {{ tags_formatted }} <b>&middot;</b>
+                {{ created }} <b>&middot;</b> Public </small>
+            <div class="pull-right" style="margin-bottom: -5px; margin-top: -7px;">
+                {{# if is_owner }}
+                    <button class="btn dropdown-toggle sb_btn_icon"
+                            type="button" id="dropdownMenu1" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="true">
+                        <span class="fa fa-caret-down sb_btn_icon_green_hover"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><a class="sb_post_dropdown_menu js-edit-question"
+                               data-id="{{ id }}"
+                               href="/conversations/questions/{{ id }}/edit/">Edit</a>
+                        </li>
+                    </ul>
+                {{ else }}
+                    {{> 'controller/flag/templates/create_flag.hbs' id=id
+                        can_flag=can_flag flagged=flagged href=href }}
+                {{/if }}
+            </div>
+        </div>
     </div>
     <div class="block-content">
         <div class="row">
-            <div class="hidden-xs col-sm-1 sb_vote_wrapper">
+            <div class="hidden-xs col-sm-1 sb_vote_wrapper" style="padding-left:0; padding-right:0;">
                 <div class="vote_lg vote_count_large">
-                    {{> 'common/vote/templates/vote.hbs' id=id restricted=restricted
-                    is_owner=is_owner has_reputation=has_reputation
-                    vote_count=vote_count upvote=upvote downvote=downvote type=type}}
+                    {{> 'controller/vote/templates/vote.hbs' id=id
+                    vote_count=vote_count upvote=upvote downvote=downvote type=type
+                    can_upvote=can_upvote can_downvote=can_downvote }}
                 </div>
             </div>
             <div class="col-xs-12 col-sm-11">
@@ -30,33 +47,8 @@
             </div>
         </div>
     </div>
-    <div class="js-comment-section"
-         data-id="{{ id }}"
-         data-type="{{ type }}">
-    <div class="js-comment-container newsfeed-comment" id="sb_comments_container_{{ id }}">
-    </div>
-    <div class="block">
-        <div class="block-content">
-            {{#if can_comment }}
-                <form id="commentSubmitForm">
-                    <div class="input-group sb_comment comment-input" id="comment-input-{{ id }}">
-                            <textarea class="input-group form-control sb_comment_input"
-                                      rows="2" name="comment_content"
-                                      placeholder="Help improve the Question by providing feedback"></textarea>
-                            <a class="btn input-group-btn comment-btn"
-                               data-id="{{ id }}"><span class="fa fa-plus"></span></a>
-                        </div>
-                </form>
-            {{ else }}
-                <div class="block-content"><small>
-                    <span class="sb_comment_disabled" data-toggle="tooltip"
-                          data-placement="top"
-                          data-title="Requirement: 20+ Rep"
-                          id="post_comment_on_{{ object_uuid }}">
-                        comment
-                    </span>
-                </small></div>
-            {{/if}}
-        </div>
-    </div>
+    {{> 'controller/comments/templates/create_comment.hbs' parent_id=id
+            parent_type=type
+            can_comment=can_comment
+            comment_description="Help improve the Question by providing feedback"}}
 </div>

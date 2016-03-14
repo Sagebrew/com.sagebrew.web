@@ -1,11 +1,32 @@
+from logging import getLogger
+
 from celery import shared_task
+
+from django.core.cache import cache
 
 from neomodel import CypherException, DoesNotExist
 
-from api.utils import spawn_task, create_auto_tags
+from api.utils import spawn_task, create_auto_tags, generate_summary
 from sb_tags.tasks import add_auto_tags
 
 from .neo_models import Question
+
+logger = getLogger("loggly_logs")
+
+
+@shared_task()
+def create_question_summary_task(object_uuid):
+    try:
+        question = Question.nodes.get(object_uuid=object_uuid)
+    except (DoesNotExist, Question.DoesNotExist, CypherException, IOError) as e:
+        raise create_question_summary_task.retry(exc=e, countdown=5,
+                                                 max_retries=None)
+    summary = generate_summary(question.content)
+    question.summary = summary
+    question.save()
+    cache.delete(question.object_uuid)
+
+    return question
 
 
 @shared_task()

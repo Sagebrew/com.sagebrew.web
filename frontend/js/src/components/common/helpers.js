@@ -3,7 +3,8 @@
  * Helper functions that aren't global.
  */
 
-var settings = require('./../settings').settings;
+var settings = require('./../settings').settings,
+    moment = require('moment');
 
 /**
  * Get cookie based by name.
@@ -91,6 +92,12 @@ export function args(arg) {
         return elements;
     }
 
+}
+
+export function getOrdinal(n) {
+   var s=["th","st","nd","rd"],
+       v=n%100;
+   return n+(s[(v-20)%10]||s[v]||s[0]);
 }
 
 
@@ -275,6 +282,11 @@ export function selectAllFields(wrapperDivID) {
     });
 }
 
+export function replaceAll(search, replacement) {
+    var target = this;
+    return target.replace(new RegExp(search, 'g'), replacement);
+}
+
 
 export function humanizeString(toBeHumanized) {
     var fragments = toBeHumanized.split('_');
@@ -282,4 +294,32 @@ export function humanizeString(toBeHumanized) {
         fragments[i] = fragments[i].charAt(0).toUpperCase() + fragments[i].slice(1);
     }
     return fragments.join(' ');
+}
+
+
+/**
+ * Convert vote_type into a handlebars usable format since handlebars treats
+ * False and None as the same thing. And update the time format to be readable
+ * by humans.
+ * @param contentList
+ * @returns {*}
+ */
+export function votableContentPrep(contentList) {
+    for (var i = 0; i < contentList.length; i ++) {
+        if(contentList[i].vote_type === true){
+            contentList[i].upvote = true;
+        } else if (contentList[i].vote_type === false){
+            contentList[i].downvote = true;
+        }
+        contentList[i].created = moment(contentList[i].created).format("dddd, MMMM Do YYYY, h:mm a");
+    }
+    return contentList;
+}
+
+/**
+ * Convert a string into title case.
+ */
+export function toTitleCase(str)
+{
+    return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }

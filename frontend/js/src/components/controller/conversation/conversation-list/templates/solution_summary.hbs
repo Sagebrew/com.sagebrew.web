@@ -1,0 +1,29 @@
+{{# each solutions }}
+    <div class="block" id="question-block-{{ this.id }}">
+        <div class="block-title">
+            <a href="{{ this.url }}">
+                Solution To: {{ this.question.title }}
+            </a>
+        </div>
+        <div class="block-content" style="padding-top: 0; padding-bottom: 0;">
+            <small>Author: <a href="{{ this.profile.url }}">{{ this.profile.first_name }} {{ this.profile.last_name }}</a></small>
+        </div>
+        <div class="block-content">
+            <div class="row">
+                <div class="col-xs-1 sb_vote_wrapper" style="padding-left:0; padding-right:0;">
+                    <div class="vote_lg vote_count_large">
+                        {{> 'controller/vote/templates/vote.hbs' id=this.id
+                        vote_count=this.vote_count upvote=this.upvote
+                        downvote=this.downvote type=this.type
+                        can_upvote=this.can_upvote can_downvote=this.can_downvote }}
+                    </div>
+                </div>
+                <div class="col-xs-11">
+                    <div class="block-content">
+                        <p>{{ this.summary }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/each}}

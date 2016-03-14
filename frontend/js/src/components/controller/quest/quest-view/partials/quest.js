@@ -7,13 +7,14 @@ export function load() {
         missionList= document.getElementById('js-mission-list'),
         pageUser = helpers.args(1);
 
-    missions.populateMissions(missionList, pageUser);
+    missions.populateMissions($(missionList), pageUser);
     $app
-        .on('click', '.js-position', function () {
+        .on('click', '.js-position', function (event) {
+            event.preventDefault();
             if(this.id === "js-add-mission"){
                 window.location.href = "/missions/select/";
             } else {
-                window.location.href = "/missions/" + this.id + "/";
+                window.location.href = "/missions/" + this.dataset.id + "/";
             }
         });
     var croppicContainerOptions = {

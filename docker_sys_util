@@ -20,4 +20,7 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py migrate --noinput && \
     python manage.py create_privileges && \
     python manage.py clear_cache && \
+    python manage.py migrate_comments && \
+    python manage.py migrate_solutions && \
+    python manage.py migrate_questions && \
     python manage.py clearsessions

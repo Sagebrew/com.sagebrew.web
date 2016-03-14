@@ -1,9 +1,8 @@
-{% extends "sb_plebs_base/profile_page.html" %}
+{% extends "profile_page.html" %}
 {% load staticfiles %}
 {% block title %}{{ page_user.first_name }}'s Friends{% endblock title %}
 {%  block midsection %}
 <div class="col-md-4 hidden-sm hidden-xs">
-   {% include "sb_home_section/potential_representative_col.html" %}
    {% include "sb_home_section/representative_col.html" %}
 </div>
 <div class="col-md-8">

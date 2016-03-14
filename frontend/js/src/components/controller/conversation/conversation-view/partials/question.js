@@ -1,39 +1,39 @@
-/* global enableQuestionFunctionality, populateComments, loadSolutions */
-/**
- * TODO refactor and include the above globals.
- */
-var Autolinker = require('autolinker'),
-    request = require('api').request;
+/* global Autolinker */
+var request = require('api').request,
+    helpers = require('common/helpers'),
+    Handlebars = require('handlebars'),
+    questionTemplate = require('../templates/question.hbs');
 
-function loadSolutionCount(questionID) {
-    request.get({url: '/v1/questions/' + questionID + "/solution_count/"})
-        .done(function (data) {
-            var solutionCount = $('#solution_count');
-            solutionCount.html("");
-            solutionCount.append(data.solution_count);
-            if (data.solution_count === 0) {
-                document.getElementById('js-solution-count-header').innerHTML = "Provide the First Solution";
-            } else if (data.solution_count !== 1) {
-                $('#solution_plural').append('s');
-            }
-
-        });
-}
 
 export function load () {
-    var timeOutId = 0,
-        questionID = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0];
-    request.get({url: '/v1/questions/' + questionID + '/?html=true&expand=true&expedite=true'})
+    var $app = $(".app-sb"),
+        questionID = helpers.args(1);
+    Handlebars.registerPartial('question', questionTemplate);
+    request.get({url: "/v1/questions/" + questionID + "/?expand=true"})
         .done(function (data) {
-            var questionContainer = $('#single_question_wrapper');
-            questionContainer.append(Autolinker.link(data.html));
-            loadSolutionCount(questionID);
-            enableQuestionFunctionality(data.ids);
-            populateComments(data.ids, "questions");
-            loadSolutions("/v1/questions/" + questionID + "/solutions/render/?page_size=10&expand=true");
-        })
-        .fail(function(){
-            timeOutId = setTimeout(load, 1000);
-        });
+            data = helpers.votableContentPrep([data])[0];
+            document.getElementById('js-conversation-question').innerHTML = Autolinker.link(questionTemplate(data));
+            $app.trigger("sb:populate:comments", {
+                id: questionID,
+                type: "question",
+                commentType: "base"
+            });
+            $app.trigger("sb:populate:solutions", {
+                id: questionID,
+                solutionType: "base",
+                insertElement: "#js-conversation-solutions"
+            });
+            $('[data-toggle="tooltip"]').tooltip();
 
+        });
+    $app
+        .on('click', '.js-delete-question', function() {
+            var objectID = this.dataset.id;
+            request.remove({
+                url: "/v1/questions/" + this.dataset.id + "/"
+            }).done(function () {
+                document.getElementById("question-block-" + objectID).remove();
+            });
+        });
 }
+

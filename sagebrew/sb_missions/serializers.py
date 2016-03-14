@@ -39,7 +39,7 @@ class MissionSerializer(SBSerializer):
                                   allow_blank=True)
     owner_username = serializers.CharField(read_only=True)
     location_name = serializers.CharField(required=False, allow_null=True)
-    focus_name = serializers.CharField()
+    focus_name = serializers.CharField(max_length=240)
     focus_formal_name = serializers.CharField(read_only=True)
 
     url = serializers.SerializerMethodField()
@@ -94,6 +94,11 @@ class MissionSerializer(SBSerializer):
             location = location.replace(
                 " Of", " of").replace(" And", " and").replace(" Or", " or")
         focused_on = validated_data.get('focus_name')
+        if focus_type == "advocacy":
+            focused_on = slugify(focused_on)
+        else:
+            focused_on = slugify(
+                focused_on).title().replace('-', ' ').replace('_', ' ')
         district = validated_data.get('district')
         # TODO what happens if a moderator makes the mission?
         owner_username = request.user.username
@@ -145,7 +150,7 @@ class MissionSerializer(SBSerializer):
                     (loc_query, focused_on, level)
             res, _ = db.cypher_query(query)
             if not res.one:
-                focused_on = focused_on.title().replace('-', ' ')\
+                focused_on = slugify(focused_on).title().replace('-', ' ')\
                     .replace('_', ' ')
                 new_position = Position(verified=False, name=focused_on,
                                         level=level,
@@ -172,7 +177,7 @@ class MissionSerializer(SBSerializer):
             res, _ = db.cypher_query(query)
             return Mission.inflate(res.one)
         elif focus_type == "advocacy":
-            focused_on = '-'.join(focused_on.replace('_', '-').lower().split())
+            focused_on = slugify(focused_on)
             try:
                 Tag.nodes.get(name=focused_on)
             except (DoesNotExist, Tag.DoesNotExist):

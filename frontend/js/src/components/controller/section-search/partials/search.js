@@ -6,12 +6,10 @@ var request = require('api').request,
     questionSearchTemplate = require('../templates/question_search.hbs'),
     profileSearchTemplate = require('../templates/user_search.hbs'),
     questSearchTemplate = require('../templates/quest_search.hbs'),
-    missionSearchTemplate = require('../templates/mission_search.hbs'),
-    handlebarsHelpers = require('common/handlebars_helpers').installHandleBarsHelpers;
+    missionSearchTemplate = require('../templates/mission_search.hbs');
 
 
 export function submitSearch() {
-    handlebarsHelpers();
     var searchResults = document.getElementById("search_result_div");
     searchResults.innerHTML = searchResults.innerHTML + '<div class="loader"></div>';
     request.get({url: "/v1/search/?query=" + getArgs('q') + "&filter=" + getArgs('filter')})

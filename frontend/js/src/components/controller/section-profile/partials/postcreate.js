@@ -1,14 +1,13 @@
-/* global enableSinglePostFunctionality */
 /**
  * @file
  * For post creation. Giving this a dedicated file since it's on multiple pages.
- * TODO refactor and include the above globals.
  *
  */
 var request = require('api').request,
     helpers = require('common/helpers'),
     settings = require('settings').settings,
-    content = require('common/content');
+    content = require('common/content'),
+    postNewsTemplate = require('../templates/post_news.hbs');
 
 
 
@@ -46,7 +45,6 @@ function fixDisplay(width, height) {
  */
 export function init () {
     var profile_page_user = helpers.args(1);
-
     // Newsroom doesn't have username in the url.
     if (profile_page_user === "newsfeed") {
         profile_page_user = settings.user.username;
@@ -97,7 +95,7 @@ export function init () {
         }
         parsedText.always(function () {
             request.post({
-                url: "/v1/profiles/" + profile_page_user + "/wall/?html=true",
+                url: "/v1/profiles/" + profile_page_user + "/wall/?expand=true",
                 data: JSON.stringify({
                     'content': $input.val(),
                     'images': imageIds,
@@ -108,8 +106,7 @@ export function init () {
                 $preview.hide();
                 $input.css('margin-bottom', 0);
                 $input.val("");
-                $("#wall_app").prepend(data.html);
-                enableSinglePostFunctionality(data.ids);
+                $("#wall_app").prepend(postNewsTemplate(helpers.votableContentPrep([data])[0]));
                 var placeHolder = $(".list-empty");
                 if (placeHolder !== undefined) {
                     placeHolder.remove();
@@ -213,4 +210,43 @@ export function init () {
             });
         }
     });
+}
+
+
+export function load () {
+    var $app = $(".app-sb");
+    $app
+        .on('click', '.js-edit-post', function () {
+            $("#js-post-" + this.dataset.id).hide();
+            $('#js-edit-container-' + this.dataset.id).show();
+        })
+        .on('submit', '.js-edit-post-form', function(event) {
+            event.preventDefault();
+            var update = helpers.getFormData(this),
+                objectID = this.dataset.id;
+            var $form = $(this);
+            $form.find('button').prop('disabled', true);
+
+            request.patch({
+                url: "/v1/posts/" + this.dataset.id + "/",
+                data: JSON.stringify(update)
+            }).done(function (data) {
+                $form.find('button').prop('disabled', false);
+                document.getElementById("js-post-" + data.id).innerHTML = "<p>" + data.html_content + "</p>";
+                $('#js-edit-container-' + objectID).hide();
+                $("#js-post-" + objectID).show();
+            }).fail(function () {
+                $form.find('button').prop('disabled', false);
+                $('#js-edit-container-' + objectID).hide();
+                $("#js-post-" + objectID).show();
+            });
+        })
+        .on('click', '.js-delete-post', function() {
+            var objectID = this.dataset.id;
+            request.remove({
+                url: "/v1/posts/" + this.dataset.id + "/"
+            }).done(function () {
+                document.getElementById("post-block-" + objectID).remove();
+            });
+        });
 }

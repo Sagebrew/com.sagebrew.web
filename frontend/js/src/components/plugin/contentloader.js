@@ -27,7 +27,6 @@
 
         // Data store.
         var totalItems,
-            currentPage = 1,
             isInited = false;
 
 
@@ -51,7 +50,7 @@
 
                     //
                     // Load more data.
-                    if (direction === "down" && currentPage && !$loadMore.hasClass("currently-loading")) {
+                    if (direction === "down" && base.options.startingPage && !$loadMore.hasClass("currently-loading")) {
                         base.loadMoreContent();
                     }
 
@@ -84,11 +83,8 @@
         base.getData = function() {
             var params = base.options.params;
 
-            if (currentPage) {
-                params.page = currentPage;
-            }
-
-            params.page_size = base.options.ItemsPerPage;
+            params.page_size = base.options.itemsPerPage;
+            params.page = base.options.startingPage;
             return base.options.dataCallback(base.options.url, params);
         };
 
@@ -98,10 +94,11 @@
         base.loadMoreContent = function() {
             //Do we even have more data to get?
             //Subtract one to fix not loading the last page of data from api
-            if (totalItems > ((currentPage - 1) * base.options.ItemsPerPage)) {
+            if (totalItems > ((base.options.startingPage - 1) * base.options.itemsPerPage) &&
+                    base.options.continuousLoad === true) {
                 $loadMore.text(base.options.loadingMoreItemsMessage).addClass("currently-loading");
                 base.getData().done(function(data) {
-                    currentPage++;
+                    base.options.startingPage++;
 
                     base.options.renderCallback($listContainer, data);
 
@@ -139,7 +136,7 @@
                 $(".loader", base.$el).remove();
                 if (data.count !== 0) {
                     totalItems = data.count;
-                    currentPage++;
+                    base.options.startingPage++;
 
                     base.initWithContent();
 
@@ -163,6 +160,8 @@
         loadingMoreItemsMessage: "Please wait, loading more items",
         loadMoreMessage: "Load more.",
         itemsPerPage: 5,
+        startingPage: 1,
+        continuousLoad: true,
         url: '',
         params: {
 

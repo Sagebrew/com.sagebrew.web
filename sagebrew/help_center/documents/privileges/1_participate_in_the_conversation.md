@@ -57,23 +57,6 @@ information comes to light, and might remain a contesting Question for a
 long time. Regardless, all Questions are archived and you'll be able to review 
 them at any time you'd like. 
 
-{% if debug == True %}
-### When should I Concede to another Solution? ###
-You should Concede to another Solution if you honestly think somebody has 
-come up with a better Solution. 
-
-### What happens to my Solution if I Concede to another? ###
-Your Solution will be grayed out. What this means for you:
-
-- No more commenting on a Conceded Solution
-- No more Up/Downvoting on a Conceded Solution
-- No editing allowed on a Conceded Solution
-- The author of the Conceded Solution will retain all Reputation gained/lost
-  10% of Reputation accrued on the Conceded Solution will be awarded 
-  to the user of the "better" Solution 
-- The process of Conceding a Solution is irreversible
-{% endif %}
-
 ### Question Linking ###
 
 If you have a question about a specific detail in another Question, it may be 
@@ -122,23 +105,6 @@ and updating context simply won't do the Question justice, it's best to simply
 start a new Question. 
 
 You will be limited to associating 5 tags with a given question. 
-
-{% if debug == True %}
-### Badges Associated with Conversing ###
-- Warming Up
-- Good Question
-- Great Questions
-- Superb Question
-- Majestic Question
-- Good Solution
-- Great Solution
-- Superb Solution
-- Majestic Solution
-- Sort of Popular
-- Popular
-- Way Popular
-{% endif %}
-
 
 [1]: /help/conversation/research/
 [2]: /help/reputation/

@@ -172,7 +172,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         except(IndexError, KeyError, ValueError):
             return Response(errors.QUERY_DETERMINATION_EXCEPTION,
                             status=status.HTTP_400_BAD_REQUEST)
-        query = 'MATCH (a:Pleb {username: "%s"})-[:OWNS_QUESTION]->' \
+        query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-' \
                 '(b:Question) WHERE b.to_be_deleted=false' \
                 ' %s RETURN b' % (username, additional_params)
         res, col = db.cypher_query(query)
@@ -224,6 +224,19 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response({"detail": "Successfully followed user.",
                          "status": status.HTTP_200_OK},
                         status=status.HTTP_200_OK)
+
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticated,))
+    def followers(self, request, username=None):
+        query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-' \
+                '(followers:Pleb) WHERE r.active ' \
+                'RETURN followers' % username
+        res, _ = db.cypher_query(query)
+        if res.one:
+            follower_list = [Pleb.inflate(row[0]) for row in res]
+            return Response({"results": PlebSerializerNeo(
+                follower_list, many=True).data}, status=status.HTTP_200_OK)
+        return Response({"results": res.one}, status=status.HTTP_200_OK)
 
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated, IsSelfOrReadOnly))
@@ -308,17 +321,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             senators = [PublicOfficial.inflate(row[0]) for row in res]
             cache.set("%s_senators" % username, senators, timeout=1800)
         if len(senators) == 0:
-            return Response("<small>Sorry we could not find your "
-                            "Senators. Please alert us to our error!"
-                            "</small>", status=status.HTTP_200_OK)
-        html = self.request.query_params.get('html', 'false').lower()
-        if html == 'true':
-            sen_html = []
-            for sen in senators:
-                sen_html.append(
-                    render_to_string('sb_home_section/sitting_rep_block.html',
-                                     PublicOfficialSerializer(sen).data))
-            return Response(sen_html, status=status.HTTP_200_OK)
+            return Response([], status=status.HTTP_200_OK)
         return Response(PublicOfficialSerializer(senators, many=True).data,
                         status=status.HTTP_200_OK)
 
@@ -337,16 +340,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 cache.set("%s_house_representative" % username, house_rep,
                           timeout=1800)
             except IndexError:
-                return Response("<small>Sorry we could not find your "
-                                "House Representative. Please alert us to "
-                                "our error!</small>",
-                                status=status.HTTP_200_OK)
-        html = self.request.query_params.get('html', 'false').lower()
-        if html == 'true':
-            house_rep_html = render_to_string(
-                'sb_home_section/sitting_rep_block.html',
-                PublicOfficialSerializer(house_rep).data)
-            return Response(house_rep_html, status=status.HTTP_200_OK)
+                return Response({}, status=status.HTTP_200_OK)
         return Response(PublicOfficialSerializer(house_rep).data,
                         status=status.HTTP_200_OK)
 
@@ -361,16 +355,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 president = PublicOfficial.inflate(res[0][0])
                 cache.set("%s_president" % username, president, timeout=1800)
             except IndexError:
-                return Response("<small>Sorry we could not find your "
-                                "President. Please alert us to our error"
-                                "!</small>",
-                                status=status.HTTP_200_OK)
-        html = self.request.query_params.get('html', 'false').lower()
-        if html == 'true':
-            return Response(
-                render_to_string('sb_home_section/sitting_rep_block.html',
-                                 PublicOfficialSerializer(president).data),
-                status=status.HTTP_200_OK)
+                return Response({}, status=status.HTTP_200_OK)
         return Response(PublicOfficialSerializer(president).data,
                         status=status.HTTP_200_OK)
 
@@ -396,17 +381,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
             possible_reps = [Quest.inflate(row[0]) for row in res]
             cache.set('%s_possible_house_representatives' % username,
                       possible_reps, timeout=1800)
-        html = self.request.query_params.get('html', 'false').lower()
-        if html == 'true':
-            if not possible_reps:
-                return Response("<small>Currently No Registered Campaigning "
-                                "Representatives In Your Area</small>",
-                                status=status.HTTP_200_OK)
-            possible_rep_html = [
-                render_to_string('sb_home_section/sb_potential_rep.html',
-                                 possible_rep) for possible_rep in
-                QuestSerializer(possible_reps, many=True).data]
-            return Response(possible_rep_html, status=status.HTTP_200_OK)
         return Response(QuestSerializer(possible_reps, many=True).data,
                         status=status.HTTP_200_OK)
 
@@ -506,6 +480,11 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                        context={'request': request})
         return self.get_paginated_response(serializer.data)
 
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticatedOrReadOnly,))
+    def endorsements(self, request, username):
+        return Response([], status=status.HTTP_200_OK)
+
 
 class MeViewSet(mixins.UpdateModelMixin,
                 mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -544,6 +523,54 @@ class MeViewSet(mixins.UpdateModelMixin,
         serializer = self.get_serializer(instance)
         serializer_data = dict(serializer.data)
         return Response(serializer_data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def public(self, request):
+        then = (datetime.now(pytz.utc) - timedelta(days=120)).strftime("%s")
+        query = \
+            '// Retrieve all the current users questions\n' \
+            'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-' \
+            '(questions:Question) ' \
+            'WHERE questions.to_be_deleted = False AND questions.created > %s' \
+            ' AND questions.is_closed = False ' \
+            'RETURN questions, NULL AS solutions, ' \
+            'questions.created AS created, NULL AS s_question UNION ' \
+            '// Retrieve all the current users solutions\n' \
+            'MATCH (a:Pleb {username: "%s"})<-' \
+            '[:OWNED_BY]-(solutions:Solution)<-' \
+            '[:POSSIBLE_ANSWER]-(s_question:Question) ' \
+            'WHERE s_question.to_be_deleted = False ' \
+            'AND solutions.created > %s' \
+            ' AND solutions.is_closed = False ' \
+            'AND s_question.is_closed = False ' \
+            'RETURN solutions, NULL AS questions, ' \
+            'solutions.created AS created, s_question AS s_question' \
+            % (request.user.username, then, request.user.username, then)
+        news = []
+        res, _ = db.cypher_query(query)
+        # Profiled with ~50 objects and it was still performing under 1 ms.
+        # By the time sorting in python becomes an issue the above mentioned
+        # ticket should be resolved.
+        res = sorted(res, key=attrgetter('created'), reverse=True)[:5]
+        page = self.paginate_queryset(res)
+        for row in page:
+            news_article = None
+            if row.questions is not None:
+                row.questions.pull()
+                news_article = QuestionSerializerNeo(
+                    Question.inflate(row.questions),
+                    context={'request': request}).data
+            elif row.solutions is not None:
+                row.s_question.pull()
+                row.solutions.pull()
+                question_data = QuestionSerializerNeo(
+                    Question.inflate(row.s_question)).data
+                news_article = SolutionSerializerNeo(
+                    Solution.inflate(row.solutions),
+                    context={'request': request}).data
+                news_article['question'] = question_data
+            news.append(news_article)
+        return self.get_paginated_response(news)
 
     @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def newsfeed(self, request):
@@ -587,10 +614,11 @@ class MeViewSet(mixins.UpdateModelMixin,
         then = (datetime.now(pytz.utc) - timedelta(days=120)).strftime("%s")
         query = \
             '// Retrieve all the current users questions\n' \
-            'MATCH (a:Pleb {username: "%s"})-[:OWNS_QUESTION]->' \
+            'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-' \
             '(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND questions.created > %s' \
-            ' RETURN questions, NULL AS solutions, NULL AS posts, ' \
+            ' AND questions.is_closed = False ' \
+            'RETURN questions, NULL AS solutions, NULL AS posts, ' \
             'questions.created AS created, NULL AS s_question, ' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
             'NULL AS news UNION ' \
@@ -599,25 +627,29 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// interested in\n' \
             'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
             '(tag:Tag)<-[:TAGGED_AS]-(news:NewsArticle) ' \
-            'WHERE news.published > %s' \
+            'WHERE news.published > %s AND news.is_closed = False ' \
             ' RETURN DISTINCT news, NULL AS solutions, NULL AS posts, ' \
             'news.published AS created, NULL AS s_question, ' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
             'NULL AS questions UNION ' \
             '' \
             '// Retrieve all the current users solutions\n' \
-            'MATCH (a:Pleb {username: "%s"})-' \
-            '[:OWNS_SOLUTION]->(solutions:Solution)-' \
-            '[:POSSIBLE_ANSWER_TO]->(s_question:Question) ' \
-            'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
-            ' RETURN solutions, NULL AS questions, NULL AS posts, ' \
+            'MATCH (a:Pleb {username: "%s"})<-' \
+            '[:OWNED_BY]-(solutions:Solution)<-' \
+            '[:POSSIBLE_ANSWER]-(s_question:Question) ' \
+            'WHERE s_question.to_be_deleted = False ' \
+            'AND solutions.created > %s' \
+            ' AND solutions.is_closed = False ' \
+            'AND s_question.is_closed = False ' \
+            'RETURN solutions, NULL AS questions, NULL AS posts, ' \
             'solutions.created AS created, s_question AS s_question,' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
             'NULL AS news UNION ' \
             '' \
             '// Retrieve all the current users posts\n' \
-            'MATCH (a:Pleb {username: "%s"})-[:OWNS_POST]->(posts:Post) ' \
+            'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(posts:Post) ' \
             'WHERE posts.to_be_deleted = False AND posts.created > %s ' \
+            'AND posts.is_closed = False ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
             'posts.created AS created, NULL AS s_question,' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
@@ -627,8 +659,9 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// not owned by the current user \n' \
             'MATCH (a:Pleb {username: "%s"})-[:OWNS_WALL]->(w:Wall)' \
             '-[:HAS_POST]->(posts:Post) ' \
-            'WHERE NOT (posts)<-[:OWNS_POST]-(a) AND ' \
+            'WHERE NOT (posts)-[:OWNED_BY]->(a) AND ' \
             'posts.to_be_deleted = False AND posts.created > %s ' \
+            'AND posts.is_closed = False ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
             'posts.created AS created, NULL AS s_question,' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
@@ -652,10 +685,10 @@ class MeViewSet(mixins.UpdateModelMixin,
             '[:ENCOMPASSED_BY*..]->' \
             '(:Location)<-[:WITHIN]-(q_mission:Mission {active: true})' \
             '<-[:EMBARKS_ON]-(quest:Quest {active: true}) WITH q_mission ' \
-            'MATCH (q_mission)-[:CREATED_AN]->(updates:Update) ' \
+            'MATCH (q_mission)<-[:ABOUT]-(updates:Update) ' \
             'WHERE NOT((q_mission)-[:FOCUSED_ON]' \
             '->(:Position {verified:false}))' \
-            ' AND updates.created > %s ' \
+            ' AND updates.created > %s AND updates.is_closed = False ' \
             'RETURN updates, NULL AS solutions, NULL AS posts, ' \
             'NULL AS questions, updates.created AS created, ' \
             'NULL AS s_question, NULL as mission, q_mission, ' \
@@ -664,11 +697,11 @@ class MeViewSet(mixins.UpdateModelMixin,
             "// Retrieve all the current user's friends posts on their \n" \
             '// walls\n' \
             'MATCH (a:Pleb {username: "%s"})-' \
-            '[r:FRIENDS_WITH {active: True}]->(p:Pleb)-' \
-            '[:OWNS_POST]->(posts:Post) ' \
+            '[r:FRIENDS_WITH {active: True}]->(p:Pleb)<-' \
+            '[:OWNED_BY]-(posts:Post) ' \
             'WHERE (posts)-[:POSTED_ON]->(:Wall)<-[:OWNS_WALL]-(p) AND ' \
             'HAS(r.active) AND posts.to_be_deleted = False ' \
-            'AND posts.created > %s ' \
+            'AND posts.created > %s AND posts.is_closed = False ' \
             'RETURN posts, NULL AS questions, NULL AS solutions, ' \
             'posts.created AS created, NULL AS s_question, ' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
@@ -678,9 +711,9 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// questions \n' \
             'MATCH (a:Pleb {username: "%s"})-' \
             '[manyFriends:FRIENDS_WITH*..2 {active: True}]' \
-            '->(:Pleb)-[:OWNS_QUESTION]->(questions:Question) ' \
+            '->(:Pleb)<-[:OWNED_BY]-(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND ' \
-            'questions.created > %s ' \
+            'questions.created > %s AND questions.is_closed = False ' \
             'RETURN questions, NULL AS posts, NULL AS solutions, ' \
             'questions.created AS created, NULL AS s_question, ' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
@@ -690,11 +723,13 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// solutions \n' \
             'MATCH (a:Pleb {username: "%s"})-' \
             '[manyFriends:FRIENDS_WITH*..2 {active: True}]->' \
-            '(:Pleb)-[:OWNS_SOLUTION]->' \
-            '(solutions:Solution)-[:POSSIBLE_ANSWER_TO]->' \
+            '(:Pleb)<-[:OWNED_BY]-' \
+            '(solutions:Solution)<-[:POSSIBLE_ANSWER]-' \
             '(s_question:Question) ' \
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
-            ' RETURN solutions, NULL AS posts, NULL AS questions, ' \
+            ' AND solutions.is_closed = False ' \
+            'AND s_question.is_closed = False ' \
+            'RETURN solutions, NULL AS posts, NULL AS questions, ' \
             'solutions.created AS created, s_question AS s_question,' \
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
             'NULL AS news UNION ' \
@@ -702,9 +737,9 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// Retrieve all the users questions that the current user is ' \
             '// following \n' \
             'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
-            '(:Pleb)-[:OWNS_QUESTION]->(questions:Question) ' \
+            '(:Pleb)<-[:OWNED_BY]-(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND ' \
-            'questions.created > %s ' \
+            'questions.created > %s AND questions.is_closed = False ' \
             'RETURN NULL AS solutions, NULL AS posts, ' \
             'questions AS questions, questions.created AS created, ' \
             'NULL AS s_question, NULL AS mission, NULL AS updates, ' \
@@ -714,10 +749,10 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// Retrieve all the users solutions that the current user is ' \
             '// following \n' \
             'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
-            '(:Pleb)-[:OWNS_SOLUTION]->(solutions:Solution)-' \
-            '[:POSSIBLE_ANSWER_TO]->(s_question:Question) ' \
-            'WHERE solutions.to_be_deleted = False AND ' \
-            'solutions.created > %s ' \
+            '(:Pleb)<-[:OWNED_BY]-(solutions:Solution)<-' \
+            '[:POSSIBLE_ANSWER]-(s_question:Question) ' \
+            'WHERE s_question.to_be_deleted = False AND ' \
+            'solutions.created > %s AND solutions.is_closed = False ' \
             'RETURN solutions, NULL AS posts, ' \
             'NULL AS questions, solutions.created AS created, ' \
             's_question as s_question, NULL AS mission, NULL AS updates, ' \
@@ -731,8 +766,6 @@ class MeViewSet(mixins.UpdateModelMixin,
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then)
         news = []
-        article_html = None
-        html = request.query_params.get('html', 'false').lower()
         res, _ = db.cypher_query(query)
         # Profiled with ~50 objects and it was still performing under 1 ms.
         # By the time sorting in python becomes an issue the above mentioned
@@ -759,14 +792,7 @@ class MeViewSet(mixins.UpdateModelMixin,
                 row.posts.pull()
                 news_article = PostSerializerNeo(
                     Post.inflate(row.posts),
-                    context={'request': request, 'force_expand': True}).data
-                if html == "true":
-                    news_article['last_edited_on'] = parser.parse(
-                        news_article['last_edited_on']).replace(microsecond=0)
-                    news_article['created'] = parser.parse(
-                        news_article['created']).replace(microsecond=0)
-                    article_html = render_to_string(
-                        'post_news.html', RequestContext(request, news_article))
+                    context={'request': request}).data
             elif row.mission is not None:
                 row.mission.pull()
                 news_article = MissionSerializer(
@@ -776,36 +802,18 @@ class MeViewSet(mixins.UpdateModelMixin,
                     username=news_article['owner_username']).reputation
             elif row.updates is not None:
                 row.updates.pull()
-                row.q_quests.pull()
+                row.q_mission.pull()
                 news_article = UpdateSerializer(
                     Update.inflate(row.updates),
                     context={'request': request}).data
-                news_article['campaign'] = QuestSerializer(
-                    Quest.inflate(row.q_quests),
+                news_article['mission'] = MissionSerializer(
+                    Mission.inflate(row.q_mission),
                     context={'request': request}).data
-                if html == "true":
-                    news_article['last_edited_on'] = parser.parse(
-                        news_article['last_edited_on']).replace(microsecond=0)
-                    news_article['created'] = parser.parse(
-                        news_article['created']).replace(microsecond=0)
-                    article_html = render_to_string(
-                        'update_news.html', RequestContext(
-                            request, news_article))
             elif row.news is not None:
                 row.news.pull()
                 news_article = NewsArticleSerializer(
                     NewsArticle.inflate(row.news),
                     context={'request': request}).data
-            if html == "true":
-                if news_article['type'] != 'news_article' and \
-                        news_article['type'] != 'mission' and \
-                        news_article['type'] != 'question' and \
-                        news_article['type'] != 'solution':
-                    news_article = {
-                        "html": article_html,
-                        "id": news_article['id'],
-                        'type': news_article['type']
-                    }
             news.append(news_article)
         return self.get_paginated_response(news)
 

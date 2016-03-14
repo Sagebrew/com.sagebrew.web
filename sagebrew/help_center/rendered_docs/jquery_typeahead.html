@@ -1,0 +1,288 @@
+<h2>jQuery#typeahead</h2>
+<p>The UI component of typeahead.js is available as a jQuery plugin. It's 
+responsible for rendering suggestions and handling DOM interactions.</p>
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#features">Features</a></li>
+<li><a href="#usage">Usage</a></li>
+<li><a href="#api">API</a></li>
+<li><a href="#options">Options</a></li>
+<li><a href="#datasets">Datasets</a></li>
+<li><a href="#custom-events">Custom Events</a></li>
+<li><a href="#class-names">Class Names</a></li>
+</ul>
+<h2>Features</h2>
+<ul>
+<li>Displays suggestions to end-users as they type</li>
+<li>Shows top suggestion as a hint (i.e. background text)</li>
+<li>Supports custom templates to allow for UI flexibility</li>
+<li>Works well with RTL languages and input method editors</li>
+<li>Highlights query matches within the suggestion</li>
+<li>Triggers custom events to encourage extensibility</li>
+</ul>
+<h2>Usage</h2>
+<h3>API</h3>
+<ul>
+<li><a href="#jquerytypeaheadoptions-datasets"><code>jQuery#typeahead(options, [*datasets])</code></a></li>
+<li><a href="#jquerytypeaheadval"><code>jQuery#typeahead('val')</code></a></li>
+<li><a href="#jquerytypeaheadval-val"><code>jQuery#typeahead('val', val)</code></a></li>
+<li><a href="#jquerytypeaheaddestroy"><code>jQuery#typeahead('destroy')</code></a></li>
+<li><a href="#jqueryfntypeaheadnoconflict"><code>jQuery.fn.typeahead.noConflict()</code></a></li>
+</ul>
+<h4>jQuery#typeahead(options, [*datasets])</h4>
+<p>For a given <code>input[type="text"]</code>, enables typeahead functionality. <code>options</code> 
+is an options hash that's used for configuration. Refer to <a href="#options">Options</a> 
+for more info regarding the available configs. Subsequent arguments 
+(<code>*datasets</code>), are individual option hashes for datasets. For more details 
+regarding datasets, refer to <a href="#datasets">Datasets</a>.</p>
+<pre><code class="javascript">$('.typeahead').typeahead({
+  minLength: 3,
+  highlight: true
+},
+{
+  name: 'my-dataset',
+  source: mySource
+});
+</code></pre>
+
+<h4>jQuery#typeahead('val')</h4>
+<p>Returns the current value of the typeahead. The value is the text the user has 
+entered into the <code>input</code> element.</p>
+<pre><code class="javascript">var myVal = $('.typeahead').typeahead('val');
+</code></pre>
+
+<h4>jQuery#typeahead('val', val)</h4>
+<p>Sets the value of the typeahead. This should be used in place of <code>jQuery#val</code>.</p>
+<pre><code class="javascript">$('.typeahead').typeahead('val', myVal);
+</code></pre>
+
+<h4>jQuery#typeahead('open')</h4>
+<p>Opens the suggestion menu.</p>
+<pre><code class="javascript">$('.typeahead').typeahead('open');
+</code></pre>
+
+<h4>jQuery#typeahead('close')</h4>
+<p>Closes the suggestion menu.</p>
+<pre><code class="javascript">$('.typeahead').typeahead('close');
+</code></pre>
+
+<h4>jQuery#typeahead('destroy')</h4>
+<p>Removes typeahead functionality and reverts the <code>input</code> element back to its 
+original state.</p>
+<pre><code class="javascript">$('.typeahead').typeahead('destroy');
+</code></pre>
+
+<h4>jQuery.fn.typeahead.noConflict()</h4>
+<p>Returns a reference to the typeahead plugin and reverts <code>jQuery.fn.typeahead</code> 
+to its previous value. Can be used to avoid naming collisions. </p>
+<pre><code class="javascript">var typeahead = jQuery.fn.typeahead.noConflict();
+jQuery.fn._typeahead = typeahead;
+</code></pre>
+
+<h3>Options</h3>
+<p>When initializing a typeahead, there are a number of options you can configure.</p>
+<ul>
+<li>
+<p><code>highlight</code> – If <code>true</code>, when suggestions are rendered, pattern matches
+  for the current query in text nodes will be wrapped in a <code>strong</code> element with
+  its class set to <code>{{classNames.highlight}}</code>. Defaults to <code>false</code>.</p>
+</li>
+<li>
+<p><code>hint</code> – If <code>false</code>, the typeahead will not show a hint. Defaults to <code>true</code>.</p>
+</li>
+<li>
+<p><code>minLength</code> – The minimum character length needed before suggestions start 
+  getting rendered. Defaults to <code>1</code>.</p>
+</li>
+<li>
+<p><code>classNames</code> – For overriding the default class names used. See 
+  <a href="#class-names">Class Names</a> for more details.</p>
+</li>
+</ul>
+<h3>Datasets</h3>
+<p>A typeahead is composed of one or more datasets. When an end-user modifies the
+value of a typeahead, each dataset will attempt to render suggestions for the
+new value. </p>
+<p>For most use cases, one dataset should suffice. It's only in the scenario where
+you want rendered suggestions to be grouped based on some sort of categorical 
+relationship that you'd need to use multiple datasets. For example, on 
+twitter.com, the search typeahead groups results into recent searches, trends, 
+and accounts – that would be a great use case for using multiple datasets.</p>
+<p>Datasets can be configured using the following options.</p>
+<ul>
+<li>
+<p><code>source</code> – The backing data source for suggestions. Expected to be a function 
+  with the signature <code>(query, syncResults, asyncResults)</code>. <code>syncResults</code> should
+  be called with suggestions computed synchronously and <code>asyncResults</code> should be 
+  called with suggestions computed asynchronously (e.g. suggestions that come 
+  for an AJAX request). <code>source</code> can also be a Bloodhound instance. 
+  <strong>Required</strong>.</p>
+</li>
+<li>
+<p><code>async</code> – Lets the dataset know if async suggestions should be expected. If
+  not set, this information is inferred from the signature of <code>source</code> i.e.
+  if the <code>source</code> function expects 3 arguments, <code>async</code> will be set to <code>true</code>.</p>
+</li>
+<li>
+<p><code>name</code> – The name of the dataset. This will be appended to 
+  <code>{{classNames.dataset}}-</code> to form the class name of the containing DOM 
+  element. Must only consist of underscores, dashes, letters (<code>a-z</code>), and 
+  numbers. Defaults to a random number.</p>
+</li>
+<li>
+<p><code>limit</code> – The max number of suggestions to be displayed. Defaults to <code>5</code>.</p>
+</li>
+<li>
+<p><code>display</code> – For a given suggestion, determines the string representation 
+  of it. This will be used when setting the value of the input control after a 
+  suggestion is selected. Can be either a key string or a function that 
+  transforms a suggestion object into a string. Defaults to stringifying the 
+  suggestion.</p>
+</li>
+<li>
+<p><code>templates</code> – A hash of templates to be used when rendering the dataset. Note
+  a precompiled template is a function that takes a JavaScript object as its
+  first argument and returns a HTML string.</p>
+</li>
+<li>
+<p><code>notFound</code> – Rendered when <code>0</code> suggestions are available for the given 
+    query. Can be either a HTML string or a precompiled template. If it's a 
+    precompiled template, the passed in context will contain <code>query</code>.</p>
+</li>
+<li>
+<p><code>pending</code> - Rendered when <code>0</code> synchronous suggestions are available but
+    asynchronous suggestions are expected. Can be either a HTML string or a 
+    precompiled template. If it's a precompiled template, the passed in context 
+    will contain <code>query</code>.</p>
+</li>
+<li>
+<p><code>header</code>– Rendered at the top of the dataset when suggestions are present. 
+    Can be either a HTML string or a precompiled template. If it's a precompiled 
+    template, the passed in context will contain <code>query</code> and <code>suggestions</code>.</p>
+</li>
+<li>
+<p><code>footer</code>– Rendered at the bottom of the dataset when suggestions are 
+    present. Can be either a HTML string or a precompiled template. If it's a 
+    precompiled template, the passed in context will contain <code>query</code> and
+    <code>suggestions</code>.</p>
+</li>
+<li>
+<p><code>suggestion</code> – Used to render a single suggestion. If set, this has to be a 
+    precompiled template. The associated suggestion object will serve as the 
+    context. Defaults to the value of <code>display</code> wrapped in a <code>div</code> tag i.e. 
+    <code>&lt;div&gt;{{value}}&lt;/div&gt;</code>.</p>
+</li>
+</ul>
+<h3>Custom Events</h3>
+<p>The following events get triggered on the input element during the life-cycle of
+a typeahead.</p>
+<ul>
+<li>
+<p><code>typeahead:active</code> – Fired when the typeahead moves to active state.</p>
+</li>
+<li>
+<p><code>typeahead:idle</code> – Fired when the typeahead moves to idle state.</p>
+</li>
+<li>
+<p><code>typeahead:open</code> – Fired when the results container is opened.</p>
+</li>
+<li>
+<p><code>typeahead:close</code> – Fired when the results container is closed.</p>
+</li>
+<li>
+<p><code>typeahead:change</code> – Normalized version of the native [<code>change</code> event]. 
+  Fired when input loses focus and the value has changed since it originally 
+  received focus.</p>
+</li>
+<li>
+<p><code>typeahead:render</code> – Fired when suggestions are rendered for a dataset. The
+  event handler will be invoked with 4 arguments: the jQuery event object, the
+  suggestions that were rendered, a flag indicating whether the suggestions
+  were fetched asynchronously, and the name of the dataset the rendering 
+  occurred in.</p>
+</li>
+<li>
+<p><code>typeahead:select</code> – Fired when a suggestion is selected. The event handler 
+  will be invoked with 2 arguments: the jQuery event object and the suggestion
+  object that was selected.</p>
+</li>
+<li>
+<p><code>typeahead:autocomplete</code> – Fired when a autocompletion occurs. The 
+  event handler will be invoked with 2 arguments: the jQuery event object and 
+  the suggestion object that was used for autocompletion.</p>
+</li>
+<li>
+<p><code>typeahead:cursorchange</code> – Fired when the results container cursor moves. The 
+  event handler will be invoked with 2 arguments: the jQuery event object and 
+  the suggestion object that was moved to.</p>
+</li>
+<li>
+<p><code>typeahead:asyncrequest</code> – Fired when an async request for suggestions is 
+  sent. The event handler will be invoked with 3 arguments: the jQuery event 
+  object, the current query, and the name of the dataset the async request 
+  belongs to.</p>
+</li>
+<li>
+<p><code>typeahead:asynccancel</code> – Fired when an async request is cancelled. The event 
+  handler will be invoked with 3 arguments: the jQuery event object, the current 
+  query, and the name of the dataset the async request belonged to.</p>
+</li>
+<li>
+<p><code>typeahead:asyncreceive</code> – Fired when an async request completes. The event 
+  handler will be invoked with 3 arguments: the jQuery event object, the current 
+  query, and the name of the dataset the async request belongs to.</p>
+</li>
+</ul>
+<p>Example usage:</p>
+<pre><code>$('.typeahead').bind('typeahead:select', function(ev, suggestion) {
+  console.log('Selection: ' + suggestion);
+});
+</code></pre>
+
+<p><strong>NOTE</strong>: Every event does not supply the same arguments. See the event
+descriptions above for details on each event's argument list.</p>
+<!-- section links -->
+
+<h3>Class Names</h3>
+<ul>
+<li>
+<p><code>input</code> - Added to input that's initialized into a typeahead. Defaults to 
+  <code>tt-input</code>.</p>
+</li>
+<li>
+<p><code>hint</code> - Added to hint input. Defaults to <code>tt-hint</code>.</p>
+</li>
+<li>
+<p><code>menu</code> - Added to menu element. Defaults to <code>tt-menu</code>.</p>
+</li>
+<li>
+<p><code>dataset</code> - Added to dataset elements. to Defaults to <code>tt-dataset</code>.</p>
+</li>
+<li>
+<p><code>suggestion</code> - Added to suggestion elements. Defaults to <code>tt-suggestion</code>.</p>
+</li>
+<li>
+<p><code>empty</code> - Added to menu element when it contains no content. Defaults to 
+  <code>tt-empty</code>.</p>
+</li>
+<li>
+<p><code>open</code> - Added to menu element when it is opened. Defaults to <code>tt-open</code>.</p>
+</li>
+<li>
+<p><code>cursor</code> - Added to suggestion element when menu cursor moves to said 
+  suggestion. Defaults to <code>tt-cursor</code>.</p>
+</li>
+<li>
+<p><code>highlight</code> - Added to the element that wraps highlighted text. Defaults to 
+  <code>tt-highlight</code>.</p>
+</li>
+</ul>
+<p>To override any of these defaults, you can use the <code>classNames</code> option:</p>
+<pre><code class="javascript">$('.typeahead').typeahead({
+  classNames: {
+    input: 'Typeahead-input',
+    hint: 'Typeahead-hint',
+    selectable: 'Typeahead-selectable'
+  }
+});
+</code></pre>

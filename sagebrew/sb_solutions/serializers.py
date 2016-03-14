@@ -7,11 +7,12 @@ from datetime import datetime
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from api.utils import gather_request_data
+from api.utils import gather_request_data, spawn_task, smart_truncate
 from sb_base.serializers import MarkdownContentSerializer
 from plebs.neo_models import Pleb
 
 
+from .tasks import create_solution_summary_task
 from .neo_models import Solution
 
 
@@ -21,6 +22,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
                                                 lookup_field="object_uuid")
     parent_id = serializers.CharField(read_only=True)
     question = serializers.SerializerMethodField()
+    summary = serializers.CharField(read_only=True)
 
     def create(self, validated_data):
         request = self.context["request"]
@@ -34,11 +36,13 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
                        request=request)
         solution = Solution(url=question.url, href=href, object_uuid=uuid,
                             parent_id=question.object_uuid,
+                            summary=smart_truncate(validated_data['content']),
                             **validated_data).save()
         solution.owned_by.connect(owner)
-        owner.solutions.connect(solution)
         question.solutions.connect(solution)
-
+        spawn_task(task_func=create_solution_summary_task, task_param={
+            'object_uuid': question.object_uuid
+        })
         return solution
 
     def update(self, instance, validated_data):
@@ -46,7 +50,9 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
                                                            instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
-
+        spawn_task(task_func=create_solution_summary_task, task_param={
+            'object_uuid': instance.object_uuid
+        })
         return instance
 
     def get_url(self, obj):

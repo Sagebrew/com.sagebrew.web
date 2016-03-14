@@ -4,7 +4,7 @@ var requests = require('api').request,
     validators = require('common/validators');
 
 export const meta = {
-    controller: "user-settings",
+    controller: "user-settings/general",
     match_method: "path",
     check: [
        "^user/settings$"

@@ -1,16 +1,9 @@
-/**
- * @file
- * JS for the entire user area.
- * TODO: Rename controller.
- * Profile is really one specific page in this section.
- */
-var representatives = require('./partials/representatives'),
-    friends = require('./partials/friends'),
-    postcreate = require('./partials/postcreate'),
-    profile = require('./partials/profile'),
-    newsfeed = require('./partials/newsfeed'),
+var representatives = require('../partials/representatives'),
+    friends = require('../partials/friends'),
+    postcreate = require('../partials/postcreate'),
+    newsfeed = require('../partials/newsfeed'),
     solutions = require('controller/conversation/conversation-view/partials/solution'),
-    follow = require('./partials/follow'),
+    follow = require('../partials/follow'),
     request = require('api').request,
     settings = require('settings').settings;
 
@@ -18,9 +11,9 @@ var representatives = require('./partials/representatives'),
  * Meta.
  */
 export const meta = {
-    controller: "section-profile",
+    controller: "section-profile/newsfeed",
     match_method: "path",
-    check: "^user"
+    check: "^user/newsfeed$"
 };
 
 /**
@@ -42,8 +35,6 @@ export function load() {
     friends.init();
     // Post create functionality.
     postcreate.init();
-    // Profile page.
-    profile.init();
     // Newsfeed page.
     newsfeed.init();
     // Follow functionality

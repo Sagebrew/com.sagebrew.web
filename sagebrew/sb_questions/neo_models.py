@@ -28,7 +28,6 @@ class Question(TitledContent):
     is_mature = BooleanProperty(default=False)
     positivity = FloatProperty()
     subjectivity = FloatProperty()
-    summary = StringProperty()
     title_polarity = FloatProperty()
     title_subjectivity = FloatProperty()
     tags_added = BooleanProperty(default=False)

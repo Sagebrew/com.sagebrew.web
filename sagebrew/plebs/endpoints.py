@@ -172,7 +172,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         except(IndexError, KeyError, ValueError):
             return Response(errors.QUERY_DETERMINATION_EXCEPTION,
                             status=status.HTTP_400_BAD_REQUEST)
-        query = 'MATCH (a:Pleb {username: "%s"})-[:OWNS_QUESTION]->' \
+        query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-' \
                 '(b:Question) WHERE b.to_be_deleted=false' \
                 ' %s RETURN b' % (username, additional_params)
         res, col = db.cypher_query(query)
@@ -467,6 +467,11 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                        context={'request': request})
         return self.get_paginated_response(serializer.data)
 
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticatedOrReadOnly,))
+    def endorsements(self, request, username):
+        return Response([], status=status.HTTP_200_OK)
+
 
 class MeViewSet(mixins.UpdateModelMixin,
                 mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -505,6 +510,54 @@ class MeViewSet(mixins.UpdateModelMixin,
         serializer = self.get_serializer(instance)
         serializer_data = dict(serializer.data)
         return Response(serializer_data, status=status.HTTP_200_OK)
+
+    @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    def public(self, request):
+        then = (datetime.now(pytz.utc) - timedelta(days=120)).strftime("%s")
+        query = \
+            '// Retrieve all the current users questions\n' \
+            'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-' \
+            '(questions:Question) ' \
+            'WHERE questions.to_be_deleted = False AND questions.created > %s' \
+            ' AND questions.is_closed = False ' \
+            'RETURN questions, NULL AS solutions, ' \
+            'questions.created AS created, NULL AS s_question UNION ' \
+            '// Retrieve all the current users solutions\n' \
+            'MATCH (a:Pleb {username: "%s"})<-' \
+            '[:OWNED_BY]-(solutions:Solution)<-' \
+            '[:POSSIBLE_ANSWER]-(s_question:Question) ' \
+            'WHERE s_question.to_be_deleted = False ' \
+            'AND solutions.created > %s' \
+            ' AND solutions.is_closed = False ' \
+            'AND s_question.is_closed = False ' \
+            'RETURN solutions, NULL AS questions, ' \
+            'solutions.created AS created, s_question AS s_question' \
+            % (request.user.username, then, request.user.username, then)
+        news = []
+        res, _ = db.cypher_query(query)
+        # Profiled with ~50 objects and it was still performing under 1 ms.
+        # By the time sorting in python becomes an issue the above mentioned
+        # ticket should be resolved.
+        res = sorted(res, key=attrgetter('created'), reverse=True)[:5]
+        page = self.paginate_queryset(res)
+        for row in page:
+            news_article = None
+            if row.questions is not None:
+                row.questions.pull()
+                news_article = QuestionSerializerNeo(
+                    Question.inflate(row.questions),
+                    context={'request': request}).data
+            elif row.solutions is not None:
+                row.s_question.pull()
+                row.solutions.pull()
+                question_data = QuestionSerializerNeo(
+                    Question.inflate(row.s_question)).data
+                news_article = SolutionSerializerNeo(
+                    Solution.inflate(row.solutions),
+                    context={'request': request}).data
+                news_article['question'] = question_data
+            news.append(news_article)
+        return self.get_paginated_response(news)
 
     @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def newsfeed(self, request):
@@ -548,7 +601,7 @@ class MeViewSet(mixins.UpdateModelMixin,
         then = (datetime.now(pytz.utc) - timedelta(days=120)).strftime("%s")
         query = \
             '// Retrieve all the current users questions\n' \
-            'MATCH (a:Pleb {username: "%s"})-[:OWNS_QUESTION]->' \
+            'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-' \
             '(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND questions.created > %s' \
             ' AND questions.is_closed = False ' \
@@ -568,10 +621,11 @@ class MeViewSet(mixins.UpdateModelMixin,
             'NULL AS questions UNION ' \
             '' \
             '// Retrieve all the current users solutions\n' \
-            'MATCH (a:Pleb {username: "%s"})-' \
-            '[:OWNS_SOLUTION]->(solutions:Solution)-' \
-            '[:POSSIBLE_ANSWER_TO]->(s_question:Question) ' \
-            'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
+            'MATCH (a:Pleb {username: "%s"})<-' \
+            '[:OWNED_BY]-(solutions:Solution)<-' \
+            '[:POSSIBLE_ANSWER]-(s_question:Question) ' \
+            'WHERE s_question.to_be_deleted = False ' \
+            'AND solutions.created > %s' \
             ' AND solutions.is_closed = False ' \
             'AND s_question.is_closed = False ' \
             'RETURN solutions, NULL AS questions, NULL AS posts, ' \
@@ -580,7 +634,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'NULL AS news UNION ' \
             '' \
             '// Retrieve all the current users posts\n' \
-            'MATCH (a:Pleb {username: "%s"})-[:OWNS_POST]->(posts:Post) ' \
+            'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-(posts:Post) ' \
             'WHERE posts.to_be_deleted = False AND posts.created > %s ' \
             'AND posts.is_closed = False ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
@@ -592,7 +646,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// not owned by the current user \n' \
             'MATCH (a:Pleb {username: "%s"})-[:OWNS_WALL]->(w:Wall)' \
             '-[:HAS_POST]->(posts:Post) ' \
-            'WHERE NOT (posts)<-[:OWNS_POST]-(a) AND ' \
+            'WHERE NOT (posts)-[:OWNED_BY]->(a) AND ' \
             'posts.to_be_deleted = False AND posts.created > %s ' \
             'AND posts.is_closed = False ' \
             'RETURN posts, NULL as questions, NULL as solutions, ' \
@@ -630,8 +684,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             "// Retrieve all the current user's friends posts on their \n" \
             '// walls\n' \
             'MATCH (a:Pleb {username: "%s"})-' \
-            '[r:FRIENDS_WITH {active: True}]->(p:Pleb)-' \
-            '[:OWNS_POST]->(posts:Post) ' \
+            '[r:FRIENDS_WITH {active: True}]->(p:Pleb)<-' \
+            '[:OWNED_BY]-(posts:Post) ' \
             'WHERE (posts)-[:POSTED_ON]->(:Wall)<-[:OWNS_WALL]-(p) AND ' \
             'HAS(r.active) AND posts.to_be_deleted = False ' \
             'AND posts.created > %s AND posts.is_closed = False ' \
@@ -644,7 +698,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// questions \n' \
             'MATCH (a:Pleb {username: "%s"})-' \
             '[manyFriends:FRIENDS_WITH*..2 {active: True}]' \
-            '->(:Pleb)-[:OWNS_QUESTION]->(questions:Question) ' \
+            '->(:Pleb)<-[:OWNED_BY]-(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND ' \
             'questions.created > %s AND questions.is_closed = False ' \
             'RETURN questions, NULL AS posts, NULL AS solutions, ' \
@@ -656,8 +710,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// solutions \n' \
             'MATCH (a:Pleb {username: "%s"})-' \
             '[manyFriends:FRIENDS_WITH*..2 {active: True}]->' \
-            '(:Pleb)-[:OWNS_SOLUTION]->' \
-            '(solutions:Solution)-[:POSSIBLE_ANSWER_TO]->' \
+            '(:Pleb)<-[:OWNED_BY]-' \
+            '(solutions:Solution)<-[:POSSIBLE_ANSWER]-' \
             '(s_question:Question) ' \
             'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
             ' AND solutions.is_closed = False ' \
@@ -670,7 +724,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// Retrieve all the users questions that the current user is ' \
             '// following \n' \
             'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
-            '(:Pleb)-[:OWNS_QUESTION]->(questions:Question) ' \
+            '(:Pleb)<-[:OWNED_BY]-(questions:Question) ' \
             'WHERE questions.to_be_deleted = False AND ' \
             'questions.created > %s AND questions.is_closed = False ' \
             'RETURN NULL AS solutions, NULL AS posts, ' \
@@ -682,9 +736,9 @@ class MeViewSet(mixins.UpdateModelMixin,
             '// Retrieve all the users solutions that the current user is ' \
             '// following \n' \
             'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
-            '(:Pleb)-[:OWNS_SOLUTION]->(solutions:Solution)-' \
-            '[:POSSIBLE_ANSWER_TO]->(s_question:Question) ' \
-            'WHERE solutions.to_be_deleted = False AND ' \
+            '(:Pleb)<-[:OWNED_BY]-(solutions:Solution)<-' \
+            '[:POSSIBLE_ANSWER]-(s_question:Question) ' \
+            'WHERE s_question.to_be_deleted = False AND ' \
             'solutions.created > %s AND solutions.is_closed = False ' \
             'RETURN solutions, NULL AS posts, ' \
             'NULL AS questions, solutions.created AS created, ' \

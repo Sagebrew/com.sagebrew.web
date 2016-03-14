@@ -39,31 +39,42 @@
     <div class="block"></div>
 {% endblock hero %}
 {% block sidebar_left %}
+    <div class="block">
+        <h6 class="block-title no-underline center-title">Missions</h6>
+    </div>
+    <div id="js-mission-list">
+        <div id="js-mission-container"></div>
+        <div class="loader"></div>
+    </div>
+
+    <div class="block">
+        <h6 class="block-title no-underline center-title">Endorsements</h6>
+    </div>
+    <div id="js-endorsements-list">
+        <div id="js-endorsements-container"></div>
+        <div class="loader"></div>
+    </div>
+
     {% include "sb_home_section/representative_col.html" %}
 {% endblock sidebar_left %}
 {% block sidebar_right %}
     <div class="block">
-        <h6 class="block-title">Network Size</h6>
+        <h6 class="block-title no-underline center-title">Network</h6>
         <div class="block-content" id="president_wrapper"></div>
     </div>
     <div class="block">
-        <h6 class="block-title">Follow</h6>
+        <h6 class="block-title no-underline center-title">Follow</h6>
         <div class="block-content" id="president_wrapper"></div>
     </div>
 {% endblock sidebar_right %}
 {% block live %}
     <div class="block">
-        <h6 class="block-title">Recent Public Contributions</h6>
-        <div class="block-content" id="president_wrapper"></div>
+        <h6 class="block-title no-underline center-title">Recent Public Contributions</h6>
     </div>
-    <div class="block">
-        <h6 class="block-title">Endorsements</h6>
-        <div class="block-content" id="president_wrapper"></div>
+    <div id="js-recent-contributions">
+        <div class="loader"></div>
     </div>
-    <div class="block">
-        <h6 class="block-title">Missions</h6>
-        <div class="block-content" id="president_wrapper"></div>
-    </div>
+
     {% include "flag_modal.html" %}
 {% endblock live %}
 

@@ -2,9 +2,14 @@
     <h3 class="block-title">Account Settings</h3>
     <div class="block-content">
         <ul class="nav nav-list nav-list-vivid">
-            <li class="{% if "/user/settings/" in request.path and 'delete' not in request.path %}active{% endif %}">
+            <li class="{% if "/user/settings/" in request.path and 'delete' not in request.path and 'donation' not in request.path %}active{% endif %}">
                 <a  href="{% url 'general_settings' %}">
                     General
+                </a>
+            </li>
+            <li class="{% if "/user/settings/donations/" in request.path %}active{% endif %}">
+                <a  href="{% url 'donation_page' %}">
+                    Donations
                 </a>
             </li>
             <li class="{% if "/user/contribute/" in request.path %}active{% endif %}">

@@ -14,6 +14,9 @@ export function populateMissions(loadElement, questID, template, container, empt
     if(container === undefined || container === "undefined" || container === null){
         container = $('#js-mission-container');
     }
+    if(loadElement === undefined || loadElement === "undefined" || loadElement === null) {
+        loadElement = $(".app-sb");
+    }
     loadElement.sb_contentLoader({
         emptyDataMessage: emptyMessage,
         url: '/v1/quests/' + questID + '/missions/',

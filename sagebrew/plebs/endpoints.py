@@ -225,6 +225,19 @@ class ProfileViewSet(viewsets.ModelViewSet):
                          "status": status.HTTP_200_OK},
                         status=status.HTTP_200_OK)
 
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticated,))
+    def followers(self, request, username=None):
+        query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-' \
+                '(followers:Pleb) WHERE r.active ' \
+                'RETURN followers' % username
+        res, _ = db.cypher_query(query)
+        if res.one:
+            follower_list = [Pleb.inflate(row[0]) for row in res]
+            return Response({"results": PlebSerializerNeo(
+                follower_list, many=True).data}, status=status.HTTP_200_OK)
+        return Response({"results": res.one}, status=status.HTTP_200_OK)
+
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated, IsSelfOrReadOnly))
     def unfollow(self, request, username=None):

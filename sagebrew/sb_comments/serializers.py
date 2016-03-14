@@ -43,7 +43,6 @@ class CommentSerializer(ContentSerializer):
                           parent_id=parent_object.object_uuid,
                           **validated_data).save()
         comment.owned_by.connect(owner)
-        owner.comments.connect(comment)
         parent_object.comments.connect(comment)
         if parent_object.visibility == "public":
             comment.visibility = "public"

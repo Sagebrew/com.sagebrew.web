@@ -27,7 +27,7 @@ export function load() {
     var $app = $(".app-sb"),
         missionList = document.getElementById('js-mission-list'),
         contributionType = helpers.args(2);
-    missions.populateMissions(missionList, helpers.args(1));
+    missions.populateMissions($(missionList), helpers.args(1));
     $app
         .on('click', '.js-position', function (event) {
             event.preventDefault();

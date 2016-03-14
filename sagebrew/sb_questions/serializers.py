@@ -127,7 +127,6 @@ class QuestionSerializerNeo(TitledContentSerializer):
     views = serializers.SerializerMethodField()
     mission = serializers.SerializerMethodField()
 
-
     def validate_title(self, value):
         # We need to escape quotes prior to passing the title to the query.
         # Otherwise the query will fail due to the string being terminated.
@@ -165,7 +164,6 @@ class QuestionSerializerNeo(TitledContentSerializer):
                             summary=smart_truncate(validated_data['content']),
                             **validated_data).save()
         question.owned_by.connect(owner)
-        owner.questions.connect(question)
         for tag in tags:
             query = 'MATCH (t:Tag {name:"%s"}) WHERE NOT t:AutoTag ' \
                     'RETURN t' % tag.lower()

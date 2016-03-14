@@ -7,7 +7,7 @@ export function load() {
         missionList= document.getElementById('js-mission-list'),
         pageUser = helpers.args(1);
 
-    missions.populateMissions(missionList, pageUser);
+    missions.populateMissions($(missionList), pageUser);
     $app
         .on('click', '.js-position', function (event) {
             event.preventDefault();

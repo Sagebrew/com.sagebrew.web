@@ -11,6 +11,7 @@ var representatives = require('../partials/representatives'),
     helpers = require('common/helpers'),
     questionSummaryTemplate = require('controller/conversation/conversation-list/templates/question_summary.hbs'),
     solutionSummaryTemplate = require('controller/conversation/conversation-list/templates/solution_summary.hbs'),
+    profilePicTemplate = require('../templates/profile_pic.hbs'),
     missionMinTemplate = require('../templates/mission_min.hbs');
 
 /**
@@ -34,16 +35,9 @@ export function init() {
  * Load
  */
 export function load() {
-    // Sidebar
-    representatives.init();
-    // Friends Page
-    friends.init();
     // Post create functionality.
     postcreate.init();
-    // Follow functionality
-    follow.init();
     postcreate.load();
-    solutions.load();
     var $appNewsfeed = $("#js-recent-contributions");
     $appNewsfeed.sb_contentLoader({
         emptyDataMessage: 'Some Public Contributions Need to Be Made',
@@ -83,6 +77,30 @@ export function load() {
     missions.populateMissions($(missionList), pageUser, missionMinTemplate);
     missions.populateEndorsements($(endorsementList), pageUser, missionMinTemplate,
         $('#js-endorsements-container'));
+    var $appNetwork = $("#js-network-list");
+
+    var profile_page_user = helpers.args(1);
+    $appNetwork.sb_contentLoader({
+        emptyDataMessage: 'Expand Your Base',
+        url: '/v1/profiles/' + profile_page_user + '/followers/',
+        params: {
+            expedite: 'true'
+        },
+        dataCallback: function(base_url, params) {
+            var urlParams = $.param(params);
+            var url;
+            if (urlParams) {
+                url = base_url + "?" + urlParams;
+            }
+            else {
+                url = base_url;
+            }
+            return request.get({url:url});
+        },
+        renderCallback: function($container, data) {
+            $("#js-network-container").append(profilePicTemplate(data.results[i]));
+        }
+    });
 
 }
 

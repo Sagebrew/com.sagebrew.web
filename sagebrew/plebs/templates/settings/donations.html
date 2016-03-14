@@ -12,12 +12,8 @@
             Mission Donations
         </h3>
     </div>
-    <div id="donation_wrapper">
+    <div id="js-donation-wrapper">
+        <div id="js-donation-container"></div>
         <div class="loader"></div>
     </div>
-{% endblock %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/get_pleb_donations.js' %}"></script>
 {% endblock %}

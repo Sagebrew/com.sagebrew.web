@@ -7,8 +7,7 @@ var request = require('api').request,
     helpers = require('common/helpers'),
     settings = require('settings').settings,
     content = require('common/content'),
-    postNewsTemplate = require('../templates/post_news.hbs'),
-    moment = require('moment');
+    postNewsTemplate = require('../templates/post_news.hbs');
 
 
 
@@ -218,7 +217,6 @@ export function load () {
     var $app = $(".app-sb");
     $app
         .on('click', '.js-edit-post', function () {
-            console.log('here')
             $("#js-post-" + this.dataset.id).hide();
             $('#js-edit-container-' + this.dataset.id).show();
         })

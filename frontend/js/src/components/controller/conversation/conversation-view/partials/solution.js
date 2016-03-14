@@ -1,7 +1,7 @@
+/* global Autolinker */
 var request = require('api').request,
     helpers = require('common/helpers'),
     Handlebars = require('handlebars'),
-    moment = require('moment'),
     settings = require('settings').settings,
     solutionTemplate = require('../templates/solution.hbs');
 
@@ -40,7 +40,7 @@ export function load () {
                     $form.find('button').prop('disabled', false);
                 }).fail(function () {
                     $form.find('button').prop('disabled', false);
-                })
+                });
             } else {
                 $.notify({message: "Please include at least 1 url linking to information to add context or support to your question"}, {type: "danger"});
                 $form.find('button').prop('disabled', false);
@@ -79,7 +79,7 @@ export function load () {
                         });
                     }
                 }
-            })
+            });
         });
 }
 

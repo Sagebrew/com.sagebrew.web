@@ -1,7 +1,6 @@
 var request = require('api').request,
     helpers = require('common/helpers'),
     Handlebars = require('handlebars'),
-    moment = require('moment'),
     questionSummaryTemplate = require('./templates/question_summary.hbs');
 
 

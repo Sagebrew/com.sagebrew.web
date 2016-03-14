@@ -15,9 +15,9 @@ export function load () {
     Handlebars.registerPartial('create_comment', createCommentTemplate);
     Handlebars.registerPartial('comments', commentsTemplate);
     if(newsfeed === "newsfeed"){
-        commentsRenderTemplate = commentsNewsTemplate
+        commentsRenderTemplate = commentsNewsTemplate;
     } else {
-        commentsRenderTemplate = commentsTemplate
+        commentsRenderTemplate = commentsTemplate;
     }
     $app
         .on('click', '.additional-comments', function (event) {

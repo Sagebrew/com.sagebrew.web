@@ -1,7 +1,6 @@
 var mapLocation = require('./partials/map-location'),
     question = require('./partials/question'),
     solution = require('./partials/solution'),
-    solutionValidator = require('common/validators').solutionValidator,
     addMarkdown = require('common/markdown').addMarkdown;
 
 

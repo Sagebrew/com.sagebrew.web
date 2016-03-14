@@ -1,10 +1,4 @@
 /*global Bloodhound*/
-/**
- * @file
- */
-var settings = require('settings').settings,
-    helpers = require('common/helpers');
-
 
 export function createTagSelector () {
     var engine = new Bloodhound({

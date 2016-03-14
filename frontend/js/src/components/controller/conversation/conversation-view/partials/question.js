@@ -1,7 +1,7 @@
+/* global Autolinker */
 var request = require('api').request,
     helpers = require('common/helpers'),
     Handlebars = require('handlebars'),
-    moment = require('moment'),
     questionTemplate = require('../templates/question.hbs');
 
 
@@ -34,6 +34,6 @@ export function load () {
             }).done(function () {
                 document.getElementById("question-block-" + objectID).remove();
             });
-        })
+        });
 }
 

@@ -2,7 +2,6 @@
 var representatives = require('../partials/representatives'),
     friends = require('../partials/friends'),
     postcreate = require('../partials/postcreate'),
-    newsfeed = require('../partials/newsfeed'),
     solutions = require('controller/conversation/conversation-view/partials/solution'),
     follow = require('../partials/follow'),
     request = require('api').request,
@@ -12,8 +11,7 @@ var representatives = require('../partials/representatives'),
     helpers = require('common/helpers'),
     questionSummaryTemplate = require('controller/conversation/conversation-list/templates/question_summary.hbs'),
     solutionSummaryTemplate = require('controller/conversation/conversation-list/templates/solution_summary.hbs'),
-    missionMinTemplate = require('../templates/mission_min.hbs'),
-    moment = require('moment');
+    missionMinTemplate = require('../templates/mission_min.hbs');
 
 /**
  * Meta.
@@ -36,8 +34,6 @@ export function init() {
  * Load
  */
 export function load() {
-    var $app = $(".app-sb"),
-        greyPage = document.getElementById('sb-greyout-page');
     // Sidebar
     representatives.init();
     // Friends Page

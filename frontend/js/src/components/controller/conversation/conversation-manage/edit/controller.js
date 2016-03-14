@@ -94,7 +94,7 @@ export function load() {
             } else {
                 window.history.back();
             }
-        })
+        });
 }
 
 /**

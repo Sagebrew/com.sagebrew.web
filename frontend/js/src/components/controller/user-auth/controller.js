@@ -38,6 +38,6 @@ export function load() {
                         window.location.href = "/missions/select/";
                     });
             }
-        })
+        });
 }
 

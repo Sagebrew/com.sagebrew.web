@@ -276,7 +276,7 @@ class Mission(Searchable):
         else:
             return "0.00"
 
-    def get_has_endorsed_pleb(self, username=None):
+    def get_has_endorsed_profile(self, username=None):
         query = 'MATCH (m:Mission {object_uuid:"%s"})<-[:ENDORSES]-' \
                 '(pleb:Pleb {username:"%s"}) RETURN pleb' \
                 % (self.object_uuid, username)

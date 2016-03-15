@@ -109,19 +109,11 @@ def mission_updates(request, object_uuid, slug=None):
 def mission_endorsements(request, object_uuid, slug=None):
     # Just check if there are any endorsements either from a Pleb or a Quest
     query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
-            '(mission:Mission {object_uuid: "%s"}) ' \
+            '(mission:Mission {object_uuid:"%s"}) ' \
             'WITH quest, mission ' \
-            'OPTIONAL MATCH (mission)<-[:ENDORSES]-(pleb:Pleb) ' \
-            'WITH quest, mission, pleb ' \
-            'OPTIONAL MATCH (mission)<-[:ENDORSES]-(e_quest:Quest) ' \
-            'RETURN quest, mission, ' \
-            'CASE WHEN count(pleb) > 0 ' \
-            'THEN true ELSE false END AS p_endorsements, ' \
-            'CASE WHEN count(e_quest) > 0 ' \
-            'THEN true ELSE false END AS q_endorsements' % object_uuid
+            'OPTIONAL MATCH (mission)<-[:ENDORSES]-(endorsement) ' \
+            'RETURN endorsement, quest, mission' % object_uuid
     res, _ = db.cypher_query(query)
-    if res.one is None:
-        return redirect("404_Error")
     # Instead of doing inflation and serialization of all the updates here
     # without pagination lets just indicate if we have any or not and then
     # hit the endpoint to gather the actual updates.
@@ -132,7 +124,7 @@ def mission_endorsements(request, object_uuid, slug=None):
         "mission": MissionSerializer(mission_obj).data,
         "slug": slugify(mission_obj.get_mission_title()),
         "endorsements":
-            True if res.one.p_endorsements or res.one.q_endorsements else False
+            True if res.one.endorsement else False
     })
 
 

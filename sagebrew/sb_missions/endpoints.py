@@ -167,8 +167,7 @@ class MissionViewSet(viewsets.ModelViewSet):
                          "status_code": status.HTTP_200_OK},
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
-                                                       IsOwnerOrModerator,))
+    @detail_route(methods=['get'])
     def endorsements(self, request, object_uuid=None):
         serialized = []
         endorsements = Mission.get_endorsements(object_uuid)

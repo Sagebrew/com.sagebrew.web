@@ -324,8 +324,7 @@ class QuestViewSet(viewsets.ModelViewSet):
         return generate_csv_html_file_response(
             "quest_donations.csv", donation_info, keys)
 
-    @detail_route(methods=['get'], serializer_class=MissionSerializer,
-                  permission_classes=(IsAuthenticated,))
+    @detail_route(methods=['get'], serializer_class=MissionSerializer)
     def endorsed(self, request, owner_username):
         query = 'MATCH (q:Quest {owner_username:"%s"})-' \
                 '[:ENDORSES]->(m:Mission) RETURN m' % owner_username

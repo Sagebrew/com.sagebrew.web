@@ -150,8 +150,7 @@ class MissionViewSet(viewsets.ModelViewSet):
                                        "endorsing as a User or as a Quest",
                              "status": status.HTTP_400_BAD_REQUEST},
                             status=status.HTTP_400_BAD_REQUEST)
-        mission = self.get_object()
-        mission.endorse(request.user.username, endorse_as)
+        Mission.endorse(object_uuid, request.user.username, endorse_as)
         return Response({"detail": "Successfully Endorsed Mission",
                          "status_code": status.HTTP_200_OK},
                         status=status.HTTP_200_OK)
@@ -160,8 +159,7 @@ class MissionViewSet(viewsets.ModelViewSet):
                                                         IsOwnerOrModerator,))
     def unendorse(self, request, object_uuid=None):
         endorse_as = request.data.get('endorse_as')
-        mission = self.get_object()
-        mission.unendorse(request.user.username, endorse_as)
+        Mission.unendorse(object_uuid, request.user.username, endorse_as)
         return Response({"detail": "Successfully Endorsed Mission",
                          "status_code": status.HTTP_200_OK},
                         status=status.HTTP_200_OK)

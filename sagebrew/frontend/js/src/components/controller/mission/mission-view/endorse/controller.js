@@ -39,12 +39,12 @@ export function load() {
             var $this = $(this);
             $this.disabled = true;
             if ($this.hasClass("js-cancel-endorsement")){
-                request.post({url: "/v1/missions/" + missionId + "/unendorse/", data:JSON.stringify({"endorse_as": "pleb"})})
+                request.post({url: "/v1/missions/" + missionId + "/unendorse/", data:JSON.stringify({"endorse_as": "profile"})})
                     .done(function(){
                         window.location.href = "/missions/" + missionId + "/" + slug + "/";
                     });
             } else {
-                request.post({url: "/v1/missions/" + missionId + "/endorse/", data:JSON.stringify({"endorse_as": "pleb"})})
+                request.post({url: "/v1/missions/" + missionId + "/endorse/", data:JSON.stringify({"endorse_as": "profile"})})
                     .done(function(){
                         window.location.href = "/missions/" + missionId + "/" + slug + "/";
                     });

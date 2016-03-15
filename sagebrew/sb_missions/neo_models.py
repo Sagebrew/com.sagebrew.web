@@ -229,6 +229,27 @@ class Mission(Searchable):
                 endorsements.append(QuestSerializer(Quest.inflate(row.e)).data)
         return endorsements
 
+    @classmethod
+    def endorse(cls, object_uuid, endorsed_id, endorsing_as):
+        endorsed_query = '(e:Quest {owner_username:"%s"})' % endorsed_id
+        if endorsing_as == "profile":
+            endorsed_query = '(e:Pleb {username:"%s"})' % endorsed_id
+        query = 'MATCH (m:Mission {object_uuid:"%s"}), %s ' \
+                'CREATE UNIQUE (m)<-[r:ENDORSES]-(e) ' \
+                'RETURN r' % (object_uuid, endorsed_query)
+        res, _ = db.cypher_query(query)
+        return res
+
+    @classmethod
+    def unendorse(cls, object_uuid, endorsed_id, endorsing_as):
+        endorsed_query = '(e:Quest {owner_username:"%s"})' % endorsed_id
+        if endorsing_as == "profile":
+            endorsed_query = '(e:Pleb {username:"%s"})' % endorsed_id
+        query = 'MATCH (m:Mission {object_uuid:"%s"})<-[r:ENDORSES]-%s ' \
+                'DELETE r' % (object_uuid, endorsed_query)
+        res, _ = db.cypher_query(query)
+        return res
+
     def get_mission_title(self):
         if self.title:
             title = self.title
@@ -254,26 +275,6 @@ class Mission(Searchable):
             return '{:,.2f}'.format(float(res.one) / 100)
         else:
             return "0.00"
-
-    def endorse(self, username, endorsing_as="quest"):
-        from sb_quests.neo_models import Quest
-        from plebs.neo_models import Pleb
-        if endorsing_as == "quest":
-            endorsed_by = Quest.get(username)
-        else:
-            endorsed_by = Pleb.get(username)
-        endorsed_by.endorses.connect(self)
-        return True
-
-    def unendorse(self, username, endorsing_as="quest"):
-        from sb_quests.neo_models import Quest
-        from plebs.neo_models import Pleb
-        if endorsing_as == "quest":
-            endorsed_by = Quest.get(username)
-        else:
-            endorsed_by = Pleb.get(username)
-        endorsed_by.endorses.disconnect(self)
-        return True
 
     def get_has_endorsed_pleb(self, username=None):
         query = 'MATCH (m:Mission {object_uuid:"%s"})<-[:ENDORSES]-' \

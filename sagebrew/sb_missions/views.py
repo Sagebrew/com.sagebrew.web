@@ -200,7 +200,7 @@ class MissionBaseView(LoginRequiredMixin):
         mission_dict = MissionSerializer(
             mission_obj, context={'request': request}).data
         mission_dict['slug'] = slugify(mission_obj.get_mission_title())
-        return render(request, 'mission.html', {
+        return render(request, self.template_name, {
             "mission": mission_dict,
             "quest": QuestSerializer(Quest.get(mission_obj.owner_username)).data
         })

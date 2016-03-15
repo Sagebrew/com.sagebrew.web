@@ -55,37 +55,6 @@ def mission_redirect_page(request, object_uuid=None):
                     permanent=True)
 
 
-def mission(request, object_uuid, slug=None):
-    try:
-        mission_obj = Mission.get(object_uuid)
-    except (Mission.DoesNotExist, DoesNotExist):
-        return redirect("404_Error")
-    except (CypherException, ClientError, IOError):
-        return redirect("500_Error")
-    mission_dict = MissionSerializer(
-        mission_obj, context={'request': request}).data
-    mission_dict['slug'] = slugify(mission_obj.get_mission_title())
-    return render(request, 'mission.html', {
-        "mission": mission_dict,
-        "quest": QuestSerializer(Quest.get(mission_obj.owner_username)).data
-    })
-
-
-def mission_endorse(request, object_uuid, slug=None):
-    try:
-        mission_obj = Mission.get(object_uuid)
-    except (Mission.DoesNotExist, DoesNotExist):
-        return redirect("404_Error")
-    except (CypherException, ClientError, IOError):
-        return redirect("500_Error")
-    mission_dict = MissionSerializer(
-        mission_obj, context={'request': request}).data
-    mission_dict['slug'] = slugify(mission_obj.get_mission_title())
-    return render(request, 'mission_endorse.html', {
-        "mission": mission_dict
-    })
-
-
 def mission_edit_updates(request, object_uuid, slug=None, edit_id=None):
     query = 'MATCH (update:Update {object_uuid: "%s"})-[:ABOUT]->' \
             '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest)' \
@@ -217,4 +186,29 @@ class MissionSettingsView(LoginRequiredMixin):
                                          context={"request": request}).data,
             "quest": QuestSerializer(quest, context={"request": request}).data,
             "slug": slugify(mission_obj.get_mission_title())
+        })
+
+
+class MissionBaseView(LoginRequiredMixin):
+    template_name = 'mission.html'
+
+    @method_decorator(user_passes_test(
+        verify_completed_registration,
+        login_url='/registration/profile_information'))
+    def dispatch(self, *args, **kwargs):
+        return super(MissionBaseView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, object_uuid=None, slug=None):
+        try:
+            mission_obj = Mission.get(object_uuid)
+        except (Mission.DoesNotExist, DoesNotExist):
+            return redirect("404_Error")
+        except (CypherException, ClientError, IOError):
+            return redirect("500_Error")
+        mission_dict = MissionSerializer(
+            mission_obj, context={'request': request}).data
+        mission_dict['slug'] = slugify(mission_obj.get_mission_title())
+        return render(request, 'mission.html', {
+            "mission": mission_dict,
+            "quest": QuestSerializer(Quest.get(mission_obj.owner_username)).data
         })

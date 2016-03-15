@@ -30,17 +30,31 @@ export function init() {
  * Load
  */
 export function load() {
-    var $app = $(".app-sb"),
-        greyPage = document.getElementById('sb-greyout-page'),
-        username = getArgs(1),
+    var username = getArgs(1),
         endorsementWrapper = $("#endorsements_wrapper");
-    request.get({url:"/v1/profiles/" + username + "/endorsed/"})
-        .done(function(data) {
-            handlebarsHelpers();
-            for (var i = 0; i < data.length; i++) {
-                endorsementWrapper.append(templates.quest_endorsed(data[i]));
+    if (endorsementWrapper !== undefined && endorsementWrapper !== null){
+        endorsementWrapper.sb_contentLoader({
+            emptyDataMessage: templates.position_holder({static_url: settings.static_url}),
+            url: '/v1/profiles/' + username + '/endorsed/',
+            dataCallback: function(base_url, params) {
+                var urlParams = $.param(params);
+                var url;
+                if (urlParams) {
+                    url = base_url + "?" + urlParams;
+                }
+                else {
+                    url = base_url;
+                }
+                return request.get({url:url});
+
+            },
+            renderCallback: function($container, data) {
+                for (var i = 0; i < data.length; i++) {
+                    $container.append(templates.quest_endorsed(data[i]));
+                }
             }
         });
+    }
 }
 
 /**

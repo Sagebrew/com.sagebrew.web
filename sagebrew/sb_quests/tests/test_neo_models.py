@@ -172,11 +172,3 @@ class TestQuest(TestCase):
         self.quest.endorses.connect(mission)
         res = Quest.get_endorsed(self.quest.owner_username)
         self.assertEqual(res[0].object_uuid, mission.object_uuid)
-
-    def test_get_endorsed_serialize(self):
-        self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        mission = Mission(owner_username=self.pleb.username).save()
-        self.quest.missions.connect(mission)
-        self.quest.endorses.connect(mission)

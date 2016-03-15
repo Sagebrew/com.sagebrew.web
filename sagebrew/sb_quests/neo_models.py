@@ -230,16 +230,12 @@ class Quest(Searchable):
         return [Donation.inflate(donation[0]) for donation in res]
 
     @classmethod
-    def get_endorsed(cls, owner_username, serialize=False):
+    def get_endorsed(cls, owner_username):
         from sb_missions.neo_models import Mission
-        from sb_missions.serializers import MissionSerializer
         query = 'MATCH (q:Quest {owner_username:"%s"})-' \
                 '[:ENDORSES]->(m:Mission) RETURN m' % owner_username
         res, _ = db.cypher_query(query)
-        if not serialize:
-            return [Mission.inflate(mission[0]) for mission in res]
-        return [MissionSerializer(Mission.inflate(mission[0])).data
-                for mission in res]
+        return [Mission.inflate(mission[0]) for mission in res]
 
     def is_following(self, username):
         following = cache.get("%s_is_following_quest_%s" %

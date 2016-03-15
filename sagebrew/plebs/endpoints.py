@@ -507,7 +507,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
     @detail_route(methods=["GET"], serializer_class=MissionSerializer,
                   permission_classes=(IsAuthenticated,))
     def endorsed(self, request, username):
-        return Response(Pleb.get_endorsed(username, True))
+        return Response(
+            MissionSerializer(
+                Pleb.get_endorsed(username), many=True).data,
+            status=status.HTTP_200_OK)
 
 
 class MeViewSet(mixins.UpdateModelMixin,

@@ -326,8 +326,10 @@ class QuestViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def endorsed(self, request, owner_username):
-        return Response(Quest.get_endorsed(owner_username, True),
-                        status.HTTP_200_OK)
+        return Response(
+            MissionSerializer(
+                Quest.get_endorsed(owner_username), many=True).data,
+            status.HTTP_200_OK)
 
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated,))

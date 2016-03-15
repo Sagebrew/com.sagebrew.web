@@ -84,25 +84,6 @@
                     <a class="hidden-xs btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
                 {% endif %}
                 <div class="btn-group" role="group">
-                    {% comment %}
-                    <a href="{% if mission.active == False%}#{% else %}{% url 'mission_donation_amount' mission.id mission.slug %}{% endif %}"
-                       class="hidden-xs btn btn-primary btn-lg sb_btn" {% if mission.active == False%}disabled{% endif %}
-                       {% if mission.active == False%}data-toggle="tooltip"
-                       data-original-title="Mission must be active to donate."{% endif %}>Donate</a>
-                    <a href="{% if mission.active == False%}#{% else %}{% url 'mission_volunteer_option' mission.id mission.slug %}{% endif %}"
-                       class="hidden-xs btn btn-primary btn-lg sb_btn" {% if mission.active == False%}disabled{% endif %}
-                       {% if mission.active == False%}data-toggle="tooltip"
-                       data-original-title="Mission must be active to volunteer."{% endif %}>Volunteer</a>
-                    <div class="btn-group " role="group">
-                        <button class="hidden-xs btn btn-primary btn-lg sb_btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">Endorse
-                        <span class="caret"></span></button>
-                        <ul class="dropdown-menu">
-                            <li><a id="js-endorse-pleb" href="#">{% if mission.has_endorsed_pleb %}Cancel My Endorsement{% else %}Endorse as Me{% endif %}</a></li>
-                            <li class="{% if not request_profile.quest %}disabled{% endif %}"><a id="js-endorse-quest" href="#">{% if mission.has_endorsed_quest %}Cancel My Quest's Endorsement{% else %}Endorse as My Quest{% endif %}</a></li>
-                        </ul>
-
-                    </div>
-                    {% endcomment %}
                 </div>
 
             </div>

@@ -3,9 +3,9 @@ from django.conf.urls import patterns, url
 from sb_contributions.views import ContributionMissionView
 
 from .views import (public_office_mission, advocate_mission, select_mission,
-                    mission, mission_redirect_page, mission_updates,
-                    MissionSettingsView, mission_list, mission_edit_updates,
-                    mission_endorsements, mission_endorse)
+                    mission_redirect_page, mission_updates,
+                    MissionSettingsView, MissionBaseView, mission_list,
+                    mission_edit_updates, mission_endorsements)
 
 
 urlpatterns = patterns(
@@ -77,7 +77,9 @@ urlpatterns = patterns(
 
     # Endorse
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
-        r'endorse/$', mission_endorse, name="mission_endorse"),
+        r'endorse/$',
+        MissionBaseView.as_view(template_name='mission_endorse.html'),
+        name="mission_endorse"),
 
     # View
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/updates/$',
@@ -86,5 +88,5 @@ urlpatterns = patterns(
         r'endorsements/$',
         mission_endorsements, name="mission_endorsements"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/$',
-        mission, name="mission"),
+        MissionBaseView.as_view(), name="mission"),
 )

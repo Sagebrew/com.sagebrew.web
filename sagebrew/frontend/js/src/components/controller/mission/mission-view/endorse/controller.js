@@ -34,46 +34,36 @@ export function load() {
             $(this).fadeOut('fast');
             $(".sb-profile-not-friend-element-image").removeClass("active");
         })
-        .on('click', '#js-public-office', function(event) {
-            "use strict";
+        .on('click', '#js-endorse-pleb', function(event) {
             event.preventDefault();
-            window.location.href = "/missions/public_office/";
+            var $this = $(this);
+            $this.disabled = true;
+            if ($this.hasClass("js-cancel-endorsement")){
+                request.post({url: "/v1/missions/" + missionId + "/unendorse/", data:JSON.stringify({"endorse_as": "pleb"})})
+                    .done(function(){
+                        window.location.href = "/missions/" + missionId + "/" + slug + "/";
+                    });
+            } else {
+                request.post({url: "/v1/missions/" + missionId + "/endorse/", data:JSON.stringify({"endorse_as": "pleb"})})
+                    .done(function(){
+                        window.location.href = "/missions/" + missionId + "/" + slug + "/";
+                    });
+            }
         })
-        .on('click', '#js-advocate', function(event) {
-            "use strict";
+        .on('click', '#js-endorse-quest', function(event) {
             event.preventDefault();
-            window.location.href = "/missions/advocate/";
+            var $this = $(this);
+            $this.disabled = true;
+            if ($this.hasClass("js-cancel-endorsement")){
+                request.post({url: "/v1/missions/" + missionId + "/unendorse/", data:JSON.stringify({"endorse_as": "quest"})})
+                    .done(function(){
+                        window.location.href = "/missions/" + missionId + "/" + slug + "/";
+                    });
+            } else {
+                request.post({url: "/v1/missions/" + missionId + "/endorse/", data:JSON.stringify({"endorse_as": "quest"})})
+                    .done(function(){
+                        window.location.href = "/missions/" + missionId + "/" + slug + "/";
+                    });
+            }
         });
-    $app.on('click', '#js-endorse-pleb', function(event) {
-        event.preventDefault();
-        var $this = $(this);
-        $this.disabled = true;
-        if ($this.text().indexOf("Cancel") > -1){
-            request.post({url: "/v1/missions/" + missionId + "/unendorse/", data:JSON.stringify({"endorse_as": "pleb"})})
-                .done(function(){
-                    window.location.href = "/missions/" + missionId + "/" + slug + "/";
-                });
-        } else {
-            request.post({url: "/v1/missions/" + missionId + "/endorse/", data:JSON.stringify({"endorse_as": "pleb"})})
-                .done(function(){
-                    window.location.href = "/missions/" + missionId + "/" + slug + "/";
-                });
-        }
-    });
-    $app.on('click', '#js-endorse-quest', function(event) {
-        event.preventDefault();
-        var $this = $(this);
-        $this.disabled = true;
-        if ($this.text().indexOf("Cancel") > -1){
-            request.post({url: "/v1/missions/" + missionId + "/unendorse/", data:JSON.stringify({"endorse_as": "quest"})})
-                .done(function(){
-                    window.location.href = "/missions/" + missionId + "/" + slug + "/";
-                });
-        } else {
-            request.post({url: "/v1/missions/" + missionId + "/endorse/", data:JSON.stringify({"endorse_as": "quest"})})
-                .done(function(){
-                    window.location.href = "/missions/" + missionId + "/" + slug + "/";
-                });
-        }
-    });
 }

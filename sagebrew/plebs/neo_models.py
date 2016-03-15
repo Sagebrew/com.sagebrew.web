@@ -278,8 +278,6 @@ class Pleb(Searchable):
     # there are more limitations on how donations occur.
     quest = RelationshipTo('sb_quests.neo_models.Quest', 'IS_WAGING')
 
-    endorses = RelationshipTo('sb_missions.neo_models.Mission', "ENDORSES")
-
     # Edits
     # Access if this Pleb can edit a Quest through:
     # Neomodel: editors Cypher: EDITOR_OF
@@ -689,14 +687,6 @@ class Pleb(Searchable):
                 "(b:ActivityInterest) RETURN b.name" % self.username
         res, _ = db.cypher_query(query)
         return [row[0] for row in res]
-
-    @classmethod
-    def get_endorsed(cls, username):
-        from sb_missions.neo_models import Mission
-        query = 'MATCH (p:Pleb {username:"%s"})-' \
-                '[:ENDORSES]->(m:Mission) RETURN m' % username
-        res, _ = db.cypher_query(query)
-        return [Mission.inflate(mission[0]) for mission in res]
 
     """
     def update_tag_rep(self, base_tags, tags):

@@ -2,7 +2,7 @@ from django.core.cache import cache
 from django.conf import settings
 
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist,
-                      BooleanProperty)
+                      BooleanProperty, RelationshipFrom)
 
 from sb_search.neo_models import Searchable
 from sb_base.neo_models import VoteRelationship
@@ -112,6 +112,10 @@ class Mission(Searchable):
     # locations.
     location = RelationshipTo('sb_locations.neo_models.Location', "WITHIN")
 
+    pleb_endorsements = RelationshipFrom('plebs.neo_models.Pleb', "ENDORSES")
+    quest_endorsements = RelationshipFrom('sb_quests.neo_models.Quest',
+                                          "ENDORSES")
+
     # DEPRECATED
     # Pledge votes are from old campaigns. We're working on a new process
     # for this
@@ -213,21 +217,11 @@ class Mission(Searchable):
 
     @classmethod
     def get_endorsements(self, object_uuid):
-        from plebs.neo_models import Pleb
-        from plebs.serializers import PlebSerializerNeo
-        from sb_quests.neo_models import Quest
-        from sb_quests.serializers import QuestSerializer
-        endorsements = []
         query = 'MATCH (m:Mission {object_uuid:"%s"})<-[:ENDORSES]-(e) ' \
                 'RETURN e, labels(e) as labels' \
                 % object_uuid
         res, _ = db.cypher_query(query)
-        for row in res:
-            if "Pleb" in row.labels:
-                endorsements.append(PlebSerializerNeo(Pleb.inflate(row.e)).data)
-            if "Quest" in row.labels:
-                endorsements.append(QuestSerializer(Quest.inflate(row.e)).data)
-        return endorsements
+        return res
 
     @classmethod
     def endorse(cls, object_uuid, endorsed_id, endorsing_as='quest'):

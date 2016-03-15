@@ -324,12 +324,17 @@ class QuestViewSet(viewsets.ModelViewSet):
         return generate_csv_html_file_response(
             "quest_donations.csv", donation_info, keys)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
+    @detail_route(methods=['get'], serializer_class=MissionSerializer,
+                  permission_classes=(IsAuthenticated,))
     def endorsed(self, request, owner_username):
-        return Response(
-            MissionSerializer(
-                Quest.get_endorsed(owner_username), many=True).data,
-            status.HTTP_200_OK)
+        query = 'MATCH (q:Quest {owner_username:"%s"})-' \
+                '[:ENDORSES]->(m:Mission) RETURN m' % owner_username
+        res, _ = db.cypher_query(query)
+        page = self.paginate_queryset(
+            [Mission.inflate(mission[0]) for mission in res])
+        serializer = self.serializer_class(page, many=True,
+                                           context={'request': request})
+        return self.get_paginated_response(serializer.data)
 
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated,))

@@ -1,4 +1,3 @@
-{% load staticfiles %}
 # How do I start a conversation? #
 To start a public conversation, navigate to the 
 Conversation Cloud by clicking it in the navigation bar. 

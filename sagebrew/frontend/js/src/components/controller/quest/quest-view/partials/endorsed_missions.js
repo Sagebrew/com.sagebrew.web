@@ -24,8 +24,8 @@ export function load() {
 
             },
             renderCallback: function($container, data) {
-                for (var i = 0; i < data.length; i++) {
-                    $container.append(templates.quest_endorsed(data[i]));
+                for (var i = 0; i < data.count; i++) {
+                    $container.append(templates.quest_endorsed(data.results[i]));
                 }
             }
         });

@@ -106,7 +106,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
     tags = serializers.ListField(
         source='get_tags',
         validators=[limit_5_tags, PopulateTags()],
-        child=serializers.CharField(max_length=36),
+        child=serializers.CharField(max_length=240),
     )
     title = serializers.CharField(required=False,
                                   validators=[QuestionTitleUpdate(), ],
@@ -171,7 +171,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
                     # we can remove this.
                     if (request.user.username == "devon_bleibtrey" or
                             request.user.username == "tyler_wiersing"):
-                        tag_obj = Tag(name=tag.lower()).save()
+                        tag_obj = Tag(name=slugify(tag.lower())).save()
                         question.tags.connect(tag_obj)
                     else:
                         continue

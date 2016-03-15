@@ -42,8 +42,8 @@ export function load() {
 
             },
             renderCallback: function($container, data) {
-                for (var i = 0; i < data.length; i++) {
-                    $container.append(templates.endorsement_button(data[i]));
+                for (var i = 0; i < data.count; i++) {
+                    $container.append(templates.endorsement_button(data.results[i]));
                 }
             }
         });

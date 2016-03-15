@@ -109,10 +109,6 @@ class Quest(Searchable):
     # Embarks on is a mission this Quest manages and is trying to accomplish.
     # Donations to these missions come back to the Quest's account
     missions = RelationshipTo('sb_missions.neo_models.Mission', "EMBARKS_ON")
-    # Endorses are missions the Quest is supporting. These should be linked to
-    # from the Quest page but are actively managed by other users/Quests.
-    # Donations to these missions do not come back to this Quest.
-    endorses = RelationshipTo('sb_missions.neo_models.Mission', "ENDORSES")
     holds = RelationshipTo('sb_quests.neo_models.Seat', "HOLDS")
 
     # Followers are users which have decided to follow a Quest, this means that
@@ -228,14 +224,6 @@ class Quest(Searchable):
                 '[:CONTRIBUTED_TO]-(d:Donation) RETURN d' % owner_username
         res, _ = db.cypher_query(query)
         return [Donation.inflate(donation[0]) for donation in res]
-
-    @classmethod
-    def get_endorsed(cls, owner_username):
-        from sb_missions.neo_models import Mission
-        query = 'MATCH (q:Quest {owner_username:"%s"})-' \
-                '[:ENDORSES]->(m:Mission) RETURN m' % owner_username
-        res, _ = db.cypher_query(query)
-        return [Mission.inflate(mission[0]) for mission in res]
 
     def is_following(self, username):
         following = cache.get("%s_is_following_quest_%s" %

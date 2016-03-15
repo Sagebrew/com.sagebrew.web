@@ -986,7 +986,8 @@ class ProfileEndpointTests(APITestCase):
                       kwargs={'username': self.pleb.username})
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(mission.object_uuid, res.data[0]['id'])
+        self.assertEqual(res.data['count'], 1)
+        self.assertEqual(mission.object_uuid, res.data['results'][0]['id'])
 
 
 class ProfileContentMethodTests(APITestCase):

@@ -128,14 +128,6 @@ class TestPleb(TestCase):
         res = test_pleb.unfollow(self.pleb.username)
         self.assertFalse(res)
 
-    def test_get_endorsed(self):
-        mission = Mission(owner_username=self.pleb.username).save()
-        quest = Quest(owner_username=self.pleb.username).save()
-        quest.missions.connect(mission)
-        self.pleb.endorses.connect(mission)
-        res = Pleb.get_endorsed(self.pleb.username)
-        self.assertEqual(res[0].object_uuid, mission.object_uuid)
-
 
 class TestPlebReputationChange(TestCase):
 

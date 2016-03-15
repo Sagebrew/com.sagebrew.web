@@ -10,7 +10,10 @@ from api.utils import (calc_stripe_application_fee, humanize_dict_keys,
                        generate_csv_html_file_response)
 from sb_donations.serializers import DonationExportSerializer
 from api.permissions import (IsOwnerOrModeratorOrReadOnly, IsOwnerOrModerator)
-
+from plebs.neo_models import Pleb
+from plebs.serializers import PlebSerializerNeo
+from sb_quests.neo_models import Quest
+from sb_quests.serializers import QuestSerializer
 from .serializers import MissionSerializer
 from .neo_models import Mission
 
@@ -167,5 +170,12 @@ class MissionViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
                                                        IsOwnerOrModerator,))
     def endorsements(self, request, object_uuid=None):
-        return Response(Mission.get_endorsements(object_uuid),
-                        status=status.HTTP_200_OK)
+        serialized = []
+        endorsements = Mission.get_endorsements(object_uuid)
+        page = self.paginate_queryset(endorsements)
+        for node in page:
+            if "Pleb" in node.labels:
+                serialized.append(PlebSerializerNeo(Pleb.inflate(node.e)).data)
+            if "Quest" in node.labels:
+                serialized.append(QuestSerializer(Quest.inflate(node.e)).data)
+        return self.get_paginated_response(serialized)

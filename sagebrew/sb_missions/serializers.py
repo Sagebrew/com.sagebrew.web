@@ -9,7 +9,8 @@ from rest_framework.reverse import reverse
 
 from neomodel import db, DoesNotExist
 
-from api.utils import gather_request_data, clean_url, empty_text_to_none
+from api.utils import (gather_request_data, clean_url, empty_text_to_none,
+                       smart_truncate)
 from api.serializers import SBSerializer
 from sb_locations.serializers import LocationSerializer
 from sb_tags.neo_models import Tag
@@ -37,7 +38,7 @@ class MissionSerializer(SBSerializer):
                                   allow_blank=True)
     owner_username = serializers.CharField(read_only=True)
     location_name = serializers.CharField(required=False, allow_null=True)
-    focus_name = serializers.CharField()
+    focus_name = serializers.CharField(max_length=240)
     focus_formal_name = serializers.CharField(read_only=True)
 
     url = serializers.SerializerMethodField()
@@ -58,6 +59,7 @@ class MissionSerializer(SBSerializer):
         ('state_lower', "State Lower"),
         ('federal', "Federal"), ('state', "State")])
     location = serializers.SerializerMethodField()
+    title_summary = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         from sb_quests.neo_models import Quest, Position
@@ -94,6 +96,11 @@ class MissionSerializer(SBSerializer):
                 " Of", " of").replace(
                 " And", " and").replace(" Or", " or")
         focused_on = validated_data.get('focus_name')
+        if focus_type == "advocacy":
+            focused_on = slugify(focused_on)
+        else:
+            focused_on = slugify(
+                focused_on).title().replace('-', ' ').replace('_', ' ')
         district = validated_data.get('district')
         # TODO what happens if a moderator makes the mission?
         owner_username = request.user.username
@@ -143,7 +150,7 @@ class MissionSerializer(SBSerializer):
                     (loc_query, focused_on, level)
             res, _ = db.cypher_query(query)
             if not res.one:
-                focused_on = focused_on.title().replace('-', ' ')\
+                focused_on = slugify(focused_on).title().replace('-', ' ')\
                     .replace('_', ' ')
                 new_position = Position(verified=False, name=focused_on,
                                         level=level,
@@ -170,7 +177,7 @@ class MissionSerializer(SBSerializer):
             res, _ = db.cypher_query(query)
             return Mission.inflate(res.one)
         elif focus_type == "advocacy":
-            focused_on = '-'.join(focused_on.replace('_', '-').lower().split())
+            focused_on = slugify(focused_on)
             try:
                 Tag.nodes.get(name=focused_on)
             except (DoesNotExist, Tag.DoesNotExist):
@@ -235,7 +242,9 @@ class MissionSerializer(SBSerializer):
             remove_search_object(instance.object_uuid, 'mission')
         instance.completed = validated_data.pop(
             'completed', instance.completed)
-        instance.title = validated_data.pop('title', instance.title)
+        title = validated_data.pop('title', instance.title)
+        if empty_text_to_none(title) is not None:
+            instance.title = title
         instance.about = empty_text_to_none(
             validated_data.get('about', instance.about))
         instance.epic = validated_data.pop('epic', instance.epic)
@@ -331,3 +340,9 @@ class MissionSerializer(SBSerializer):
         if request is None:
             return None
         return obj.get_has_endorsed_quest(request.user.username)
+
+    def get_title_summary(self, obj):
+        if obj.title is not None:
+            if len(obj.title) > 20:
+                return smart_truncate(obj.title, 20)
+        return obj.title

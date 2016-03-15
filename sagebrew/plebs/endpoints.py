@@ -234,8 +234,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
         res, _ = db.cypher_query(query)
         if res.one:
             follower_list = [Pleb.inflate(row[0]) for row in res]
-            return self.get_paginated_response(PlebSerializerNeo(
-                follower_list, many=True).data)
+            return self.get_paginated_response(self.paginate_queryset(
+                PlebSerializerNeo(follower_list, many=True).data))
         return self.get_paginated_response(self.paginate_queryset([]))
 
     @detail_route(methods=['post'],

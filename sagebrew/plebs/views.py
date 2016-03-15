@@ -64,7 +64,10 @@ class ProfileView(LoginRequiredMixin):
         except (CypherException, ClientError):
             return redirect("500_Error")
         page_user = User.objects.get(username=page_user_pleb.username)
-        is_owner = False
+        if page_user.username == request.user.username:
+            is_owner = True
+        else:
+            is_owner = False
         query = 'MATCH (person:Pleb {username: "%s"})' \
                 '-[r:FRIENDS_WITH]->(p:Pleb {username: "%s"}) ' \
                 'RETURN CASE WHEN r.active = True THEN True ' \
@@ -77,7 +80,6 @@ class ProfileView(LoginRequiredMixin):
         except(CypherException, ClientError):
             return redirect("500_Error")
         except IndexError:
-            is_owner = True
             are_friends = False
         return render(request, self.template_name, {
             'page_profile': PlebSerializerNeo(

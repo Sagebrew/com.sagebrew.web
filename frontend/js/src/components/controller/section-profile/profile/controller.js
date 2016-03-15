@@ -34,9 +34,35 @@ export function load() {
     // Post create functionality.
     postcreate.init();
     postcreate.load();
-    var $appNewsfeed = $("#js-recent-contributions");
+    var missionList= document.getElementById('js-mission-list'),
+        pageUser = helpers.args(1),
+        endorsementList = document.getElementById('js-endorsements-list'),
+        endorsementContainer = document.getElementById('js-endorsements-container'),
+        $appNewsfeed = $("#js-recent-contributions"),
+        $app = $(".app-sb");
+    $app
+        .on('click', '.js-follow', function (event) {
+            event.preventDefault();
+            var thisHolder = this;
+            request.post({url: '/v1/profiles/' + pageUser + '/follow/'})
+                .done(function () {
+                    thisHolder.innerHTML = '<i class="fa fa fa-minus quest-rocket"></i> Unfollow';
+                    thisHolder.classList.remove('js-follow');
+                    thisHolder.classList.add('js-unfollow');
+                })
+        })
+        .on('click', '.js-unfollow', function (event) {
+            event.preventDefault();
+            var thisHolder = this;
+            request.post({url: '/v1/profiles/' + pageUser + '/unfollow/'})
+                .done(function () {
+                    thisHolder.innerHTML = '<i class="fa fa fa-plus quest-rocket"></i> Follow';
+                    thisHolder.classList.add('js-follow');
+                    thisHolder.classList.remove('js-unfollow');
+                })
+        });
     $appNewsfeed.sb_contentLoader({
-        emptyDataMessage: 'Some Public Contributions Need to Be Made',
+        emptyDataMessage: '<div class="block"><div class="block-content">Some Public Contributions Need to Be Made</div></div>',
         url: '/v1/me/public/',
         params: {
             expand: 'true'
@@ -66,10 +92,7 @@ export function load() {
         }
     });
 
-    var missionList= document.getElementById('js-mission-list'),
-        pageUser = helpers.args(1),
-        endorsementList = document.getElementById('js-endorsements-list'),
-        endorsementContainer = document.getElementById('js-endorsements-container');
+
     missions.populateMissions($(missionList), pageUser, missionMinTemplate, null, '<div class="block"><div class="block-content" style="padding-bottom: 5px;"><p>Check Back Later For New Missions</p></div></div>');
     missions.populateEndorsements($(endorsementList), pageUser, missionMinTemplate, $(endorsementContainer), '<div class="block"><div class="block-content" style="padding-bottom: 5px;"><p>Check Back Later For New Endorsements</p></div></div>');
     var $appNetwork = $("#js-network-list");

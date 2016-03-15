@@ -1,9 +1,5 @@
 
-var representatives = require('../partials/representatives'),
-    friends = require('../partials/friends'),
-    postcreate = require('../partials/postcreate'),
-    solutions = require('controller/conversation/conversation-view/partials/solution'),
-    follow = require('../partials/follow'),
+var postcreate = require('../partials/postcreate'),
     request = require('api').request,
     settings = require('settings').settings,
     Autolinker = require('autolinker'),
@@ -72,16 +68,15 @@ export function load() {
 
     var missionList= document.getElementById('js-mission-list'),
         pageUser = helpers.args(1),
-        endorsementList= document.getElementById('js-endorsements-list');
-
-    missions.populateMissions($(missionList), pageUser, missionMinTemplate);
-    missions.populateEndorsements($(endorsementList), pageUser, missionMinTemplate,
-        $('#js-endorsements-container'));
+        endorsementList = document.getElementById('js-endorsements-list'),
+        endorsementContainer = document.getElementById('js-endorsements-container');
+    missions.populateMissions($(missionList), pageUser, missionMinTemplate, null, '<div class="block"><div class="block-content" style="padding-bottom: 5px;"><p>Check Back Later For New Missions</p></div></div>');
+    missions.populateEndorsements($(endorsementList), pageUser, missionMinTemplate, $(endorsementContainer), '<div class="block"><div class="block-content" style="padding-bottom: 5px;"><p>Check Back Later For New Endorsements</p></div></div>');
     var $appNetwork = $("#js-network-list");
 
     var profile_page_user = helpers.args(1);
     $appNetwork.sb_contentLoader({
-        emptyDataMessage: 'Expand Your Base',
+        emptyDataMessage: '<div class="block"><div class="block-content" style="padding-bottom: 5px;"><p>Expand Your Base</p></div></div>',
         url: '/v1/profiles/' + profile_page_user + '/followers/',
         params: {
             expedite: 'true'
@@ -98,7 +93,7 @@ export function load() {
             return request.get({url:url});
         },
         renderCallback: function($container, data) {
-            $("#js-network-container").append(profilePicTemplate(data.results[i]));
+            $("#js-network-container").append(profilePicTemplate(data.results));
         }
     });
 

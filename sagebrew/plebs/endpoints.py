@@ -234,9 +234,9 @@ class ProfileViewSet(viewsets.ModelViewSet):
         res, _ = db.cypher_query(query)
         if res.one:
             follower_list = [Pleb.inflate(row[0]) for row in res]
-            return Response({"results": PlebSerializerNeo(
-                follower_list, many=True).data}, status=status.HTTP_200_OK)
-        return Response({"results": res.one}, status=status.HTTP_200_OK)
+            return self.get_paginated_response(PlebSerializerNeo(
+                follower_list, many=True).data)
+        return self.get_paginated_response(self.paginate_queryset([]))
 
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated, IsSelfOrReadOnly))
@@ -483,7 +483,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticatedOrReadOnly,))
     def endorsements(self, request, username):
-        return Response([], status=status.HTTP_200_OK)
+        return self.get_paginated_response(self.paginate_queryset([]))
 
 
 class MeViewSet(mixins.UpdateModelMixin,

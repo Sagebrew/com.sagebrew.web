@@ -1,3 +1,4 @@
+ /*global Intercom*/
 /**
  * @file
  */
@@ -34,12 +35,16 @@ export function load() {
     $app
         .on('click', '#take-live', function () {
             event.preventDefault();
+
             if (settings.profile.quest.account_verified !== "verified") {
                 $.notify('You must add a bank account under "Accounting" prior to taking your Quest live so we can get you your donations', {type: "danger"});
+                Intercom('trackEvent', 'take-quest-live-no-accounting');
             } else if (settings.profile.quest.account_type === "paid" && settings.profile.quest.card_on_file !== true) {
                 $.notify('You must add a credit card under "Billing" or change your account to free prior to taking the Quest live', {type: "danger"});
+                Intercom('trackEvent', 'take-quest-live-no-billing');
             } else {
                 greyPage.classList.remove('sb_hidden');
+                Intercom('trackEvent', 'take-quest-live');
                 var takeLiveDict = {active: true};
                 if(moment().diff([2016, 5, 16]) <= 0){
                     takeLiveDict.account_type = "promotion";

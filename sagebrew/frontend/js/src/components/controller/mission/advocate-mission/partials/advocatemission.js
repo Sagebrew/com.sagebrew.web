@@ -1,4 +1,4 @@
-/*global google, Bloodhound*/
+/*global Intercom, google, Bloodhound*/
 var request = require('api').request,
     radioSelector = require('common/radioimage').radioSelector,
     helpers = require('common/helpers'),
@@ -132,6 +132,8 @@ export function load() {
         .on('click', '#js-start-btn', function(){
             greyPage.classList.remove('sb_hidden');
             var location;
+            Intercom('trackEvent', 'setup-mission');
+            Intercom('trackEvent', 'setup-advocacy-mission');
             if(localStorage.getItem(levelKey) !== "local"){
                 location = localStorage.getItem(locationName);
             } else {

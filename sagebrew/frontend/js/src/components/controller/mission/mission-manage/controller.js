@@ -1,3 +1,4 @@
+ /*global Intercom*/
 /**
  * @file
  */
@@ -27,6 +28,7 @@ export function load() {
         .on('click', '#take-live-mission', function () {
             event.preventDefault();
             greyPage.classList.remove('sb_hidden');
+            Intercom('trackEvent', 'took-mission-live');
             request.patch({
                 url: "/v1/missions/" + missionID + "/",
                 data: JSON.stringify({

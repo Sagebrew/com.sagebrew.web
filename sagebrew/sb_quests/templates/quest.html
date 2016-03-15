@@ -1,7 +1,7 @@
 {% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
 {% block title %}
-    {% if quest.title %}{{ quest.title }}{% else %}{{ quest.first_name }} {{ quest.last_name }}{% endif %}'s Quest
+    {{ quest.title }}'s Quest
 {% endblock title %}
 {% block description %}
     <meta name="description" content="{{ description }}">
@@ -10,14 +10,14 @@
     {% if keywords %}
         <meta name="keywords" content="{{ keywords }}">
     {% endif %}
-    <meta name="author" content="{% if quest.title %} {{ quest.title }} {% else %}{{ quest.first_name }} {{ quest.last_name }} {% endif %}">
+    <meta name="author" content=" {{ quest.title }} ">
 {% endblock keywords %}
 {% block content %}
     {% comment %} TODO need some assistance transitioning this over to hero-one-col {% endcomment %}
     {% include "manage/activate_partial.html" %}
     <div class="row block row-no-margin">
         <div class="hidden-sm hidden-md hidden-lg block-title text-center no-underline">
-            <h1>{% if quest.title %} {{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</h1>
+            <h1> {{ quest.title }} </h1>
         </div>
         {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
         {% if request.user.username == quest.owner_username %}
@@ -48,7 +48,7 @@
         <div class="hidden-xs col-sm-5">
             <div class="block">
                 <div class="block-title no-underline">
-                    <h1>{% if quest.title %} {{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</h1>
+                    <h1> {{ quest.title }} </h1>
                 </div>
                 {% if quest.public_official %}
                     <div class="block-content">

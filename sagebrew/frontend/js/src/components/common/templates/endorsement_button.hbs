@@ -5,11 +5,7 @@
                 {{#ifCond type "===" "profile"}}
                     {{first_name}} {{last_name}}
                 {{else}}
-                    {{#if title}}
-                        {{title}}
-                    {{else}}
-                        {{first_name}} {{last_name}}
-                    {{/if}}
+                    {{title}}
                 {{/ifCond}}</h4>
             <div class="row radio-image-selector-image-wrapper">
                 <img class="radio-image-selector-image" src={{profile_pic}}>

@@ -21,7 +21,7 @@
             </div>
         {% else %}
             {% if active == False %}
-                <h4 class="block-content block-holder-lg" style="margin-top:0;">{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} is still setting up this Mission, check back soon!</h4>
+                <h4 class="block-content block-holder-lg" style="margin-top:0;">{{ quest.title }}  is still setting up this Mission, check back soon!</h4>
             {% elif endorsements %}
                 <div class="block-content block-holder-lg">
                     <div id="js-endorsement-wrapper">
@@ -30,7 +30,7 @@
 
             {% else %}
                 <div class="block-holder-lg sb_markdown">
-                    <h4 class="block-content block-holder-lg" style="margin-top:0;">{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} doesn't have any endorsements for this Mission yet.</h4>
+                    <h4 class="block-content block-holder-lg" style="margin-top:0;">{{ quest.title }}  doesn't have any endorsements for this Mission yet.</h4>
                 </div>
             {% endif %}
         {% endif %}

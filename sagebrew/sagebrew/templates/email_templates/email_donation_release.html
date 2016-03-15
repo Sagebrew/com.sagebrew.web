@@ -13,7 +13,7 @@
                   color: #000000;
                   margin-top: 25px;
                   line-height: 15px">
-            Your donation towards {% if quest.title %}{{ quest.title }}{% else %}{{ quest.first_name }} {{ quest.last_name }}{% endif %}'s Quest has been completed! Your card has been charged ${% widthratio amount 100 1 as money %}{{ money|intcomma }}.
+            Your donation towards {{ quest.title }}'s Quest has been completed! Your card has been charged ${% widthratio amount 100 1 as money %}{{ money|intcomma }}.
         </p>
         <p style="font-size: 12px;
                   color: #000000">

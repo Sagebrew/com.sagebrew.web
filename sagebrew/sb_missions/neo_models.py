@@ -230,7 +230,7 @@ class Mission(Searchable):
         return endorsements
 
     @classmethod
-    def endorse(cls, object_uuid, endorsed_id, endorsing_as):
+    def endorse(cls, object_uuid, endorsed_id, endorsing_as='quest'):
         endorsed_query = '(e:Quest {owner_username:"%s"})' % endorsed_id
         if endorsing_as == "profile":
             endorsed_query = '(e:Pleb {username:"%s"})' % endorsed_id
@@ -241,14 +241,14 @@ class Mission(Searchable):
         return res
 
     @classmethod
-    def unendorse(cls, object_uuid, endorsed_id, endorsing_as):
+    def unendorse(cls, object_uuid, endorsed_id, endorsing_as='quest'):
         endorsed_query = '(e:Quest {owner_username:"%s"})' % endorsed_id
         if endorsing_as == "profile":
             endorsed_query = '(e:Pleb {username:"%s"})' % endorsed_id
         query = 'MATCH (m:Mission {object_uuid:"%s"})<-[r:ENDORSES]-%s ' \
                 'DELETE r' % (object_uuid, endorsed_query)
         res, _ = db.cypher_query(query)
-        return res
+        return True
 
     def get_mission_title(self):
         if self.title:

@@ -112,21 +112,24 @@ class TestMission(TestCase):
         self.assertEqual(res, "2.19")
 
     def test_endorse_pleb(self):
-        res = self.mission.endorse(self.owner.username, "pleb")
+        res = Mission.endorse(self.mission.object_uuid,
+                              self.owner.username, "profile")
         self.assertTrue(res)
 
     def test_endorse_quest(self):
-        res = self.mission.endorse(self.owner.username)
+        res = Mission.endorse(self.mission.object_uuid, self.owner.username)
         self.assertTrue(res)
 
     def test_unendorse_pleb(self):
-        res = self.mission.endorse(self.owner.username, "pleb")
+        res = Mission.endorse(self.mission.object_uuid,
+                              self.owner.username, "profile")
         self.assertTrue(res)
-        res = self.mission.unendorse(self.owner.username, "pleb")
+        res = Mission.unendorse(self.mission.object_uuid,
+                                self.owner.username, "profile")
         self.assertTrue(res)
 
     def test_unendorse_quest(self):
-        res = self.mission.endorse(self.owner.username)
+        res = Mission.endorse(self.mission.object_uuid, self.owner.username)
         self.assertTrue(res)
-        res = self.mission.unendorse(self.owner.username)
+        res = Mission.unendorse(self.mission.object_uuid, self.owner.username)
         self.assertTrue(res)

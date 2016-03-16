@@ -112,7 +112,7 @@ class Mission(Searchable):
     # locations.
     location = RelationshipTo('sb_locations.neo_models.Location', "WITHIN")
 
-    pleb_endorsements = RelationshipFrom('plebs.neo_models.Pleb', "ENDORSES")
+    profile_endorsements = RelationshipFrom('plebs.neo_models.Pleb', "ENDORSES")
     quest_endorsements = RelationshipFrom('sb_quests.neo_models.Quest',
                                           "ENDORSES")
 

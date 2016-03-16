@@ -1053,7 +1053,7 @@ class MissionEndpointTests(APITestCase):
         response = self.client.post(url, data={"endorse_as": "profile"},
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue(self.pleb in self.mission.pleb_endorsements)
+        self.assertTrue(self.pleb in self.mission.profile_endorsements)
 
     def test_unendorse(self):
         self.client.force_authenticate(user=self.user)
@@ -1061,11 +1061,11 @@ class MissionEndpointTests(APITestCase):
         response = self.client.post(url, data={"endorse_as": "profile"},
                                     format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertFalse(self.pleb in self.mission.pleb_endorsements)
+        self.assertFalse(self.pleb in self.mission.profile_endorsements)
 
     def test_endorsements(self):
         self.client.force_authenticate(user=self.user)
-        self.mission.pleb_endorsements.connect(self.pleb)
+        self.mission.profile_endorsements.connect(self.pleb)
         url = "/v1/missions/%s/endorsements/" % self.mission.object_uuid
         res = self.client.get(url, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)

@@ -980,7 +980,7 @@ class ProfileEndpointTests(APITestCase):
         mission = Mission(owner_username=self.pleb.username).save()
         quest = Quest(owner_username=self.pleb.username).save()
         quest.missions.connect(mission)
-        mission.pleb_endorsements.connect(self.pleb)
+        mission.profile_endorsements.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-endorsed',
                       kwargs={'username': self.pleb.username})

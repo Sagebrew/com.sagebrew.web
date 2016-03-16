@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 
 from neomodel import DoesNotExist, MultipleNodesReturned, db
 
-# from sb_votes.neo_models import Vote
 from sb_comments.neo_models import Comment
 from sb_donations.neo_models import Donation
 from sb_questions.neo_models import Question

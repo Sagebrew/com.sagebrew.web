@@ -1046,3 +1046,35 @@ class MissionEndpointTests(APITestCase):
                                            'Data Entry,Host A Meeting,Host A '
                                            'Fundraiser,Host A House Party,'
                                            'Attend A House Party\r\n')
+
+    def test_endorse(self):
+        self.client.force_authenticate(user=self.user)
+        url = "/v1/missions/%s/endorse/" % self.mission.object_uuid
+        response = self.client.post(url, data={"endorse_as": "profile"},
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.pleb in self.mission.profile_endorsements)
+
+    def test_unendorse(self):
+        self.client.force_authenticate(user=self.user)
+        url = "/v1/missions/%s/unendorse/" % self.mission.object_uuid
+        response = self.client.post(url, data={"endorse_as": "profile"},
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(self.pleb in self.mission.profile_endorsements)
+
+    def test_endorsements(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.profile_endorsements.connect(self.pleb)
+        url = "/v1/missions/%s/endorsements/" % self.mission.object_uuid
+        res = self.client.get(url, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['results'][0]['id'], self.pleb.username)
+
+    def test_endorsements_quest(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.quest_endorsements.connect(self.quest)
+        url = "/v1/missions/%s/endorsements/" % self.mission.object_uuid
+        res = self.client.get(url, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['results'][0]['id'], self.quest.object_uuid)

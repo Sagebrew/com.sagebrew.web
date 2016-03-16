@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+{% block title %} Mission Selection {% endblock %}
+{% block content %}
+    <div class="block registration">
+        <div class="row">
+            <div class="col-xs-12">
+                <h1>Endorse this Mission</h1>
+                <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-sm-6">
+                <div class="sb-profile-not-friend-element">
+                    <div class="js-hover-overlay-activate">
+                        <h4 class="sb-profile-not-friend-header">Endorse</h4>
+                        <div class="row sb-profile-not-friend-image-wrapper">
+                            <img class="sb-profile-not-friend-element-image" src="{% static "images/quest_logo_flat_color.png" %}">
+                        </div>
+                        <div class="sb-overlay">
+                            <div class="sb-overlay-text">
+                                <div>
+                                    When you Endorse a Mission as your Quest: <br/><br/>
+                                    It will show up on your Quest Page and your Quest will be displayed in this Mission's Endorsements
+                                </div>
+                            </div>
+                        </div>
+                        {% if not request_profile.quest %}
+                            <div class="sb_coming_soon">
+                                <h3>You cannot Endorse as a Quest if you don't have one!</h3>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
+                    <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+                        {% if not request_profile.quest %}
+                            <button class="btn btn-primary sb_btn_fill sb_btn disabled sb_restricted" id="js-endorse-quest">Endorse</button>
+                        {% else %}
+                            <button class="btn btn-primary sb_btn_fill {% if mission.has_endorsed_quest %}js-cancel-endorsement{% endif %}" id="js-endorse-quest">{% if mission.has_endorsed_quest %}Revoke Endorsement{% else %}Endorse{% endif %}</button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-6">
+                <div class="sb-profile-not-friend-element">
+                    <div class="js-hover-overlay-activate">
+                        <h4 class="sb-profile-not-friend-header">Personally Endorse</h4>
+                        <div class="row sb-profile-not-friend-image-wrapper">
+                            <img class="sb-profile-not-friend-element-image" src="{% static "images/sb_logo_color_sage.png" %}">
+                        </div>
+                        <div class="sb-overlay">
+                            <div class="sb-overlay-text">
+                                <div>
+                                    When you Endorse a Mission as yourself: <br/><br/>
+                                    It will show up on your Profile Endorsements and your Profile will be displayed in this Mission's Endorsements
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
+                    <div class="row">
+                        <div class="col-xs-12 col-sm-6 col-sm-offset-3">
+                            <button class="btn btn-primary sb_btn_fill {% if mission.has_endorsed_profile %}js-cancel-endorsement{% endif %}" id="js-endorse-pleb">{% if mission.has_endorsed_profile %}Revoke Endorsement{% else %}Endorse{% endif %}</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

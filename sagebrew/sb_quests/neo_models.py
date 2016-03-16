@@ -109,10 +109,6 @@ class Quest(Searchable):
     # Embarks on is a mission this Quest manages and is trying to accomplish.
     # Donations to these missions come back to the Quest's account
     missions = RelationshipTo('sb_missions.neo_models.Mission', "EMBARKS_ON")
-    # Endorses are missions the Quest is supporting. These should be linked to
-    # from the Quest page but are actively managed by other users/Quests.
-    # Donations to these missions do not come back to this Quest.
-    endorses = RelationshipTo('sb_missions.neo_models.Mission', "ENDORSES")
     holds = RelationshipTo('sb_quests.neo_models.Seat', "HOLDS")
 
     # Followers are users which have decided to follow a Quest, this means that

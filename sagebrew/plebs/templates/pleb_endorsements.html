@@ -1,0 +1,20 @@
+{% extends "sb_plebs_base/profile_page.html" %}
+{% load staticfiles %}
+{% block title %}{{ page_user.first_name }}'s Endorsements{% endblock title %}
+{%  block midsection %}
+    <div class="col-md-4 hidden-sm hidden-xs">
+       {% include "sb_home_section/potential_representative_col.html" %}
+        {% include "sb_home_section/representative_col.html" %}
+    </div>
+
+    <div class="block block-profile">
+        <div class="block bock-content block-holder-lg col-md-8">
+           <div class="row">
+               <div class="col-xs-12"
+                    id="endorsements_wrapper">
+               </div>
+           </div>
+        </div>
+    </div>
+
+{% endblock %}

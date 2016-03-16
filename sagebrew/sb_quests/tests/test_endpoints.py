@@ -1064,7 +1064,7 @@ class QuestEndpointTests(APITestCase):
     def test_endorsements(self):
         mission = Mission(owner_username=self.pleb.username).save()
         self.quest.missions.connect(mission)
-        self.quest.endorses.connect(mission)
+        mission.quest_endorsements.connect(self.quest)
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-endorsed',
                       kwargs={'owner_username': self.pleb.username})

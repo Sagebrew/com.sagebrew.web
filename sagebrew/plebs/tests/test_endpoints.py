@@ -285,7 +285,8 @@ class MeEndpointTests(APITestCase):
         res = self.client.patch(url, data)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertEqual(res.data['email'], data['email'].lower())
+        self.pleb.refresh()
+        self.assertEqual(self.pleb.email, data['email'].lower())
         self.pleb.email = self.email
         self.pleb.save()
 

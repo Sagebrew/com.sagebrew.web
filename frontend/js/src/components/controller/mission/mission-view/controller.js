@@ -1,4 +1,5 @@
-var wallpaper = require('./partials/wallpaper');
+var wallpaper = require('./partials/wallpaper'),
+    share = require('./partials/share');
 
 export const meta = {
     controller: "mission/mission-view",
@@ -23,6 +24,7 @@ export function load() {
     $('[data-toggle="tooltip"]').tooltip();
     $('[data-toggle="popover"]').popover();
     wallpaper.load();
+    share.load();
 }
 
 /**

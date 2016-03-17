@@ -480,10 +480,17 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                        context={'request': request})
         return self.get_paginated_response(serializer.data)
 
-    @detail_route(methods=['get'],
-                  permission_classes=(IsAuthenticatedOrReadOnly,))
-    def endorsements(self, request, username):
-        return self.get_paginated_response(self.paginate_queryset([]))
+    @detail_route(methods=["GET"], serializer_class=MissionSerializer,
+                  permission_classes=(IsAuthenticated,))
+    def endorsed(self, request, username):
+        query = 'MATCH (p:Pleb {username:"%s"})-' \
+                '[:ENDORSES]->(m:Mission) RETURN m' % username
+        res, _ = db.cypher_query(query)
+        page = self.paginate_queryset(
+            [Mission.inflate(mission[0]) for mission in res])
+        serializer = self.serializer_class(page, many=True,
+                                           context={'request': request})
+        return self.get_paginated_response(serializer.data)
 
 
 class MeViewSet(mixins.UpdateModelMixin,

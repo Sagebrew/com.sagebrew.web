@@ -11,8 +11,8 @@
 {% block hero %}
     <div class="block">
         <div class="col-xs-12 text-center">
-            <h1>{% if selected.type == "mission" %}{% if selected.focus_on_type == "position" %}{% if selected.focused_on.full_name %}{{ selected.focused_on.full_name|title }}{% else %}{{ selected.focus_name_formatted }}{% endif %}{% else %}{% if selected.title %}{{ selected.title|title }}{% else %} {{ selected.focus_name_formatted|title }} {% endif %}{% endif %}{% else %} {% if quest.title %} {{ quest.title|title }} {% else %} {{ quest.first_name }} {{ quest.last_name }}{% endif %}{% endif %}</h1>
-            {% if selected.type == "mission" %}<a href="{% url "quest" username=quest.owner_username %}">By: {% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</a> {% endif %}
+            <h1>{% if selected.type == "mission" %}{% if selected.focus_on_type == "position" %}{% if selected.focused_on.full_name %}{{ selected.focused_on.full_name|title }}{% else %}{{ selected.focus_name_formatted }}{% endif %}{% else %}{% if selected.title %}{{ selected.title|title }}{% else %} {{ selected.focus_name_formatted|title }} {% endif %}{% endif %}{% else %} {{ quest.title|title }} {% endif %}</h1>
+            {% if selected.type == "mission" %}<a href="{% url "quest" username=quest.owner_username %}">By: {{ quest.title }} </a> {% endif %}
         </div>
     </div>
     <div class="block">

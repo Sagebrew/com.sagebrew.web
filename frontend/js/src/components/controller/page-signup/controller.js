@@ -1,4 +1,4 @@
-/* global Wistia */
+ /*global Intercom, Wistia */
 /**
  * @file
  * Signup Page... This is actually the homepage for anon users.
@@ -34,8 +34,12 @@ function submitSignup() {
     // Convert the url args to what they are for the /missions/{{setup}} url
     // ex. /missions/advocate/
     if(helpers.args(0) === "political") {
+        Intercom('trackEvent', 'signup-for-mission');
+        Intercom('trackEvent', 'signup-for-political-mission');
         accountData.mission_signup = "public_office";
     } else if (helpers.args(0) === "advocacy") {
+        Intercom('trackEvent', 'signup-for-mission');
+        Intercom('trackEvent', 'signup-for-advocacy-mission');
         accountData.mission_signup = "advocate";
     }
     requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})

@@ -22,7 +22,6 @@ urlpatterns = patterns(
         ProfileView.as_view(
             template_name='sb_friends_section/sb_friends.html'),
         name="friend_page"),
-
     url(r'^(?P<pleb_username>[A-Za-z0-9.@_%+-]{1,30})/$',
         ProfileView.as_view(), name="profile_page"),
     url(r'^', root_profile_page, name="root_profile_page"),

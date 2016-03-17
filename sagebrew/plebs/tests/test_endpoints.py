@@ -40,7 +40,12 @@ class MeEndpointTests(APITestCase):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        try:
+            self.pleb = Pleb.nodes.get(email='bounce@simulator.amazonses.com')
+            self.pleb.email = self.email
+            self.pleb.save()
+        except Pleb.DoesNotExist:
+            self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
 
@@ -273,6 +278,19 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(new_customer.email, data['email'])
         self.pleb.email = self.email
         self.pleb.save()
+
+    def test_update_email_uppercase(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-list')
+        data = {
+            "wallpaper_pic": "http://example.com/",
+            "profile_pic": "http://example.com/",
+            "email": "BOUNCE@SIMULATOR.AMAZONSES.COM"
+        }
+        res = self.client.patch(url, data)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['email'], data['email'].lower())
 
     def test_donations(self):
         quest = Quest(owner_username=str(uuid1())).save()

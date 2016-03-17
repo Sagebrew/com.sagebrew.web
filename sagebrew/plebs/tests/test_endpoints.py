@@ -289,6 +289,7 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(self.pleb.email, data['email'].lower())
         self.pleb.email = self.email
         self.pleb.save()
+        cache.clear()
 
     def test_donations(self):
         quest = Quest(owner_username=str(uuid1())).save()

@@ -274,6 +274,23 @@ class MeEndpointTests(APITestCase):
         self.pleb.email = self.email
         self.pleb.save()
 
+    def test_update_email_uppercase(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-list')
+        data = {
+            "wallpaper_pic": "http://example.com/",
+            "profile_pic": "http://example.com/",
+            "email": "BOUNCE@SIMULATOR.AMAZONSES.COM"
+        }
+        res = self.client.patch(url, data)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.pleb.refresh()
+        self.assertEqual(self.pleb.email, data['email'].lower())
+        self.pleb.email = self.email
+        self.pleb.save()
+        cache.clear()
+
     def test_donations(self):
         quest = Quest(owner_username=str(uuid1())).save()
         mission = Mission(owner_username=quest.owner_username).save()
@@ -975,6 +992,19 @@ class ProfileEndpointTests(APITestCase):
         self.assertEqual(Pleb.get(username="testuser_testuser2").username,
                          "testuser_testuser2")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_endorsements(self):
+        mission = Mission(owner_username=self.pleb.username).save()
+        quest = Quest(owner_username=self.pleb.username).save()
+        quest.missions.connect(mission)
+        mission.profile_endorsements.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-endorsed',
+                      kwargs={'username': self.pleb.username})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['count'], 1)
+        self.assertEqual(mission.object_uuid, res.data['results'][0]['id'])
 
 
 class ProfileContentMethodTests(APITestCase):

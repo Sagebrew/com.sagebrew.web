@@ -21,13 +21,13 @@
             </div>
         {% else %}
             {% if active == False %}
-                <h4 class="block-content block-holder-lg" style="margin-top:0;">{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} is still setting up this Mission, check back soon!</h4>
+                <h4 class="block-content block-holder-lg" style="margin-top:0;">{{ quest.title }}  is still setting up this Mission, check back soon!</h4>
             {% elif updates %}
                 <div id="js-update-wrapper">
                 </div>
             {% else %}
                 <div class="block block-holder-lg sb_markdown">
-                    <h4 class="block-content block-holder-lg" style="margin-top:0;">{% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %} doesn't have any updates for this mission yet.</h4>
+                    <h4 class="block-content block-holder-lg" style="margin-top:0;">{{ quest.title }}  doesn't have any updates for this mission yet.</h4>
                 </div>
             {% endif %}
         {% endif %}

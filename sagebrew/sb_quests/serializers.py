@@ -86,10 +86,11 @@ class QuestSerializer(SBSerializer):
                 detail={"detail": "You may only have one Quest!",
                         "developer_message": "",
                         "status_code": status.HTTP_400_BAD_REQUEST})
+        default_title = "%s %s" % (owner.first_name, owner.last_name)
         quest = Quest(first_name=owner.first_name, last_name=owner.last_name,
                       owner_username=owner.username, object_uuid=owner.username,
                       profile_pic=owner.profile_pic,
-                      account_type=account_type).save()
+                      account_type=account_type, title=default_title).save()
 
         owner.quest.connect(quest)
         quest.editors.connect(owner)

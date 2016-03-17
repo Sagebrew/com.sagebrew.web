@@ -181,7 +181,7 @@ class PlebSerializerNeo(SBSerializer):
         user = User.objects.create_user(
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
-            email=validated_data['email'],
+            email=validated_data['email'].lower(),
             password=validated_data['password'], username=username)
         user.save()
         pleb = Pleb(email=user.email,
@@ -226,7 +226,7 @@ class PlebSerializerNeo(SBSerializer):
         last_name = validated_data.get('last_name', instance.last_name)
         customer_token = validated_data.pop('customer_token',
                                             instance.customer_token)
-        email = validated_data.get('email', instance.email)
+        email = validated_data.get('email', instance.email).lower()
         user_obj = User.objects.get(username=instance.username)
         if first_name != instance.first_name:
             instance.first_name = first_name

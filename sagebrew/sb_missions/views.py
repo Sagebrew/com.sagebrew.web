@@ -55,21 +55,6 @@ def mission_redirect_page(request, object_uuid=None):
                     permanent=True)
 
 
-def mission(request, object_uuid, slug=None):
-    try:
-        mission_obj = Mission.get(object_uuid)
-    except (Mission.DoesNotExist, DoesNotExist):
-        return redirect("404_Error")
-    except (CypherException, ClientError, IOError):
-        return redirect("500_Error")
-    mission_dict = MissionSerializer(mission_obj).data
-    mission_dict['slug'] = slugify(mission_obj.get_mission_title())
-    return render(request, 'mission.html', {
-        "mission": mission_dict,
-        "quest": QuestSerializer(Quest.get(mission_obj.owner_username)).data
-    })
-
-
 def mission_edit_updates(request, object_uuid, slug=None, edit_id=None):
     query = 'MATCH (update:Update {object_uuid: "%s"})-[:ABOUT]->' \
             '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest)' \
@@ -118,6 +103,28 @@ def mission_updates(request, object_uuid, slug=None):
         "mission": MissionSerializer(mission_obj).data,
         "slug": slugify(mission_obj.get_mission_title()),
         "quest": QuestSerializer(quest).data
+    })
+
+
+def mission_endorsements(request, object_uuid, slug=None):
+    # Just check if there are any endorsements either from a Pleb or a Quest
+    query = 'MATCH (quest:Quest)-[:EMBARKS_ON]->' \
+            '(mission:Mission {object_uuid:"%s"}) ' \
+            'WITH quest, mission ' \
+            'OPTIONAL MATCH (mission)<-[:ENDORSES]-(endorsement) ' \
+            'RETURN endorsement, quest, mission' % object_uuid
+    res, _ = db.cypher_query(query)
+    # Instead of doing inflation and serialization of all the updates here
+    # without pagination lets just indicate if we have any or not and then
+    # hit the endpoint to gather the actual updates.
+    quest = Quest.inflate(res.one.quest)
+    mission_obj = Mission.inflate(res.one.mission)
+    return render(request, 'mission_endorsements.html', {
+        "quest": QuestSerializer(quest).data,
+        "mission": MissionSerializer(mission_obj).data,
+        "slug": slugify(mission_obj.get_mission_title()),
+        "endorsements":
+            True if res.one.endorsement else False
     })
 
 
@@ -171,4 +178,29 @@ class MissionSettingsView(LoginRequiredMixin):
                                          context={"request": request}).data,
             "quest": QuestSerializer(quest, context={"request": request}).data,
             "slug": slugify(mission_obj.get_mission_title())
+        })
+
+
+class MissionBaseView(LoginRequiredMixin):
+    template_name = 'mission.html'
+
+    @method_decorator(user_passes_test(
+        verify_completed_registration,
+        login_url='/registration/profile_information'))
+    def dispatch(self, *args, **kwargs):
+        return super(MissionBaseView, self).dispatch(*args, **kwargs)
+
+    def get(self, request, object_uuid=None, slug=None):
+        try:
+            mission_obj = Mission.get(object_uuid)
+        except (Mission.DoesNotExist, DoesNotExist):
+            return redirect("404_Error")
+        except (CypherException, ClientError, IOError):
+            return redirect("500_Error")
+        mission_dict = MissionSerializer(
+            mission_obj, context={'request': request}).data
+        mission_dict['slug'] = slugify(mission_obj.get_mission_title())
+        return render(request, self.template_name, {
+            "mission": mission_dict,
+            "quest": QuestSerializer(Quest.get(mission_obj.owner_username)).data
         })

@@ -1,6 +1,5 @@
 var request = require('api').request,
-    templates = require('template_build/templates'),
-    handlebarsHelpers = require('common/handlebars_helpers').installHandleBarsHelpers;
+    endorsementBtnTemplate = require('common/templates/endorsement_button.hbs');
 
 export const meta = {
     controller: "mission/mission-view/endorsements",
@@ -22,10 +21,10 @@ export function init() {
  * Load
  */
 export function load() {
+    require('common/handlebars_helpers');
     var missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         $endorsementWrapper = $("#js-endorsement-wrapper");
     if ($endorsementWrapper !== undefined && $endorsementWrapper !== null){
-        handlebarsHelpers();
         $endorsementWrapper.sb_contentLoader({
             emptyDataMessage: '',
             url: '/v1/missions/' + missionId + '/endorsements/',
@@ -43,7 +42,7 @@ export function load() {
             },
             renderCallback: function($container, data) {
                 for (var i = 0; i < data.count; i++) {
-                    $container.append(templates.endorsement_button(data.results[i]));
+                    $container.append(endorsementBtnTemplate(data.results[i]));
                 }
             }
         });

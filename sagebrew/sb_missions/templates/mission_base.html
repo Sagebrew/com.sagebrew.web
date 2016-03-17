@@ -23,18 +23,6 @@
     </div>
     <div class="block">
         <div class="block-content ">
-            <a href="{% if mission.active == False%}#{% else %}{% url 'mission_donation_amount' mission.id mission.slug %}{% endif %}"
-               class="hidden-sm hidden-md hidden-lg btn btn-primary btn-lg sb_btn sb_btn_fill" {% if mission.active == False%}disabled{% endif %}
-               {% if mission.active == False%}data-toggle="tooltip"
-               data-original-title="Mission must be active to donate."{% endif %}>Donate</a>
-            <a href="{% if mission.active == False%}#{% else %}{% url 'mission_volunteer_option' mission.id mission.slug %}{% endif %}"
-               class="hidden-sm hidden-md hidden-lg btn btn-primary btn-lg sb_btn sb_btn_fill" {% if mission.active == False%}disabled{% endif %}
-               {% if mission.active == False%}data-toggle="tooltip"
-               data-original-title="Mission must be active to volunteer."{% endif %}>Volunteer</a>
-
-            {% if quest.is_moderator or quest.is_editor or request.user.username == quest.owner_username %}
-                <a class="hidden-sm hidden-md hidden-lg btn btn-primary btn-lg sb_btn sb_btn_fill" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
-            {% endif %}
             <ul class="nav">
                 {% comment %}
                     For some reason if I remove this ul all the background color goes away
@@ -45,31 +33,33 @@
     </div>
 {% endblock %}
 {% block tertiary_nav %}
-    <div class="radio-button-selector-nav">
-        <ul class="block-content block-container-radio-nav block-float-background ">
-            <li class="radio-li-nav-selector">
-                <a href="{% if mission.active == False%}#{% else %}{% url 'mission_donation_amount' mission.id mission.slug %}{% endif %}">
-                    <div class="radio-image-selector-white-nav js-contribution">
-                        <h4 class="sb-profile-not-friend-header"><i class="fa fa-money"></i> Donate</h4>
-                    </div>
-                </a>
-            </li>
-            <li class="radio-li-nav-selector">
-                <a href="{% if mission.active == False%}#{% else %}{% url 'mission_volunteer_option' mission.id mission.slug %}{% endif %}">
-                    <div class="radio-image-selector-white-nav js-contribution">
-                        <h4 class="sb-profile-not-friend-header"><i class="fa fa-calendar"></i> Volunteer</h4>
-                    </div>
-                </a>
-            </li>
-            <li class="radio-li-nav-selector">
-                <a href="{% if mission.active == False%}#{% else %}{% url 'mission_endorse' mission.id mission.slug %}{% endif %}">
-                    <div class="radio-image-selector-white-nav js-contribution">
-                        <h4 class="sb-profile-not-friend-header"><i class="fa fa-check-circle-o"></i> Endorse</h4>
-                    </div>
-                </a>
-            </li>
-        </ul>
-    </div>
+    {% if mission.active != False or request.user.username == mission.owner_username %}
+        <div class="radio-button-selector-nav">
+            <ul class="block-content block-container-radio-nav block-float-background ">
+                <li class="radio-li-nav-selector">
+                    <a href="{% url 'mission_donation_amount' mission.id mission.slug %}">
+                        <div class="radio-image-selector-white-nav js-contribution">
+                            <h4 class="sb-profile-not-friend-header"><i class="fa fa-money"></i> Donate</h4>
+                        </div>
+                    </a>
+                </li>
+                <li class="radio-li-nav-selector">
+                    <a href="{% url 'mission_volunteer_option' mission.id mission.slug %}">
+                        <div class="radio-image-selector-white-nav js-contribution">
+                            <h4 class="sb-profile-not-friend-header"><i class="fa fa-calendar"></i> Volunteer</h4>
+                        </div>
+                    </a>
+                </li>
+                <li class="radio-li-nav-selector">
+                    <a href="{% url 'mission_endorse' mission.id mission.slug %}">
+                        <div class="radio-image-selector-white-nav js-contribution">
+                            <h4 class="sb-profile-not-friend-header"><i class="fa fa-check-circle-o"></i> Endorse</h4>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
 {% endblock %}
 {% block secondary_nav %}
     <div class="block block-type-title">

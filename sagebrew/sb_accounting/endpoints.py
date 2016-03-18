@@ -126,4 +126,26 @@ class AccountingViewSet(viewsets.ViewSet):
                              datetime.now(pytz.utc).utctimetuple())
             )
             return Response({"detail": "Transfer Failed"}, status.HTTP_200_OK)
+        if event['type'] == 'customer.subscription.trial_will_end':
+            try:
+                customer = stripe.Customer.retrieve(
+                    event['data']['object']['customer']
+                )
+            except stripe.InvalidRequestError:
+                return Response(status=status.HTTP_200_OK)
+            pleb = Pleb.nodes.get(email=customer['email'])
+            spawn_task(
+                task_func=spawn_system_notification,
+                task_param={
+                    "to_plebs": [pleb.username],
+                    "notification_id": str(uuid1()),
+                    "url": reverse('quest_manage_billing',
+                                   kwargs={"username": pleb.username}),
+                    "action_name": "Your Sagebrew Pro Subscription Trial will "
+                                   "be ending soon, add a payment method to "
+                                   "extend your Subscription"
+                }
+            )
+            return Response({"detail": "Trail Will End"},
+                            status=status.HTTP_200_OK)
         return Response(status=status.HTTP_200_OK)

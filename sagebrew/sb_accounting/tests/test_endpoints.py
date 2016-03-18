@@ -218,3 +218,33 @@ class AccountingHooksTests(APITestCase):
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], "Transfer Failed")
+
+    @requests_mock.mock()
+    def test_valid_event_request_trial_will_end(self, m):
+        self.quest.account_verified = "unverified"
+        self.quest.save()
+        cache.clear()
+        event_mock_data = {
+            "id": "evt_00000000000000",
+            "type": "customer.subscription.trial_will_end",
+            "data": {
+                "object": {
+                    "customer": "cus_00000000000000"
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/events/evt_00000000000000",
+              json=event_mock_data, status_code=status.HTTP_200_OK)
+        customer_mock_data = {
+            "email": "success@simulator.amazonses.com"
+        }
+        m.get("https://api.stripe.com/v1/customers/cus_00000000000000",
+              json=customer_mock_data, status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000"
+        }
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], "Trail Will End")

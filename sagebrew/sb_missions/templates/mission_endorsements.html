@@ -1,0 +1,42 @@
+{% extends "mission_base.html" %}
+{% load staticfiles %}
+{% block title %}{% if title %} {{ title }} {% else %} {{ focus_name_formatted }} {% endif %} Updates{% endblock %}
+
+{% block live %}
+    <div class="block">
+        {% if is_editor or is_moderator or request.user.username == quest.owner_username and not endorsements %}
+            <div class="block block-holder-lg sb_markdown" id="epic-parent">
+                <div class="block-content">
+                    <p>Endorsements are shown to anyone who visits this
+                        Mission's page. Having endorsements from users with large
+                        amounts of reputation or who are largely trusted by
+                        the community may have the following benefits to your Mission: </p>
+                    <ul>
+                        <li>Increased Contributions</li>
+                        <li>Increased Publicity</li>
+                        <li>Increased Number of Volunteers</li>
+                        <li>Mission Success</li>
+                    </ul>
+                </div>
+            </div>
+        {% else %}
+            {% if active == False %}
+                <h4 class="block-content block-holder-lg" style="margin-top:0;">{{ quest.title }}  is still setting up this Mission, check back soon!</h4>
+            {% elif endorsements %}
+                <div class="block-content block-holder-lg">
+                    <div id="js-endorsement-wrapper">
+                    </div>
+                </div>
+
+            {% else %}
+                <div class="block-holder-lg sb_markdown">
+                    <h4 class="block-content block-holder-lg" style="margin-top:0;">{{ quest.title }}  doesn't have any endorsements for this Mission yet.</h4>
+                </div>
+            {% endif %}
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block intercom %}
+   Intercom('trackEvent', 'mission-update-page');
+{% endblock %}

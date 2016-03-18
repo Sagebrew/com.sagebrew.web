@@ -1,7 +1,4 @@
-var request = require('api').request,
-    helpers = require('common/helpers'),
-    settings = require('settings').settings,
-    validators = require('common/validators');
+var request = require('api').request;
 
 export const meta = {
     controller: "user-settings/donations",

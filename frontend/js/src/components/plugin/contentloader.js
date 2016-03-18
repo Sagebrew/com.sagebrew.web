@@ -72,7 +72,7 @@
                 // Insert List Container. I'm not sure if we should do this.
                 $listContainer = $('<div class="list-container"></div>');
                 base.$el.append($listContainer);
-                $listContainer.append($('<h3 class="list-empty">'+base.options.emptyDataMessage+'</h3>'));
+                $listContainer.append($('<h3 class="list-empty">' + base.options.emptyDataMessage + '</h3>'));
             }
             isInited = true;
         };

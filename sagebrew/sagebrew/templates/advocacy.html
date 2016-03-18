@@ -13,7 +13,7 @@
 {% endblock keywords %}
 {% block hero %}
     <div class="block-image-text-overlay">
-        <img src="{% static "images/jefferson_memorial.jpg" %}">
+        <img alt="Advocacy Backdrop: Jefferson Memorial" src="{% static "images/jefferson_memorial.jpg" %}">
         <div>
             <h1>Free Crowdfunding and Advocacy Tools
                 That Let You Focus On Your Mission</h1>
@@ -28,7 +28,7 @@
     <div class="block">
         <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
-                <img src="{% static "images/icons/money.svg" %}">
+                <img alt="Fundraising" src="{% static "images/icons/money.svg" %}">
             </div>
         </div>
         <div class="col-xs-8 col-xs-offset-1">
@@ -46,7 +46,7 @@
     <div class="block">
         <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
-                <img src="{% static "images/icons/clipboard.svg" %}">
+                <img alt="Find Volunteers" src="{% static "images/icons/clipboard.svg" %}">
             </div>
         </div>
         <div class="col-xs-8 col-xs-offset-1">
@@ -63,7 +63,7 @@
     <div class="block">
         <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
-                <img src="{% static "images/conversation_cloud_white-01.png" %}"
+                <img alt="Promote" src="{% static "images/conversation_cloud_white-01.png" %}"
                      style="width: 102px; height: 105px; margin-top: 14px;">
             </div>
         </div>
@@ -83,7 +83,7 @@
     <div class="block">
         <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
-                <img src="{% static "images/icons/goal.svg" %}">
+                <img alt="Connect with Constituents" src="{% static "images/icons/goal.svg" %}">
             </div>
         </div>
         <div class="col-xs-8 col-xs-offset-1">
@@ -102,7 +102,7 @@
     <div class="block">
         <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
-                <img src="{% static "images/icons/responsive.svg" %}">
+                <img alt="Increase Online Presence" src="{% static "images/icons/responsive.svg" %}">
             </div>
         </div>
         <div class="col-xs-8 col-xs-offset-1">
@@ -121,7 +121,7 @@
     <div class="block">
         <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
-                <img src="{% static "images/icons/lock.svg" %}">
+                <img alt="Security" src="{% static "images/icons/lock.svg" %}">
             </div>
         </div>
         <div class="col-xs-8 col-xs-offset-1">
@@ -138,7 +138,7 @@
     <div class="block">
         <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
-                <img src="{% static "images/icons/mountain.svg" %}">
+                <img alt="Scaling System" src="{% static "images/icons/mountain.svg" %}">
             </div>
         </div>
         <div class="col-xs-8 col-xs-offset-1">
@@ -156,7 +156,7 @@
     <div class="block">
         <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
-                <img src="{% static "images/icons/safe.svg" %}">
+                <img alt="Customer Support" src="{% static "images/icons/safe.svg" %}">
             </div>
         </div>
         <div class="col-xs-8 col-xs-offset-1">
@@ -174,7 +174,7 @@
     <div class="block">
         <div class="col-xs-3 feature-block">
             <div class="icon-block-img-wrapper" >
-                <img src="{% static "images/icons/rocket.svg" %}">
+                <img alt="No Contract" src="{% static "images/icons/rocket.svg" %}">
             </div>
         </div>
         <div class="col-xs-8 col-xs-offset-1">
@@ -198,7 +198,7 @@
         </div>
     </div>
     <div class="block" style="text-align: center">
-        <h1 class="header-lg-only">Who Can Join?</h1>
+        <h2 class="header-lg-only">Who Can Join?</h2>
         <p>Anyone can join! We focus on the tools you need and leave
         the agenda to you.</p>
     </div>
@@ -275,3 +275,27 @@
         </div>
     </div>
 {% endblock footer %}
+
+{% block analytics %}
+    {{ block.super }}
+    <script type="text/javascript">
+        var google_tag_params = {
+        dynx_itemid: 'AMS',
+        dynx_pagetype: 'offerdetail'
+        };
+        </script>
+        <script type="text/javascript">
+        /* <![CDATA[ */
+        var google_conversion_id = 945478598;
+        var google_custom_params = window.google_tag_params;
+        var google_remarketing_only = true;
+        /* ]]> */
+        </script>
+        <script type="text/javascript" src="//www.googleadservices.com/pagead/conversion.js">
+        </script>
+        <noscript>
+        <div style="display:inline;">
+        <img height="1" width="1" style="border-style:none;" alt="" src="//googleads.g.doubleclick.net/pagead/viewthroughconversion/945478598/?value=0&amp;guid=ON&amp;script=0"/>
+        </div>
+    </noscript>
+{% endblock %}

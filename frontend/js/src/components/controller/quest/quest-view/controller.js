@@ -2,7 +2,8 @@
  * @file
  */
 var quest = require('./partials/quest'),
-    follow = require('./partials/follow');
+    follow = require('./partials/follow'),
+    endorsed = require('./partials/endorsed_missions');
 
 
 /**
@@ -25,4 +26,5 @@ export const meta = {
 export function load() {
     quest.load();
     follow.load();
+    endorsed.load();
 }

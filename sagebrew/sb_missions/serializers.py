@@ -48,6 +48,8 @@ class MissionSerializer(SBSerializer):
     rendered_epic = serializers.SerializerMethodField()
     is_editor = serializers.SerializerMethodField()
     is_moderator = serializers.SerializerMethodField()
+    has_endorsed_quest = serializers.SerializerMethodField()
+    has_endorsed_profile = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
     focus_name_formatted = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
@@ -328,6 +330,18 @@ class MissionSerializer(SBSerializer):
 
     def get_total_donation_amount(self, obj):
         return obj.get_total_donation_amount()
+
+    def get_has_endorsed_profile(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return obj.get_has_endorsed_profile(request.user.username)
+
+    def get_has_endorsed_quest(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return obj.get_has_endorsed_quest(request.user.username)
 
     def get_title_summary(self, obj):
         if obj.title is not None:

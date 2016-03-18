@@ -7,7 +7,7 @@
     <div class="block" style="margin-top: -20px !important;">
         <div class="col-xs-12 text-center">
             <h1>{% if mission.focus_on_type == "position" %}{% if mission.focused_on.full_name %}{{ mission.focused_on.full_name|title }}{% else %}{{ mission.focus_name_formatted }}{% endif %}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}</h1>
-            <a href="{% url "quest" quest.owner_username %}">By: {% if quest.title %}{{ quest.title }} {% else %} {{ quest.first_name }} {{ quest.last_name }} {% endif %}</a>
+            <a href="{% url "quest" quest.owner_username %}">By: {{ quest.title }} </a>
             {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
             {%  if request.user.username == quest.owner_username %}
                 <div class="wallpaper mission-wallpaper" id="js-croppic-wrapper-div-id">
@@ -23,21 +23,6 @@
     </div>
     <div class="block">
         <div class="block-content ">
-            <a href="{% if mission.active == False%}#{% else %}{% url 'mission_donation_amount' mission.id mission.slug %}{% endif %}"
-               class="hidden-sm hidden-md hidden-lg btn btn-primary btn-lg sb_btn sb_btn_fill" {% if mission.active == False%}disabled{% endif %}
-               {% if mission.active == False%}data-toggle="tooltip"
-               data-original-title="Mission must be active to donate."{% endif %}>Donate</a>
-            <a href="{% if mission.active == False%}#{% else %}{% url 'mission_volunteer_option' mission.id mission.slug %}{% endif %}"
-               class="hidden-sm hidden-md hidden-lg btn btn-primary btn-lg sb_btn sb_btn_fill" {% if mission.active == False%}disabled{% endif %}
-               {% if mission.active == False%}data-toggle="tooltip"
-               data-original-title="Mission must be active to volunteer."{% endif %}>Volunteer</a>
-            <a href="{% if mission.active == False%}#{% else %}{% url 'mission_volunteer_option' mission.id mission.slug %}{% endif %}"
-               class="hidden-sm hidden-md hidden-lg btn btn-primary btn-lg sb_btn sb_btn_fill" {% if mission.active == False%}disabled{% endif %}
-               {% if mission.active == False%}data-toggle="tooltip"
-               data-original-title="Mission must be active to volunteer."{% endif %}>Endorse</a>
-            {% if quest.is_moderator or quest.is_editor or request.user.username == quest.owner_username %}
-                <a class="hidden-sm hidden-md hidden-lg btn btn-primary btn-lg sb_btn sb_btn_fill" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
-            {% endif %}
             <ul class="nav">
                 {% comment %}
                     For some reason if I remove this ul all the background color goes away
@@ -47,26 +32,50 @@
         </div>
     </div>
 {% endblock %}
+{% block tertiary_nav %}
+    {% if mission.active != False or request.user.username == mission.owner_username %}
+        <div class="radio-button-selector-nav">
+            <ul class="block-content block-container-radio-nav block-float-background ">
+                <li class="radio-li-nav-selector">
+                    <a href="{% url 'mission_donation_amount' mission.id mission.slug %}">
+                        <div class="radio-image-selector-white-nav js-contribution">
+                            <h4 class="sb-profile-not-friend-header"><i class="fa fa-money"></i> Donate</h4>
+                        </div>
+                    </a>
+                </li>
+                <li class="radio-li-nav-selector">
+                    <a href="{% url 'mission_volunteer_option' mission.id mission.slug %}">
+                        <div class="radio-image-selector-white-nav js-contribution">
+                            <h4 class="sb-profile-not-friend-header"><i class="fa fa-calendar"></i> Volunteer</h4>
+                        </div>
+                    </a>
+                </li>
+                <li class="radio-li-nav-selector">
+                    <a href="{% url 'mission_endorse' mission.id mission.slug %}">
+                        <div class="radio-image-selector-white-nav js-contribution">
+                            <h4 class="sb-profile-not-friend-header"><i class="fa fa-check-circle-o"></i> Endorse</h4>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}
 {% block secondary_nav %}
     <div class="block block-type-title">
         <div class="block-content ">
             <ul class="nav nav-pills">
-                <li {% if "updates" not in request.path %} class="active" {% endif %}><a href="{% url 'mission' mission.id mission.slug %}">Epic <span class="sr-only">(current)</span></a></li>
+                <li {% if "updates" not in request.path and "endorsements" not in request.path %} class="active" {% endif %}><a href="{% url 'mission' mission.id mission.slug %}">Epic <span class="sr-only">(current)</span></a></li>
                 <li {% if "updates" in request.path %} class="active" {% endif %}><a href="{% url "mission_updates" mission.id mission.slug %}">Updates</a></li>
+                <li {% if "endorsements" in request.path %} class="active" {% endif %}><a href="{% url "mission_endorsements" mission.id mission.slug %}">Endorsements</a></li>
             </ul>
-            <div class="title-important-actions tight">
+            <div class="title-important-actions">
                 {% if quest.is_moderator or quest.is_editor or request.user.username == quest.owner_username %}
                     <a class="hidden-xs btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
                 {% endif %}
-                <a href="{% if mission.active == False%}#{% else %}{% url 'mission_donation_amount' mission.id mission.slug %}{% endif %}"
-                   class="hidden-xs btn btn-primary btn-lg sb_btn" {% if mission.active == False%}disabled{% endif %}
-                   {% if mission.active == False%}data-toggle="tooltip"
-                   data-original-title="Mission must be active to donate."{% endif %}>Donate</a>
-                <a href="{% if mission.active == False%}#{% else %}{% url 'mission_volunteer_option' mission.id mission.slug %}{% endif %}"
-                   class="hidden-xs btn btn-primary btn-lg sb_btn" {% if mission.active == False%}disabled{% endif %}
-                   {% if mission.active == False%}data-toggle="tooltip"
-                   data-original-title="Mission must be active to volunteer."{% endif %}>Volunteer</a>
-                <share-button></share-button>
+                <div class="btn-group" role="group">
+                </div>
+
             </div>
         </div>
     </div>

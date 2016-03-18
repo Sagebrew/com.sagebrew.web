@@ -53,3 +53,44 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
 
     except (CypherException, IOError) as e:
         return e
+
+
+@apply_defense
+def create_system_notification(to_plebs, notification_id, url, action_name):
+    """
+    This will create a notification directly from Sagebrew. It is the same as
+    other notifications except it does not require a from_pleb and will only
+    display the default sagebrew notification icon.
+
+    :param to_plebs:
+    :param notification_id:
+    :param url:
+    :param action_name:
+    :return:
+    """
+    try:
+        try:
+            notification = Notification.nodes.get(
+                object_uuid=notification_id)
+            if notification.sent is True:
+                return True
+        except (Notification.DoesNotExist, DoesNotExist):
+            notification = Notification(
+                object_uuid=notification_id,
+                url=url, public_notification=True,
+                action_name=action_name).save()
+        for pleb in to_plebs:
+            notification.notification_to.connect(pleb)
+            # Set notifications to none here so that the next time the user
+            # queries their page it refreshes. If we set this to the
+            # notification list there is a chance for a race condition and the
+            # user does not see all of their notifications.
+            pleb.notifications.connect(notification)
+            cache.delete("%s_notifications" % pleb.username)
+        notification.sent = True
+        notification.save()
+
+        return True
+
+    except (CypherException, IOError) as e:
+        return e

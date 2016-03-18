@@ -97,3 +97,41 @@ class AccountingHooksTests(APITestCase):
         }
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @requests_mock.mock()
+    def test_valid_event_request_account_updated(self, m):
+        self.quest.account_verified = "unverified"
+        self.quest.save()
+        cache.clear()
+        event_mock_data = {
+            "id": "evt_00000000000000",
+            "type": "account.updated",
+            "data": {
+                "object": {
+                    "id": "acct_00000000000000"
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/events/evt_00000000000000",
+              json=event_mock_data, status_code=status.HTTP_200_OK)
+        account_mock_data = {
+            "email": "success@simulator.amazonses.com",
+            "verification": {
+                "fields_needed": []
+            },
+            "legal_entity": {
+                "verification": {
+                    "status": "verified",
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/accounts/acct_00000000000000",
+              json=account_mock_data, status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000"
+        }
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], "Account Updated")

@@ -276,6 +276,9 @@ ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 # Used for JS
 ADDRESS_AUTH_ID = environ.get("ADDRESS_AUTH_ID", '')
+# Intercom
+INTERCOM_API_KEY = environ.get("INTERCOM_API_KEY", '')
+INTERCOM_APP_ID = environ.get("INTERCOM_APP_ID", '')
 LONG_TERM_STATIC_DOMAIN = "https://d2m0mj9tyf6rjw.cloudfront.net"
 WEBHOSE_KEY = environ.get("WEBHOSE_KEY", '')
 WEBHOSE_FREE = True

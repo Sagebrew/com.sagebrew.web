@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
 from api.serializers import SBSerializer
 from plebs.serializers import PlebSerializerNeo
@@ -36,5 +36,7 @@ class NotificationSerializer(SBSerializer):
         query = 'MATCH (a:Notification {object_uuid: "%s"})-' \
                 '[:NOTIFICATION_FROM]->(b:Pleb) RETURN b' % obj.object_uuid
         res, col = db.cypher_query(query)
-
-        return PlebSerializerNeo(Pleb.inflate(res[0][0])).data
+        try:
+            return PlebSerializerNeo(Pleb.inflate(res[0][0])).data
+        except IndexError:
+            return {}

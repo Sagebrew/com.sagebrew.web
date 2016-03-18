@@ -3,7 +3,7 @@ from celery import shared_task
 from neomodel.exception import CypherException, DoesNotExist
 
 from plebs.neo_models import Pleb
-from .utils import create_notification_util
+from .utils import create_notification_util, create_system_notification
 
 
 @shared_task()
@@ -44,3 +44,22 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, notification_id, url,
         raise spawn_notifications.retry(exc=response, countdown=3,
                                         max_retries=100)
     return response
+
+
+@shared_task()
+def create_system_notification(to_plebs, notification_id, url, action_name):
+    plebeians = []
+    for plebeian in to_plebs:
+        try:
+            to_pleb = Pleb.get(username=plebeian)
+            plebeians.append(to_pleb)
+        except(CypherException, Pleb.DoesNotExist, DoesNotExist, IOError) as e:
+            raise spawn_notifications.retry(
+                exc=e, countdown=3, max_retries=100)
+
+    res = create_system_notification(plebeians, notification_id, url,
+                                     action_name)
+    if isinstance(res, Exception) is True:
+        create_system_notification.retry(exc=res, countdown=3, max_retries=100)
+
+    return res

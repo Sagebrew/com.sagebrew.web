@@ -1,8 +1,9 @@
 import pytz
 import stripe
+import calendar
 from uuid import uuid1
 from datetime import datetime
-from intercom import Intercom
+from intercom import Intercom, Event
 
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -95,4 +96,34 @@ class AccountingViewSet(viewsets.ViewSet):
             quest.save()
             return Response({"detail": "Account Updated"},
                             status=status.HTTP_200_OK)
+        if event['type'] == "transfer.failed":
+            try:
+                transfer = stripe.Transfer.retrieve(
+                    event['data']['object']['id']
+                )
+                if transfer['type'] == 'stripe_account':
+                    account = stripe.Account.retrieve(
+                        transfer['destination']
+                    )
+            except stripe.InvalidRequestError:
+                return Response(status=status.HTTP_200_OK)
+            pleb = Pleb.nodes.get(email=account['email'])
+            spawn_task(
+                task_func=spawn_system_notification,
+                task_param={
+                    "to_plebs": [pleb.username],
+                    "notification_id": str(uuid1()),
+                    "url": reverse('quest_manage_banking',
+                                   kwargs={"username": pleb.username}),
+                    "action_name": "A transfer to your bank account has "
+                                   "failed! Please review that your "
+                                   "Quest Banking information is correct."
+                }
+            )
+            Event.create(event_name="stripe-transfer-failed",
+                         user_id=pleb.username,
+                         created=calendar.timegm(
+                             datetime.now(pytz.utc).utctimetuple())
+            )
+            return Response({"detail": "Transfer Failed"}, status.HTTP_200_OK)
         return Response(status=status.HTTP_200_OK)

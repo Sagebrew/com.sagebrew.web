@@ -47,7 +47,7 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, notification_id, url,
 
 
 @shared_task()
-def create_system_notification(to_plebs, notification_id, url, action_name):
+def spawn_system_notification(to_plebs, notification_id, url, action_name):
     plebeians = []
     for plebeian in to_plebs:
         try:

@@ -7,7 +7,7 @@ from rest_framework.reverse import reverse
 
 from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
                       FloatProperty, DoesNotExist, RelationshipFrom,
-                      DateTimeProperty)
+                      DateTimeProperty, ArrayProperty)
 
 from sb_search.neo_models import Searchable, SBObject
 
@@ -48,10 +48,11 @@ class Quest(Searchable):
     account_verified = StringProperty(default="unverified")
     # fields_needed contains a string which states what is needed for an
     # account to get verified
-    account_verification_fields_needed = StringProperty(default="")
+    account_verification_fields_needed = ArrayProperty()
     # Last time the account was updated, we can check this and the
     # verification status to determine if we need to open an intercom
     # conversation with a user.
+    account_verification_details = StringProperty()
     account_first_updated = DateTimeProperty(default=None)
     account_verified_date = DateTimeProperty()
 

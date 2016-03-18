@@ -3,7 +3,6 @@ import stripe
 from uuid import uuid1
 from datetime import datetime
 from intercom import Intercom
-from intercom import Message
 
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -17,7 +16,7 @@ from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from plebs.tasks import send_email_task
 from sb_quests.neo_models import Quest
-from sb_notifications.tasks import create_system_notification
+from sb_notifications.tasks import spawn_system_notification
 
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
@@ -71,13 +70,13 @@ class AccountingViewSet(viewsets.ViewSet):
             quest = Quest.get(pleb.username)
             if account['verification']['fields_needed']:
                 quest.account_verification_fields_needed = \
-                    ','.join(account['verification']['fields_needed'])
+                    account['verification']['fields_needed']
 
             if quest.account_verified != "verified" \
                     and account['legal_entity']['verification']['status'] \
-                            == "verified":
+                    == "verified":
                 spawn_task(
-                    task_func=create_system_notification,
+                    task_func=spawn_system_notification,
                     task_param={
                         "to_plebs": [pleb.username],
                         "notification_id": str(uuid1()),
@@ -88,6 +87,8 @@ class AccountingViewSet(viewsets.ViewSet):
                 )
             quest.account_verified = \
                 account['legal_entity']['verification']['status']
+            quest.account_verification_details = \
+                str(account['legal_entity']['verification']['details'])
             if quest.account_first_updated is None \
                     and quest.account_verified != "verified":
                 quest.account_first_updated = datetime.now(pytz.utc)

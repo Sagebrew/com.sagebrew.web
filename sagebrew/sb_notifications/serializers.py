@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from neomodel import db, DoesNotExist
+from neomodel import db
 
 from api.serializers import SBSerializer
 from plebs.serializers import PlebSerializerNeo

@@ -5,7 +5,7 @@ from django.template import RequestContext
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import viewsets
-from rest_framework.decorators import detail_route, list_route
+from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -13,7 +13,6 @@ from neomodel import db
 
 from api.utils import spawn_task
 from sb_base.utils import get_ordering, get_tagged_as
-from sb_stats.tasks import update_view_count_task
 from sb_search.tasks import update_search_object
 
 from .serializers import QuestionSerializerNeo, solution_count

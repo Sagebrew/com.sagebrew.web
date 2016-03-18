@@ -52,7 +52,7 @@ class Quest(Searchable):
     # Last time the account was updated, we can check this and the
     # verification status to determine if we need to open an intercom
     # conversation with a user.
-    account_first_updated = DateTimeProperty()
+    account_first_updated = DateTimeProperty(default=None)
     account_verified_date = DateTimeProperty()
 
     # Valid options are:

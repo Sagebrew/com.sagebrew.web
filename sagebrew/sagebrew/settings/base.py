@@ -329,6 +329,10 @@ if not DEBUG:
             'task': 'sb_quests.tasks.find_quest_news',
             'schedule': crontab(minute=0, hour=3),
             'args': ()
+        },
+        'check-unverified-quests': {
+            'task': 'sb_accounting.tasks.check_unverified_quest',
+            'schedule': crontab(minute=0, hour=0)
         }
     }
 

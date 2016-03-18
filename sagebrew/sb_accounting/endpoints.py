@@ -88,25 +88,9 @@ class AccountingViewSet(viewsets.ViewSet):
                 )
             quest.account_verified = \
                 account['legal_entity']['verification']['status']
-            if not quest.account_first_updated \
+            if quest.account_first_updated is None \
                     and quest.account_verified != "verified":
                 quest.account_first_updated = datetime.now(pytz.utc)
-            elif quest.account_first_updated:
-                if (datetime.now(pytz.utc) -
-                        quest.account_first_updated).days >= 3:
-                    message_data = {
-                        'message_type': 'inapp',
-                        'body': "Har har har! Mine is an evil laugh!",
-                        'template': "plain",
-                        'from': {
-                            'type': "admin",
-                            'id': "394051"
-                        },
-                        'to': {
-                            'type': "user",
-                            'id': "536e564f316c83104c000020"
-                        }
-                    }
             quest.save()
             return Response({"detail": "Account Updated"},
                             status=status.HTTP_200_OK)

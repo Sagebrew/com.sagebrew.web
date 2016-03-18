@@ -306,3 +306,15 @@ class UserNotificationRetrieveTest(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['notification_from']['id'],
                          self.pleb.username)
+
+    def test_get_system_notification(self):
+        self.client.force_authenticate(user=self.user)
+        notification = Notification(
+            action_name="This is it! a notification").save()
+        notification.notification_to.connect(self.pleb)
+        self.pleb.notifications.connect(notification)
+        url = reverse('notification-detail',
+                      kwargs={'object_uuid': notification.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['notification_from']['id'],
+                         self.pleb.username)

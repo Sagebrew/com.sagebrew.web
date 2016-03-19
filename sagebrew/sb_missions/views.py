@@ -18,28 +18,28 @@ from sb_quests.serializers import QuestSerializer
 
 def mission_list(request):
     serializer_data = []
-    return render(request, 'mission_list.html', serializer_data)
+    return render(request, 'mission/list.html', serializer_data)
 
 
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def select_mission(request):
-    return render(request, 'mission_selector.html')
+    return render(request, 'mission/selector.html')
 
 
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def public_office_mission(request):
-    return render(request, 'public_office_mission.html')
+    return render(request, 'mission/public_office.html')
 
 
 @login_required()
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def advocate_mission(request):
-    return render(request, 'advocate_mission.html')
+    return render(request, 'mission/advocate.html')
 
 
 def mission_redirect_page(request, object_uuid=None):
@@ -98,7 +98,7 @@ def mission_updates(request, object_uuid, slug=None):
     # hit the endpoint to gather the actual updates.
     quest = Quest.inflate(res.one.quest)
     mission_obj = Mission.inflate(res.one.mission)
-    return render(request, 'mission_updates.html', {
+    return render(request, 'mission/updates.html', {
         "updates": res.one.update,
         "mission": MissionSerializer(mission_obj).data,
         "slug": slugify(mission_obj.get_mission_title()),
@@ -119,7 +119,7 @@ def mission_endorsements(request, object_uuid, slug=None):
     # hit the endpoint to gather the actual updates.
     quest = Quest.inflate(res.one.quest)
     mission_obj = Mission.inflate(res.one.mission)
-    return render(request, 'mission_endorsements.html', {
+    return render(request, 'mission/endorsements.html', {
         "quest": QuestSerializer(quest).data,
         "mission": MissionSerializer(mission_obj).data,
         "slug": slugify(mission_obj.get_mission_title()),
@@ -182,7 +182,7 @@ class MissionSettingsView(LoginRequiredMixin):
 
 
 class MissionBaseView(LoginRequiredMixin):
-    template_name = 'mission.html'
+    template_name = 'mission/mission.html'
 
     @method_decorator(user_passes_test(
         verify_completed_registration,

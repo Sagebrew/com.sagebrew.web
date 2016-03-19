@@ -19,6 +19,8 @@ export function init() {
  * Load
  */
 export function load() {
+    require('common/handlebars_helpers');
+    require('plugin/contentloader');
     searchFunc.submitSearch();
     searchFunc.switchSearchFilter();
 }

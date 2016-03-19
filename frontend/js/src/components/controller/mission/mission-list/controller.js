@@ -52,6 +52,7 @@ export function postload() {
 }
 
 function loadMissions(affectsFilter) {
+    require('plugin/contentloader');
     var $missionList = $('#js-mission-list'),
         $missionContainer = $('#js-mission-container');
     $missionList.sb_contentLoader({

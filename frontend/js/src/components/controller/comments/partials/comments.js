@@ -9,6 +9,7 @@ var request = require('api').request,
 
 
 export function load () {
+    require('plugin/contentloader');
     var $app = $(".app-sb"),
         newsfeed = helpers.args(1),
         commentsRenderTemplate;

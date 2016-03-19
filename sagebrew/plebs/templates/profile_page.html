@@ -56,14 +56,17 @@
     </div>
 {% endblock sidebar_left %}
 {% block sidebar_right %}
+    <div class="block">
+        <h6 class="block-title no-underline center-title">Network</h6>
+    </div>
     {% if not is_owner %}
         <div class="block">
             <h6 class="block-title no-underline center-title" style="padding-bottom: 0;">Add to Network</h6>
             <div class="block-content" style="padding-top: 0;">
                 <small>Stay Updated On Public Contributions and Posts</small>
             </div>
-            <div class="block-content">
-                {% if page_user.is_following %}
+            <div class="block-content" style="padding-top: 0;">
+                {% if page_profile.is_following %}
                     <a class="btn btn-primary sb_btn sb_btn_fill js-unfollow" href="#"><i class="fa fa fa-minus quest-rocket"></i> Unfollow</a>
                 {% else %}
                     <a class="btn btn-primary sb_btn sb_btn_fill js-follow" href="#"><i class="fa fa fa-plus quest-rocket"></i> Follow</a>
@@ -71,13 +74,33 @@
             </div>
         </div>
     {% endif %}
+
     <div class="block">
-        <h6 class="block-title no-underline center-title">Network</h6>
+        <h6 class="block-title">Followers</h6>
+        <div class="block-content" id="js-follower-list"></div>
     </div>
-    <div id="js-network-list">
-        <div id="js-network-container"></div>
-        <div class="loader"></div>
+    <div class="block">
+        <h6 class="block-title">Following</h6>
+        <div class="block-content" id="js-following-list"></div>
     </div>
+    {% if is_owner %}
+        <div class="block block-type-nav">
+            <div class="block-title">
+                Start a Mission
+            </div>
+            <div class="block-content">
+                <a class="btn btn-primary sb_btn sb_btn_fill js-quest-signup" href="#"><i class="fa fa-rocket quest-rocket"></i> Embark</a>
+            </div>
+        </div>
+        <div class="block block-type-nav">
+            <div class="block-title">
+                Start a Conversation
+            </div>
+            <div class="block-content">
+                <a class="btn btn-primary sb_btn sb_btn_fill" href="/conversations/submit_question/"><i class="fa fa-cloud  quest-rocket"></i> Discuss</a>
+            </div>
+        </div>
+    {% endif %}
 {% endblock sidebar_right %}
 {% block live %}
     <div class="block">

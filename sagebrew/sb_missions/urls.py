@@ -78,7 +78,7 @@ urlpatterns = patterns(
     # Endorse
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'endorse/$',
-        MissionBaseView.as_view(template_name='mission_endorse.html'),
+        MissionBaseView.as_view(template_name='mission/endorse.html'),
         name="mission_endorse"),
 
     # View

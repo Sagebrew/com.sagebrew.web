@@ -1,9 +1,7 @@
 var representatives = require('../partials/representatives'),
-    friends = require('../partials/friends'),
     postcreate = require('../partials/postcreate'),
     newsfeed = require('../partials/newsfeed'),
     solutions = require('controller/conversation/conversation-view/partials/solution'),
-    follow = require('../partials/follow'),
     request = require('api').request,
     settings = require('settings').settings;
 
@@ -27,18 +25,15 @@ export function init() {
  * Load
  */
 export function load() {
+    require('plugin/contentloader');
     var $app = $(".app-sb"),
         greyPage = document.getElementById('sb-greyout-page');
     // Sidebar
     representatives.init();
-    // Friends Page
-    friends.init();
     // Post create functionality.
     postcreate.init();
     // Newsfeed page.
     newsfeed.init();
-    // Follow functionality
-    follow.init();
     postcreate.load();
     solutions.load();
     $app

@@ -20,6 +20,7 @@ export function init() {
  * Load
  */
 export function load() {
+    require('plugin/contentloader');
     var $container = $("#js-donation-wrapper");
     $container.sb_contentLoader({
         emptyDataMessage: 'Need to make some donations for this to be populated :)',

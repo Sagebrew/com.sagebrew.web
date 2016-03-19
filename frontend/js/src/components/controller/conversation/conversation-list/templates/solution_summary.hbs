@@ -5,12 +5,12 @@
                 Solution To: {{ this.question.title }}
             </a>
         </div>
-        <div class="block-content" style="padding-top: 0; padding-bottom: 0;">
+        <div class="block-content no-top-bottom-padding">
             <small>Author: <a href="{{ this.profile.url }}">{{ this.profile.first_name }} {{ this.profile.last_name }}</a></small>
         </div>
         <div class="block-content">
             <div class="row">
-                <div class="col-xs-1 sb_vote_wrapper" style="padding-left:0; padding-right:0;">
+                <div class="col-xs-1 sb_vote_wrapper no-left-right-padding">
                     <div class="vote_lg vote_count_large">
                         {{> 'controller/vote/templates/vote.hbs' id=this.id
                         vote_count=this.vote_count upvote=this.upvote

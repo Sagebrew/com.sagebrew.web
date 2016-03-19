@@ -1,9 +1,9 @@
 <div class="block" id="question-block-{{ id }}">
     <h1 class="block-title">{{ title }}</h1>
-    <div class="block-content" style="padding-top: 0; padding-bottom: 0;">
+    <div class="block-content no-top-bottom-padding">
         <div class="col-xs-12">
             <small>Author: <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a></small>
-            <div class="pull-right" style="margin-top: -5px;">
+            <div class="pull-right neg-five-margin-top">
                 {{# if is_owner }}
                     <button class="btn dropdown-toggle sb_btn_icon"
                             type="button" id="dropdownMenu2" data-toggle="dropdown"

@@ -68,7 +68,7 @@ export function load() {
                 });
         });
     $appNewsfeed.sb_contentLoader({
-        emptyDataMessage: '<div class="block"><div class="block-content" style="padding-bottom: 5px;">' +
+        emptyDataMessage: '<div class="block"><div class="block-content five-padding-bottom">' +
         '<p>Some Public Contributions Need to Be Made</p></div></div>',
         url: '/v1/me/public/',
         params: {
@@ -101,17 +101,18 @@ export function load() {
 
 
     missions.populateMissions($(missionList), pageUser, missionMinTemplate,
-        '<div class="block"><div class="block-content" style="padding-bottom: 5px;">' +
+        '<div class="block"><div class="block-content five-padding-bottom">' +
         '<p>Check Back Later For New Missions</p></div></div>');
     missions.populateEndorsements($(endorsementList), pageUser, missionMinTemplate,
-        '<div class="block"><div class="block-content" style="padding-bottom: 5px;">' +
+        '<div class="block"><div class="block-content five-padding-bottom">' +
         '<p>Check Back Later For New Endorsements</p></div></div>');
 
     $followerList.sb_contentLoader({
-        emptyDataMessage: '<div class="block"><div class="block-content" style="padding-bottom: 0; padding-top: 0;">' +
+        emptyDataMessage: '<div class="block"><div class="block-content no-top-bottom-padding">' +
         '<p>Expand Your Base</p>' +
         '</div></div>',
         url: '/v1/profiles/' + profile_page_user + '/followers/',
+        endingPage: 5,
         dataCallback: function(base_url, params) {
             var urlParams = $.param(params);
             var url;
@@ -128,9 +129,10 @@ export function load() {
         }
     });
     $followingList.sb_contentLoader({
-        emptyDataMessage: '<div class="block"><div class="block-content" style="padding-bottom: 0; padding-top: 0;">' +
+        emptyDataMessage: '<div class="block"><div class="block-content no-top-bottom-padding">' +
         '<p>Expand Your Base</p></div></div>',
         url: '/v1/profiles/' + profile_page_user + '/following/',
+        endingPage: 5,
         dataCallback: function(base_url, params) {
             var urlParams = $.param(params);
             var url;

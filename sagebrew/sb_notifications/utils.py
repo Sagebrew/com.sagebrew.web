@@ -44,7 +44,6 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
             # queries their page it refreshes. If we set this to the
             # notification list there is a chance for a race condition and the
             # user does not see all of their notifications.
-            pleb.notifications.connect(notification)
             cache.delete("%s_notifications" % pleb.username)
         notification.sent = True
         notification.save()
@@ -55,7 +54,6 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
         return e
 
 
-@apply_defense
 def create_system_notification(to_plebs, notification_id, url, action_name):
     """
     This will create a notification directly from Sagebrew. It is the same as
@@ -85,7 +83,6 @@ def create_system_notification(to_plebs, notification_id, url, action_name):
             # queries their page it refreshes. If we set this to the
             # notification list there is a chance for a race condition and the
             # user does not see all of their notifications.
-            pleb.notifications.connect(notification)
             cache.delete("%s_notifications" % pleb.username)
         notification.sent = True
         notification.save()

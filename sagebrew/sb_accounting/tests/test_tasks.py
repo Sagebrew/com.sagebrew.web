@@ -47,8 +47,6 @@ class TestCheckUnverifiedQuest(TestCase):
         while not res.ready():
             time.sleep(1)
         self.assertTrue(res.result)
-        self.quest.refresh()
-        self.assertEqual(self.quest.account_first_updated, now)
 
     @requests_mock.mock()
     def test_greater_than_three_days(self, m):
@@ -66,5 +64,3 @@ class TestCheckUnverifiedQuest(TestCase):
         while not res.ready():
             time.sleep(1)
         self.assertTrue(res.result)
-        self.quest.refresh()
-        self.assertIsNone(self.quest.account_first_updated)

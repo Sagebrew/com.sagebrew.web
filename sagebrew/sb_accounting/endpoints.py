@@ -40,10 +40,10 @@ class AccountingViewSet(viewsets.ViewSet):
         except stripe.InvalidRequestError:
             return Response(status=status.HTTP_200_OK)
 
-        if event['type'] == "invoice.payment_failed":
+        if event.type == "invoice.payment_failed":
             try:
                 customer = stripe.Customer.retrieve(
-                    event['data']['object']['customer'])
+                    event.data.object.customer)
             except stripe.InvalidRequestError:
                 return Response(status=status.HTTP_200_OK)
             pleb = Pleb.nodes.get(email=customer['email'])
@@ -60,54 +60,54 @@ class AccountingViewSet(viewsets.ViewSet):
             spawn_task(task_func=send_email_task, task_param=email_data)
             return Response({"detail": "Invoice Payment Failed"},
                             status=status.HTTP_200_OK)
-        if event['type'] == "account.updated":
+        if event.type == "account.updated":
             try:
                 account = stripe.Account.retrieve(
-                    event['data']['object']['id']
+                    event.data.object.id
                 )
             except stripe.InvalidRequestError:
                 return Response(status=status.HTTP_200_OK)
-            pleb = Pleb.nodes.get(email=account['email'])
+            pleb = Pleb.nodes.get(email=account.email)
             quest = Quest.get(pleb.username)
-            if account['verification']['fields_needed']:
+            if account.verification.fields_needed:
                 quest.account_verification_fields_needed = \
-                    account['verification']['fields_needed']
+                    account.verification.fields_needed
 
             if quest.account_verified != "verified" \
-                    and account['legal_entity']['verification']['status'] \
+                    and account.legal_entity.verification.status \
                     == "verified":
                 spawn_task(
                     task_func=spawn_system_notification,
                     task_param={
                         "to_plebs": [pleb.username],
                         "notification_id": str(uuid1()),
-                        "url": reverse('quest',
+                        "url": reverse('quest_manage_banking',
                                        kwargs={'username': pleb.username}),
                         "action_name": "Your Quest has been verified!"
                     }
                 )
             quest.account_verified = \
-                account['legal_entity']['verification']['status']
+                account.legal_entity.verification.status
             quest.account_verification_details = \
-                str(account['legal_entity']['verification']['details'])
+                str(account.legal_entity.verification.details)
             if quest.account_first_updated is None \
                     and quest.account_verified != "verified":
                 quest.account_first_updated = datetime.now(pytz.utc)
             quest.save()
             return Response({"detail": "Account Updated"},
                             status=status.HTTP_200_OK)
-        if event['type'] == "transfer.failed":
+        if event.type == "transfer.failed":
             try:
                 transfer = stripe.Transfer.retrieve(
-                    event['data']['object']['id']
+                    event.data.object.id
                 )
-                if transfer['type'] == 'stripe_account':
+                if transfer.type == 'stripe_account':
                     account = stripe.Account.retrieve(
-                        transfer['destination']
+                        transfer.destination
                     )
             except stripe.InvalidRequestError:
                 return Response(status=status.HTTP_200_OK)
-            pleb = Pleb.nodes.get(email=account['email'])
+            pleb = Pleb.nodes.get(email=account.email)
             spawn_task(
                 task_func=spawn_system_notification,
                 task_param={
@@ -123,17 +123,16 @@ class AccountingViewSet(viewsets.ViewSet):
             Event.create(event_name="stripe-transfer-failed",
                          user_id=pleb.username,
                          created=calendar.timegm(
-                             datetime.now(pytz.utc).utctimetuple())
-            )
+                             datetime.now(pytz.utc).utctimetuple()))
             return Response({"detail": "Transfer Failed"}, status.HTTP_200_OK)
-        if event['type'] == 'customer.subscription.trial_will_end':
+        if event.type == 'customer.subscription.trial_will_end':
             try:
                 customer = stripe.Customer.retrieve(
-                    event['data']['object']['customer']
+                    event.data.object.customer
                 )
             except stripe.InvalidRequestError:
                 return Response(status=status.HTTP_200_OK)
-            pleb = Pleb.nodes.get(email=customer['email'])
+            pleb = Pleb.nodes.get(email=customer.email)
             spawn_task(
                 task_func=spawn_system_notification,
                 task_param={

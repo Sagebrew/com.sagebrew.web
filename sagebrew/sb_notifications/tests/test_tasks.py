@@ -8,6 +8,7 @@ from rest_framework.reverse import reverse
 
 from sb_notifications.tasks import (spawn_notifications,
                                     spawn_system_notification)
+from sb_notifications.neo_models import Notification
 from sb_posts.neo_models import Post
 from sb_comments.neo_models import Comment
 from plebs.neo_models import Pleb
@@ -75,7 +76,6 @@ class TestNotificationTasks(TestCase):
         response = spawn_notifications.apply_async(kwargs=data)
         while not response.ready():
             time.sleep(1)
-
         self.assertIsInstance(response.result, Exception)
 
     def test_create_system_notification(self):
@@ -90,5 +90,8 @@ class TestNotificationTasks(TestCase):
         res = spawn_system_notification.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
-
+        notification = Notification.nodes.get(
+            object_uuid=data['notification_id'])
+        self.assertEqual(notification.action_name, data['action_name'])
+        self.assertTrue(self.pleb in notification.notification_to)
         self.assertTrue(res.result)

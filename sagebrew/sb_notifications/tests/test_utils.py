@@ -129,7 +129,7 @@ class TestNotificationUtils(TestCase):
             "This is a test notification!")
         self.assertTrue(res)
         notification = Notification.nodes.get(object_uuid=notification_id)
-        self.assertTrue(notification in self.pleb.notifications)
+        self.assertTrue(self.pleb in notification.notification_to)
 
     def test_create_system_notification_exists(self):
         notification = Notification().save()
@@ -139,5 +139,6 @@ class TestNotificationUtils(TestCase):
                     kwargs={"pleb_username": self.pleb.username}),
             "This is a test notification!")
         self.assertTrue(res)
-        notification.refresh()
-        self.assertTrue(notification in self.pleb.notifications)
+        notification = Notification.nodes.get(
+            object_uuid=notification.object_uuid)
+        self.assertTrue(self.pleb in notification.notification_to)

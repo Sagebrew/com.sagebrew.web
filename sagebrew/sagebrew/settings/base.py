@@ -130,6 +130,7 @@ TEMPLATES = [{
         '%s/sb_flag/templates/' % PROJECT_DIR,
         '%s/sb_missions/templates/' % PROJECT_DIR,
         '%s/sb_notifications/templates/' % PROJECT_DIR,
+        '%s/sb_posts/templates/' % PROJECT_DIR,
         '%s/sb_privileges/templates/' % PROJECT_DIR,
         '%s/sb_public_official/templates/' % PROJECT_DIR,
         '%s/sb_questions/templates/' % PROJECT_DIR,

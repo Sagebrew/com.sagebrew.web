@@ -1,7 +1,6 @@
 
 var postcreate = require('../partials/postcreate'),
     request = require('api').request,
-    settings = require('settings').settings,
     Autolinker = require('autolinker'),
     missions = require('common/missions'),
     helpers = require('common/helpers'),
@@ -31,38 +30,46 @@ export function init() {
  * Load
  */
 export function load() {
+    require('plugin/contentloader');
     // Post create functionality.
     postcreate.init();
     postcreate.load();
     var missionList= document.getElementById('js-mission-list'),
         pageUser = helpers.args(1),
         endorsementList = document.getElementById('js-endorsements-list'),
-        endorsementContainer = document.getElementById('js-endorsements-container'),
+        $followerList = $("#js-follower-list"),
+        $followingList = $("#js-following-list"),
         $appNewsfeed = $("#js-recent-contributions"),
+        profile_page_user = helpers.args(1),
         $app = $(".app-sb");
     $app
         .on('click', '.js-follow', function (event) {
             event.preventDefault();
             var thisHolder = this;
+            thisHolder.classList.add('disabled');
             request.post({url: '/v1/profiles/' + pageUser + '/follow/'})
                 .done(function () {
                     thisHolder.innerHTML = '<i class="fa fa fa-minus quest-rocket"></i> Unfollow';
                     thisHolder.classList.remove('js-follow');
                     thisHolder.classList.add('js-unfollow');
-                })
+                    thisHolder.classList.remove('disabled');
+                });
         })
         .on('click', '.js-unfollow', function (event) {
             event.preventDefault();
             var thisHolder = this;
+            thisHolder.classList.add('disabled');
             request.post({url: '/v1/profiles/' + pageUser + '/unfollow/'})
                 .done(function () {
                     thisHolder.innerHTML = '<i class="fa fa fa-plus quest-rocket"></i> Follow';
                     thisHolder.classList.add('js-follow');
                     thisHolder.classList.remove('js-unfollow');
-                })
+                    thisHolder.classList.remove('disabled');
+                });
         });
     $appNewsfeed.sb_contentLoader({
-        emptyDataMessage: '<div class="block"><div class="block-content">Some Public Contributions Need to Be Made</div></div>',
+        emptyDataMessage: '<div class="block"><div class="block-content five-padding-bottom">' +
+        '<p>Some Public Contributions Need to Be Made</p></div></div>',
         url: '/v1/me/public/',
         params: {
             expand: 'true'
@@ -93,17 +100,19 @@ export function load() {
     });
 
 
-    missions.populateMissions($(missionList), pageUser, missionMinTemplate, null, '<div class="block"><div class="block-content" style="padding-bottom: 5px;"><p>Check Back Later For New Missions</p></div></div>');
-    missions.populateEndorsements($(endorsementList), pageUser, missionMinTemplate, $(endorsementContainer), '<div class="block"><div class="block-content" style="padding-bottom: 5px;"><p>Check Back Later For New Endorsements</p></div></div>');
-    var $appNetwork = $("#js-network-list");
+    missions.populateMissions($(missionList), pageUser, missionMinTemplate,
+        '<div class="block"><div class="block-content five-padding-bottom">' +
+        '<p>Check Back Later For New Missions</p></div></div>');
+    missions.populateEndorsements($(endorsementList), pageUser, missionMinTemplate,
+        '<div class="block"><div class="block-content five-padding-bottom">' +
+        '<p>Check Back Later For New Endorsements</p></div></div>');
 
-    var profile_page_user = helpers.args(1);
-    $appNetwork.sb_contentLoader({
-        emptyDataMessage: '<div class="block"><div class="block-content" style="padding-bottom: 5px;"><p>Expand Your Base</p></div></div>',
+    $followerList.sb_contentLoader({
+        emptyDataMessage: '<div class="block"><div class="block-content no-top-bottom-padding">' +
+        '<p>Expand Your Base</p>' +
+        '</div></div>',
         url: '/v1/profiles/' + profile_page_user + '/followers/',
-        params: {
-            expedite: 'true'
-        },
+        endingPage: 5,
         dataCallback: function(base_url, params) {
             var urlParams = $.param(params);
             var url;
@@ -116,7 +125,27 @@ export function load() {
             return request.get({url:url});
         },
         renderCallback: function($container, data) {
-            $("#js-network-container").append(profilePicTemplate(data.results));
+            $container.append(profilePicTemplate({profiles: data.results}));
+        }
+    });
+    $followingList.sb_contentLoader({
+        emptyDataMessage: '<div class="block"><div class="block-content no-top-bottom-padding">' +
+        '<p>Expand Your Base</p></div></div>',
+        url: '/v1/profiles/' + profile_page_user + '/following/',
+        endingPage: 5,
+        dataCallback: function(base_url, params) {
+            var urlParams = $.param(params);
+            var url;
+            if (urlParams) {
+                url = base_url + "?" + urlParams;
+            }
+            else {
+                url = base_url;
+            }
+            return request.get({url:url});
+        },
+        renderCallback: function($container, data) {
+            $container.append(profilePicTemplate({profiles: data.results}));
         }
     });
 

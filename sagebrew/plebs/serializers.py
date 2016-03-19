@@ -334,6 +334,9 @@ class PlebSerializerNeo(SBSerializer):
     def get_is_following(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
         if request is not None:
+            # Backwards because we don't want to be dependent on the Pleb as
+            # the object running the query so the user can follow multiple
+            # types of objects. Such as Quest or Plebs.
             return obj.is_following(request.user.username)
         return False
 

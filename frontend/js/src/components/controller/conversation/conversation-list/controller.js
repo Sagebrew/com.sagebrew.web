@@ -49,6 +49,7 @@ export function postload() {
 }
 
 function loadConversations(sortFilter) {
+    require('plugin/contentloader');
     var $conversationList = $('#js-conversation-list'),
         $conversationContainer = $('#js-conversation-container');
     $conversationList.sb_contentLoader({

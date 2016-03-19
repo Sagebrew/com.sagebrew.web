@@ -99,8 +99,12 @@
                 $loadMore.text(base.options.loadingMoreItemsMessage).addClass("currently-loading");
                 base.getData().done(function(data) {
                     base.options.startingPage++;
+                    if(base.options.endingPage !== null && base.options.startingPage < base.options.endingPage){
+                        base.options.renderCallback($listContainer, data);
+                    } else if (base.options.endingPage === null) {
+                        base.options.renderCallback($listContainer, data);
+                    }
 
-                    base.options.renderCallback($listContainer, data);
 
                     $loadMore.text(base.options.loadMoreMessage).removeClass("currently-loading");
                     Waypoint.refreshAll();
@@ -161,6 +165,7 @@
         loadMoreMessage: "Load more.",
         itemsPerPage: 5,
         startingPage: 1,
+        endingPage: null,
         continuousLoad: true,
         url: '',
         params: {

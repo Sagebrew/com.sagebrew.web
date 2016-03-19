@@ -5,6 +5,7 @@ var request = require('api').request,
 
 export function populateMissions(loadElement, questID, template, emptyMessage){
     require('common/handlebars_helpers');
+    require('plugin/contentloader');
     if(emptyMessage === undefined || emptyMessage === "undefined" || emptyMessage === null){
         emptyMessage = positionHolderTemplate({static_url: settings.static_url});
     }
@@ -45,6 +46,7 @@ export function populateMissions(loadElement, questID, template, emptyMessage){
 
 export function populateEndorsements(loadElement, questID, template, emptyMessage, endorserType){
     require('common/handlebars_helpers');
+    require('plugin/contentloader');
     if(emptyMessage === undefined || emptyMessage === "undefined" || emptyMessage === null){
         emptyMessage = positionHolderTemplate({static_url: settings.static_url});
     }

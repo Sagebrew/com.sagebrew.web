@@ -20,6 +20,7 @@ export function init() {
  * Load
  */
 export function load() {
+    require('plugin/contentloader');
     var missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         $updateWrapper = $("#js-update-wrapper");
 

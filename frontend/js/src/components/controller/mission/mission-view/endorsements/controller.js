@@ -24,6 +24,7 @@ export function init() {
  */
 export function load() {
     require('common/handlebars_helpers');
+    require('plugin/contentloader');
     var missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         $endorsmentContainer = $('#js-endorsements-container'),
         $endorsementList = $("#js-endorsements-list");

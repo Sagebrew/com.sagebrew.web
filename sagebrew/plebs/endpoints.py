@@ -238,6 +238,19 @@ class ProfileViewSet(viewsets.ModelViewSet):
                 PlebSerializerNeo(follower_list, many=True).data))
         return self.get_paginated_response(self.paginate_queryset([]))
 
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticated,))
+    def following(self, request, username=None):
+        query = 'MATCH (p:Pleb {username:"%s"})-[r:FOLLOWING]->' \
+                '(followers:Pleb) WHERE r.active ' \
+                'RETURN followers' % username
+        res, _ = db.cypher_query(query)
+        if res.one:
+            follower_list = [Pleb.inflate(row[0]) for row in res]
+            return self.get_paginated_response(self.paginate_queryset(
+                PlebSerializerNeo(follower_list, many=True).data))
+        return self.get_paginated_response(self.paginate_queryset([]))
+
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated, IsSelfOrReadOnly))
     def unfollow(self, request, username=None):
@@ -291,14 +304,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True,
                                          context={'request': request})
-        if html == 'true':
-            html_array = []
-            for item in serializer.data:
-                item['page_user_username'] = username
-                context = RequestContext(request, item)
-                html_array.append(render_to_string('friend_block.html',
-                                                   context))
-            return self.get_paginated_response(html_array)
         return self.get_paginated_response(serializer.data)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated, ))
@@ -363,109 +368,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def is_beta_user(self, request, username=None):
         return Response({'is_beta_user': self.get_object().is_beta_user()},
                         status.HTTP_200_OK)
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
-    def possible_house_representatives(self, request, username=None):
-        possible_reps = cache.get('%s_possible_house_representatives' %
-                                  username)
-        if possible_reps is None:
-            query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                    '(a:Address)-[:ENCOMPASSED_BY]->' \
-                    '(l:Location {name: str(a.congressional_district), ' \
-                    'sector:"federal"})-[:POSITIONS_AVAILABLE]->(o:Position)' \
-                    '<-[:FOCUSED_ON]-(m:Mission)' \
-                    '<-[:EMBARKS_ON]-(quest:Quest) ' \
-                    'WHERE quest.active=true AND o.level="federal"' \
-                    ' RETURN DISTINCT quest LIMIT 5' % username
-            res, _ = db.cypher_query(query)
-            possible_reps = [Quest.inflate(row[0]) for row in res]
-            cache.set('%s_possible_house_representatives' % username,
-                      possible_reps, timeout=1800)
-        return Response(QuestSerializer(possible_reps, many=True).data,
-                        status=status.HTTP_200_OK)
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
-    def possible_local_representatives(self, request, username=None):
-        query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                '(a:Address)-[:ENCOMPASSED_BY]->(l:Location {name: a.city, ' \
-                'sector:"local"})-[:POSITIONS_AVAILABLE]->(o:Position)<-' \
-                '[:FOCUSED_ON]-(m:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
-                'WHERE quest.active=true AND NOT ' \
-                'o.level="federal" RETURN DISTINCT quest LIMIT 5' % \
-                username
-        res, _ = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        possible_reps = [Quest.inflate(row[0]) for row in res]
-        html = self.request.query_params.get('html', 'false').lower()
-        if html == 'true':
-            if not possible_reps:
-                return Response("<small>Currently No Registered Campaigning "
-                                "Local Representatives In Your Area</small>",
-                                status=status.HTTP_200_OK)
-            possible_rep_html = [
-                render_to_string('sb_home_section/sb_potential_rep.html',
-                                 possible_rep) for possible_rep in
-                QuestSerializer(possible_reps, many=True).data]
-            return Response(possible_rep_html, status=status.HTTP_200_OK)
-        return Response(QuestSerializer(possible_reps, many=True).data,
-                        status=status.HTTP_200_OK)
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
-    def possible_senators(self, request, username=None):
-        possible_senators = cache.get('%s_possible_senators' % username)
-        if possible_senators is None:
-            query = 'MATCH (p:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                    '(a:Address)-[:ENCOMPASSED_BY*..]->' \
-                    '(l:Location {name: a.state, sector:"federal"})-' \
-                    '[:POSITIONS_AVAILABLE]->(o:Position)<-' \
-                    '[:FOCUSED_ON]-(m:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
-                    'WHERE quest.active=true RETURN DISTINCT ' \
-                    'quest LIMIT 5' % \
-                    username
-            res, _ = db.cypher_query(query)
-            possible_senators = [Quest.inflate(row[0]) for row in res]
-            cache.set('%s_possible_senators' % username,
-                      possible_senators, timeout=1800)
-        html = self.request.query_params.get('html', 'false').lower()
-        if html == 'true':
-            if not possible_senators:
-                return Response("<small>Currently No Registered Campaigning "
-                                "Senators In Your Area</small>",
-                                status=status.HTTP_200_OK)
-            possible_senators_html = [
-                render_to_string('sb_home_section/sb_potential_rep.html',
-                                 possible_sen) for possible_sen in
-                QuestSerializer(possible_senators, many=True).data]
-            return Response(possible_senators_html, status=status.HTTP_200_OK)
-        return Response(QuestSerializer(possible_senators, many=True).data,
-                        status=status.HTTP_200_OK)
-
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated,))
-    def possible_presidents(self, request, username=None):
-        possible_presidents = cache.get('possible_presidents')
-        if possible_presidents is None:
-            query = 'MATCH (p:Position {name:"President"})<-[:FOCUSED_ON]-' \
-                    '(mission:Mission)<-[:EMBARKS_ON]-(quest:Quest) ' \
-                    'WHERE quest.active=true AND mission.active=true' \
-                    ' RETURN quest LIMIT 5'
-            res, _ = db.cypher_query(query)
-            possible_presidents = [Quest.inflate(row[0]) for row in res]
-            cache.set("possible_presidents", possible_presidents, timeout=1800)
-        html = self.request.query_params.get('html', 'false').lower()
-        if html == 'true':
-            if not possible_presidents:
-                return Response("<small>Currently No Registered "
-                                "Campaigning Presidents</small>",
-                                status=status.HTTP_200_OK)
-            possible_presidents_html = [
-                render_to_string('sb_home_section/sb_potential_rep.html',
-                                 possible_pres)
-                for possible_pres in QuestSerializer(
-                    possible_presidents, many=True).data]
-            return Response(possible_presidents_html,
-                            status=status.HTTP_200_OK)
-        return Response(QuestSerializer(possible_presidents, many=True).data,
-                        status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticatedOrReadOnly,))

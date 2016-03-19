@@ -25,6 +25,7 @@ export function init() {
  * Load
  */
 export function load() {
+    require('plugin/contentloader');
     var $app = $(".app-sb"),
         greyPage = document.getElementById('sb-greyout-page');
     // Sidebar

@@ -22,8 +22,7 @@ var request = require('api').request,
  * These should really be called load or something.
  */
 export function init () {
-    //
-    // Load up the wall.
+    require('plugin/contentloader');
     var $appNewsfeed = $(".app-newsfeed"),
         $app = $(".app-sb");
     console.log($appNewsfeed);

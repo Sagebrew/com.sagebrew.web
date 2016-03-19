@@ -30,6 +30,7 @@ export function init() {
  * Load
  */
 export function load() {
+    require('plugin/contentloader');
     // Post create functionality.
     postcreate.init();
     postcreate.load();
@@ -45,25 +46,30 @@ export function load() {
         .on('click', '.js-follow', function (event) {
             event.preventDefault();
             var thisHolder = this;
+            thisHolder.classList.add('disabled');
             request.post({url: '/v1/profiles/' + pageUser + '/follow/'})
                 .done(function () {
                     thisHolder.innerHTML = '<i class="fa fa fa-minus quest-rocket"></i> Unfollow';
                     thisHolder.classList.remove('js-follow');
                     thisHolder.classList.add('js-unfollow');
+                    thisHolder.classList.remove('disabled');
                 });
         })
         .on('click', '.js-unfollow', function (event) {
             event.preventDefault();
             var thisHolder = this;
+            thisHolder.classList.add('disabled');
             request.post({url: '/v1/profiles/' + pageUser + '/unfollow/'})
                 .done(function () {
                     thisHolder.innerHTML = '<i class="fa fa fa-plus quest-rocket"></i> Follow';
                     thisHolder.classList.add('js-follow');
                     thisHolder.classList.remove('js-unfollow');
+                    thisHolder.classList.remove('disabled');
                 });
         });
     $appNewsfeed.sb_contentLoader({
-        emptyDataMessage: '<div class="block"><div class="block-content">Some Public Contributions Need to Be Made</div></div>',
+        emptyDataMessage: '<div class="block"><div class="block-content" style="padding-bottom: 5px;">' +
+        '<p>Some Public Contributions Need to Be Made</p></div></div>',
         url: '/v1/me/public/',
         params: {
             expand: 'true'
@@ -102,11 +108,10 @@ export function load() {
         '<p>Check Back Later For New Endorsements</p></div></div>');
 
     $followerList.sb_contentLoader({
-        emptyDataMessage: '<div class="block"><div class="block-content" style="padding-bottom: 5px;"><p>Expand Your Base</p></div></div>',
+        emptyDataMessage: '<div class="block"><div class="block-content" style="padding-bottom: 0; padding-top: 0;">' +
+        '<p>Expand Your Base</p>' +
+        '</div></div>',
         url: '/v1/profiles/' + profile_page_user + '/followers/',
-        params: {
-            expedite: 'true'
-        },
         dataCallback: function(base_url, params) {
             var urlParams = $.param(params);
             var url;
@@ -119,15 +124,13 @@ export function load() {
             return request.get({url:url});
         },
         renderCallback: function($container, data) {
-            $container.append(profilePicTemplate(data.results));
+            $container.append(profilePicTemplate({profiles: data.results}));
         }
     });
     $followingList.sb_contentLoader({
-        emptyDataMessage: '<div class="block"><div class="block-content" style="padding-bottom: 5px;"><p>Expand Your Base</p></div></div>',
+        emptyDataMessage: '<div class="block"><div class="block-content" style="padding-bottom: 0; padding-top: 0;">' +
+        '<p>Expand Your Base</p></div></div>',
         url: '/v1/profiles/' + profile_page_user + '/following/',
-        params: {
-            expedite: 'true'
-        },
         dataCallback: function(base_url, params) {
             var urlParams = $.param(params);
             var url;
@@ -140,7 +143,7 @@ export function load() {
             return request.get({url:url});
         },
         renderCallback: function($container, data) {
-            $container.append(profilePicTemplate(data.results));
+            $container.append(profilePicTemplate({profiles: data.results}));
         }
     });
 

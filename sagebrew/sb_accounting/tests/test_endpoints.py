@@ -69,6 +69,8 @@ class AccountingHooksTests(APITestCase):
         data = {
             "id": "evt_00000000000000"
         }
+        m.post("https://api.intercom.io/messages/",
+               status_code=status.HTTP_202_ACCEPTED)
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], "Invoice Payment Failed")

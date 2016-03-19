@@ -3,10 +3,9 @@ import stripe
 import calendar
 from uuid import uuid1
 from datetime import datetime
-from intercom import Intercom, Event
+from intercom import Intercom, Event, Message
 
 from django.conf import settings
-from django.template.loader import render_to_string
 
 from rest_framework import status, viewsets
 from rest_framework.reverse import reverse
@@ -15,7 +14,6 @@ from rest_framework.authentication import SessionAuthentication
 
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
-from plebs.tasks import send_email_task
 from sb_quests.neo_models import Quest
 from sb_notifications.tasks import spawn_system_notification
 
@@ -46,17 +44,29 @@ class AccountingViewSet(viewsets.ViewSet):
             except stripe.InvalidRequestError:
                 return Response(status=status.HTTP_200_OK)
             pleb = Pleb.nodes.get(email=customer['email'])
-            email_data = {
-                "source": "support@sagebrew.com",
-                "to": [pleb.email],
-                "subject": "Subscription Failure Notice",
-                "html_content": render_to_string(
-                    "email_templates/email_subscription_failure_notice.html",
-                    {"billing_url":
-                        reverse("quest_manage_billing",
-                                kwargs={'username': pleb.username})})
+            message_data = {
+                'message_type': 'email',
+                'subject': 'Subscription Failure Notice',
+                'body': "Hi {{ first_name }},\nIt looks like we ran into "
+                        "some trouble processing your subscription payment. "
+                        "Please verify your billing information is correct "
+                        "and we'll automatically retry to process the payment. "
+                        "If the payment continues to fail we'll automatically "
+                        "move you over to a free account. If you believe "
+                        "there has been a mistake please respond to this "
+                        "email and we'd be happy to help!\n\nBest Regards,"
+                        "\n\nDevon",
+                'template': 'personal',
+                'from': {
+                    'type': 'admin',
+                    'id': settings.INTERCOM_ADMIN_ID_DEVON
+                },
+                'to': {
+                    'type': 'user',
+                    'id': pleb.username
+                }
             }
-            spawn_task(task_func=send_email_task, task_param=email_data)
+            Message.create(**message_data)
             return Response({"detail": "Invoice Payment Failed"},
                             status=status.HTTP_200_OK)
         if event.type == "account.updated":

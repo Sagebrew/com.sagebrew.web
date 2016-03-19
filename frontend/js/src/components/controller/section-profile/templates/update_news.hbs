@@ -4,11 +4,11 @@
             Update: {{ title }}
         </a>
     </div>
-    <div class="block-content" style="padding-top: 0; padding-bottom: 0;">
+    <div class="block-content no-top-bottom-padding">
         <div class="dropdown">
             <small>Author: <a href="{{ mission.url }}">{{ mission.title }}</a>  <b>&middot;</b>
                 {{ created }} <b>&middot;</b> Public</small>
-            <div class="pull-right" style="margin-bottom: -5px; margin-top: -7px;">
+            <div class="pull-right settings-icon-wrapper">
                 {{# if is_owner }}
                     <button class="btn dropdown-toggle sb_btn_icon"
                             type="button" id="dropdownMenu1" data-toggle="dropdown"

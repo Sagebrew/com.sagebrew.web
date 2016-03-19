@@ -62,10 +62,10 @@
     {% if not is_owner %}
         <div class="block">
             <h6 class="block-title no-underline center-title" style="padding-bottom: 0;">Add to Network</h6>
-            <div class="block-content" style="padding-top: 0;">
+            <div class="block-content no-top-padding">
                 <small>Stay Updated On Public Contributions and Posts</small>
             </div>
-            <div class="block-content" style="padding-top: 0;">
+            <div class="block-content no-top-padding">
                 {% if page_profile.is_following %}
                     <a class="btn btn-primary sb_btn sb_btn_fill js-unfollow" href="#"><i class="fa fa fa-minus quest-rocket"></i> Unfollow</a>
                 {% else %}

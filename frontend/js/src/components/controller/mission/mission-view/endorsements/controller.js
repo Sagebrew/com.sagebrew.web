@@ -30,7 +30,7 @@ export function load() {
         $endorsementList = $("#js-endorsements-list");
     if($endorsementList !== undefined && $endorsementList !== "undefined") {
         $endorsementList.sb_contentLoader({
-            emptyDataMessage: '<div class="block"><div class="block-content" style="padding-bottom: 5px;"><p>' + 'Check Back Later For New Endorsements</p></div></div>',
+            emptyDataMessage: '<div class="block"><div class="block-content five-padding-bottom"><p>' + 'Check Back Later For New Endorsements</p></div></div>',
             url: '/v1/missions/' + missionId + '/endorsements/',
             loadingMoreItemsMessage: " ",
             itemsPerPage: 3,

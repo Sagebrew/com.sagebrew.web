@@ -8,7 +8,7 @@
                             <small>Author: <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>
                                 <b>&middot;</b>
                                 {{ created }} </small>
-                            <div class="pull-right" style="margin-bottom: -5px; margin-top: -7px;">
+                            <div class="pull-right settings-icon-wrapper">
                                 {{# if is_owner }}
                                     <button class="btn dropdown-toggle sb_btn_icon"
                                             type="button" id="dropdownMenu1" data-toggle="dropdown"
@@ -46,7 +46,7 @@
                             </div>
                         </div>
                         <div class="col-xs-9">
-                            <div class="block-content" id="js-comment-{{ id }}">
+                            <div class="block-content no-top-padding" id="js-comment-{{ id }}">
                                 {{{ html_content }}}
                             </div>
                             <div id="js-edit-container-{{ id }}" style="display: none">
@@ -55,7 +55,7 @@
                                       data-id="{{ id }}"
                                       data-parent_id="{{ parent_id }}">
                                     <div class="row">
-                                        <textarea class="form-control edit_comment_input_class" style="resize: vertical;"
+                                        <textarea class="form-control comment-input"
                                                   name="content" id="js-edit-ta-{{id}}" rows="3">{{ content }}</textarea>
                                     </div>
                                     <div class="row">

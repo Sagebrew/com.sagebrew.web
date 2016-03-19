@@ -31,9 +31,8 @@ class AccountingViewSet(viewsets.ViewSet):
     permission_classes = ()
 
     def create(self, request):
-        # TODO replace these with settings variables
-        Intercom.app_id = 'jmz4pnau'
-        Intercom.app_api_key = '24a76d234536a2115ebe4b4e8bfe3ed8aaaa6884'
+        Intercom.app_id = settings.INTERCOM_APP_ID
+        Intercom.app_api_key = settings.INTERCOM_API_KEY
         stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
             event = stripe.Event.retrieve(request.data['id'])
@@ -140,9 +139,9 @@ class AccountingViewSet(viewsets.ViewSet):
                     "notification_id": str(uuid1()),
                     "url": reverse('quest_manage_billing',
                                    kwargs={"username": pleb.username}),
-                    "action_name": "Your Sagebrew Pro Subscription Trial will "
+                    "action_name": "Your Pro Trial will "
                                    "be ending soon, add a payment method to "
-                                   "extend your Subscription"
+                                   "keep your Pro Account features."
                 }
             )
             return Response({"detail": "Trail Will End"},

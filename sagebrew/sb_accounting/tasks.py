@@ -4,6 +4,8 @@ from datetime import datetime
 from celery import shared_task
 from intercom import Event, Intercom, errors
 
+from django.conf import settings
+
 from neomodel import db
 
 from sb_quests.neo_models import Quest
@@ -14,9 +16,8 @@ logger = getLogger('loggly_logs')
 
 @shared_task()
 def check_unverified_quest():
-    # TODO replace these with environmental variables
-    Intercom.app_id = "jmz4pnau"
-    Intercom.app_api_key = "24a76d234536a2115ebe4b4e8bfe3ed8aaaa6884"
+    Intercom.app_id = settings.INTERCOM_APP_ID
+    Intercom.app_api_key = settings.INTERCOM_API_KEY
     now = datetime.now(pytz.utc)
     query = 'MATCH (q:Quest) WHERE q.account_verified<>"verified" ' \
             'AND q.account_first_updated IS NOT NULL RETURN q'

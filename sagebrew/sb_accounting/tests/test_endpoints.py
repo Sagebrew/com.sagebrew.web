@@ -125,7 +125,7 @@ class AccountingHooksTests(APITestCase):
             "legal_entity": {
                 "verification": {
                     "status": "verified",
-                    "details": ["some", "reasons", "this", "failed"]
+                    "details": "Identity document is too unclear to read."
                 }
             }
         }

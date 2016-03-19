@@ -49,9 +49,7 @@ class Quest(Searchable):
     # fields_needed contains a string which states what is needed for an
     # account to get verified
     account_verification_fields_needed = ArrayProperty()
-    # Last time the account was updated, we can check this and the
-    # verification status to determine if we need to open an intercom
-    # conversation with a user.
+    # A user readable string which states the reason verification has failed.
     account_verification_details = StringProperty()
     account_first_updated = DateTimeProperty(default=None)
     account_verified_date = DateTimeProperty()

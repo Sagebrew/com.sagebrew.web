@@ -841,8 +841,9 @@ class MeViewSet(mixins.UpdateModelMixin,
             html_array = []
             for item in serializer.data:
                 context = RequestContext(request, item)
-                html_array.append(render_to_string("single_donation.html",
-                                                   context))
+                html_array.append(render_to_string(
+                    "settings/donation_block.html",
+                    context))
             return self.get_paginated_response(html_array)
         return self.get_paginated_response(serializer.data)
 

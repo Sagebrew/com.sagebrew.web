@@ -3,16 +3,13 @@ var request = require('api').request,
     missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summary.hbs'),
     settings = require('settings').settings;
 
-export function populateMissions(loadElement, questID, template, container, emptyMessage){
+export function populateMissions(loadElement, questID, template, emptyMessage){
     require('common/handlebars_helpers');
     if(emptyMessage === undefined || emptyMessage === "undefined" || emptyMessage === null){
         emptyMessage = positionHolderTemplate({static_url: settings.static_url});
     }
     if(template === undefined || template === "undefined" || template === null){
         template = missionSummaryTemplate;
-    }
-    if(container === undefined || container === "undefined" || container === null){
-        container = $('#js-mission-container');
     }
     if(loadElement === undefined || loadElement === "undefined" || loadElement === null) {
         loadElement = $(".app-sb");
@@ -38,7 +35,7 @@ export function populateMissions(loadElement, questID, template, container, empt
             for(var i=0; i < data.results.length; i++){
                 data.results[i].title = determineTitle(data.results[i]);
             }
-            container.append(template({
+            $container.append(template({
                 missions: data.results,
                 static_url: settings.static_url
             }));
@@ -46,7 +43,7 @@ export function populateMissions(loadElement, questID, template, container, empt
     });
 }
 
-export function populateEndorsements(loadElement, questID, template, container, emptyMessage){
+export function populateEndorsements(loadElement, questID, template, emptyMessage, endorserType){
     require('common/handlebars_helpers');
     if(emptyMessage === undefined || emptyMessage === "undefined" || emptyMessage === null){
         emptyMessage = positionHolderTemplate({static_url: settings.static_url});
@@ -54,15 +51,15 @@ export function populateEndorsements(loadElement, questID, template, container, 
     if(template === undefined || template === "undefined" || template === null){
         template = missionSummaryTemplate;
     }
-    if(container === undefined || container === "undefined" || container === null){
-        container = $('#js-endorsements-container');
-    }
     if(loadElement === undefined || loadElement === "undefined" || loadElement === null) {
         loadElement = $(".app-sb");
     }
+    if(endorserType === undefined || endorserType === "undefined" || endorserType === null) {
+        endorserType = "profiles";
+    }
     loadElement.sb_contentLoader({
         emptyDataMessage: emptyMessage,
-        url: '/v1/profiles/' + questID + '/endorsements/',
+        url: '/v1/' + endorserType + '/' + questID + '/endorsed/',
         loadingMoreItemsMessage: " ",
         itemsPerPage: 3,
         loadMoreMessage: " ",
@@ -81,7 +78,7 @@ export function populateEndorsements(loadElement, questID, template, container, 
             for(var i=0; i < data.results.length; i++){
                 data.results[i].title = determineTitle(data.results[i]);
             }
-            container.append(template({
+            $container.append(template({
                 missions: data.results,
                 static_url: settings.static_url
             }));

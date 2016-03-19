@@ -13,10 +13,9 @@
 
 
 {% block hero %}
-    {% comment %}
-    Rolling with the hero layout so that we can display
-    promotions, system notifications, etc at the top of the newsfeed
-    {% endcomment %}
+    <div class="block">
+        <h1 class="block-title no-underline center-title">Newsfeed</h1>
+    </div>
 {% endblock %}
 {% block secondary_nav %}
 {% endblock %}
@@ -38,7 +37,7 @@
             <a class="btn btn-primary sb_btn sb_btn_fill" href="/conversations/submit_question/"><i class="fa fa-cloud  quest-rocket"></i> Discuss</a>
         </div>
     </div>
-    {% include "sb_home_section/representative_col.html" %}
+    {% include "representative_block.html" %}
 {% endblock %}
 
 {% block live %}

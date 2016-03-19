@@ -9,12 +9,7 @@ var request = require('api').request,
 export function init() {
     var $app = $(".sb-profile-not-friend-container"),
         profilePageUser = helpers.args(1);
-
-
-    // (Un)follow user bindings
     $app
-        //
-        // Follow user
         .on('click', '#js-follow', function (event) {
             event.preventDefault();
             var $deleteAction = $(".js-delete-friend-request"),
@@ -34,8 +29,6 @@ export function init() {
                 }
             });
         })
-        //
-        // Unfollow user
         .on('click', '#js-unfollow', function (event) {
             event.preventDefault();
             var $follow = $("#js-follow"),

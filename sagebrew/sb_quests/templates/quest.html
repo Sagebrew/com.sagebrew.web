@@ -143,26 +143,29 @@
 
     <div class="block block-type-title">
         <div class="block-content">
-            <h1>Missions
-            </h1>
+            <h1>Missions</h1>
             <div class="title-important-actions">
                 {% if request.user.username == quest.owner_username %}
                     <a class="btn btn-primary js-quest-signup">Embark on a Mission</a>
                 {% endif %}
             </div>
         </div>
-
     </div>
     <div id="js-mission-list">
         <div id="js-mission-container"></div>
         <div class="loader"></div>
     </div>
-    <div class="row block block-padding-bottom-15 row-no-margin">
-        <div class="col-xs-12">
-            <h2 class="block-title">Endorsed Missions</h2>
-            <div id="js-mission-list"><div id="js-endorsed-mission-container"></div></div>
+    <div class="block block-type-title">
+        <div class="block-content">
+            <h1>Endorsed Missions</h1>
         </div>
     </div>
+    <div id="js-endrorsed-list">
+        <div id="js-endorsed-mission-container">
+            <div class="loader"></div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block intercom %}

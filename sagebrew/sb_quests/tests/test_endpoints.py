@@ -473,7 +473,7 @@ class QuestEndpointTests(APITestCase):
                           county="Oakland",
                           congressional_district=11,
                           validated=True).save()
-        address.owned_by.connect(address)
+        address.owned_by.connect(self.pleb)
         stripe_res = stripe.Token.create(
             bank_account={
                 "country": "US",

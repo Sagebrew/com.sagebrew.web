@@ -128,7 +128,7 @@ class TestProfileInfoView(TestCase):
                                            gt_id=str(uuid1())).save()
         addresses = Address.nodes.all()
         for address in addresses:
-            if address.owned_by.is_connected(address):
+            if address.owned_by.is_connected(self.pleb):
                 address.owned_by.disconnect(self.pleb)
 
     def test_user_info_population_no_birthday(self):

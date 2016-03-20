@@ -1000,7 +1000,7 @@ class MissionEndpointTests(APITestCase):
         volunteer.mission.connect(self.mission)
         volunteer.volunteer.connect(self.pleb2)
         address = Address(city="Walled Lake", state="Michigan").save()
-        self.pleb2.address.connect(address)
+        address.owned_by.connect(self.pleb2)
         url = "/v1/missions/%s/volunteer_data/" % self.mission.object_uuid
         response = self.client.get(url, format='json')
 

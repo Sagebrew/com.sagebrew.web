@@ -26,6 +26,18 @@ export function load() {
     var $app = $(".app-sb"),
         greyPage = document.getElementById('sb-greyout-page'),
         account_type;
+    $("#account-type").change(function() {
+        var $this = $(this),
+            accountOwner = $("#js-account-owner-wrapper"),
+            ein = $("#js-ein-wrapper");
+        if ($this.val() === "business") {
+            accountOwner.show();
+            ein.show();
+        } else {
+            accountOwner.hide();
+            ein.hide();
+        }
+    });
     Stripe.setPublishableKey(settings.api.stripe);
     if(settings.profile.quest.verification.fields_needed !== null && settings.profile.quest.verification.fields_needed !== "" && settings.profile.quest.verification.fields_needed !== undefined && settings.profile.quest.verification.fields_needed !== "undefined") {
         document.getElementById('js-fields-needed').innerHTML = String("Fields Needed: " + settings.profile.quest.verification.fields_needed).replace('Business Name', 'Name of Entity Managing Bank').replace('Business Tax Id', "EIN of Managing Bank");

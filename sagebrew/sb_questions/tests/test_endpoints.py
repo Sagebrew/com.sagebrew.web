@@ -716,7 +716,8 @@ class QuestionEndpointTests(APITestCase):
             'question-detail',
             kwargs={'object_uuid': self.question.object_uuid})
         solution = Solution(content='this is fake content',
-                            owner_username=self.pleb.username).save()
+                            owner_username=self.pleb.username,
+                            parent_id=self.question.object_uuid).save()
         solution.owned_by.connect(self.pleb)
         self.question.solutions.connect(solution)
         response = self.client.get(url, format='json')
@@ -732,7 +733,8 @@ class QuestionEndpointTests(APITestCase):
             'question-detail',
             kwargs={'object_uuid': self.question.object_uuid})
         solution = Solution(content='this is fake content',
-                            owner_username=self.pleb.username).save()
+                            owner_username=self.pleb.username,
+                            parent_id=self.question.object_uuid).save()
         solution.owned_by.connect(self.pleb)
         self.question.solutions.connect(solution)
         response = self.client.get(url, format='json')

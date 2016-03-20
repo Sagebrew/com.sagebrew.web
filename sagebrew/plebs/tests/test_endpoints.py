@@ -3028,7 +3028,9 @@ class TestFollowNewsfeed(APITestCase):
 
     def test_get_solution_from_following(self):
         self.client.force_authenticate(user=self.user)
-        solution = Solution(content="Some arbitrary solution content").save()
+        solution = Solution(content="Some arbitrary solution content",
+                            owner_username=self.pleb2.username,
+                            parent_id=self.question.object_uuid).save()
         self.question.solutions.connect(solution)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')

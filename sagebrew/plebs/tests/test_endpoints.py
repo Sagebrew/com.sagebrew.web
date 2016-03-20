@@ -1206,6 +1206,7 @@ class ProfileFriendsMethodTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['type'], 'profile')
 
+
 class BaseUserTests(APITestCase):
 
     def setUp(self):
@@ -2382,7 +2383,7 @@ class BetaUserMethodEndpointTests(APITestCase):
         try:
             self.pleb = Pleb.nodes.get(email=self.email)
             self.pleb.delete()
-        except:
+        except (Pleb.DoesNotExist, DoesNotExist):
             pass
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -3031,10 +3032,10 @@ class TestFollowNewsfeed(APITestCase):
         solution = Solution(content="Some arbitrary solution content",
                             owner_username=self.pleb2.username,
                             parent_id=self.question.object_uuid).save()
+        solution.owned_by.connect(self.pleb2)
         self.question.solutions.connect(solution)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
-        print response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 2)
         self.assertEqual(response.data['results'][0]['id'],

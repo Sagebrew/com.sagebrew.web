@@ -80,7 +80,7 @@ class Question(TitledContent):
                 '[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
                 'WHERE solutions.to_be_deleted = false ' \
                 'RETURN solutions' % self.object_uuid
-        res, col = db.cypher_query(query)
+        res, _ = db.cypher_query(query)
         return [Solution.inflate(row[0]) for row in res]
 
     def get_solution_ids(self):
@@ -89,7 +89,7 @@ class Question(TitledContent):
                 'WHERE solutions.to_be_deleted = false ' \
                 'RETURN solutions.object_uuid' % self.object_uuid
 
-        res, col = db.cypher_query(query)
+        res, _ = db.cypher_query(query)
         return [row[0] for row in res]
 
     def get_conversation_authors(self):

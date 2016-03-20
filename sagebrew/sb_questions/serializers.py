@@ -247,19 +247,15 @@ class QuestionSerializerNeo(TitledContentSerializer):
         if expedite == "true":
             return []
         solutions = []
-        if expand == "true":
+        if expand == "true" and relations != "hyperlinked":
             query = 'MATCH (a:Question {object_uuid: "%s"})' \
                 '-[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
                 'WHERE solutions.to_be_deleted = false ' \
                 'RETURN solutions' % obj.object_uuid
-            res, col = db.cypher_query(query)
-            solutions.append(
-                SolutionSerializerNeo(
-                    [Solution.inflate(row[0]) for row in res], many=True,
-                    context={
-                        "request": request,
-                        "expand_param": expand_param
-                    }).data)
+            res, _ = db.cypher_query(query)
+            solutions = SolutionSerializerNeo(
+                [Solution.inflate(row[0]) for row in res], many=True,
+                context={"request": request, "expand_param": expand_param}).data
         else:
             if relations == "hyperlinked":
                 solutions = [

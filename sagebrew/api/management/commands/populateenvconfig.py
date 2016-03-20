@@ -143,6 +143,12 @@ def populate_staging_values(data):
                         environ.get("GOOGLE_MAPS_API_STAGING", ""))
     data = data.replace("<GOOGLE_MAPS_JS>",
                         environ.get("GOOGLE_MAPS_JS_STAGING", ""))
+    data = data.replace("<INTERCOM_API_KEY>",
+                        environ.get("INTERCOM_API_KEY_STAGING", ""))
+    data = data.replace("<INTERCOM_APP_ID>",
+                        environ.get("INTERCOM_APP_ID_STAGING", ""))
+    data = data.replace("<INTERCOM_ADMIN_ID_DEVON>",
+                        environ.get("INTERCOM_ADMIN_ID_DEVON_STAGING", ""))
     return data
 
 
@@ -228,6 +234,12 @@ def populate_production_values(data):
                         environ.get("GOOGLE_MAPS_API_PROD", ""))
     data = data.replace("<GOOGLE_MAPS_JS>",
                         environ.get("GOOGLE_MAPS_JS_PROD", ""))
+    data = data.replace("<INTERCOM_API_KEY>",
+                        environ.get("INTERCOM_API_KEY_PROD", ""))
+    data = data.replace("<INTERCOM_APP_ID>",
+                        environ.get("INTERCOM_APP_ID_PROD", ""))
+    data = data.replace("<INTERCOM_ADMIN_ID_DEVON>",
+                        environ.get("INTERCOM_ADMIN_ID_DEVON_PROD", ""))
     return data
 
 
@@ -287,6 +299,12 @@ def populate_test_values(data):
                         environ.get("GOOGLE_MAPS_API", ""))
     data = data.replace("<GOOGLE_MAPS_JS>",
                         environ.get("GOOGLE_MAPS_JS", ""))
+    data = data.replace("<INTERCOM_API_KEY>",
+                        environ.get("INTERCOM_API_KEY_STAGING", ""))
+    data = data.replace("<INTERCOM_APP_ID>",
+                        environ.get("INTERCOM_APP_ID_STAGING", ""))
+    data = data.replace("<INTERCOM_ADMIN_ID_DEVON>",
+                        environ.get("INTERCOM_ADMIN_ID_DEVON_STAGING", ""))
     return data
 
 

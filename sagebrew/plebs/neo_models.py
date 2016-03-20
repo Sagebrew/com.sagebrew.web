@@ -9,8 +9,8 @@ from django.core.cache import cache
 from django.templatetags.static import static
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty,
+                      DateTimeProperty, RelationshipTo, RelationshipFrom,
+                      StructuredRel, BooleanProperty, FloatProperty,
                       DoesNotExist, MultipleNodesReturned)
 from neomodel import db
 
@@ -210,7 +210,6 @@ class Pleb(Searchable):
     voted_on = RelationshipTo('sb_base.neo_models.VotableContent', 'VOTES')
     viewed = RelationshipTo('sb_search.neo_models.Searchable', "VIEWED",
                             model=Impression)
-    address = RelationshipTo("Address", "LIVES_AT")
     interests = RelationshipTo("sb_tags.neo_models.Tag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
     # Optimization
@@ -729,7 +728,7 @@ class Address(SBObject):
     validated = BooleanProperty(default=False)
 
     # Relationships
-    owned_by = RelationshipTo("Pleb", 'LIVES_IN')
+    owned_by = RelationshipFrom("Pleb", 'LIVES_AT')
     encompassed_by = RelationshipTo('sb_locations.neo_models.Location',
                                     'ENCOMPASSED_BY')
 

@@ -473,7 +473,7 @@ class QuestEndpointTests(APITestCase):
                           county="Oakland",
                           congressional_district=11,
                           validated=True).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(address)
         stripe_res = stripe.Token.create(
             bank_account={
                 "country": "US",
@@ -505,7 +505,7 @@ class QuestEndpointTests(APITestCase):
                           county="Oakland",
                           congressional_district=11,
                           validated=True).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(self.pleb)
         self.quest.tos_acceptance = True
         self.quest.save()
         stripe_res = stripe.Token.create(
@@ -539,7 +539,7 @@ class QuestEndpointTests(APITestCase):
                           county="Oakland",
                           congressional_district=11,
                           validated=True).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(self.pleb)
         stripe_res = stripe.Token.create(
             bank_account={
                 "country": "US",
@@ -819,7 +819,7 @@ class QuestEndpointTests(APITestCase):
                           county="Oakland",
                           congressional_district=11,
                           validated=True).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(self.pleb)
         stripe_res = stripe.Token.create(
             bank_account={
                 "country": "US",
@@ -852,7 +852,7 @@ class QuestEndpointTests(APITestCase):
                           county="Oakland",
                           congressional_district=11,
                           validated=True).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(self.pleb)
         stripe_res = stripe.Token.create(
             bank_account={
                 "country": "US",

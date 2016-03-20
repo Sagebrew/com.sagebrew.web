@@ -1621,7 +1621,6 @@ class PlebPresidentTest(APITestCase):
                                congressional_district="11")
         self.address.save()
         self.address.owned_by.connect(self.pleb)
-        self.pleb.address.connect(self.address)
 
     def test_unauthorized(self):
         url = reverse('profile-president',
@@ -1760,7 +1759,6 @@ class PlebSenatorsTest(APITestCase):
                                congressional_district="11")
         self.address.save()
         self.address.owned_by.connect(self.pleb)
-        self.pleb.address.connect(self.address)
 
     def test_unauthorized(self):
         url = reverse('profile-senators',
@@ -1905,7 +1903,6 @@ class PlebHouseRepresentativeTest(APITestCase):
                                congressional_district="11")
         self.address.save()
         self.address.owned_by.connect(self.pleb)
-        self.pleb.address.connect(self.address)
 
     def test_unauthorized(self):
         url = reverse('profile-house-representative',
@@ -2049,7 +2046,6 @@ class AddressEndpointTests(APITestCase):
                                congressional_district="11")
         self.address.save()
         self.address.owned_by.connect(self.pleb)
-        self.pleb.address.connect(self.address)
         self.url = "http://testserver"
 
     def test_unauthorized(self):
@@ -2218,7 +2214,7 @@ class AddressEndpointTests(APITestCase):
         res, col = db.cypher_query(query)
         self.assertEqual(Address.inflate(res[0][0]).object_uuid,
                          response.data['id'])
-        query = 'MATCH (a:Pleb)<-[:LIVES_IN]-' \
+        query = 'MATCH (a:Pleb)-[:LIVES_AT]->' \
                 '(b:Address {object_uuid: "%s"}) RETURN a' % (
                     response.data['object_uuid'])
         res, col = db.cypher_query(query)
@@ -2493,10 +2489,8 @@ class NewsfeedTests(APITestCase):
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",
-                               congressional_district="11")
-        self.address.save()
+                               congressional_district="11").save()
         self.address.owned_by.connect(self.pleb)
-        self.pleb.address.connect(self.address)
         self.url = "http://testserver"
 
     def test_unauthorized(self):
@@ -2656,11 +2650,12 @@ class NewsfeedTests(APITestCase):
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
-        mission = Mission(owner_username=quest.owner_username).save()
+        mission = Mission(owner_username=quest.owner_username,
+                          active=True).save()
         quest.missions.connect(mission)
         quest.owner.connect(self.pleb)
         usa = Location(name="United States of America").save()
-        pres = Position(name="President").save()
+        pres = Position(name="President", verified=True).save()
         pres.location.connect(usa)
         mission.position.connect(pres)
         mission.location.connect(usa)
@@ -2679,7 +2674,8 @@ class NewsfeedTests(APITestCase):
             website=website, owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
-        mission = Mission(owner_username=quest.owner_username).save()
+        mission = Mission(owner_username=quest.owner_username,
+                          active=True, website=website).save()
         quest.missions.connect(mission)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
@@ -2700,7 +2696,8 @@ class NewsfeedTests(APITestCase):
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
-        mission = Mission(owner_username=quest.owner_username).save()
+        mission = Mission(owner_username=quest.owner_username,
+                          active=True).save()
         quest.missions.connect(mission)
         quest.owner.connect(self.pleb)
         usa = Location(name="United States of America").save()
@@ -2719,8 +2716,9 @@ class NewsfeedTests(APITestCase):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
-        for update in Update.nodes.all():
-            update.delete()
+        query = "MATCH (n:Update) OPTIONAL MATCH " \
+                "(n:Update)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         query = "MATCH (n:Quest) OPTIONAL MATCH " \
                 "(n:Quest)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
@@ -2734,35 +2732,10 @@ class NewsfeedTests(APITestCase):
         update = Update(content="This is a new update",
                         title="This is a title",
                         owner_username=self.pleb.username).save()
-        mission = Mission(owner_username=quest.owner_username).save()
+        mission = Mission(owner_username=quest.owner_username,
+                          active=True).save()
         quest.missions.connect(mission)
-        update.about.connect(quest)
-        quest.updates.connect(update)
-        quest.owner.connect(self.pleb)
-        usa = Location(name="United States of America").save()
-        pres = Position(name="President").save()
-        pres.location.connect(usa)
-        mission.position.connect(pres)
-        self.address.encompassed_by.connect(usa)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('me-newsfeed')
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.data['count'], 2)
-
-    def test_get_mission_update_content(self):
-        quest = Quest(
-            active=True, about="Hey there this is my campaign. "
-                               "Feel free to drop me a line!",
-            facebook="dbleibtrey", youtube="devonbleibtrey",
-            website="www.sagebrew.com", owner_username=self.pleb.username,
-            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
-            profile_pic=self.pleb.profile_pic).save()
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        content = "This is a new update"
-        update = Update(content=content, title="This is a title",
-                        owner_username=self.pleb.username).save()
-        update.about.connect(quest)
+        update.about.connect(mission)
         quest.owner.connect(self.pleb)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
@@ -2773,7 +2746,37 @@ class NewsfeedTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
-        self.assertEqual(response.data['results'][0]['content'], content)
+        # Counts both the update and the mission
+        self.assertEqual(response.data['count'], 2)
+
+    def test_get_mission_update_content(self):
+        quest = Quest(
+            active=True, about="Hey there this is my campaign. "
+                               "Feel free to drop me a line!",
+            facebook="dbleibtrey", youtube="devonbleibtrey",
+            website="www.sagebrew.com", owner_username=self.pleb.username,
+            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
+            profile_pic=self.pleb.profile_pic).save()
+        mission = Mission(owner_username=quest.owner_username,
+                          active=True).save()
+        quest.missions.connect(mission)
+        quest.owner.connect(self.pleb)
+        content = "This is a new update"
+        update = Update(content=content, title="This is a title",
+                        owner_username=self.pleb.username).save()
+        update.about.connect(mission)
+        usa = Location(name="United States of America").save()
+        pres = Position(name="President").save()
+        pres.location.connect(usa)
+        mission.position.connect(pres)
+        mission.location.connect(usa)
+        self.address.encompassed_by.connect(usa)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        result = [item for item in response.data['results']
+                  if item['type'] == "update"]
+        self.assertEqual(result[0]['content'], content)
 
     def test_get_update_title(self):
         quest = Quest(
@@ -2783,24 +2786,27 @@ class NewsfeedTests(APITestCase):
             website="www.sagebrew.com", owner_username=self.pleb.username,
             first_name=self.pleb.first_name, last_name=self.pleb.last_name,
             profile_pic=self.pleb.profile_pic).save()
-        mission = Mission(owner_username=quest.owner_username).save()
+        mission = Mission(owner_username=quest.owner_username,
+                          active=True).save()
         quest.missions.connect(mission)
         title = "This is a title"
         update = Update(content="This is a new update",
                         title=title,
                         owner_username=self.pleb.username).save()
-        update.about.connect(quest)
-        quest.updates.connect(update)
+        update.about.connect(mission)
         quest.owner.connect(self.pleb)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         pres.location.connect(usa)
         mission.position.connect(pres)
+        mission.location.connect(usa)
         self.address.encompassed_by.connect(usa)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
-        self.assertEqual(response.data['results'][0]['title'], title)
+        result = [item for item in response.data['results']
+                  if item['type'] == "update"]
+        self.assertEqual(result[0]['title'], title)
 
     def test_get_question_content(self):
         content = "This is the content for my question."
@@ -2879,7 +2885,8 @@ class NewsfeedTests(APITestCase):
         question.owned_by.connect(self.pleb)
 
         solution = Solution(content=content,
-                            owner_username=self.pleb.username).save()
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid).save()
         solution.owned_by.connect(self.pleb)
         question.solutions.connect(solution)
 
@@ -2897,7 +2904,8 @@ class NewsfeedTests(APITestCase):
         question.owned_by.connect(self.pleb)
 
         solution = Solution(content=content,
-                            owner_username=self.pleb.username).save()
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid).save()
         solution.owned_by.connect(self.pleb)
         question.solutions.connect(solution)
 
@@ -2922,11 +2930,13 @@ class NewsfeedTests(APITestCase):
         question.owned_by.connect(self.pleb)
 
         solution = Solution(content=content,
-                            owner_username=self.pleb.username).save()
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid).save()
         solution.owned_by.connect(self.pleb)
 
         solution_two = Solution(content=content,
-                                owner_username=self.pleb.username).save()
+                                owner_username=self.pleb.username,
+                                parent_id=question.object_uuid).save()
         solution_two.owned_by.connect(self.pleb)
         question.solutions.connect(solution)
 
@@ -2936,12 +2946,18 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['count'], 2)
 
     def test_get_multiple_objects(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Mission) OPTIONAL MATCH " \
+                "(n:Mission)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         post = Post(content="Hey I'm a post",
                     owner_username=self.pleb.username,
                     wall_owner_username=self.pleb.username).save()
-        post.owned_by.connect(self.pleb)
-        post.posted_on_wall.connect(self.pleb.get_wall())
-        self.pleb.get_wall().posts.connect(post)
         post.owned_by.connect(self.pleb)
 
         question = Question(
@@ -2951,7 +2967,8 @@ class NewsfeedTests(APITestCase):
         question.owned_by.connect(self.pleb)
 
         solution = Solution(content='this is fake content',
-                            owner_username=self.pleb.username).save()
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid).save()
         solution.owned_by.connect(self.pleb)
         question.solutions.connect(solution)
         self.client.force_authenticate(user=self.user)
@@ -2975,7 +2992,8 @@ class NewsfeedTests(APITestCase):
         question.owned_by.connect(self.pleb)
 
         solution = Solution(content='this is fake content',
-                            owner_username=self.pleb.username).save()
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid).save()
         solution.owned_by.connect(self.pleb)
         question.solutions.connect(solution)
 

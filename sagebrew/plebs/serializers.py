@@ -366,7 +366,6 @@ class AddressSerializer(SBSerializer):
         address.set_encompassing()
         pleb = Pleb.get(username=request.user.username, cache_buster=True)
         address.owned_by.connect(pleb)
-        pleb.address.connect(address)
         pleb.completed_profile_info = True
         pleb.save()
         pleb.determine_reps()

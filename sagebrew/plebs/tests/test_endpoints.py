@@ -2625,7 +2625,6 @@ class NewsfeedTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
-        print response.data
         self.assertEqual(response.data['results'][0]['content'], content)
 
     def test_get_post_username(self):

@@ -34,7 +34,7 @@ class MissionViewTests(TestCase):
                                title=str(uuid1())).save()
         self.quest = Quest(owner_username=self.pleb.username).save()
         self.quest.missions.connect(self.mission)
-        self.pleb.quest.connect(self.quest)
+        self.quest.owner.connect(self.pleb)
 
     def test_mission_list(self):
         self.client.login(username=self.user.username, password=self.password)

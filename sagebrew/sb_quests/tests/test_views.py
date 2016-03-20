@@ -8,6 +8,8 @@ from django.test import TestCase, Client
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 
+from neomodel import db
+
 from sb_registration.utils import create_user_util_test
 from plebs.neo_models import Pleb
 from sb_missions.neo_models import Mission
@@ -33,7 +35,7 @@ class QuestViewTests(TestCase):
                                title=str(uuid1())).save()
         self.quest = Quest(owner_username=self.pleb.username).save()
         self.quest.missions.connect(self.mission)
-        self.pleb.quest.connect(self.quest)
+        self.quest.owner.connect(self.pleb)
 
     def test_quest(self):
         self.client.login(username=self.user.username, password=self.password)
@@ -73,7 +75,8 @@ class QuestViewTests(TestCase):
         self.client.login(username=self.user.username, password=self.password)
         url = reverse('quest_manage_settings',
                       kwargs={'username': self.user.username})
-        for quest in self.pleb.quest.all():
-            quest.delete()
+        query = 'MATCH (a:Pleb {username: "%s"})-[r:IS_WAGING]->(q:Quest) ' \
+                'DELETE q, r' % self.pleb.username
+        res, _ = db.cypher_query(query)
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)

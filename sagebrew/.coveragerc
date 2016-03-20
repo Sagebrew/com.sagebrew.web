@@ -51,7 +51,6 @@ omit =
     */management/commands/clear_neo_db.py
     */management/commands/create_dynamo_tables.py
     */management/commands/create_privileges.py
-    */management/commands/add_url_and_href.py
     */management/commands/add_cities_from_addresses.py
     */management/commands/migrate_addresses.py
     */management/commands/migrate_public_official_states.py

@@ -6,7 +6,7 @@ from plebs.endpoints import (UserViewSet, ProfileViewSet, AddressViewSet,
                              SentFriendRequestViewSet, MeViewSet,
                              FriendManager, FriendRequestList)
 from sb_posts.endpoints import (WallPostsListCreate,
-                                WallPostsRetrieveUpdateDestroy, post_renderer)
+                                WallPostsRetrieveUpdateDestroy)
 
 router = routers.SimpleRouter()
 me_router = routers.SimpleRouter()
@@ -34,9 +34,6 @@ urlpatterns = patterns(
     url(r'^', include(router.urls)),
     url(r'^profiles/(?P<username>[A-Za-z0-9.@_%+-]{2,30})/wall/$',
         WallPostsListCreate.as_view(), name="profile-wall"),
-    url(r'^profiles/(?P<username>[A-Za-z0-9.@_%+-]{2,30})/'
-        r'wall/render/$',
-        post_renderer, name="profile-wall-render"),
     url(r'^profiles/(?P<username>[A-Za-z0-9.@_%+-]{2,30})/wall/'
         r'(?P<post_uuid>[A-Za-z0-9.@_%+-]{36,36})/$',
         WallPostsRetrieveUpdateDestroy.as_view(),

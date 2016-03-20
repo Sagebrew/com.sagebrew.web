@@ -7,7 +7,6 @@ from django.core.cache import cache
 
 from neomodel import (DoesNotExist, CypherException, db)
 
-from plebs.neo_models import Pleb
 from sb_requirements.neo_models import Requirement
 
 from .neo_models import Privilege, SBAction

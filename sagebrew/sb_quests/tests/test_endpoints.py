@@ -1086,7 +1086,7 @@ class PositionEndpointTests(APITestCase):
             about='Test Bio', owner_username=self.pleb.username).save()
         self.mission = Mission(owner_username=self.quest.owner_username,
                                focus_on_type="position").save()
-        self.pleb.quest.connect(self.quest)
+        self.quest.owner.connect(self.pleb)
         self.quest.moderators.connect(self.pleb)
         self.quest.editors.connect(self.pleb)
         self.position = Position(name="Senator").save()

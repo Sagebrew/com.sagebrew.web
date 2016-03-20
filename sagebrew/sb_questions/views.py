@@ -63,16 +63,6 @@ def question_redirect_page(request, question_uuid):
 @user_passes_test(verify_completed_registration,
                   login_url='/registration/profile_information')
 def solution_edit_page(request, solution_uuid=None):
-    """
-    This view will get a question based upon the uuid, the request was from a
-    search it will return the html of the question for the search result
-    page, if it was called to display a single question detail it will return
-    the html the question_detail_page expects
-
-    :param solution_uuid:
-    :param request:
-    :return:
-    """
     data = {"object_uuid": solution_uuid}
     return render(request, 'edit_solution.html', data)
 

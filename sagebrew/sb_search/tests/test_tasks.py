@@ -214,7 +214,6 @@ class TestUpdateSearchObject(TestCase):
     def test_question(self):
         question = Question(title=str(uuid1()),
                             content="some test content",).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
         question.owner_username = self.pleb.username
         object_data = QuestionSerializerNeo(question).data
@@ -258,7 +257,7 @@ class TestUpdateSearchObject(TestCase):
 
     def test_quest(self):
         quest = Quest().save()
-        self.pleb.quest.connect(quest)
+        quest.owner.connect(self.pleb)
         quest.owner_username = self.pleb.username
         object_data = QuestSerializer(quest).data
         res = self.es.index(index='full-search-base',
@@ -310,8 +309,13 @@ class TestUpdateSearchObject(TestCase):
     def test_not_valid(self):
         request = RequestFactory().get('')
         request.user = self.user
-        solution = Solution().save()
+        question = Question(
+            content="hello", owner_username=self.pleb.username,
+            title=str(uuid1())).save()
+        solution = Solution(parent_id=question.object_uuid).save()
+        question.solutions.connect(solution)
         solution.owner_username = self.pleb.username
+
         object_data = SolutionSerializerNeo(solution,
                                             context={"request": request}).data
         res = self.es.index(index='full-search-base',
@@ -362,7 +366,12 @@ class TestUpdateSearchObject(TestCase):
     def test_no_label_not_question(self):
         request = RequestFactory().get('')
         request.user = self.user
-        solution = Solution().save()
+        question = Question(
+            content="hello", owner_username=self.pleb.username,
+            title=str(uuid1())
+        ).save()
+        solution = Solution(parent_id=question.object_uuid).save()
+        question.solutions.connect(solution)
         solution.owner_username = self.pleb.username
         object_data = SolutionSerializerNeo(solution,
                                             context={"request": request}).data

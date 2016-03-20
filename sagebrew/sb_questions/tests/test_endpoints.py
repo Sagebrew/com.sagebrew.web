@@ -34,7 +34,6 @@ class QuestionEndpointTests(APITestCase):
                                  title=self.title,
                                  owner_username=self.pleb.username).save()
         self.question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(self.question)
         self.user = User.objects.get(email=self.email)
         try:
             Tag.nodes.get(name='taxes')
@@ -323,25 +322,6 @@ class QuestionEndpointTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['title'], title)
-
-    def test_create_rendered(self):
-        self.client.force_authenticate(user=self.user)
-        content = "This is the content to my question, it's a pretty good " \
-                  "question."
-        title = str(uuid1())
-        tags = ['taxes', 'environment']
-        url = "%s?html=true" % reverse('question-list')
-        data = {
-            "content": content,
-            "title": title,
-            "tags": tags
-        }
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue("html" in response.data)
-        self.assertTrue("ids" in response.data)
-        self.assertEqual(len(response.data['ids']), 1)
-        self.assertEqual(len(response.data['html']), 1)
 
     def test_create_content(self):
         self.client.force_authenticate(user=self.user)
@@ -683,10 +663,8 @@ class QuestionEndpointTests(APITestCase):
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
         self.question.solutions.connect(solution)
-        self.pleb.solutions.connect(solution)
         response = self.client.patch(url, data, format='json')
         self.question.solutions.disconnect(solution)
-        self.pleb.solutions.disconnect(solution)
         solution.delete()
         self.assertEqual(response.data['title'],
                          ['Cannot edit Title when there have already '
@@ -715,27 +693,7 @@ class QuestionEndpointTests(APITestCase):
         url = reverse('question-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
         response = self.client.get(url, format='json')
-        self.assertEqual('test_test',
-                         response.data['profile'])
-
-    def test_get_rendered(self):
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse(
-            'question-detail',
-            kwargs={'object_uuid': self.question.object_uuid})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue("html" in response.data)
-        self.assertTrue("ids" in response.data)
-        self.assertTrue("solution_count" in response.data)
-
-    def test_list_rendered(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('question-render')
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue("html" in response.data['results'])
-        self.assertTrue("ids" in response.data['results'])
+        self.assertEqual('test_test', response.data['profile']['username'])
 
     def test_get_solutions_expedited(self):
         self.client.force_authenticate(user=self.user)
@@ -746,10 +704,8 @@ class QuestionEndpointTests(APITestCase):
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
         self.question.solutions.connect(solution)
-        self.pleb.solutions.connect(solution)
         response = self.client.get(url, format='json')
         self.question.solutions.disconnect(solution)
-        self.pleb.solutions.disconnect(solution)
         solution.delete()
 
         self.assertEqual([], response.data['solutions'])
@@ -763,10 +719,8 @@ class QuestionEndpointTests(APITestCase):
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
         self.question.solutions.connect(solution)
-        self.pleb.solutions.connect(solution)
         response = self.client.get(url, format='json')
         self.question.solutions.disconnect(solution)
-        self.pleb.solutions.disconnect(solution)
         solution.delete()
         self.assertEqual(len(response.data['solutions']), 1)
         self.assertEqual(response.data['solutions'][0]['object_uuid'],
@@ -781,10 +735,8 @@ class QuestionEndpointTests(APITestCase):
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
         self.question.solutions.connect(solution)
-        self.pleb.solutions.connect(solution)
         response = self.client.get(url, format='json')
         self.question.solutions.disconnect(solution)
-        self.pleb.solutions.disconnect(solution)
         solution.delete()
         self.assertEqual(len(response.data['solutions']), 1)
         self.assertEqual(response.data['solutions'][0],
@@ -895,7 +847,6 @@ class QuestionEndpointTests(APITestCase):
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(question)
         self.client.force_authenticate(user=self.user)
         url = reverse('question-list')
         response = self.client.get(url, format='json')
@@ -910,7 +861,6 @@ class QuestionEndpointTests(APITestCase):
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(question)
         question.tags.connect(tag)
         self.client.force_authenticate(user=self.user)
         url = reverse('question-list') + "?limit=5&offset=0&" \
@@ -926,7 +876,6 @@ class QuestionEndpointTests(APITestCase):
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(question)
         question.tags.connect(tag)
         self.client.force_authenticate(user=self.user)
         url = reverse('question-list') + "?limit=5&offset=0&" \
@@ -942,7 +891,6 @@ class QuestionEndpointTests(APITestCase):
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(question)
         url = reverse('question-list') + "?limit=5&offset=0&" \
                                          "expand=true&sort_by=-created"
         response = self.client.get(url, format='json')
@@ -956,7 +904,6 @@ class QuestionEndpointTests(APITestCase):
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(question)
         url = reverse('question-list') + "?limit=5&offset=0&" \
                                          "expand=true&sort_by=created"
         response = self.client.get(url, format='json')
@@ -970,20 +917,8 @@ class QuestionEndpointTests(APITestCase):
         question = Question(title='test_title', content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(question)
         url = reverse('question-list') + "?limit=5&offset=0&" \
                                          "expand=true&sort_by=vote_count"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
-
-    def test_get_html(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse(
-            "question-detail",
-            kwargs={'object_uuid': self.question.object_uuid}) \
-            + "?html=true"
-        res = self.client.get(url, format='json')
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertIn("html", res.data.keys())
-        self.assertIsNotNone(res.data['html'])

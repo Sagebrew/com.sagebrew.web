@@ -260,7 +260,7 @@ class MeEndpointTests(APITestCase):
         )
         quest.stripe_customer_id = customer['id']
         quest.save()
-        self.pleb.quest.connect(quest)
+        quest.owner.connect(self.pleb)
         data = {
             "wallpaper_pic": "http://example.com/",
             "profile_pic": "http://example.com/",
@@ -966,11 +966,12 @@ class ProfileEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_pleb_quest_expand(self):
-        for quest in self.pleb.quest.all():
-            quest.delete()
+        query = 'MATCH (a:Pleb {username: "%s"})-[r:IS_WAGING]->(q:Quest) ' \
+                'DELETE q, r' % self.pleb.username
+        res, _ = db.cypher_query(query)
         cache.clear()
         quest = Quest(owner_username=self.pleb.username).save()
-        self.pleb.quest.connect(quest)
+        quest.owner.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-detail', kwargs={
             'username': self.pleb.username}) + "?expand=true"
@@ -1021,7 +1022,6 @@ class ProfileContentMethodTests(APITestCase):
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -1038,7 +1038,6 @@ class ProfileContentMethodTests(APITestCase):
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -1054,7 +1053,6 @@ class ProfileContentMethodTests(APITestCase):
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -1070,7 +1068,6 @@ class ProfileContentMethodTests(APITestCase):
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -1086,7 +1083,6 @@ class ProfileContentMethodTests(APITestCase):
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -1102,7 +1098,6 @@ class ProfileContentMethodTests(APITestCase):
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -1118,7 +1113,6 @@ class ProfileContentMethodTests(APITestCase):
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -1137,7 +1131,6 @@ class ProfileContentMethodTests(APITestCase):
             title=title,
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-questions', kwargs={
@@ -1158,7 +1151,6 @@ class ProfileContentMethodTests(APITestCase):
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-public-content', kwargs={
@@ -1186,7 +1178,6 @@ class ProfileContentMethodTests(APITestCase):
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-public-content', kwargs={
@@ -1214,18 +1205,6 @@ class ProfileFriendsMethodTests(APITestCase):
             'username': self.pleb.username})
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['type'], 'profile')
-
-    def test_get_pleb_friends_html(self):
-        friend = Pleb(username=shortuuid.uuid()).save()
-        self.pleb.friends.connect(friend)
-        friend.friends.connect(self.pleb)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('profile-friends', kwargs={
-            'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertGreater(response.data['count'], 0)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
 
 class BaseUserTests(APITestCase):
 
@@ -1730,18 +1709,6 @@ class PlebPresidentTest(APITestCase):
         self.assertEqual(response.data['detail'],
                          'Method "DELETE" not allowed.')
 
-    def test_empty_list(self):
-        cache.clear()
-        self.client.force_authenticate(user=self.user)
-        for senator in self.pleb.senators.all():
-            self.pleb.senators.disconnect(senator)
-        url = reverse('profile-president',
-                      kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual("<small>Sorry we could not find"
-                         " your President. Please alert us to our "
-                         "error!</small>", response.data)
-
     def test_list_president(self):
         cache.clear()
         self.client.force_authenticate(user=self.user)
@@ -1777,136 +1744,6 @@ class PlebPresidentTest(APITestCase):
                       kwargs={'username': self.pleb.username})
         response = self.client.get(url, format='json')
         self.assertGreater(len(response.data), 0)
-
-    def test_list_president_html(self):
-        cache.clear()
-        president = PublicOfficial(first_name="Debbie", last_name="Stab",
-                                   state="Michigan",
-                                   bioguideid=shortuuid.uuid(),
-                                   full_name="Debbie Stab [Dem]")
-        president.save()
-        for president in self.pleb.president.all():
-            self.pleb.president.disconnect(president)
-        self.pleb.president.connect(president)
-        url = "%s?html=true" % reverse('profile-president',
-                                       kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertGreater(len(response.data), 0)
-
-    def test_list_potential_presidents(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username,
-            active=True).save()
-        position = Position(name="President").save()
-        mission = Mission(owner_username=quest.owner_username,
-                          active=True).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-possible-presidents',
-                      kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'quest')
-        self.assertEqual(response.data[0]['owner_username'],
-                         self.pleb.username)
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_presidents_cached(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username,
-            active=True).save()
-        position = Position(name="President").save()
-        mission = Mission(owner_username=quest.owner_username,
-                          active=True).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-possible-presidents',
-                      kwargs={'username': self.pleb.username})
-        self.client.get(url, format='json')
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'quest')
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_presidents_not_active(self):
-        cache.clear()
-        for quest in Quest.nodes.all():
-            quest.delete()
-        for position in Position.nodes.all():
-            position.delete()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username).save()
-        position = Position(name="President").save()
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-possible-presidents',
-                      kwargs={'username': self.pleb.username})
-        self.client.get(url, format='json')
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_presidents_html_no_presidents(self):
-        cache.clear()
-        for quest in Quest.nodes.all():
-            quest.delete()
-        for position in Position.nodes.all():
-            position.delete()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username
-        ).save()
-        position = Position(name="President").save()
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('profile-possible-presidents',
-                                       kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue("Currently No Registered" in response.data)
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_presidents_html(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username,
-            active=True).save()
-        position = Position(name="President").save()
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('profile-possible-presidents',
-                                       kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        position.delete()
-        mission.delete()
-        quest.delete()
 
 
 class PlebSenatorsTest(APITestCase):
@@ -2011,18 +1848,6 @@ class PlebSenatorsTest(APITestCase):
         self.assertEqual(response.data['detail'],
                          'Method "DELETE" not allowed.')
 
-    def test_empty_list(self):
-        cache.clear()
-        self.client.force_authenticate(user=self.user)
-        for senator in self.pleb.senators.all():
-            self.pleb.senators.disconnect(senator)
-        url = reverse('profile-senators',
-                      kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual("<small>Sorry we could not find"
-                         " your Senators. Please alert us to our "
-                         "error!</small>", response.data)
-
     def test_list_senators(self):
         cache.clear()
         self.client.force_authenticate(user=self.user)
@@ -2064,176 +1889,6 @@ class PlebSenatorsTest(APITestCase):
                       kwargs={'username': self.pleb.username})
         response = self.client.get(url, format='json')
         self.assertGreater(len(response.data), 0)
-
-    def test_list_senators_html(self):
-        cache.clear()
-        self.client.force_authenticate(user=self.user)
-        senator1 = PublicOfficial(first_name="Debbie", last_name="Stab",
-                                  state="Michigan", bioguideid=shortuuid.uuid(),
-                                  full_name="Debbie Stab [Dem]").save()
-        senator2 = PublicOfficial(first_name="Tester", last_name="Test",
-                                  state="MI",
-                                  bioguideid=shortuuid.uuid()).save()
-        for senator in self.pleb.senators.all():
-            self.pleb.senators.disconnect(senator)
-        quest = Quest(owner_username=senator1.object_uuid).save()
-        senator1.quest.connect(quest)
-        quest2 = Quest(owner_username=senator2.object_uuid).save()
-        senator2.quest.connect(quest2)
-        self.pleb.senators.connect(senator1)
-        self.pleb.senators.connect(senator2)
-        url = "%s?html=true" % reverse('profile-senators',
-                                       kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertGreater(len(response.data), 0)
-
-    def test_list_potential_senators(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username,
-            active=True).save()
-        location = Location(name="Test Location", sector="federal").save()
-        location2 = Location(name="Michigan", sector="federal").save()
-        position = Position(name="Test Position").save()
-
-        position.location.connect(location2)
-        location2.encompasses.connect(location)
-        location.encompassed_by.connect(location2)
-        self.address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-possible-senators',
-                      kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'quest')
-        self.assertEqual(response.data[0]['owner_username'],
-                         self.pleb.username)
-        location.delete()
-        location2.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_senators_cached(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username,
-            active=True).save()
-        location = Location(name="Test Location", sector="federal").save()
-        location2 = Location(name="Michigan", sector="federal").save()
-        position = Position(name="Test Position").save()
-
-        position.location.connect(location2)
-        location2.encompasses.connect(location)
-        location.encompassed_by.connect(location2)
-        self.address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-possible-senators',
-                      kwargs={'username': self.pleb.username})
-        self.client.get(url, format='json')
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'quest')
-        location.delete()
-        location2.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_senators_not_active(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username).save()
-        location = Location(name="Test Location", sector="federal").save()
-        location2 = Location(name="Michigan", sector="federal").save()
-        position = Position(name="Test Position").save()
-
-        position.location.connect(location2)
-        location2.encompasses.connect(location)
-        location.encompassed_by.connect(location2)
-        self.address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-possible-senators',
-                      kwargs={'username': self.pleb.username})
-        self.client.get(url, format='json')
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
-        location.delete()
-        location2.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_senators_html_no_senators(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username).save()
-        location = Location(name="Test Location", sector="federal").save()
-        location2 = Location(name="Michigan", sector="federal").save()
-        position = Position(name="Test Position").save()
-
-        position.location.connect(location2)
-        location2.encompasses.connect(location)
-        location.encompassed_by.connect(location2)
-        self.address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('profile-possible-senators',
-                                       kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue("Currently No Registered" in response.data)
-        location.delete()
-        location2.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_senators_html(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username,
-            active=True).save()
-        location = Location(name="Test Location", sector="federal").save()
-        location2 = Location(name="Michigan", sector="federal").save()
-        position = Position(name="Test Position").save()
-
-        position.location.connect(location2)
-        location2.encompasses.connect(location)
-        location.encompassed_by.connect(location2)
-        self.address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('profile-possible-senators',
-                                       kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        location.delete()
-        location2.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
 
 
 class PlebHouseRepresentativeTest(APITestCase):
@@ -2338,18 +1993,6 @@ class PlebHouseRepresentativeTest(APITestCase):
         self.assertEqual(response.data['detail'],
                          'Method "DELETE" not allowed.')
 
-    def test_empty_list(self):
-        cache.clear()
-        self.client.force_authenticate(user=self.user)
-        for senator in self.pleb.house_rep.all():
-            self.pleb.house_rep.disconnect(senator)
-        url = reverse('profile-house-representative',
-                      kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual("<small>Sorry we could not find"
-                         " your House Representative. Please alert us to our "
-                         "error!</small>", response.data)
-
     def test_list_house_representative(self):
         cache.clear()
         self.client.force_authenticate(user=self.user)
@@ -2384,318 +2027,6 @@ class PlebHouseRepresentativeTest(APITestCase):
         self.client.get(url, format='json')
         response = self.client.get(url, format='json')
         self.assertGreater(len(response.data), 0)
-
-    def test_list_house_representative_html(self):
-        cache.clear()
-        self.client.force_authenticate(user=self.user)
-        house_representative = PublicOfficial(
-            first_name="Debbie", last_name="Stab",
-            state="MI", bioguideid=shortuuid.uuid(),
-            full_name="Debbie Stab [Dem]", district=11).save()
-        quest = Quest(owner_username=self.pleb.username).save()
-        house_representative.quest.connect(quest)
-        house_representative.save()
-        for house_rep in self.pleb.house_rep.all():
-            self.pleb.house_rep.disconnect(house_rep)
-        self.pleb.house_rep.connect(house_representative)
-        url = "%s?html=true" % reverse('profile-house-representative',
-                                       kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertGreater(len(response.data), 0)
-
-    def test_list_potential_house_representative(self):
-        cache.clear()
-        for address in self.pleb.address.all():
-            address.delete()
-        address = Address(street="3295 Rio Vista St",
-                          city="Commerce Township", state="Michigan",
-                          postal_code="48382", country="US",
-                          congressional_district="11")
-        address.save()
-        address.owned_by.connect(self.pleb)
-        self.pleb.address.connect(address)
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username,
-            active=True).save()
-        location = Location(name="11", sector="federal").save()
-        position = Position(name="Test Position").save()
-
-        position.location.connect(location)
-        address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-possible-house-representatives',
-                      kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'quest')
-        self.assertEqual(response.data[0]['owner_username'],
-                         self.pleb.username)
-        location.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_house_representative_cached(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username,
-            active=True).save()
-        location = Location(name="11", sector="federal").save()
-        position = Position(name="Test Position").save()
-
-        position.location.connect(location)
-        self.address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-possible-house-representatives',
-                      kwargs={'username': self.pleb.username})
-        self.client.get(url, format='json')
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'quest')
-        location.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_house_representative_not_active(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username).save()
-        location = Location(name="11", sector="federal").save()
-        position = Position(name="Test Position").save()
-
-        position.location.connect(location)
-        self.address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-possible-house-representatives',
-                      kwargs={'username': self.pleb.username})
-        self.client.get(url, format='json')
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
-        location.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_house_representative_html_none(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username).save()
-        location = Location(name="11").save()
-        position = Position(name="Test Position").save()
-
-        position.location.connect(location)
-        self.address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('profile-possible-house-representatives',
-                                       kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        self.assertTrue("Currently No Registered" in response.data)
-        location.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_house_representative_html(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username,
-            active=True).save()
-        location = Location(name="11", sector="federal").save()
-        position = Position(name="Test Position").save()
-
-        position.location.connect(location)
-        self.address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('profile-possible-house-representatives',
-                                       kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        self.assertFalse("Currently No Registered" in response.data)
-        location.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-
-class PlebLocalRepresentativeTest(APITestCase):
-
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.address = Address(street="3295 Rio Vista St",
-                               city="Commerce Township", state="Michigan",
-                               postal_code="48382", country="US",
-                               congressional_district="11")
-        self.address.save()
-        self.address.owned_by.connect(self.pleb)
-        self.pleb.address.connect(self.address)
-
-    def test_list_potential_local_representative(self):
-        cache.clear()
-        for address in self.pleb.address.all():
-            address.delete()
-        address = Address(street="3295 Rio Vista St",
-                          city="Commerce Township", state="Michigan",
-                          postal_code="48382", country="US",
-                          congressional_district="11")
-        address.save()
-        address.owned_by.connect(self.pleb)
-        self.pleb.address.connect(address)
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username,
-            active=True).save()
-        location = Location(name="Commerce Township", sector='local').save()
-        position = Position(name="Test Position", level='local').save()
-
-        position.location.connect(location)
-        address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-possible-local-representatives',
-                      kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'quest')
-        self.assertEqual(response.data[0]['owner_username'],
-                         self.pleb.username)
-        location.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_local_representative_cached(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username,
-            active=True).save()
-        location = Location(name="Commerce Township", sector='local').save()
-        position = Position(name="Test Position", level='local').save()
-
-        position.location.connect(location)
-        self.address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-possible-local-representatives',
-                      kwargs={'username': self.pleb.username})
-        self.client.get(url, format='json')
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        self.assertEqual(response.data[0]['type'], 'quest')
-        location.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_local_representative_not_active(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username).save()
-        location = Location(name="Commerce Township", sector='local').save()
-        position = Position(name="Test Position", level='local').save()
-
-        position.location.connect(location)
-        self.address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-possible-local-representatives',
-                      kwargs={'username': self.pleb.username})
-        self.client.get(url, format='json')
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 0)
-        location.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_local_representative_html_none(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username).save()
-        location = Location(name="Commerce Township", sector='local').save()
-        position = Position(name="Test Position", level='local').save()
-
-        position.location.connect(location)
-        self.address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('profile-possible-local-representatives',
-                                       kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        self.assertTrue("Currently No Registered" in response.data)
-        location.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
-
-    def test_list_potential_local_representative_html(self):
-        cache.clear()
-        quest = Quest(
-            about='Test Bio', owner_username=self.pleb.username,
-            active=True).save()
-        location = Location(name="Commerce Township", sector='local').save()
-        position = Position(name="Test Position", level='local').save()
-
-        position.location.connect(location)
-        self.address.encompassed_by.connect(location)
-        mission = Mission(owner_username=quest.owner_username).save()
-        quest.missions.connect(mission)
-        mission.position.connect(position)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('profile-possible-local-representatives',
-                                       kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertGreater(len(response.data), 0)
-        self.assertFalse("Currently No Registered" in response.data)
-        location.delete()
-        position.delete()
-        mission.delete()
-        quest.delete()
 
 
 class AddressEndpointTests(APITestCase):
@@ -3266,7 +2597,6 @@ class NewsfeedTests(APITestCase):
         post.owned_by.connect(self.pleb)
         post.posted_on_wall.connect(self.pleb.get_wall())
         self.pleb.get_wall().posts.connect(post)
-        self.pleb.posts.connect(post)
         post.owned_by.connect(self.pleb)
 
         post_two = Post(content="Hey I'm a post",
@@ -3275,7 +2605,6 @@ class NewsfeedTests(APITestCase):
         post_two.owned_by.connect(self.pleb)
         post_two.posted_on_wall.connect(self.pleb.get_wall())
         self.pleb.get_wall().posts.connect(post_two)
-        self.pleb.posts.connect(post_two)
         post_two.owned_by.connect(self.pleb)
 
         self.client.force_authenticate(user=self.user)
@@ -3291,42 +2620,12 @@ class NewsfeedTests(APITestCase):
         post.owned_by.connect(self.pleb)
         post.posted_on_wall.connect(self.pleb.get_wall())
         self.pleb.get_wall().posts.connect(post)
-        self.pleb.posts.connect(post)
         post.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
+        print response.data
         self.assertEqual(response.data['results'][0]['content'], content)
-
-    def test_get_post_content_rendered(self):
-        content = "Hey I'm a post"
-        post = Post(content=content,
-                    owner_username=self.pleb.username,
-                    wall_owner_username=self.pleb.username).save()
-        post.owned_by.connect(self.pleb)
-        post.posted_on_wall.connect(self.pleb.get_wall())
-        self.pleb.get_wall().posts.connect(post)
-        self.pleb.posts.connect(post)
-        post.owned_by.connect(self.pleb)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('me-newsfeed')
-        response = self.client.get(url, format='json')
-        self.assertTrue('html' in response.data['results'][0])
-
-    def test_get_post_content_rendered_expedite(self):
-        content = "Hey I'm a post"
-        post = Post(content=content,
-                    owner_username=self.pleb.username,
-                    wall_owner_username=self.pleb.username).save()
-        post.owned_by.connect(self.pleb)
-        post.posted_on_wall.connect(self.pleb.get_wall())
-        self.pleb.get_wall().posts.connect(post)
-        self.pleb.posts.connect(post)
-        post.owned_by.connect(self.pleb)
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
-        response = self.client.get(url, format='json')
-        self.assertTrue('html' in response.data['results'][0])
 
     def test_get_post_username(self):
         content = "Hey I'm a post"
@@ -3336,7 +2635,6 @@ class NewsfeedTests(APITestCase):
         post.owned_by.connect(self.pleb)
         post.posted_on_wall.connect(self.pleb.get_wall())
         self.pleb.get_wall().posts.connect(post)
-        self.pleb.posts.connect(post)
         post.owned_by.connect(self.pleb)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
@@ -3360,7 +2658,7 @@ class NewsfeedTests(APITestCase):
             profile_pic=self.pleb.profile_pic).save()
         mission = Mission(owner_username=quest.owner_username).save()
         quest.missions.connect(mission)
-        self.pleb.quest.connect(quest)
+        quest.owner.connect(self.pleb)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         pres.location.connect(usa)
@@ -3404,7 +2702,7 @@ class NewsfeedTests(APITestCase):
             profile_pic=self.pleb.profile_pic).save()
         mission = Mission(owner_username=quest.owner_username).save()
         quest.missions.connect(mission)
-        self.pleb.quest.connect(quest)
+        quest.owner.connect(self.pleb)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         pres.location.connect(usa)
@@ -3440,7 +2738,7 @@ class NewsfeedTests(APITestCase):
         quest.missions.connect(mission)
         update.about.connect(quest)
         quest.updates.connect(update)
-        self.pleb.quest.connect(quest)
+        quest.owner.connect(self.pleb)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         pres.location.connect(usa)
@@ -3465,8 +2763,7 @@ class NewsfeedTests(APITestCase):
         update = Update(content=content, title="This is a title",
                         owner_username=self.pleb.username).save()
         update.about.connect(quest)
-        mission.updates.connect(update)
-        self.pleb.quest.connect(quest)
+        quest.owner.connect(self.pleb)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         pres.location.connect(usa)
@@ -3494,7 +2791,7 @@ class NewsfeedTests(APITestCase):
                         owner_username=self.pleb.username).save()
         update.about.connect(quest)
         quest.updates.connect(update)
-        self.pleb.quest.connect(quest)
+        quest.owner.connect(self.pleb)
         usa = Location(name="United States of America").save()
         pres = Position(name="President").save()
         pres.location.connect(usa)
@@ -3511,7 +2808,6 @@ class NewsfeedTests(APITestCase):
             title=str(uuid1()),
             content=content,
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
 
         self.client.force_authenticate(user=self.user)
@@ -3526,7 +2822,6 @@ class NewsfeedTests(APITestCase):
             title=title,
             content=content,
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
 
         self.client.force_authenticate(user=self.user)
@@ -3541,7 +2836,6 @@ class NewsfeedTests(APITestCase):
             title=title,
             content=content,
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
 
         self.client.force_authenticate(user=self.user)
@@ -3563,14 +2857,12 @@ class NewsfeedTests(APITestCase):
             title=title,
             content=content,
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
         title2 = "Hello there world2"
         question_two = Question(
             title=title2,
             content=content,
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question_two)
         question_two.owned_by.connect(self.pleb)
 
         self.client.force_authenticate(user=self.user)
@@ -3578,49 +2870,17 @@ class NewsfeedTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 2)
 
-    def test_get_question_rendered(self):
-        content = "This is the content for my question."
-        title = str(uuid1())
-        question = Question(
-            title=title,
-            content=content,
-            owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
-        question.owned_by.connect(self.pleb)
-
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('me-newsfeed')
-        response = self.client.get(url, format='json')
-        self.assertTrue('html' in response.data['results'][0])
-
-    def test_get_question_rendered_expedite(self):
-        content = "This is the content for my question."
-        title = str(uuid1())
-        question = Question(
-            title=title,
-            content=content,
-            owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
-        question.owned_by.connect(self.pleb)
-
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
-        response = self.client.get(url, format='json')
-        self.assertTrue('html' in response.data['results'][0])
-
     def test_get_solution_content(self):
         content = 'this is fake content'
         question = Question(
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
 
         solution = Solution(content=content,
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
-        self.pleb.solutions.connect(solution)
         question.solutions.connect(solution)
 
         self.client.force_authenticate(user=self.user)
@@ -3634,13 +2894,11 @@ class NewsfeedTests(APITestCase):
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
 
         solution = Solution(content=content,
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
-        self.pleb.solutions.connect(solution)
         question.solutions.connect(solution)
 
         self.client.force_authenticate(user=self.user)
@@ -3661,64 +2919,21 @@ class NewsfeedTests(APITestCase):
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
 
         solution = Solution(content=content,
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
-        self.pleb.solutions.connect(solution)
 
         solution_two = Solution(content=content,
                                 owner_username=self.pleb.username).save()
         solution_two.owned_by.connect(self.pleb)
-        self.pleb.solutions.connect(solution_two)
         question.solutions.connect(solution)
 
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 2)
-
-    def test_get_solution_rendered(self):
-        content = 'this is fake content'
-        question = Question(
-            title=str(uuid1()),
-            content="This is the content for my question.",
-            owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
-        question.owned_by.connect(self.pleb)
-
-        solution = Solution(content=content,
-                            owner_username=self.pleb.username).save()
-        solution.owned_by.connect(self.pleb)
-        self.pleb.solutions.connect(solution)
-        question.solutions.connect(solution)
-
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse('me-newsfeed')
-        response = self.client.get(url, format='json')
-        self.assertTrue('html' in response.data['results'][0])
-
-    def test_get_solution_rendered_expedite(self):
-        content = 'this is fake content'
-        question = Question(
-            title=str(uuid1()),
-            content="This is the content for my question.",
-            owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
-        question.owned_by.connect(self.pleb)
-
-        solution = Solution(content=content,
-                            owner_username=self.pleb.username).save()
-        solution.owned_by.connect(self.pleb)
-        self.pleb.solutions.connect(solution)
-        question.solutions.connect(solution)
-
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true&expedite=true" % reverse('me-newsfeed')
-        response = self.client.get(url, format='json')
-        self.assertTrue('html' in response.data['results'][0])
 
     def test_get_multiple_objects(self):
         post = Post(content="Hey I'm a post",
@@ -3727,21 +2942,18 @@ class NewsfeedTests(APITestCase):
         post.owned_by.connect(self.pleb)
         post.posted_on_wall.connect(self.pleb.get_wall())
         self.pleb.get_wall().posts.connect(post)
-        self.pleb.posts.connect(post)
         post.owned_by.connect(self.pleb)
 
         question = Question(
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
 
         solution = Solution(content='this is fake content',
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
         question.solutions.connect(solution)
-        self.pleb.solutions.connect(solution)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
@@ -3754,21 +2966,18 @@ class NewsfeedTests(APITestCase):
         post.owned_by.connect(self.pleb)
         post.posted_on_wall.connect(self.pleb.get_wall())
         self.pleb.get_wall().posts.connect(post)
-        self.pleb.posts.connect(post)
         post.owned_by.connect(self.pleb)
 
         question = Question(
             title=str(uuid1()),
             content="This is the content for my question.",
             owner_username=self.pleb.username).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
 
         solution = Solution(content='this is fake content',
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
         question.solutions.connect(solution)
-        self.pleb.solutions.connect(solution)
 
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
@@ -3806,7 +3015,6 @@ class TestFollowNewsfeed(APITestCase):
             content="This is some arbitrary test content"
         ).save()
         self.question.owned_by.connect(self.pleb2)
-        self.pleb2.questions.connect(self.question)
 
     def test_get_question_from_following(self):
         self.client.force_authenticate(user=self.user)
@@ -3822,9 +3030,9 @@ class TestFollowNewsfeed(APITestCase):
         self.client.force_authenticate(user=self.user)
         solution = Solution(content="Some arbitrary solution content").save()
         self.question.solutions.connect(solution)
-        self.pleb.solutions.connect(solution)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
+        print response
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['count'], 2)
         self.assertEqual(response.data['results'][0]['id'],

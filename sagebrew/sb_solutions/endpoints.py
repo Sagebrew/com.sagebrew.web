@@ -1,12 +1,7 @@
 from uuid import uuid1
-from dateutil import parser
-
-from django.template.loader import render_to_string
-from django.template import RequestContext
 
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import (viewsets, status)
-from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.response import Response
 from rest_framework.generics import (ListCreateAPIView)
 from rest_framework.reverse import reverse
@@ -46,23 +41,6 @@ class SolutionViewSet(viewsets.ModelViewSet):
     def get_object(self):
         return Solution.nodes.get(
             object_uuid=self.kwargs[self.lookup_field])
-
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance).data
-        html = request.query_params.get('html', 'false').lower()
-        if html == 'true':
-            serializer['last_edited_on'] = parser.parse(
-                serializer['last_edited_on']).replace(microsecond=0)
-            serializer['created'] = parser.parse(
-                serializer['created']).replace(microsecond=0)
-            return Response(
-                {"html": render_to_string(
-                    "solution.html", RequestContext(request, serializer)),
-                 "id": instance.object_uuid,
-                 "results": serializer},
-                status=status.HTTP_200_OK)
-        return Response(serializer)
 
     def perform_destroy(self, instance):
         instance.content = ""
@@ -145,42 +123,5 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
             # Not going to add until necessary for search
             # spawn_task(task_func=add_solution_to_search_index,
             #            task_param={"solution": serializer})
-            if request.query_params.get('html', 'false').lower() == "true":
-                serializer['last_edited_on'] = parser.parse(
-                    serializer['last_edited_on']).replace(microsecond=0)
-                serializer['created'] = parser.parse(
-                    serializer['created']).replace(microsecond=0)
-                return Response(
-                    {
-                        "html": [render_to_string(
-                            'solution.html',
-                            RequestContext(request, serializer))],
-                        "ids": [serializer["object_uuid"]]
-                    },
-                    status=status.HTTP_200_OK)
             return Response(serializer, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(["GET"])
-@permission_classes((IsAuthenticatedOrReadOnly,))
-def solution_renderer(request, object_uuid=None):
-    """
-    This is a intermediate step on the way to utilizing a JS Framework to
-    handle template rendering.
-    """
-    html_array = []
-    id_array = []
-    solutions = ObjectSolutionsListCreate.as_view()(
-        request, object_uuid=object_uuid)
-    for solution in solutions.data['results']:
-        solution['last_edited_on'] = parser.parse(
-            solution['last_edited_on']).replace(microsecond=0)
-        solution['created'] = parser.parse(
-            solution['created']).replace(microsecond=0)
-        html_array.append(render_to_string(
-            'solution.html', RequestContext(request, solution)))
-        id_array.append(solution["object_uuid"])
-    solutions.data['results'] = {"html": html_array, "ids": id_array}
-
-    return Response(solutions.data, status=status.HTTP_200_OK)

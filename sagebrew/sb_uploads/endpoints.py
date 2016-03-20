@@ -6,7 +6,6 @@ from uuid import uuid1
 from copy import deepcopy
 
 from django.conf import settings
-from django.template.loader import render_to_string
 from django.core.files.uploadhandler import TemporaryUploadedFile
 
 from PIL import Image
@@ -200,9 +199,7 @@ class URLContentViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             serializer.save(owner=Pleb.get(self.request.user.username))
-            serializer = serializer.data
-            if request.query_params.get('html', 'false').lower() == 'true':
-                return Response({"html": render_to_string(
-                    'expanded_url_content.html', serializer),
-                    "serialized": serializer}, status=status.HTTP_200_OK)
-            return Response(serializer, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)

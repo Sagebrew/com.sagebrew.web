@@ -75,8 +75,8 @@ class QuestViewTests(TestCase):
         self.client.login(username=self.user.username, password=self.password)
         url = reverse('quest_manage_settings',
                       kwargs={'username': self.user.username})
-        query = "MATCH (n:Pleb) OPTIONAL MATCH " \
-                "(n)-[r]-(q:Quest)-[p]-() DELETE n, r, q, p"
+        query = "MATCH (n) OPTIONAL MATCH " \
+                "(n)-[r]-() DELETE n, r"
         res, _ = db.cypher_query(query)
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)

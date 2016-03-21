@@ -40,8 +40,8 @@ class MeEndpointTests(APITestCase):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
+        self.pleb = res['pleb']
+        self.user = res['user']
         self.url = "http://testserver"
 
     def test_unauthorized(self):
@@ -522,12 +522,10 @@ class SentFriendRequestEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'friend_requests'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
+        self.pleb = create_user_util_test(self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        create_user_util_test(self.email2)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user = User.objects.get(email=self.email)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.url = "http://testserver"
         self.friend_request = FriendRequest().save()
         self.pleb.friend_requests_received.connect(self.friend_request)
@@ -662,12 +660,10 @@ class FriendManagerEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'friend'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
+        self.pleb = create_user_util_test(self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        create_user_util_test(self.email2)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user = User.objects.get(email=self.email)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.pleb.friends.connect(self.pleb2)
         self.pleb2.friends.connect(self.pleb)
         self.url = "http://testserver"
@@ -785,8 +781,7 @@ class ProfileEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.maxDiff = None
 
@@ -1013,8 +1008,7 @@ class ProfileContentMethodTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
 
     def test_get_pleb_questions(self):
@@ -1192,8 +1186,7 @@ class ProfileFriendsMethodTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
 
     def test_get_pleb_friends_type(self):
@@ -1451,8 +1444,7 @@ class FriendRequestListTest(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'friend_request'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
 
     def test_unauthorized(self):
@@ -1612,8 +1604,7 @@ class PlebPresidentTest(APITestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="Michigan",
@@ -1750,8 +1741,7 @@ class PlebSenatorsTest(APITestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="Michigan",
@@ -1894,8 +1884,7 @@ class PlebHouseRepresentativeTest(APITestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="Michigan",
@@ -2032,8 +2021,7 @@ class AddressEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'address'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         try:
             PublicOfficial.nodes.get(title="President")
@@ -2284,8 +2272,7 @@ class ReputationMethodEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'reputation'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
 
@@ -2376,13 +2363,7 @@ class BetaUserMethodEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'is_beta_user'
         self.email = "success@simulator.amazonses.com"
-        try:
-            self.pleb = Pleb.nodes.get(email=self.email)
-            self.pleb.delete()
-        except (Pleb.DoesNotExist, DoesNotExist):
-            pass
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
 
@@ -2484,8 +2465,8 @@ class NewsfeedTests(APITestCase):
         res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
+        self.pleb = res['pleb']
+        self.user = res['user']
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",
@@ -3017,8 +2998,8 @@ class TestFollowNewsfeed(APITestCase):
         res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
+        self.pleb = res['pleb']
+        self.user = res['user']
         self.url = "http://testserver"
         self.email2 = "bounce@simulator.amazonses.com"
         res = create_user_util_test(self.email2, task=True)
@@ -3070,8 +3051,8 @@ class TestFollowEndpoints(APITestCase):
         res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
+        self.pleb = res['pleb']
+        self.user = res['user']
         self.url = "http://testserver"
         self.pleb2 = Pleb(username=shortuuid.uuid()).save()
 
@@ -3127,8 +3108,8 @@ class TestAcceptFriendRequest(APITestCase):
         res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
+        self.pleb = res['pleb']
+        self.user = res['user']
         self.email2 = "bounce@simulator.amazonses.com"
         res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
@@ -3222,8 +3203,8 @@ class TestDeclineFriendRequest(APITestCase):
         res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
+        self.pleb = res['pleb']
+        self.user = res['user']
         self.email2 = "bounce@simulator.amazonses.com"
         res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)
@@ -3317,8 +3298,8 @@ class TestBlockFriendRequest(APITestCase):
         res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
+        self.pleb = res['pleb']
+        self.user = res['user']
         self.email2 = "bounce@simulator.amazonses.com"
         res = create_user_util_test(self.email2, task=True)
         self.assertNotEqual(res, False)

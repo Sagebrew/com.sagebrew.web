@@ -180,6 +180,10 @@ class SearchEndpointTests(APITestCase):
     def test_mission(self):
         self.client.force_authenticate(user=self.user)
         mission = Mission(owner_username=self.pleb.username).save()
+        quest = Quest(owner_username=self.pleb.username,
+                      first_name="Tyler", last_name="Wiersing").save()
+        quest.missions.connect(mission)
+        cache.clear()
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         index_res = es.index(index='full-search-base',
                              doc_type='mission',

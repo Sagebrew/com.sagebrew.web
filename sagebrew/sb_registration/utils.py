@@ -226,5 +226,6 @@ def create_user_util_test(email, first_name="test", last_name="test",
         if isinstance(res, Exception) is True:
             return res
         else:
-            return {"task_id": res, "username": username, "user": user}
+            return {"task_id": res, "username": username, "user": user,
+                    "pleb": pleb}
     return pleb

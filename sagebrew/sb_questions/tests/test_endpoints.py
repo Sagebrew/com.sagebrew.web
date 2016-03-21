@@ -131,7 +131,9 @@ class QuestionEndpointTests(APITestCase):
                        response.data['id']
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
-        Question.get(object_uuid=response.data['object_uuid']).delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
 
     def test_create_with_fake_image(self):
         self.client.force_authenticate(user=self.user)
@@ -152,7 +154,9 @@ class QuestionEndpointTests(APITestCase):
                        'asdfasdfasdfasdfadsfasdfasdfa</p>'
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
-        Question.get(object_uuid=response.data['id']).delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
 
     def test_create_with_multiple_image(self):
         self.client.force_authenticate(user=self.user)
@@ -203,7 +207,9 @@ class QuestionEndpointTests(APITestCase):
                           response.data['id'],)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
-        Question.get(object_uuid=response.data['id']).delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
 
     def test_create_with_script(self):
         self.client.force_authenticate(user=self.user)
@@ -220,7 +226,9 @@ class QuestionEndpointTests(APITestCase):
         html_content = "<p>&lt;script&gt;alert('hello')&lt;/script&gt;</p>"
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
-        Question.get(object_uuid=response.data['id']).delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
 
     def test_create_with_focus_area(self):
         self.client.force_authenticate(user=self.user)
@@ -844,8 +852,9 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual('question', response.data['type'])
 
     def test_get_list(self):
-        for question in Question.nodes.all():
-            question.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
@@ -857,8 +866,9 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(1, len(response.data['results']))
 
     def test_list_tagged_as(self):
-        for question in Question.nodes.all():
-            question.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         tag = Tag.nodes.get(name='fiscal')
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
@@ -872,8 +882,9 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(response.data['results'][0]['tags'][0], 'fiscal')
 
     def test_list_tagged_as_non_core(self):
-        for question in Question.nodes.all():
-            question.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         tag = Tag.nodes.get(name='taxes')
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
@@ -887,8 +898,9 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(response.data['results'][0]['tags'][0], 'taxes')
 
     def test_list_most_recent(self):
-        for question in Question.nodes.all():
-            question.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
@@ -900,8 +912,9 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(len(response.data['results']), 1)
 
     def test_list_least_recent(self):
-        for question in Question.nodes.all():
-            question.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
@@ -913,8 +926,9 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(len(response.data['results']), 1)
 
     def test_list_vote_count(self):
-        for question in Question.nodes.all():
-            question.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         question = Question(title='test_title', content='test_content',
                             owner_username=self.pleb.username).save()

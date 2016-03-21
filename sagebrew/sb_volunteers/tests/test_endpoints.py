@@ -24,12 +24,10 @@ class VolunteerEndpointTests(APITestCase):
         cache.clear()
         self.unit_under_test_name = 'goal'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        create_user_util_test(self.email2)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
         self.url = "http://testserver"
         self.quest = Quest(

@@ -39,9 +39,8 @@ class MeEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.pleb.email)
         self.url = "http://testserver"
 
     def test_unauthorized(self):

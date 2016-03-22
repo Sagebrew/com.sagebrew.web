@@ -105,7 +105,6 @@ class TestGatherRequestData(TestCase):
                                  title=self.title,
                                  owner_username=self.pleb.username).save()
         self.question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(self.question)
 
     def test_no_query_params_request(self):
         request = self.factory.get('/conversations/%s/' %

@@ -92,7 +92,7 @@ class QuestSerializer(SBSerializer):
                       profile_pic=owner.profile_pic,
                       account_type=account_type, title=default_title).save()
 
-        owner.quest.connect(quest)
+        quest.owner.connect(owner)
         quest.editors.connect(owner)
         quest.moderators.connect(owner)
         account = stripe.Account.create(managed=True, country="US",

@@ -23,7 +23,6 @@ class TestUpdateClosed(TestCase):
         self.question = Question(owner_username=self.pleb.username,
                                  title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(self.question)
         self.question.flags.connect(self.flag)
         self.vote_rel = self.question.council_votes.connect(self.pleb)
         self.vote_rel.active = True
@@ -72,7 +71,6 @@ class TestCheckClosedReputationChanges(TestCase):
         self.question = Question(owner_username=self.pleb.username,
                                  title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(self.question)
         self.question.flags.connect(self.flag)
         self.vote_rel = self.question.council_votes.connect(self.pleb)
         self.vote_rel.active = True

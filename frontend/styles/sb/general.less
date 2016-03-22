@@ -63,42 +63,7 @@ a {
 }
 
 // Blocks
-.block{
-  height: auto;
-  padding: @sb_common_padding_positive;
-  border-radius: @sb_common_radius;
-  background-color: @sb_off_white;
-}
-.sb_settings_block{
-  &:extend(.block);
-  padding: 15px 30px 15px 30px;
-  margin-bottom: 30px;
-  background-color: @sb_green_extra_light;
-  height: auto;
-  min-height: 700px;
-  border: 1px solid @sb_grey;
-  input{
-    margin-bottom: 15px;
-  }
-}
-.sb_alert_block{
-  &:extend(.block);
-  border: solid 2px @sb_red;
-  background-color: #fff4f0;
-  min-height: 100px;
-  height: auto;
-  padding-bottom: 15px;
-  margin-bottom: 30px;
-}
-.sb_success_block{
-  &:extend(.block);
-  border: solid 2px @sb_green;
-  background-color: #eff7f3;
-  min-height: 100px;
-  height: auto;
-  padding-bottom: 15px;
-  margin-bottom: 30px;
-}
+
 .sb_solution{
   &:extend(.block);
   margin-bottom: 15px;
@@ -111,135 +76,11 @@ a {
     resize: vertical;
   }
 }
-.sb_solution_news{
-  &:extend(.block);
-  margin-bottom: 15px;
-  border: none;
-  textarea {
-    margin-bottom: 25px;
-    border-radius: @sb_common_radius;
-    width: 100%;
-    height: 250px;
-    resize: vertical;
-  }
-}
-.sb_provide_solution{
-  &:extend(.block);
-  background-color: @sb_grey_light;
-  border: 2px solid @border-color;
-}
-.sb_question{
-  &:extend(.block);
-  min-height: 250px;
-  height: 100%;
-}
-.sb_question_summary{
-  &:extend(.block);
-  background-color: white;
-  border: 2px solid @border-color;
-  border-radius: @sb_common_radius;
-  margin-left: 15px;
-  margin-right: 15px;
-  height: 100%;
-  min-height: 120px;
-  padding: @sb_common_padding_positive !important;
-  margin-bottom: @sb_common_margin_positive;
-}
-
-.sb_blog_post_block{
-  &:extend(.block);
-  margin-top:40px;
-  margin-bottom: 60px;
-  border-radius: 10px;
-  background-color: @sb_green_wall;
-  float: left;
-}
-.sb_bio_block{
-  background-color: transparent;
-  padding-top: 0;
-  h2{
-    margin: 0 0 0 0;
-  }
-}
-.sb_channel_social{
-  &:extend(.block);
-  background-color: transparent;
-  padding-right: 0;
-  margin-top: 40px;
-  padding-left: 0;
-}
-.sb_channel_block{
-  &:extend(.block);
-  width: 100%;
-  padding: 15px 0 15px 0;
-  background-color: @sb_green_extra_light;
-  border-radius: 0 0 5px 5px;
-  height: auto;
-}
-.sb_action_content_block{
-  background-color: @sb_green_extra_light;
-  min-height: 600px;
-  padding-bottom: 15px;
-}
-.sb_goals_block{
-  background-color: @sb_off_white;
-  min-height: 300px;
-  margin-bottom: 30px;
-  padding-bottom: 5px;
-}
-.sb_about_block{
-  &:extend(.sb_action_content_block);
-  min-height: 250px;
-  height: auto;
-  margin-bottom: 30px;
-  padding-bottom: 10px;
-  p{
-    margin-bottom: 0;
-  }
-  h5{
-    margin-bottom: 5px;
-  }
-}
-.sb_update_block{
-  h1{
-    margin-bottom: 15px;
-  }
-}
 
 #nav-logo{
   width: 40px;
 }
-.sb_side_nav_block{
-  background-color: @sb_green_extra_light;
-  padding: 15px 0 15px 0;
-  margin-bottom: 15px;
-  border: 1px solid @sb_grey;
-  h5{
-    margin: 0;
-    padding-left: 30px;
-  }
-  h3{
-    padding-left: 30px;
-    margin: 0 0 15px 0;
-  }
-  li{
 
-  }
-}
-.sb-side-nav{
-  background-color: @sb_green_extra_light;
-  border: 1px solid @sb_grey;
-  padding-bottom: 0;
-  p{
-    padding-top: 15px;
-  }
-}
-#sb-nav-link-active{
-  background-color: @sb_green;
-}
-.sb-nav-header{
-  text-transform: none;
-}
 
 .sb_notification_block {
   background-color: white;
@@ -779,6 +620,12 @@ a {
   img {
     border-radius: 4px;
   }
+}
+.thumbnail-xs{
+  width: 30px;
+  padding: 0;
+  margin: 1px;
+  border-radius: 4px;
 }
 .sb_thumbnail_sm{
   height: 40px;
@@ -2053,20 +1900,19 @@ textarea.sb_comment_input{
   margin-bottom: 15px;
 }
 
-.markdown-body {
-  min-height: 115px;
-  margin-left: 0;
-  border: 2px solid @border-color;
-}
 .no-border{
   border: none !important;
 }
 .padding-right-20 {
   padding-right: 20px;
 }
-.row-no-margin {
+.row-no-left-right-margin {
   margin-left: 0;
   margin-right: 0;
+}
+.row-no-top-bottom-margin {
+  margin-top: 0;
+  margin-bottom: 0;
 }
 #account-verification-status {
   margin-bottom: 15px;

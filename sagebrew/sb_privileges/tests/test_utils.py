@@ -1,3 +1,4 @@
+import time
 import requests_mock
 from uuid import uuid1
 
@@ -28,6 +29,8 @@ class TestManagePrivilegeRelation(APITestCase):
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
         res = create_user_util_test(self.email, task=True)
+        while not res['task_id'].ready():
+            time.sleep(.1)
         self.username = res["username"]
         self.assertNotEqual(res, False)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -47,10 +50,6 @@ class TestManagePrivilegeRelation(APITestCase):
         self.action.privilege.connect(self.privilege)
         self.test_url = settings.WEB_ADDRESS
         self.privilege.requirements.connect(self.requirement)
-
-    def test_pleb_does_not_exist(self):
-        response = manage_privilege_relation(username=str(uuid1()))
-        self.assertIsInstance(response, Exception)
 
     def test_no_privileges(self):
         for privilege in Privilege.nodes.all():

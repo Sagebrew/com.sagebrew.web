@@ -1,8 +1,3 @@
-from dateutil import parser
-
-from django.template.loader import render_to_string
-from django.template import RequestContext
-
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route
@@ -34,7 +29,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
         tagged_as = get_tagged_as(
             self.request.query_params.get('tagged_as', ''))
         sort_by, ordering = get_ordering(sort_by)
-        query = "MATCH (n:`Question`)%s WHERE n.to_be_deleted=false RETURN " \
+        query = "MATCH (n:Question)%s WHERE n.to_be_deleted=false RETURN " \
                 "n %s %s" % (tagged_as, sort_by, ordering)
         if sort_by == "" or sort_by == "vote_count":
             # Cache check aligning with implementation below
@@ -46,7 +41,7 @@ class QuestionViewSet(viewsets.ModelViewSet):
             # db hits and caused the query to take about 20% longer.
             # Also removed CASE for setting the vote count to itself if active
             # was false and reduced the graph to only those that are True.
-            query = "MATCH (n:`Question`)%s " \
+            query = "MATCH (n:Question)%s " \
                     "WHERE n.to_be_deleted=false " \
                     "OPTIONAL MATCH (n)<-[vs:PLEB_VOTES]-() " \
                     "WHERE vs.active=True " \
@@ -91,25 +86,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
                                          context={"request": request})
         if serializer.is_valid():
             instance = serializer.save()
-            serializer = serializer.data
             spawn_task(task_func=update_search_object,
                        task_param={"object_uuid": instance.object_uuid,
                                    "label": "question"})
-            html = request.query_params.get('html', 'false').lower()
-            if html == "true":
-                serializer['last_edited_on'] = parser.parse(
-                    serializer['last_edited_on']).replace(microsecond=0)
-                serializer['created'] = parser.parse(
-                    serializer['created']).replace(microsecond=0)
-                context = RequestContext(request, serializer)
-                return Response(
-                    {
-                        "html": [render_to_string('question.html', context)],
-                        "ids": [serializer["object_uuid"]]
-                    },
-                    status=status.HTTP_201_CREATED)
-
-            return Response(serializer, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def retrieve(self, request, *args, **kwargs):

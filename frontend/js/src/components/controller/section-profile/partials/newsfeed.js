@@ -25,7 +25,6 @@ export function init () {
     require('plugin/contentloader');
     var $appNewsfeed = $(".app-newsfeed"),
         $app = $(".app-sb");
-    console.log($appNewsfeed);
     $appNewsfeed.sb_contentLoader({
         emptyDataMessage: 'Get out there and make some news :)',
         url: '/v1/me/newsfeed/',

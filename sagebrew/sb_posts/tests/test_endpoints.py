@@ -291,7 +291,8 @@ class PostsEndpointTests(APITestCase):
 
     def test_update(self):
         self.client.force_authenticate(user=self.user)
-        post = Post(content='This is a test post').save()
+        post = Post(content='This is a test post',
+                    wall_owner_username=self.pleb.username).save()
         url = reverse("post-detail",
                       kwargs={"object_uuid": post.object_uuid})
         url_content = URLContent(url="http://reddit.com").save()
@@ -300,28 +301,6 @@ class PostsEndpointTests(APITestCase):
                        "included_urls": ["http://reddit.com"]}, format='json')
         self.assertTrue(post.url_content.is_connected(url_content))
         url_content.delete()
-
-    def test_update_html(self):
-        self.client.force_authenticate(user=self.user)
-        post = Post(content='This is a test post').save()
-        url = reverse("post-detail",
-                      kwargs={"object_uuid": post.object_uuid}) + "?html=true"
-        url_content = URLContent(url="http://reddit.com").save()
-        self.client.patch(
-            url, data={"content": "This is a test post reddit.com",
-                       "included_urls": ["http://reddit.com"]}, format='json')
-        self.assertTrue(post.url_content.is_connected(url_content))
-        url_content.delete()
-
-    def test_get_html(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse(
-            "post-detail", kwargs={"object_uuid": self.post.object_uuid}) \
-            + "?html=true"
-        res = self.client.get(url, format='json')
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertIn("html", res.data.keys())
-        self.assertIsNotNone(res.data['html'])
 
 
 class WallPostListCreateTest(APITestCase):
@@ -425,7 +404,6 @@ class WallPostListCreateTest(APITestCase):
                     owner_username=self.pleb.username,
                     wall_owner_username=self.pleb.username).save()
         post.owned_by.connect(self.pleb)
-        self.pleb.posts.connect(post)
         wall = self.pleb.get_wall()
         wall.posts.connect(post)
         post.posted_on_wall.connect(wall)
@@ -444,7 +422,6 @@ class WallPostListCreateTest(APITestCase):
                     owner_username=self.pleb.username,
                     wall_owner_username=self.pleb.username).save()
         post.owned_by.connect(self.pleb)
-        self.pleb.posts.connect(post)
         wall = friend.get_wall()
         wall.posts.connect(post)
         post.posted_on_wall.connect(wall)
@@ -465,7 +442,6 @@ class WallPostListCreateTest(APITestCase):
                     owner_username=self.pleb.username,
                     wall_owner_username=self.pleb.username).save()
         post.owned_by.connect(self.pleb)
-        self.pleb.posts.connect(post)
         wall = friend.get_wall()
         wall.posts.connect(post)
         post.posted_on_wall.connect(wall)
@@ -474,21 +450,6 @@ class WallPostListCreateTest(APITestCase):
         url = reverse('profile-wall', kwargs={'username': friend.username})
         response = self.client.get(url, format='json')
         self.assertGreater(response.data['count'], 0)
-
-    def test_list_render(self):
-        self.client.force_authenticate(user=self.user)
-        post = Post(content="My first post",
-                    owner_username=self.pleb.username,
-                    wall_owner_username=self.pleb.username).save()
-        post.owned_by.connect(self.pleb)
-        self.pleb.posts.connect(post)
-        wall = self.pleb.get_wall()
-        wall.posts.connect(post)
-        post.posted_on_wall.connect(wall)
-        url = reverse('profile-wall-render',
-                      kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertGreater(len(response.data['results']['html']), 0)
 
     def test_create(self):
         self.client.force_authenticate(user=self.user)
@@ -684,7 +645,6 @@ class PostListCreateTest(APITestCase):
                     owner_username=self.pleb.username,
                     wall_owner_username=self.pleb.username).save()
         post.owned_by.connect(self.pleb)
-        self.pleb.posts.connect(post)
         wall = self.pleb.get_wall()
         wall.posts.connect(post)
         post.posted_on_wall.connect(wall)
@@ -703,7 +663,6 @@ class PostListCreateTest(APITestCase):
                     owner_username=self.pleb.username,
                     wall_owner_username=self.pleb.username).save()
         post.owned_by.connect(self.pleb)
-        self.pleb.posts.connect(post)
         wall = friend.get_wall()
         wall.posts.connect(post)
         post.posted_on_wall.connect(wall)
@@ -724,7 +683,6 @@ class PostListCreateTest(APITestCase):
                     owner_username=self.pleb.username,
                     wall_owner_username=self.pleb.username).save()
         post.owned_by.connect(self.pleb)
-        self.pleb.posts.connect(post)
         wall = friend.get_wall()
         wall.posts.connect(post)
         post.posted_on_wall.connect(wall)

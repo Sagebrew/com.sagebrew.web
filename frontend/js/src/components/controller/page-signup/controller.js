@@ -83,7 +83,6 @@ export function load() {
         }
     });
     $('#sign-up-redirect').on('click', function () {
-        console.log('clicked');
         var WH = $(window).height();
         var SH = $('body')[0].scrollHeight;
         $('html, body').stop().animate({scrollTop: SH-WH}, 1000);

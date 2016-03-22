@@ -40,8 +40,6 @@ from sb_donations.neo_models import Donation
 from sb_donations.serializers import DonationSerializer
 from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
-from sb_quests.neo_models import Quest
-from sb_quests.serializers import QuestSerializer
 from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
 from sb_news.neo_models import NewsArticle
@@ -300,7 +298,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
         res, col = db.cypher_query(query)
         [row[0].pull() for row in res]
         queryset = [Pleb.inflate(row[0]) for row in res]
-        html = self.request.query_params.get('html', 'false')
         page = self.paginate_queryset(queryset)
         serializer = self.get_serializer(page, many=True,
                                          context={'request': request})

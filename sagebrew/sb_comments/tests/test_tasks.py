@@ -84,12 +84,10 @@ class TestSpawnCommentNotifications(TestCase):
         self.question.owner_username = self.pleb.username
         self.question.save()
 
-        self.pleb.comments.connect(comment)
         comment.owned_by.connect(self.pleb)
         self.question.comments.connect(comment)
         comment.comment_on.connect(self.question)
 
-        self.pleb2.comments.connect(comment2)
         comment2.owned_by.connect(self.pleb2)
         self.question.comments.connect(comment2)
         comment2.comment_on.connect(self.question)

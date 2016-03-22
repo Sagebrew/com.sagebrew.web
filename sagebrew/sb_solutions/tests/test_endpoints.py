@@ -31,11 +31,10 @@ class SolutionEndpointTests(APITestCase):
                                  title=self.title,
                                  owner_username=self.pleb.username).save()
         self.solution = Solution(content="This is a test solution",
-                                 owner_username=self.pleb.username).save()
+                                 owner_username=self.pleb.username,
+                                 parent_id=self.question.object_uuid).save()
         self.solution.owned_by.connect(self.pleb)
-        self.pleb.solutions.connect(self.solution)
         self.question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(self.question)
         self.user = User.objects.get(email=self.email)
         try:
             Tag.nodes.get(name='taxes')
@@ -107,28 +106,9 @@ class SolutionEndpointTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_create_html(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse("question-solutions",
-                      kwargs={'object_uuid': self.question.object_uuid}) \
-            + "?html=true"
-        data = {
-            "question": self.question.object_uuid,
-            "content": self.solution.content
-        }
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
     def test_list(self):
         self.client.force_authenticate(user=self.user)
         url = reverse("question-solutions",
-                      kwargs={'object_uuid': self.question.object_uuid})
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-    def test_renderer(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse("question-solution-html",
                       kwargs={'object_uuid': self.question.object_uuid})
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -139,17 +119,6 @@ class SolutionEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.solution.object_uuid})
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-
-    def test_get_html(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse(
-            "solution-detail",
-            kwargs={"object_uuid": self.solution.object_uuid}) \
-            + "?html=true"
-        res = self.client.get(url, format='json')
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertIn("html", res.data.keys())
-        self.assertIsNotNone(res.data['html'])
 
     def test_get(self):
         self.client.force_authenticate(user=self.user)
@@ -170,48 +139,6 @@ class SolutionEndpointTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-
-class TestSolutionRenderer(APITestCase):
-
-    def setUp(self):
-        self.unit_under_test_name = 'pleb'
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.title = str(uuid1())
-        self.question = Question(content="Hey I'm a question",
-                                 title=self.title,
-                                 owner_username=self.pleb.username).save()
-        self.solution = Solution(content="This is a test solution",
-                                 owner_username=self.pleb.username).save()
-        self.solution.owned_by.connect(self.pleb)
-        self.pleb.solutions.connect(self.solution)
-        self.question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(self.question)
-        self.question.solutions.connect(self.solution)
-        self.user = User.objects.get(email=self.email)
-        try:
-            Tag.nodes.get(name='taxes')
-        except DoesNotExist:
-            Tag(name='taxes').save()
-        try:
-            Tag.nodes.get(name='fiscal')
-        except DoesNotExist:
-            Tag(name='fiscal').save()
-        try:
-            Tag.nodes.get(name='environment')
-        except DoesNotExist:
-            Tag(name='environment').save()
-
-    def test_get(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('question-solution-html',
-                      kwargs={"object_uuid": self.question.object_uuid})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class TestSingleSolutionPage(APITestCase):

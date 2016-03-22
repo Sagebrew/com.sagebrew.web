@@ -19,7 +19,7 @@ from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
 from sb_donations.neo_models import Donation
-from sb_updates.neo_models import Update
+
 from sb_volunteers.neo_models import Volunteer
 
 from sb_quests.neo_models import Quest
@@ -206,8 +206,9 @@ class MissionEndpointTests(APITestCase):
 
     def test_create_with_no_quest(self):
         self.client.force_authenticate(user=self.user)
-        for quest in self.pleb.quest.all():
-            self.pleb.quest.disconnect(quest)
+        query = 'MATCH (a:Pleb {username: "%s"})-[r:IS_WAGING]->(q:Quest) ' \
+                'DELETE q, r' % self.pleb.username
+        res, _ = db.cypher_query(query)
         self.quest.moderators.disconnect(self.pleb)
         self.quest.editors.disconnect(self.pleb)
         usa = Location(name="United States of America").save()
@@ -991,18 +992,6 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(data['title'], response.data['title'])
 
-    def test_update_render(self):
-        self.client.force_authenticate(user=self.user)
-        update = Update(title=str(uuid1()),
-                        content=str(uuid1())).save()
-        update.mission.connect(self.mission)
-        url = reverse('update-render',
-                      kwargs={'object_uuid': self.mission.object_uuid}) + \
-            "?about_type=mission"
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn(update.object_uuid, response.data['results']['ids'])
-
     def test_volunteer_export(self):
         self.client.force_authenticate(user=self.user)
         volunteer = Volunteer(activities=["get_out_the_vote"],
@@ -1011,7 +1000,7 @@ class MissionEndpointTests(APITestCase):
         volunteer.mission.connect(self.mission)
         volunteer.volunteer.connect(self.pleb2)
         address = Address(city="Walled Lake", state="Michigan").save()
-        self.pleb2.address.connect(address)
+        address.owned_by.connect(self.pleb2)
         url = "/v1/missions/%s/volunteer_data/" % self.mission.object_uuid
         response = self.client.get(url, format='json')
 

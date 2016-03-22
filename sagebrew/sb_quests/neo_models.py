@@ -127,6 +127,9 @@ class Quest(Searchable):
     # they will get a notification whenever the quest makes an update.
     followers = RelationshipTo('plebs.neo_models.Pleb', "FOLLOWERS")
 
+    # Owner of the Quest
+    owner = RelationshipFrom('plebs.neo_models.Pleb', 'IS_WAGING')
+
     @property
     def ein(self):
         # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER

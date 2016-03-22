@@ -1,5 +1,6 @@
 var request = require('api').request,
-    markdown = require('common/markdown').addMarkdown;
+    markdown = require('common/markdown').addMarkdown,
+    validators = require('common/validators');
 
 export const meta = {
     controller: "mission/mission-manage/updates",
@@ -51,7 +52,7 @@ export function load() {
             }
 
         });
-
+    validators.updateValidator($("#updateForm"));
     if ($updateWrapper !== undefined && $updateWrapper !== null){
         $updateWrapper.sb_contentLoader({
             emptyDataMessage: '',

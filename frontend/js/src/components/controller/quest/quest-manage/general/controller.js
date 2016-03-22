@@ -2,7 +2,8 @@
  * @file
  */
 var request = require('api').request,
-    helpers = require('common/helpers');
+    helpers = require('common/helpers'),
+    validation = require('common/validators');
 
 /**
  * Meta.
@@ -33,4 +34,5 @@ export function load() {
                 $.notify({message: "Updated Settings Successfully"}, {type: "success"});
             });
         });
+    validation.questManageValidator($('#socialForm'));
 }

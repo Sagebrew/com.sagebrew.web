@@ -340,3 +340,60 @@ export function solutionValidator (solutionForm) {
         }
     });
 }
+
+
+export function questManageValidator(manageForm) {
+    manageForm.formValidation({
+        framework: 'bootstrap',
+        live: 'enabled',
+        fields: {
+            about: {
+                selector: '#about',
+                validators: {
+                    stringLength: {
+                        max: 128,
+                        message: 'About section must be less than 128 characters'
+                    }
+                }
+            }
+        }
+    });
+}
+
+
+export function missionManageValidator(manageForm) {
+    manageForm.formValidation({
+        framework: 'bootstrap',
+        live: 'enabled',
+        fields: {
+            about: {
+                selector: '#about',
+                validators: {
+                    stringLength: {
+                        max: 255,
+                        message: 'About section must be less than 255 characters'
+                    }
+                }
+            }
+        }
+    });
+}
+
+export function updateValidator(updateForm) {
+    updateForm.formValidation({
+        framework: 'bootstrap',
+        live: 'enabled',
+        fields: {
+            title: {
+                selector: '#js-update-title',
+                validators: {
+                    stringLength: {
+                        max: 128,
+                        min: 5,
+                        message: 'Title must be between %s and %s'
+                    }
+                }
+            }
+        }
+    });
+}

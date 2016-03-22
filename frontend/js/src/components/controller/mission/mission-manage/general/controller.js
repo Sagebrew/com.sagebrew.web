@@ -1,5 +1,6 @@
 var request = require('api').request,
-    helpers = require('common/helpers');
+    helpers = require('common/helpers'),
+    validators = require('common/validators');
 
 export const meta = {
     controller: "mission/mission-manage/general",
@@ -33,6 +34,7 @@ export function load() {
                 $.notify({message: "Updated Settings Successfully"}, {type: "success"});
             });
         });
+    validators.missionManageValidator($("#socialForm"));
 }
 
 /**

@@ -72,7 +72,7 @@ def quest_signup(request):
 def login_view(request):
     try:
         if request.user.is_authenticated() is True:
-            return redirect('root_profile_page')
+            return redirect('newsfeed')
     except AttributeError:
         pass
     return render(request, 'login.html')

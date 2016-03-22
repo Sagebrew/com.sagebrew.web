@@ -239,6 +239,12 @@ class MeEndpointTests(APITestCase):
 
     def test_update_quest_customer(self):
         self.client.force_authenticate(user=self.user)
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         url = reverse('me-list')
         quest = Quest(owner_username=self.pleb.username).save()
         stripe.api_key = settings.STRIPE_SECRET_KEY

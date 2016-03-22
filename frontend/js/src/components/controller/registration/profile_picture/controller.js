@@ -42,7 +42,7 @@ export function load() {
                 }
             } else {
                 greyPage.classList.add('sb_hidden');
-                window.location.href = "/user/" + settings.profile.username + "/";
+                window.location.href = "/user/newsfeed/";
             }
         });
 
@@ -79,7 +79,7 @@ export function load() {
                     }
                 } else {
                     greyPage.classList.add('sb_hidden');
-                    window.location.href = data.url;
+                    window.location.href = "/user/newsfeed/";
                 }
             });
             cropContainerEyecandy.reset();

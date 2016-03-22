@@ -32,7 +32,6 @@ function loadSingleContent() {
     capitalizedOjbectType = formattedObjectType.charAt(0).toUpperCase() + formattedObjectType.slice(1);
     request.get({url: objectURL})
         .done(function (data) {
-            console.log(data);
             var renderedTemplate;
 
             if (formattedObjectType === "solution" || formattedObjectType === "question") {

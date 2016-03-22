@@ -78,7 +78,7 @@ class TestQuest(TestCase):
         self.owner = Pleb.nodes.get(email=self.email)
         self.quest = Quest(owner_username=self.owner.username,
                            object_uuid=str(uuid1())).save()
-        self.owner.quest.connect(self.quest)
+        self.quest.owner.connect(self.owner)
 
     def test_get_cached(self):
         cache.set("%s_quest" % self.owner.username, self.quest)

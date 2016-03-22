@@ -102,10 +102,10 @@ export function load() {
 
     missions.populateMissions($(missionList), pageUser, missionMinTemplate,
         '<div class="block"><div class="block-content five-padding-bottom">' +
-        '<p>Check Back Later For New Missions</p></div></div>');
+        '<p class="row-no-top-bottom-margin">Check Back Later For New Missions</p></div></div>');
     missions.populateEndorsements($(endorsementList), pageUser, missionMinTemplate,
         '<div class="block"><div class="block-content five-padding-bottom">' +
-        '<p>Check Back Later For New Endorsements</p></div></div>');
+        '<p class="row-no-top-bottom-margin">Check Back Later For New Endorsements</p></div></div>');
 
     $followerList.sb_contentLoader({
         emptyDataMessage: '<div class="block"><div class="block-content no-top-bottom-padding">' +

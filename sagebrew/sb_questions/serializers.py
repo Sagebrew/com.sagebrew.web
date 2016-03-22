@@ -239,35 +239,35 @@ class QuestionSerializerNeo(TitledContentSerializer):
         return solution_count(obj.object_uuid)
 
     def get_solutions(self, obj):
+        expand_param = self.context.get('expand_param', None)
         request, expand, _, relations, expedite = gather_request_data(
             self.context,
             expedite_param=self.context.get('expedite_param', None),
-            expand_param=self.context.get('expand_param', None))
+            expand_param=expand_param)
         if expedite == "true":
             return []
-        solutions = obj.get_solution_ids()
-        solution_urls = []
-        if expand == "true":
-            for solution_uuid in solutions:
-                query = 'MATCH (s:Solution {object_uuid: "%s"}) RETURN s' % (
-                    solution_uuid)
-                res, _ = db.cypher_query(query)
-                solution_urls.append(SolutionSerializerNeo(
-                    Solution.inflate(res.one),
-                    context={"request": request,
-                             "expand_param": self.context.get('expand_param',
-                                                              None)}).data)
+        solutions = []
+        if expand == "true" and relations != "hyperlinked":
+            query = 'MATCH (a:Question {object_uuid: "%s"})' \
+                '-[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
+                'WHERE solutions.to_be_deleted = false ' \
+                'RETURN solutions' % obj.object_uuid
+            res, _ = db.cypher_query(query)
+            solutions = SolutionSerializerNeo(
+                [Solution.inflate(row[0]) for row in res], many=True,
+                context={"request": request, "expand_param": expand_param}).data
         else:
             if relations == "hyperlinked":
-                for solution_uuid in solutions:
-                    solution_urls.append(reverse(
-                        'solution-detail', kwargs={
-                            'object_uuid': solution_uuid},
-                        request=request))
+                solutions = [
+                    reverse('solution-detail',
+                            kwargs={'object_uuid': solution_uuid},
+                            request=request)
+                    for solution_uuid in obj.get_solution_ids()
+                ]
             else:
                 return solutions
 
-        return solution_urls
+        return solutions
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(

@@ -153,4 +153,10 @@ def populate_general_values(data, user, worker_count):
     data = data.replace("%(ENV_SUNLIGHT_FOUNDATION_KEY)s",
                         environ.get("SUNLIGHT_FOUNDATION_KEY", ""))
     data = data.replace("%(ENV_WEBHOSE_KEY)s", environ.get("WEBHOSE_KEY", ""))
+    data = data.replace("%(ENV_INTERCOM_API_KEY)s",
+                        environ.get("INTERCOM_API_KEY", ""))
+    data = data.replace("%(ENV_INTERCOM_APP_ID)s",
+                        environ.get("INTERCOM_APP_ID", ""))
+    data = data.replace("%(ENV_INTERCOM_ADMIN_ID_DEVON)s",
+                        environ.get("INTERCOM_ADMIN_ID_DEVON", ""))
     return data

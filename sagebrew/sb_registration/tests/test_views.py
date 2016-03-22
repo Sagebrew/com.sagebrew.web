@@ -128,9 +128,8 @@ class TestProfileInfoView(TestCase):
                                            gt_id=str(uuid1())).save()
         addresses = Address.nodes.all()
         for address in addresses:
-            if self.pleb.address.is_connected(address):
+            if address.owned_by.is_connected(self.pleb):
                 address.owned_by.disconnect(self.pleb)
-                self.pleb.address.disconnect(address)
 
     def test_user_info_population_no_birthday(self):
         my_dict = {'date_of_birth': [u'']}
@@ -384,7 +383,7 @@ class TestProfileInfoView(TestCase):
                                     data=my_dict)
         request.session = {}
         address = Address(address_hash=str(uuid1())).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(self.pleb)
         request.user = self.user
         response = profile_information(request)
 
@@ -404,7 +403,7 @@ class TestProfileInfoView(TestCase):
                                     data=my_dict)
         request.session = {}
         address = Address(address_hash=str(uuid1())).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(self.pleb)
         request.user = self.user
         response = profile_information(request)
 

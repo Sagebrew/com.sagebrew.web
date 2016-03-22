@@ -145,7 +145,10 @@ class VotableContentSerializer(SBSerializer):
             return False
 
     def get_html_content(self, obj):
-        return obj.content.replace('\n', "<br />")
+        if obj.content is not None:
+            return obj.content.replace('\n', "<br />")
+        else:
+            return obj.content
 
     def get_can_comment(self, obj):
         """

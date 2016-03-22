@@ -18,7 +18,7 @@ class Post(SBPrivateContent):
 
     def get_url(self, request=None):
         return reverse('profile_page', kwargs={
-            'pleb_username': self.get_wall_owner_profile().username
+            'pleb_username': self.wall_owner_username
         }, request=request)
 
     def get_wall_owner_profile(self):

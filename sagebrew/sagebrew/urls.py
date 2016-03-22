@@ -24,7 +24,7 @@ from help_center.sitemap import (AccountHelpSitemap, ConversationHelpSitemap,
 
 urlpatterns = patterns(
     '',
-    (r'^favicon\.ico$', RedirectView.as_view(url="%sfavicon.ico" % (
+    (r'^favicon\.ico$', RedirectView.as_view(url="%s/images/favicon.ico" % (
         settings.STATIC_URL), permanent=True)),
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),

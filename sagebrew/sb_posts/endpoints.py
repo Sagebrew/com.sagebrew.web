@@ -1,10 +1,5 @@
 from uuid import uuid1
-from dateutil import parser
 
-from django.template.loader import render_to_string
-from django.template import RequestContext
-
-from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -60,22 +55,6 @@ class PostsViewSet(viewsets.ModelViewSet):
         res, _ = db.cypher_query(query)
         return res
 
-    def retrieve(self, request, *args, **kwargs):
-        instance = self.get_object()
-        serializer = self.get_serializer(instance).data
-        if request.query_params.get('html', 'false').lower() == 'true':
-            serializer['last_edited_on'] = parser.parse(
-                serializer['last_edited_on']).replace(microsecond=0)
-            serializer['created'] = parser.parse(
-                serializer['created']).replace(microsecond=0)
-            return Response(
-                {"html": render_to_string("post.html",
-                                          RequestContext(request, serializer)),
-                 "id": instance.object_uuid,
-                 "results": serializer},
-                status=status.HTTP_200_OK)
-        return Response(serializer)
-
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
@@ -110,15 +89,6 @@ class PostsViewSet(viewsets.ModelViewSet):
             })
             return Response(serializer, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def update(self, request, *args, **kwargs):
-        html = request.query_params.get('html', 'false')
-        response = super(PostsViewSet, self).update(request, *args, **kwargs)
-        if html == 'true':
-            response.data['urlcontent_html'] = \
-                render_to_string("expanded_url_content.html", response.data)
-            return Response(response.data, status=status.HTTP_200_OK)
-        return Response(response.data, status=status.HTTP_200_OK)
 
 
 class WallPostsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
@@ -176,49 +146,15 @@ class WallPostsListCreate(ListCreateAPIView):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             instance = serializer.save(wall_owner_profile=wall_pleb)
-            serializer = serializer.data
             spawn_task(task_func=spawn_notifications, task_param={
                 "from_pleb": request.user.username,
-                "sb_object": serializer['object_uuid'],
+                "sb_object": serializer.data['object_uuid'],
                 "url": reverse(
                     'single_post_page',
-                    kwargs={"object_uuid": serializer["object_uuid"]}),
+                    kwargs={"object_uuid": serializer.data["object_uuid"]}),
                 "to_plebs": [self.kwargs[self.lookup_field], ],
                 "notification_id": str(uuid1()),
                 "action_name": instance.action_name
             })
-            if request.query_params.get('html', 'false').lower() == "true":
-                serializer['last_edited_on'] = parser.parse(
-                    serializer['last_edited_on']).replace(microsecond=0)
-                serializer['created'] = parser.parse(
-                    serializer['created']).replace(microsecond=0)
-                return Response(
-                    {
-                        "html": [render_to_string(
-                            'post.html', RequestContext(request, serializer))],
-                        "ids": [serializer["object_uuid"]]
-                    },
-                    status=status.HTTP_200_OK)
-            return Response(serializer, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(["GET"])
-@permission_classes((IsAuthenticated,))
-def post_renderer(request, username=None):
-    """
-    This is a intermediate step on the way to utilizing a JS Framework to
-    handle template rendering.
-    """
-    html_array = []
-    id_array = []
-    posts = WallPostsListCreate.as_view()(request, username=username)
-    for post in posts.data.get('results', []):
-        post['last_edited_on'] = parser.parse(
-            post['last_edited_on']).replace(microsecond=0)
-        post['created'] = parser.parse(post['created']).replace(microsecond=0)
-        html_array.append(render_to_string(
-            'post.html', RequestContext(request, post)))
-        id_array.append(post["object_uuid"])
-    posts.data['results'] = {"html": html_array, "ids": id_array}
-    return Response(posts.data, status=status.HTTP_200_OK)

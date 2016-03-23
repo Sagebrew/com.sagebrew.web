@@ -355,6 +355,92 @@ export function questManageValidator(manageForm) {
                         message: 'About section must be less than 128 characters'
                     }
                 }
+            },
+            website: {
+                selector: "#website",
+                validators: {
+                    callback: {
+                        callback: function (value) {
+                            console.log(value);
+                            if ($.trim(value).indexOf("http://") === 0 || $.trim(value).indexOf("https://") === 0 || $.trim(value) === "") {
+                                return true;
+                            } else {
+                                return {
+                                    valid: false,
+                                    message: 'Please enter a valid fully qualified url including "http://" or "https://"'
+                                };
+                            }
+                        }
+                    }
+                }
+            },
+            facebook: {
+                selector: "#facebook-social-address",
+                validators: {
+                    callback: {
+                        callback: function (value) {
+                            if ($.trim(value).indexOf("https://www.facebook.com/") === 0 || $.trim(value) === "") {
+                                return true;
+                            } else {
+                                return {
+                                    valid: false,
+                                    message: 'Please enter a valid fully qualified Facebook url including "https://"'
+                                };
+                            }
+                        }
+                    }
+                }
+            },
+            twitter: {
+                selector: "#twitter-social-address",
+                validators: {
+                    callback: {
+                        callback: function (value) {
+                            if ($.trim(value).indexOf("https://twitter.com/") === 0 || $.trim(value).indexOf("https://www.twitter.com/") === 0 || $.trim(value) === "") {
+                                return true;
+                            } else {
+                                return {
+                                    valid: false,
+                                    message: 'Please enter a valid fully qualified Twitter url including "https://"'
+                                };
+                            }
+                        }
+                    }
+                }
+            },
+            linkedin: {
+                selector: "#linkedin-social-address",
+                validators: {
+                    callback: {
+                        callback: function (value) {
+                            if ($.trim(value).indexOf("https://www.linkedin.com/") === 0 || $.trim(value) === "") {
+                                return true;
+                            } else {
+                                return {
+                                    valid: false,
+                                    message: 'Please enter a valid fully qualified LinkedIn url including "https://"'
+                                };
+                            }
+                        }
+                    }
+                }
+            },
+            youtube: {
+                selector: "#youtube-social-address",
+                validators: {
+                    callback: {
+                        callback: function (value) {
+                            if ($.trim(value).indexOf("https://www.youtube.com/") === 0 || $.trim(value).indexOf("https://youtu.be/") === 0 || $.trim(value) === ""){
+                                return true;
+                            } else {
+                                return {
+                                    valid: false,
+                                    message: 'Please enter a valid fully qualified Youtube url including "https://"'
+                                };
+                            }
+                        }
+                    }
+                }
             }
         }
     });
@@ -372,6 +458,91 @@ export function missionManageValidator(manageForm) {
                     stringLength: {
                         max: 255,
                         message: 'About section must be less than 255 characters'
+                    }
+                }
+            },
+            website: {
+                selector: "#website",
+                validators: {
+                    callback: {
+                        callback: function (value) {
+                            if ($.trim(value).indexOf("http://") === 0 || $.trim(value).indexOf("https://") === 0 || $.trim(value) === "") {
+                                return true;
+                            } else {
+                                return {
+                                    valid: false,
+                                    message: 'Please enter a valid fully qualified url including "http://" or "https://"'
+                                };
+                            }
+                        }
+                    }
+                }
+            },
+            facebook: {
+                selector: "#facebook-social-address",
+                validators: {
+                    callback: {
+                        callback: function (value) {
+                            if ($.trim(value).indexOf("https://www.facebook.com/") === 0 || $.trim(value) === "") {
+                                return true;
+                            } else {
+                                return {
+                                    valid: false,
+                                    message: 'Please enter a valid fully qualified Facebook url including "https://"'
+                                };
+                            }
+                        }
+                    }
+                }
+            },
+            twitter: {
+                selector: "#twitter-social-address",
+                validators: {
+                    callback: {
+                        callback: function (value) {
+                            if ($.trim(value).indexOf("https://twitter.com/") === 0 || $.trim(value).indexOf("https://www.twitter.com/") === 0 || $.trim(value) === "") {
+                                return true;
+                            } else {
+                                return {
+                                    valid: false,
+                                    message: 'Please enter a valid fully qualified Twitter url including "https://"'
+                                };
+                            }
+                        }
+                    }
+                }
+            },
+            linkedin: {
+                selector: "#linkedin-social-address",
+                validators: {
+                    callback: {
+                        callback: function (value) {
+                            if ($.trim(value).indexOf("https://www.linkedin.com/") === 0 || $.trim(value) === "") {
+                                return true;
+                            } else {
+                                return {
+                                    valid: false,
+                                    message: 'Please enter a valid fully qualified LinkedIn url including "https://"'
+                                };
+                            }
+                        }
+                    }
+                }
+            },
+            youtube: {
+                selector: "#youtube-social-address",
+                validators: {
+                    callback: {
+                        callback: function (value) {
+                            if ($.trim(value).indexOf("https://www.youtube.com/") === 0 || $.trim(value).indexOf("https://youtu.be/") === 0 || $.trim(value) === ""){
+                                return true;
+                            } else {
+                                return {
+                                    valid: false,
+                                    message: 'Please enter a valid fully qualified Youtube url including "https://"'
+                                };
+                            }
+                        }
                     }
                 }
             }
@@ -397,3 +568,6 @@ export function updateValidator(updateForm) {
         }
     });
 }
+
+
+/* Custom Validators */

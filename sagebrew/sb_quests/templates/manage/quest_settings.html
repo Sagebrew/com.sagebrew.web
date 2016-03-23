@@ -35,41 +35,41 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="facebook-social-address">Facebook Username</label>
+                    <label for="facebook-social-address">Facebook URL</label>
                     <input type="text"
                        id="facebook-social-address"
                        name="facebook"
-                       placeholder="Facebook Username"
+                       placeholder="Including https://www.facebook.com/"
                        value="{{ quest.facebook|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="twitter-social-address">Twitter ID</label>
+                    <label for="twitter-social-address">Twitter URL</label>
                     <input type="text"
                        id="twitter-social-address"
                        name="twitter"
-                       placeholder="Twitter ID"
+                       placeholder="Including https://www.twitter.com/"
                        value="{{ quest.twitter|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="linkedin-social-address">LinkedIn Username</label>
+                    <label for="linkedin-social-address">LinkedIn URL</label>
                     <input type="text"
                        name="linkedin"
                        id="linkedin-social-address"
-                       placeholder="LinkedIn Username"
+                       placeholder="Including https://www.linkedin.com/"
                        value="{{ quest.linkedin|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="youtube-social-address">YouTube Username</label>
+                    <label for="youtube-social-address">YouTube URL</label>
                     <input type="text"
                        name="youtube"
                        id="youtube-social-address"
-                       placeholder="Youtube Username"
+                       placeholder="Including https://www.youtube.com/"
                        value="{{ quest.youtube|default_if_none:'' }}"
                        class="form-control">
                 </div>
@@ -78,7 +78,7 @@
                     <div id="validation-errors"></div>
                     <div class="col-lg-4 col-md-6">
                         <button class="btn btn-primary sb_btn sb_btn_fill"
-                                id="submit">
+                                id="submit" type="submit">
                             Save Changes
                         </button>
                     </div>

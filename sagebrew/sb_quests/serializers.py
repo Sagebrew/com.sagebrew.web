@@ -64,6 +64,8 @@ class QuestSerializer(SBSerializer):
         read_only=True,
         choices=[('unverified', "Unverified"), ('pending', "Pending"),
                  ('verified', "Verified")])
+    account_verification_fields_needed = serializers.ListField(read_only=True)
+    account_verification_details = serializers.CharField(read_only=True)
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()

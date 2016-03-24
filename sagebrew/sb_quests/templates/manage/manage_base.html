@@ -61,6 +61,36 @@
         </div>
     </div>
 
+    <div class="block block-type-nav">
+        <div class="block-title">
+            Verification Status
+        </div>
+        <div class="block-content">
+            {% if quest.account_verified == "unverified" %}
+                <span class="label label-danger js-verified">Verification: Incomplete</span>
+            {% elif quest.account_verified == "pending" %}
+                <span class="label label-warning js-verified">Verification: Pending</span>
+            {% else %}
+                <span class="label label-success js-verified">Verification: Completed</span>
+            {% endif %}
+            <br/>
+            {% if quest.account_verification_fields_needed %}
+                <span class="label label-warning" id="js-fields-needed">
+                    Fields Needed: {% for reason in quest.account_verification_fields_needed %}reason, {% endfor %}
+                </span>
+            {% else %}
+                <span class="label label-success" id="js-fields-needed">
+                    Fields Needed: None!
+                </span>
+            {% endif %}
+            <br/>
+            {% if quest.account_verification_details %}
+                <span class="label label-warning" id="js-verification-details">Details: {{ quest.account_verification_details }}</span>
+            {% else %}
+                <span class="label label-success" id="js-verification-details">Details: None!</span>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
 
 {% block sidebar_right %}

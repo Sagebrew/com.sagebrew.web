@@ -33,6 +33,16 @@ export function load() {
             }).done(function (){
                 $.notify({message: "Updated Settings Successfully"}, {type: "success"});
             });
+        })
+        .on('keyup', '#about', function(){
+            var $this = $(this),
+                count = $this.val().length,
+                remaining = $("#js-about-char-count"),
+                newCount = 128 - count;
+            if (newCount < 0) {
+                newCount = 0;
+            }
+            remaining.text(newCount + " Characters Remaining");
         });
     validation.questManageValidator($('#socialForm'));
 }

@@ -30,11 +30,11 @@ class QuestSerializer(SBSerializer):
     title = serializers.CharField(required=False, allow_blank=True)
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=128)
-    facebook = serializers.CharField(required=False, allow_blank=True)
-    linkedin = serializers.CharField(required=False, allow_blank=True)
-    youtube = serializers.CharField(required=False, allow_blank=True)
-    twitter = serializers.CharField(required=False, allow_blank=True)
-    website = serializers.CharField(required=False, allow_blank=True)
+    facebook = serializers.URLField(required=False, allow_blank=True)
+    linkedin = serializers.URLField(required=False, allow_blank=True)
+    youtube = serializers.URLField(required=False, allow_blank=True)
+    twitter = serializers.URLField(required=False, allow_blank=True)
+    website = serializers.URLField(required=False, allow_blank=True)
     wallpaper_pic = serializers.CharField(required=False)
     profile_pic = serializers.CharField(required=False)
     owner_username = serializers.CharField(read_only=True)
@@ -164,10 +164,14 @@ class QuestSerializer(SBSerializer):
         instance.active = active
         instance.title = empty_text_to_none(
             validated_data.pop('title', instance.title))
-        instance.facebook = validated_data.get('facebook', instance.facebook)
-        instance.linkedin = validated_data.get('linkedin', instance.linkedin)
-        instance.youtube = validated_data.get('youtube', instance.youtube)
-        instance.twitter = validated_data.get('twitter', instance.twitter)
+        instance.facebook = clean_url(
+            validated_data.get('facebook', instance.facebook))
+        instance.linkedin = clean_url(
+            validated_data.get('linkedin', instance.linkedin))
+        instance.youtube = clean_url(
+            validated_data.get('youtube', instance.youtube))
+        instance.twitter =clean_url(
+            validated_data.get('twitter', instance.twitter))
         if initial_state is True and active is False:
             remove_search_object(instance.object_uuid, "quest")
         instance.website = clean_url(validated_data.get(

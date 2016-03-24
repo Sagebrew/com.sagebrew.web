@@ -379,12 +379,12 @@ export function questManageValidator(manageForm) {
                 validators: {
                     callback: {
                         callback: function (value) {
-                            if ($.trim(value).indexOf("https://www.facebook.com/") === 0 || $.trim(value) === "") {
+                            if ($.trim(value).indexOf("https://www.facebook.com/") === 0 || $.trim(value).indexOf("http://www.facebook.com/") === 0 || $.trim(value).indexOf("www.facebook.com/") === 0 || $.trim(value) === "") {
                                 return true;
                             } else {
                                 return {
                                     valid: false,
-                                    message: 'Please enter a valid fully qualified Facebook url including "https://"'
+                                    message: 'Please enter a valid fully qualified Facebook url'
                                 };
                             }
                         }
@@ -396,12 +396,12 @@ export function questManageValidator(manageForm) {
                 validators: {
                     callback: {
                         callback: function (value) {
-                            if ($.trim(value).indexOf("https://twitter.com/") === 0 || $.trim(value).indexOf("https://www.twitter.com/") === 0 || $.trim(value) === "") {
+                            if ($.trim(value).indexOf("https://twitter.com/") === 0 || $.trim(value).indexOf("https://www.twitter.com/") === 0 || $.trim(value).indexOf("www.twitter.com/") === 0 || $.trim(value) === "") {
                                 return true;
                             } else {
                                 return {
                                     valid: false,
-                                    message: 'Please enter a valid fully qualified Twitter url including "https://"'
+                                    message: 'Please enter a valid fully qualified Twitter url'
                                 };
                             }
                         }
@@ -413,12 +413,12 @@ export function questManageValidator(manageForm) {
                 validators: {
                     callback: {
                         callback: function (value) {
-                            if ($.trim(value).indexOf("https://www.linkedin.com/") === 0 || $.trim(value) === "") {
+                            if ($.trim(value).indexOf("https://www.linkedin.com/") === 0 || $.trim(value).indexOf("http://www.linkedin.com/") === 0 || $.trim(value).indexOf("www.linkedin.com/") === 0 || $.trim(value) === "") {
                                 return true;
                             } else {
                                 return {
                                     valid: false,
-                                    message: 'Please enter a valid fully qualified LinkedIn url including "https://"'
+                                    message: 'Please enter a valid fully qualified LinkedIn url'
                                 };
                             }
                         }
@@ -430,12 +430,12 @@ export function questManageValidator(manageForm) {
                 validators: {
                     callback: {
                         callback: function (value) {
-                            if ($.trim(value).indexOf("https://www.youtube.com/") === 0 || $.trim(value).indexOf("https://youtu.be/") === 0 || $.trim(value) === ""){
+                            if ($.trim(value).indexOf("https://www.youtube.com/") === 0 || $.trim(value).indexOf("www.youtube.com/") === 0 || $.trim(value).indexOf("https://youtu.be/") === 0 || $.trim(value).indexOf("www.youtube.com/") === 0 || $.trim(value).indexOf("http://youtu.be/") === 0 || $.trim(value).indexOf("www.youtu.be/") === 0 || $.trim(value) === ""){
                                 return true;
                             } else {
                                 return {
                                     valid: false,
-                                    message: 'Please enter a valid fully qualified Youtube url including "https://"'
+                                    message: 'Please enter a valid fully qualified Youtube url'
                                 };
                             }
                         }
@@ -483,12 +483,12 @@ export function missionManageValidator(manageForm) {
                 validators: {
                     callback: {
                         callback: function (value) {
-                            if ($.trim(value).indexOf("https://www.facebook.com/") === 0 || $.trim(value) === "") {
+                            if ($.trim(value).indexOf("https://www.facebook.com/") === 0 || $.trim(value).indexOf("http://www.facebook.com/") === 0 || $.trim(value).indexOf("www.facebook.com/") === 0 || $.trim(value) === "") {
                                 return true;
                             } else {
                                 return {
                                     valid: false,
-                                    message: 'Please enter a valid fully qualified Facebook url including "https://"'
+                                    message: 'Please enter a valid fully qualified Facebook url'
                                 };
                             }
                         }
@@ -500,12 +500,12 @@ export function missionManageValidator(manageForm) {
                 validators: {
                     callback: {
                         callback: function (value) {
-                            if ($.trim(value).indexOf("https://twitter.com/") === 0 || $.trim(value).indexOf("https://www.twitter.com/") === 0 || $.trim(value) === "") {
+                            if ($.trim(value).indexOf("https://twitter.com/") === 0 || $.trim(value).indexOf("https://www.twitter.com/") === 0 || $.trim(value).indexOf("www.twitter.com/") === 0 || $.trim(value) === "") {
                                 return true;
                             } else {
                                 return {
                                     valid: false,
-                                    message: 'Please enter a valid fully qualified Twitter url including "https://"'
+                                    message: 'Please enter a valid fully qualified Twitter url'
                                 };
                             }
                         }
@@ -517,12 +517,12 @@ export function missionManageValidator(manageForm) {
                 validators: {
                     callback: {
                         callback: function (value) {
-                            if ($.trim(value).indexOf("https://www.linkedin.com/") === 0 || $.trim(value) === "") {
+                            if ($.trim(value).indexOf("https://www.linkedin.com/") === 0 || $.trim(value).indexOf("http://www.linkedin.com/") === 0 || $.trim(value).indexOf("www.linkedin.com/") === 0 || $.trim(value) === "") {
                                 return true;
                             } else {
                                 return {
                                     valid: false,
-                                    message: 'Please enter a valid fully qualified LinkedIn url including "https://"'
+                                    message: 'Please enter a valid fully qualified LinkedIn url'
                                 };
                             }
                         }
@@ -534,12 +534,12 @@ export function missionManageValidator(manageForm) {
                 validators: {
                     callback: {
                         callback: function (value) {
-                            if ($.trim(value).indexOf("https://www.youtube.com/") === 0 || $.trim(value).indexOf("https://youtu.be/") === 0 || $.trim(value) === ""){
+                            if ($.trim(value).indexOf("https://www.youtube.com/") === 0 || $.trim(value).indexOf("www.youtube.com/") === 0 || $.trim(value).indexOf("https://youtu.be/") === 0 || $.trim(value).indexOf("www.youtube.com/") === 0 || $.trim(value).indexOf("http://youtu.be/") === 0 || $.trim(value).indexOf("www.youtu.be/") === 0 || $.trim(value) === ""){
                                 return true;
                             } else {
                                 return {
                                     valid: false,
-                                    message: 'Please enter a valid fully qualified Youtube url including "https://"'
+                                    message: 'Please enter a valid fully qualified Youtube url'
                                 };
                             }
                         }

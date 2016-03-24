@@ -24,6 +24,7 @@
                     <textarea class="form-control"
                               placeholder="255 Characters about the Mission"
                               rows="3" name="about" id="about">{{ mission.about|default_if_none:'' }}</textarea>
+                    <small id="js-about-char-count" class="help-block">255 Characters Remaining</small>
                 </div>
 
                 <div class="form-group">
@@ -41,7 +42,7 @@
                     <input type="text"
                        id="facebook-social-address"
                        name="facebook"
-                       placeholder="Including https://www.facebook.com/"
+                       placeholder="ex. https://www.facebook.com/"
                        value="{{ quest.facebook|default_if_none:'' }}"
                        class="form-control">
                 </div>
@@ -51,7 +52,7 @@
                     <input type="text"
                        id="twitter-social-address"
                        name="twitter"
-                       placeholder="Including https://www.twitter.com/"
+                       placeholder="ex. https://www.twitter.com/"
                        value="{{ quest.twitter|default_if_none:'' }}"
                        class="form-control">
                 </div>
@@ -61,7 +62,7 @@
                     <input type="text"
                        name="linkedin"
                        id="linkedin-social-address"
-                       placeholder="Including https://www.linkedin.com/"
+                       placeholder="ex. https://www.linkedin.com/"
                        value="{{ quest.linkedin|default_if_none:'' }}"
                        class="form-control">
                 </div>
@@ -71,7 +72,7 @@
                     <input type="text"
                        name="youtube"
                        id="youtube-social-address"
-                       placeholder="Including https://www.youtube.com/"
+                       placeholder="ex. https://www.youtube.com/"
                        value="{{ quest.youtube|default_if_none:'' }}"
                        class="form-control">
                 </div>

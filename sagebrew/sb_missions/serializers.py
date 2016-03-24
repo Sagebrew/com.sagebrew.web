@@ -256,7 +256,7 @@ class MissionSerializer(SBSerializer):
             validated_data.get('linkedin', instance.linkedin))
         instance.youtube = clean_url(
             validated_data.get('youtube', instance.youtube))
-        instance.twitter =clean_url(
+        instance.twitter = clean_url(
             validated_data.get('twitter', instance.twitter))
         instance.website = clean_url(
             validated_data.get('website', instance.website))

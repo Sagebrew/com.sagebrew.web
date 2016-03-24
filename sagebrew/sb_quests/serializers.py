@@ -170,7 +170,7 @@ class QuestSerializer(SBSerializer):
             validated_data.get('linkedin', instance.linkedin))
         instance.youtube = clean_url(
             validated_data.get('youtube', instance.youtube))
-        instance.twitter =clean_url(
+        instance.twitter = clean_url(
             validated_data.get('twitter', instance.twitter))
         if initial_state is True and active is False:
             remove_search_object(instance.object_uuid, "quest")

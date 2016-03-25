@@ -45,7 +45,8 @@ class ContributionMissionView(View):
                 not request.user.is_authenticated():
             return redirect("mission_donation_amount", **reverse_params)
         return render(request, self.template_name, {
-            "selected": MissionSerializer(mission).data,
+            "selected": MissionSerializer(
+                mission, context={'request': request}).data,
             "quest": QuestSerializer(quest).data,
             "slug": slugify(mission.get_mission_title()),
             "missions": None

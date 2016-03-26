@@ -1,6 +1,11 @@
+from uuid import uuid1
 import requests
+import urllib2
+import pytz
 from bs4 import BeautifulSoup
 import imagehash
+from datetime import datetime, timedelta
+
 from django.conf import settings
 
 from rest_framework import serializers, status
@@ -9,83 +14,123 @@ from rest_framework.exceptions import ValidationError
 from neomodel import DoesNotExist, UniqueProperty, db
 
 from api.serializers import SBSerializer
-from sb_registration.utils import upload_image
 
-from .utils import parse_page_html
+from .utils import (parse_page_html, get_image_data, get_file_info,
+                    check_sagebrew_url, hamming_distance)
 from .neo_models import UploadedObject, ModifiedObject, URLContent
 
 
-class MediaType:
-
-    def __init__(self):
-        pass
-
-    def __call__(self, value):
-        allowed_ext = ['gif', 'jpeg', 'jpg', 'png', 'GIF', 'JPEG', 'JPG',
-                       'PNG']
-        if value not in allowed_ext:
-            message = 'You have provided an invalid file type. ' \
-                      'The valid file types are gif, jpeg, jpg, and png'
-            raise serializers.ValidationError(message)
-        return value
-
-
-class FileSize:
-
-    def __init__(self):
-        pass
-
-    def __call__(self, value):
-        if value > 20000000:
-            message = "Your file cannot be larger than 20mb. Please select " \
-                      "a smaller file."
-            raise serializers.ValidationError(message)
-        return value
+def verify_hamming_distance(value, distance=11, time_frame=None):
+    skip = 0
+    if time_frame is not None:
+        then = (datetime.now(pytz.utc) -
+                timedelta(days=time_frame)).strftime("%s")
+    else:
+        return True
+    while True:
+        query = 'MATCH (news:NewsArticle)-[:IMAGE_ON_PAGE]->' \
+                '(image:UploadedObject) WHERE image.created > %s ' \
+                'RETURN image.image_hash ' \
+                'SKIP %s LIMIT 100' % (then, skip)
+        skip += 99
+        res, _ = db.cypher_query(query)
+        if not res.one:
+            break
+        for row in res:
+            result = hamming_distance(row[0], str(value))
+            if result < distance:
+                raise ValidationError("Too close to existing images")
+    return True
 
 
 class UploadSerializer(SBSerializer):
-    file_format = serializers.CharField(validators=[MediaType(), ])
-    file_size = serializers.IntegerField(validators=[FileSize(), ])
+    file_object = serializers.FileField(required=False, write_only=True)
+    file_format = serializers.CharField(read_only=True)
+    file_size = serializers.IntegerField(read_only=True)
     width = serializers.IntegerField(read_only=True)
     height = serializers.IntegerField(read_only=True)
-    url = serializers.CharField(read_only=True)
+    url = serializers.CharField(
+        required=False,
+        help_text="If you do not include a URL to an image you must "
+                  "include a file object in your POST")
     is_portrait = serializers.SerializerMethodField()
 
-    def create(self, validated_data):
-        owner = None
-        folder = settings.AWS_PROFILE_PICTURE_FOLDER_NAME
-        if 'owner' in validated_data:
-            owner = validated_data.pop('owner')
-        width = validated_data.pop('width')
-        height = validated_data.pop('height')
-        file_name = validated_data.pop('file_name')
-        object_uuid = validated_data.pop('object_uuid')
-        file_size = validated_data.pop('file_size')
-        file_format = validated_data.pop('file_format')
-        file_object = validated_data.pop('file_object')
-        if 'folder' in validated_data:
-            folder = validated_data.pop('folder')
-        image = validated_data.pop('image')
-        url = upload_image(folder, file_name, file_object, True)
-        if image is not None:
-            image_hash = imagehash.dhash(image)
-        else:
-            image_hash = None
-        verify_unique = validated_data.pop('verify_unique', False)
+    def validate(self, data):
+        # This is abnormally long since we're not verifying actual user input
+        # we're analyzing the image or url provided and then having to do
+        # the validation on the populated parameters
+        # Please note this is run after all other field validators
+        # http://stackoverflow.com/questions/27591574/
+        # order-of-serializer-validation-in-django-rest-framework
+        request = self.context.get('request')
+        verify_unique = self.context.get('verify_unique', False)
+        check_hamming = self.context.get('check_hamming', False)
+        file_object = data.get('file_object')
+        folder = self.context.get(
+            'folder', settings.AWS_PROFILE_PICTURE_FOLDER_NAME)
+        url = data.get('url')
+        if request is not None:
+            data['object_uuid'] = request.query_params.get(
+                'object_uuid', str(uuid1()))
+            serializers.UUIDField().run_validators(data['object_uuid'])
+        elif data.get('object_uuid') is None:
+            data['object_uuid'] = str(uuid1())
+        if file_object and url:
+            raise ValidationError("Cannot process both a URL and a "
+                                  "File at the same time")
+        try:
+            file_size, file_format, file_object = get_file_info(
+                file_object, url)
+        except (ValueError, urllib2.HTTPError, urllib2.URLError):
+            raise ValidationError("Invalid URL")
+        data['width'], data['height'], file_name, image = get_image_data(
+            data['object_uuid'], file_object)
+
+        if data['width'] < 100:
+            raise ValidationError("Must be at least 100 pixels wide")
+        if data['height'] < 100:
+            raise ValidationError("Must be at least 100 pixels tall")
+        if file_size > settings.ALLOWED_IMAGE_SIZE:
+            raise ValidationError(
+                "Your file cannot be larger than 20mb. Please select "
+                "a smaller file.")
+        if file_format not in settings.ALLOWED_IMAGE_FORMATS:
+            raise serializers.ValidationError(
+                'You have provided an invalid file type. '
+                'The valid file types are gif, jpeg, jpg, and png')
+
+        data['url'] = check_sagebrew_url(url, folder, file_name, file_object)
+        data['image_hash'] = str(imagehash.dhash(image))
         if verify_unique:
             query = 'MATCH (upload:UploadedObject) ' \
                     'WHERE upload.image_hash="%s" ' \
-                    'RETURN true' % image_hash
+                    'RETURN true' % data['image_hash']
             res, _ = db.cypher_query(query)
             if res.one:
                 raise ValidationError("Image must be unique")
+        if check_hamming:
+            verify_hamming_distance(data['image_hash'],
+                                    check_hamming.get('distance', 11),
+                                    check_hamming.get('time_frame'))
+        return data
 
+    def validate_url(self, value):
+        if "sponsored" in value:
+            raise ValidationError("Cannot be a sponsored link")
+        for site in settings.EXPLICIT_SITES:
+            if site in value:
+                raise ValidationError("Cannot include pornographic content")
+        return value
+
+    def create(self, validated_data):
+        owner = None
+        if 'owner' in validated_data:
+            owner = validated_data.pop('owner')
         if owner is not None:
             validated_data['owner_username'] = owner.username
-        uploaded_object = UploadedObject(
-            file_format=file_format, url=url, height=height,
-            width=width, file_size=file_size, object_uuid=object_uuid,
-            image_hash=image_hash).save()
+        if 'file_object' in validated_data:
+            validated_data.pop('file_object', None)
+        uploaded_object = UploadedObject(**validated_data).save()
         if owner is not None:
             uploaded_object.owned_by.connect(owner)
             owner.uploads.connect(uploaded_object)
@@ -102,22 +147,12 @@ class ModifiedSerializer(UploadSerializer):
 
     def create(self, validated_data):
         owner = validated_data.pop('owner')
-        width = validated_data.pop('width')
-        height = validated_data.pop('height')
-        file_name = validated_data.pop('file_name')
-        file_size = validated_data.pop('file_size')
-        file_format = validated_data.pop('file_format').lower()
-        file_object = validated_data.pop('file_object')
-        object_uuid = validated_data.pop('object_uuid')
-        url = upload_image(settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
-                           file_name, file_object, True)
-        modified_object = ModifiedObject(file_format=file_format, url=url,
-                                         height=height, width=width,
-                                         file_size=file_size,
-                                         owner_username=owner.username).save()
+        modified_object = ModifiedObject(
+            owner_username=owner.username, **validated_data).save()
         modified_object.owned_by.connect(owner)
         owner.uploads.connect(modified_object)
-        parent_object = UploadedObject.nodes.get(object_uuid=object_uuid)
+        parent_object = UploadedObject.nodes.get(
+            object_uuid=validated_data['object_uuid'])
         parent_object.modifications.connect(modified_object)
         modified_object.modification_to.connect(parent_object)
         return modified_object
@@ -159,7 +194,7 @@ class URLContentSerializer(SBSerializer):
                 return URLContent.nodes.get(url=new_url)
             except (URLContent.DoesNotExist, DoesNotExist):
                 pass
-        if any(validated_data['url'] in s for s in settings.EXPLICIT_STIES):
+        if any(validated_data['url'] in s for s in settings.EXPLICIT_SITES):
             validated_data['is_explicit'] = True
         try:
             response = requests.get(new_url,

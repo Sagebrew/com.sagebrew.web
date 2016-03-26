@@ -420,6 +420,9 @@ def cleanup_title(value):
     if value[:len(value)] == '"' or value[:len(value)] == "'":
         value = value[:len(value) - 1]
     value = value.replace('"', "").strip()
+    for acronym in settings.COMPANY_ACRONYMS:
+        if " %s " % acronym.lower() in value.lower():
+            value = value.replace(acronym.lower(), acronym)
     en_us_locale = icu.Locale('en_US')
     break_iter = icu.BreakIterator.createWordInstance(
         en_us_locale)

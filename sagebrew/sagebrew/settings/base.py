@@ -421,6 +421,11 @@ OPERATOR_TYPES = [
     ('coperator\ntruth\np0\n.', 'truth')
 ]
 
+ALLOWED_IMAGE_FORMATS = ['gif', 'jpeg', 'jpg', 'png', 'GIF', 'JPEG', 'JPG',
+                         'PNG']
+
+ALLOWED_IMAGE_SIZE = 20000000 # 20 MB
+
 NON_SAFE = ["REMOVE", "DELETE", "CREATE", "SET",
             "FOREACH", "MERGE", "MATCH", "START"]
 
@@ -517,7 +522,9 @@ DEFAULT_EXCLUDE_SENTENCES = ["Story highlights", "#", "##", "Discover Dubai",
                              "By ", "Caption", "caption", "photos:", "1 of ",
                              'JPG', 'jpg', 'png', "PNG", "ID:", "(REUTERS)",
                              "Image", "BREAKING", "FORM", "1.", "by",
-                             "FFFD", "Fuck", "Shit", "Ass", "Cunt", "Jizz"]
+                             "FFFD", "Fuck", "Shit", "Ass", "Cunt", "Jizz",
+                             '[', ']', '{', '}', '*', 'Related Topics:',
+                             'related topics:', '—', '-', '+', '=']
 
 DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
                             'Burn More Calories and Lose Weight',
@@ -531,8 +538,11 @@ DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
                             "Jizz"]
 
 UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', ]
+COMPANY_ACRONYMS = ['ABC', 'CNN', 'CBS', 'MSNBC', 'BBC',
+                    'CBC', 'CBS', 'NBC', 'NYT', 'abc7.com', 'NPR']
 
-EXPLICIT_STIES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',
+
+EXPLICIT_SITES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',
                   'redtube.com', 'youporn.com', 'tube8.com', 'youjizz.com',
                   'hardsextube.com', 'beeg.com', 'motherless.com',
                   'drtuber.com', 'nuvid.com', 'pornerbros.com',

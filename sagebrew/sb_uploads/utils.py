@@ -1,6 +1,7 @@
 import bleach
 import string
 import io
+import urllib2
 try:
     from urlparse import urlparse
 except ImportError:
@@ -83,8 +84,34 @@ def crop_image2(image, width, height, x, y):
     return region
 
 
+def get_file_info(file_object, url):
+    if file_object is not None:
+        file_size = file_object.size
+        file_format = file_object.content_type.split('/')[1].lower()
+    else:
+        file_object = urllib2.urlopen(url)
+        read_file = file_object.read()
+        file_size = len(read_file)
+        http_message = file_object.info()
+        file_object = io.BytesIO(read_file)
+        file_format = http_message.type.split('/')[1].lower()
+
+    return file_size, file_format, file_object
+
+
+def check_sagebrew_url(url, folder, file_name, file_object, type_known=True):
+    # Check if a sagebrew url, https, and is stored in correct folder
+    if url is None:
+        return upload_image(folder, file_name, file_object, type_known)
+    parsed_url = urlparse(url)
+    if parsed_url.netloc not in settings.ALLOWED_HOSTS or \
+            folder not in parsed_url.path or parsed_url.scheme == "https":
+        url = upload_image(folder, file_name, file_object, type_known)
+    return url
+
+
 def is_absolute(url):
-    return bool(urlparse.urlparse(url).netloc)
+    return bool(urlparse(url).netloc)
 
 
 def get_page_image(url, soup, content_type='html/text'):
@@ -114,7 +141,7 @@ def get_page_image(url, soup, content_type='html/text'):
         res = requests.get(image)
         if res.status_code == status.HTTP_200_OK:
             try:
-                temp_file = cStringIO.StringIO(res.content)
+                temp_file = io.BytesIO(res.content)
             except IOError:  # pragma: no cover
                 # this IOError catches issues created by passing StringIO some
                 # corrupt or invalid data which we cannot test reliably

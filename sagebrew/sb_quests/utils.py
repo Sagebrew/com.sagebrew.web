@@ -1,6 +1,6 @@
 from neomodel import db
 
-from sb_news.utils import query_provider
+from sb_news.utils import query_webhose
 
 from sb_quests.neo_models import Quest
 
@@ -21,5 +21,5 @@ def quest_callback(news_objects):
         else:
             query = '"%s" language:(english) thread.country:US ' \
                     'performance_score:>8 (site_type:news)' % quest.title
-        articles, requests_left = query_provider(query)
+        articles, requests_left = query_webhose(query)
         [quest.news_articles.connect(article) for article in articles]

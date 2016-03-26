@@ -42,7 +42,7 @@ class NewsArticle(TitledContent):
     site_type = StringProperty()
     country = StringProperty()
     spam_score = FloatProperty()
-    main_image = StringProperty()
+    image = StringProperty()
     # Scale of 0-10, 0 being the worst and 10 being the best
     performance_score = IntegerProperty()
     crawled = DateTimeProperty()

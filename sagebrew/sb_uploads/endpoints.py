@@ -2,11 +2,8 @@ import urllib2
 import StringIO
 
 from io import BytesIO
-from uuid import uuid1
-
 
 from django.conf import settings
-
 
 from PIL import Image
 from neomodel import db
@@ -25,7 +22,7 @@ from sb_registration.utils import delete_image
 from .serializers import (UploadSerializer, ModifiedSerializer, CropSerializer,
                           URLContentSerializer)
 from .neo_models import (UploadedObject, URLContent)
-from .utils import resize_image, crop_image2, get_image_data
+from .utils import resize_image, crop_image2
 
 
 class UploadViewSet(viewsets.ModelViewSet):
@@ -70,26 +67,17 @@ class UploadViewSet(viewsets.ModelViewSet):
         return Response({"detail": None}, status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, *args, **kwargs):
-        object_uuid = self.request.query_params.get('object_uuid',
-                                                    str(uuid1()))
         croppic = self.request.query_params.get('croppic', 'false').lower()
-        file_object = request.data.get('file', None)
+        file_object = request.data.get('file_object', None)
+        if file_object is None:
+            file_object = request.data.get('file', None)
         if file_object is None:
             file_object = request.data.get('img', None)
-        file_size = file_object.size
-        request.data['file_format'] = file_object.content_type.split('/')[1]
-        request.data['file_size'] = file_size
-        serializer = UploadSerializer(data=request.data,
-                                      context={'request': request})
+        serializer = self.get_serializer(
+            data={"file_object": file_object}, context={'request': request})
         if serializer.is_valid():
-            width, height, file_name, image = get_image_data(
-                request.data['object_uuid'], file_object)
             owner = Pleb.get(request.user.username)
-            upload = serializer.save(owner=owner, width=width, height=height,
-                                     file_object=file_object,
-                                     file_name=file_name,
-                                     object_uuid=object_uuid,
-                                     image=image)
+            upload = serializer.save(owner=owner)
             if croppic == 'true':
                 return Response({"status": "success",
                                  "url": upload.url,

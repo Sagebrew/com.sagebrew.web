@@ -15,11 +15,11 @@ from datetime import datetime
 
 from django.conf import settings
 
+from rest_framework.exceptions import ValidationError
 
-from neomodel import DoesNotExist, db
+from neomodel import db
 
 from .serializers import NewsArticleSerializer
-from .neo_models import NewsArticle
 
 logger = getLogger("loggly_logs")
 
@@ -81,9 +81,8 @@ def get_reformed_url(url):
     return url
 
 
-def query_provider(query):
+def query_webhose(query, tag):
     results = gather_news_results(query)
-    articles = []
     for post in results['posts']:
         thread = post.pop('thread', None)
         if thread['spam_score'] < 0.3:
@@ -91,41 +90,43 @@ def query_provider(query):
             post.pop('ord_in_thread', None)
             thread.pop('published', None)
             published = parser.parse(post.pop('published', None))
-            try:
-                NewsArticle.nodes.get(external_id=external_id)
-            except (NewsArticle.DoesNotExist, DoesNotExist):
-                post["external_id"] = external_id
-                post["url"] = get_reformed_url(post.pop('url', None))
-                post["highlight_text"] = post.pop('highlightText', None)
-                post["highlight_title"] = post.pop('highlightTitle', None)
-                post["content"] = post.pop('text', None)
-                post["site_full"] = thread['site_full']
-                post["site"] = thread['site']
-                post["site_section"] = thread['site_section']
-                post["section_title"] = thread['section_title']
-                post["replies_count"] = thread['replies_count']
-                post["participants_count"] = thread['participants_count']
-                post["site_type"] = thread['site_type']
-                post["country"] = thread['country']
-                post["spam_score"] = thread['spam_score']
-                post["main_image"] = thread.pop('main_image')
-                post["performance_score"] = thread['performance_score']
-                post["crawled"] = parser.parse(post.pop('crawled', None))
-                post["published"] = published
-                post["provider"] = "webhose"
-                serializer = NewsArticleSerializer(data=post)
-                if serializer.is_valid():
+            post["external_id"] = external_id
+            post["url"] = get_reformed_url(post.pop('url', None))
+            post['title_full'] = thread['title_full']
+            post["highlight_text"] = post.pop('highlightText', None)
+            post["highlight_title"] = post.pop('highlightTitle', None)
+            post["content"] = post.pop('text', None)
+            post["site_full"] = thread['site_full']
+            post["site"] = thread['site']
+            post["site_section"] = thread['site_section']
+            post["section_title"] = thread['section_title']
+            post["replies_count"] = thread['replies_count']
+            post["participants_count"] = thread['participants_count']
+            post["site_type"] = thread['site_type']
+            post["country"] = thread['country']
+            post["spam_score"] = thread['spam_score']
+            post["image"] = thread.pop('main_image')
+            post["performance_score"] = thread['performance_score']
+            post["crawled"] = parser.parse(post.pop('crawled', None))
+            post["published"] = published
+            post["provider"] = "webhose"
+            post['language'] = "en"
+            serializer = NewsArticleSerializer(data=post)
+            if serializer.is_valid():
+                try:
                     article = serializer.save()
-                else:
+                except(ValueError, ValidationError):
                     continue
-                articles.append(article)
-    return articles, results['requestsLeft']
+            else:
+                print(serializer.errors)
+                continue
+            article.tags.connect(tag)
+    return results['requestsLeft']
 
 
 def tag_callback(news_objects):
     for tag in news_objects:
         query = '"%s political" language:(english) thread.country:US ' \
                 'performance_score:>8 (site_type:news)' % tag.name
-        articles, requests_left = query_provider(query)
-        [article.tags.connect(tag) for article in articles]
+        query_webhose(query, tag)
     return True

@@ -1,6 +1,7 @@
 import warnings
 import time
 import csv
+import icu
 import pytz
 import boto.sqs
 import requests
@@ -9,6 +10,7 @@ import shortuuid
 import collections
 from uuid import uuid1
 from json import dumps
+import unicodedata as ud
 from datetime import datetime
 from logging import getLogger
 
@@ -406,3 +408,32 @@ def generate_summary(content):
                 and len(excluded) == 0:
             summary += " " + sentence
     return summary.strip()
+
+
+def cleanup_title(value):
+    # Need to use this rather than .title() because .title()
+    # does not handle things like "Wouldn't" properly. It
+    # converts it to "Wouldn'T" rather than keeping the T
+    # lowercase
+    if value[0] == '"' or value[0] == "'":
+        value = value[1:]
+    if value[:len(value)] == '"' or value[:len(value)] == "'":
+        value = value[:len(value) - 1]
+    value = value.replace('"', "").strip()
+    en_us_locale = icu.Locale('en_US')
+    break_iter = icu.BreakIterator.createWordInstance(
+        en_us_locale)
+    temp_title = icu.UnicodeString(value)
+    return unicode(temp_title.toTitle(break_iter, en_us_locale))
+
+
+def is_latin(uchr):
+    latin_letters = {}
+    try:
+        return latin_letters[uchr]
+    except KeyError:
+        return latin_letters.setdefault(uchr, 'LATIN' in ud.name(uchr))
+
+
+def only_roman_chars(unistr):
+    return all(is_latin(uchr) for uchr in unistr if uchr.isalpha())

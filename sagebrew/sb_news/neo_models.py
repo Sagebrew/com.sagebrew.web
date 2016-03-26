@@ -1,5 +1,6 @@
 from neomodel import (StringProperty, DateTimeProperty,
-                      IntegerProperty, FloatProperty, ArrayProperty)
+                      IntegerProperty, FloatProperty, ArrayProperty,
+                      RelationshipTo)
 
 from sb_base.neo_models import TitledContent
 
@@ -41,7 +42,7 @@ class NewsArticle(TitledContent):
     site_type = StringProperty()
     country = StringProperty()
     spam_score = FloatProperty()
-    main_image = StringProperty()
+    image = StringProperty()
     # Scale of 0-10, 0 being the worst and 10 being the best
     performance_score = IntegerProperty()
     crawled = DateTimeProperty()
@@ -52,3 +53,6 @@ class NewsArticle(TitledContent):
     locations = ArrayProperty()
     organizations = ArrayProperty()
     author = StringProperty()
+
+    images = RelationshipTo('sb_uploads.neo_models.UploadedObject',
+                            'IMAGE_ON_PAGE')

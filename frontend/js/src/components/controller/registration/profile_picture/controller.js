@@ -79,7 +79,6 @@ export function load() {
                     }
                 } else {
                     greyPage.classList.add('sb_hidden');
-                    window.location.href = "/user/newsfeed/";
                 }
             });
             cropContainerEyecandy.reset();

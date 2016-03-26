@@ -247,7 +247,7 @@ class PlebSerializerNeo(SBSerializer):
         if user_obj.check_password(validated_data.get('password', "")) is True:
             user_obj.set_password(validated_data.get(
                 'new_password', validated_data.get('password', "")))
-            update_session_auth_hash(self.context['request'], user_obj)
+            update_session_auth_hash(self.context.get('request'), user_obj)
         user_obj.save()
         profile_pic = validated_data.get('profile_pic')
         if profile_pic is not None and profile_pic != "":

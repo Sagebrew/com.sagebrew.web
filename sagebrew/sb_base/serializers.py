@@ -139,16 +139,13 @@ class VotableContentSerializer(SBSerializer):
             return False
         if not request.user.is_authenticated():
             return False
-        if hasattr(obj, 'owner_username'):
-            return obj.owner_username == request.user.username
-        else:
-            return False
+        return obj.owner_username == request.user.username
 
     def get_html_content(self, obj):
         if obj.content is not None:
             return obj.content.replace('\n', "<br />")
         else:
-            return obj.content
+            return None
 
     def get_can_comment(self, obj):
         """
@@ -167,11 +164,10 @@ class VotableContentSerializer(SBSerializer):
             return {"status": False,
                     "detail": "You must be logged in to comment on content.",
                     "short_detail": "Signup To Comment"}
-        if hasattr(obj, 'owner_username'):
-            if obj.owner_username == request.user.username:
-                # Always allow the owner to comment on their own content
-                return {"status": True, "detail": detail,
-                        "short_detail": short_detail}
+        if obj.owner_username == request.user.username:
+            # Always allow the owner to comment on their own content
+            return {"status": True, "detail": detail,
+                    "short_detail": short_detail}
         obj_type = obj.__class__.__name__.lower()
         if obj_type == "question" or obj_type == "solution":
             can_comment = "comment" in Pleb.get(
@@ -180,13 +176,6 @@ class VotableContentSerializer(SBSerializer):
                 detail = "You must have 20+ reputation to comment on " \
                          "Conversation Cloud content."
                 short_detail = "Requirement: 20+ Reputation"
-        elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
-                (obj.parent_type == "question" or obj_type == "solution"):
-            can_comment = "comment" in Pleb.get(
-                username=request.user.username).get_privileges()
-            detail = "You must have 20+ reputation to comment on " \
-                     "Conversation Cloud content."
-            short_detail = "Requirement: 20+ Reputation"
         else:
             can_comment = True
 
@@ -210,6 +199,10 @@ class VotableContentSerializer(SBSerializer):
             return {"status": False,
                     "detail": "You must be logged in to flag content.",
                     "short_detail": "Signup To Flag"}
+        if obj.owner_username == request.user.username:
+            return {"status": False,
+                    "detail": "You cannot flag your own content",
+                    "short_detail": "Cannot Flag Own Content"}
         obj_type = obj.__class__.__name__.lower()
         if obj_type == "question" or obj_type == "solution":
             can_flag = "flag" in Pleb.get(
@@ -222,9 +215,10 @@ class VotableContentSerializer(SBSerializer):
                 (obj.parent_type == "question" or obj_type == "solution"):
             can_flag = "flag" in Pleb.get(
                 username=request.user.username).get_privileges()
-            detail = "You must have 50+ reputation to flag Conversation " \
-                     "Cloud content."
-            short_detail = "Requirement: 50+ Reputation"
+            if not can_flag:
+                detail = "You must have 50+ reputation to flag Conversation " \
+                         "Cloud content."
+                short_detail = "Requirement: 50+ Reputation"
         else:
             can_flag = True
 
@@ -267,23 +261,21 @@ class VotableContentSerializer(SBSerializer):
         obj_type = obj.__class__.__name__.lower()
         # Duplicated logic for sake of readability
         if obj_type == "question" or obj_type == "solution":
-            if hasattr(obj, 'owner_username'):
-                if obj.owner_username == request.user.username:
-                    can_upvote = False
-                    detail = "You cannot upvote your own " \
-                             "Conversation Cloud content"
-                    short_detail = "Cannot Upvote Own " \
-                                   "Conversation Cloud Content"
+            if obj.owner_username == request.user.username:
+                can_upvote = False
+                detail = "You cannot upvote your own " \
+                         "Conversation Cloud content"
+                short_detail = "Cannot Upvote Own " \
+                               "Conversation Cloud Content"
         elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
             (obj.parent_type == "question" or
                 obj.parent_type == "solution"):
-            if hasattr(obj, 'owner_username'):
-                if obj.owner_username == request.user.username:
-                    can_upvote = False
-                    detail = "You cannot upvote your own " \
-                             "Conversation Cloud content"
-                    short_detail = "Cannot Upvote Own " \
-                                   "Conversation Cloud Content"
+            if obj.owner_username == request.user.username:
+                can_upvote = False
+                detail = "You cannot upvote your own " \
+                         "Conversation Cloud content"
+                short_detail = "Cannot Upvote Own " \
+                               "Conversation Cloud Content"
 
         # Currently we allow everyone to upvote without regulation. This is
         # to generate an initial base of reputation.
@@ -313,8 +305,7 @@ class VotableContentSerializer(SBSerializer):
         if obj_type == "question" or obj_type == "solution":
             can_downvote = "downvote" in Pleb.get(
                 username=request.user.username).get_privileges()
-            if hasattr(obj, 'owner_username') and \
-                    obj.owner_username == request.user.username:
+            if obj.owner_username == request.user.username:
                 can_downvote = False
                 detail = "You cannot downvote your own " \
                          "Conversation Cloud content"
@@ -328,8 +319,7 @@ class VotableContentSerializer(SBSerializer):
         elif obj_type == "comment" and hasattr(obj, 'parent_type') and \
                 (obj.parent_type == "question" or
                     obj.parent_type == "solution"):
-            if hasattr(obj, 'owner_username') and \
-                    obj.owner_username == request.user.username:
+            if obj.owner_username == request.user.username:
                 can_downvote = False
                 detail = "You cannot downvote your own " \
                          "Conversation Cloud content"

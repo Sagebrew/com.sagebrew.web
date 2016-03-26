@@ -86,11 +86,9 @@ class TestSpawnCommentNotifications(TestCase):
 
         comment.owned_by.connect(self.pleb)
         self.question.comments.connect(comment)
-        comment.comment_on.connect(self.question)
 
         comment2.owned_by.connect(self.pleb2)
         self.question.comments.connect(comment2)
-        comment2.comment_on.connect(self.question)
 
         notification_id = str(uuid1())
         comment_on_comment_id = str(uuid1())

@@ -86,6 +86,14 @@ class MeEndpointTests(APITestCase):
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
+    def test_me_list(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-list')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], self.pleb.username)
+        self.assertEqual(response.data['first_name'], self.pleb.first_name)
+
     def test_create_on_detail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('me-list')
@@ -994,6 +1002,58 @@ class ProfileEndpointTests(APITestCase):
                          "testuser_testuser2")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_update_name(self):
+        first_name = str(uuid1())[0:20]
+        last_name = str(uuid1())[0:20]
+        old_first_name = self.pleb.first_name
+        old_last_name = self.pleb.last_name
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-detail', kwargs={'username': self.pleb.username})
+        data = {
+            "first_name": first_name,
+            "last_name": last_name,
+        }
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(Pleb.get(username=self.pleb.username).first_name,
+                         first_name)
+        self.assertEqual(Pleb.get(username=self.pleb.username).last_name,
+                         last_name)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.pleb.first_name = old_first_name
+        self.pleb.last_name = old_last_name
+        self.pleb.save()
+
+    def test_update_email(self):
+        email = "sample@sample.com"
+        old_email = self.pleb.email
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-detail', kwargs={'username': self.pleb.username})
+        data = {
+            "email": email,
+        }
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(Pleb.get(username=self.pleb.username).email,
+                         email)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.pleb.email = old_email
+        self.pleb.save()
+
+    def test_update_password(self):
+        new_password = "helloworld1111"
+        old_password = "hello_world"
+        self.user.set_password(old_password)
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-detail', kwargs={'username': self.pleb.username})
+        data = {
+            "password": old_password,
+            "new_password": new_password,
+        }
+        response = self.client.patch(url, data, format='json')
+        self.assertTrue(User.objects.get(
+            username=self.user.username).check_password(new_password))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_endorsements(self):
         mission = Mission(owner_username=self.pleb.username).save()
         quest = Quest(owner_username=self.pleb.username).save()
@@ -1721,6 +1781,16 @@ class PlebPresidentTest(APITestCase):
         response = self.client.get(url, format='json')
         self.assertGreater(len(response.data), 0)
 
+    def test_list_no_president(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        for president in self.pleb.president.all():
+            self.pleb.president.disconnect(president)
+        url = reverse('profile-president',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(len(response.data), 0)
+
     def test_list_president_cache(self):
         president = PublicOfficial(first_name="Debbie", last_name="Stab",
                                    state="Michigan",
@@ -1841,6 +1911,16 @@ class PlebSenatorsTest(APITestCase):
         response = self.client.delete(url, data=data, format='json')
         self.assertEqual(response.data['detail'],
                          'Method "DELETE" not allowed.')
+
+    def test_list_no_senators(self):
+        self.client.force_authenticate(user=self.user)
+        for senator in self.pleb.senators.all():
+            self.pleb.senators.disconnect(senator)
+        cache.clear()
+        url = reverse('profile-senators',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(len(response.data), 0)
 
     def test_list_senators(self):
         cache.clear()
@@ -1984,6 +2064,16 @@ class PlebHouseRepresentativeTest(APITestCase):
         response = self.client.delete(url, data=data, format='json')
         self.assertEqual(response.data['detail'],
                          'Method "DELETE" not allowed.')
+
+    def test_list_no_house_representative(self):
+        cache.clear()
+        self.client.force_authenticate(user=self.user)
+        for rep in self.pleb.house_rep.all():
+            self.pleb.house_rep.disconnect(rep)
+        url = reverse('profile-house-representative',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(len(response.data), 0)
 
     def test_list_house_representative(self):
         cache.clear()
@@ -2993,6 +3083,26 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['results'][1]['type'], 'question')
         self.assertEqual(response.data['results'][2]['type'], 'post')
 
+    def test_get_news(self):
+        content = 'this is fake content'
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'][0]['profile'],
+                         self.pleb.username)
+
 
 class TestFollowNewsfeed(APITestCase):
 
@@ -3012,8 +3122,7 @@ class TestFollowNewsfeed(APITestCase):
         wait_util(res)
         self.pleb2 = Pleb.nodes.get(email=self.email2)
         self.user2 = User.objects.get(email=self.email2)
-        rel = self.pleb.following.connect(self.pleb2)
-        rel.save()
+        self.pleb.following.connect(self.pleb2)
         self.question = Question(
             title=str(uuid1()),
             content="This is some arbitrary test content"
@@ -3068,6 +3177,52 @@ class TestFollowEndpoints(APITestCase):
         response = self.client.post(url)
         self.assertEqual(response.data['detail'],
                          "Successfully followed user.")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_following(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-follow',
+                      kwargs={'username': self.pleb2.username})
+        self.client.post(url)
+        url = reverse('profile-following',
+                      kwargs={'username': self.pleb.username})
+        response = self.client.get(url)
+        self.assertEqual(response.data['results'][0]['username'],
+                         self.pleb2.username)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_following_no_one(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-unfollow',
+                      kwargs={'username': self.pleb2.username})
+        self.client.post(url)
+        url = reverse('profile-following',
+                      kwargs={'username': self.pleb2.username})
+        response = self.client.get(url)
+        self.assertEqual(len(response.data['results']), 0)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_followers(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-follow',
+                      kwargs={'username': self.pleb2.username})
+        self.client.post(url)
+        url = reverse('profile-followers',
+                      kwargs={'username': self.pleb2.username})
+        response = self.client.get(url)
+        self.assertEqual(response.data['results'][0]['username'],
+                         self.pleb.username)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_no_followers(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-unfollow',
+                      kwargs={'username': self.pleb2.username})
+        self.client.post(url)
+        url = reverse('profile-followers',
+                      kwargs={'username': self.pleb2.username})
+        response = self.client.get(url)
+        self.assertEqual(len(response.data['results']), 0)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_follow_already_following(self):
@@ -3386,3 +3541,351 @@ class TestBlockFriendRequest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data['detail'],
                          'Sorry this object does not exist.')
+
+
+class ProfileMissionsTests(APITestCase):
+
+    def setUp(self):
+        cache.clear()
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        res = create_user_util_test(self.email, task=True)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = res['pleb']
+        self.user = res['user']
+        self.address = Address(street="3295 Rio Vista St",
+                               city="Commerce Township", state="MI",
+                               postal_code="48382", country="US",
+                               congressional_district="11").save()
+        self.address.owned_by.connect(self.pleb)
+        self.url = "http://testserver"
+
+    def test_missions(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        quest = Quest(
+            active=True, about="Hey there this is my campaign. "
+                               "Feel free to drop me a line!",
+            facebook="dbleibtrey", youtube="devonbleibtrey",
+            website="www.sagebrew.com", owner_username=self.pleb.username,
+            first_name=self.pleb.first_name, last_name=self.pleb.last_name,
+            profile_pic=self.pleb.profile_pic).save()
+        mission = Mission(owner_username=quest.owner_username,
+                          active=True).save()
+        quest.missions.connect(mission)
+        quest.owner.connect(self.pleb)
+        usa = Location(name="United States of America").save()
+        pres = Position(name="President", verified=True).save()
+        pres.location.connect(usa)
+        mission.position.connect(pres)
+        mission.location.connect(usa)
+        self.address.encompassed_by.connect(usa)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-missions', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 1)
+
+    def test_no_missions(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        db.cypher_query(query)
+        query = "MATCH (n:Mission) OPTIONAL MATCH " \
+                "(n:Mission)-[r]-() DELETE n,r"
+        db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-missions', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 0)
+
+
+class PublicDataTests(APITestCase):
+
+    def setUp(self):
+        cache.clear()
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        self.email2 = "bounce@simulator.amazonses.com"
+        res = create_user_util_test(self.email, task=True)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = res['pleb']
+        self.user = res['user']
+        self.pleb2 = create_user_util_test(self.email2)
+        self.address = Address(street="3295 Rio Vista St",
+                               city="Commerce Township", state="MI",
+                               postal_code="48382", country="US",
+                               congressional_district="11").save()
+        self.address.owned_by.connect(self.pleb)
+        self.url = "http://testserver"
+
+    def test_unauthorized(self):
+        url = reverse('me-public')
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_missing_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        data = {'this': ['This field is required.']}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_int_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.post(url, 98897965, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_string_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.post(url, 'asfonosdnf', format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_list_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.post(url, [], format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_save_float_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.post(url, 1.010101010, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_create_on_detail(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        data = {}
+        response = self.client.post(url, data=data, format='json')
+        response_data = {
+            'status_code': status.HTTP_405_METHOD_NOT_ALLOWED,
+            'detail': 'Method "POST" not allowed.'
+        }
+        self.assertEqual(response.data, response_data)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_status(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_detail(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.data['detail'],
+                         'Method "DELETE" not allowed.')
+
+    def test_get_count(self):
+        query = "match (n)-[r]-() delete n,r"
+        db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 0)
+
+    def test_get_success(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_get_no_posts(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        post = Post(content="Hey I'm a post",
+                    owner_username=self.pleb.username,
+                    wall_owner_username=self.pleb.username).save()
+        post.owned_by.connect(self.pleb)
+        post.posted_on_wall.connect(self.pleb.get_wall())
+        self.pleb.get_wall().posts.connect(post)
+        post.owned_by.connect(self.pleb)
+
+        post_two = Post(content="Hey I'm a post",
+                        owner_username=self.pleb.username,
+                        wall_owner_username=self.pleb.username).save()
+        post_two.owned_by.connect(self.pleb)
+        post_two.posted_on_wall.connect(self.pleb.get_wall())
+        self.pleb.get_wall().posts.connect(post_two)
+        post_two.owned_by.connect(self.pleb)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 0)
+
+    def test_get_questions_by_you(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        question = Question(
+            title=str(uuid1()),
+            content="This is some arbitrary test content",
+            owner_username=self.pleb.username
+        ).save()
+        question.owned_by.connect(self.pleb)
+
+        question2 = Question(
+            title=str(uuid1()),
+            content="This is some arbitrary test content",
+            owner_username=self.pleb.username
+        ).save()
+        question2.owned_by.connect(self.pleb)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 2)
+
+    def test_dont_get_questions_by_others(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        question = Question(
+            title=str(uuid1()),
+            content="This is some arbitrary test content",
+            owner_username=self.pleb2.username
+        ).save()
+        question.owned_by.connect(self.pleb2)
+
+        question2 = Question(
+            title=str(uuid1()),
+            content="This is some arbitrary test content",
+            owner_username=self.pleb2.username
+        ).save()
+        question2.owned_by.connect(self.pleb2)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 0)
+
+    def test_get_solutions_by_you(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        question = Question(
+            title=str(uuid1()),
+            content="This is some arbitrary test content",
+            owner_username=self.pleb.username
+        ).save()
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content="here is some content",
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 2)
+
+    def test_get_solutions_by_you_on_question_by_other(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        question = Question(
+            title=str(uuid1()),
+            content="This is some arbitrary test content",
+            owner_username=self.pleb.username
+        ).save()
+        question.owned_by.connect(self.pleb2)
+
+        solution = Solution(content="here is some content",
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 1)
+
+    def test_dont_get_solutions_by_other(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        question = Question(
+            title=str(uuid1()),
+            content="This is some arbitrary test content",
+            owner_username=self.pleb2.username
+        ).save()
+        question.owned_by.connect(self.pleb2)
+
+        solution = Solution(content="here is some content",
+                            owner_username=self.pleb2.username,
+                            parent_id=question.object_uuid).save()
+        solution.owned_by.connect(self.pleb2)
+        question.solutions.connect(solution)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 0)
+
+    def test_dont_get_solutions_by_other_on_your_question(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        question = Question(
+            title=str(uuid1()),
+            content="This is some arbitrary test content",
+            owner_username=self.pleb.username
+        ).save()
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content="here is some content",
+                            owner_username=self.pleb2.username,
+                            parent_id=question.object_uuid).save()
+        solution.owned_by.connect(self.pleb2)
+        question.solutions.connect(solution)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 1)

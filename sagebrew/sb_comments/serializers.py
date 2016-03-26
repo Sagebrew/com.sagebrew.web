@@ -115,7 +115,7 @@ class CommentSerializer(ContentSerializer):
 
 def get_parent_object(object_uuid):
     try:
-        query = "MATCH (a:Comment {object_uuid:'%s'})-[:COMMENT_ON]->" \
+        query = "MATCH (a:Comment {object_uuid:'%s'})<-[:HAS_A]-" \
                 "(b:SBContent) RETURN b" % object_uuid
         res, col = db.cypher_query(query)
         return SBContent.inflate(res[0][0])

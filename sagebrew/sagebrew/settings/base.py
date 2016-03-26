@@ -429,6 +429,11 @@ OPERATOR_TYPES = [
     ('coperator\ntruth\np0\n.', 'truth')
 ]
 
+ALLOWED_IMAGE_FORMATS = ['gif', 'jpeg', 'jpg', 'png', 'GIF', 'JPEG', 'JPG',
+                         'PNG']
+
+ALLOWED_IMAGE_SIZE = 20000000 # 20 MB
+
 NON_SAFE = ["REMOVE", "DELETE", "CREATE", "SET",
             "FOREACH", "MERGE", "MATCH", "START"]
 
@@ -521,9 +526,31 @@ URL_REGEX = r'\b((?:https?:(?:|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu' \
             r'Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|' \
             r'tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|' \
             r'vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b(?!@)))'
-DEFAULT_EXCLUDE_SENTENCES = ["Story highlights", "#", "##"]
+DEFAULT_EXCLUDE_SENTENCES = ["Story highlights", "#", "##", "Discover Dubai",
+                             "By ", "Caption", "caption", "photos:", "1 of ",
+                             'JPG', 'jpg', 'png', "PNG", "ID:", "(REUTERS)",
+                             "Image", "BREAKING", "FORM", "1.", "by",
+                             "FFFD", "Fuck", "Shit", "Ass", "Cunt", "Jizz",
+                             '[', ']', '{', '}', '*', 'Related Topics:',
+                             'related topics:', '—', '-', '+', '=']
 
-EXPLICIT_STIES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',
+DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
+                            'Burn More Calories and Lose Weight',
+                            'Burn More Calories', 'Lose Weight',
+                            "lose weight",
+                            "No one wants to adopt Rory the cat: "
+                            "Called 'Cat Dracula' | Examiner.com",
+                            "Petition:", "petition:", "Petition",
+                            "Sex Positions", "sex positions", "Orgasm",
+                            "orgasm", "Fuck", "Shit", "Ass", "Cunt",
+                            "Jizz"]
+
+UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', ]
+COMPANY_ACRONYMS = ['ABC', 'CNN', 'CBS', 'MSNBC', 'BBC',
+                    'CBC', 'CBS', 'NBC', 'NYT', 'abc7.com', 'NPR']
+
+
+EXPLICIT_SITES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',
                   'redtube.com', 'youporn.com', 'tube8.com', 'youjizz.com',
                   'hardsextube.com', 'beeg.com', 'motherless.com',
                   'drtuber.com', 'nuvid.com', 'pornerbros.com',

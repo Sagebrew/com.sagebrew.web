@@ -2,11 +2,8 @@ import urllib2
 import StringIO
 
 from io import BytesIO
-from uuid import uuid1
-from copy import deepcopy
 
 from django.conf import settings
-from django.core.files.uploadhandler import TemporaryUploadedFile
 
 from PIL import Image
 from neomodel import db
@@ -70,32 +67,23 @@ class UploadViewSet(viewsets.ModelViewSet):
         return Response({"detail": None}, status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, *args, **kwargs):
-        object_uuid = self.request.query_params.get('object_uuid',
-                                                    str(uuid1()))
-        croppic = self.request.query_params.get('croppic', 'false').lower()
-        file_object = request.data.get('file', None)
+        croppic = request.query_params.get('croppic', 'false').lower()
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
+        logger.critical(request.data)
+        file_object = request.data.get('file_object', None)
         if file_object is None:
+            logger.critical('get file')
+            file_object = request.data.get('file', None)
+        if file_object is None:
+            logger.critical('get image')
             file_object = request.data.get('img', None)
-        file_size = file_object.size
-        request.data['file_format'] = file_object.content_type.split('/')[1]
-        request.data['file_size'] = file_size
-        serializer = UploadSerializer(data=request.data,
-                                      context={'request': request})
+        logger.critical(file_object)
+        serializer = self.get_serializer(
+            data={"file_object": file_object}, context={'request': request})
         if serializer.is_valid():
-            another_file_object = deepcopy(file_object)
-            if isinstance(another_file_object, TemporaryUploadedFile):
-                image = Image.open(another_file_object.temporary_file_path())
-            else:
-                image = Image.open(another_file_object)
-            image_format = image.format
-            width, height = image.size
-            request.data['object_uuid'] = object_uuid
-            file_name = "%s.%s" % (object_uuid, image_format.lower())
             owner = Pleb.get(request.user.username)
-            upload = serializer.save(owner=owner, width=width, height=height,
-                                     file_object=file_object,
-                                     file_name=file_name,
-                                     object_uuid=object_uuid)
+            upload = serializer.save(owner=owner)
             if croppic == 'true':
                 return Response({"status": "success",
                                  "url": upload.url,
@@ -128,23 +116,18 @@ class UploadViewSet(viewsets.ModelViewSet):
                               crop_data['image_y1'])
         file_stream = BytesIO()
         cropped.save(file_stream, image_format)
-        file_size = file_stream.tell()
         file_stream.seek(0)
-        request.data['file_size'] = file_size
-        request.data['file_format'] = image_format
-        serializer = ModifiedSerializer(data=request.data,
-                                        context={"request": request})
         file_name = "%s-%sx%s.%s" % (object_uuid, crop_data['crop_width'],
                                      crop_data['crop_height'],
                                      image_format.lower())
+        serializer = ModifiedSerializer(
+            data={}, context={
+                "request": request, "file_name": file_name,
+                'file_object': file_stream, "parent_id": object_uuid})
+
         if serializer.is_valid():
             owner = Pleb.get(request.user.username)
-            upload = serializer.save(owner=owner,
-                                     width=crop_data['crop_width'],
-                                     height=crop_data['crop_height'],
-                                     file_object=file_stream,
-                                     file_name=file_name,
-                                     object_uuid=object_uuid)
+            upload = serializer.save(owner=owner)
             if croppic == 'true':
                 profile_page_url = reverse(
                     "profile_page", kwargs={

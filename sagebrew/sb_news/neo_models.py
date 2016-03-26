@@ -1,5 +1,6 @@
 from neomodel import (StringProperty, DateTimeProperty,
-                      IntegerProperty, FloatProperty, ArrayProperty)
+                      IntegerProperty, FloatProperty, ArrayProperty,
+                      RelationshipTo)
 
 from sb_base.neo_models import TitledContent
 
@@ -52,3 +53,6 @@ class NewsArticle(TitledContent):
     locations = ArrayProperty()
     organizations = ArrayProperty()
     author = StringProperty()
+
+    images = RelationshipTo('sb_uploads.neo_models.UploadedObject',
+                            'IMAGE_ON_PAGE')

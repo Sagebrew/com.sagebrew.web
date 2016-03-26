@@ -1,13 +1,21 @@
 import bleach
 import string
-import urlparse
+import io
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 import requests
-import cStringIO
-import HTMLParser
+try:
+    import HTMLParser
+except ImportError:
+    from html.parser import HTMLParser
 from uuid import uuid1
+from copy import deepcopy
 from PIL import Image
 from mimetypes import guess_extension
 
+from django.core.files.uploadhandler import TemporaryUploadedFile
 from django.conf import settings
 
 from rest_framework import status
@@ -174,3 +182,26 @@ def parse_page_html(soupified, url, content_type='html/text'):
     description = get_page_description(soupified)
     title = get_page_title(soupified)
     return title, description, image, width, height
+
+
+def get_image_data(object_uuid, file_object):
+    if isinstance(file_object, io.BytesIO):
+        image = Image.open(file_object)
+    else:
+        another_file_object = deepcopy(file_object)
+        if isinstance(another_file_object, TemporaryUploadedFile):
+            image = Image.open(another_file_object.temporary_file_path())
+        else:
+            image = Image.open(another_file_object)
+    image_format = image.format
+    width, height = image.size
+    file_name = "%s.%s" % (object_uuid, image_format.lower())
+
+    return width, height, file_name, image
+
+
+def hamming_distance(s1, s2):
+    """Return the Hamming distance between equal-length sequences"""
+    if len(s1) != len(s2):
+        raise ValueError("Undefined for sequences of unequal length")
+    return sum(bool(ord(ch1) - ord(ch2)) for ch1, ch2 in zip(s1, s2))

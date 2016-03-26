@@ -223,7 +223,7 @@ class TestObjectVoteNotifications(TestCase):
     def test_initial_vote_create_private_comment(self):
         post = Post().save()
         comment = Comment(content='test content', visibility="private").save()
-        comment.comment_on.connect(post)
+        post.comments.connect(comment)
         data = {
             "object_uuid": comment.object_uuid,
             "previous_vote_type": None,

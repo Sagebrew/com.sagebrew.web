@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def migrate_comments(self):
         for comment in Comment.nodes.all():
-            query = "MATCH (a:Comment {object_uuid:'%s'})-[:COMMENT_ON]->" \
+            query = "MATCH (a:Comment {object_uuid:'%s'})<-[:HAS_A]-" \
                     "(b:SBContent) RETURN b" % comment.object_uuid
             res, col = db.cypher_query(query)
             parent = SBContent.inflate(res.one)

@@ -10,6 +10,7 @@ class UploadedObject(SBContent):
     height = FloatProperty()
     width = FloatProperty()
     file_size = FloatProperty()
+    image_hash = StringProperty()
 
     # relationships
     modifications = RelationshipTo('sb_uploads.neo_models.ModifiedObject',

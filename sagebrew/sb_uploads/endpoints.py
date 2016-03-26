@@ -3,10 +3,10 @@ import StringIO
 
 from io import BytesIO
 from uuid import uuid1
-from copy import deepcopy
+
 
 from django.conf import settings
-from django.core.files.uploadhandler import TemporaryUploadedFile
+
 
 from PIL import Image
 from neomodel import db
@@ -25,7 +25,7 @@ from sb_registration.utils import delete_image
 from .serializers import (UploadSerializer, ModifiedSerializer, CropSerializer,
                           URLContentSerializer)
 from .neo_models import (UploadedObject, URLContent)
-from .utils import resize_image, crop_image2
+from .utils import resize_image, crop_image2, get_image_data
 
 
 class UploadViewSet(viewsets.ModelViewSet):
@@ -82,20 +82,14 @@ class UploadViewSet(viewsets.ModelViewSet):
         serializer = UploadSerializer(data=request.data,
                                       context={'request': request})
         if serializer.is_valid():
-            another_file_object = deepcopy(file_object)
-            if isinstance(another_file_object, TemporaryUploadedFile):
-                image = Image.open(another_file_object.temporary_file_path())
-            else:
-                image = Image.open(another_file_object)
-            image_format = image.format
-            width, height = image.size
-            request.data['object_uuid'] = object_uuid
-            file_name = "%s.%s" % (object_uuid, image_format.lower())
+            width, height, file_name, image = get_image_data(
+                request.data['object_uuid'], file_object)
             owner = Pleb.get(request.user.username)
             upload = serializer.save(owner=owner, width=width, height=height,
                                      file_object=file_object,
                                      file_name=file_name,
-                                     object_uuid=object_uuid)
+                                     object_uuid=object_uuid,
+                                     image=image)
             if croppic == 'true':
                 return Response({"status": "success",
                                  "url": upload.url,

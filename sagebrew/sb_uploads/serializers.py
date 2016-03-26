@@ -1,11 +1,12 @@
 import requests
 from bs4 import BeautifulSoup
-
+import imagehash
 from django.conf import settings
 
 from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
 
-from neomodel import DoesNotExist, UniqueProperty
+from neomodel import DoesNotExist, UniqueProperty, db
 
 from api.serializers import SBSerializer
 from sb_registration.utils import upload_image
@@ -22,7 +23,7 @@ class MediaType:
     def __call__(self, value):
         allowed_ext = ['gif', 'jpeg', 'jpg', 'png', 'GIF', 'JPEG', 'JPG',
                        'PNG']
-        if (value not in allowed_ext):
+        if value not in allowed_ext:
             message = 'You have provided an invalid file type. ' \
                       'The valid file types are gif, jpeg, jpg, and png'
             raise serializers.ValidationError(message)
@@ -51,7 +52,10 @@ class UploadSerializer(SBSerializer):
     is_portrait = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        owner = validated_data.pop('owner')
+        owner = None
+        folder = settings.AWS_PROFILE_PICTURE_FOLDER_NAME
+        if 'owner' in validated_data:
+            owner = validated_data.pop('owner')
         width = validated_data.pop('width')
         height = validated_data.pop('height')
         file_name = validated_data.pop('file_name')
@@ -59,14 +63,32 @@ class UploadSerializer(SBSerializer):
         file_size = validated_data.pop('file_size')
         file_format = validated_data.pop('file_format')
         file_object = validated_data.pop('file_object')
-        url = upload_image(settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
-                           file_name, file_object, True)
-        validated_data['owner_username'] = owner.username
+        if 'folder' in validated_data:
+            folder = validated_data.pop('folder')
+        image = validated_data.pop('image')
+        url = upload_image(folder, file_name, file_object, True)
+        if image is not None:
+            image_hash = imagehash.dhash(image)
+        else:
+            image_hash = None
+        verify_unique = validated_data.pop('verify_unique', False)
+        if verify_unique:
+            query = 'MATCH (upload:UploadedObject) ' \
+                    'WHERE upload.image_hash="%s" ' \
+                    'RETURN true' % image_hash
+            res, _ = db.cypher_query(query)
+            if res.one:
+                raise ValidationError("Image must be unique")
+
+        if owner is not None:
+            validated_data['owner_username'] = owner.username
         uploaded_object = UploadedObject(
             file_format=file_format, url=url, height=height,
-            width=width, file_size=file_size, object_uuid=object_uuid).save()
-        uploaded_object.owned_by.connect(owner)
-        owner.uploads.connect(uploaded_object)
+            width=width, file_size=file_size, object_uuid=object_uuid,
+            image_hash=image_hash).save()
+        if owner is not None:
+            uploaded_object.owned_by.connect(owner)
+            owner.uploads.connect(uploaded_object)
         return uploaded_object
 
     def update(self, instance, validated_data):
@@ -125,7 +147,8 @@ class URLContentSerializer(SBSerializer):
 
     def create(self, validated_data):
         owner = validated_data.pop('owner')
-        validated_data['owner_username'] = owner.username
+        if hasattr(owner, 'username'):
+            validated_data['owner_username'] = owner.username
         new_url = validated_data['url']
         if 'http' not in validated_data['url']:
             new_url = "http://" + validated_data['url']
@@ -165,6 +188,11 @@ class URLContentSerializer(SBSerializer):
                                      **validated_data).save()
         except UniqueProperty:
             return URLContent.nodes.get(url=validated_data['url'])
+
+        # TODO determine if this is necessary
+        # spawn_task(task_func=create_url_content_summary_task, task_param={
+        #    'object_uuid': url_content.object_uuid
+        # })
         url_content.owned_by.connect(owner)
         owner.url_content.connect(url_content)
         return url_content

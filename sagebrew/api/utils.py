@@ -381,11 +381,15 @@ def empty_text_to_none(data):
 
 
 def generate_summary(content):
+    if content is None:
+        return ""
     language = "english"
     stemmer = Stemmer(language)
     summarizer = LexRankSummarizer(stemmer)
     summarizer.stop_words = get_stop_words(language)
     summary = ""
+    # encoding and decoding clears up some issues with ascii
+    # codec parsing.
     sentence_list = [
         unicode(sentence) for sentence in summarizer(
             PlaintextParser.from_string(
@@ -396,9 +400,9 @@ def generate_summary(content):
     for sentence in sentence_list:
         excluded = [exclude
                     for exclude in settings.DEFAULT_EXCLUDE_SENTENCES
-                    if exclude in sentence]
+                    if exclude.lower() in sentence.lower()]
         if settings.TIME_EXCLUSION_REGEX.search(sentence) is None \
                 and len(summary) < settings.DEFAULT_SUMMARY_LENGTH \
-                and excluded not in sentence:
+                and len(excluded) == 0:
             summary += " " + sentence
-    return summary
+    return summary.strip()

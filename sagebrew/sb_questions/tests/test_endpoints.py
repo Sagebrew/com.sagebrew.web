@@ -6,6 +6,7 @@ from django.utils.text import slugify
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.core.management import call_command
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -14,6 +15,7 @@ from neomodel.exception import DoesNotExist
 from neomodel import db
 
 from plebs.neo_models import Pleb
+from sb_privileges.neo_models import Privilege
 from sb_tags.neo_models import Tag
 from sb_questions.neo_models import Question
 from sb_solutions.neo_models import Solution
@@ -25,10 +27,12 @@ class QuestionEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
+        self.email2 = "bounces@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb2 = create_user_util_test(self.email2)
         self.title = str(uuid1())
         self.question = Question(content="Hey I'm a question",
                                  title=self.title,
@@ -703,6 +707,16 @@ class QuestionEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual('test_test', response.data['profile']['username'])
 
+    def test_get_profile_hyperlinked(self):
+        self.client.force_authenticate(user=self.user)
+        url = "%s?relations=hyperlink" % \
+              reverse('question-detail',
+                      kwargs={'object_uuid': self.question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertIn(reverse('profile-detail',
+                              kwargs={"username": self.pleb.username}),
+                      response.data['profile'])
+
     def test_get_solutions_expedited(self):
         self.client.force_authenticate(user=self.user)
         url = "%s?expedite=true" % reverse(
@@ -938,3 +952,225 @@ class QuestionEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
+
+
+class SBBaseSerializerTests(APITestCase):
+    # TODO This should be moved somewhere not tighly coupled to a give content
+    # object.
+    def setUp(self):
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        self.email2 = "bounces@simulator.amazonses.com"
+        res = create_user_util_test(self.email, task=True)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb2 = create_user_util_test(self.email2)
+        self.title = str(uuid1())
+        self.question = Question(content="Hey I'm a question",
+                                 title=self.title,
+                                 owner_username=self.pleb.username).save()
+        self.question.owned_by.connect(self.pleb)
+        self.user = User.objects.get(email=self.email)
+        try:
+            Tag.nodes.get(name='taxes')
+        except DoesNotExist:
+            Tag(name='taxes').save()
+        try:
+            Tag.nodes.get(name='fiscal')
+        except DoesNotExist:
+            Tag(name='fiscal').save()
+        try:
+            Tag.nodes.get(name='environment')
+        except DoesNotExist:
+            Tag(name='environment').save()
+        try:
+            Privilege.nodes.get(name="flag")
+        except(Privilege.DoesNotExist, DoesNotExist):
+            call_command('create_privileges')
+
+    def test_can_comment_own(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        for item in self.pleb.privileges.all():
+            self.pleb.privileges.disconnect(item)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['can_comment']['status'])
+        self.assertIsNone(response.data['can_comment']['detail'])
+        self.assertIsNone(response.data['can_comment']['short_detail'])
+
+    def test_can_comment_other(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb2)
+        privilege = Privilege.nodes.get(name="comment")
+        self.pleb.privileges.connect(privilege)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.pleb.privileges.disconnect(privilege)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['can_comment']['status'])
+        self.assertIsNone(response.data['can_comment']['detail'])
+        self.assertIsNone(response.data['can_comment']['short_detail'])
+
+    def test_cannot_comment_other(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb2.username).save()
+        question.owned_by.connect(self.pleb2)
+        for item in self.pleb.privileges.all():
+            self.pleb.privileges.disconnect(item)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['can_comment']['status'])
+        self.assertEqual(response.data['can_comment']['detail'],
+                         "You must have 20+ reputation to comment on "
+                         "Conversation Cloud content.")
+        self.assertEqual(response.data['can_comment']['short_detail'],
+                         "Requirement: 20+ Reputation")
+
+    def test_login_to_comment(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['can_comment']['status'])
+        self.assertEqual(response.data['can_comment']['detail'],
+                         "You must be logged in to comment on content.")
+        self.assertEqual(response.data['can_comment']['short_detail'],
+                         "Signup To Comment")
+
+    def test_content_is_none(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content=None,
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['html_content'], "")
+
+    def test_is_not_owner(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb2.username).save()
+        question.owned_by.connect(self.pleb2)
+        for item in self.pleb.privileges.all():
+            self.pleb.privileges.disconnect(item)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['is_owner'])
+
+    def test_can_flag(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb2.username).save()
+        question.owned_by.connect(self.pleb2)
+        privilege = Privilege.nodes.get(name="flag")
+        self.pleb.privileges.connect(privilege)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.pleb.privileges.disconnect(privilege)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['can_flag']['status'])
+        self.assertIsNone(response.data['can_flag']['detail'])
+        self.assertIsNone(response.data['can_flag']['short_detail'])
+
+    def test_login_to_flag(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['can_flag']['status'])
+        self.assertEqual(response.data['can_flag']['detail'],
+                         "You must be logged in to flag content.")
+        self.assertEqual(response.data['can_flag']['short_detail'],
+                         "Signup To Flag")
+
+    def test_can_not_flag(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb2.username).save()
+        question.owned_by.connect(self.pleb2)
+        for item in self.pleb.privileges.all():
+            self.pleb.privileges.disconnect(item)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['can_flag']['status'])
+        self.assertEqual(response.data['can_flag']['detail'],
+                         "You must have 50+ reputation to flag Conversation "
+                         "Cloud content.")
+        self.assertEqual(response.data['can_flag']['short_detail'],
+                         "Requirement: 50+ Reputation")
+
+    def test_can_not_flag_own(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['can_flag']['status'])
+        self.assertEqual(response.data['can_flag']['detail'],
+                         "You cannot flag your own content")
+        self.assertEqual(response.data['can_flag']['short_detail'],
+                         "Cannot Flag Own Content")

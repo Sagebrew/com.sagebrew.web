@@ -513,7 +513,24 @@ URL_REGEX = r'\b((?:https?:(?:|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu' \
             r'Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|' \
             r'tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|' \
             r'vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b(?!@)))'
-DEFAULT_EXCLUDE_SENTENCES = ["Story highlights", "#", "##"]
+DEFAULT_EXCLUDE_SENTENCES = ["Story highlights", "#", "##", "Discover Dubai",
+                             "By ", "Caption", "caption", "photos:", "1 of ",
+                             'JPG', 'jpg', 'png', "PNG", "ID:", "(REUTERS)",
+                             "Image", "BREAKING", "FORM", "1.", "by",
+                             "FFFD", "Fuck", "Shit", "Ass", "Cunt", "Jizz"]
+
+DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
+                            'Burn More Calories and Lose Weight',
+                            'Burn More Calories', 'Lose Weight',
+                            "lose weight",
+                            "No one wants to adopt Rory the cat: "
+                            "Called 'Cat Dracula' | Examiner.com",
+                            "Petition:", "petition:", "Petition",
+                            "Sex Positions", "sex positions", "Orgasm",
+                            "orgasm", "Fuck", "Shit", "Ass", "Cunt",
+                            "Jizz"]
+
+UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', ]
 
 EXPLICIT_STIES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',
                   'redtube.com', 'youporn.com', 'tube8.com', 'youjizz.com',

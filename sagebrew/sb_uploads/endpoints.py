@@ -67,12 +67,18 @@ class UploadViewSet(viewsets.ModelViewSet):
         return Response({"detail": None}, status=status.HTTP_204_NO_CONTENT)
 
     def create(self, request, *args, **kwargs):
-        croppic = self.request.query_params.get('croppic', 'false').lower()
+        croppic = request.query_params.get('croppic', 'false').lower()
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
+        logger.critical(request.data)
         file_object = request.data.get('file_object', None)
         if file_object is None:
+            logger.critical('get file')
             file_object = request.data.get('file', None)
         if file_object is None:
+            logger.critical('get image')
             file_object = request.data.get('img', None)
+        logger.critical(file_object)
         serializer = self.get_serializer(
             data={"file_object": file_object}, context={'request': request})
         if serializer.is_valid():
@@ -110,23 +116,18 @@ class UploadViewSet(viewsets.ModelViewSet):
                               crop_data['image_y1'])
         file_stream = BytesIO()
         cropped.save(file_stream, image_format)
-        file_size = file_stream.tell()
         file_stream.seek(0)
-        request.data['file_size'] = file_size
-        request.data['file_format'] = image_format
-        serializer = ModifiedSerializer(data=request.data,
-                                        context={"request": request})
         file_name = "%s-%sx%s.%s" % (object_uuid, crop_data['crop_width'],
                                      crop_data['crop_height'],
                                      image_format.lower())
+        serializer = ModifiedSerializer(
+            data={}, context={
+                "request": request, "file_name": file_name,
+                'file_object': file_stream, "parent_id": object_uuid})
+
         if serializer.is_valid():
             owner = Pleb.get(request.user.username)
-            upload = serializer.save(owner=owner,
-                                     width=crop_data['crop_width'],
-                                     height=crop_data['crop_height'],
-                                     file_object=file_stream,
-                                     file_name=file_name,
-                                     object_uuid=object_uuid)
+            upload = serializer.save(owner=owner)
             if croppic == 'true':
                 profile_page_url = reverse(
                     "profile_page", kwargs={

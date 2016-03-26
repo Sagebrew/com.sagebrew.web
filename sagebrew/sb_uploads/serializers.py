@@ -1,6 +1,7 @@
 from uuid import uuid1
 import requests
 import urllib2
+import io
 import pytz
 from bs4 import BeautifulSoup
 import imagehash
@@ -15,9 +16,26 @@ from neomodel import DoesNotExist, UniqueProperty, db
 
 from api.serializers import SBSerializer
 
-from .utils import (parse_page_html, get_image_data, get_file_info,
+from .utils import (parse_page_html, get_image_data,
                     check_sagebrew_url, hamming_distance)
 from .neo_models import UploadedObject, ModifiedObject, URLContent
+
+
+def get_file_info(file_object, url):
+    if file_object is not None:
+        file_size = file_object.size
+        file_format = file_object.content_type.split('/')[1].lower()
+    elif url is not None:
+        file_object = urllib2.urlopen(url)
+        read_file = file_object.read()
+        file_size = len(read_file)
+        http_message = file_object.info()
+        file_object = io.BytesIO(read_file)
+        file_format = http_message.type.split('/')[1].lower()
+    else:
+        raise ValidationError("No information for File or URL provided")
+
+    return file_size, file_format, file_object
 
 
 def verify_hamming_distance(value, distance=11, time_frame=None):
@@ -69,12 +87,7 @@ class UploadSerializer(SBSerializer):
         folder = self.context.get(
             'folder', settings.AWS_PROFILE_PICTURE_FOLDER_NAME)
         url = data.get('url')
-        if request is not None:
-            data['object_uuid'] = request.query_params.get(
-                'object_uuid', str(uuid1()))
-            serializers.UUIDField().run_validators(data['object_uuid'])
-        elif data.get('object_uuid') is None:
-            data['object_uuid'] = str(uuid1())
+
         if file_object and url:
             raise ValidationError("Cannot process both a URL and a "
                                   "File at the same time")
@@ -83,9 +96,11 @@ class UploadSerializer(SBSerializer):
                 file_object, url)
         except (ValueError, urllib2.HTTPError, urllib2.URLError):
             raise ValidationError("Invalid URL")
+        image_uuid = str(uuid1())
         data['width'], data['height'], file_name, image = get_image_data(
-            data['object_uuid'], file_object)
-
+            image_uuid, file_object)
+        if self.context.get('file_name', None) is not None:
+            file_name = self.context.get('file_name')
         if data['width'] < 100:
             raise ValidationError("Must be at least 100 pixels wide")
         if data['height'] < 100:
@@ -130,6 +145,11 @@ class UploadSerializer(SBSerializer):
             validated_data['owner_username'] = owner.username
         if 'file_object' in validated_data:
             validated_data.pop('file_object', None)
+        # TODO move this up into a validator that can be called by all
+        # our serializers. Users should not be able to pass object_uuid as a
+        # param
+        if 'object_uuid' in validated_data:
+            validated_data.pop('object_uuid', None)
         uploaded_object = UploadedObject(**validated_data).save()
         if owner is not None:
             uploaded_object.owned_by.connect(owner)
@@ -151,10 +171,11 @@ class ModifiedSerializer(UploadSerializer):
             owner_username=owner.username, **validated_data).save()
         modified_object.owned_by.connect(owner)
         owner.uploads.connect(modified_object)
-        parent_object = UploadedObject.nodes.get(
-            object_uuid=validated_data['object_uuid'])
-        parent_object.modifications.connect(modified_object)
-        modified_object.modification_to.connect(parent_object)
+        if self.context.get('parent_id') is not None:
+            parent_object = UploadedObject.nodes.get(
+                object_uuid=self.context.get('parent_id'))
+            parent_object.modifications.connect(modified_object)
+            modified_object.modification_to.connect(parent_object)
         return modified_object
 
 

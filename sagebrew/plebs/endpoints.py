@@ -269,16 +269,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
                         status=status.HTTP_200_OK)
 
     @detail_route(methods=['get'])
-    def friend(self, request, username=None):
-        return Response({"detail": "TBD"},
-                        status=status.HTTP_501_NOT_IMPLEMENTED)
-
-    @detail_route(methods=['get'])
-    def unfriend(self, request, username=None):
-        return Response({"detail": "TBD"},
-                        status=status.HTTP_501_NOT_IMPLEMENTED)
-
-    @detail_route(methods=['get'])
     def friends(self, request, username=None):
         # Discuss, does it make more sense to have friends here or have a
         # separate endpoint /v1/friends/ that just
@@ -406,9 +396,6 @@ class MeViewSet(mixins.UpdateModelMixin,
     def get_object(self):
         return Pleb.get(self.request.user.username)
 
-    def get_queryset(self):
-        return Pleb.get(self.request.user.username)
-
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = Pleb.get(username=request.user.username, cache_buster=True)
@@ -417,9 +404,6 @@ class MeViewSet(mixins.UpdateModelMixin,
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(serializer.data)
-
-    def put(self, request, *args, **kwargs):
-        return self.update(request, *args, **kwargs)
 
     def patch(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)

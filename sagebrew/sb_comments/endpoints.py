@@ -7,6 +7,7 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import (ListCreateAPIView)
+from rest_framework.exceptions import NotAuthenticated
 
 from neomodel import db
 
@@ -24,10 +25,19 @@ class ObjectCommentsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     serializer_class = CommentSerializer
     lookup_field = "object_uuid"
     lookup_url_kwarg = "comment_uuid"
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_object(self):
-        return Comment.nodes.get(
+        obj = Comment.nodes.get(
             object_uuid=self.kwargs[self.lookup_url_kwarg])
+        if obj.visibility == "private":
+            # TODO restrict comments to only be shown to users who follow the
+            # owner
+            if self.request.user.is_authenticated():
+                return obj
+            else:
+                raise NotAuthenticated
+        return obj
 
 
 class ObjectCommentsListCreate(ListCreateAPIView):

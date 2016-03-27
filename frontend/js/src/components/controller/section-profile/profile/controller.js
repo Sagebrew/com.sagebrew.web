@@ -41,6 +41,9 @@ export function load() {
         $followingList = $("#js-following-list"),
         $appNewsfeed = $("#js-recent-contributions"),
         profile_page_user = helpers.args(1),
+        fileName = helpers.generateUuid(),
+        wallpaperID = helpers.generateUuid(),
+        greyPage = document.getElementById('sb-greyout-page'),
         $app = $(".app-sb");
     $app
         .on('click', '.js-follow', function (event) {
@@ -149,6 +152,91 @@ export function load() {
         }
     });
 
+    var croppicContainerEyecandyOptions = {
+        uploadUrl: '/v1/upload/?croppic=true&random=' + fileName,
+        cropUrl: '/v1/upload/' + fileName + '/crop/?resize=true&croppic=true',
+        imgEyecandy: false,
+        rotateControls: false,
+        doubleZoomControls: false,
+        zoomFactor: 100,
+        onAfterImgCrop: function (arg1) {
+            request.patch({
+                url: "/v1/me/",
+                data: JSON.stringify({"profile_pic": arg1.url}),
+                cache: false,
+                processData: false
+            }).done(function () {
+                cropContainerEyecandy.reset();
+            });
+        },
+        onError: function (errorMsg) {
+            request.errorDisplay(errorMsg)
+        },
+        onReset: function () {
+            request.remove({
+                url: "/v1/upload/" + fileName + "/",
+                cache: false,
+                processData: false
+            });
+            request.get({
+                url:"/v1/me/",
+                cache: false,
+                processData: false
+            }).done(function (data) {
+                var profileImg = $("#profile_pic");
+                if (profileImg.length === 0) {
+                    $(".croppedImg").remove();
+                    $("#cropProfilePageEyecandy").append('<img id="profile_pic" src="' + data.profile_pic + "?" + new Date().getTime() + '">');
+                } else {
+                    profileImg.attr('src', data.profile_pic);
+                }
+            })
+        }
+    };
+    var cropContainerEyecandy = new Croppic('cropProfilePageEyecandy', croppicContainerEyecandyOptions);
+
+    var EyecandyOptionsWallpaper = {
+        uploadUrl: '/v1/upload/?croppic=true&random=' + wallpaperID,
+        cropUrl: '/v1/upload/' + wallpaperID + '/crop/?resize=true&croppic=true',
+        imgEyecandy: false,
+        rotateControls: false,
+        doubleZoomControls: false,
+        zoomFactor: 100,
+        onAfterImgCrop: function (arg1) {
+            request.patch({
+                url: "/v1/me/",
+                data: JSON.stringify({"wallpaper_pic": arg1.url}),
+                cache: false,
+                processData: false
+            }).done(function () {
+                wallpaperCropContainerEyecandy.reset();
+            });
+        },
+        onError: function (errorMsg) {
+            request.errorDisplay(errorMsg)
+        },
+        onReset: function () {
+            request.remove({
+                url: "/v1/upload/" + wallpaperID + "/",
+                cache: false,
+                processData: false
+            });
+            request.get({
+                url:"/v1/me/",
+                cache: false,
+                processData: false
+            }).done(function (data) {
+                var wallpaperImg = $("#wallpaper_pic");
+                if (wallpaperImg.length === 0) {
+                    $(".croppedImg").remove();
+                    $("#cropWallpaperPictureEyecandy").append('<img id="wallpaper_pic" class="wallpaper_profile" src="' + data.wallpaper_pic + '">');
+                } else {
+                    wallpaperImg.attr('src', data.wallpaper_pic);
+                }
+            })
+        }
+    };
+    var wallpaperCropContainerEyecandy = new Croppic('cropWallpaperPictureEyecandy', EyecandyOptionsWallpaper);
 }
 
 /**

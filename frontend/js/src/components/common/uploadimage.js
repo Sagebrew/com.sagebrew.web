@@ -3,7 +3,7 @@ var helpers = require('common/helpers'),
     requests = require('api').request;
 
 function createUrl(uuid) {
-    return '/v1/upload/?croppic=true&object_uuid=' + uuid;
+    return '/v1/upload/?croppic=true&random=' + uuid;
 }
 
 function createCropUrl(uuid) {

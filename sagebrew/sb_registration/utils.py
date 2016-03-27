@@ -52,9 +52,12 @@ def upload_image(folder_name, file_uuid, image_file, type_known=False):
     k = Key(conn.get_bucket(bucket))
     if type_known:
         key_string = "%s/%s" % (folder_name, file_uuid)
+        k.content_type = 'image/%s' % file_uuid[file_uuid.find('.') + 1:]
     else:
         key_string = "%s/%s%s" % (folder_name, file_uuid, ".png")
+        k.content_type = 'image/png'
     k.key = key_string
+
     if not isinstance(image_file, str):
         image_file.seek(0)
         k.set_contents_from_string(image_file.read())

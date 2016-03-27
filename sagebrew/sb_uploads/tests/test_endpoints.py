@@ -109,7 +109,7 @@ class UploadEndpointTests(APITestCase):
         uuid = str(uuid1())
         with open("sb_posts/tests/images/test_image.jpg", 'rb') as image:
             data = {"file": image}
-            url = reverse('upload-list') + "?croppic=true&object_uuid=" + uuid
+            url = reverse('upload-list') + "?croppic=true&random=" + uuid
             response = self.client.post(url, data, format='multipart')
             self.assertEqual({"status": "success",
                               "url": response.data['url'],

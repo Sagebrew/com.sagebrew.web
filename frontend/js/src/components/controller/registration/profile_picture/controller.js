@@ -47,7 +47,7 @@ export function load() {
         });
 
     var croppicContainerEyecandyOptions = {
-        uploadUrl: '/v1/upload/?croppic=true&object_uuid=' + fileName,
+        uploadUrl: '/v1/upload/?croppic=true&random=' + fileName,
         cropUrl: '/v1/upload/' + fileName + '/crop/?resize=true&croppic=true',
         imgEyecandy: false,
         rotateControls: false,
@@ -79,22 +79,13 @@ export function load() {
                     }
                 } else {
                     greyPage.classList.add('sb_hidden');
+                    window.location.href = "/user/newsfeed/";
                 }
             });
             cropContainerEyecandy.reset();
         },
-        onError: function (errormsg) {
-            var fileSizeError = errormsg.responseJSON.file_size,
-                fileFormatError = errormsg.responseJSON.file_format;
-            // Reasoning behind using typeof comparison http://stackoverflow.com/questions/2778901/javascript-undefined-compare
-            if (typeof fileFormatError === "undefined" || fileFormatError === null) {
-                fileFormatError = "";
-            }
-            if (typeof fileSizeError === "undefined" || fileSizeError === null) {
-                fileSizeError = "";
-            }
-            $.notify({message: fileSizeError + "\n" + fileFormatError},
-                {type: 'danger'});
+        onError: function (errorMsg) {
+            request.errorDisplay(errorMsg)
         },
         onReset: function () {
             request.remove({

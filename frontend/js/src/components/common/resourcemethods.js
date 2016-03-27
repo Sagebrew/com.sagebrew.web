@@ -19,6 +19,7 @@ var helpers = require('./helpers');
 export function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
     notifyFrom = typeof notifyFrom !== 'undefined' ? notifyFrom : "top";
     notifyAlign = typeof notifyAlign !== 'undefined' ? notifyAlign : 'right';
+    var notificationMsg;
     switch (XMLHttpRequest.status) {
         case 500:
             $.notify({message: "Sorry looks like we're having some server issues right now. "}, {type: "danger"});
@@ -51,8 +52,8 @@ export function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
                         $.notify({message: notification.detail}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
                     } else{
                         for (var key in notification) {
-                            message = "" + helpers.toTitleCase(key) + ": " + notification[key][0];
-                            $.notify({message: message.replace("Non_field_errors: ", "").replace("_", " ")}, {type: 'danger'});
+                            notificationMsg = "" + helpers.toTitleCase(key) + ": " + notification[key][0];
+                            $.notify({message: notificationMsg.replace("Non_field_errors: ", "").replace("_", " ")}, {type: 'danger'});
                         }
                     }
                     notification = [];

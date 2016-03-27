@@ -9,7 +9,7 @@ from django.core.management import call_command
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from neomodel import DoesNotExist, db
+from neomodel import DoesNotExist
 
 from plebs.neo_models import Pleb
 from sb_questions.neo_models import Question

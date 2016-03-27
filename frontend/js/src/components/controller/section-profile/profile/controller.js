@@ -43,7 +43,6 @@ export function load() {
         profile_page_user = helpers.args(1),
         fileName = helpers.generateUuid(),
         wallpaperID = helpers.generateUuid(),
-        greyPage = document.getElementById('sb-greyout-page'),
         $app = $(".app-sb");
     $app
         .on('click', '.js-follow', function (event) {

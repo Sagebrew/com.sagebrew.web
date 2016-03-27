@@ -1,7 +1,6 @@
 import urllib2
 
 from io import BytesIO
-from django.core.files.uploadedfile import InMemoryUploadedFile
 
 from django.conf import settings
 
@@ -68,18 +67,12 @@ class UploadViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         croppic = request.query_params.get('croppic', 'false').lower()
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
-        logger.critical(request.data)
-        logger.critical('create object uuiid')
+
         file_object = request.data.get('file_object', None)
         if file_object is None:
-            logger.critical('get file')
             file_object = request.data.get('file', None)
         if file_object is None:
-            logger.critical('get image')
             file_object = request.data.get('img', None)
-        logger.critical(file_object)
         serializer = self.get_serializer(
             data={"file_object": file_object},
             context={'request': request})
@@ -99,10 +92,6 @@ class UploadViewSet(viewsets.ModelViewSet):
     def crop(self, request, object_uuid=None):
         resize = self.request.query_params.get("resize", "false").lower()
         croppic = self.request.query_params.get('croppic', 'false').lower()
-        from logging import getLogger
-        logger = getLogger("loggly_logs")
-        logger.critical(request.data)
-        logger.critical(request.data['imgUrl'])
 
         img_file = urllib2.urlopen(request.data['imgUrl'])
         read_file = img_file.read()
@@ -122,12 +111,9 @@ class UploadViewSet(viewsets.ModelViewSet):
                                     crop_data['crop_height'],
                                     crop_data['image_x1'],
                                     crop_data['image_y1'])
-        logger.critical(cropped_image)
-        logger.critical(image_format)
         # Fill cropped image into buffer
         file_stream = BytesIO()
         cropped_image.save(file_stream, format=image_format)
-        logger.critical(file_stream)
         file_stream.seek(0)
         # Upload cropped pic and then run serializer
         # Not the best solution but simplifies the logic. If someone has a
@@ -136,7 +122,6 @@ class UploadViewSet(viewsets.ModelViewSet):
         file_name = "%s-%sx%s.%s" % (object_uuid, crop_data['crop_width'],
                                      crop_data['crop_height'],
                                      image_format.lower())
-        logger.critical(file_name)
         url = check_sagebrew_url(None, settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
                                  file_name, file_stream.read())
         serializer = ModifiedSerializer(

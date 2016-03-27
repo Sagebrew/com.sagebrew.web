@@ -51,7 +51,8 @@ export function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
                         $.notify({message: notification.detail}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
                     } else{
                         for (var key in notification) {
-                          $.notify({message: "" + helpers.toTitleCase(key) + ": " + notification[key][0]}, {type: 'danger'});
+                            message = "" + helpers.toTitleCase(key) + ": " + notification[key][0];
+                            $.notify({message: message.replace("Non_field_errors: ", "").replace("_", " ")}, {type: 'danger'});
                         }
                     }
                     notification = [];
@@ -68,7 +69,7 @@ export function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
                             }
                             badItemCap = badItem.charAt(0).toUpperCase() + badItem.slice(1);
                             errorMessage = badItemCap + ": " + reportMsg;
-                            $.notify({message: errorMessage.replace('_', " ")}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
+                            $.notify({message: errorMessage.replace("Non_field_errors: ", "").replace('_', " ")}, {type: 'danger', placement: { from: notifyFrom, align: notifyAlign}});
                         }
                     }
                 }

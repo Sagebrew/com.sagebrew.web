@@ -81,9 +81,32 @@ class UploadSerializer(SBSerializer):
         # http://stackoverflow.com/questions/27591574/
         # order-of-serializer-validation-in-django-rest-framework
         request = self.context.get('request')
+        if request is not None:
+            object_uuid = request.query_params.get('random', None)
+        else:
+            object_uuid = None
         verify_unique = self.context.get('verify_unique', False)
         check_hamming = self.context.get('check_hamming', False)
         file_object = data.get('file_object')
+
+        if object_uuid is not None:
+            serializers.UUIDField().run_validators(object_uuid)
+            query = 'MATCH (a:SBObject {object_uuid: "%s"}) ' \
+                    'RETURN a' % object_uuid
+            res, _ = db.cypher_query(query)
+            if res.one:
+                raise ValidationError("ID must be unique.")
+            data['object_uuid'] = object_uuid
+        if file_object is None:
+            # For cropping unless we want to move the processing into the
+            # validator
+            file_object = self.context.get('file_object', None)
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
+        logger.critical('file object and uuid')
+        logger.critical(file_object)
+        logger.critical(self.context)
+        logger.critical(object_uuid)
         folder = self.context.get(
             'folder', settings.AWS_PROFILE_PICTURE_FOLDER_NAME)
         url = data.get('url')
@@ -94,6 +117,7 @@ class UploadSerializer(SBSerializer):
         try:
             file_size, file_format, file_object = get_file_info(
                 file_object, url)
+            logger.critical(file_format)
         except (ValueError, urllib2.HTTPError, urllib2.URLError):
             raise ValidationError("Invalid URL")
         image_uuid = str(uuid1())
@@ -145,11 +169,10 @@ class UploadSerializer(SBSerializer):
             validated_data['owner_username'] = owner.username
         if 'file_object' in validated_data:
             validated_data.pop('file_object', None)
-        # TODO move this up into a validator that can be called by all
-        # our serializers. Users should not be able to pass object_uuid as a
-        # param
-        if 'object_uuid' in validated_data:
-            validated_data.pop('object_uuid', None)
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
+        logger.critical('validated')
+        logger.critical(validated_data)
         uploaded_object = UploadedObject(**validated_data).save()
         if owner is not None:
             uploaded_object.owned_by.connect(owner)

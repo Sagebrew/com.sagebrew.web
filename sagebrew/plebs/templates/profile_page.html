@@ -113,13 +113,6 @@
     {% include "flag_modal.html" %}
 {% endblock live %}
 
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/profile_pic_croppic.js' %}"></script>
-    <script src="{% static 'js/wallpaper_pic_croppic.js' %}"></script>
-
-{% endblock scripts %}
 {% block intercom %}
     Intercom('trackEvent', 'visited-profile-page');
 {% endblock %}

@@ -1,5 +1,6 @@
 var request = require('api').request,
-    helpers = require('common/helpers');
+    helpers = require('common/helpers'),
+    validators = require('common/validators');
 
 export const meta = {
     controller: "mission/mission-manage/general",
@@ -32,7 +33,18 @@ export function load() {
             }).done(function (){
                 $.notify({message: "Updated Settings Successfully"}, {type: "success"});
             });
+        })
+        .on('keyup', '#about', function(){
+            var $this = $(this),
+                count = $this.val().length,
+                remaining = $("#js-about-char-count"),
+                newCount = 255 - count;
+            if (newCount < 0) {
+                newCount = 0;
+            }
+            remaining.text(newCount + " Characters Remaining");
         });
+    validators.missionManageValidator($("#socialForm"));
 }
 
 /**

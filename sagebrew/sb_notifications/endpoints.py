@@ -28,7 +28,7 @@ class UserNotificationViewSet(viewsets.ModelViewSet):
         notifications = cache.get("%s_notifications" % (
             self.request.user.username))
         if notifications is None:
-            query = 'MATCH (a:Pleb {username: "%s"})-[:RECEIVED_A]->' \
+            query = 'MATCH (a:Pleb {username: "%s"})<-[:NOTIFICATION_TO]-' \
                 '(n:Notification) RETURN n ORDER ' \
                 'BY n.created DESC LIMIT 5' % self.request.user.username
             res, col = db.cypher_query(query)

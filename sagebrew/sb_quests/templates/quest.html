@@ -1,4 +1,4 @@
-{% extends "layout/hero-two-col-right.html" %}
+a{% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
 {% block title %}
     {{ quest.title }}'s Quest
@@ -91,7 +91,7 @@
                         {% endif %}
                         {% if quest.facebook %}
                             <li>
-                                <a href="http://facebook.com/{{ quest.facebook }}"
+                                <a href="{{ quest.facebook }}"
                                    class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                                     <span class="fa fa-facebook"></span>
                                 </a>
@@ -99,7 +99,7 @@
                         {% endif %}
                         {% if quest.twitter %}
                             <li>
-                                <a href="http://twitter.com/{{ quest.twitter }}"
+                                <a href="{{ quest.twitter }}"
                                    class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                                     <span class="fa fa-twitter"></span>
                                 </a>
@@ -107,7 +107,7 @@
                         {% endif %}
                         {% if quest.youtube %}
                             <li>
-                                <a href="http://youtube.com/{{ quest.youtube }}"
+                                <a href="{{ quest.youtube }}"
                                    class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                                     <span class="fa fa-youtube-play"></span>
                                 </a>
@@ -115,7 +115,7 @@
                         {% endif %}
                         {% if quest.linkedin %}
                             <li>
-                                <a href="http://linkedin.com/{{ quest.linkedin }}"
+                                <a href="{{ quest.linkedin }}"
                                    class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                                     <span class="fa fa-linkedin"></span>
                                 </a>

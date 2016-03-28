@@ -1,5 +1,6 @@
 var request = require('api').request,
     markdown = require('common/markdown').addMarkdown,
+    validators = require('common/validators'),
     updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs');
 
 export const meta = {
@@ -52,7 +53,7 @@ export function load() {
             }
 
         });
-
+    validators.updateValidator($("#updateForm"));
     if ($updateWrapper !== undefined && $updateWrapper !== null){
         $updateWrapper.sb_contentLoader({
             emptyDataMessage: '',

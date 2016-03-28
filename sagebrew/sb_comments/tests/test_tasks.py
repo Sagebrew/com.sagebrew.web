@@ -109,4 +109,4 @@ class TestSpawnCommentNotifications(TestCase):
             object_uuid=comment_on_comment_id)
         self.assertEqual(notification.action_name, "commented on a question "
                                                    "you commented on")
-        self.assertTrue(self.pleb2.notifications.is_connected(notification))
+        self.assertTrue(self.pleb2 in notification.notification_to)

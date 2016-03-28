@@ -275,6 +275,10 @@ ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 # Used for JS
 ADDRESS_AUTH_ID = environ.get("ADDRESS_AUTH_ID", '')
+# Intercom
+INTERCOM_API_KEY = environ.get("INTERCOM_API_KEY", '')
+INTERCOM_APP_ID = environ.get("INTERCOM_APP_ID", '')
+INTERCOM_ADMIN_ID_DEVON = environ.get("INTERCOM_APP_ID", '')
 LONG_TERM_STATIC_DOMAIN = "https://d2m0mj9tyf6rjw.cloudfront.net"
 WEBHOSE_KEY = environ.get("WEBHOSE_KEY", '')
 WEBHOSE_FREE = True
@@ -325,6 +329,10 @@ if not DEBUG:
             'task': 'sb_quests.tasks.find_quest_news',
             'schedule': crontab(minute=0, hour=3),
             'args': ()
+        },
+        'check-unverified-quests': {
+            'task': 'sb_accounting.tasks.check_unverified_quest',
+            'schedule': crontab(minute=0, hour=0)
         }
     }
 

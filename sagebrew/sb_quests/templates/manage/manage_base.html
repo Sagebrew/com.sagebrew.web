@@ -61,6 +61,45 @@
         </div>
     </div>
 
+    <div class="block block-type-nav">
+        <div class="block-title">
+            Verification Status
+        </div>
+        <div class="block-content">
+            {% if quest.account_verified == "unverified" %}
+                <span class="label label-danger js-verified">Verification: Incomplete</span>
+            {% elif quest.account_verified == "pending" %}
+                <span class="label label-warning js-verified">Verification: Pending</span>
+            {% else %}
+                <span class="label label-success js-verified">Verification: Completed</span>
+            {% endif %}
+            <br/>
+            {% if quest.account_verification_fields_needed %}
+                <span class="label label-warning" id="js-fields-needed">
+                    Fields Needed: {% for reason in quest.account_verification_fields_needed %}reason, {% endfor %}
+                </span>
+            {% endif %}
+            <br/>
+            {% if quest.account_verification_details %}
+                <span class="label label-warning" id="js-verification-details">Details: {{ quest.account_verification_details }}</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="block block-type-nav">
+        <div class="block-title">
+            Setup Checklist
+        </div>
+        <div class="block-content">
+            <ul class="nav nav-list nav-list-vivid">
+                <li><a id="js-quest-signup" href="{% url "quest_manage_banking" quest.owner_username %}"><i class="fa {% if quest.account_verified == "verified" %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete Accounting</a></li>
+                <li><a id="js-quest-signup" href="{% url "quest_manage_banking" quest.owner_username %}"><i class="fa {% if quest.account_verified == "verified" %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete Verification</a></li>
+                <li><a id="js-quest-signup" href="{% url "select_mission" %}"><i class="fa {% if quest.missions %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Embark on a Mission</a></li>
+                <li><a id="js-quest-signup" href="{% url "quest_manage_settings" quest.owner_username %}"><i class="fa {% if quest.about %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete About</a></li>
+                <li><a id="js-quest-signup" href="{% url "quest" quest.owner_username %}"><i class="fa {% if 'images/wallpaper_capitol_2.jpg' not in quest.wallpaper_pic %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Upload a Photo</a></li>
+                <li><a id="js-quest-signup" href="{% url "quest_manage_settings" quest.owner_username %}"><i class="fa {% if quest.active %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Take Quest Live</a></li>
+            </ul>
+        </div>
+    </div>
 {% endblock %}
 
 {% block sidebar_right %}

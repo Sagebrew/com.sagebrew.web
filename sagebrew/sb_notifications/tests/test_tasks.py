@@ -4,7 +4,11 @@ from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from sb_notifications.tasks import (spawn_notifications)
+from rest_framework.reverse import reverse
+
+from sb_notifications.tasks import (spawn_notifications,
+                                    spawn_system_notification)
+from sb_notifications.neo_models import Notification
 from sb_posts.neo_models import Post
 from sb_comments.neo_models import Comment
 from plebs.neo_models import Pleb
@@ -72,5 +76,22 @@ class TestNotificationTasks(TestCase):
         response = spawn_notifications.apply_async(kwargs=data)
         while not response.ready():
             time.sleep(1)
-
         self.assertIsInstance(response.result, Exception)
+
+    def test_create_system_notification(self):
+        data = {
+            "to_plebs": [self.pleb.username],
+            "notification_id": str(uuid1()),
+            "url": reverse("profile_page",
+                           kwargs={"pleb_username": self.pleb.username}),
+            "action_name": "This is a test notification "
+                           "that links to your profile page!"
+        }
+        res = spawn_system_notification.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        notification = Notification.nodes.get(
+            object_uuid=data['notification_id'])
+        self.assertEqual(notification.action_name, data['action_name'])
+        self.assertTrue(self.pleb in notification.notification_to)
+        self.assertTrue(res.result)

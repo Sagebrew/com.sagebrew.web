@@ -29,11 +29,11 @@ class MissionSerializer(SBSerializer):
     focus_on_type = serializers.ChoiceField(required=True, choices=[
         ('position', "Public Office"), ('advocacy', "Advocacy"),
         ('question', "Question")])
-    facebook = serializers.CharField(required=False, allow_blank=True)
-    linkedin = serializers.CharField(required=False, allow_blank=True)
-    youtube = serializers.CharField(required=False, allow_blank=True)
-    twitter = serializers.CharField(required=False, allow_blank=True)
-    website = serializers.CharField(required=False, allow_blank=True)
+    facebook = serializers.URLField(required=False, allow_blank=True)
+    linkedin = serializers.URLField(required=False, allow_blank=True)
+    youtube = serializers.URLField(required=False, allow_blank=True)
+    twitter = serializers.URLField(required=False, allow_blank=True)
+    website = serializers.URLField(required=False, allow_blank=True)
     wallpaper_pic = serializers.CharField(required=False)
     title = serializers.CharField(max_length=140, required=False,
                                   allow_blank=True)
@@ -250,10 +250,14 @@ class MissionSerializer(SBSerializer):
         instance.about = empty_text_to_none(
             validated_data.get('about', instance.about))
         instance.epic = validated_data.pop('epic', instance.epic)
-        instance.facebook = validated_data.pop('facebook', instance.facebook)
-        instance.linkedin = validated_data.pop('linkedin', instance.linkedin)
-        instance.youtube = validated_data.pop('youtube', instance.youtube)
-        instance.twitter = validated_data.pop('twitter', instance.twitter)
+        instance.facebook = clean_url(
+            validated_data.get('facebook', instance.facebook))
+        instance.linkedin = clean_url(
+            validated_data.get('linkedin', instance.linkedin))
+        instance.youtube = clean_url(
+            validated_data.get('youtube', instance.youtube))
+        instance.twitter = clean_url(
+            validated_data.get('twitter', instance.twitter))
         instance.website = clean_url(
             validated_data.get('website', instance.website))
         instance.wallpaper_pic = validated_data.pop('wallpaper_pic',

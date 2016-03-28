@@ -85,7 +85,7 @@ export function load() {
             cropContainerEyecandy.reset();
         },
         onError: function (errorMsg) {
-            request.errorDisplay(errorMsg)
+            request.errorDisplay(errorMsg);
         },
         onReset: function () {
             request.remove({

@@ -1,4 +1,4 @@
-
+/*global Croppic*/
 var postcreate = require('../partials/postcreate'),
     request = require('api').request,
     Autolinker = require('autolinker'),
@@ -43,7 +43,6 @@ export function load() {
         profile_page_user = helpers.args(1),
         fileName = helpers.generateUuid(),
         wallpaperID = helpers.generateUuid(),
-        greyPage = document.getElementById('sb-greyout-page'),
         $app = $(".app-sb");
     $app
         .on('click', '.js-follow', function (event) {
@@ -170,7 +169,7 @@ export function load() {
             });
         },
         onError: function (errorMsg) {
-            request.errorDisplay(errorMsg)
+            request.errorDisplay(errorMsg);
         },
         onReset: function () {
             request.remove({
@@ -190,8 +189,8 @@ export function load() {
                 } else {
                     profileImg.attr('src', data.profile_pic);
                 }
-            })
-        }
+            });
+        }, loaderHtml: '<div class="loader croppic-loader-profile"></div>'
     };
     var cropContainerEyecandy = new Croppic('cropProfilePageEyecandy', croppicContainerEyecandyOptions);
 
@@ -213,7 +212,7 @@ export function load() {
             });
         },
         onError: function (errorMsg) {
-            request.errorDisplay(errorMsg)
+            request.errorDisplay(errorMsg);
         },
         onReset: function () {
             request.remove({
@@ -233,8 +232,8 @@ export function load() {
                 } else {
                     wallpaperImg.attr('src', data.wallpaper_pic);
                 }
-            })
-        }
+            });
+        }, loaderHtml: '<div class="loader croppic-loader-profile"></div>'
     };
     var wallpaperCropContainerEyecandy = new Croppic('cropWallpaperPictureEyecandy', EyecandyOptionsWallpaper);
 }

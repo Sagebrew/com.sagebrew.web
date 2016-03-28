@@ -101,12 +101,7 @@ class UploadSerializer(SBSerializer):
             # For cropping unless we want to move the processing into the
             # validator
             file_object = self.context.get('file_object', None)
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
-        logger.critical('file object and uuid')
-        logger.critical(file_object)
-        logger.critical(self.context)
-        logger.critical(object_uuid)
+
         folder = self.context.get(
             'folder', settings.AWS_PROFILE_PICTURE_FOLDER_NAME)
         url = data.get('url')
@@ -117,7 +112,6 @@ class UploadSerializer(SBSerializer):
         try:
             file_size, file_format, file_object = get_file_info(
                 file_object, url)
-            logger.critical(file_format)
         except (ValueError, urllib2.HTTPError, urllib2.URLError):
             raise ValidationError("Invalid URL")
         image_uuid = str(uuid1())
@@ -169,10 +163,7 @@ class UploadSerializer(SBSerializer):
             validated_data['owner_username'] = owner.username
         if 'file_object' in validated_data:
             validated_data.pop('file_object', None)
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
-        logger.critical('validated')
-        logger.critical(validated_data)
+
         uploaded_object = UploadedObject(**validated_data).save()
         if owner is not None:
             uploaded_object.owned_by.connect(owner)

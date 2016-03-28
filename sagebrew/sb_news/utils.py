@@ -40,14 +40,27 @@ def find_news(limit_offset_fxn, count_query, link_objects_callback):
     return True
 
 
-def gather_news_results(query):
+def gather_news_results(query, demo_file=None):
     payload = {
         "token": settings.WEBHOSE_KEY,
         "format": "json",
         "q": query,
     }
     query = "https://webhose.io/search"
-    if not settings.DEBUG:
+    if settings.DEBUG:
+        if demo_file is None:
+            demo_file = settings.PROJECT_DIR + '/sb_news/tests/short_test.json'
+        with open(demo_file) as data_file:
+            try:
+                results = {"posts": list(chain.from_iterable(
+                    [result['posts'] for result in load(data_file)])),
+                    "requestsLeft": 0}
+            except KeyError:
+                results = {"posts": load(data_file), "requestsLeft": 0}
+        for published in results['posts']:
+            published['thread']['published'] = str(datetime.now(pytz.utc))
+            published['published'] = str(datetime.now(pytz.utc))
+    else:
         response = requests.get(query, params=payload,
                                 headers={"Accept": "text/plain"},
                                 timeout=60)
@@ -57,15 +70,6 @@ def gather_news_results(query):
             logger.exception(exc)
             logger.critical(response.text)
             return None
-    else:
-        with open(settings.PROJECT_DIR + '/sb_news/tests/test.json') \
-                as data_file:
-            results = {"posts": list(chain.from_iterable(
-                [result['posts'] for result in load(data_file)])),
-                "requestsLeft": 0}
-            for published in results['posts']:
-                published['thread']['published'] = str(datetime.now(pytz.utc))
-                published['published'] = str(datetime.now(pytz.utc))
     return results
 
 
@@ -81,8 +85,8 @@ def get_reformed_url(url):
     return url
 
 
-def query_webhose(query, tag):
-    results = gather_news_results(query)
+def query_webhose(query, tag, demo_file=None):
+    results = gather_news_results(query, demo_file)
     for post in results['posts']:
         thread = post.pop('thread', None)
         if thread['spam_score'] < 0.3:
@@ -118,7 +122,6 @@ def query_webhose(query, tag):
                 except(ValueError, ValidationError):
                     continue
             else:
-                print(serializer.errors)
                 continue
             article.tags.connect(tag)
     return results['requestsLeft']

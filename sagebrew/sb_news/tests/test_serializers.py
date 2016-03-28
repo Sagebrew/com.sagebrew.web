@@ -19,10 +19,11 @@ class TestNewsSerializers(TestCase):
     def test_no_summary(self):
         query = 'MATCH (a:NewsArticle) OPTIONAL MATCH (a)-[r]-() ' \
                 'DELETE a, r'
-        db.cypher_query(query)
-        query = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
-                'DELETE a, r'
-        db.cypher_query(query)
+        query2 = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        query3 = 'MATCH (a:UploadedObject) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        db.cypher_batch_query([(query, {}), (query2, {}), (query3, {})])
         tag = Tag(name="science").save()
         query_webhose(
             None, tag, settings.PROJECT_DIR + "/sb_news/tests/sample_json/"
@@ -35,11 +36,11 @@ class TestNewsSerializers(TestCase):
     def test_quote_query(self):
         query = 'MATCH (a:NewsArticle) OPTIONAL MATCH (a)-[r]-() ' \
                 'DELETE a, r'
-
-        db.cypher_query(query)
-        query = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
-                'DELETE a, r'
-        db.cypher_query(query)
+        query2 = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        query3 = 'MATCH (a:UploadedObject) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        db.cypher_batch_query([(query, {}), (query2, {}), (query3, {})])
         tag = Tag(name="science").save()
         query_webhose(
             None, tag, settings.PROJECT_DIR + "/sb_news/tests/sample_json/"
@@ -49,18 +50,18 @@ class TestNewsSerializers(TestCase):
                 '{external_id: "c8a3179934b6d4609632383add7fb27ddf3d3842"}) ' \
                 'RETURN a'
         res, _ = db.cypher_query(query)
-        self.assertIsNone(res.one['title'], "Breaking: Donald Trump Stuns "
-                                            "With Announcement Of Foreign "
-                                            "Policy Dream Team")
+        self.assertEqual(res.one['title'], "Breaking: Donald Trump Stuns "
+                                           "With Announcement Of Foreign "
+                                           "Policy Dream Team")
 
     def test_site_not_supported(self):
         query = 'MATCH (a:NewsArticle) OPTIONAL MATCH (a)-[r]-() ' \
                 'DELETE a, r'
-
-        db.cypher_query(query)
-        query = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
-                'DELETE a, r'
-        db.cypher_query(query)
+        query2 = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        query3 = 'MATCH (a:UploadedObject) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        db.cypher_batch_query([(query, {}), (query2, {}), (query3, {})])
         tag = Tag(name="science").save()
         query_webhose(
             None, tag, settings.PROJECT_DIR + "/sb_news/tests/sample_json/"
@@ -73,11 +74,11 @@ class TestNewsSerializers(TestCase):
     def test_title_reformat(self):
         query = 'MATCH (a:NewsArticle) OPTIONAL MATCH (a)-[r]-() ' \
                 'DELETE a, r'
-
-        db.cypher_query(query)
-        query = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
-                'DELETE a, r'
-        db.cypher_query(query)
+        query2 = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        query3 = 'MATCH (a:UploadedObject) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        db.cypher_batch_query([(query, {}), (query2, {}), (query3, {})])
         tag = Tag(name="science").save()
         query_webhose(
             None, tag, settings.PROJECT_DIR + "/sb_news/tests/sample_json/"
@@ -87,24 +88,24 @@ class TestNewsSerializers(TestCase):
                 '{external_id: "c7dd81cf775476d17fd9effe3a43d13d060eb2c8"}) ' \
                 'RETURN a'
         res, _ = db.cypher_query(query)
-        self.assertIsNone(res.one['title'], "Obama Welcomes Castro America "
-                                            "Criticism: Wouldn't Disagree")
+        self.assertEqual(res.one['title'], "Obama Welcomes Castro America "
+                                           "Criticism: 'Wouldn't Disagree'...")
         query = 'MATCH (a:NewsArticle ' \
                 '{external_id: "c294037cba0aad280b655614c5c776f1c5b453ce"}) ' \
                 'RETURN a'
 
         res, _ = db.cypher_query(query)
-        self.assertIsNone(res.one['title'], "Friends Of Israel - "
-                                            "The New Yorker")
+        self.assertEqual(res.one['title'], "Friends Of Israel - "
+                                           "The New Yorker")
 
     def test_title_unique(self):
         query = 'MATCH (a:NewsArticle) OPTIONAL MATCH (a)-[r]-() ' \
                 'DELETE a, r'
-
-        db.cypher_query(query)
-        query = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
-                'DELETE a, r'
-        db.cypher_query(query)
+        query2 = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        query3 = 'MATCH (a:UploadedObject) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        db.cypher_batch_query([(query, {}), (query2, {}), (query3, {})])
         tag = Tag(name="science").save()
         query_webhose(
             None, tag, settings.PROJECT_DIR + "/sb_news/tests/sample_json/"
@@ -129,57 +130,45 @@ class TestNewsSerializers(TestCase):
     def test_too_close_to_another_article_content(self):
         query = 'MATCH (a:NewsArticle) OPTIONAL MATCH (a)-[r]-() ' \
                 'DELETE a, r'
-
-        db.cypher_query(query)
-        query = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
-                'DELETE a, r'
-        db.cypher_query(query)
+        query2 = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        query3 = 'MATCH (a:UploadedObject) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        db.cypher_batch_query([(query, {}), (query2, {}), (query3, {})])
         tag = Tag(name="science").save()
         query_webhose(
             None, tag,
             settings.PROJECT_DIR + "/sb_news/tests/sample_json/"
                                    "too_close_to_another_article_content.json")
         tag.delete()
-        self.assertEqual(len(NewsArticle.nodes.all()), 5)
+        self.assertEqual(len(NewsArticle.nodes.all()), 2)
 
         query = 'MATCH (a:NewsArticle ' \
                 '{external_id: "188ed9cfc6e2214c067ad8e46ec6cd10e392646e"}) ' \
                 'RETURN a'
         res, _ = db.cypher_query(query)
         self.assertIsNotNone(res.one)
-        query = 'MATCH (a:NewsArticle ' \
-                '{external_id: "32e32ddf8aae3f2ec286ce58b7aac67095b0bbc9"}) ' \
-                'RETURN a'
 
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
         query = 'MATCH (a:NewsArticle ' \
                 '{external_id: "c11407c888ddbfedca4a56b1aac482d153ad6039"}) ' \
                 'RETURN a'
-
         res, _ = db.cypher_query(query)
         self.assertIsNotNone(res.one)
-        query = 'MATCH (a:NewsArticle ' \
-                '{external_id: "d35c1ec82aab431138865043eb9ea511e10fd20c"}) ' \
-                'RETURN a'
 
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
         query = 'MATCH (a:NewsArticle ' \
-                '{external_id: "ea6c5a6191f7af36560a107389d8067b748e50ce"}) ' \
+                '{external_id: "c11407c888ddbfedca4a56b1aac482d153ad6039"}) ' \
                 'RETURN a'
-
         res, _ = db.cypher_query(query)
         self.assertIsNotNone(res.one)
 
     def test_too_close_to_another_article_title(self):
         query = 'MATCH (a:NewsArticle) OPTIONAL MATCH (a)-[r]-() ' \
                 'DELETE a, r'
-
-        db.cypher_query(query)
-        query = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
-                'DELETE a, r'
-        db.cypher_query(query)
+        query2 = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        query3 = 'MATCH (a:UploadedObject) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        db.cypher_batch_query([(query, {}), (query2, {}), (query3, {})])
         tag = Tag(name="science").save()
         query_webhose(
             None, tag,
@@ -189,7 +178,7 @@ class TestNewsSerializers(TestCase):
         self.assertEqual(len(NewsArticle.nodes.all()), 2)
 
         query = 'MATCH (a:NewsArticle ' \
-                '{external_id: "188ed9cfc6e2214c067ad8e46ec6cd10e392646e"}) ' \
+                '{external_id: "862248ce467c25d9fa20d66e43f13d7f0800882b"}) ' \
                 'RETURN a'
         res, _ = db.cypher_query(query)
         self.assertIsNotNone(res.one)
@@ -203,11 +192,11 @@ class TestNewsSerializers(TestCase):
     def test_unique_uuid(self):
         query = 'MATCH (a:NewsArticle) OPTIONAL MATCH (a)-[r]-() ' \
                 'DELETE a, r'
-
-        db.cypher_query(query)
-        query = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
-                'DELETE a, r'
-        db.cypher_query(query)
+        query2 = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        query3 = 'MATCH (a:UploadedObject) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        db.cypher_batch_query([(query, {}), (query2, {}), (query3, {})])
         tag = Tag(name="science").save()
         query_webhose(
             None, tag,
@@ -222,8 +211,24 @@ class TestNewsSerializers(TestCase):
         res, _ = db.cypher_query(query)
         self.assertIsNotNone(res.one)
         query = 'MATCH (a:NewsArticle ' \
-                '{external_id: "d35c1ec82aab431138865043eb9ea511e10fd20c"}) ' \
+                '{external_id: "c11407c888ddbfedca4a56b1aac482d153ad6039"}) ' \
                 'RETURN a'
 
         res, _ = db.cypher_query(query)
         self.assertIsNotNone(res.one)
+
+    def test_image_too_close(self):
+        query = 'MATCH (a:NewsArticle) OPTIONAL MATCH (a)-[r]-() ' \
+                'DELETE a, r'
+        query2 = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        query3 = 'MATCH (a:UploadedObject) OPTIONAL MATCH (a)-[r]-() ' \
+                 'DELETE a, r'
+        db.cypher_batch_query([(query, {}), (query2, {}), (query3, {})])
+        tag = Tag(name="science").save()
+        query_webhose(
+            None, tag,
+            settings.PROJECT_DIR + "/sb_news/tests/sample_json/"
+                                   "image_too_close.json")
+        tag.delete()
+        self.assertEqual(len(NewsArticle.nodes.all()), 1)

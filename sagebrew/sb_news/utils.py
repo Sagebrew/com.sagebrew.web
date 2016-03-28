@@ -51,12 +51,13 @@ def gather_news_results(query, demo_file=None):
         if demo_file is None:
             demo_file = settings.PROJECT_DIR + '/sb_news/tests/short_test.json'
         with open(demo_file) as data_file:
+            file_info = load(data_file)
             try:
                 results = {"posts": list(chain.from_iterable(
-                    [result['posts'] for result in load(data_file)])),
+                    [result['posts'] for result in file_info])),
                     "requestsLeft": 0}
             except KeyError:
-                results = {"posts": load(data_file), "requestsLeft": 0}
+                results = {"posts": file_info, "requestsLeft": 0}
         for published in results['posts']:
             published['thread']['published'] = str(datetime.now(pytz.utc))
             published['published'] = str(datetime.now(pytz.utc))

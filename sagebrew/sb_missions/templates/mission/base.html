@@ -94,7 +94,7 @@
         {% endif %}
         <div class="block-content no-top-padding" id="social-media">
             {% if mission.facebook %}
-                <a href="http://facebook.com/{{ mission.facebook }}" target="_blank"
+                <a href="{{ mission.facebook }}" target="_blank"
                         class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                     <span class="fa fa-facebook"></span>
                 </a>
@@ -104,7 +104,7 @@
                 </button>
             {% endif %}
             {% if mission.twitter %}
-                <a href="http://twitter.com/{{ mission.twitter }}" target="_blank"
+                <a href="{{ mission.twitter }}" target="_blank"
                         class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                     <span class="fa fa-twitter"></span>
                 </a>
@@ -114,7 +114,7 @@
                 </button>
             {% endif %}
             {% if mission.youtube %}
-                <a href="http://youtube.com/{{ mission.youtube }}" target="_blank"
+                <a href="{{ mission.youtube }}" target="_blank"
                         class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                     <span class="fa fa-youtube-play"></span>
                 </a>
@@ -124,7 +124,7 @@
                 </button>
             {% endif %}
             {% if  mission.linkedin %}
-                <a href="http://linkedin.com/{{ mission.linkedin }}" target="_blank"
+                <a href="{{ mission.linkedin }}" target="_blank"
                         class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span
                         class="fa fa-linkedin"></span></a>
             {% else %}

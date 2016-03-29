@@ -40,20 +40,22 @@
 {% endblock hero %}
 {% block sidebar_left %}
     <div class="block">
-        <h6 class="block-title no-underline center-title">Missions</h6>
-    </div>
-    <div id="js-mission-list">
-        <div id="js-mission-container"></div>
-        <div class="loader"></div>
+        <h6 class="block-title">Missions</h6>
+        <div id="js-mission-list">
+            <div id="js-mission-container"></div>
+            <div class="loader"></div>
+        </div>
     </div>
 
+
     <div class="block">
-        <h6 class="block-title no-underline center-title">Endorsements</h6>
+        <h6 class="block-title">Endorsements</h6>
+        <div id="js-endorsements-list">
+            <div id="js-endorsements-container"></div>
+            <div class="loader"></div>
+        </div>
     </div>
-    <div id="js-endorsements-list">
-        <div id="js-endorsements-container"></div>
-        <div class="loader"></div>
-    </div>
+
 {% endblock sidebar_left %}
 {% block sidebar_right %}
     {% if is_owner %}

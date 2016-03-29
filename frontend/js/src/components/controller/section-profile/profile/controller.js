@@ -106,7 +106,7 @@ export function load() {
         '<div class="block"><div class="block-content five-padding-bottom">' +
         '<p class="row-no-top-bottom-margin">Check Back Later For New Missions</p></div></div>');
     missions.populateEndorsements($(endorsementList), pageUser, missionMinTemplate,
-        '<div class="block"><div class="block-content five-padding-bottom">' +
+        '<div class="block" style="margin-top: -15px;"><div class="block-content five-padding-bottom">' +
         '<p class="row-no-top-bottom-margin">Check Back Later For New Endorsements</p></div></div>');
 
     $followerList.sb_contentLoader({

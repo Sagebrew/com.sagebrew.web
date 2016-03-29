@@ -18,7 +18,7 @@ class NewsArticle(TitledContent):
     #     alchemyapi
     provider = StringProperty(default="webhose")
     external_id = StringProperty(unique_index=True)
-    url = StringProperty()
+    url = StringProperty(index=True)
     summary = StringProperty()
     site_full = StringProperty()
     site = StringProperty()

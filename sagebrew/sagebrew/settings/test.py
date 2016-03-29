@@ -6,7 +6,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 WEB_ADDRESS = "https://127.0.0.1:8080"
-
+WEBHOSE_REQUEST_LIMIT = 25
 # This is here because locally we do not have ssl certification.
 # Please ensure you are never hardcoding False into the requests
 # calls

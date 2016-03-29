@@ -3,6 +3,7 @@ import requests
 import urllib2
 import io
 import pytz
+from PIL import Image
 from bs4 import BeautifulSoup
 import imagehash
 from datetime import datetime, timedelta
@@ -34,7 +35,15 @@ def get_file_info(file_object, url):
         file_format = http_message.type.split('/')[1].lower()
     else:
         raise ValidationError("No information for File or URL provided")
-
+    # This happens when we upload images to S3 without a file format indicated
+    # The browsers seem to recover nicely and this should be fixed on new
+    # images but this protects us on legacy images
+    if file_format == "octet-stream":
+        file_image = Image.open(file_object)
+        file_format = file_image.format
+        file_object = io.BytesIO()
+        file_image.save(file_object, file_format)
+        file_object.seek(0)
     return file_size, file_format, file_object
 
 

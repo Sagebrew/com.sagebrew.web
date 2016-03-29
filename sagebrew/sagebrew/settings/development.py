@@ -99,7 +99,7 @@ CELERY_RESULT_BACKEND = 'redis://%s:%s/0' % (environ.get("REDIS_LOCATION", ""),
                                              environ.get("REDIS_PORT", ""))
 
 EMAIL_VERIFICATION_URL = "%s/registration/email_confirmation/" % WEB_ADDRESS
-
+WEBHOSE_REQUEST_LIMIT = 25
 
 BROKER_URL = 'amqp://%s:%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
                                        environ.get("QUEUE_PASSWORD", ""),

@@ -87,7 +87,24 @@
             </form>
         </div>
     </div>
-
+    <div class="block">
+        <h3 class="block-title">
+            Mission Profile Picture
+        </h3>
+        <div class="block-content">
+            {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
+            {%  if request.user.username == quest.owner_username %}
+                <div class="wallpaper mission-wallpaper" id="js-croppic-wrapper-div-id">
+                    <img id="js-croppic-img-id" class="js-croppic-img-class"
+                         src="{{ mission.wallpaper_pic|default_if_none:default_wallpaper }}">
+                </div>
+            {% else %}
+                <div class="wallpaper mission-wallpaper">
+                    <img src="{{ mission.wallpaper_pic|default_if_none:default_wallpaper }}">
+                </div>
+            {% endif %}
+        </div>
+    </div>
 {% endblock %}
 
 

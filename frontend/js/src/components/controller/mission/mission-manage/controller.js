@@ -24,6 +24,7 @@ export function load() {
     var greyPage = document.getElementById('sb-greyout-page'),
         $app = $(".app-sb"),
         missionID = helpers.args(1);
+    $('[data-toggle="tooltip"]').tooltip();
     $app
         .on('click', '#take-live-mission', function () {
             event.preventDefault();

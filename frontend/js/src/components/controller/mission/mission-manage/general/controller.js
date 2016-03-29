@@ -1,6 +1,7 @@
 var request = require('api').request,
     helpers = require('common/helpers'),
-    validators = require('common/validators');
+    validators = require('common/validators'),
+    garlic = require('drmonty-garlicjs');
 
 export const meta = {
     controller: "mission/mission-manage/general",
@@ -23,7 +24,13 @@ export function init() {
  */
 export function load() {
     var $app = $(".app-sb"),
-        missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0];
+        missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
+        socialForm = $("#socialForm"),
+        $about = $("#about"),
+        $remaining = $("#js-about-char-count");
+    validators.missionManageValidator(socialForm);
+    socialForm.garlic();
+    helpers.characterCountRemaining(255, $about, $remaining);
     $app
         .on('click', '#submit', function(event) {
             event.preventDefault();
@@ -35,16 +42,9 @@ export function load() {
             });
         })
         .on('keyup', '#about', function(){
-            var $this = $(this),
-                count = $this.val().length,
-                remaining = $("#js-about-char-count"),
-                newCount = 255 - count;
-            if (newCount < 0) {
-                newCount = 0;
-            }
-            remaining.text(newCount + " Characters Remaining");
+            helpers.characterCountRemaining(255, $about, $remaining);
         });
-    validators.missionManageValidator($("#socialForm"));
+
 }
 
 /**

@@ -176,6 +176,7 @@ class QuestSerializer(SBSerializer):
             validated_data.get('twitter', instance.twitter))
         if initial_state is True and active is False:
             remove_search_object(instance.object_uuid, "quest")
+            # TODO make all missions inactive upon taking quest inactive
         instance.website = clean_url(validated_data.get(
             'website', instance.website))
         instance.about = empty_text_to_none(

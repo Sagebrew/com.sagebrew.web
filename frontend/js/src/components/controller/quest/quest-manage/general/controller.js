@@ -3,7 +3,8 @@
  */
 var request = require('api').request,
     helpers = require('common/helpers'),
-    validation = require('common/validators');
+    validation = require('common/validators'),
+    garlic = require('drmonty-garlicjs');
 
 /**
  * Meta.
@@ -23,7 +24,13 @@ export const meta = {
 export function load() {
 
     var $app = $(".app-sb"),
-        questID = helpers.args(1);
+        questID = helpers.args(1),
+        socialForm = $("#socialForm"),
+        $about = $("#about"),
+        $remaining = $("#js-about-char-count");
+    validation.questManageValidator($('#socialForm'));
+    socialForm.garlic();
+    helpers.characterCountRemaining(128, $about, $remaining);
     $app
         .on('click', '#submit', function(event) {
             event.preventDefault();
@@ -35,14 +42,7 @@ export function load() {
             });
         })
         .on('keyup', '#about', function(){
-            var $this = $(this),
-                count = $this.val().length,
-                remaining = $("#js-about-char-count"),
-                newCount = 128 - count;
-            if (newCount < 0) {
-                newCount = 0;
-            }
-            remaining.text(newCount + " Characters Remaining");
+            helpers.characterCountRemaining(128, $about, $remaining);
         });
-    validation.questManageValidator($('#socialForm'));
+
 }

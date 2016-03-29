@@ -352,7 +352,7 @@ export function questManageValidator(manageForm) {
                 validators: {
                     stringLength: {
                         max: 128,
-                        message: 'About section must be less than 128 characters'
+                        message: " "
                     }
                 }
             },
@@ -457,7 +457,7 @@ export function missionManageValidator(manageForm) {
                 validators: {
                     stringLength: {
                         max: 255,
-                        message: 'About section must be less than 255 characters'
+                        message: ' '
                     }
                 }
             },

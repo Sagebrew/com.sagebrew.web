@@ -323,3 +323,11 @@ export function toTitleCase(str)
 {
     return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
 }
+
+
+/**
+ * Get remaining character count and display it
+ */
+export function characterCountRemaining(characterLimit, $selector, $remainingSelector) {
+    $remainingSelector.text((characterLimit - $selector.val().length) + " Characters Remaining");
+}

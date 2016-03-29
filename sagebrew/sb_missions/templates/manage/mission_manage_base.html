@@ -51,15 +51,25 @@
     </div>
     <div class="block block-type-nav">
         <div class="block-title">
-            Setup Checklist
+            Mission Setup Checklist
         </div>
         <div class="block-content">
             <ul class="nav nav-list nav-list-vivid">
-                <li><a id="js-quest-signup" href="{% url "quest_manage_settings" quest.owner_username %}"><i class="fa {% if quest.active %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Take Quest Live</a></li>
-                <li><a id="js-quest-signup" href="{% url "mission_settings" mission.id slug %}"><i class="fa {% if mission.about %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete About</a></li>
-                <li><a id="js-quest-signup" href="{% url "mission_edit_epic" mission.id slug %}"><i class="fa {% if mission.epic %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete Your Epic</a></li>
-                <li><a id="js-quest-signup" href="{% url "mission" mission.id slug %}"><i class="fa {% if mission.wallpaper_pic != "https://sagebrew.local.dev/static/images/wallpaper_capitol_2.jpg" %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Upload an Image</a></li>
-                <li><a id="js-quest-signup" href="{% url "mission_settings" mission.id slug %}"><i class="fa {% if mission.active %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Take Mission Live</a></li>
+                <li>
+                    <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="Complete the Quest Setup Checklist to take your Quest Active!" {% if not quest.active %}class="red-href"{% endif %} href="{% url "quest_manage_settings" quest.owner_username %}"><i class="fa {% if quest.active %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Take Quest Live</a>
+                </li>
+                <li>
+                    <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="Tell potential donors a bit about Mission!" {% if not mission.about %}class="red-href"{% endif %} href="{% url "mission_settings" mission.id slug %}"><i class="fa {% if mission.about %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete About</a>
+                </li>
+                <li>
+                    <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="Give a more detailed explaination of your Mission!" {% if not mission.epic %}class="red-href"{% endif %} href="{% url "mission_edit_epic" mission.id slug %}"><i class="fa {% if mission.epic %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete Your Epic</a>
+                </li>
+                <li>
+                    <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="Upload a picture which represents your Mission!" {% if not mission.wallpaper_pic != "https://sagebrew.local.dev/static/images/wallpaper_capitol_2.jpg" %}class="red-href"{% endif %} href="{% url "mission" mission.id slug %}"><i class="fa {% if mission.wallpaper_pic != "https://sagebrew.local.dev/static/images/wallpaper_capitol_2.jpg" %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Upload an Image</a>
+                </li>
+                <li>
+                    <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="Take your Mission live and start getting Donations!" {% if not mission.active %}class="red-href"{% endif %} href="{% url "mission_settings" mission.id slug %}"><i class="fa {% if mission.active %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Take Mission Live</a>
+                </li>
             </ul>
         </div>
     </div>

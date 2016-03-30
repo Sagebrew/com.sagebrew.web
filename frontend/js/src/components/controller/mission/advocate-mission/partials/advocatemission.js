@@ -20,7 +20,10 @@ export function load() {
         districtRow = document.getElementById('district-row'),
         advocateInput = document.getElementById('advocate-input'),
         stateRequired = stateInput.options[0],
-        greyPage = document.getElementById('sb-greyout-page');
+        greyPage = document.getElementById('sb-greyout-page'),
+        advocateInputCharCount = $("#js-advocate-char-count"),
+        advocateInputWrapper = $(".advocate-input-wrapper"),
+        advocateInputCharacterLimit = 240;
     if(typeof(Storage) !== "undefined") {
         // Clear out all of the storage for the page, we're starting a new mission!
         localStorage.removeItem(locationKey);
@@ -157,6 +160,17 @@ export function load() {
         .on('click', '#js-cancel-btn', function(event){
             event.preventDefault();
             window.location.href = "/quests/" + settings.user.username;
+        })
+        .on('keyup', '#advocate-input', function(){
+            var $this = $(this);
+            helpers.characterCountRemaining(advocateInputCharacterLimit, $this, advocateInputCharCount);
+            if ($this.val().length > 240) {
+                advocateInputWrapper.removeClass("has-success");
+                advocateInputWrapper.addClass("has-error");
+            } else {
+                advocateInputWrapper.removeClass("has-error");
+                advocateInputWrapper.addClass("has-success");
+            }
         });
     helpers.loadMap(initAutocomplete, "places");
 }

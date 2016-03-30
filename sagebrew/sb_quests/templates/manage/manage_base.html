@@ -76,7 +76,7 @@
             <br/>
             {% if quest.account_verification_fields_needed %}
                 <span class="label label-warning" id="js-fields-needed">
-                    Fields Needed: {% for reason in quest.account_verification_fields_needed %}reason, {% endfor %}
+                    Fields Needed: {% for reason in quest.account_verification_fields_needed %}{{ reason }}, {% endfor %}
                 </span>
             {% endif %}
             <br/>

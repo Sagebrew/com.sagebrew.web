@@ -27,10 +27,15 @@ export function load() {
         questID = helpers.args(1),
         socialForm = $("#socialForm"),
         $about = $("#about"),
-        $remaining = $("#js-about-char-count");
-    validation.questManageValidator($('#socialForm'));
+        $title = $("#title"),
+        $remaining = $("#js-about-char-count"),
+        $titleRemaining = $("#js-title-char-count"),
+        aboutCharLimit = 128,
+        titleCharLimit = 240;
+    validation.missionManageValidator($('#socialForm'), aboutCharLimit);
     socialForm.garlic();
-    helpers.characterCountRemaining(128, $about, $remaining);
+    helpers.characterCountRemaining(aboutCharLimit, $about, $remaining);
+    helpers.characterCountRemaining(titleCharLimit, $title, $titleRemaining);
     $app
         .on('click', '#submit', function(event) {
             event.preventDefault();
@@ -42,7 +47,10 @@ export function load() {
             });
         })
         .on('keyup', '#about', function(){
-            helpers.characterCountRemaining(128, $about, $remaining);
+            helpers.characterCountRemaining(aboutCharLimit, $about, $remaining);
+        })
+        .on('keyup', '#title', function(){
+            helpers.characterCountRemaining(titleCharLimit, $title, $titleRemaining);
         });
 
 }

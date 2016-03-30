@@ -27,7 +27,8 @@ from .neo_models import (Position, Quest)
 
 class QuestSerializer(SBSerializer):
     active = serializers.BooleanField(required=False)
-    title = serializers.CharField(required=False, allow_blank=True)
+    title = serializers.CharField(required=False, allow_blank=True,
+                                  max_length=240)
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=128)
     facebook = serializers.URLField(required=False, allow_blank=True)
@@ -64,7 +65,18 @@ class QuestSerializer(SBSerializer):
         read_only=True,
         choices=[('unverified', "Unverified"), ('pending', "Pending"),
                  ('verified', "Verified")])
+    # https://stripe.com/docs/connect/identity-verification
+    # #confirming-id-verification
+    # fields_needed is a list of fields that are still required for
+    # verification of the managed account
+    # ex. ["legal_entity.type", "legal_entity.business_name"]
     account_verification_fields_needed = serializers.ListField(read_only=True)
+    # https://stripe.com/docs/connect/identity-verification
+    # #confirming-id-verification
+    # verification_details is a user readable string that will contain a string
+    # describing an problems with verification such as a corrupted/unreadable
+    # image has been uploaded.
+    # ex. "The image supplied was not readable"
     account_verification_details = serializers.CharField(read_only=True)
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()

@@ -27,10 +27,18 @@ export function load() {
         missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         socialForm = $("#socialForm"),
         $about = $("#about"),
-        $remaining = $("#js-about-char-count");
-    validators.missionManageValidator(socialForm);
+        $title = $("#title"),
+        $titleRemaining = $("#js-title-char-count"),
+        $remaining = $("#js-about-char-count"),
+        aboutCharLimit = 255,
+        titleCharLimit = 240;
+    validators.missionManageValidator(socialForm, aboutCharLimit);
     socialForm.garlic();
-    helpers.characterCountRemaining(255, $about, $remaining);
+    helpers.characterCountRemaining(aboutCharLimit, $about, $remaining);
+    // Handle title not being present in the case of a mission not being focused on a position
+    if ($title.length) {
+        helpers.characterCountRemaining(titleCharLimit, $title, $titleRemaining);
+    }
     $app
         .on('click', '#submit', function(event) {
             event.preventDefault();
@@ -42,7 +50,10 @@ export function load() {
             });
         })
         .on('keyup', '#about', function(){
-            helpers.characterCountRemaining(255, $about, $remaining);
+            helpers.characterCountRemaining(aboutCharLimit, $about, $remaining);
+        })
+        .on('keyup', '#title', function(){
+            helpers.characterCountRemaining(titleCharLimit, $title, $titleRemaining);
         });
 
 }

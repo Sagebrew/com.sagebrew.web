@@ -154,17 +154,18 @@ a{% extends "layout/hero-two-col-right.html" %}
         <div id="js-mission-container"></div>
         <div class="loader"></div>
     </div>
-    <div class="block block-type-title">
-        <div class="block-content">
-            <h1>Endorsed Missions</h1>
+    {% if quest.endorsed %}
+        <div class="block block-type-title">
+            <div class="block-content">
+                <h1>Endorsed Missions</h1>
+            </div>
         </div>
-    </div>
-    <div id="js-endrorsed-list">
-        <div id="js-endorsed-mission-container">
-            <div class="loader"></div>
+        <div id="js-endorsed-list">
+            <div id="js-endorsed-mission-container">
+                <div class="loader"></div>
+            </div>
         </div>
-    </div>
-
+    {% endif %}
 {% endblock %}
 
 {% block intercom %}

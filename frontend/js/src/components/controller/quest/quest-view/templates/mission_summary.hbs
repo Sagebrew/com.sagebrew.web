@@ -1,14 +1,14 @@
 {{#grouped_each 3 missions}}
-    <div class="row row-eq-height">
+    <div class="row">
         {{#each this }}
             <div class="col-sm-4">
                 <div class="block {{#if this.active }}block-state-active{{else}}block-state-inactive{{/if}} {{#if this.complete }}block-state-complete{{else}}block-state-incomplete{{/if}}" id="{{ this.id }}" data-slug="{{ this.slug }}">
-                    <div class="block-hero-image">
+                    <div class="block-hero-image" style="height: 120px; overflow: hidden;">
                         <img src="{{this.wallpaper_pic}}" />
                     </div>
                     <a class="block-title js-position" data-id="{{ this.id }}"
                        data-slug="{{ this.slug }}" href="#">{{ this.title_summary }}</a>
-                    <div class="block-content">
+                    <div class="block-content" style="height: 170px;overflow: hidden;">
                         <p>
                             {{#if this.about }}
                                 {{this.about}}
@@ -16,8 +16,11 @@
                                 A {{this.level}} level {{this.focus_on_type}} mission.
                             {{/if}}
                         </p>
-                        <a href="#" class="btn btn-primary sb_btn js-position" data-id="{{ this.id }}"
-                            data-slug="{{ this.slug }}">Select</a>
+                    </div>
+                        <div class="block-footer">
+                        <a href="#" class="btn btn-primary sb_btn js-position"
+                           data-id="{{ this.id }}"
+                           data-slug="{{ this.slug }}">Select</a>
                     </div>
                 </div>
             </div>

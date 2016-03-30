@@ -1,6 +1,6 @@
 {% extends "mission/base.html" %}
 {% load staticfiles %}
-{% block title %}{% if title %} {{ title }} {% else %} {{ focus_name_formatted }} {% endif %} Updates{% endblock %}
+{% block title %}{% if title %} {{ title }} {% else %} {{ focus_name_formatted }} {% endif %} Endorsements{% endblock %}
 
 {% block live %}
 
@@ -27,13 +27,15 @@
                     <h4 class="block-content block-holder-lg" style="margin-top:0;">{{ quest.title }}  is still setting up this Mission, check back soon!</h4>
                 </div>
             {% elif endorsements %}
+                <div class="row">
                 <div id="js-endorsements-list">
+
                     <div id="js-endorsements-container">
                         <div class="loader"></div>
                     </div>
 
                 </div>
-
+                </div>
             {% else %}
                 <div class="block">
                     <h4 class="block-content block-holder-lg" style="margin-top:0;">{{ quest.title }}  doesn't have any endorsements for this Mission yet.</h4>

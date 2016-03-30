@@ -4,10 +4,11 @@ var missions = require('common/missions'),
 
 export function load() {
     var $app = $(".app-sb"),
-        missionList= document.getElementById('js-mission-list'),
         pageUser = helpers.args(1);
 
-    missions.populateMissions($(missionList), pageUser);
+    missions.populateMissions($('#js-mission-list'), pageUser, null,
+        '<div class="block"><div class="block-content five-padding-bottom"><p>' +
+        'Check Back Later For New Missions</p></div></div>');
     $app
         .on('click', '.js-position', function (event) {
             event.preventDefault();

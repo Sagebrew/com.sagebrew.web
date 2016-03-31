@@ -57,9 +57,9 @@ export function load() {
                         data.results[i].title = missions.determineTitle(data.results[i]);
                     }
                     data.results[i].static_url = settings.static_url;
-                    if(data.results[i].type == "profile") {
+                    if(data.results[i].type === "profile") {
                         $endorsmentContainer.append(profileSummaryTemplate(data.results[i]));
-                    } else if(data.results[i].type == "quest") {
+                    } else if(data.results[i].type === "quest") {
                         $endorsmentContainer.append(questSummaryTemplate(data.results[i]));
                     } else {
                         $endorsmentContainer.append(missionSummaryTemplate(data.results[i]));

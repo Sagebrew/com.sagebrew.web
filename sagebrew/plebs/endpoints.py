@@ -51,6 +51,54 @@ from .neo_models import Pleb, Address, FriendRequest
 from .utils import get_filter_by
 
 
+def get_public_content(api, username, request):
+        then = (datetime.now(pytz.utc) - timedelta(days=120)).strftime("%s")
+        query = \
+            '// Retrieve all the current users questions\n' \
+            'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-' \
+            '(questions:Question) ' \
+            'WHERE questions.to_be_deleted = False AND questions.created > %s' \
+            ' AND questions.is_closed = False ' \
+            'RETURN questions, NULL AS solutions, ' \
+            'questions.created AS created, NULL AS s_question UNION ' \
+            '// Retrieve all the current users solutions\n' \
+            'MATCH (a:Pleb {username: "%s"})<-' \
+            '[:OWNED_BY]-(solutions:Solution)<-' \
+            '[:POSSIBLE_ANSWER]-(s_question:Question) ' \
+            'WHERE s_question.to_be_deleted = False ' \
+            'AND solutions.created > %s' \
+            ' AND solutions.is_closed = False ' \
+            'AND s_question.is_closed = False ' \
+            'RETURN solutions, NULL AS questions, ' \
+            'solutions.created AS created, s_question AS s_question' \
+            % (username, then, username, then)
+        news = []
+        res, _ = db.cypher_query(query)
+        # Profiled with ~50 objects and it was still performing under 1 ms.
+        # By the time sorting in python becomes an issue the above mentioned
+        # ticket should be resolved.
+        res = sorted(res, key=attrgetter('created'), reverse=True)[:5]
+        page = api.paginate_queryset(res)
+        for row in page:
+            news_article = None
+            if row.questions is not None:
+                row.questions.pull()
+                news_article = QuestionSerializerNeo(
+                    Question.inflate(row.questions),
+                    context={'request': request}).data
+            elif row.solutions is not None:
+                row.s_question.pull()
+                row.solutions.pull()
+                question_data = QuestionSerializerNeo(
+                    Question.inflate(row.s_question)).data
+                news_article = SolutionSerializerNeo(
+                    Solution.inflate(row.solutions),
+                    context={'request': request}).data
+                news_article['question'] = question_data
+            news.append(news_article)
+        return api.get_paginated_response(news)
+
+
 class AddressViewSet(viewsets.ModelViewSet):
     """
     This ViewSet provides all of the addresses associated with the currently
@@ -203,6 +251,10 @@ class ProfileViewSet(viewsets.ModelViewSet):
         serializer = MarkdownContentSerializer(page, many=True,
                                                context={'request': request})
         return self.get_paginated_response(serializer.data)
+
+    @detail_route(methods=['get'])
+    def public(self, request, username=None):
+        return get_public_content(self, username, request)
 
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated, IsSelfOrReadOnly))
@@ -416,51 +468,7 @@ class MeViewSet(mixins.UpdateModelMixin,
 
     @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def public(self, request):
-        then = (datetime.now(pytz.utc) - timedelta(days=120)).strftime("%s")
-        query = \
-            '// Retrieve all the current users questions\n' \
-            'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-' \
-            '(questions:Question) ' \
-            'WHERE questions.to_be_deleted = False AND questions.created > %s' \
-            ' AND questions.is_closed = False ' \
-            'RETURN questions, NULL AS solutions, ' \
-            'questions.created AS created, NULL AS s_question UNION ' \
-            '// Retrieve all the current users solutions\n' \
-            'MATCH (a:Pleb {username: "%s"})<-' \
-            '[:OWNED_BY]-(solutions:Solution)<-' \
-            '[:POSSIBLE_ANSWER]-(s_question:Question) ' \
-            'WHERE s_question.to_be_deleted = False ' \
-            'AND solutions.created > %s' \
-            ' AND solutions.is_closed = False ' \
-            'AND s_question.is_closed = False ' \
-            'RETURN solutions, NULL AS questions, ' \
-            'solutions.created AS created, s_question AS s_question' \
-            % (request.user.username, then, request.user.username, then)
-        news = []
-        res, _ = db.cypher_query(query)
-        # Profiled with ~50 objects and it was still performing under 1 ms.
-        # By the time sorting in python becomes an issue the above mentioned
-        # ticket should be resolved.
-        res = sorted(res, key=attrgetter('created'), reverse=True)[:5]
-        page = self.paginate_queryset(res)
-        for row in page:
-            news_article = None
-            if row.questions is not None:
-                row.questions.pull()
-                news_article = QuestionSerializerNeo(
-                    Question.inflate(row.questions),
-                    context={'request': request}).data
-            elif row.solutions is not None:
-                row.s_question.pull()
-                row.solutions.pull()
-                question_data = QuestionSerializerNeo(
-                    Question.inflate(row.s_question)).data
-                news_article = SolutionSerializerNeo(
-                    Solution.inflate(row.solutions),
-                    context={'request': request}).data
-                news_article['question'] = question_data
-            news.append(news_article)
-        return self.get_paginated_response(news)
+        return get_public_content(self, request.user.username, request)
 
     @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def newsfeed(self, request):

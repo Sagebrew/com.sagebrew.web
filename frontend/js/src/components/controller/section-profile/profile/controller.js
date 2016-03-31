@@ -70,9 +70,9 @@ export function load() {
                 });
         });
     $appNewsfeed.sb_contentLoader({
-        emptyDataMessage: '<div class="block"><div class="block-content five-padding-bottom">' +
+        emptyDataMessage: '<div class="block"><div class="block-content">' +
         '<p class="row-no-top-bottom-margin">Some Public Contributions Need to Be Made</p></div></div>',
-        url: '/v1/me/public/',
+        url: '/v1/profiles/' + pageUser + '/public/',
         params: {
             expand: 'true'
         },

@@ -20,4 +20,3 @@ class QuestSitemap(Sitemap):
 
     def location(self, obj):
         return reverse('quest', kwargs={"username": obj.owner_username})
-

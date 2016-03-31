@@ -21,7 +21,7 @@
                 {% endif %}
                 <div class="form-group">
                     <label for="about">About</label>
-                    <textarea class="form-control"
+                    <textarea class="form-control resize-vertical"
                               placeholder="255 Characters about the Mission"
                               rows="3" name="about" id="about">{{ mission.about|default_if_none:'' }}</textarea>
                     <small id="js-about-char-count" class="help-block">255 Characters Remaining</small>

@@ -71,6 +71,7 @@ exclude_lines =
     raise NotImplementedError
     if 0:
     if __name__ == .__main__.:
+    except ImportError:
     except CypherException as e:
     except JSONResponseError as e:
     except(TypeError, IoError, BotoClientError, BotoServerError, AWSConnectionError, Exception) as e:

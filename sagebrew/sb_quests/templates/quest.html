@@ -12,8 +12,7 @@ a{% extends "layout/hero-two-col-right.html" %}
     {% endif %}
     <meta name="author" content=" {{ quest.title }} ">
 {% endblock keywords %}
-{% block content %}
-    {% comment %} TODO need some assistance transitioning this over to hero-one-col {% endcomment %}
+{% block hero %}
     {% include "manage/activate_partial.html" %}
     <div class="row block row-no-left-right-margin">
         <div class="hidden-sm hidden-md hidden-lg block-title text-center no-underline">
@@ -155,17 +154,18 @@ a{% extends "layout/hero-two-col-right.html" %}
         <div id="js-mission-container"></div>
         <div class="loader"></div>
     </div>
-    <div class="block block-type-title">
-        <div class="block-content">
-            <h1>Endorsed Missions</h1>
+    {% if quest.endorsed %}
+        <div class="block block-type-title">
+            <div class="block-content">
+                <h1>Endorsed Missions</h1>
+            </div>
         </div>
-    </div>
-    <div id="js-endrorsed-list">
-        <div id="js-endorsed-mission-container">
-            <div class="loader"></div>
+        <div id="js-endorsed-list">
+            <div id="js-endorsed-mission-container">
+                <div class="loader"></div>
+            </div>
         </div>
-    </div>
-
+    {% endif %}
 {% endblock %}
 
 {% block intercom %}

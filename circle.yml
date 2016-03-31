@@ -8,12 +8,13 @@ dependencies:
     - elasticsearch-2.2.0
     - DynamoDBLocal_lib
     - neo4j-community-2.2.2
+    - virtualenvs
 
   pre:
     - sudo apt-get update
     - pip install setuptools==12.3
     - pip install awscli
-    - sudo apt-get -y install libjpeg-dev libblas-dev liblapack-dev libatlas-base-dev gfortran icu libicu-dev pyicu
+    - sudo apt-get -y install libjpeg-dev libblas-dev liblapack-dev libatlas-base-dev gfortran libicu-dev python-pyicu
     - npm install -g gulp
     - npm prune && npm install:
         pwd: ../frontend

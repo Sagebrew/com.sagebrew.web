@@ -15,8 +15,6 @@ from datetime import datetime
 
 from django.conf import settings
 
-from rest_framework.exceptions import ValidationError
-
 from neomodel import db
 
 from .serializers import NewsArticleSerializer
@@ -25,14 +23,14 @@ logger = getLogger("loggly_logs")
 
 
 def find_news(limit_offset_fxn, count_query, link_objects_callback):
-    requests_left = 26
+    requests_left = settings.WEBHOSE_REQUEST_LIMIT + 1
     skip = 0
-    limit = 25
+    limit = settings.WEBHOSE_REQUEST_LIMIT
     res, _ = db.cypher_query(count_query)
     total = res.one
     while requests_left > limit:
         news_objects = limit_offset_fxn(skip, limit)
-        link_objects_callback(news_objects)
+        requests_left = link_objects_callback(news_objects)
         if skip >= total:
             break
         skip += limit
@@ -46,7 +44,7 @@ def gather_news_results(query, demo_file=None):
         "format": "json",
         "q": query,
     }
-    query = "https://webhose.io/search"
+    url = "https://webhose.io/search"
     if settings.DEBUG:
         if demo_file is None:
             demo_file = settings.PROJECT_DIR + '/sb_news/tests/short_test.json'
@@ -61,8 +59,11 @@ def gather_news_results(query, demo_file=None):
         for published in results['posts']:
             published['thread']['published'] = str(datetime.now(pytz.utc))
             published['published'] = str(datetime.now(pytz.utc))
-    else:
-        response = requests.get(query, params=payload,
+    else:  # pragma: no cover
+        # We have tested this in development and it works. But since webhose
+        # has no test API keys and all queries are billable we need to avoid
+        # triggering this in dev and testing. - Devon Bleibtrey
+        response = requests.get(url, params=payload,
                                 headers={"Accept": "text/plain"},
                                 timeout=60)
         try:
@@ -76,6 +77,8 @@ def gather_news_results(query, demo_file=None):
 
 def get_reformed_url(url):
     if settings.WEBHOSE_FREE:
+        if "omgili.com" not in url:
+            return url
         intermediate_page = requests.get(url)
         soup = BeautifulSoup(intermediate_page.text)
         for script in soup.find_all('script'):
@@ -86,8 +89,7 @@ def get_reformed_url(url):
     return url
 
 
-def query_webhose(query, tag, demo_file=None):
-    results = gather_news_results(query, demo_file)
+def query_webhose(results, tag):
     for post in results['posts']:
         thread = post.pop('thread', None)
         if thread['spam_score'] < 0.3:
@@ -118,10 +120,7 @@ def query_webhose(query, tag, demo_file=None):
             post['language'] = "en"
             serializer = NewsArticleSerializer(data=post)
             if serializer.is_valid():
-                try:
-                    article = serializer.save()
-                except(ValueError, ValidationError):
-                    continue
+                article = serializer.save()
             else:
                 continue
             article.tags.connect(tag)
@@ -129,8 +128,10 @@ def query_webhose(query, tag, demo_file=None):
 
 
 def tag_callback(news_objects):
+    requests_left = 0
     for tag in news_objects:
         query = '"%s political" language:(english) thread.country:US ' \
                 'performance_score:>8 (site_type:news)' % tag.name
-        query_webhose(query, tag)
-    return True
+        results = gather_news_results(query)
+        requests_left = query_webhose(results, tag)
+    return requests_left

@@ -35,7 +35,7 @@ class MissionSerializer(SBSerializer):
     twitter = serializers.URLField(required=False, allow_blank=True)
     website = serializers.URLField(required=False, allow_blank=True)
     wallpaper_pic = serializers.CharField(required=False)
-    title = serializers.CharField(max_length=140, required=False,
+    title = serializers.CharField(max_length=240, required=False,
                                   allow_blank=True)
     owner_username = serializers.CharField(read_only=True)
     location_name = serializers.CharField(required=False, allow_null=True)

@@ -70,9 +70,9 @@ export function load() {
                 });
         });
     $appNewsfeed.sb_contentLoader({
-        emptyDataMessage: '<div class="block"><div class="block-content five-padding-bottom">' +
-        '<p>Some Public Contributions Need to Be Made</p></div></div>',
-        url: '/v1/me/public/',
+        emptyDataMessage: '<div class="block"><div class="block-content">' +
+        '<p class="row-no-top-bottom-margin">Some Public Contributions Need to Be Made</p></div></div>',
+        url: '/v1/profiles/' + pageUser + '/public/',
         params: {
             expand: 'true'
         },
@@ -103,10 +103,10 @@ export function load() {
 
 
     missions.populateMissions($(missionList), pageUser, missionMinTemplate,
-        '<div class="block"><div class="block-content five-padding-bottom">' +
+        '<div class="block" style="margin-top: -15px; margin-bottom: -30px;"><div class="block-content five-padding-bottom">' +
         '<p class="row-no-top-bottom-margin">Check Back Later For New Missions</p></div></div>');
     missions.populateEndorsements($(endorsementList), pageUser, missionMinTemplate,
-        '<div class="block"><div class="block-content five-padding-bottom">' +
+        '<div class="block" style="margin-top: -15px; margin-bottom: -30px;"><div class="block-content five-padding-bottom">' +
         '<p class="row-no-top-bottom-margin">Check Back Later For New Endorsements</p></div></div>');
 
     $followerList.sb_contentLoader({

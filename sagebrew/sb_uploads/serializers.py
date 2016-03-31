@@ -3,6 +3,7 @@ import requests
 import urllib2
 import io
 import pytz
+from PIL import Image
 from bs4 import BeautifulSoup
 import imagehash
 from datetime import datetime, timedelta
@@ -34,7 +35,15 @@ def get_file_info(file_object, url):
         file_format = http_message.type.split('/')[1].lower()
     else:
         raise ValidationError("No information for File or URL provided")
-
+    # This happens when we upload images to S3 without a file format indicated
+    # The browsers seem to recover nicely and this should be fixed on new
+    # images but this protects us on legacy images
+    if file_format == "octet-stream":
+        file_image = Image.open(file_object)
+        file_format = file_image.format
+        file_object = io.BytesIO()
+        file_image.save(file_object, file_format)
+        file_object.seek(0)
     return file_size, file_format, file_object
 
 
@@ -81,9 +90,27 @@ class UploadSerializer(SBSerializer):
         # http://stackoverflow.com/questions/27591574/
         # order-of-serializer-validation-in-django-rest-framework
         request = self.context.get('request')
+        if request is not None:
+            object_uuid = request.query_params.get('random', None)
+        else:
+            object_uuid = None
         verify_unique = self.context.get('verify_unique', False)
         check_hamming = self.context.get('check_hamming', False)
         file_object = data.get('file_object')
+
+        if object_uuid is not None:
+            serializers.UUIDField().run_validators(object_uuid)
+            query = 'MATCH (a:SBObject {object_uuid: "%s"}) ' \
+                    'RETURN a' % object_uuid
+            res, _ = db.cypher_query(query)
+            if res.one:
+                raise ValidationError("ID must be unique.")
+            data['object_uuid'] = object_uuid
+        if file_object is None:
+            # For cropping unless we want to move the processing into the
+            # validator
+            file_object = self.context.get('file_object', None)
+
         folder = self.context.get(
             'folder', settings.AWS_PROFILE_PICTURE_FOLDER_NAME)
         url = data.get('url')
@@ -145,11 +172,7 @@ class UploadSerializer(SBSerializer):
             validated_data['owner_username'] = owner.username
         if 'file_object' in validated_data:
             validated_data.pop('file_object', None)
-        # TODO move this up into a validator that can be called by all
-        # our serializers. Users should not be able to pass object_uuid as a
-        # param
-        if 'object_uuid' in validated_data:
-            validated_data.pop('object_uuid', None)
+
         uploaded_object = UploadedObject(**validated_data).save()
         if owner is not None:
             uploaded_object.owned_by.connect(owner)

@@ -39,23 +39,43 @@
     <div class="block"></div>
 {% endblock hero %}
 {% block sidebar_left %}
-    <div class="block">
-        <h6 class="block-title no-underline center-title">Missions</h6>
-    </div>
-    <div id="js-mission-list">
-        <div id="js-mission-container"></div>
-        <div class="loader"></div>
+    <div class="block standard-bottom-padding">
+        <h6 class="block-title">Missions</h6>
+        <div id="js-mission-list">
+            <div id="js-mission-container"></div>
+            <div class="loader"></div>
+        </div>
     </div>
 
-    <div class="block">
-        <h6 class="block-title no-underline center-title">Endorsements</h6>
+
+    <div class="block standard-bottom-padding">
+        <h6 class="block-title">Endorsements</h6>
+        <div id="js-endorsements-list">
+            <div id="js-endorsements-container"></div>
+            <div class="loader"></div>
+        </div>
     </div>
-    <div id="js-endorsements-list">
-        <div id="js-endorsements-container"></div>
-        <div class="loader"></div>
-    </div>
+
 {% endblock sidebar_left %}
 {% block sidebar_right %}
+    {% if is_owner %}
+        <div class="block block-type-nav">
+            <div class="block-title">
+                Start a Mission
+            </div>
+            <div class="block-content">
+                <a class="btn btn-primary sb_btn sb_btn_fill js-quest-signup" href="#"><i class="fa fa-rocket quest-rocket"></i> Embark</a>
+            </div>
+        </div>
+        <div class="block block-type-nav">
+            <div class="block-title">
+                Start a Conversation
+            </div>
+            <div class="block-content">
+                <a class="btn btn-primary sb_btn sb_btn_fill" href="/conversations/submit_question/"><i class="fa fa-cloud  quest-rocket"></i> Discuss</a>
+            </div>
+        </div>
+    {% endif %}
     <div class="block">
         <h6 class="block-title no-underline center-title">Network</h6>
     </div>
@@ -83,43 +103,18 @@
         <h6 class="block-title">Following</h6>
         <div class="block-content" id="js-following-list"></div>
     </div>
-    {% if is_owner %}
-        <div class="block block-type-nav">
-            <div class="block-title">
-                Start a Mission
-            </div>
-            <div class="block-content">
-                <a class="btn btn-primary sb_btn sb_btn_fill js-quest-signup" href="#"><i class="fa fa-rocket quest-rocket"></i> Embark</a>
-            </div>
-        </div>
-        <div class="block block-type-nav">
-            <div class="block-title">
-                Start a Conversation
-            </div>
-            <div class="block-content">
-                <a class="btn btn-primary sb_btn sb_btn_fill" href="/conversations/submit_question/"><i class="fa fa-cloud  quest-rocket"></i> Discuss</a>
-            </div>
-        </div>
-    {% endif %}
+
 {% endblock sidebar_right %}
 {% block live %}
     <div class="block">
         <h6 class="block-title no-underline center-title">Recent Public Contributions</h6>
     </div>
     <div id="js-recent-contributions">
-        <div class="loader"></div>
     </div>
 
     {% include "flag_modal.html" %}
 {% endblock live %}
 
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/profile_pic_croppic.js' %}"></script>
-    <script src="{% static 'js/wallpaper_pic_croppic.js' %}"></script>
-
-{% endblock scripts %}
 {% block intercom %}
     Intercom('trackEvent', 'visited-profile-page');
 {% endblock %}

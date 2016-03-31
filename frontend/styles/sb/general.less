@@ -2081,7 +2081,7 @@ textarea.sb_comment_input{
   display: flex;
   justify-content: center;
   overflow: hidden;
-  height: 160px;
+  height: 180px;
   img {
     flex: none;
   }
@@ -2112,6 +2112,10 @@ textarea.sb_comment_input{
   margin-top: -7px;
 }
 
+.no-top-padding {
+  padding-top: 0 !important;
+}
+
 .no-top-bottom-padding {
   padding-top: 0 !important;
   padding-bottom: 0 !important;
@@ -2123,11 +2127,14 @@ textarea.sb_comment_input{
 }
 
 .five-padding-bottom {
-  padding-bottom: 5px;
+  padding-bottom: 5px !important;
 }
 
 .five-padding-top {
   padding-top: 5px;
+}
+.standard-bottom-padding {
+  padding-bottom: 20px !important;
 }
 
 .ten-margin-right {
@@ -2139,6 +2146,17 @@ textarea.sb_comment_input{
 }
 .no-padding-right {
   padding-right: 0;
+}
+.no-margin-top-bottom{
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+.no-margin-bottom {
+  margin-bottom: 0 !important;
+}
+
+.resize-vertical {
+  resize: vertical;
 }
 
 // Used in JS

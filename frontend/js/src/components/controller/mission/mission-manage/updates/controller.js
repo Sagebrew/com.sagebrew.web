@@ -1,6 +1,7 @@
 var request = require('api').request,
     markdown = require('common/markdown').addMarkdown,
-    validators = require('common/validators');
+    validators = require('common/validators'),
+    updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs');
 
 export const meta = {
     controller: "mission/mission-manage/updates",
@@ -56,7 +57,7 @@ export function load() {
     if ($updateWrapper !== undefined && $updateWrapper !== null){
         $updateWrapper.sb_contentLoader({
             emptyDataMessage: '',
-            url: '/v1/missions/' + missionId + '/updates/render/',
+            url: '/v1/missions/' + missionId + '/updates/',
             params: {
                 expand: 'true',
                 about_type: 'mission'
@@ -75,7 +76,7 @@ export function load() {
             },
             renderCallback: function($container, data) {
                 for (var i = 0; i < data.count; i++) {
-                    $container.append(data.results.html[i]);
+                    $container.append(updateNewsTemplate(data.results[i]));
                 }
             }
         });

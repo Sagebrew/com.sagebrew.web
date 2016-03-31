@@ -1,4 +1,4 @@
-
+/*global Croppic*/
 var postcreate = require('../partials/postcreate'),
     request = require('api').request,
     Autolinker = require('autolinker'),
@@ -41,6 +41,8 @@ export function load() {
         $followingList = $("#js-following-list"),
         $appNewsfeed = $("#js-recent-contributions"),
         profile_page_user = helpers.args(1),
+        fileName = helpers.generateUuid(),
+        wallpaperID = helpers.generateUuid(),
         $app = $(".app-sb");
     $app
         .on('click', '.js-follow', function (event) {
@@ -68,9 +70,9 @@ export function load() {
                 });
         });
     $appNewsfeed.sb_contentLoader({
-        emptyDataMessage: '<div class="block"><div class="block-content five-padding-bottom">' +
-        '<p>Some Public Contributions Need to Be Made</p></div></div>',
-        url: '/v1/me/public/',
+        emptyDataMessage: '<div class="block"><div class="block-content">' +
+        '<p class="row-no-top-bottom-margin">Some Public Contributions Need to Be Made</p></div></div>',
+        url: '/v1/profiles/' + pageUser + '/public/',
         params: {
             expand: 'true'
         },
@@ -101,10 +103,10 @@ export function load() {
 
 
     missions.populateMissions($(missionList), pageUser, missionMinTemplate,
-        '<div class="block"><div class="block-content five-padding-bottom">' +
+        '<div class="block" style="margin-top: -15px; margin-bottom: -30px;"><div class="block-content five-padding-bottom">' +
         '<p class="row-no-top-bottom-margin">Check Back Later For New Missions</p></div></div>');
     missions.populateEndorsements($(endorsementList), pageUser, missionMinTemplate,
-        '<div class="block"><div class="block-content five-padding-bottom">' +
+        '<div class="block" style="margin-top: -15px; margin-bottom: -30px;"><div class="block-content five-padding-bottom">' +
         '<p class="row-no-top-bottom-margin">Check Back Later For New Endorsements</p></div></div>');
 
     $followerList.sb_contentLoader({
@@ -149,6 +151,91 @@ export function load() {
         }
     });
 
+    var croppicContainerEyecandyOptions = {
+        uploadUrl: '/v1/upload/?croppic=true&random=' + fileName,
+        cropUrl: '/v1/upload/' + fileName + '/crop/?resize=true&croppic=true',
+        imgEyecandy: false,
+        rotateControls: false,
+        doubleZoomControls: false,
+        zoomFactor: 100,
+        onAfterImgCrop: function (arg1) {
+            request.patch({
+                url: "/v1/me/",
+                data: JSON.stringify({"profile_pic": arg1.url}),
+                cache: false,
+                processData: false
+            }).done(function () {
+                cropContainerEyecandy.reset();
+            });
+        },
+        onError: function (errorMsg) {
+            request.errorDisplay(errorMsg);
+        },
+        onReset: function () {
+            request.remove({
+                url: "/v1/upload/" + fileName + "/",
+                cache: false,
+                processData: false
+            });
+            request.get({
+                url:"/v1/me/",
+                cache: false,
+                processData: false
+            }).done(function (data) {
+                var profileImg = $("#profile_pic");
+                if (profileImg.length === 0) {
+                    $(".croppedImg").remove();
+                    $("#cropProfilePageEyecandy").append('<img id="profile_pic" src="' + data.profile_pic + "?" + new Date().getTime() + '">');
+                } else {
+                    profileImg.attr('src', data.profile_pic);
+                }
+            });
+        }, loaderHtml: '<div class="loader croppic-loader-profile"></div>'
+    };
+    var cropContainerEyecandy = new Croppic('cropProfilePageEyecandy', croppicContainerEyecandyOptions);
+
+    var EyecandyOptionsWallpaper = {
+        uploadUrl: '/v1/upload/?croppic=true&random=' + wallpaperID,
+        cropUrl: '/v1/upload/' + wallpaperID + '/crop/?resize=true&croppic=true',
+        imgEyecandy: false,
+        rotateControls: false,
+        doubleZoomControls: false,
+        zoomFactor: 100,
+        onAfterImgCrop: function (arg1) {
+            request.patch({
+                url: "/v1/me/",
+                data: JSON.stringify({"wallpaper_pic": arg1.url}),
+                cache: false,
+                processData: false
+            }).done(function () {
+                wallpaperCropContainerEyecandy.reset();
+            });
+        },
+        onError: function (errorMsg) {
+            request.errorDisplay(errorMsg);
+        },
+        onReset: function () {
+            request.remove({
+                url: "/v1/upload/" + wallpaperID + "/",
+                cache: false,
+                processData: false
+            });
+            request.get({
+                url:"/v1/me/",
+                cache: false,
+                processData: false
+            }).done(function (data) {
+                var wallpaperImg = $("#wallpaper_pic");
+                if (wallpaperImg.length === 0) {
+                    $(".croppedImg").remove();
+                    $("#cropWallpaperPictureEyecandy").append('<img id="wallpaper_pic" class="wallpaper_profile" src="' + data.wallpaper_pic + '">');
+                } else {
+                    wallpaperImg.attr('src', data.wallpaper_pic);
+                }
+            });
+        }, loaderHtml: '<div class="loader croppic-loader-profile"></div>'
+    };
+    var wallpaperCropContainerEyecandy = new Croppic('cropWallpaperPictureEyecandy', EyecandyOptionsWallpaper);
 }
 
 /**

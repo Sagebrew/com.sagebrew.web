@@ -1,7 +1,6 @@
 import bleach
 import string
 import io
-import urllib2
 try:
     from urlparse import urlparse
 except ImportError:
@@ -80,8 +79,8 @@ def resize_image(image, resize_width, resize_height):
 
 
 def crop_image2(image, width, height, x, y):
-    region = image.crop((x, y, x + width, y + height))
-    return region
+    cropped_image = image.crop((x, y, x + width, y + height))
+    return cropped_image
 
 
 def check_sagebrew_url(url, folder, file_name, file_object, type_known=True):

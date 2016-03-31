@@ -1,10 +1,6 @@
+import pytz
 from difflib import SequenceMatcher
-try:
-    from urlparse import urlparse
-except ImportError:
-    from urllib.parse import urlparse
-
-from django.utils.text import slugify
+from datetime import datetime, timedelta
 from django.conf import settings
 
 from rest_framework import serializers
@@ -37,67 +33,26 @@ class NewsArticleSerializer(VotableContentSerializer):
     highlight_text = serializers.CharField(allow_blank=True, required=False)
     language = serializers.ChoiceField(choices=settings.LANGUAGES)
     published = serializers.DateTimeField()
-    replies_count = serializers.IntegerField()
-    participants_count = serializers.IntegerField()
-    site_type = serializers.CharField()
+    replies_count = serializers.IntegerField(required=False)
+    participants_count = serializers.IntegerField(required=False)
+    site_type = serializers.CharField(required=False)
     country = serializers.ChoiceField(choices=settings.COUNTRIES)
     spam_score = serializers.FloatField()
     image = serializers.URLField()
     performance_score = serializers.IntegerField(min_value=0, max_value=10)
     crawled = serializers.DateTimeField()
-    external_links = serializers.ListField(child=serializers.URLField())
-    persons = serializers.ListField(child=serializers.CharField())
-    locations = serializers.ListField(child=serializers.CharField())
-    organizations = serializers.ListField(child=serializers.CharField())
-    author = serializers.CharField(allow_blank=True)
+    external_links = serializers.ListField(child=serializers.URLField(),
+                                           required=False)
+    persons = serializers.ListField(child=serializers.CharField(),
+                                    required=False)
+    locations = serializers.ListField(child=serializers.CharField(),
+                                      required=False)
+    organizations = serializers.ListField(child=serializers.CharField(),
+                                          required=False)
+    author = serializers.CharField(allow_blank=True, required=False)
     # Owner Username is defined in the parent class but not needed here
     owner_username = serializers.HiddenField(default=None)
     profile = serializers.HiddenField(default=None)
-
-    def validate(self, data):
-        # Execute multiple fields here to reduce the for loops necessary and
-        # queries if they were all done in their own fields.
-        title = cleanup_title(data['title'])
-        image = data['image']
-        url = data['url']
-        content = data['content']
-        # Get news articles with close titles, exact titles, or
-        # the same main
-        query = """
-                MATCH (news:NewsArticle)
-                WHERE (news.title =~ "(?i).*%s.*" ) OR
-                news.image = "%s"
-                RETURN news""" % (title, image)
-        res, _ = db.cypher_query(query)
-        for row in res:
-            # Check if they go to the same page
-            current_url = urlparse(url)
-            compare_url = urlparse(row[0]['url'])
-            if current_url.path == compare_url.path \
-                    and current_url.netloc == compare_url.netloc:
-                raise ValidationError("URL must be unique")
-            # Make sure we're not getting some explicit site through
-            # the crawlers
-            if [site for site in settings.EXPLICIT_SITES
-                    if site in current_url.netloc]:
-                raise ValidationError("Explicit content found")
-            # Check how close the titles are together
-            title_closeness = SequenceMatcher(
-                a=row[0]['title'], b=title).ratio()
-            # Check how close the content is to each other
-            content_closeness = SequenceMatcher(
-                a=row[0]['content'], b=content).ratio()
-            if title_closeness > 0.83 or content_closeness > 0.85:
-                raise ValidationError("Title too close to existing content")
-            # See if they share an image
-            if row[0]['image'] == image:
-                # If they share the same image could still be
-                # different stories but since we don't want to show
-                # the same image twice on a feed lets be more strict
-                # on how different they need to be
-                if title_closeness > 0.65 or content_closeness > 0.65:
-                    raise ValidationError("Title too close to existing content")
-        return data
 
     def validate_external_id(self, value):
         query = 'MATCH (news:NewsArticle {external_id: "%s"}) ' \
@@ -123,8 +78,8 @@ class NewsArticleSerializer(VotableContentSerializer):
                 raise ValidationError("Title contains content that is "
                                       "not allowed")
         # Check if title already exists
-        query = 'MATCH (news:NewsArticle) ' \
-                'WHERE news.title = "%s" RETURN news' % value
+        query = 'MATCH (news:NewsArticle {title: "%s"}) ' \
+                'RETURN news' % value
         res, _ = db.cypher_query(query)
         if res.one is not None:
             raise ValidationError("This field must be unique")
@@ -133,11 +88,13 @@ class NewsArticleSerializer(VotableContentSerializer):
     def validate_content(self, value):
         skip = 0
         summary = generate_summary(value)
+        then = (datetime.now(pytz.utc) - timedelta(days=20)).strftime("%s")
         if summary.strip() == "" or summary is None:
             raise ValidationError("Could not produce a summary from the site")
         while True:
-            query = 'MATCH (news:NewsArticle) RETURN news ' \
-                    'SKIP %s LIMIT 25' % skip
+            query = 'MATCH (news:NewsArticle) WHERE news.created > %s ' \
+                    'RETURN news ' \
+                    'SKIP %s LIMIT 25' % (then, skip)
             skip += 24
             res, _ = db.cypher_query(query)
             if not res.one:
@@ -149,14 +106,15 @@ class NewsArticleSerializer(VotableContentSerializer):
                     raise ValidationError("Too close to another article")
                 summary_closeness = SequenceMatcher(
                     a=row[0]['summary'], b=summary)
-                if summary_closeness > 0.65:
+                if summary_closeness > 0.8:  # pragma: no cover
+                    # Not requiring coverage here since summary is auto
+                    # generated and in most instances content will be flagged
+                    # before hand. - Devon Bleibtrey
                     raise ValidationError(
                         "Generated summary is too close to another article")
         return value
 
     def validate_image(self, value):
-        if value == "" or value is None:
-            raise ValidationError("Invalid URL")
         serializer = UploadSerializer(
             data={"url": value},
             context={'request': self.context.get('request', None),
@@ -167,10 +125,24 @@ class NewsArticleSerializer(VotableContentSerializer):
         return serializer
 
     def validate_url(self, value):
+        # Using for loop instead of list comprehension for readability.
+        for site in settings.EXPLICIT_SITES:
+            if site in value:
+                raise ValidationError("Explicit content found")
         for site in settings.UNSUPPORTED_UPLOAD_SITES:
             if site in value:
                 raise ValidationError("Site not currently supported")
+        query = 'MATCH (news:NewsArticle {url: "%s"}) ' \
+                'RETURN news' % value
+        res, _ = db.cypher_query(query)
+        if res.one is not None:
+            raise ValidationError("This field must be unique")
         return value
+
+    def validate_site_full(self, value):
+        for site in settings.UNSUPPORTED_UPLOAD_SITES:
+            if site in value:
+                raise ValidationError("Site not currently supported")
 
     def create(self, validated_data):
         validated_data['summary'] = generate_summary(
@@ -183,19 +155,10 @@ class NewsArticleSerializer(VotableContentSerializer):
         instance.images.connect(upload)
         return instance
 
-    def update(self, instance, validated_data):
-        return instance
-
     def get_type(self, obj):
         return "news_article"
 
     def get_href(self, obj):
         return reverse('news-detail',
                        kwargs={'object_uuid': obj.object_uuid},
-                       request=self.context.get('request', None))
-
-    def get_url(self, obj):
-        return reverse('news',
-                       kwargs={'object_uuid': obj.object_uuid,
-                               'slug': slugify(obj.title)},
                        request=self.context.get('request', None))

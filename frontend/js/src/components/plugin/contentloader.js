@@ -43,7 +43,7 @@
 
                 //
                 // Insert load more link.
-                $loadMore = $('<a class="load-more">Load More...</a>');
+                $loadMore = $('<a class="load-more"></a>');
                 base.$el.append($loadMore);
 
                 $loadMore.waypoint(function(direction) {

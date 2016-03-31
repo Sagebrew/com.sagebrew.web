@@ -34,8 +34,10 @@ function loadSingleContent() {
         .done(function (data) {
             var renderedTemplate;
 
-            if (formattedObjectType === "solution" || formattedObjectType === "question") {
+            if (formattedObjectType === "solution") {
                 wrapper.append('<h1 class="block-title"><a href="' + data.question.url + '"> Solution To: ' + data.question.title + ' </a></h1>');
+            } else if (formattedObjectType === "question") {
+                wrapper.append('<h1 class="block-title"><a href="' + data.url + '">' + data.title + ' </a></h1>');
             } else {
                 wrapper.prepend('<h1 class="block-title">' + capitalizedOjbectType + '</h1>');
             }

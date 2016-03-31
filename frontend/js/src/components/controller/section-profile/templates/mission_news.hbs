@@ -12,6 +12,12 @@
             <!-- <a href="{{ wallpaper_pic }}" data-lightbox="{{ id }}"><img alt="{{title}}" class="sb-post-image sb-post-image-tall js-enlarge-post-image" src="{{ main_image }}"></a>
             --><a href="{{ url }}"><img alt="{{ title }}" class="sb-post-image js-enlarge-post-image" src="{{ wallpaper_pic }}"></a>
         </div>
-        <p>{{ summary }}</p>
+        <p>
+            {{#if about }}
+                {{about}}
+            {{else}}
+                A {{level}} level {{focus_on_type}} mission.
+            {{/if}}
+        </p>
     </div>
 </div>

@@ -1,7 +1,9 @@
 var missions = require('common/missions'),
     request = require('api').request,
     settings = require('settings').settings,
-    missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summary.hbs');
+    missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summary.hbs'),
+    questSummaryTemplate = require('controller/quest/quest-view/templates/quest_summary.hbs'),
+    profileSummaryTemplate = require('controller/section-profile/templates/profile_summary.hbs');
 
 export const meta = {
     controller: "mission/mission-view/endorsements",
@@ -54,15 +56,18 @@ export function load() {
                     } else {
                         data.results[i].title = missions.determineTitle(data.results[i]);
                     }
+                    data.results[i].static_url = settings.static_url;
+                    if(data.results[i].type === "profile") {
+                        $endorsmentContainer.append(profileSummaryTemplate(data.results[i]));
+                    } else if(data.results[i].type === "quest") {
+                        $endorsmentContainer.append(questSummaryTemplate(data.results[i]));
+                    } else {
+                        $endorsmentContainer.append(missionSummaryTemplate(data.results[i]));
+                    }
                 }
-                $endorsmentContainer.append(missionSummaryTemplate({
-                    missions: data.results,
-                    static_url: settings.static_url
-                }));
             }
         });
     }
-
 }
 
 /**

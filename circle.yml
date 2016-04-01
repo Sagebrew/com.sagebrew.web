@@ -51,6 +51,7 @@ dependencies:
     - python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
     - python ~/com.sagebrew.web/sagebrew/manage.py populate_indices
     - python ~/com.sagebrew.web/sagebrew/manage.py clear_neo_db
+    - python ~/com.sagebrew.web/sagebrew/manage.py populate_nltk
 
 checkout:
   post:

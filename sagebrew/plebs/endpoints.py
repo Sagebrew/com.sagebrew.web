@@ -252,7 +252,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                                context={'request': request})
         return self.get_paginated_response(serializer.data)
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticatedOrReadOnly,))
     def public(self, request, username=None):
         return get_public_content(self, username, request)
 
@@ -422,7 +423,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(serializer.data)
 
     @detail_route(methods=["GET"], serializer_class=MissionSerializer,
-                  permission_classes=(IsAuthenticated,))
+                  permission_classes=(IsAuthenticatedOrReadOnly,))
     def endorsed(self, request, username):
         query = 'MATCH (p:Pleb {username:"%s"})-' \
                 '[:ENDORSES]->(m:Mission) RETURN m' % username

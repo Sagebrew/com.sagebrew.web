@@ -45,14 +45,29 @@ class LoginRequiredMixin(View):
         return login_required(view)
 
 
-class ProfileView(LoginRequiredMixin):
+class PersonalProfileView(LoginRequiredMixin):
     template_name = 'profile_page.html'
 
     @method_decorator(user_passes_test(
         verify_completed_registration,
         login_url='/registration/profile_information'))
     def dispatch(self, *args, **kwargs):
-        return super(ProfileView, self).dispatch(*args, **kwargs)
+        return super(PersonalProfileView, self).dispatch(*args, **kwargs)
+
+    def get(self, request):
+        page_user_pleb = Pleb.get(username=request.user.username)
+        page_user = User.objects.get(username=request.user.username)
+
+        return render(request, self.template_name, {
+            'page_profile': PlebSerializerNeo(
+                page_user_pleb,
+                context={'expand': True, 'request': request}).data,
+            'page_user': page_user
+        })
+
+
+class ProfileView(View):
+    template_name = 'profile_page.html'
 
     def get(self, request, pleb_username=None):
         if pleb_username is None:
@@ -68,28 +83,13 @@ class ProfileView(LoginRequiredMixin):
             is_owner = True
         else:
             is_owner = False
-        query = 'MATCH (person:Pleb {username: "%s"})' \
-                '-[r:FRIENDS_WITH]->(p:Pleb {username: "%s"}) ' \
-                'RETURN CASE WHEN r.active = True THEN True ' \
-                'WHEN r.active = False THEN False ' \
-                'ELSE False END AS result' % (request.user.username,
-                                              page_user.username)
-        try:
-            res, _ = db.cypher_query(query)
-            are_friends = bool(res[0])
-        except(CypherException, ClientError):
-            return redirect("500_Error")
-        except IndexError:
-            are_friends = False
+
         return render(request, self.template_name, {
             'page_profile': PlebSerializerNeo(
                 page_user_pleb,
                 context={'expand': True, 'request': request}).data,
             'page_user': page_user,
-            'is_owner': is_owner,
-            'is_friend': are_friends,
-            'friend_request_sent': get_friend_requests_sent(
-                request.user.username, page_user.username)
+            'is_owner': is_owner
         })
 
 

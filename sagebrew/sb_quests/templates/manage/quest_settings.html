@@ -3,6 +3,7 @@
 {% block title %}Quest Settings{% endblock title %}
 
 {% block live %}
+    {% include "partials/image_upload_block.html" with title_text="Quest Wallpaper" save_button_text="Save Picture" %}
     <div class="block">
         <h3 class="block-title">
             General Settings
@@ -88,7 +89,7 @@
             </form>
         </div>
     </div>
-    {% include "partials/image_upload_block.html" with title_text="Quest Profile Picture" save_button_text="Save Profile Picture" %}
+
 {% endblock %}
 
 

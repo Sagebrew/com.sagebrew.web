@@ -361,6 +361,7 @@ export function setupImageUpload($app, $selector, $previewContainer, $submitButt
         add: function (e, data) {
             var img = new Image(),
                 allowSubmit = true;
+            window.URL = window.URL || window.webkitURL;
             $greyOut.removeClass("sb_hidden");
             $previewContainer.addClass('hidden');
             img.onload = function() {
@@ -373,11 +374,11 @@ export function setupImageUpload($app, $selector, $previewContainer, $submitButt
                     heightError = true;
                 }
                 if (widthError) {
-                    $.notify({message: "Your image is not wide enough, it must be at least " + imageMinWidth + " pixels wide"}, {type: "warning"});
+                    $.notify({message: "Your image is not wide enough, it must be at least " + imageMinWidth + " pixels wide"}, {type: "danger"});
                     allowSubmit = false;
                 }
                 if (heightError) {
-                    $.notify({message: "Your image is not tall enough, it must be at least " + imageMinHeight + " pixels tall"}, {type: "warning"});
+                    $.notify({message: "Your image is not tall enough, it must be at least " + imageMinHeight + " pixels tall"}, {type: "danger"});
                     allowSubmit = false;
                 }
                 window.URL.revokeObjectURL(img.src);

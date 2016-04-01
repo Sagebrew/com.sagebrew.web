@@ -4,16 +4,11 @@
     </h3>
     <div class="block-content">
         <form id="js-image-upload-form" method="post" action="{% url "upload-list" %}" enctype="multipart/form-data">
-            <a class="btn btn-primary sb_btn sb_btn_fill">Choose a file</a>
+            <a type="file" id='js-file-input-button' class="btn btn-primary sb_btn sb_btn_fill">Choose a file</a>
             <div id="drop" class="dropbox-area">
                 <span> or drag it here</span>
             </div>
-            <input type="file" class="hidden" name="file_object"/>
-
-            <ul>
-                <!-- The file uploads will be shown here -->
-            </ul>
-
+            <input type="file" id='js-file-input' class="hidden" name="file_object"/>
         </form>
         <div class="row">
             <img id="js-image-preview" src="" class="upload-image-preview hidden">

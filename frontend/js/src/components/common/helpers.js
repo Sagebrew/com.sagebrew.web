@@ -335,16 +335,23 @@ export function characterCountRemaining(characterLimit, $selector, $remainingSel
 /**
  * Setup a file upload area using jquery-file-upload
  */
-export function setupImageUpload($selector, $previewContainer, $submitButton, imageMinWidth, imageMinHeight){
+export function setupImageUpload($app, $selector, $previewContainer, $submitButton, imageMinWidth, imageMinHeight){
     var ul = $('#upload').children("ul"),
         dropArea = $("#drop"),
-        $greyOut = $("#sb-greyout-page");
+        $greyOut = $("#sb-greyout-page"),
+        $fileInputButton = $("#js-file-input-button"),
+        $fileInput = $("#js-file-input");
 
+    $app.on('click', '#js-file-input-button', function(event){
+        event.preventDefault();
+        $fileInput.click();
+    });
     dropArea.children("a").click(function(){
         // Simulate a click on the file input button
         // to show the file browser dialog
         $(this).parent().find('input').click();
     });
+
     $selector.fileupload({// This element will accept file drag/drop uploading
         dropZone: dropArea,
         imageMinWidth: imageMinWidth,
@@ -400,20 +407,4 @@ export function setupImageUpload($selector, $previewContainer, $submitButton, im
             $greyOut.addClass('sb_hidden');
         }
     });
-}
-
-function formatFileSize(bytes) {
-    if (typeof bytes !== 'number') {
-        return '';
-    }
-
-    if (bytes >= 1000000000) {
-        return (bytes / 1000000000).toFixed(2) + ' GB';
-    }
-
-    if (bytes >= 1000000) {
-        return (bytes / 1000000).toFixed(2) + ' MB';
-    }
-
-    return (bytes / 1000).toFixed(2) + ' KB';
 }

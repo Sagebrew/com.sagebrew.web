@@ -154,6 +154,8 @@ class UploadSerializer(SBSerializer):
             verify_hamming_distance(data['image_hash'],
                                     check_hamming.get('distance', 11),
                                     check_hamming.get('time_frame'))
+        data['file_format'] = file_format
+        data['file_size'] = file_size
         return data
 
     def validate_url(self, value):
@@ -180,7 +182,7 @@ class UploadSerializer(SBSerializer):
         return uploaded_object
 
     def update(self, instance, validated_data):
-        return None
+        return instance
 
     def get_is_portrait(self, instance):
         return instance.height > instance.width

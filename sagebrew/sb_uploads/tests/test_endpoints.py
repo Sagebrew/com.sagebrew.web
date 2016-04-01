@@ -2,6 +2,7 @@ from uuid import uuid1
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.conf import settings
 
 from neomodel import UniqueProperty
 
@@ -25,9 +26,15 @@ class UploadEndpointTests(APITestCase):
         self.url = "http://testserver"
         self.client.force_authenticate(user=self.user)
         self.uuid = str(uuid1())
-        with open("sb_posts/tests/images/test_image.jpg", 'rb') as image:
+        self.image_path = "%s/frontend/assets/images/" \
+                          "capitol_building.jpg" % settings.REPO_DIR
+        self.image_width = 2200
+        self.image_height = 600
+        self.file_size = 428455
+
+        with open(self.image_path, 'rb') as image:
             data = {"file": image}
-            url = reverse('upload-list') + "?object_uuid=" + self.uuid
+            url = reverse('upload-list') + "?random=" + self.uuid
             response = self.client.post(url, data, format='multipart')
             self.url = response.data['url']
             self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -78,18 +85,18 @@ class UploadEndpointTests(APITestCase):
     def test_create(self):
         self.client.force_authenticate(user=self.user)
         uuid = str(uuid1())
-        with open("sb_posts/tests/images/test_image.jpg", 'rb') as image:
+        with open(self.image_path, 'rb') as image:
             data = {"file": image}
-            url = reverse('upload-list') + "?object_uuid=" + uuid
+            url = reverse('upload-list') + "?random=" + uuid
             response = self.client.post(url, data, format='multipart')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_delete(self):
         self.client.force_authenticate(user=self.user)
         uuid = str(uuid1())
-        with open("sb_posts/tests/images/test_image.jpg", 'rb') as image:
+        with open(self.image_path, 'rb') as image:
             data = {"file": image}
-            url = reverse('upload-list') + "?object_uuid=" + uuid
+            url = reverse('upload-list') + "?random=" + uuid
             response = self.client.post(url, data, format='multipart')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -107,26 +114,26 @@ class UploadEndpointTests(APITestCase):
     def test_crop(self):
         self.client.force_authenticate(user=self.user)
         uuid = str(uuid1())
-        with open("sb_posts/tests/images/test_image.jpg", 'rb') as image:
+        with open(self.image_path, 'rb') as image:
             data = {"file": image}
             url = reverse('upload-list') + "?croppic=true&random=" + uuid
             response = self.client.post(url, data, format='multipart')
             self.assertEqual({"status": "success",
                               "url": response.data['url'],
-                              "width": 80,
-                              "height": 80},
+                              "width": self.image_width,
+                              "height": self.image_height},
                              response.data)
             self.assertEqual(response.status_code, status.HTTP_200_OK)
             uploaded_url = response.data['url']
         crop_url = reverse('upload-crop', kwargs={'object_uuid': uuid}) + \
             "?resize=true&croppic=true"
         crop_data = {
-            "crop_width": 40,
-            "crop_height": 40,
+            "crop_width": 200,
+            "crop_height": 200,
             "image_x1": 4,
             "image_y1": 4,
-            "resize_width": 100,
-            "resize_height": 100,
+            "resize_width": 300,
+            "resize_height": 300,
             "imgUrl": str(uploaded_url)
         }
         response = self.client.post(crop_url, crop_data, format='multipart')
@@ -140,13 +147,13 @@ class UploadEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('upload-detail', kwargs={"object_uuid": self.uuid})
         response = self.client.get(url, format='json')
-        self.assertEqual(80, response.data['height'])
+        self.assertEqual(self.image_height, response.data['height'])
 
     def test_get_width(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('upload-detail', kwargs={"object_uuid": self.uuid})
         response = self.client.get(url, format='json')
-        self.assertEqual(80, response.data['width'])
+        self.assertEqual(self.image_width, response.data['width'])
 
     def test_get_url(self):
         self.client.force_authenticate(user=self.user)
@@ -158,7 +165,7 @@ class UploadEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('upload-detail', kwargs={"object_uuid": self.uuid})
         response = self.client.get(url, format='json')
-        self.assertEqual(2560, response.data['file_size'])
+        self.assertEqual(self.file_size, response.data['file_size'])
 
     def test_get_file_format(self):
         self.client.force_authenticate(user=self.user)
@@ -374,7 +381,7 @@ class URLContentEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('urlcontent-list')
         data = {
-            "url": "http://example.com/"
+            "url": "http://%s.com/" % str(uuid1())
         }
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)

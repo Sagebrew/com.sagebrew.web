@@ -26,7 +26,7 @@ class TestCheckUnverifiedQuest(TestCase):
         self.user = User.objects.get(email=self.email)
         self.quest = Quest(owner_username=self.pleb.username,
                            object_uuid=str(uuid1())).save()
-        self.quest.owner.connect(self.quest)
+        self.quest.owner.connect(self.pleb)
         settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):

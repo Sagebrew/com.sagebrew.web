@@ -363,7 +363,7 @@ class QuestEndpointTests(APITestCase):
         response = self.client.put(url, data=data, format='json')
         self.assertEqual(response.status_code, 400)
 
-    def test_update_facebook(self):
+    def test_update_facebook_fail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
                       kwargs={'owner_username': self.quest.owner_username})
@@ -371,9 +371,20 @@ class QuestEndpointTests(APITestCase):
             "facebook": "this is an update"
         }
         response = self.client.put(url, data=data, format='json')
-        self.assertEqual(response.data['facebook'], data['facebook'])
+        self.assertIn('Enter a valid URL.', response.data['facebook'])
 
-    def test_update_linkedin(self):
+    def test_update_facebook_success(self):
+        new_url = "http://www.facebook.com/johnnyapple"
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "facebook": new_url
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(new_url, response.data['facebook'])
+
+    def test_update_linkedin_fail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
                       kwargs={'owner_username': self.quest.owner_username})
@@ -381,10 +392,20 @@ class QuestEndpointTests(APITestCase):
             "linkedin": "this is an update"
         }
         response = self.client.put(url, data=data, format='json')
+        self.assertIn('Enter a valid URL.', response.data['linkedin'])
 
-        self.assertEqual(response.data['linkedin'], data['linkedin'])
+    def test_update_linkedin_success(self):
+        new_url = "https://www.linkedin.com/in/devonbleibtrey"
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "linkedin": new_url
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(new_url, response.data['linkedin'])
 
-    def test_update_youtube(self):
+    def test_update_youtube_fail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
                       kwargs={'owner_username': self.quest.owner_username})
@@ -392,10 +413,20 @@ class QuestEndpointTests(APITestCase):
             "youtube": "this is an update"
         }
         response = self.client.put(url, data=data, format='json')
+        self.assertIn('Enter a valid URL.', response.data['youtube'])
 
-        self.assertEqual(response.data['youtube'], data['youtube'])
+    def test_update_youtube_success(self):
+        new_url = "https://www.youtube.com/channel/UCCvhBF5Vfw05GOLdUYFATiQ"
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "youtube": new_url
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(new_url, response.data['youtube'])
 
-    def test_update_twitter(self):
+    def test_update_twitter_fail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
                       kwargs={'owner_username': self.quest.owner_username})
@@ -403,10 +434,20 @@ class QuestEndpointTests(APITestCase):
             "twitter": "this is an update"
         }
         response = self.client.put(url, data=data, format='json')
+        self.assertIn('Enter a valid URL.', response.data['twitter'])
 
-        self.assertEqual(response.data['twitter'], data['twitter'])
+    def test_update_twitter_success(self):
+        new_url = "https://twitter.com/devonbleibtrey"
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "twitter": new_url
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(new_url, response.data['twitter'])
 
-    def test_update_website(self):
+    def test_update_website_fail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
                       kwargs={'owner_username': self.quest.owner_username})
@@ -414,8 +455,18 @@ class QuestEndpointTests(APITestCase):
             "website": "this is an update"
         }
         response = self.client.put(url, data=data, format='json')
+        self.assertIn('Enter a valid URL.', response.data['website'])
 
-        self.assertEqual(response.data['website'], "http://this is an update")
+    def test_update_website_success(self):
+        new_url = "https://www.sagebrew.com"
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "website": new_url
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(new_url, response.data['website'])
 
     def test_update_wallpaper_pic(self):
         self.client.force_authenticate(user=self.user)

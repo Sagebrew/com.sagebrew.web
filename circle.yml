@@ -2,6 +2,7 @@ machine:
   services:
     - rabbitmq-server
     - docker
+    - redis
 
 dependencies:
   cache_directories:

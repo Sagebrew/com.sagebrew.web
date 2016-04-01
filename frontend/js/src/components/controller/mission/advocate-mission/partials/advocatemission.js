@@ -164,7 +164,7 @@ export function load() {
         .on('keyup', '#advocate-input', function(){
             var $this = $(this);
             helpers.characterCountRemaining(advocateInputCharacterLimit, $this, advocateInputCharCount);
-            if ($this.val().length > 240) {
+            if ($this.val().length > advocateInputCharacterLimit) {
                 advocateInputWrapper.removeClass("has-success");
                 advocateInputWrapper.addClass("has-error");
             } else {

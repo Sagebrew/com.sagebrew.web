@@ -81,9 +81,9 @@ export function load() {
         if ($this.val().length <= 0) {
             startBtn.disabled = true;
 
-        } else if ($this.val().length > 240) {
+        } else if ($this.val().length > positionInputCharLimit) {
             startBtn.disabled = true;
-            positionInputWrapper.
+            positionInputWrapper.removeClass("has-success");
             positionInputWrapper.addClass("has-error");
         } else {
             positionInputWrapper.removeClass("has-error");

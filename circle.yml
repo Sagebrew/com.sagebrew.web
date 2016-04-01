@@ -10,6 +10,7 @@ dependencies:
     - DynamoDBLocal_lib
     - neo4j-community-2.2.2
     - virtualenvs
+    - /usr/share/nltk_data
 
   pre:
     - sudo apt-get update

@@ -67,26 +67,28 @@ class UploadViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         croppic = request.query_params.get('croppic', 'false').lower()
-
-        file_object = request.data.get('file_object', None)
-        if file_object is None:
-            file_object = request.data.get('file', None)
-        if file_object is None:
-            file_object = request.data.get('img', None)
-        serializer = self.get_serializer(
-            data={"file_object": file_object},
-            context={'request': request})
-        if serializer.is_valid():
-            owner = Pleb.get(request.user.username)
-            upload = serializer.save(owner=owner)
-            if croppic == 'true':
-                return Response({"status": "success",
-                                 "url": upload.url,
-                                 "width": upload.width,
-                                 "height": upload.height},
-                                status=status.HTTP_200_OK)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            file_object = request.data.get('file_object', None)
+            if file_object is None:
+                file_object = request.data.get('file', None)
+            if file_object is None:
+                file_object = request.data.get('img', None)
+            serializer = self.get_serializer(
+                data={"file_object": file_object},
+                context={'request': request})
+            if serializer.is_valid():
+                owner = Pleb.get(request.user.username)
+                upload = serializer.save(owner=owner)
+                if croppic == 'true':
+                    return Response({"status": "success",
+                                     "url": upload.url,
+                                     "width": upload.width,
+                                     "height": upload.height},
+                                    status=status.HTTP_200_OK)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response(e.message, status=status.HTTP_100_CONTINUE)
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     def crop(self, request, object_uuid=None):

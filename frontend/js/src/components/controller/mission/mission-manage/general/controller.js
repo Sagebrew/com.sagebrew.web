@@ -31,7 +31,10 @@ export function load() {
         $titleRemaining = $("#js-title-char-count"),
         $remaining = $("#js-about-char-count"),
         aboutCharLimit = 255,
-        titleCharLimit = 240;
+        titleCharLimit = 240,
+        $imageForm = $("#js-image-upload-form"),
+        $previewContainer = $('#js-image-preview'),
+        $saveProfilePicButton = $("#js-submit-profile-picture");
     validators.missionManageValidator(socialForm, aboutCharLimit);
     socialForm.garlic();
     helpers.characterCountRemaining(aboutCharLimit, $about, $remaining);
@@ -54,7 +57,19 @@ export function load() {
         })
         .on('keyup', '#title', function(){
             helpers.characterCountRemaining(titleCharLimit, $title, $titleRemaining);
+        })
+        .on('dragover', '#drop', function (event) {
+            event.preventDefault();
+        })
+        .on('click', '#js-submit-profile-picture', function(event) {
+            event.preventDefault();
+            request.patch({url: "/v1/missions/" + missionId + "/",
+                data: JSON.stringify({"wallpaper_pic": $previewContainer.attr('src')})
+            }).done(function (){
+                $.notify({message: "Successfully Updated Profile Picture"}, {type: "success"});
+            });
         });
+    helpers.setupImageUpload($imageForm, $previewContainer, $saveProfilePicButton, 600, 600);
 
 }
 

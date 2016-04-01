@@ -55,6 +55,9 @@ var config = {
         'js/vendor/foggy.min.js',
         'js/vendor/jquery.pagedown-bootstrap.combined.min.js',
         'js/vendor/sortable.min.js',
+        'js/vendor/fileupload/js/vendor/jquery.ui.widget.js',
+        'js/vendor/fileupload/js/jquery.iframe-transport.js',
+        'js/vendor/fileupload/js/jquery.fileupload.js',
 
 
         /**

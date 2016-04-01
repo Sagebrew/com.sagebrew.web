@@ -331,3 +331,89 @@ export function toTitleCase(str)
 export function characterCountRemaining(characterLimit, $selector, $remainingSelector) {
     $remainingSelector.text((characterLimit - $selector.val().length) + " Characters Remaining");
 }
+
+/**
+ * Setup a file upload area using jquery-file-upload
+ */
+export function setupImageUpload($selector, $previewContainer, $submitButton, imageMinWidth, imageMinHeight){
+    var ul = $('#upload').children("ul"),
+        dropArea = $("#drop"),
+        $greyOut = $("#sb-greyout-page");
+
+    dropArea.children("a").click(function(){
+        // Simulate a click on the file input button
+        // to show the file browser dialog
+        $(this).parent().find('input').click();
+    });
+    $selector.fileupload({// This element will accept file drag/drop uploading
+        dropZone: dropArea,
+        imageMinWidth: imageMinWidth,
+        imageMinHeight: imageMinHeight,
+        // This function is called when a file is added to the queue;
+        // either via the browse button, or via drag/drop:
+        add: function (e, data) {
+            var img = new Image(),
+                allowSubmit = true;
+            $greyOut.removeClass("sb_hidden");
+            $previewContainer.addClass('hidden');
+            img.onload = function() {
+                var widthError = false,
+                    heightError = false;
+                if (img.naturalWidth < imageMinWidth) {
+                    widthError = true;
+                }
+                if (img.naturalHeight < imageMinHeight) {
+                    heightError = true;
+                }
+                if (widthError) {
+                    $.notify({message: "Your image is not wide enough, it must be at least " + imageMinWidth + " pixels wide"}, {type: "warning"});
+                    allowSubmit = false;
+                }
+                if (heightError) {
+                    $.notify({message: "Your image is not tall enough, it must be at least " + imageMinHeight + " pixels tall"}, {type: "warning"});
+                    allowSubmit = false;
+                }
+                window.URL.revokeObjectURL(img.src);
+                if (allowSubmit) {
+                    data.submit();
+                } else {
+                    $submitButton.addClass('disabled');
+                    $submitButton.prop('disabled', true);
+                    $greyOut.addClass('sb_hidden');
+                }
+            };
+            img.src = window.URL.createObjectURL(data.files[0]);
+            // Automatically upload the file once it is added to the queue
+
+        },
+        done: function(e, data) {
+            $previewContainer.attr('src', data._response.result.url);
+            $previewContainer.removeClass('hidden');
+            $submitButton.removeClass('disabled');
+            $submitButton.prop('disabled', false);
+            $greyOut.addClass('sb_hidden');
+            dropArea.hide();
+        },
+        fail: function(e, data){
+            // Something has gone wrong!
+            data.context.addClass('error');
+            $greyOut.addClass('sb_hidden');
+        }
+    });
+}
+
+function formatFileSize(bytes) {
+    if (typeof bytes !== 'number') {
+        return '';
+    }
+
+    if (bytes >= 1000000000) {
+        return (bytes / 1000000000).toFixed(2) + ' GB';
+    }
+
+    if (bytes >= 1000000) {
+        return (bytes / 1000000).toFixed(2) + ' MB';
+    }
+
+    return (bytes / 1000).toFixed(2) + ' KB';
+}

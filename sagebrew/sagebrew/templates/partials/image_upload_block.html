@@ -1,0 +1,31 @@
+<div class="block">
+    <h3 class="block-title">
+        {{ title_text }}
+    </h3>
+    <div class="block-content">
+        <form id="js-image-upload-form" method="post" action="{% url "upload-list" %}" enctype="multipart/form-data">
+            <a class="btn btn-primary sb_btn sb_btn_fill">Choose a file</a>
+            <div id="drop" class="dropbox-area">
+                <span> or drag it here</span>
+            </div>
+            <input type="file" class="hidden" name="file_object"/>
+
+            <ul>
+                <!-- The file uploads will be shown here -->
+            </ul>
+
+        </form>
+        <div class="row">
+            <img id="js-image-preview" src="" class="upload-image-preview hidden">
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-4 col-md-6">
+                <small>Images must be at least 600x600 pixels</small>
+                <button class="btn btn-primary sb_btn sb_btn_fill disabled" id="js-submit-profile-picture" disabled>{{ save_button_text }}</button>
+            </div>
+        </div>
+
+    </div>
+</div>

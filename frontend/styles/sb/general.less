@@ -2159,6 +2159,32 @@ textarea.sb_comment_input{
   resize: vertical;
 }
 
+.upload-image-preview{
+  @media only screen and (max-width: 480px){
+    max-width: 200px;
+    max-height: 200px;
+  }
+  @media only screen and (min-width: 480px){
+    max-width: 800px;
+    max-height: 800px;
+  }
+  margin-left: 15px;
+}
+
+.dropbox-area{
+  height: 400px;
+  width: 100%;
+  outline: 2px dashed @sb_grey;
+  outline-offset: -10px;
+  display: table;
+  text-align: center;
+
+  span{
+    display: table-cell;
+    vertical-align: middle;
+  }
+}
+
 // Used in JS
 .additional-comments{
   font-size: 13px;

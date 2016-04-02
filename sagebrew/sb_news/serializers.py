@@ -28,7 +28,7 @@ class NewsArticleSerializer(VotableContentSerializer):
     site_section = serializers.CharField(required=False, allow_blank=True)
     section_title = serializers.CharField(required=False, allow_blank=True)
     title = serializers.CharField()
-    title_full = serializers.CharField()
+    title_full = serializers.CharField(required=False)
     highlight_title = serializers.CharField(allow_blank=True, required=False)
     highlight_text = serializers.CharField(allow_blank=True, required=False)
     language = serializers.ChoiceField(choices=settings.LANGUAGES)

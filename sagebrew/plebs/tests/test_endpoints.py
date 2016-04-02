@@ -1,3 +1,4 @@
+import pytz
 import time
 import stripe
 import shortuuid
@@ -26,8 +27,10 @@ from sb_quests.neo_models import Position, Quest
 from sb_updates.neo_models import Update
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
+from sb_news.neo_models import NewsArticle
 from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
+from sb_tags.neo_models import Tag
 from sb_posts.neo_models import Post
 from sb_solutions.neo_models import Solution
 from sb_donations.neo_models import Donation
@@ -1215,6 +1218,33 @@ class ProfileContentMethodTests(APITestCase):
             'username': self.pleb.username})
         response = self.client.get(url, format='json')
 
+        self.assertGreater(response.data['count'], 0)
+
+    def test_get_pleb_question_public_unauthed(self):
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        url = reverse('profile-public', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        question.owned_by.disconnect(self.pleb)
+        question.delete()
+        self.assertGreater(response.data['count'], 0)
+
+    def test_get_pleb_question_public_authed(self):
+        self.client.force_authenticate(user=self.user)
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        url = reverse('profile-public', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        question.owned_by.disconnect(self.pleb)
+        question.delete()
         self.assertGreater(response.data['count'], 0)
 
     def test_get_pleb_public_content_invalid_query(self):
@@ -2710,6 +2740,81 @@ class NewsfeedTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['profile'],
                          self.pleb.username)
+
+    def test_get_news(self):
+        self.client.force_authenticate(user=self.user)
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        content = str(uuid1())
+        news = NewsArticle(
+            content=content, external_id=str(uuid1()),
+            owner_username=self.pleb.username,
+            url="http://www.sagebrew.com", title=str(uuid1()),
+            site_full="http://www.sagebrew.com", language="en",
+            published=datetime.now(pytz.utc), country="US",
+            spam_score=0.0, image="https://dr2ldscuzcleg.cloudfront.net/"
+                                  "static/images/capitol_building.jpg"
+                                  "?v=b82f419d09d88c7695713ac1247f9328ca1a5c33",
+            performance_score=10, crawled=datetime.now(pytz.utc),
+        ).save()
+        content2 = str(uuid1())
+        news2 = NewsArticle(
+            content=content2, external_id=str(uuid1()),
+            owner_username=self.pleb.username,
+            url="http://www.sagebrew.com", title=str(uuid1()),
+            site_full="http://www.sagebrew.com", language="en",
+            published=datetime.now(pytz.utc), country="US",
+            spam_score=0.0, image="https://dr2ldscuzcleg.cloudfront.net/"
+                                  "static/images/capitol_building.jpg"
+                                  "?v=b82f419d09d88c7695713ac1247f9328ca1a5c33",
+            performance_score=10, crawled=datetime.now(pytz.utc),
+        ).save()
+        tag = Tag(name=content).save()
+        self.pleb.interests.connect(tag)
+        news.tags.connect(tag)
+        news2.tags.connect(tag)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.pleb.interestes.disconnect(tag)
+        news.tags.disconnect(tag)
+        news2.tags.disconnect(tag)
+        news.delete()
+        news2.delete()
+        self.assertEqual(response.data['count'], 2)
+
+    def test_get_news_content(self):
+        self.client.force_authenticate(user=self.user)
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        content = str(uuid1())
+        news = NewsArticle(
+            content=content, external_id=str(uuid1()),
+            owner_username=self.pleb.username,
+            url="http://www.sagebrew.com", title=str(uuid1()),
+            site_full="http://www.sagebrew.com", language="en",
+            published=datetime.now(pytz.utc), country="US",
+            spam_score=0.0, image="https://dr2ldscuzcleg.cloudfront.net/"
+                                  "static/images/capitol_building.jpg"
+                                  "?v=b82f419d09d88c7695713ac1247f9328ca1a5c33",
+            performance_score=10, crawled=datetime.now(pytz.utc),
+        ).save()
+        tag = Tag(name=content).save()
+        self.pleb.interests.connect(tag)
+        news.tags.connect(tag)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.pleb.interests.connect(tag)
+        news.tags.connect(tag)
+        news.delete()
+        self.assertEqual(response.data['results'][0]['content'], content)
 
     def test_get_missions(self):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \

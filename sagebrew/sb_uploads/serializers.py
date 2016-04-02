@@ -13,9 +13,10 @@ from django.conf import settings
 from rest_framework import serializers, status
 from rest_framework.exceptions import ValidationError
 
-from neomodel import DoesNotExist, UniqueProperty, db
+from neomodel import DoesNotExist, db
 
 from api.serializers import SBSerializer
+from api.utils import clean_url
 
 from .utils import (parse_page_html, get_image_data, thumbnail_image,
                     check_sagebrew_url, hamming_distance)
@@ -154,6 +155,8 @@ class UploadSerializer(SBSerializer):
             verify_hamming_distance(data['image_hash'],
                                     check_hamming.get('distance', 11),
                                     check_hamming.get('time_frame'))
+        data['file_format'] = file_format
+        data['file_size'] = file_size
         return data
 
     def validate_url(self, value):
@@ -180,7 +183,7 @@ class UploadSerializer(SBSerializer):
         return uploaded_object
 
     def update(self, instance, validated_data):
-        return None
+        return instance
 
     def get_is_portrait(self, instance):
         return instance.height > instance.width
@@ -230,53 +233,35 @@ class URLContentSerializer(SBSerializer):
     is_portrait = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        owner = validated_data.pop('owner')
+        owner = validated_data.pop('owner', None)
         if hasattr(owner, 'username'):
             validated_data['owner_username'] = owner.username
-        new_url = validated_data['url']
-        if 'http' not in validated_data['url']:
-            new_url = "http://" + validated_data['url']
+        new_url = clean_url(validated_data['url'])
         try:
-            return URLContent.nodes.get(url=validated_data['url'])
+            return URLContent.nodes.get(url=new_url)
         except (URLContent.DoesNotExist, DoesNotExist):
-            try:
-                return URLContent.nodes.get(url=new_url)
-            except (URLContent.DoesNotExist, DoesNotExist):
-                pass
-        if any(validated_data['url'] in s for s in settings.EXPLICIT_SITES):
+            pass
+        if any(s in new_url for s in settings.EXPLICIT_SITES):
             validated_data['is_explicit'] = True
         try:
             response = requests.get(new_url,
                                     headers={'content-type': 'html/text'},
-                                    timeout=5)
+                                    timeout=5, verify=False)
         except requests.Timeout:
             return URLContent(url=new_url).save()
         except requests.ConnectionError:
-            try:
-                response = requests.get("http://www." + validated_data['url'],
-                                        headers={"content-type": "html/text"},
-                                        timeout=5)
-            except requests.ConnectionError:
-                return URLContent(url=new_url).save()
+            return URLContent(url=new_url).save()
         if response.status_code != status.HTTP_200_OK:
             return URLContent(url=new_url).save()
         soupified = BeautifulSoup(response.text, 'html.parser')
         title, description, image, width, height = \
-            parse_page_html(
-                soupified, validated_data['url'],
-                response.headers.get('Content-Type', 'html/text'))
-        try:
-            url_content = URLContent(selected_image=image, title=title,
-                                     description=description,
-                                     image_width=width, image_height=height,
-                                     **validated_data).save()
-        except UniqueProperty:
-            return URLContent.nodes.get(url=validated_data['url'])
+            parse_page_html(soupified, new_url,
+                            response.headers.get('Content-Type', 'html/text'))
+        url_content = URLContent(selected_image=image, title=title,
+                                 description=description,
+                                 image_width=width, image_height=height,
+                                 **validated_data).save()
 
-        # TODO determine if this is necessary
-        # spawn_task(task_func=create_url_content_summary_task, task_param={
-        #    'object_uuid': url_content.object_uuid
-        # })
         url_content.owned_by.connect(owner)
         owner.url_content.connect(url_content)
         return url_content

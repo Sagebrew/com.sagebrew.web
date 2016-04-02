@@ -1,5 +1,4 @@
 from uuid import uuid1
-import time
 from dateutil import parser
 
 from django.utils.text import slugify
@@ -14,7 +13,6 @@ from rest_framework.test import APITestCase
 from neomodel.exception import DoesNotExist
 from neomodel import db
 
-from plebs.neo_models import Pleb
 from sb_privileges.neo_models import Privilege
 from sb_tags.neo_models import Tag
 from sb_questions.neo_models import Question
@@ -28,10 +26,7 @@ class QuestionEndpointTests(APITestCase):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
         self.email2 = "bounces@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.pleb2 = create_user_util_test(self.email2)
         self.title = str(uuid1())
         self.question = Question(content="Hey I'm a question",
@@ -707,16 +702,6 @@ class QuestionEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual('test_test', response.data['profile']['username'])
 
-    def test_get_profile_hyperlinked(self):
-        self.client.force_authenticate(user=self.user)
-        url = "%s?relations=hyperlink" % \
-              reverse('question-detail',
-                      kwargs={'object_uuid': self.question.object_uuid})
-        response = self.client.get(url, format='json')
-        self.assertIn(reverse('profile-detail',
-                              kwargs={"username": self.pleb.username}),
-                      response.data['profile'])
-
     def test_get_solutions_expedited(self):
         self.client.force_authenticate(user=self.user)
         url = "%s?expedite=true" % reverse(
@@ -747,24 +732,6 @@ class QuestionEndpointTests(APITestCase):
         solution.delete()
         self.assertEqual(len(response.data['solutions']), 1)
         self.assertEqual(response.data['solutions'][0]['object_uuid'],
-                         solution.object_uuid)
-
-    def test_get_solutions_hyperlinked(self):
-        self.client.force_authenticate(user=self.user)
-        url = "%s?relations=hyperlinked" % reverse(
-            'question-detail',
-            kwargs={'object_uuid': self.question.object_uuid})
-        solution = Solution(content='this is fake content',
-                            owner_username=self.pleb.username,
-                            parent_id=self.question.object_uuid).save()
-        solution.owned_by.connect(self.pleb)
-        self.question.solutions.connect(solution)
-        response = self.client.get(url, format='json')
-        self.question.solutions.disconnect(solution)
-        solution.delete()
-        self.assertEqual(len(response.data['solutions']), 1)
-        self.assertEqual(response.data['solutions'][0],
-                         'http://testserver/v1/solutions/%s/' %
                          solution.object_uuid)
 
     def test_get_view_count(self):
@@ -961,10 +928,7 @@ class SBBaseSerializerTests(APITestCase):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
         self.email2 = "bounces@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.pleb2 = create_user_util_test(self.email2)
         self.title = str(uuid1())
         self.question = Question(content="Hey I'm a question",

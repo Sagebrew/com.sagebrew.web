@@ -1,4 +1,3 @@
-import time
 from uuid import uuid1
 
 from django.contrib.auth.models import User
@@ -44,10 +43,7 @@ class TestGetQuestionView(APITestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.first_name = 'Tyler'
         self.pleb.last_name = 'Wiersing'
@@ -70,10 +66,7 @@ class TestGetQuestionListView(APITestCase):
     def setUp(self):
         cache.clear()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.first_name = 'Tyler'
         self.pleb.last_name = 'Wiersing'
@@ -107,10 +100,7 @@ class TestSingleQuestionPage(APITestCase):
     def setUp(self):
         cache.clear()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.first_name = 'Tyler'
         self.pleb.last_name = 'Wiersing'

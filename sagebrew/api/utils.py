@@ -200,7 +200,9 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
     try:
         return task_func.apply_async(kwargs=task_param, countdown=countdown,
                                      task_id=task_id)
-    except (IOError, Exception) as e:
+    except (IOError, Exception) as e:  # pragma: no cover
+        # Not requiring coverage because this requires a hardware failure to
+        # test or a system going out.  - Devon Bleibtrey
         failure_uuid = str(uuid1())
         failure_dict = {
             'action': 'failed_task',
@@ -314,7 +316,7 @@ def generate_csv_html_file_response(name, list_data, keys):
 
 
 def deprecation(message):
-    warnings.warn(message, DeprecationWarning, stacklevel=2)
+    warnings.warn(message, DeprecationWarning, stacklevel=2)  # pragma: no cover
 
 
 def calc_stripe_application_fee(amount, quest_application_fee,

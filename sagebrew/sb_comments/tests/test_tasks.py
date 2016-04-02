@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 
 from rest_framework import status
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 from sb_notifications.neo_models import Notification
@@ -20,22 +19,18 @@ from sb_comments.tasks import spawn_comment_notifications
 class TestSpawnCommentNotifications(TestCase):
 
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.api_endpoint = "http://testserver/v1"
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.question = Question(title=str(uuid1())).save()
         self.comment = Comment(
             owner_username=self.pleb.username,
             url="%s/questions/%s/" %
                 (self.api_endpoint, self.question.object_uuid)).save()
-        settings.CELERY_ALWAYS_EAGER = True
         self.email2 = "bounce@simulator.amazonses.com"
-        create_user_util_test(self.email2)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False

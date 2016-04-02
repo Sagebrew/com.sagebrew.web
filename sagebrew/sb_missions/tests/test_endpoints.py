@@ -28,7 +28,7 @@ from sb_quests.neo_models import Quest
 class MissionEndpointTests(APITestCase):
 
     def setUp(self):
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"
@@ -565,11 +565,12 @@ class MissionEndpointTests(APITestCase):
         self.quest.missions.connect(mission)
         data = {
             "epic": "This is my epic",
-            "facebook": str(uuid1()),
-            "linkedin": str(uuid1()),
-            "youtube": str(uuid1()),
-            "twitter": str(uuid1()),
-            "website": str(uuid1()),
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "about": str(uuid1())
         }
         url = reverse('mission-detail',
@@ -577,8 +578,6 @@ class MissionEndpointTests(APITestCase):
         response = self.client.patch(url, data=data, format='json')
         mission = Mission.nodes.get(object_uuid=response.data['id'])
         self.assertEqual(mission.facebook, data['facebook'])
-        self.assertContains(response, data['epic'],
-                            status_code=status.HTTP_200_OK)
 
     def test_update_take_active(self):
         self.client.force_authenticate(user=self.user)
@@ -586,20 +585,12 @@ class MissionEndpointTests(APITestCase):
                           owner_username=self.pleb.username).save()
         self.quest.missions.connect(mission)
         data = {
-            "epic": "This is my epic",
-            "facebook": str(uuid1()),
-            "linkedin": str(uuid1()),
-            "youtube": str(uuid1()),
-            "twitter": str(uuid1()),
-            "website": str(uuid1()),
             "active": True,
-            "about": "     "
         }
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data=data, format='json')
-        self.assertContains(response, data['epic'],
-                            status_code=status.HTTP_200_OK)
+        self.assertTrue(response.data['active'])
         mission.refresh()
         self.assertTrue(mission.active)
 
@@ -610,19 +601,12 @@ class MissionEndpointTests(APITestCase):
                           active=True).save()
         self.quest.missions.connect(mission)
         data = {
-            "epic": "This is my epic",
-            "facebook": str(uuid1()),
-            "linkedin": str(uuid1()),
-            "youtube": str(uuid1()),
-            "twitter": str(uuid1()),
-            "website": str(uuid1()),
             "active": False
         }
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data=data, format='json')
-        self.assertContains(response, data['epic'],
-                            status_code=status.HTTP_200_OK)
+        self.assertFalse(response.data['active'])
         mission.refresh()
         self.assertFalse(mission.active)
 
@@ -634,11 +618,12 @@ class MissionEndpointTests(APITestCase):
         self.quest.missions.connect(mission)
         data = {
             "epic": "This is my epic",
-            "facebook": str(uuid1()),
-            "linkedin": str(uuid1()),
-            "youtube": str(uuid1()),
-            "twitter": str(uuid1()),
-            "website": "https://sagebrew.com/",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "active": False
         }
         url = reverse('mission-detail',

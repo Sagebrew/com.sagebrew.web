@@ -1,3 +1,4 @@
+import pytz
 import time
 import stripe
 import shortuuid
@@ -17,18 +18,19 @@ from neomodel import db, DoesNotExist
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from api.utils import wait_util
 from sagebrew import errors
 from sb_public_official.neo_models import PublicOfficial
-from plebs.neo_models import (Pleb, FriendRequest, Address, BetaUser,
+from plebs.neo_models import (Pleb, FriendRequest, Address,
                               PoliticalParty, ActivityInterest)
 from sb_privileges.neo_models import Privilege, SBAction
 from sb_quests.neo_models import Position, Quest
 from sb_updates.neo_models import Update
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
+from sb_news.neo_models import NewsArticle
 from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
+from sb_tags.neo_models import Tag
 from sb_posts.neo_models import Post
 from sb_solutions.neo_models import Solution
 from sb_donations.neo_models import Donation
@@ -259,7 +261,7 @@ class MeEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,
@@ -1216,6 +1218,33 @@ class ProfileContentMethodTests(APITestCase):
             'username': self.pleb.username})
         response = self.client.get(url, format='json')
 
+        self.assertGreater(response.data['count'], 0)
+
+    def test_get_pleb_question_public_unauthed(self):
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        url = reverse('profile-public', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        question.owned_by.disconnect(self.pleb)
+        question.delete()
+        self.assertGreater(response.data['count'], 0)
+
+    def test_get_pleb_question_public_authed(self):
+        self.client.force_authenticate(user=self.user)
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        url = reverse('profile-public', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        question.owned_by.disconnect(self.pleb)
+        question.delete()
         self.assertGreater(response.data['count'], 0)
 
     def test_get_pleb_public_content_invalid_query(self):
@@ -2453,104 +2482,6 @@ class ReputationMethodEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
-class BetaUserMethodEndpointTests(APITestCase):
-
-    def setUp(self):
-        self.unit_under_test_name = 'is_beta_user'
-        self.email = "success@simulator.amazonses.com"
-        self.pleb = create_user_util_test(self.email)
-        self.user = User.objects.get(email=self.email)
-        self.url = "http://testserver"
-
-    def test_unauthorized(self):
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        data = {}
-        response = self.client.post(url, data, format='json')
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
-                                             status.HTTP_403_FORBIDDEN])
-
-    def test_missing_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        data = {'this': ['This field is required.']}
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_save_int_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.post(url, 98897965, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_save_string_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.post(url, 'asfonosdnf', format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_save_list_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.post(url, [], format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_save_float_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.post(url, 1.010101010, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_delete(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.delete(url, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_get_is_beta_user_default(self):
-        self.client.force_authenticate(user=self.user)
-        cache.clear()
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.get(url, format='json')
-        self.assertFalse(response.data['is_beta_user'])
-
-    def test_get_is_beta_user_true(self):
-        self.client.force_authenticate(user=self.user)
-        try:
-            beta_user = BetaUser.nodes.get(email=self.email)
-        except DoesNotExist:
-            beta_user = BetaUser(email=self.email, invited=True).save()
-        self.pleb.beta_user.connect(beta_user)
-        self.pleb.save()
-        cache.clear()
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.get(url, format='json')
-        self.pleb.beta_user.disconnect(beta_user)
-        self.pleb.save()
-        self.assertTrue(response.data['is_beta_user'])
-
-    def test_get_is_beta_user_status(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-
 class NewsfeedTests(APITestCase):
 
     def setUp(self):
@@ -2642,7 +2573,7 @@ class NewsfeedTests(APITestCase):
                          'Method "DELETE" not allowed.')
 
     def test_get_count(self):
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
@@ -2711,6 +2642,81 @@ class NewsfeedTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'][0]['profile'],
                          self.pleb.username)
+
+    def test_get_news(self):
+        self.client.force_authenticate(user=self.user)
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        content = str(uuid1())
+        news = NewsArticle(
+            content=content, external_id=str(uuid1()),
+            owner_username=self.pleb.username,
+            url="http://www.sagebrew.com", title=str(uuid1()),
+            site_full="http://www.sagebrew.com", language="en",
+            published=datetime.now(pytz.utc), country="US",
+            spam_score=0.0, image="https://dr2ldscuzcleg.cloudfront.net/"
+                                  "static/images/capitol_building.jpg"
+                                  "?v=b82f419d09d88c7695713ac1247f9328ca1a5c33",
+            performance_score=10, crawled=datetime.now(pytz.utc),
+        ).save()
+        content2 = str(uuid1())
+        news2 = NewsArticle(
+            content=content2, external_id=str(uuid1()),
+            owner_username=self.pleb.username,
+            url="http://www.sagebrew.com", title=str(uuid1()),
+            site_full="http://www.sagebrew.com", language="en",
+            published=datetime.now(pytz.utc), country="US",
+            spam_score=0.0, image="https://dr2ldscuzcleg.cloudfront.net/"
+                                  "static/images/capitol_building.jpg"
+                                  "?v=b82f419d09d88c7695713ac1247f9328ca1a5c33",
+            performance_score=10, crawled=datetime.now(pytz.utc),
+        ).save()
+        tag = Tag(name=content).save()
+        self.pleb.interests.connect(tag)
+        news.tags.connect(tag)
+        news2.tags.connect(tag)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.pleb.interests.disconnect(tag)
+        news.tags.disconnect(tag)
+        news2.tags.disconnect(tag)
+        news.delete()
+        news2.delete()
+        self.assertEqual(response.data['count'], 2)
+
+    def test_get_news_content(self):
+        self.client.force_authenticate(user=self.user)
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        query = "MATCH (n:Quest) OPTIONAL MATCH " \
+                "(n:Quest)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        content = str(uuid1())
+        news = NewsArticle(
+            content=content, external_id=str(uuid1()),
+            owner_username=self.pleb.username,
+            url="http://www.sagebrew.com", title=str(uuid1()),
+            site_full="http://www.sagebrew.com", language="en",
+            published=datetime.now(pytz.utc), country="US",
+            spam_score=0.0, image="https://dr2ldscuzcleg.cloudfront.net/"
+                                  "static/images/capitol_building.jpg"
+                                  "?v=b82f419d09d88c7695713ac1247f9328ca1a5c33",
+            performance_score=10, crawled=datetime.now(pytz.utc),
+        ).save()
+        tag = Tag(name=content).save()
+        self.pleb.interests.connect(tag)
+        news.tags.connect(tag)
+        url = reverse('me-newsfeed')
+        response = self.client.get(url, format='json')
+        self.pleb.interests.connect(tag)
+        news.tags.connect(tag)
+        news.delete()
+        self.assertEqual(response.data['results'][0]['content'], content)
 
     def test_get_missions(self):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
@@ -3083,26 +3089,6 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['results'][1]['type'], 'question')
         self.assertEqual(response.data['results'][2]['type'], 'post')
 
-    def test_get_news(self):
-        content = 'this is fake content'
-        question = Question(
-            title=str(uuid1()),
-            content="This is the content for my question.",
-            owner_username=self.pleb.username).save()
-        question.owned_by.connect(self.pleb)
-
-        solution = Solution(content=content,
-                            owner_username=self.pleb.username,
-                            parent_id=question.object_uuid).save()
-        solution.owned_by.connect(self.pleb)
-        question.solutions.connect(solution)
-
-        self.client.force_authenticate(user=self.user)
-        url = reverse('me-newsfeed')
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.data['results'][0]['profile'],
-                         self.pleb.username)
-
 
 class TestFollowNewsfeed(APITestCase):
 
@@ -3110,17 +3096,11 @@ class TestFollowNewsfeed(APITestCase):
         cache.clear()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
         self.pleb.following.connect(self.pleb2)
         self.question = Question(
@@ -3162,11 +3142,8 @@ class TestFollowEndpoints(APITestCase):
         cache.clear()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         self.pleb2 = Pleb(username=shortuuid.uuid()).save()
 
@@ -3265,16 +3242,10 @@ class TestAcceptFriendRequest(APITestCase):
         res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
 
     def test_unauthorized(self):
@@ -3360,16 +3331,10 @@ class TestDeclineFriendRequest(APITestCase):
         res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
 
     def test_unauthorized(self):
@@ -3455,16 +3420,10 @@ class TestBlockFriendRequest(APITestCase):
         res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
 
     def test_unauthorized(self):
@@ -3549,11 +3508,8 @@ class ProfileMissionsTests(APITestCase):
         cache.clear()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",
@@ -3620,7 +3576,11 @@ class PublicDataTests(APITestCase):
             time.sleep(.1)
         self.pleb = res['pleb']
         self.user = res['user']
-        self.pleb2 = create_user_util_test(self.email2)
+        res = create_user_util_test(self.email2, task=True)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb2 = res['pleb']
+        self.user2 = res['user']
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",
@@ -3701,7 +3661,7 @@ class PublicDataTests(APITestCase):
                          'Method "DELETE" not allowed.')
 
     def test_get_count(self):
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-public')

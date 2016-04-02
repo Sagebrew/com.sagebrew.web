@@ -247,7 +247,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         if expedite == "true":
             return []
         solutions = []
-        if expand == "true" and relations != "hyperlinked":
+        if expand == "true" and relations != "hyperlink":
             query = 'MATCH (a:Question {object_uuid: "%s"})' \
                 '-[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
                 'WHERE solutions.to_be_deleted = false ' \
@@ -257,7 +257,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
                 [Solution.inflate(row[0]) for row in res], many=True,
                 context={"request": request, "expand_param": expand_param}).data
         else:
-            if relations == "hyperlinked":
+            if relations == "hyperlink":
                 solutions = [
                     reverse('solution-detail',
                             kwargs={'object_uuid': solution_uuid},

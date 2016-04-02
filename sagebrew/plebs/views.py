@@ -2,16 +2,14 @@ from uuid import uuid1
 
 from django.template.loader import render_to_string
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.views.generic import View
 
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework import status
 
 from py2neo.cypher import ClientError
@@ -19,15 +17,13 @@ from py2neo.cypher import ClientError
 from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task
-from plebs.neo_models import (Pleb, BetaUser, Address,
-                              get_friend_requests_sent)
-from sb_registration.utils import (verify_completed_registration)
+from plebs.neo_models import (Pleb, Address)
 
 
 from .serializers import PlebSerializerNeo
 from .tasks import create_friend_request_task, send_email_task
 from .forms import (SubmitFriendRequestForm)
-from .serializers import BetaUserSerializer, AddressSerializer
+from .serializers import AddressSerializer
 
 
 def root_profile_page(request):
@@ -45,14 +41,20 @@ class LoginRequiredMixin(View):
         return login_required(view)
 
 
-class ProfileView(LoginRequiredMixin):
+class PersonalProfileView(LoginRequiredMixin):
     template_name = 'profile_page.html'
 
-    @method_decorator(user_passes_test(
-        verify_completed_registration,
-        login_url='/registration/profile_information'))
-    def dispatch(self, *args, **kwargs):
-        return super(ProfileView, self).dispatch(*args, **kwargs)
+    def get(self, request):
+        return render(request, self.template_name, {
+            'page_profile': PlebSerializerNeo(
+                Pleb.get(username=request.user.username),
+                context={'expand': True, 'request': request}).data,
+            'page_user': User.objects.get(username=request.user.username)
+        })
+
+
+class ProfileView(View):
+    template_name = 'profile_page.html'
 
     def get(self, request, pleb_username=None):
         if pleb_username is None:
@@ -68,34 +70,17 @@ class ProfileView(LoginRequiredMixin):
             is_owner = True
         else:
             is_owner = False
-        query = 'MATCH (person:Pleb {username: "%s"})' \
-                '-[r:FRIENDS_WITH]->(p:Pleb {username: "%s"}) ' \
-                'RETURN CASE WHEN r.active = True THEN True ' \
-                'WHEN r.active = False THEN False ' \
-                'ELSE False END AS result' % (request.user.username,
-                                              page_user.username)
-        try:
-            res, _ = db.cypher_query(query)
-            are_friends = bool(res[0])
-        except(CypherException, ClientError):
-            return redirect("500_Error")
-        except IndexError:
-            are_friends = False
+
         return render(request, self.template_name, {
             'page_profile': PlebSerializerNeo(
                 page_user_pleb,
                 context={'expand': True, 'request': request}).data,
             'page_user': page_user,
-            'is_owner': is_owner,
-            'is_friend': are_friends,
-            'friend_request_sent': get_friend_requests_sent(
-                request.user.username, page_user.username)
+            'is_owner': is_owner
         })
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def general_settings(request):
     """
     Displays the users profile_page. This is where we call the functions to
@@ -128,8 +113,6 @@ def general_settings(request):
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def delete_account(request):
     """
     Delete account page.
@@ -138,8 +121,6 @@ def delete_account(request):
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def contribute_settings(request):
     """
     This view provides the necessary information for rendering a user's
@@ -180,22 +161,6 @@ def deactivate_user(request):
     return Response({"detail": "successfully deactivated user"}, 200)
 
 
-@api_view(['GET'])
-@permission_classes((IsAuthenticated, IsAdminUser))
-def invite_beta_user(request, email):
-    try:
-        beta_user = BetaUser.nodes.get(email=email)
-        beta_user.invite()
-    except (BetaUser.DoesNotExist, DoesNotExist):
-        return Response({"detail": "Sorry we could not find that user."},
-                        status=status.HTTP_404_NOT_FOUND)
-    except (IOError, CypherException, ClientError):
-        return Response({"detail": "Sorry looks like we're having"
-                                   " some server difficulties"},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response({"detail": None}, status=status.HTTP_200_OK)
-
-
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def create_friend_request(request):
@@ -234,19 +199,3 @@ def create_friend_request(request):
                          "friend_request_id": object_uuid}, status=200)
     else:
         return Response({'detail': 'invalid form'}, status=400)
-
-
-class ListBetaUsers(ListAPIView):
-    queryset = BetaUser.nodes.all()
-    serializer_class = BetaUserSerializer
-    permission_classes = (IsAuthenticated, IsAdminUser)
-
-
-class RetrieveBetaUsers(RetrieveAPIView):
-    serializer_class = BetaUserSerializer
-    permission_classes = (IsAuthenticated, IsAdminUser)
-
-    def retrieve(self, request, *args, **kwargs):
-        queryset = BetaUser.nodes.get(email=kwargs["email"])
-        serializer_class = BetaUserSerializer(queryset)
-        return Response(serializer_class.data)

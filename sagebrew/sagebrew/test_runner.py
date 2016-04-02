@@ -21,13 +21,13 @@ class SBTestRunner(DiscoverRunner):
         except OSError:
             pass
         from neomodel import db
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         super(SBTestRunner, self).__init__(*args, **kwargs)
 
     def teardown_databases(self, old_config, **kwargs):
         from neomodel import db
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         sleep(1)
         success = call("/webapps/neo-test/neo4j-community-2.2.2/bin/neo4j"

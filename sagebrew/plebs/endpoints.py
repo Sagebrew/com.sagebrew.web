@@ -24,7 +24,7 @@ from neomodel import db
 
 from sagebrew import errors
 
-from api.permissions import (IsSelfOrReadOnly, IsSelf,
+from api.permissions import (IsSelfOrReadOnly,
                              IsAnonCreateReadOnlyOrIsAuthenticated)
 from sb_base.utils import get_filter_params
 from sb_base.neo_models import SBContent
@@ -252,7 +252,8 @@ class ProfileViewSet(viewsets.ModelViewSet):
                                                context={'request': request})
         return self.get_paginated_response(serializer.data)
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'],
+                  permission_classes=(IsAuthenticatedOrReadOnly,))
     def public(self, request, username=None):
         return get_public_content(self, username, request)
 
@@ -403,11 +404,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(PublicOfficialSerializer(president).data,
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'], permission_classes=(IsAuthenticated, IsSelf))
-    def is_beta_user(self, request, username=None):
-        return Response({'is_beta_user': self.get_object().is_beta_user()},
-                        status.HTTP_200_OK)
-
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticatedOrReadOnly,))
     def missions(self, request, username):
@@ -422,7 +418,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return self.get_paginated_response(serializer.data)
 
     @detail_route(methods=["GET"], serializer_class=MissionSerializer,
-                  permission_classes=(IsAuthenticated,))
+                  permission_classes=(IsAuthenticatedOrReadOnly,))
     def endorsed(self, request, username):
         query = 'MATCH (p:Pleb {username:"%s"})-' \
                 '[:ENDORSES]->(m:Mission) RETURN m' % username
@@ -443,7 +439,7 @@ class MeViewSet(mixins.UpdateModelMixin,
     /profile/ url to get information on the signed in user.
     """
     serializer_class = PlebSerializerNeo
-    permission_classes = (IsAuthenticated, IsSelf)
+    permission_classes = (IsAuthenticated, )
 
     def get_object(self):
         return Pleb.get(self.request.user.username)
@@ -869,7 +865,7 @@ class FriendManager(RetrieveUpdateDestroyAPIView):
     """
     serializer_class = PlebSerializerNeo
     lookup_field = "friend_username"
-    permission_classes = (IsAuthenticated, IsSelf)
+    permission_classes = (IsAuthenticated,)
 
     def get_object(self):
         return Pleb.get(self.kwargs[self.lookup_field])

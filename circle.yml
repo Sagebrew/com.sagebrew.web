@@ -67,11 +67,11 @@ test:
     - coverage html --fail-under=70
     - coveralls
   post:
-    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
+    - python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
-    - docker build -t sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
-    - docker build -t sagebrew/sb_web:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/web_app/
-    - docker build -t sagebrew/sys_util:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/sys_util/
+    - docker build -t docker.io/sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/ || true
+    - docker build -t docker.io/sagebrew/sb_web:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/web_app/ || true
+    - docker build -t docker.io/sagebrew/sys_util:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/sys_util/ || true
     # DO NOT CHANGE GRAPHEN_NEO4J_REST_URL to NEO4J_REST_URL the NEO4J_REST_URL
     # points to the local circle instance and the docker instance needs the
     # graphen instance to work

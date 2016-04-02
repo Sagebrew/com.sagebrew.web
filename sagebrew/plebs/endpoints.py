@@ -628,6 +628,18 @@ class MeViewSet(mixins.UpdateModelMixin,
             'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
             'NULL AS news UNION ' \
             '' \
+            '// Retrieve all the posts owned by users that the current user ' \
+            '// is following \n' \
+            'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
+            '(:Pleb)<-[:OWNED_BY]-(posts:Post) ' \
+            'WHERE posts.to_be_deleted = False AND ' \
+            'posts.created > %s AND posts.is_closed = False ' \
+            'RETURN NULL AS solutions, posts AS posts, ' \
+            'NULL AS questions, posts.created AS created, ' \
+            'NULL AS s_question, NULL AS mission, NULL AS updates, ' \
+            'NULL AS q_mission, ' \
+            'NULL AS news UNION ' \
+            '' \
             '// Retrieve all the users questions that the current user is ' \
             '// following \n' \
             'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
@@ -658,7 +670,8 @@ class MeViewSet(mixins.UpdateModelMixin,
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then,
-                request.user.username, then, request.user.username, then)
+                request.user.username, then, request.user.username, then,
+                request.user.username, then)
         news = []
         res, _ = db.cypher_query(query)
         # Profiled with ~50 objects and it was still performing under 1 ms.

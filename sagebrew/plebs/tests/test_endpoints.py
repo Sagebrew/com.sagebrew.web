@@ -20,7 +20,7 @@ from rest_framework.test import APITestCase
 
 from sagebrew import errors
 from sb_public_official.neo_models import PublicOfficial
-from plebs.neo_models import (Pleb, FriendRequest, Address, BetaUser,
+from plebs.neo_models import (Pleb, FriendRequest, Address,
                               PoliticalParty, ActivityInterest)
 from sb_privileges.neo_models import Privilege, SBAction
 from sb_quests.neo_models import Position, Quest
@@ -2477,104 +2477,6 @@ class ReputationMethodEndpointTests(APITestCase):
     def test_get_reputation_status(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-reputation', kwargs={
-            'username': self.user.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
-
-class BetaUserMethodEndpointTests(APITestCase):
-
-    def setUp(self):
-        self.unit_under_test_name = 'is_beta_user'
-        self.email = "success@simulator.amazonses.com"
-        self.pleb = create_user_util_test(self.email)
-        self.user = User.objects.get(email=self.email)
-        self.url = "http://testserver"
-
-    def test_unauthorized(self):
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        data = {}
-        response = self.client.post(url, data, format='json')
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
-                                             status.HTTP_403_FORBIDDEN])
-
-    def test_missing_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        data = {'this': ['This field is required.']}
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_save_int_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.post(url, 98897965, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_save_string_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.post(url, 'asfonosdnf', format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_save_list_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.post(url, [], format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_save_float_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.post(url, 1.010101010, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_delete(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.delete(url, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_get_is_beta_user_default(self):
-        self.client.force_authenticate(user=self.user)
-        cache.clear()
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.get(url, format='json')
-        self.assertFalse(response.data['is_beta_user'])
-
-    def test_get_is_beta_user_true(self):
-        self.client.force_authenticate(user=self.user)
-        try:
-            beta_user = BetaUser.nodes.get(email=self.email)
-        except DoesNotExist:
-            beta_user = BetaUser(email=self.email, invited=True).save()
-        self.pleb.beta_user.connect(beta_user)
-        self.pleb.save()
-        cache.clear()
-        url = reverse('profile-is-beta-user', kwargs={
-            'username': self.user.username})
-        response = self.client.get(url, format='json')
-        self.pleb.beta_user.disconnect(beta_user)
-        self.pleb.save()
-        self.assertTrue(response.data['is_beta_user'])
-
-    def test_get_is_beta_user_status(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-is-beta-user', kwargs={
             'username': self.user.username})
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -1,3 +1,4 @@
+import time
 from uuid import uuid1
 
 from rest_framework import status
@@ -24,8 +25,12 @@ class ProfilePageTest(TestCase):
         self.client = Client()
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
-        self.pleb = create_user_util_test(self.email)
-        self.user = User.objects.get(email=self.email)
+        res = create_user_util_test(self.email, task=True)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = res['pleb']
+        self.user = res['user']
+        self.username = self.pleb.username
         self.pleb.completed_profile_info = True
         self.pleb.email_verified = True
         self.pleb.save()

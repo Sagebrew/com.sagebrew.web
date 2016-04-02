@@ -1,3 +1,4 @@
+import time
 import stripe
 import shortuuid
 from datetime import datetime
@@ -2555,8 +2556,11 @@ class NewsfeedTests(APITestCase):
         cache.clear()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        self.pleb = create_user_util_test(self.email)
-        self.user = User.objects.get(email=self.email)
+        res = create_user_util_test(self.email, task=True)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = res['pleb']
+        self.user = res['user']
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",
@@ -3580,9 +3584,16 @@ class PublicDataTests(APITestCase):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
         self.email2 = "bounce@simulator.amazonses.com"
-        self.pleb = create_user_util_test(self.email)
-        self.user = User.objects.get(email=self.email)
-        self.pleb2 = create_user_util_test(self.email2)
+        res = create_user_util_test(self.email, task=True)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = res['pleb']
+        self.user = res['user']
+        res = create_user_util_test(self.email2, task=True)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb2 = res['pleb']
+        self.user2 = res['user']
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",

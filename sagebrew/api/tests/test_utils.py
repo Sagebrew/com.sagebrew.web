@@ -1,5 +1,4 @@
 from uuid import uuid1
-import time
 
 from django.core import signing
 from django.test import TestCase

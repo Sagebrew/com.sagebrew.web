@@ -12,7 +12,6 @@ from rest_framework import status
 
 from neomodel import db
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_questions.neo_models import Question

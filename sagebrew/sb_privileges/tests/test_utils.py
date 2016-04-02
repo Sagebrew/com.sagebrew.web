@@ -11,7 +11,6 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_privileges.neo_models import SBAction, Privilege

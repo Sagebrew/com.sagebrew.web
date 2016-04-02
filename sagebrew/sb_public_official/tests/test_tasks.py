@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 
 from neomodel import DoesNotExist
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_quests.neo_models import Position, Quest

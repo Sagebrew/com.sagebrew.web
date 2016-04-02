@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 
 from rest_framework import status
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 from sb_notifications.neo_models import Notification

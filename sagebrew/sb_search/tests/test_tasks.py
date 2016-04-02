@@ -8,7 +8,6 @@ from django.test.client import RequestFactory
 
 from elasticsearch import Elasticsearch
 
-from plebs.neo_models import Pleb
 from sb_search.tasks import (update_search_query, create_keyword,
                              update_search_object)
 from sb_registration.utils import create_user_util_test

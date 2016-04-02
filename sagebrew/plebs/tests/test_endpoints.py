@@ -2779,7 +2779,7 @@ class NewsfeedTests(APITestCase):
         news2.tags.connect(tag)
         url = reverse('me-newsfeed')
         response = self.client.get(url, format='json')
-        self.pleb.interestes.disconnect(tag)
+        self.pleb.interests.disconnect(tag)
         news.tags.disconnect(tag)
         news2.tags.disconnect(tag)
         news.delete()

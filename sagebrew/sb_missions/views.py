@@ -167,7 +167,7 @@ class MissionSettingsView(LoginRequiredMixin):
         })
 
 
-class MissionBaseView(LoginRequiredMixin):
+class MissionBaseView(View):
     template_name = 'mission/mission.html'
 
     def get(self, request, object_uuid=None, slug=None):

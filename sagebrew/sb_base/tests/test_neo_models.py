@@ -16,9 +16,7 @@ class TestVotableContentNeoModel(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.post = Post(content='test', object_uuid=str(uuid1()),
                          owner_username=self.pleb.username,
@@ -75,9 +73,7 @@ class TestTaggableContent(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.question = Question(content='test', object_uuid=str(uuid1()),
                                  owner_username=self.pleb.username,
@@ -96,9 +92,7 @@ class TestVersionedContent(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.question = Question(content='test',
                                  owner_username=self.pleb.username,
@@ -123,9 +117,7 @@ class TestGetParentVotableContent(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.question = Question(content='test',
                                  owner_username=self.pleb.username,
@@ -143,9 +135,7 @@ class TestGetUploadedObject(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.post = Post(content='test', owner_username=self.pleb.username,
                          wall_owner_username=self.pleb.username).save()
@@ -168,9 +158,7 @@ class TestGetParentTitledContent(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.question = Question(title=str(uuid1()),
                                  content="test content").save()
 

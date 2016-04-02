@@ -17,10 +17,7 @@ class TestBetaUser(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
 
     def test_beta_user_invite(self):
@@ -33,10 +30,7 @@ class TestPleb(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
 
     def test_update_quest(self):
@@ -123,10 +117,7 @@ class TestPlebReputationChange(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
 
 

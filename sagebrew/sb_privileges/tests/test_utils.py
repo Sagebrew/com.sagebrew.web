@@ -1,4 +1,3 @@
-import time
 import requests_mock
 from uuid import uuid1
 
@@ -28,13 +27,9 @@ class TestManagePrivilegeRelation(APITestCase):
         cache.clear()
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
+        self.username = self.pleb.username
         self.privilege_name = str(uuid1())
         self.privilege = Privilege(name=self.privilege_name).save()
         self.requirement = Requirement(name=str(uuid1()),
@@ -112,10 +107,7 @@ class TestCreatePrivilege(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.privilege = Privilege(name=str(uuid1())).save()
         self.requirement = Requirement(name=str(uuid1()),

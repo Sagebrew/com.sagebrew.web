@@ -18,9 +18,7 @@ class TestCreateLocationTreeTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.wixom = {
             "address_components": [
@@ -119,9 +117,7 @@ class TestConnectLocationElementTask(TestCase):
     def setUp(self):
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.wixom = {
             "address_components": [

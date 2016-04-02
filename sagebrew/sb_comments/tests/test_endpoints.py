@@ -25,8 +25,7 @@ class TestCommentsRetrieveUpdateDestroy(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'comment'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         self.post = Post(content='test content',

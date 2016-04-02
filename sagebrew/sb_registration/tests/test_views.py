@@ -433,9 +433,7 @@ class TestSignupView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
@@ -495,9 +493,7 @@ class TestLoginView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
@@ -523,9 +519,7 @@ class TestFeatureViews(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
@@ -593,9 +587,7 @@ class TestLoginAPIView(TestCase):
         self.store = SessionStore()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
@@ -729,9 +721,7 @@ class TestLogoutView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
@@ -756,9 +746,7 @@ class TestEmailVerificationView(TestCase):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = False
         self.pleb.save()
@@ -819,9 +807,7 @@ class TestResendEmailVerificationView(TestCase):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = False
         self.pleb.save()
@@ -860,9 +846,7 @@ class TestConfirmView(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
 
     def test_anon_user(self):
@@ -884,9 +868,7 @@ class TestAgeRestrictionView(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
 
     def test_anon_user(self):
@@ -933,9 +915,7 @@ class TestProfilePicture(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
         self.pleb.email_verified = True

@@ -19,11 +19,10 @@ from sb_votes.tasks import (vote_object_task, object_vote_notifications,
 class TestVoteObjectTask(TestCase):
 
     def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -111,11 +110,10 @@ class TestVoteObjectTask(TestCase):
 class TestObjectVoteNotifications(TestCase):
 
     def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.question = Question(owner_username=self.pleb.username,
                                  title=str(uuid1())).save()
 
@@ -240,11 +238,10 @@ class TestObjectVoteNotifications(TestCase):
 class TestCreateVoteNodeTask(TestCase):
 
     def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.question = Question(owner_username=self.pleb.username,
                                  title=str(uuid1())).save()
 

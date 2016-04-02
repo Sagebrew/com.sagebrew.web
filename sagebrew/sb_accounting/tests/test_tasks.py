@@ -20,6 +20,7 @@ from sb_accounting.tasks import check_unverified_quest
 class TestCheckUnverifiedQuest(TestCase):
 
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
@@ -27,7 +28,6 @@ class TestCheckUnverifiedQuest(TestCase):
         self.quest = Quest(owner_username=self.pleb.username,
                            object_uuid=str(uuid1())).save()
         self.quest.owner.connect(self.pleb)
-        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False

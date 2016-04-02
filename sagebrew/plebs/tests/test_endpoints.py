@@ -1,4 +1,3 @@
-import time
 import stripe
 import shortuuid
 from datetime import datetime
@@ -17,7 +16,6 @@ from neomodel import db, DoesNotExist
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from api.utils import wait_util
 from sagebrew import errors
 from sb_public_official.neo_models import PublicOfficial
 from plebs.neo_models import (Pleb, FriendRequest, Address, BetaUser,
@@ -2557,11 +2555,8 @@ class NewsfeedTests(APITestCase):
         cache.clear()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",
@@ -3110,17 +3105,11 @@ class TestFollowNewsfeed(APITestCase):
         cache.clear()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
         self.pleb.following.connect(self.pleb2)
         self.question = Question(
@@ -3162,11 +3151,8 @@ class TestFollowEndpoints(APITestCase):
         cache.clear()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
         self.pleb2 = Pleb(username=shortuuid.uuid()).save()
 
@@ -3265,16 +3251,10 @@ class TestAcceptFriendRequest(APITestCase):
         res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
 
     def test_unauthorized(self):
@@ -3360,16 +3340,10 @@ class TestDeclineFriendRequest(APITestCase):
         res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
 
     def test_unauthorized(self):
@@ -3455,16 +3429,10 @@ class TestBlockFriendRequest(APITestCase):
         res, _ = db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
 
     def test_unauthorized(self):
@@ -3549,11 +3517,8 @@ class ProfileMissionsTests(APITestCase):
         cache.clear()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",
@@ -3615,11 +3580,8 @@ class PublicDataTests(APITestCase):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = res['pleb']
-        self.user = res['user']
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.pleb2 = create_user_util_test(self.email2)
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="MI",

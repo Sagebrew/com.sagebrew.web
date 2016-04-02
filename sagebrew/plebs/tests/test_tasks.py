@@ -22,13 +22,13 @@ from sb_wall.neo_models import Wall
 class TestCreateWallTask(TestCase):
 
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        settings.CELERY_ALWAYS_EAGER = True
         try:
             pleb = Pleb.nodes.get(
                 email='suppressionlist@simulator.amazonses.com',
@@ -82,6 +82,7 @@ class TestCreateWallTask(TestCase):
 class TestFinalizeCitizenCreationTask(TestCase):
 
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.email2 = 'suppressionlist@simulator.amazonses.com'
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
@@ -89,7 +90,6 @@ class TestFinalizeCitizenCreationTask(TestCase):
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        settings.CELERY_ALWAYS_EAGER = True
         try:
             pleb = Pleb.nodes.get(email=self.email2)
             pleb.delete()
@@ -139,13 +139,13 @@ class TestFinalizeCitizenCreationTask(TestCase):
 class TestSendEmailTask(TestCase):
 
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
         self.assertNotEqual(res, False)
         wait_util(res)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        settings.CELERY_ALWAYS_EAGER = True
         try:
             pleb = Pleb.nodes.get(
                 email='suppressionlist@simulator.amazonses.com')
@@ -185,19 +185,13 @@ class TestSendEmailTask(TestCase):
 class TestCreateFriendRequestTask(TestCase):
 
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb1 = Pleb.nodes.get(email=self.email)
+        self.pleb1 = create_user_util_test(self.email)
         self.user1 = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
-        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -234,13 +228,10 @@ class TestCreateFriendRequestTask(TestCase):
 class TestDeterminePlebReps(TestCase):
 
     def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -258,13 +249,10 @@ class TestDeterminePlebReps(TestCase):
 class TestUpdateReputation(TestCase):
 
     def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -282,13 +270,10 @@ class TestUpdateReputation(TestCase):
 class TestCreateStateDistricts(TestCase):
 
     def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False

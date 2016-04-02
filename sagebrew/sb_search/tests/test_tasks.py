@@ -26,11 +26,10 @@ from sb_solutions.serializers import SolutionSerializerNeo
 class TestUpdateSearchQuery(TestCase):
 
     def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -128,12 +127,10 @@ class TestUpdateSearchQuery(TestCase):
 class TestCreateKeywordTask(TestCase):
 
     def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -203,12 +200,10 @@ class TestCreateKeywordTask(TestCase):
 class TestUpdateSearchObject(TestCase):
 
     def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
 
     def test_question(self):

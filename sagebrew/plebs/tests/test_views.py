@@ -24,11 +24,7 @@ class ProfilePageTest(TestCase):
         self.client = Client()
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
         self.pleb.email_verified = True

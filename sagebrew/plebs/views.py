@@ -161,22 +161,6 @@ def deactivate_user(request):
     return Response({"detail": "successfully deactivated user"}, 200)
 
 
-@api_view(['GET'])
-@permission_classes((IsAuthenticated, IsAdminUser))
-def invite_beta_user(request, email):
-    try:
-        beta_user = BetaUser.nodes.get(email=email)
-        beta_user.invite()
-    except (BetaUser.DoesNotExist, DoesNotExist):
-        return Response({"detail": "Sorry we could not find that user."},
-                        status=status.HTTP_404_NOT_FOUND)
-    except (IOError, CypherException, ClientError):
-        return Response({"detail": "Sorry looks like we're having"
-                                   " some server difficulties"},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    return Response({"detail": None}, status=status.HTTP_200_OK)
-
-
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def create_friend_request(request):

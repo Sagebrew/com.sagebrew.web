@@ -9,8 +9,8 @@ dependencies:
     - elasticsearch-2.2.0
     - DynamoDBLocal_lib
     - neo4j-community-2.2.2
-    - virtualenvs
-    - nltk_data
+    - ../../virtualenvs
+    - ../../nltk_data
 
   pre:
     - sudo apt-get update

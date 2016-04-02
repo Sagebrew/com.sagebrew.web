@@ -211,6 +211,20 @@ def get_image_data(object_uuid, file_object):
     return width, height, file_name, image
 
 
+def thumbnail_image(image, resize_height, resize_width):
+    """
+    This function will take whatever image is passed and rescale the image to
+    whatever height and width is passed but it will maintain aspect ratio.
+
+    :param image_file:
+    :param resize_height:
+    :param resize_width:
+    :return:
+    """
+    image.thumbnail((resize_width, resize_height), Image.ANTIALIAS)
+    return image
+
+
 def hamming_distance(s1, s2):
     """Return the Hamming distance between equal-length sequences"""
     if len(s1) != len(s2):

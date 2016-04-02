@@ -17,7 +17,7 @@ from neomodel import DoesNotExist, UniqueProperty, db
 
 from api.serializers import SBSerializer
 
-from .utils import (parse_page_html, get_image_data,
+from .utils import (parse_page_html, get_image_data, thumbnail_image,
                     check_sagebrew_url, hamming_distance)
 from .neo_models import UploadedObject, ModifiedObject, URLContent
 
@@ -209,6 +209,11 @@ class CropSerializer(serializers.Serializer):
     image_y1 = serializers.IntegerField()
     resize_width = serializers.FloatField()
     resize_height = serializers.FloatField()
+
+
+class ThumbnailSerializer(serializers.Serializer):
+    thumbnail_width = serializers.IntegerField()
+    thumbnail_height = serializers.IntegerField()
 
 
 class URLContentSerializer(SBSerializer):

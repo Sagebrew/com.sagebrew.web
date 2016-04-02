@@ -3,22 +3,22 @@
         {{ title_text }}
     </h3>
     <div class="block-content">
-        <form id="js-image-upload-form" method="post" action="{% url "upload-list" %}" enctype="multipart/form-data">
-            <a type="file" id='js-file-input-button' class="btn btn-primary sb_btn sb_btn_fill">Choose a file</a>
+        <img class="upload-image-preview no-left-right-padding" src="{{ current_image }}"/>
+        <form id="{{ upload_form|default:"js-image-upload-form" }}" method="post" action="{% url "upload-list" %}" enctype="multipart/form-data">
             <div id="drop" class="dropbox-area">
-                <span> or drag it here</span>
+                <span>Click to select image or drag it here</span>
             </div>
-            <input type="file" id='js-file-input' class="hidden" name="file_object"/>
+            <input type="file" id="js-file-input" class="hidden" name="file_object"/>
         </form>
         <div class="row">
-            <img id="js-image-preview" src="" class="upload-image-preview hidden">
+            <img id="{{ image_preview|default:"js-image-preview" }}" src="" class="upload-image-preview hidden">
         </div>
 
         <div class="row">
 
             <div class="col-lg-4 col-md-6">
-                <small>Images must be at least 600x600 pixels</small>
-                <button class="btn btn-primary sb_btn sb_btn_fill disabled" id="js-submit-profile-picture" disabled>{{ save_button_text }}</button>
+                <small>Images must be at least {{ required_width|default:500 }}x{{ required_height|default:500 }} pixels</small>
+                <button class="btn btn-primary sb_btn sb_btn_fill disabled" id="{{ submit_button|default:"js-submit-profile-picture" }}" disabled>{{ save_button_text }}</button>
             </div>
         </div>
 

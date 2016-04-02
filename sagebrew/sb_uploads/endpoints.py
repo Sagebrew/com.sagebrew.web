@@ -12,16 +12,17 @@ from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import detail_route
 from rest_framework import status
-from rest_framework.parsers import FileUploadParser
+from rest_framework.parsers import FileUploadParser, JSONParser
 
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import delete_image
 
 from .serializers import (UploadSerializer, ModifiedSerializer, CropSerializer,
-                          URLContentSerializer)
+                          URLContentSerializer, ThumbnailSerializer)
 from .neo_models import (UploadedObject, URLContent)
-from .utils import resize_image, crop_image2, check_sagebrew_url
+from .utils import (resize_image, crop_image2, check_sagebrew_url,
+                    thumbnail_image)
 
 
 class UploadViewSet(viewsets.ModelViewSet):
@@ -140,6 +141,60 @@ class UploadViewSet(viewsets.ModelViewSet):
                                  "profile": profile_page_url},
                                 status=status.HTTP_200_OK)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated,],
+                  serializer_class=ThumbnailSerializer,
+                  parser_classes=(JSONParser,))
+    def thumbnail(self, request, object_uuid=None):
+        from logging import getLogger
+        logger = getLogger('loggly_logs')
+        uploaded_object = self.get_object()
+        img_file = urllib2.urlopen(uploaded_object.url)
+        logger.info(img_file)
+        read_file = img_file.read()
+        file_object = BytesIO(read_file)
+        image = Image.open(file_object)
+        image_format = image.format
+        thumbnail_serializer = ThumbnailSerializer(data=request.data)
+        if thumbnail_serializer.is_valid():
+            thumbnail_data = thumbnail_serializer.data
+        else:
+            return Response(thumbnail_serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        thumbnailed_image = thumbnail_image(
+            image, thumbnail_data['thumbnail_height'],
+            thumbnail_data['thumbnail_width'])
+        # Fill cropped image into buffer
+        file_stream = BytesIO()
+        thumbnailed_image.save(file_stream, format=image_format)
+        file_stream.seek(0)
+        # Upload cropped pic and then run serializer
+        # Not the best solution but simplifies the logic. If someone has a
+        # better approach feel free to update. Perhaps an InMemoryFile passed
+        # to the serializer
+        file_name = "%s-%sx%s.%s" % (object_uuid,
+                                     thumbnail_data['thumbnail_width'],
+                                     thumbnail_data['thumbnail_height'],
+                                     image_format.lower())
+        url = check_sagebrew_url(None, settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
+                                 file_name, file_stream.read())
+        serializer = ModifiedSerializer(
+            data={'url': url},
+            context={"request": request, "file_name": file_name,
+                     "parent_id": object_uuid})
+
+        if serializer.is_valid():
+            owner = Pleb.get(request.user.username)
+            upload = serializer.save(owner=owner)
+            profile_page_url = reverse(
+                "profile_page", kwargs={
+                    "pleb_username": request.user.username},
+                request=request)
+            return Response({"status": "success", "url": upload.url,
+                             "profile": profile_page_url},
+                            status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -66,5 +66,5 @@ export function load() {
                 $.notify({message: "Successfully Updated Profile Picture"}, {type: "success"});
             });
         });
-    helpers.setupImageUpload($app, $imageForm, $previewContainer, $saveProfilePicButton, 600, 600);
+    helpers.setupImageUpload($app, $imageForm, $previewContainer, $saveProfilePicButton, 500, 500, true);
 }

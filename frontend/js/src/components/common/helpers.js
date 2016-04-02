@@ -4,7 +4,8 @@
  */
 
 var settings = require('./../settings').settings,
-    moment = require('moment');
+    moment = require('moment'),
+    requests = require('api').request;
 
 /**
  * Get cookie based by name.
@@ -335,29 +336,34 @@ export function characterCountRemaining(characterLimit, $selector, $remainingSel
 /**
  * Setup a file upload area using jquery-file-upload
  */
-export function setupImageUpload($app, $selector, $previewContainer, $submitButton, imageMinWidth, imageMinHeight){
-    var ul = $('#upload').children("ul"),
-        dropArea = $("#drop"),
-        $greyOut = $("#sb-greyout-page"),
-        $fileInputButton = $("#js-file-input-button"),
-        $fileInput = $("#js-file-input");
+export function setupImageUpload($app, $formSelector, $previewContainer, $submitButton, imageMinWidth, imageMinHeight, thumbnail){
+    var dropArea = $formSelector.children("#drop"),
+        $fileInput = $formSelector.children("input#js-file-input"),
+        $fileInputButton = $formSelector.children("a#js-file-input-button"),
+        $greyOut = $("#sb-greyout-page");
 
-    $app.on('click', '#js-file-input-button', function(event){
+    // This allows for proper styling of a browse files button
+    $fileInputButton.on('click', function(event){
         event.preventDefault();
+        $fileInput.value = '';
+        $previewContainer.attr('src', "");
+        $previewContainer.addClass('hidden');
+        dropArea.show();
+
         $fileInput.click();
     });
-    dropArea.children("a").click(function(){
-        // Simulate a click on the file input button
-        // to show the file browser dialog
-        $(this).parent().find('input').click();
+    // Simulate a click when drag and drop is clicked on
+    dropArea.click(function(){
+        $fileInput.click();
     });
 
-    $selector.fileupload({// This element will accept file drag/drop uploading
+    $formSelector.fileupload({// This element will accept file drag/drop uploading
         dropZone: dropArea,
         imageMinWidth: imageMinWidth,
         imageMinHeight: imageMinHeight,
-        // This function is called when a file is added to the queue;
-        // either via the browse button, or via drag/drop:
+        replaceFileInput: false,
+        // This function is called when a file is added
+        // either via the browse button, or via drag/drop
         add: function (e, data) {
             var img = new Image(),
                 allowSubmit = true;
@@ -391,20 +397,34 @@ export function setupImageUpload($app, $selector, $previewContainer, $submitButt
                 }
             };
             img.src = window.URL.createObjectURL(data.files[0]);
-            // Automatically upload the file once it is added to the queue
-
         },
         done: function(e, data) {
-            $previewContainer.attr('src', data._response.result.url);
-            $previewContainer.removeClass('hidden');
-            $submitButton.removeClass('disabled');
-            $submitButton.prop('disabled', false);
-            $greyOut.addClass('sb_hidden');
-            dropArea.hide();
+            var result = data._response.result;
+            if (result.height > result.width && thumbnail) {
+                requests.post({
+                    url: "/v1/upload/" + result.id + "/thumbnail/",
+                    data: JSON.stringify({
+                        thumbnail_width: imageMinWidth,
+                        thumbnail_height: imageMinHeight})
+                }).done(function(data) {
+                    $previewContainer.attr('src', data.url);
+                    $previewContainer.removeClass('hidden');
+                    $submitButton.removeClass('disabled');
+                    $submitButton.prop('disabled', false);
+                    $greyOut.addClass('sb_hidden');
+                    dropArea.hide();
+                });
+            } else {
+                $previewContainer.attr('src', result.url);
+                $previewContainer.removeClass('hidden');
+                $submitButton.removeClass('disabled');
+                $submitButton.prop('disabled', false);
+                $greyOut.addClass('sb_hidden');
+                dropArea.hide();
+            }
+
         },
-        fail: function(e, data){
-            // Something has gone wrong!
-            data.context.addClass('error');
+        fail: function(){
             $greyOut.addClass('sb_hidden');
         }
     });

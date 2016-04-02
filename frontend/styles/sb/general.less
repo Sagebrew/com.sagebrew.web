@@ -2147,6 +2147,7 @@ textarea.sb_comment_input{
 .no-padding-right {
   padding-right: 0;
 }
+
 .no-margin-top-bottom{
   margin-top: 0 !important;
   margin-bottom: 0 !important;
@@ -2160,19 +2161,12 @@ textarea.sb_comment_input{
 }
 
 .upload-image-preview{
-  @media only screen and (max-width: 480px){
-    max-width: 200px;
-    max-height: 200px;
-  }
-  @media only screen and (min-width: 480px){
-    max-width: 800px;
-    max-height: 800px;
-  }
-  margin-left: 15px;
+  max-width: 100%;
+  padding: 0 15px 0 15px;
 }
 
 .dropbox-area{
-  height: 400px;
+  height: 100px;
   width: 100%;
   outline: 2px dashed @sb_grey;
   outline-offset: -10px;

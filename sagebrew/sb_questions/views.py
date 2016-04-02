@@ -1,13 +1,11 @@
 from django.utils.text import slugify
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.views.generic import View
 
 from neomodel import DoesNotExist
 
-from sb_registration.utils import verify_completed_registration
 from sb_questions.neo_models import Question
 
 from .serializers import QuestionSerializerNeo
@@ -60,8 +58,6 @@ def question_redirect_page(request, question_uuid):
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def solution_edit_page(request, solution_uuid=None):
     data = {"object_uuid": solution_uuid}
     return render(request, 'edit_solution.html', data)
@@ -77,12 +73,6 @@ class LoginRequiredMixin(View):
 
 class QuestionManagerView(LoginRequiredMixin):
     template_name = 'questions/save.html'
-
-    @method_decorator(user_passes_test(
-        verify_completed_registration,
-        login_url='/registration/profile_information'))
-    def dispatch(self, *args, **kwargs):
-        return super(QuestionManagerView, self).dispatch(*args, **kwargs)
 
     def get(self, request, question_uuid=None, slug=None):
         if question_uuid is not None:

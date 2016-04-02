@@ -281,8 +281,6 @@ def interests(request):
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def profile_picture(request):
     """
     The profile picture view accepts an image from the user, which is stored in

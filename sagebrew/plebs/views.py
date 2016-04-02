@@ -2,8 +2,7 @@ from uuid import uuid1
 
 from django.template.loader import render_to_string
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.views.generic import View
@@ -11,7 +10,6 @@ from django.views.generic import View
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework import status
 
 from py2neo.cypher import ClientError
@@ -20,13 +18,12 @@ from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task
 from plebs.neo_models import (Pleb, BetaUser, Address)
-from sb_registration.utils import (verify_completed_registration)
 
 
 from .serializers import PlebSerializerNeo
 from .tasks import create_friend_request_task, send_email_task
 from .forms import (SubmitFriendRequestForm)
-from .serializers import BetaUserSerializer, AddressSerializer
+from .serializers import AddressSerializer
 
 
 def root_profile_page(request):
@@ -47,21 +44,12 @@ class LoginRequiredMixin(View):
 class PersonalProfileView(LoginRequiredMixin):
     template_name = 'profile_page.html'
 
-    @method_decorator(user_passes_test(
-        verify_completed_registration,
-        login_url='/registration/profile_information'))
-    def dispatch(self, *args, **kwargs):
-        return super(PersonalProfileView, self).dispatch(*args, **kwargs)
-
     def get(self, request):
-        page_user_pleb = Pleb.get(username=request.user.username)
-        page_user = User.objects.get(username=request.user.username)
-
         return render(request, self.template_name, {
             'page_profile': PlebSerializerNeo(
-                page_user_pleb,
+                Pleb.get(username=request.user.username),
                 context={'expand': True, 'request': request}).data,
-            'page_user': page_user
+            'page_user': User.objects.get(username=request.user.username)
         })
 
 
@@ -93,8 +81,6 @@ class ProfileView(View):
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def general_settings(request):
     """
     Displays the users profile_page. This is where we call the functions to
@@ -127,8 +113,6 @@ def general_settings(request):
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def delete_account(request):
     """
     Delete account page.
@@ -137,8 +121,6 @@ def delete_account(request):
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def contribute_settings(request):
     """
     This view provides the necessary information for rendering a user's
@@ -233,19 +215,3 @@ def create_friend_request(request):
                          "friend_request_id": object_uuid}, status=200)
     else:
         return Response({'detail': 'invalid form'}, status=400)
-
-
-class ListBetaUsers(ListAPIView):
-    queryset = BetaUser.nodes.all()
-    serializer_class = BetaUserSerializer
-    permission_classes = (IsAuthenticated, IsAdminUser)
-
-
-class RetrieveBetaUsers(RetrieveAPIView):
-    serializer_class = BetaUserSerializer
-    permission_classes = (IsAuthenticated, IsAdminUser)
-
-    def retrieve(self, request, *args, **kwargs):
-        queryset = BetaUser.nodes.get(email=kwargs["email"])
-        serializer_class = BetaUserSerializer(queryset)
-        return Response(serializer_class.data)

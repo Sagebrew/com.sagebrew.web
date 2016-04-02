@@ -1,15 +1,13 @@
 from django.utils.text import slugify
 from django.views.generic import View
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 
 from py2neo.cypher.error import ClientError
 from neomodel import db, CypherException, DoesNotExist
 
 from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
-from sb_registration.utils import (verify_completed_registration)
 from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
 from sb_quests.neo_models import Quest
@@ -22,22 +20,16 @@ def mission_list(request):
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def select_mission(request):
     return render(request, 'mission/selector.html')
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def public_office_mission(request):
     return render(request, 'mission/public_office.html')
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def advocate_mission(request):
     return render(request, 'mission/advocate.html')
 
@@ -139,12 +131,6 @@ class LoginRequiredMixin(View):
 class MissionSettingsView(LoginRequiredMixin):
     template_name = 'manage/mission_settings.html'
 
-    @method_decorator(user_passes_test(
-        verify_completed_registration,
-        login_url='/registration/profile_information'))
-    def dispatch(self, *args, **kwargs):
-        return super(MissionSettingsView, self).dispatch(*args, **kwargs)
-
     def get(self, request, object_uuid=None, slug=None):
         # Do a second optional match to get the list of missions,
         # the first is just to make sure we're dealing with the actual
@@ -183,12 +169,6 @@ class MissionSettingsView(LoginRequiredMixin):
 
 class MissionBaseView(LoginRequiredMixin):
     template_name = 'mission/mission.html'
-
-    @method_decorator(user_passes_test(
-        verify_completed_registration,
-        login_url='/registration/profile_information'))
-    def dispatch(self, *args, **kwargs):
-        return super(MissionBaseView, self).dispatch(*args, **kwargs)
 
     def get(self, request, object_uuid=None, slug=None):
         try:

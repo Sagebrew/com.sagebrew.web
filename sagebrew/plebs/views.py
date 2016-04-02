@@ -19,8 +19,7 @@ from py2neo.cypher import ClientError
 from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task
-from plebs.neo_models import (Pleb, BetaUser, Address,
-                              get_friend_requests_sent)
+from plebs.neo_models import (Pleb, BetaUser, Address)
 from sb_registration.utils import (verify_completed_registration)
 
 

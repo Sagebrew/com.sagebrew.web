@@ -606,7 +606,6 @@ class MissionEndpointTests(APITestCase):
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data=data, format='json')
-        print(response.data)
         self.assertFalse(response.data['active'])
         mission.refresh()
         self.assertFalse(mission.active)

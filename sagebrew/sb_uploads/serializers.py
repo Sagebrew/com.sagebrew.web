@@ -228,7 +228,7 @@ class URLContentSerializer(SBSerializer):
     is_portrait = serializers.SerializerMethodField()
 
     def create(self, validated_data):
-        owner = validated_data.pop('owner')
+        owner = validated_data.pop('owner', None)
         if hasattr(owner, 'username'):
             validated_data['owner_username'] = owner.username
         new_url = clean_url(validated_data['url'])
@@ -241,7 +241,7 @@ class URLContentSerializer(SBSerializer):
         try:
             response = requests.get(new_url,
                                     headers={'content-type': 'html/text'},
-                                    timeout=5)
+                                    timeout=5, verify=False)
         except requests.Timeout:
             return URLContent(url=new_url).save()
         except requests.ConnectionError:

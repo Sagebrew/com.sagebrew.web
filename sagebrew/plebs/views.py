@@ -8,7 +8,7 @@ from django.conf import settings
 from django.views.generic import View
 
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -17,7 +17,7 @@ from py2neo.cypher import ClientError
 from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task
-from plebs.neo_models import (Pleb, BetaUser, Address)
+from plebs.neo_models import (Pleb, Address)
 
 
 from .serializers import PlebSerializerNeo

@@ -63,7 +63,7 @@ export function load() {
             request.patch({url: "/v1/quests/" + questID + "/",
                 data: JSON.stringify({"wallpaper_pic": $previewContainer.attr('src')})
             }).done(function (){
-                $.notify({message: "Successfully Updated Profile Picture"}, {type: "success"});
+                $.notify({message: "Successfully Updated Wallpaper Picture"}, {type: "success"});
             });
         });
     helpers.setupImageUpload($app, $imageForm, $previewContainer, $saveProfilePicButton, 500, 500, true);

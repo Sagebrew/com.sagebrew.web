@@ -407,6 +407,7 @@ export function setupImageUpload($app, $formSelector, $previewContainer, $submit
                         thumbnail_width: imageMinWidth,
                         thumbnail_height: imageMinHeight})
                 }).done(function(data) {
+                    $("#js-current-image").hide();
                     $previewContainer.attr('src', data.url);
                     $previewContainer.removeClass('hidden');
                     $submitButton.removeClass('disabled');

@@ -3187,26 +3187,6 @@ class NewsfeedTests(APITestCase):
         self.assertEqual(response.data['results'][1]['type'], 'question')
         self.assertEqual(response.data['results'][2]['type'], 'post')
 
-    def test_get_news(self):
-        content = 'this is fake content'
-        question = Question(
-            title=str(uuid1()),
-            content="This is the content for my question.",
-            owner_username=self.pleb.username).save()
-        question.owned_by.connect(self.pleb)
-
-        solution = Solution(content=content,
-                            owner_username=self.pleb.username,
-                            parent_id=question.object_uuid).save()
-        solution.owned_by.connect(self.pleb)
-        question.solutions.connect(solution)
-
-        self.client.force_authenticate(user=self.user)
-        url = reverse('me-newsfeed')
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.data['results'][0]['profile'],
-                         self.pleb.username)
-
 
 class TestFollowNewsfeed(APITestCase):
 

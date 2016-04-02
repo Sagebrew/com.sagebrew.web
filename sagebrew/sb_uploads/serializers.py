@@ -257,10 +257,6 @@ class URLContentSerializer(SBSerializer):
                                  image_width=width, image_height=height,
                                  **validated_data).save()
 
-        # TODO determine if this is necessary
-        # spawn_task(task_func=create_url_content_summary_task, task_param={
-        #    'object_uuid': url_content.object_uuid
-        # })
         url_content.owned_by.connect(owner)
         owner.url_content.connect(url_content)
         return url_content

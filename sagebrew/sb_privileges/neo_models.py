@@ -23,7 +23,7 @@ class Privilege(SBObject):
         which is thrown if connection issues are had with the external
         APIs associated with the requirements. It should be okay to retry
         the function a couple seconds later if this error is thrown.
-        :param pleb:
+        :param username:
         :return:
         """
         for req in self.requirements.all():

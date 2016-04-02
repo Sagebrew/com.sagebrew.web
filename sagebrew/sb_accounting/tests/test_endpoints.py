@@ -22,7 +22,7 @@ from sb_quests.neo_models import Quest
 class AccountingHooksTests(APITestCase):
 
     def setUp(self):
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         self.unit_under_test_name = 'accounting'
         self.email = "success@simulator.amazonses.com"

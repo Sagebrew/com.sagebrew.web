@@ -4,6 +4,7 @@ from unidecode import unidecode
 from datetime import datetime, timedelta
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from datetime import date
+
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -101,7 +102,8 @@ def verify_completed_registration(user):
     :return:
     """
     try:
-        return Pleb.get(username=user.username).completed_profile_info
+        return Pleb.get(
+            username=user.username, cache_buster=True).completed_profile_info
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError):
         return False
 
@@ -115,8 +117,8 @@ def verify_verified_email(user):
     :return:
     """
     try:
-        pleb = Pleb.get(username=user.username)
-        return pleb.email_verified
+        return Pleb.get(
+            username=user.username, cache_buster=True).email_verified
     except (Pleb.DoesNotExist, DoesNotExist):
         return False
     except (CypherException, IOError) as e:

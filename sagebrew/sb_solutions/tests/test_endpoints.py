@@ -1,5 +1,4 @@
 from uuid import uuid1
-import time
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
@@ -10,7 +9,6 @@ from rest_framework.test import APITestCase
 
 from neomodel.exception import DoesNotExist
 
-from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
 from sb_questions.neo_models import Question
 from sb_solutions.neo_models import Solution
@@ -22,10 +20,7 @@ class SolutionEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.title = str(uuid1())
         self.question = Question(content="Hey I'm a question",
                                  title=self.title,
@@ -146,10 +141,7 @@ class TestSingleSolutionPage(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.question = Question(content="Hey I'm a question",
                                  title=str(uuid1()),

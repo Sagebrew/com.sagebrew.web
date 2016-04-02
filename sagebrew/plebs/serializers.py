@@ -228,17 +228,17 @@ class PlebSerializerNeo(SBSerializer):
                                             instance.customer_token)
         email = validated_data.get('email', instance.email).lower()
         user_obj = User.objects.get(username=instance.username)
-        if first_name != instance.first_name:
+        if first_name != user_obj.first_name:
             instance.first_name = first_name
             user_obj.first_name = first_name
-        if last_name != instance.last_name:
+        if last_name != user_obj.last_name:
             instance.last_name = last_name
             user_obj.last_name = last_name
-        if email != instance.email:
+        if email != user_obj.email:
             instance.email = email
             user_obj.email = email
             if instance.get_quest():
-                quest = Quest.get(instance.username)
+                quest = Quest.get(instance.username, cache_buster=True)
                 if quest.stripe_customer_id:
                     customer = \
                         stripe.Customer.retrieve(quest.stripe_customer_id)

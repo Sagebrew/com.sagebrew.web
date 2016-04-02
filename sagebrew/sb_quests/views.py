@@ -1,12 +1,10 @@
 from django.views.generic import View
-from django.utils.decorators import method_decorator
 from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 
 from py2neo.cypher import ClientError
 from neomodel import DoesNotExist, CypherException, db
 
-from sb_registration.utils import (verify_completed_registration)
 from sb_quests.neo_models import Quest
 from sb_quests.serializers import QuestSerializer
 
@@ -42,12 +40,6 @@ class LoginRequiredMixin(View):
 
 class QuestSettingsView(LoginRequiredMixin):
     template_name = 'manage/quest_settings.html'
-
-    @method_decorator(user_passes_test(
-        verify_completed_registration,
-        login_url='/registration/profile_information'))
-    def dispatch(self, *args, **kwargs):
-        return super(QuestSettingsView, self).dispatch(*args, **kwargs)
 
     def get(self, request, username=None):
         query = 'MATCH (person:Pleb {username: "%s"})' \

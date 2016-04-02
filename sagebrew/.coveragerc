@@ -8,6 +8,7 @@ omit =
     *wsgi.py*
     *admin.py*
     *sitemap.py*
+    *s3utils.py*
     # Management commands should be included usually but these are tested
     # in a different way than running unit tests. The build will fail if
     # these fail when docker attempts to run.
@@ -53,6 +54,11 @@ omit =
     */management/commands/create_privileges.py
     */management/commands/add_cities_from_addresses.py
     */management/commands/migrate_addresses.py
+    */management/commands/migrate_comments.py
+    */management/commands/populate_nltk.py
+    */management/commands/migrate_solutions.py
+    */management/commands/migrate_questions.py
+    */management/commands/set_quest_titles.py
     */management/commands/migrate_public_official_states.py
     */management/commands/create_affiliations.py
     */management/commands/create_activity_interests.py

@@ -39,7 +39,7 @@ class Command(BaseCommand):
             'maxent_treebank_pos_tagger', 'universal_tagset', 'punkt'
         ]
         try:
-            nltk.download(nltk_data, halt_on_error=False)
+            nltk.download(nltk_data, halt_on_error=False, quiet=True)
         except Exception as e:
             logger.exception(e)
 

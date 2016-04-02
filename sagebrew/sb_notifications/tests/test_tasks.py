@@ -18,9 +18,9 @@ from sb_registration.utils import create_user_util_test
 class TestNotificationTasks(TestCase):
 
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
         create_user_util_test(self.email2)
@@ -29,7 +29,6 @@ class TestNotificationTasks(TestCase):
 
         self.post_info_dict = {'content': 'test post',
                                'object_uuid': str(uuid1())}
-        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False

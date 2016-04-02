@@ -8,11 +8,9 @@ from django.core.cache import cache
 from django.contrib.auth.models import User
 from django.test import TestCase, Client
 
-from plebs.neo_models import Pleb
 from sb_quests.neo_models import Quest
 from sb_missions.neo_models import Mission
 from sb_registration.utils import create_user_util_test
-from api.utils import wait_util
 from sb_updates.neo_models import Update
 
 
@@ -22,11 +20,7 @@ class TestMissionUpdateView(TestCase):
         self.client = Client()
         self.email = "success@simulator.amazonses.com"
         self.password = "test_test"
-        res = create_user_util_test(self.email, task=True)
-        wait_util(res)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
         self.pleb.email_verified = True

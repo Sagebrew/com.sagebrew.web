@@ -1,4 +1,4 @@
- /*global Intercom, Wistia */
+ /*global Wistia */
 /**
  * @file
  * Signup Page... This is actually the homepage for anon users.

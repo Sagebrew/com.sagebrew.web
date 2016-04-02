@@ -18,7 +18,6 @@ RUN newrelic-admin generate-config {{NEW_RELIC_LICENSE}} /home/apps/newrelic.ini
 
 RUN apt-get remove --auto-remove -y git
 
-sudo apt-get install libblas-dev liblapack-dev libatlas-base-dev gfortran
 # nginx command must come first because running supervisor as a nodaemon means
 # it would never get to the && nginx if it were first. We might want to run
 # something else endlessly rather than run supervisor as a nodaemon. Not sure

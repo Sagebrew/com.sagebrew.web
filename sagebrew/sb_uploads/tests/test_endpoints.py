@@ -186,6 +186,25 @@ class UploadEndpointTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual('uploadedobject', response.data['type'])
 
+    def test_thumbnail(self):
+        self.client.force_authenticate(user=self.user)
+        uuid = str(uuid1())
+        with open(self.image_path, 'rb') as image:
+            data = {"file": image}
+            url = reverse('upload-list') + "?random=" + uuid
+            response = self.client.post(url, data, format='multipart')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+        thumbnail_url = reverse('upload-thumbnail',
+                                kwargs={'object_uuid': uuid}) + \
+            "?resize=true&croppic=true"
+        thumbnail_data = {
+            "thumbnail_width": 500,
+            "thumbnail_height": 500
+        }
+        res = self.client.post(thumbnail_url, thumbnail_data, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn("500x500", res.data['url'])
+
 
 class URLContentEndpointTests(APITestCase):
 

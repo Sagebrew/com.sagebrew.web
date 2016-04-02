@@ -2122,8 +2122,8 @@ textarea.sb_comment_input{
 }
 
 .no-left-right-padding {
-  padding-left:0;
-  padding-right:0;
+  padding-left:0 !important;
+  padding-right:0 !important;
 }
 
 .five-padding-bottom {
@@ -2160,6 +2160,10 @@ textarea.sb_comment_input{
   resize: vertical;
 }
 
+.width-100 {
+  width: 100% !important;
+}
+
 .upload-image-preview{
   max-width: 100%;
   padding: 0 15px 0 15px;
@@ -2169,9 +2173,10 @@ textarea.sb_comment_input{
   height: 100px;
   width: 100%;
   outline: 2px dashed @sb_grey;
-  outline-offset: -10px;
+  outline-offset: -2px;
   display: table;
   text-align: center;
+  margin-top: 15px;
 
   span{
     display: table-cell;

@@ -2,7 +2,6 @@ from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_posts.neo_models import Post
 from sb_questions.neo_models import Question

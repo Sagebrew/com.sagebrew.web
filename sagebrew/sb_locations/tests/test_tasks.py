@@ -5,7 +5,6 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 from sb_locations.tasks import create_location_tree, connect_location_to_element

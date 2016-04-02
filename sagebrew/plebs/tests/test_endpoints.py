@@ -2637,7 +2637,7 @@ class NewsfeedTests(APITestCase):
                          'Method "DELETE" not allowed.')
 
     def test_get_count(self):
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-newsfeed')
@@ -3663,7 +3663,7 @@ class PublicDataTests(APITestCase):
                          'Method "DELETE" not allowed.')
 
     def test_get_count(self):
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-public')

@@ -5,8 +5,6 @@ from django.core.urlresolvers import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from api.utils import wait_util
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 

@@ -28,7 +28,7 @@ from sb_quests.neo_models import Quest
 class MissionEndpointTests(APITestCase):
 
     def setUp(self):
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"

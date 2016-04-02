@@ -1,5 +1,4 @@
 from uuid import uuid1
-import time
 from dateutil import parser
 
 from django.utils.text import slugify
@@ -14,7 +13,6 @@ from rest_framework.test import APITestCase
 from neomodel.exception import DoesNotExist
 from neomodel import db
 
-from plebs.neo_models import Pleb
 from sb_privileges.neo_models import Privilege
 from sb_tags.neo_models import Tag
 from sb_questions.neo_models import Question

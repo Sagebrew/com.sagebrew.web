@@ -5,7 +5,6 @@ from django.test import TestCase
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_questions.neo_models import Question

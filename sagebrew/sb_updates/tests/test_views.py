@@ -8,11 +8,9 @@ from django.core.cache import cache
 from django.contrib.auth.models import User
 from django.test import TestCase, Client
 
-from plebs.neo_models import Pleb
 from sb_quests.neo_models import Quest
 from sb_missions.neo_models import Mission
 from sb_registration.utils import create_user_util_test
-from api.utils import wait_util
 from sb_updates.neo_models import Update
 
 

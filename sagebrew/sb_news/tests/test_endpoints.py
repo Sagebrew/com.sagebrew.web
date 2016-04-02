@@ -19,7 +19,7 @@ from sb_news.neo_models import NewsArticle
 class QuestEndpointTests(APITestCase):
 
     def setUp(self):
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)

@@ -3,10 +3,10 @@
         {{ title_text }}
     </h3>
     <div class="block-content">
-        <img class="upload-image-preview no-left-right-padding" src="{{ current_image }}"/>
+        <img id="js-current-image" class="upload-image-preview no-left-right-padding" src="{{ current_image }}"/>
         <form id="{{ upload_form|default:"js-image-upload-form" }}" method="post" action="{% url "upload-list" %}" enctype="multipart/form-data">
             <div id="drop" class="dropbox-area">
-                <span>Click to select image or drag it here</span>
+                <span>Click here to select an image or drag it here</span>
             </div>
             <input type="file" id="js-file-input" class="hidden" name="file_object"/>
         </form>

@@ -3,7 +3,7 @@
 {% block title %}Mission Settings{% endblock title %}
 
 {% block live %}
-    {% include "partials/image_upload_block.html" with title_text="Mission Wallpaper" save_button_text="Save Header" %}
+    {% include "partials/image_upload_block.html" with title_text="Mission Wallpaper" save_button_text="Save Header" current_image=mission.wallpaper_pic %}
     <div class="block">
         <h3 class="block-title">
             Mission Settings

@@ -415,6 +415,7 @@ export function setupImageUpload($app, $formSelector, $previewContainer, $submit
                     dropArea.hide();
                 });
             } else {
+                $("#js-current-image").hide();
                 $previewContainer.attr('src', result.url);
                 $previewContainer.removeClass('hidden');
                 $submitButton.removeClass('disabled');

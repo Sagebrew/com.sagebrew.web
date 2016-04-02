@@ -39,7 +39,8 @@ export function load() {
         addressValidationForm = $("#address"),
         passwordValidationForm = $('#password-form'),
         continueBtn = document.getElementById('js-continue-btn'),
-        passwordBtn = document.getElementById('js-new-password'),
+        passwordBtn = document.getElementById('js-new-password');
+    /*
         $imageProfileForm = $("#js-image-upload-form"),
         $previewProfileContainer = $('#js-image-preview'),
         $saveProfilePicButton = $("#js-submit-profile-picture"),
@@ -48,6 +49,7 @@ export function load() {
         $saveWallpaperPicButton = $("#js-submit-wallpaper-picture");
     helpers.setupImageUpload($app, $imageProfileForm, $previewProfileContainer, $saveProfilePicButton, 500, 500);
     helpers.setupImageUpload($app, $imageWallpaperForm, $previewWallpaperContainer, $saveWallpaperPicButton, 500, 500, false);
+    */
     validators.updateAccountValidator($("#account-info"));
     validators.addressValidator(addressValidationForm);
     validators.passwordValidator(passwordValidationForm);

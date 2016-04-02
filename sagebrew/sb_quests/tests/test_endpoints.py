@@ -79,11 +79,12 @@ class QuestEndpointTests(APITestCase):
         url = reverse('quest-list')
         data = {
             "about": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
@@ -100,11 +101,12 @@ class QuestEndpointTests(APITestCase):
         url = reverse('quest-list')
         data = {
             "about": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "position": position.object_uuid,
             "tos_acceptance": True,
         }
@@ -122,11 +124,12 @@ class QuestEndpointTests(APITestCase):
         url = reverse('quest-list')
         data = {
             "about": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json',
@@ -144,11 +147,12 @@ class QuestEndpointTests(APITestCase):
         url = reverse('quest-list')
         data = {
             "about": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "position": position.object_uuid
         }
         self.client.post(url, data=data, format='json')
@@ -173,11 +177,12 @@ class QuestEndpointTests(APITestCase):
         url = reverse('quest-list')
         data = {
             "about": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "position": position.object_uuid
         }
         self.client.post(url, data=data, format='json')
@@ -200,11 +205,12 @@ class QuestEndpointTests(APITestCase):
         url = reverse('quest-list')
         data = {
             "about": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "position": position.object_uuid
         }
         self.client.post(url, data=data, format='json')

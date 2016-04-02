@@ -39,14 +39,15 @@ class ProfilePageTest(TestCase):
         request.user = AnonymousUser()
         profile_page = ProfileView.as_view()
         response = profile_page(request, self.pleb.username)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_without_post(self):
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         profile_page = ProfileView.as_view()
         response = profile_page(request, self.pleb.username)
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
 
     def test_with_post(self):
         test_post = Post(content='test', object_uuid=str(uuid1()),
@@ -61,7 +62,8 @@ class ProfilePageTest(TestCase):
         request.user = self.user
         profile_page = ProfileView.as_view()
         response = profile_page(request, self.pleb.username)
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
         test_post.delete()
 
     def test_post_with_comments(self):
@@ -82,7 +84,8 @@ class ProfilePageTest(TestCase):
         request.user = self.user
         profile_page = ProfileView.as_view()
         response = profile_page(request, self.pleb.username)
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
         test_post.delete()
         my_comment.delete()
 
@@ -179,7 +182,8 @@ class ProfilePageTest(TestCase):
         request.user = self.user
         profile_page = ProfileView.as_view()
         response = profile_page(request, self.pleb.username)
-        self.assertIn(response.status_code, [302, 200])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
         for item in pleb_array:
             item.delete()
         for post in post_array:
@@ -231,7 +235,8 @@ class ProfilePageTest(TestCase):
         request.user = self.user
         profile_page = ProfileView.as_view()
         response = profile_page(request, self.pleb.username)
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
         for item in pleb_array:
             item.delete()
         for post in post_array:
@@ -246,7 +251,7 @@ class ProfilePageTest(TestCase):
         profile_page = ProfileView.as_view()
         response = profile_page(request, 'fake_username')
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
 
 class TestSettingPages(TestCase):

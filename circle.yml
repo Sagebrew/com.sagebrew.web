@@ -3,6 +3,7 @@ machine:
     - rabbitmq-server
     - docker
     - redis
+    - memcached
 
 dependencies:
   cache_directories:

@@ -258,7 +258,7 @@ class MeEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,

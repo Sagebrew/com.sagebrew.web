@@ -166,9 +166,11 @@ class Quest(Searchable):
         return None
 
     @classmethod
-    def get(cls, owner_username):
-        quest = cache.get("%s_quest" % owner_username)
-        if quest is None:
+    def get(cls, owner_username, cache_buster=False):
+        quest = None
+        if cache_buster is False:
+            quest = cache.get("%s_quest" % owner_username)
+        if quest is None or cache_buster:
             query = 'MATCH (c:Quest {owner_username: "%s"}) RETURN c' % \
                     owner_username
             res, _ = db.cypher_query(query)

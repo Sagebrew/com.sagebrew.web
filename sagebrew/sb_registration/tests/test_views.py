@@ -97,7 +97,7 @@ class InterestsTest(TestCase):
         response = interests(request)
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(len(self.pleb.interests.all()), 13)
+        self.assertEqual(len(self.pleb.interests.all()), 12)
         query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
                 '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
 
@@ -127,7 +127,7 @@ class InterestsTest(TestCase):
         response = interests(request)
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(len(self.pleb.interests.all()), 13)
+        self.assertEqual(len(self.pleb.interests.all()), 12)
         query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
                 '(tag:Tag {name: "social"}) RETURN a' % self.pleb.username
 

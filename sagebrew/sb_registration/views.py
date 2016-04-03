@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.template.loader import get_template
 from django.template import Context
+from django.utils.text import slugify
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -268,15 +269,20 @@ def interests(request):
     if interest_form.is_valid():
         if "select_all" in interest_form.cleaned_data:
             interest_form.cleaned_data.pop('select_all', None)
+        if "specific_interests" in interest_form.cleaned_data:
+            interest_form.cleaned_data.pop('specific_interests', None)
         # not using batch query because it requires at least 2 items. Since
         # users may select no, one, or more interests just using regular
         # query rather than adding additional logic.
+        interests_list = [
+            key for key, value in interest_form.cleaned_data.iteritems()
+            if value is True]
         [db.cypher_query(
             'MATCH (pleb:Pleb {username: "%s"}), '
             '(tag:Tag {name: "%s"}) '
             'CREATE UNIQUE (pleb)-[:INTERESTED_IN]->(tag) '
-            'RETURN pleb' % (request.user.username, key.lower()))
-            for key, value in interest_form.cleaned_data.iteritems()]
+            'RETURN pleb' % (request.user.username, slugify(tag)))
+            for tag in interests_list]
         cache.delete(request.user.username)
         return redirect('profile_picture')
 

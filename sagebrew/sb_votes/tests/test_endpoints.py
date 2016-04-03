@@ -7,16 +7,12 @@ from django.core.cache import cache
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from neomodel import db
-
 from api.utils import spawn_task
 from plebs.neo_models import Pleb
 from sb_docstore.tasks import spawn_user_updates
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 from sb_search.tasks import update_search_object
-
-from sb_votes.neo_models import Vote
 
 
 class VoteEndpointTests(APITestCase):

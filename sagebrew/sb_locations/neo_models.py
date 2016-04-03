@@ -1,5 +1,3 @@
-from django.core.cache import cache
-
 from neomodel import (db, StringProperty, RelationshipTo)
 
 from api.neo_models import SBObject

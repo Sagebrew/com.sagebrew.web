@@ -16,10 +16,7 @@ class SBSerializer(serializers.Serializer):
             return None
 
     def get_type(self, obj):
-        try:
-            return obj.__class__.__name__.lower()
-        except AttributeError:
-            return None
+        return obj.__class__.__name__.lower()
 
     def update(self, instance, validated_data):
         task_param = {

@@ -419,7 +419,7 @@ def cleanup_title(value):
     # lowercase
     if value[0] == '"' or value[0] == "'":
         value = value[1:]
-    if value[:len(value)] == '"' or value[:len(value)] == "'":
+    if value[len(value) - 1] == '"' or value[len(value) - 1] == "'":
         value = value[:len(value) - 1]
     value = value.replace('"', "").strip()
     for acronym in settings.COMPANY_ACRONYMS:

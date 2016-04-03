@@ -114,6 +114,21 @@ class TestNewsSerializers(TestCase):
         self.assertEqual(res.one['title'], "Friends Of Israel - "
                                            "The New Yorker")
 
+        query = 'MATCH (a:NewsArticle ' \
+                '{external_id: "c6dd81cf775476d17fd9effe3a43d13d060eb2c8"}) ' \
+                'RETURN a'
+
+        res, _ = db.cypher_query(query)
+        self.assertEqual(res.one['title'], "What's This Another New "
+                                           "Title It's A Miracle...")
+
+        query = 'MATCH (a:NewsArticle ' \
+                '{external_id: "c8dd81cf775476d17fd9effe3a43d13d060eb2c8"}) ' \
+                'RETURN a'
+
+        res, _ = db.cypher_query(query)
+        self.assertEqual(res.one['title'], "Yet Another Title! What Is This!")
+
     def test_title_unique(self):
         test_file = settings.PROJECT_DIR + "/sb_news/tests/sample_json/" \
                                            "title_unique.json"

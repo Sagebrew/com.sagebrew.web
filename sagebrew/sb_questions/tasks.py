@@ -31,21 +31,23 @@ def create_question_summary_task(object_uuid):
 
 @shared_task()
 def add_auto_tags_to_question_task(object_uuid):
-    '''
+    """
     This function will take a question object, a list of
     tags and auto tags and manage the other tasks which attach them to
     the question.
 
-    :param question:
+    :param object_uuid:
     :return:
-    '''
+    """
     try:
         question = Question.nodes.get(object_uuid=object_uuid)
     except (DoesNotExist, Question.DoesNotExist, CypherException, IOError) as e:
         raise add_auto_tags_to_question_task.retry(exc=e, countdown=5,
                                                    max_retries=None)
     auto_tags = create_auto_tags(question.content)
-    if isinstance(auto_tags, Exception) is True:
+    if isinstance(auto_tags, Exception) is True:  # pragma: no cover
+        # Not covering because we don't have a good way to generate this
+        # exception - Devon Bleibtrey
         raise add_auto_tags_to_question_task.retry(
             exc=auto_tags, countdown=3, max_retries=None)
 
@@ -59,7 +61,9 @@ def add_auto_tags_to_question_task(object_uuid):
     }
     spawned = spawn_task(task_func=add_auto_tags,
                          task_param=auto_tag_data)
-    if isinstance(spawned, Exception) is True:
+    if isinstance(spawned, Exception) is True:  # pragma: no cover
+        # Not covering because we don't have a good way to generate this
+        # exception - Devon Bleibtrey
         raise add_auto_tags_to_question_task.retry(exc=spawned, countdown=3,
                                                    max_retries=None)
 

@@ -110,7 +110,6 @@ urlpatterns = patterns(
     (r'^v1/', include('plebs.apis.v1')),
     (r'^v1/', include('sb_posts.apis.v1')),
     (r'^v1/', include('sb_comments.apis.v1')),
-    (r'^v1/', include('sb_flags.apis.v1')),
     (r'^v1/', include('sb_news.apis.v1')),
     (r'^v1/', include('sb_missions.apis.v1')),
     (r'^v1/', include('sb_privileges.apis.v1')),

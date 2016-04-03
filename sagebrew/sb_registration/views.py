@@ -268,12 +268,15 @@ def interests(request):
     if interest_form.is_valid():
         if "select_all" in interest_form.cleaned_data:
             interest_form.cleaned_data.pop('select_all', None)
-        queries = [('MATCH (pleb:Pleb {username: "%s"}), '
-                    '(tag:Tag {name: "%s"}) '
-                    'CREATE UNIQUE (pleb)-[:INTERESTED_IN]->(tag) '
-                    'RETURN pleb' % (request.user.username, key.lower()), {})
-                   for key, value in interest_form.cleaned_data.iteritems()]
-        db.cypher_batch_query(queries)
+        # not using batch query because it requires at least 2 items. Since
+        # users may select no, one, or more interests just using regular
+        # query rather than adding additional logic.
+        [db.cypher_query(
+            'MATCH (pleb:Pleb {username: "%s"}), '
+            '(tag:Tag {name: "%s"}) '
+            'CREATE UNIQUE (pleb)-[:INTERESTED_IN]->(tag) '
+            'RETURN pleb' % (request.user.username, key.lower()))
+            for key, value in interest_form.cleaned_data.iteritems()]
         cache.delete(request.user.username)
         return redirect('profile_picture')
 

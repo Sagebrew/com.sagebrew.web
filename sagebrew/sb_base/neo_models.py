@@ -1,17 +1,19 @@
-import math
 import pytz
 import logging
 from json import dumps
 from datetime import datetime
+
+from django.utils.text import slugify
+
 from boto.exception import BotoClientError, BotoServerError, AWSConnectionError
 from boto.dynamodb2.exceptions import ProvisionedThroughputExceededException
-from py2neo.cypher.error.statement import (ConstraintViolation, ClientError,
-                                           EntityNotFound)
+
+from py2neo.cypher.error.statement import ClientError
 from neomodel import (StringProperty, IntegerProperty,
                       DateTimeProperty, RelationshipTo, StructuredRel,
                       BooleanProperty, FloatProperty, CypherException,
-                      RelationshipFrom, DoesNotExist, CardinalityViolation,
-                      db)
+                      RelationshipFrom, db)
+
 
 from sb_notifications.neo_models import NotificationCapable
 from sb_docstore.utils import get_vote_count as doc_vote_count
@@ -102,96 +104,93 @@ class VotableContent(NotificationCapable):
 
     # methods
     def vote_content(self, vote_type, pleb):
-        try:
-            try:
-                if pleb in self.votes:
-                    try:
-                        rel = self.votes.relationship(pleb)
-                    except EntityNotFound:
-                        rel = self.votes.connect(pleb)
-                else:
-                    rel = self.votes.connect(pleb)
-            except(CardinalityViolation, ConstraintViolation):
-                # This is not tested as we still do not know how to recreate
-                # the exception. It has just appeared in New Relic and
-                # tests previously.
-                rel = self.votes.relationship(pleb)
-            rel.active = True
-            if vote_type == 2:
-                rel.active = False
-            rel.vote_type = vote_type
-            rel.save()
-            return self
-        except (CypherException, IOError) as e:
-            return e
+        vote_active = "True"
+        if vote_type == 2:
+            vote_active = "False"
+        query = 'MATCH (a:Pleb {username: "%s"}), ' \
+                '(content:VotableContent {object_uuid: "%s"}) ' \
+                'CREATE UNIQUE (a)-[rel:PLEB_VOTES]->(content) ' \
+                'SET rel.active=%s RETURN rel' % (
+                    pleb.username, self.object_uuid, vote_active)
+        res, _ = db.cypher_query(query)
+        return self
 
     def get_upvote_count(self):
         try:
             return int(doc_vote_count(self.object_uuid, 1))
         except(TypeError, IOError, BotoClientError, BotoServerError,
                AWSConnectionError, ProvisionedThroughputExceededException,
-               Exception):
+               Exception):  # pragma: no cover
+            # Not covering this as we don't have a good way to shut down dynamo
+            # run this and then recover. If someone can figure out a way to do
+            # so please feel free. This has been tested in production and
+            # staging under real life conditions - Devon Bleibtrey
+
             # We log this off because if we're receiving this error we may
             # want to increase the provisional count on DynamoDB
             logger.critical("DynamoDB Provision Throughput Reached or Down!")
 
-        query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
-                '-[r:PLEB_VOTES]-(p:Pleb) ' \
-                'where r.vote_type=true and r.active=true return r' % (
-                    self.object_uuid)
-        try:
-            res, col = db.cypher_query(query)
-            return len(res)
-        except(CypherException, IOError, ClientError) as e:
-            logger.exception("Cypher Error: ")
-            return e
+            query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
+                    '-[r:PLEB_VOTES]-(p:Pleb) ' \
+                    'where r.vote_type=true and r.active=true return r' % (
+                        self.object_uuid)
+            try:
+                res, _ = db.cypher_query(query)
+                return len(res)
+            except(CypherException, IOError, ClientError) as e:
+                logger.exception("Cypher Error: ")
+                return e
 
     def get_downvote_count(self):
         try:
             return int(doc_vote_count(self.object_uuid, 0))
         except(TypeError, IOError, BotoClientError, BotoServerError,
                AWSConnectionError, ProvisionedThroughputExceededException,
-               Exception):
+               Exception):  # pragma: no cover
+            # Not covering this as we don't have a good way to shut down dynamo
+            # run this and then recover. If someone can figure out a way to do
+            # so please feel free. This has been tested in production and
+            # staging under real life conditions - Devon Bleibtrey
+
             # We log this off because if we're receiving this error we may
             # want to increase the provisional count on DynamoDB
             logger.critical("DynamoDB Provision Throughput Reached or Down!")
 
-        query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
-                '-[r:PLEB_VOTES]-(p:Pleb) ' \
-                'where r.vote_type=false and r.active=true return r' % (
-                    self.object_uuid)
-        try:
-            res, col = db.cypher_query(query)
-            return len(res)
-        except (CypherException, IOError, ClientError) as e:
-            logger.exception("Cypher Error: ")
-            return e
+            query = 'MATCH (b:VotableContent {object_uuid: "%s"})' \
+                    '-[r:PLEB_VOTES]-(p:Pleb) ' \
+                    'where r.vote_type=false and r.active=true return r' % (
+                        self.object_uuid)
+            try:
+                res, _ = db.cypher_query(query)
+                return len(res)
+            except (CypherException, IOError, ClientError) as e:
+                logger.exception("Cypher Error: ")
+                return e
 
     def get_vote_count(self):
         return int(self.get_upvote_count() - self.get_downvote_count())
 
     def get_vote_type(self, username):
-        from plebs.neo_models import Pleb
         try:
             return determine_vote_type(self.object_uuid, username)
         except(TypeError, IOError, BotoClientError, BotoServerError,
                AWSConnectionError, ProvisionedThroughputExceededException,
-               Exception):
+               Exception):  # pragma: no cover
+            # Not covering this as we don't have a good way to shut down dynamo
+            # run this and then recover. If someone can figure out a way to do
+            # so please feel free. This has been tested in production and
+            # staging under real life conditions - Devon Bleibtrey
+
             # We log this off because if we're receiving this error we may
             # want to increase the provisional count on DynamoDB
             logger.critical("DynamoDB Provision Throughput Reached!")
-        try:
-            pleb = Pleb.get(username=username)
-            if self.votes.is_connected(pleb):
-                rel = self.votes.relationship(pleb)
-            else:
-                return None
-        except(CypherException, IOError, ClientError) as e:
-            logger.exception("Cypher Error: ")
-            return e
-        if rel.active is False:
-            return None
-        return rel.vote_type
+            query = 'MATCH (a:Pleb {username: "%s")-[rel:PLEB_VOTES]->' \
+                    '(content:VotableContent {object_uuid: "%s"}) RETURN ' \
+                    'CASE rel.active ' \
+                    'WHEN False THEN NULL ' \
+                    'ELSE rel.vote_type END' % (username, self.object_uuid)
+            res, _ = db.cypher_query(query)
+            return res.one
 
     @apply_defense
     def get_rep_breakout(self):
@@ -274,8 +273,8 @@ class SBContent(VotableContent):
                                 model=RelationshipWeight)
     notifications = RelationshipTo(
         'sb_notifications.neo_models.Notification', 'NOTIFICATIONS')
-    council_votes = RelationshipTo('plebs.neo_models.Pleb', 'COUNCIL_VOTE',
-                                   model=CouncilVote)
+    council_votes = RelationshipFrom('plebs.neo_models.Pleb', 'COUNCIL_VOTE',
+                                     model=CouncilVote)
     uploaded_objects = RelationshipTo('sb_uploads.neo_models.UploadedObject',
                                       'UPLOADED_WITH')
     url_content = RelationshipTo('sb_uploads.neo_models.URLContent',
@@ -294,10 +293,6 @@ class SBContent(VotableContent):
     def reputation_adjust(self):
         pass
 
-    @apply_defense
-    def get_table(self):
-        return self.table
-
     def get_flagged_by(self):
         query = "MATCH (a:SBContent {object_uuid: '%s'})-[:FLAGGED_BY]->(" \
                 "b:Pleb) Return b.username" % self.object_uuid
@@ -305,25 +300,21 @@ class SBContent(VotableContent):
         return [row[0] for row in res]
 
     def council_vote(self, vote_type, pleb):
-        try:
-            try:
-                if pleb in self.council_votes:
-                    rel = self.council_votes.relationship(pleb)
-                else:
-                    rel = self.council_votes.connect(pleb)
-            except(CardinalityViolation, ConstraintViolation):
-                rel = self.council_votes.relationship(pleb)
-            rel.active = True
-            if vote_type == rel.vote_type and rel.active is True:
-                rel.active = False
-            rel.vote_type = vote_type
-            rel.save()
-            return self
-        except (CypherException, IOError) as e:
-            return e
+        query = 'MATCH (a:Pleb {username: "%s"}), ' \
+                '(content:SBContent {object_uuid: "%s"}) ' \
+                'CREATE UNIQUE (a)-[rel:COUNCIL_VOTE]->(content) ' \
+                'RETURN rel' % (pleb.username, self.object_uuid)
+        res, _ = db.cypher_query(query)
+        council_vote_rel = VoteRelationship.inflate(res.one)
+        if vote_type == council_vote_rel.vote_type and \
+                council_vote_rel.active is True:
+            council_vote_rel.active = False
+        council_vote_rel.vote_type = vote_type
+        council_vote_rel.save()
+        return self
 
     def get_council_vote(self, username):
-        query = 'MATCH (a:SBContent {object_uuid:"%s"})-[r:COUNCIL_VOTE]->' \
+        query = 'MATCH (a:SBContent {object_uuid:"%s"})<-[r:COUNCIL_VOTE]-' \
                 '(p:Pleb {username:"%s"}) WHERE r.active=true ' \
                 'RETURN r.vote_type' % (self.object_uuid, username)
         res, _ = db.cypher_query(query)
@@ -332,7 +323,7 @@ class SBContent(VotableContent):
     def get_council_decision(self):
         # True denotes that the vote is for the content to be removed, while
         # false means that the content should not be removed
-        query = 'MATCH (a:SBContent {object_uuid:"%s"})-[rs:COUNCIL_VOTE]->' \
+        query = 'MATCH (a:SBContent {object_uuid:"%s"})<-[rs:COUNCIL_VOTE]-' \
                 '(p:Pleb) WHERE rs.active=true RETURN ' \
                 'reduce(remove_vote = 0, r in collect(rs)| ' \
                 'CASE WHEN r.vote_type=true THEN remove_vote+1 ' \
@@ -377,12 +368,12 @@ class SBContent(VotableContent):
                 for row in res]
 
     def get_participating_users(self):
-        '''
+        """
         This function will get all users involved in a comment thread on a
         specific object.
 
         :return:
-        '''
+        """
         query = 'MATCH (a:SBContent {object_uuid:"%s"})-[:HAS_A]->' \
                 '(c:Comment) RETURN DISTINCT c.owner_username' \
                 % self.object_uuid
@@ -396,58 +387,26 @@ class TaggableContent(SBContent):
     tags = RelationshipTo('sb_tags.neo_models.Tag', 'TAGGED_AS')
 
     # methods
-    @apply_defense
-    def add_tags(self, tags):
-        """
-        :param tags: String that contains a list of the tags being added with
-                     a , representing the splitting point
-        :return:
-        """
-        from sb_tags.neo_models import Tag
-        tag_array = []
-        if isinstance(tags, basestring) is True:
-            tags = tags.split(',')
-        if not tags:
-            return False
-        for tag in tags:
-            try:
-                tag_object = Tag.nodes.get(name=tag.lower())
-                tag_array.append(tag_object)
-            except (Tag.DoesNotExist, DoesNotExist):
-                # TODO we should only be creating tags if the user has enough
-                # rep
-                continue
-            except (CypherException, IOError) as e:
-                return e
-        for item in tag_array:
-            try:
-                self.tags.connect(item)
-                item.tag_used += 1
-                item.save()
-            except (CypherException, IOError) as e:
-                return e
-        return tag_array
-
     def add_auto_tags(self, tag_list):
         from sb_tags.neo_models import AutoTag
-        tag_array = []
-        try:
-            for tag in tag_list:
-                try:
-                    tag_object = AutoTag.nodes.get(
-                        name=tag['tags']['text'].lower())
-                except (AutoTag.DoesNotExist, DoesNotExist):
-                    tag_object = AutoTag(
-                        name=tag['tags']['text'].lower()).save()
-                if self.auto_tags.is_connected(tag_object):
-                    continue
-                rel = self.auto_tags.connect(tag_object)
-                rel.relevance = tag['tags']['relevance']
-                rel.save()
-                tag_array.append(tag_object)
-            return tag_array
-        except KeyError as e:
-            return e
+        queries = []
+        for tag in tag_list:
+            name = slugify(tag['tags']['text'])
+            query = 'MATCH (autotag:AutoTag {name: "%s"}) RETURN autotag' % (
+                name
+            )
+            res, _ = db.cypher_query(query)
+            if res.one is None:
+                AutoTag(name=name).save()
+            res, _ = db.cypher_query(
+                'MATCH (autotag:AutoTag {name: "%s"}),'
+                ' (content:TaggableContent {object_uuid: "%s"}) '
+                'CREATE UNIQUE (autotag)<-[rel:TAGGED_AS]-(content) '
+                'SET rel.relevance=%f '
+                'RETURN autotag' % (name, self.object_uuid,
+                                    tag['tags']['relevance']))
+            queries.append(AutoTag.inflate(res.one))
+        return queries
 
 
 class SBVersioned(TaggableContent):
@@ -458,54 +417,6 @@ class SBVersioned(TaggableContent):
     # relationships
     edits = RelationshipTo(SBContent.get_model_name(), 'EDIT')
     edit_to = RelationshipTo(SBContent.get_model_name(), 'EDIT_TO')
-
-    def edit_content(self, content, pleb):
-        pass
-
-    def get_name(self):
-        return self.__class__.__name__
-
-    def get_rep_breakout(self):
-        """
-        This reputation breakout is for determining how much rep falls under
-        a given tag rather than an accumulation for analyzing an individuals
-        reputation count. Not to be confused with the other get_rep_breakout.
-        # TODO we may want to change the naming of this method
-        :return:
-        """
-        if self.is_closed and (datetime.now(pytz.utc) -
-                               self.initial_vote_time).days >= 5:
-            self.initial_vote_time = datetime.now(pytz.utc)
-            self.save()
-            return {
-                'total_rep': -20,
-                'pos_rep': 0,
-                'neg_rep': -20,
-                'tag_list': [],
-                'rep_per_tag': 0,
-                'base_tag_list:': []
-            }
-        tag_list = []
-        base_tags = []
-        pos_rep = self.get_upvote_count() * int(self.up_vote_adjustment)
-        neg_rep = self.get_downvote_count() * int(self.down_vote_adjustment)
-
-        for tag in self.tags.all():
-            if tag.base:
-                base_tags.append(tag.name)
-            tag_list.append(tag.name)
-        try:
-            rep_per_tag = math.ceil(float(pos_rep + neg_rep) / len(tag_list))
-        except ZeroDivisionError:
-            rep_per_tag = 0
-        return {
-            "total_rep": pos_rep + neg_rep,
-            "pos_rep": pos_rep,
-            "neg_rep": neg_rep,
-            "tag_list": tag_list,
-            "rep_per_tag": rep_per_tag,
-            "base_tag_list": base_tags
-        }
 
 
 class SBPublicContent(SBVersioned):
@@ -520,26 +431,6 @@ class TitledContent(SBPublicContent):
 class SBPrivateContent(TaggableContent):
     # Used to distinguish between private conversations and public
     pass
-
-
-def get_parent_content(object_uuid, relation, child_object):
-    try:
-        query = "MATCH (a:%s {object_uuid:'%s'})-[:%s]->" \
-                "(b:SBContent) RETURN b" % (child_object, object_uuid, relation)
-        res, col = db.cypher_query(query)
-        try:
-            content = SBContent.inflate(res[0][0])
-        except ValueError:
-            # This exception was added while initially implementing the fxn and
-            # may not be possible in production. What happened was multiple
-            # flags/votes got associated with a piece of content causing an
-            # array to be returned instead of a single object which is handled
-            # above. This should be handled now but we should verify that
-            # the serializers ensure this singleness prior to removing this.
-            content = SBContent.inflate(res[0][0][0])
-        return content
-    except IndexError:
-        return None
 
 
 def get_parent_titled_content(object_uuid):

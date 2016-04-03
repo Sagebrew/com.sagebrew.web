@@ -60,6 +60,31 @@ class InterestsTest(TestCase):
 
         self.assertEqual(response.status_code, 302)
 
+    def test_one_topic_selected(self):
+        my_dict = {"fiscal": True, "education": False, "space": False,
+                   "drugs": False, "science": False, "energy": False,
+                   "environment": False, "defense": False, "health": False,
+                   "social": False, "foreign_policy": False,
+                   "agriculture": False}
+        request = self.factory.post('/registration/interests',
+                                    data=my_dict)
+        request.user = self.user
+        response = interests(request)
+
+        self.assertEqual(response.status_code, 302)
+
+    def test_select_all_selected(self):
+        my_dict = {"fiscal": True, "education": True, "space": True,
+                   "drugs": True, "science": True, "energy": True,
+                   "environment": True, "defense": True, "health": True,
+                   "social": True, "foreign_policy": True,
+                   "agriculture": True, 'select_all': True}
+        request = self.factory.post('/registration/interests',data=my_dict)
+        request.user = self.user
+        response = interests(request)
+
+        self.assertEqual(response.status_code, 302)
+
     def test_all_topics_selected(self):
         my_dict = {"fiscal": True, "education": True, "space": True,
                    "drugs": True, "science": True, "energy": True,

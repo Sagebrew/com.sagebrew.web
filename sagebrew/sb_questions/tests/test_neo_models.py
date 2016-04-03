@@ -24,11 +24,35 @@ class TestQuestionNeoModel(TestCase):
                                  title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
 
+    def test_add_no_auto_tags(self):
+        res = self.question.add_auto_tags([])
+        self.assertIsInstance(res, list)
+        self.assertEqual(len(res), 0)
+
     def test_add_auto_tags(self):
         auto_tags = [{'tags': {'text': 'testautotag', 'relevance': 0.10201}}]
         res = self.question.add_auto_tags(auto_tags)
-
         self.assertIsInstance(res, list)
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0].name, 'testautotag')
+
+    def test_add_multiple_auto_tags(self):
+        auto_tags = [{'tags': {'text': 'testautotag4', 'relevance': 0.10201}},
+                     {'tags': {'text': 'testautotag8', 'relevance': 0.10441}}]
+        res = self.question.add_auto_tags(auto_tags)
+        self.assertIsInstance(res, list)
+        self.assertEqual(len(res), 2)
+        self.assertEqual(res[0].name, 'testautotag4')
+        self.assertEqual(res[1].name, 'testautotag8')
+
+    def test_add_multiple_auto_tags_not_unique(self):
+        auto_tags = [{'tags': {'text': 'testautotag6', 'relevance': 0.10201}},
+                     {'tags': {'text': 'testautotag6', 'relevance': 0.10441}}]
+        res = self.question.add_auto_tags(auto_tags)
+        self.assertIsInstance(res, list)
+        self.assertEqual(len(res), 2)
+        self.assertEqual(res[0].name, 'testautotag6')
+        self.assertEqual(res[0].object_uuid, res[1].object_uuid)
 
     def test_empty_get_tags_string(self):
         res = self.question.get_tags_string()

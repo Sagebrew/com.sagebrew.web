@@ -6,7 +6,6 @@ from sb_registration.utils import create_user_util_test
 from sb_posts.neo_models import Post
 from sb_questions.neo_models import Question
 from sb_uploads.neo_models import UploadedObject
-from sb_tags.neo_models import Tag
 from sb_base.neo_models import (get_parent_votable_content, VotableContent,
                                 get_parent_titled_content, TitledContent)
 

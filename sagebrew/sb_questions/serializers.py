@@ -3,7 +3,6 @@ import pytz
 from uuid import uuid1
 from datetime import datetime
 
-from django.conf import settings
 from django.core.cache import cache
 from django.utils.text import slugify
 

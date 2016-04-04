@@ -56,7 +56,7 @@ def add_auto_tags_to_question_task(object_uuid):
         task_data.append({"tags": tag})
 
     auto_tag_data = {
-        'question': question,
+        'object_uuid': question.object_uuid,
         'tag_list': task_data
     }
     spawned = spawn_task(task_func=add_auto_tags,

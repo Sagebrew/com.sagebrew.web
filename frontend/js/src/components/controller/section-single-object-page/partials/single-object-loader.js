@@ -1,8 +1,8 @@
 /*global $, Autolinker */
 var request = require('api').request,
     helpers = require('common/helpers'),
-    questionTemplate = require('controller/conversation/conversation-view/templates/question.hbs'),
-    solutionTemplate = require('controller/conversation/conversation-view/templates/solution.hbs'),
+    questionTemplate = require('controller/section-profile/templates/question_news.hbs'),
+    solutionTemplate = require('controller/section-profile/templates/solution_news.hbs'),
     postNewsTemplate = require('controller/section-profile/templates/post_news.hbs');
 
 
@@ -33,12 +33,7 @@ function loadSingleContent() {
     request.get({url: objectURL})
         .done(function (data) {
             var renderedTemplate;
-
-            if (formattedObjectType === "solution") {
-                wrapper.append('<h1 class="block-title"><a href="' + data.question.url + '"> Solution To: ' + data.question.title + ' </a></h1>');
-            } else if (formattedObjectType === "question") {
-                wrapper.append('<h1 class="block-title"><a href="' + data.url + '">' + data.title + ' </a></h1>');
-            } else {
+            if(formattedObjectType !== 'solution' && formattedObjectType !== 'question') {
                 wrapper.prepend('<h1 class="block-title">' + capitalizedOjbectType + '</h1>');
             }
             data = helpers.votableContentPrep([data])[0];

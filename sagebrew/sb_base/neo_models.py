@@ -389,7 +389,7 @@ class TaggableContent(SBContent):
     # methods
     def add_auto_tags(self, tag_list):
         from sb_tags.neo_models import AutoTag
-        queries = []
+        auto_tag_list = []
         for tag in tag_list:
             name = slugify(tag['tags']['text'])
             query = 'MATCH (autotag:AutoTag {name: "%s"}) RETURN autotag' % (
@@ -405,8 +405,8 @@ class TaggableContent(SBContent):
                 'SET rel.relevance=%f '
                 'RETURN autotag' % (name, self.object_uuid,
                                     tag['tags']['relevance']))
-            queries.append(AutoTag.inflate(res.one))
-        return queries
+            auto_tag_list.append(AutoTag.inflate(res.one))
+        return auto_tag_list
 
 
 class SBVersioned(TaggableContent):

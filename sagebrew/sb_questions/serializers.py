@@ -170,7 +170,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
             if not res.one:
                 if (request.user.username == "devon_bleibtrey" or
                         request.user.username == "tyler_wiersing" or
-                        owner.reputation > 1250):
+                        owner.reputation >= 1250):
                     tag_obj = Tag(name=slugify(tag)).save()
                     question.tags.connect(tag_obj)
                 else:

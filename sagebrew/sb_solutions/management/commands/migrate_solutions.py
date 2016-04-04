@@ -17,7 +17,7 @@ class Command(BaseCommand):
             query = "MATCH (a:Solution {object_uuid:'%s'})" \
                     "-[:POSSIBLE_ANSWER]->" \
                     "(b:Question) RETURN b" % solution.object_uuid
-            res, col = db.cypher_query(query)
+            res, _ = db.cypher_query(query)
             parent = Question.inflate(res.one)
             solution.parent_id = parent.object_uuid
             solution.save()

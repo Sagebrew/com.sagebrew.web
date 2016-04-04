@@ -41,7 +41,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         solution.owned_by.connect(owner)
         question.solutions.connect(solution)
         spawn_task(task_func=create_solution_summary_task, task_param={
-            'object_uuid': question.object_uuid
+            'object_uuid': solution.object_uuid
         })
         return solution
 

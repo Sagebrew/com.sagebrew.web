@@ -1,9 +1,9 @@
 from uuid import uuid1
-import time
 from dateutil import parser
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.conf import settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -319,12 +319,13 @@ class CouncilEndpointTests(APITestCase):
         self.assertFalse(response.data['council_vote'])
 
     def test_get_after_vote(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.client.force_authenticate(user=self.user)
         url = reverse('council-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
         self.client.put(url, data={'vote_type': True}, format='json')
-        time.sleep(10)  # allow for task to finish
         get_response = self.client.get(url, format='json')
+        settings.CELERY_ALWAYS_EAGER = False
         self.assertTrue(get_response.data['is_closed'])
 
     def test_positions(self):

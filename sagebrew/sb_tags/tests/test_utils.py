@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 from django.test import TestCase
+from django.utils.text import slugify
 
 from sb_tags.utils import (create_tag_relations_util, update_tags_util)
 from sb_tags.neo_models import AutoTag
@@ -54,9 +55,9 @@ class TestUpdateTagsUtil(TestCase):
         self.tag_list = ['these fake', 'are fake', 'fake fake', 'tags fake']
         for tag in self.tag_list:
             try:
-                self.tags.append(AutoTag(name=tag).save())
+                self.tags.append(AutoTag(name=slugify(tag)).save())
             except Exception:
-                self.tags.append(AutoTag.nodes.get(name=tag))
+                self.tags.append(AutoTag.nodes.get(name=slugify(tag)))
 
     def test_update_tags_util(self):
         res = update_tags_util(self.tag_list)

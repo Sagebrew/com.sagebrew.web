@@ -12,7 +12,7 @@
                           id="title_id"
                           name="title"
                           placeholder="Question Title"
-                          value="{{ question.title }}" disabled="disabled"/>
+                          value="{{ question.title }}" {% if question.solution_count > 0 %}disabled="disabled"{% endif %}/>
             </div>
             <div class="question_content_input">
                 <textarea class="form-control markdown-input"

@@ -1,3 +1,5 @@
+from django.utils.text import slugify
+
 from neomodel import db
 from neomodel.exception import CypherException
 
@@ -64,7 +66,7 @@ def update_tags_util(tags):
         # This task should only ever be called after tags have been associated
         # with a user so the Tags should exist
         try:
-            tag = Tag.nodes.get(name=name.lower())
+            tag = Tag.nodes.get(name=slugify(name))
             tag.tag_used += 1
             tag.save()
         except(CypherException, IOError) as e:

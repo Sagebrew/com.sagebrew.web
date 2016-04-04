@@ -1,33 +1,34 @@
 <div class="app-post-create">
     <form class="post-create-form">
-    <div class="row">
-        <div class="col-xs-12 post_input_class">
-            <textarea class="form-control sb_post"
-                  id="post_input_id"
-                  name="post_input"
-                  placeholder="Create a post only your followers can see . . ."></textarea>
-            <div class="post-image-preview-container sb_hidden" id="js-image-wrapper"></div>
+        <div class="row">
+            <div class="col-xs-12 post_input_class">
+                <textarea class="form-control sb_post"
+                      id="post_input_id"
+                      name="post_input"
+                      placeholder="Create a post only your followers can see . . ."></textarea>
+                <div class="post-image-preview-container sb_hidden" id="js-image-wrapper"></div>
+            </div>
         </div>
-    </div>
-    <div class="row" id="sb_post_menu" style="display: none">
-        <div class="col-sm-4 hidden-xs">
-            <i class="fa fa-user-secret spark-box"></i>Private
+        <div class="row" id="sb_post_menu" style="display: none">
+            <div class="col-sm-4 hidden-xs">
+                <i class="fa fa-user-secret spark-box"></i>Private
+            </div>
+            <div class="col-xs-4 hidden-sm hidden-md hidden-lg">
+                <i class="fa fa-user-secret spark-box"></i>
+            </div>
+            <div class="col-xs-2">
+                <button type="button" class="btn btn-lg btn-primary sb_btn_fill sb-btn-file post-image-btn">
+                    <span class="fa fa-camera fa-inverse post-image-span"></span>
+                </button>
+                <input id="upload_image" style="display: none;" type="file" name="img">
+            </div>
+            <div class="col-xs-6">
+                <button type="submit" id="sb_btn_post"
+                   class='btn btn-lg btn-primary sb_btn_fill post-action'
+                   data-current_user="{{ request.user.username }}"
+                   data-page_user="{{ page_user.username }}">Spark
+                </button>
+            </div>
         </div>
-        <div class="col-xs-4 hidden-sm hidden-md hidden-lg">
-            <i class="fa fa-user-secret spark-box"></i>
-        </div>
-        <div class="col-xs-2">
-            <button class="btn btn-lg btn-primary sb_btn_fill sb-btn-file post-image-btn">
-                <span class="fa fa-camera fa-inverse post-image-span"></span><input id="upload_image" type="file" name="img">
-            </button>
-        </div>
-        <div class="col-xs-6">
-            <button type="submit" id="sb_btn_post"
-               class='btn btn-lg btn-primary sb_btn_fill post-action'
-               data-current_user="{{ request.user.username }}"
-               data-page_user="{{ page_user.username }}">Spark
-            </button>
-        </div>
-    </div>
     </form>
 </div>

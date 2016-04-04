@@ -5,8 +5,8 @@
 {% block live %}
     <div>
         {% if is_editor or is_moderator or request.user.username == quest.owner_username and not updates%}
-            <div class="block block-holder-lg sb_markdown" id="epic-parent">
-                <div class="block-content">
+            <div class="block" >
+                <div class="block-content block-holder-lg sb_markdown" id="epic-parent">
                     <p>Updates are distributed to anyone that
                     has donated to or pledged to vote for your
                     Quest and will show up on their Newsfeed. We

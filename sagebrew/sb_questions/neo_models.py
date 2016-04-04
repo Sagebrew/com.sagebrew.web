@@ -10,8 +10,6 @@ from neomodel import (StringProperty, IntegerProperty,
 
 from sb_base.neo_models import TitledContent
 
-from sb_solutions.neo_models import Solution
-
 
 class Question(TitledContent):
     table = StringProperty(default='public_questions')
@@ -72,16 +70,11 @@ class Question(TitledContent):
     def get_tags_string(self):
         try:
             return ", ".join(self.get_tags())
-        except (CypherException, IOError, CouldNotCommit, ClientError):
+        except (CypherException, IOError,
+                CouldNotCommit, ClientError):  # pragma: no cover
+            # Not covering since we don't have a good way to repeatably trigger
+            # these exceptions. - Devon Bleibtrey
             return ""
-
-    def get_solutions(self):
-        query = 'MATCH (a:Question {object_uuid: "%s"})-' \
-                '[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
-                'WHERE solutions.to_be_deleted = false ' \
-                'RETURN solutions' % self.object_uuid
-        res, _ = db.cypher_query(query)
-        return [Solution.inflate(row[0]) for row in res]
 
     def get_solution_ids(self):
         query = 'MATCH (a:Question {object_uuid: "%s"})' \

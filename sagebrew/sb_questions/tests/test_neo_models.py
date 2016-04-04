@@ -2,6 +2,8 @@ from uuid import uuid1
 from django.test import TestCase
 from django.contrib.auth.models import User
 
+from neomodel import db
+
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
 from sb_registration.utils import create_user_util_test
@@ -24,11 +26,35 @@ class TestQuestionNeoModel(TestCase):
                                  title=str(uuid1())).save()
         self.question.owned_by.connect(self.pleb)
 
+    def test_add_no_auto_tags(self):
+        res = self.question.add_auto_tags([])
+        self.assertIsInstance(res, list)
+        self.assertEqual(len(res), 0)
+
     def test_add_auto_tags(self):
         auto_tags = [{'tags': {'text': 'testautotag', 'relevance': 0.10201}}]
         res = self.question.add_auto_tags(auto_tags)
-
         self.assertIsInstance(res, list)
+        self.assertEqual(len(res), 1)
+        self.assertEqual(res[0].name, 'testautotag')
+
+    def test_add_multiple_auto_tags(self):
+        auto_tags = [{'tags': {'text': 'testautotag4', 'relevance': 0.10201}},
+                     {'tags': {'text': 'testautotag8', 'relevance': 0.10441}}]
+        res = self.question.add_auto_tags(auto_tags)
+        self.assertIsInstance(res, list)
+        self.assertEqual(len(res), 2)
+        self.assertEqual(res[0].name, 'testautotag4')
+        self.assertEqual(res[1].name, 'testautotag8')
+
+    def test_add_multiple_auto_tags_not_unique(self):
+        auto_tags = [{'tags': {'text': 'testautotag6', 'relevance': 0.10201}},
+                     {'tags': {'text': 'testautotag6', 'relevance': 0.10441}}]
+        res = self.question.add_auto_tags(auto_tags)
+        self.assertIsInstance(res, list)
+        self.assertEqual(len(res), 2)
+        self.assertEqual(res[0].name, 'testautotag6')
+        self.assertEqual(res[0].object_uuid, res[1].object_uuid)
 
     def test_empty_get_tags_string(self):
         res = self.question.get_tags_string()
@@ -105,3 +131,25 @@ class TestQuestionNeoModel(TestCase):
         self.assertIn(pleb2.first_name, authors)
         self.assertIn(pleb2.last_name, authors)
         self.assertEqual(authors.count(','), 2)
+
+    def test_get_solution_ids(self):
+        query = 'MATCH (n:Solution) OPTIONAL MATCH (n)-[r]-() DELETE n, r'
+        db.cypher_query(query)
+        pleb = Pleb(email=str(uuid1()), first_name="test",
+                    last_name="test", username=str(uuid1())).save()
+        pleb2 = Pleb(email=str(uuid1()), first_name="test",
+                     last_name="test", username=str(uuid1())).save()
+        solution = Solution(content=uuid1(),
+                            owner_username=self.pleb.username).save()
+        solution2 = Solution(content=uuid1(),
+                             owner_username=pleb.username).save()
+        solution3 = Solution(content=uuid1(),
+                             owner_username=pleb2.username).save()
+        self.question.solutions.connect(solution)
+        self.question.solutions.connect(solution2)
+        self.question.solutions.connect(solution3)
+        solutions = self.question.get_solution_ids()
+        self.assertEqual(len(solutions), 3)
+        self.assertIn(solution.object_uuid, solutions)
+        self.assertIn(solution2.object_uuid, solutions)
+        self.assertIn(solution3.object_uuid, solutions)

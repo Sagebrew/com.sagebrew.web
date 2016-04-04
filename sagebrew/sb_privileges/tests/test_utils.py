@@ -21,7 +21,7 @@ from sb_requirements.neo_models import Requirement
 class TestManagePrivilegeRelation(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r"
         db.cypher_query(query)
         cache.clear()
         self.email = "success@simulator.amazonses.com"

@@ -59,8 +59,12 @@ def question_redirect_page(request, question_uuid):
 
 @login_required()
 def solution_edit_page(request, solution_uuid=None):
-    data = {"object_uuid": solution_uuid}
-    return render(request, 'edit_solution.html', data)
+    """
+    This is in the questions views for right now due to ease of url structuring.
+    We can move it to solutions.views but that will require some changing for
+    the single page setup.
+    """
+    return render(request, 'edit_solution.html', {"object_uuid": solution_uuid})
 
 
 class LoginRequiredMixin(View):

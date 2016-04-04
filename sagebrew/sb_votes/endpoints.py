@@ -3,32 +3,18 @@ from datetime import datetime
 
 from django.core.cache import cache
 
-from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import (ListCreateAPIView)
 
 from api.utils import spawn_task
-from sb_base.views import ObjectRetrieveUpdateDestroy
 from sb_docstore.tasks import spawn_user_updates
 from plebs.neo_models import Pleb
 from sb_search.tasks import update_search_object
 
 from .serializers import VoteSerializer
-from .neo_models import Vote
 from .utils import handle_vote
-
-
-class ObjectVotesRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
-    # Currently this is not in use as people cannot access votes directly
-    # we aren't storing off votes in Neo other than counts on objects
-    serializer_class = VoteSerializer
-    lookup_field = "object_uuid"
-    lookup_url_kwarg = "comment_uuid"
-
-    def get_object(self):
-        return Vote.nodes.get(object_uuid=self.kwargs[self.lookup_url_kwarg])
 
 
 class ObjectVotesListCreate(ListCreateAPIView):
@@ -44,7 +30,7 @@ class ObjectVotesListCreate(ListCreateAPIView):
 
     def create(self, request, *args, **kwargs):
         object_uuid = self.kwargs[self.lookup_field]
-        now = unicode(datetime.now(pytz.utc))
+        now = str(datetime.now(pytz.utc))
         vote_data = request.data
         serializer = self.get_serializer(data=vote_data,
                                          context={"request": request})
@@ -95,19 +81,3 @@ class ObjectVotesListCreate(ListCreateAPIView):
                              "developer_message": None})
         else:
             return Response(serializer.errors, status=400)
-
-
-@api_view(["GET"])
-@permission_classes((IsAuthenticated,))
-def vote_list(request):
-    # TODO instead want to make a list of all the user's existing votes that
-    # has a IsSelf permission set. This will enable us to eventually allow users
-    # to get to all the items they've voted on and do an analysis of the info
-    response = {"status": status.HTTP_501_NOT_IMPLEMENTED,
-                "detail": "We do not allow users to query all the votes on"
-                          "the site.",
-                "developer_message":
-                    "Please access votes per user and total counts via their "
-                    "corresponding content object."
-                }
-    return Response(response, status=status.HTTP_501_NOT_IMPLEMENTED)

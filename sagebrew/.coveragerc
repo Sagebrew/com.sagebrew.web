@@ -42,6 +42,7 @@ omit =
     */management/commands/remove_duplicates_from_search.py
     */management/commands/populate_state_external_ids.py
     */management/commands/connect_addresses_to_federal_districts.py
+    */management/commands/migrate_friends_to_followers.py
     */management/commands/create_subscription_plans.py
     */management/commands/empty_elasticsearch.py
     */management/commands/update_official_search.py

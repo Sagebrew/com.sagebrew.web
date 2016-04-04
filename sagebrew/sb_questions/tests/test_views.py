@@ -15,7 +15,8 @@ from sb_registration.utils import create_user_util_test
 
 from sb_questions.views import (solution_edit_page, QuestionManagerView,
                                 question_redirect_page)
-from sb_questions.neo_models import Question, Solution
+from sb_questions.neo_models import Question
+from sb_solutions.neo_models import Solution
 
 
 class TestGetQuestionSearchView(APITestCase):

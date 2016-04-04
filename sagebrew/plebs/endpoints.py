@@ -31,9 +31,10 @@ from sb_base.neo_models import SBContent
 from sb_base.serializers import MarkdownContentSerializer
 from sb_posts.neo_models import Post
 from sb_posts.serializers import PostSerializerNeo
-from sb_questions.neo_models import Question, Solution
+from sb_questions.neo_models import Question
 from sb_questions.serializers import (QuestionSerializerNeo,
                                       SolutionSerializerNeo)
+from sb_solutions.neo_models import Solution
 from sb_public_official.serializers import PublicOfficialSerializer
 from sb_public_official.neo_models import PublicOfficial
 from sb_donations.neo_models import Donation

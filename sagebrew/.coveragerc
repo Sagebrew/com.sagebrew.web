@@ -9,6 +9,7 @@ omit =
     *admin.py*
     *sitemap.py*
     *s3utils.py*
+    *sagebrew/celery.py*
     # Management commands should be included usually but these are tested
     # in a different way than running unit tests. The build will fail if
     # these fail when docker attempts to run.

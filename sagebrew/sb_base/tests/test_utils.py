@@ -2,7 +2,6 @@ from django.shortcuts import redirect, HttpResponseRedirect
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_base.utils import defensive_exception
 
@@ -11,9 +10,7 @@ class TestDefensiveExceptionUtil(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
 
     def test_exception_return_redirect(self):

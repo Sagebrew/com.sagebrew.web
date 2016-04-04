@@ -21,53 +21,59 @@
                 {% endif %}
                 <div class="form-group">
                     <label for="about">About</label>
-                    <textarea class="form-control"
-                              placeholder="128 Characters about the Mission"
-                              rows="3" name="about">{{ mission.about|default_if_none:'' }}</textarea>
+                    <textarea class="form-control resize-vertical"
+                              placeholder="255 Characters about the Mission"
+                              rows="3" name="about" id="about">{{ mission.about|default_if_none:'' }}</textarea>
+                    <small id="js-about-char-count" class="help-block">255 Characters Remaining</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="">Website URL</label>
+                    <label for="website">Website URL</label>
                     <input type="text"
+                       id="website"
                        name="website"
-                       placeholder="Website URL"
-                       value="{{ mission.website|default_if_none:'' }}"
+                       placeholder="https://"
+                       value="{{ quest.website|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="">Facebook Username</label>
+                    <label for="facebook-social-address">Facebook URL</label>
                     <input type="text"
+                       id="facebook-social-address"
                        name="facebook"
-                       placeholder="Facebook Username"
-                       value="{{ mission.facebook|default_if_none:'' }}"
+                       placeholder="ex. https://www.facebook.com/"
+                       value="{{ quest.facebook|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="">Twitter ID</label>
+                    <label for="twitter-social-address">Twitter URL</label>
                     <input type="text"
+                       id="twitter-social-address"
                        name="twitter"
-                       placeholder="Twitter ID"
-                       value="{{ mission.twitter|default_if_none:'' }}"
+                       placeholder="ex. https://www.twitter.com/"
+                       value="{{ quest.twitter|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="">LinkedIn Username</label>
+                    <label for="linkedin-social-address">LinkedIn URL</label>
                     <input type="text"
                        name="linkedin"
-                       placeholder="LinkedIn Username"
-                       value="{{ mission.linkedin|default_if_none:'' }}"
+                       id="linkedin-social-address"
+                       placeholder="ex. https://www.linkedin.com/"
+                       value="{{ quest.linkedin|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="">YouTube Username</label>
+                    <label for="youtube-social-address">YouTube URL</label>
                     <input type="text"
                        name="youtube"
-                       placeholder="Youtube Username"
-                       value="{{ mission.youtube|default_if_none:'' }}"
+                       id="youtube-social-address"
+                       placeholder="ex. https://www.youtube.com/"
+                       value="{{ quest.youtube|default_if_none:'' }}"
                        class="form-control">
                 </div>
 

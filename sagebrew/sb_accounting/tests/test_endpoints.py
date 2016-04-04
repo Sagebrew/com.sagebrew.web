@@ -1,5 +1,8 @@
+import pytz
 import stripe
+import calendar
 import requests_mock
+from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -19,7 +22,7 @@ from sb_quests.neo_models import Quest
 class AccountingHooksTests(APITestCase):
 
     def setUp(self):
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         self.unit_under_test_name = 'accounting'
         self.email = "success@simulator.amazonses.com"
@@ -66,6 +69,8 @@ class AccountingHooksTests(APITestCase):
         data = {
             "id": "evt_00000000000000"
         }
+        m.post("https://api.intercom.io/messages/",
+               status_code=status.HTTP_202_ACCEPTED)
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], "Invoice Payment Failed")
@@ -97,3 +102,115 @@ class AccountingHooksTests(APITestCase):
         }
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    @requests_mock.mock()
+    def test_valid_event_request_account_updated(self, m):
+        self.quest.account_verified = "unverified"
+        self.quest.save()
+        cache.clear()
+        event_mock_data = {
+            "id": "evt_00000000000000",
+            "type": "account.updated",
+            "data": {
+                "object": {
+                    "id": "acct_00000000000000"
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/events/evt_00000000000000",
+              json=event_mock_data, status_code=status.HTTP_200_OK)
+        account_mock_data = {
+            "email": "success@simulator.amazonses.com",
+            "verification": {
+                "fields_needed": []
+            },
+            "legal_entity": {
+                "verification": {
+                    "status": "verified",
+                    "details": "Identity document is too unclear to read."
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/accounts/acct_00000000000000",
+              json=account_mock_data, status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000"
+        }
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], "Account Updated")
+
+    @requests_mock.mock()
+    def test_valid_event_request_transfer_failed_stripe_account(self, m):
+        self.quest.account_verified = "unverified"
+        self.quest.save()
+        cache.clear()
+        event_mock_data = {
+            "id": "evt_00000000000000",
+            "type": "transfer.failed",
+            "data": {
+                "object": {
+                    "id": "tr_00000000000000"
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/events/evt_00000000000000",
+              json=event_mock_data, status_code=status.HTTP_200_OK)
+        transfer_mock_data = {
+            "type": "stripe_account",
+            "destination": "acct_00000000000000"
+        }
+        m.get("https://api.stripe.com/v1/transfers/tr_00000000000000",
+              json=transfer_mock_data, status_code=status.HTTP_200_OK)
+        account_mock_data = {
+            "email": "success@simulator.amazonses.com"
+        }
+        m.get("https://api.stripe.com/v1/accounts/acct_00000000000000",
+              json=account_mock_data, status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000"
+        }
+        intercom_mock_data = {
+            "event_name": "stripe-transfer-failed",
+            "user_id": self.pleb.username,
+            "created": calendar.timegm(datetime.now(pytz.utc).utctimetuple())
+        }
+        m.post("https://api.intercom.io/events/", json=intercom_mock_data,
+               status_code=status.HTTP_202_ACCEPTED)
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], "Transfer Failed")
+
+    @requests_mock.mock()
+    def test_valid_event_request_trial_will_end(self, m):
+        self.quest.account_verified = "unverified"
+        self.quest.save()
+        cache.clear()
+        event_mock_data = {
+            "id": "evt_00000000000000",
+            "type": "customer.subscription.trial_will_end",
+            "data": {
+                "object": {
+                    "customer": "cus_00000000000000"
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/events/evt_00000000000000",
+              json=event_mock_data, status_code=status.HTTP_200_OK)
+        customer_mock_data = {
+            "email": "success@simulator.amazonses.com"
+        }
+        m.get("https://api.stripe.com/v1/customers/cus_00000000000000",
+              json=customer_mock_data, status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000"
+        }
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], "Trail Will End")

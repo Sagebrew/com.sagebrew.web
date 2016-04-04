@@ -1,4 +1,4 @@
-{% extends "layout/hero-two-col-right.html" %}
+a{% extends "layout/hero-two-col-right.html" %}
 {% load staticfiles %}
 {% block title %}
     {{ quest.title }}'s Quest
@@ -12,10 +12,9 @@
     {% endif %}
     <meta name="author" content=" {{ quest.title }} ">
 {% endblock keywords %}
-{% block content %}
-    {% comment %} TODO need some assistance transitioning this over to hero-one-col {% endcomment %}
+{% block hero %}
     {% include "manage/activate_partial.html" %}
-    <div class="row block row-no-margin">
+    <div class="row block row-no-left-right-margin">
         <div class="hidden-sm hidden-md hidden-lg block-title text-center no-underline">
             <h1> {{ quest.title }} </h1>
         </div>
@@ -31,6 +30,7 @@
             </div>
             {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
         {% endif %}
+
         {% if quest.active %}
             {% if quest.missions %}
                 <div class="col-xs-12 hidden-sm hidden-md hidden-lg">
@@ -45,6 +45,7 @@
                 </div>
             {% endif %}
         {% endif %}
+
         <div class="hidden-xs col-sm-5">
             <div class="block">
                 <div class="block-title no-underline">
@@ -89,7 +90,7 @@
                         {% endif %}
                         {% if quest.facebook %}
                             <li>
-                                <a href="http://facebook.com/{{ quest.facebook }}"
+                                <a href="{{ quest.facebook }}"
                                    class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                                     <span class="fa fa-facebook"></span>
                                 </a>
@@ -97,7 +98,7 @@
                         {% endif %}
                         {% if quest.twitter %}
                             <li>
-                                <a href="http://twitter.com/{{ quest.twitter }}"
+                                <a href="{{ quest.twitter }}"
                                    class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                                     <span class="fa fa-twitter"></span>
                                 </a>
@@ -105,7 +106,7 @@
                         {% endif %}
                         {% if quest.youtube %}
                             <li>
-                                <a href="http://youtube.com/{{ quest.youtube }}"
+                                <a href="{{ quest.youtube }}"
                                    class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                                     <span class="fa fa-youtube-play"></span>
                                 </a>
@@ -113,7 +114,7 @@
                         {% endif %}
                         {% if quest.linkedin %}
                             <li>
-                                <a href="http://linkedin.com/{{ quest.linkedin }}"
+                                <a href="{{ quest.linkedin }}"
                                    class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                                     <span class="fa fa-linkedin"></span>
                                 </a>
@@ -138,21 +139,33 @@
 
         </div>
     </div>
-    <div class="row block block-padding-bottom-15 row-no-margin">
-        <div class="col-xs-12">
-            <h2 class="block-title">Missions</h2>
-            <div id="js-mission-list">
-                <div id="js-mission-container"></div>
-                <div class="loader"></div>
+
+    <div class="block block-type-title">
+        <div class="block-content">
+            <h1>Missions</h1>
+            <div class="title-important-actions">
+                {% if request.user.username == quest.owner_username %}
+                    <a class="btn btn-primary js-quest-signup">Embark on a Mission</a>
+                {% endif %}
             </div>
         </div>
     </div>
-    <div class="row block block-padding-bottom-15 row-no-margin">
-        <div class="col-xs-12">
-            <h2 class="block-title">Endorsed Missions</h2>
-            <div id="js-mission-list"><div id="js-endorsed-mission-container"></div></div>
-        </div>
+    <div id="js-mission-list">
+        <div id="js-mission-container"></div>
+        <div class="loader"></div>
     </div>
+    {% if quest.endorsed %}
+        <div class="block block-type-title">
+            <div class="block-content">
+                <h1>Endorsed Missions</h1>
+            </div>
+        </div>
+        <div id="js-endorsed-list">
+            <div id="js-endorsed-mission-container">
+                <div class="loader"></div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block intercom %}

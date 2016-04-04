@@ -3,7 +3,6 @@ import pytz
 from uuid import uuid1
 from datetime import datetime
 
-from django.conf import settings
 from django.core.cache import cache
 from django.utils.text import slugify
 
@@ -12,7 +11,7 @@ from rest_framework.reverse import reverse
 
 from neomodel import db
 
-from api.utils import spawn_task, gather_request_data
+from api.utils import spawn_task, gather_request_data, smart_truncate
 from sb_base.serializers import TitledContentSerializer
 from plebs.neo_models import Pleb
 from sb_locations.tasks import create_location_tree
@@ -23,7 +22,8 @@ from sb_solutions.serializers import SolutionSerializerNeo
 from sb_solutions.neo_models import Solution
 
 from .neo_models import Question
-from .tasks import add_auto_tags_to_question_task
+from .tasks import (add_auto_tags_to_question_task,
+                    create_question_summary_task)
 
 
 def solution_count(question_uuid):
@@ -102,6 +102,7 @@ def limit_5_tags(value):
 class QuestionSerializerNeo(TitledContentSerializer):
     content = serializers.CharField(min_length=15)
     href = serializers.SerializerMethodField()
+    summary = serializers.CharField(read_only=True)
     # This might be better as a choice field
     tags = serializers.ListField(
         source='get_tags',
@@ -121,6 +122,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
     external_location_id = serializers.CharField(write_only=True,
                                                  required=False,
                                                  allow_null=True)
+    tags_formatted = serializers.SerializerMethodField()
+    views = serializers.SerializerMethodField()
+    mission = serializers.SerializerMethodField()
 
     def validate_title(self, value):
         # We need to escape quotes prior to passing the title to the query.
@@ -156,25 +160,21 @@ class QuestionSerializerNeo(TitledContentSerializer):
                        request=request)
 
         question = Question(url=url, href=href, object_uuid=uuid,
+                            summary=smart_truncate(validated_data['content']),
                             **validated_data).save()
         question.owned_by.connect(owner)
-        owner.questions.connect(question)
         for tag in tags:
             query = 'MATCH (t:Tag {name:"%s"}) WHERE NOT t:AutoTag ' \
-                    'RETURN t' % tag.lower()
+                    'RETURN t' % slugify(tag)
             res, _ = db.cypher_query(query)
             if not res.one:
-                if settings.DEBUG is True:
-                    # TODO this is only here because we don't have a stable
-                    # setup for ES and initial tags. Once @matt finishes up
-                    # ansible and we can get tags to register consistently
-                    # we can remove this.
-                    if (request.user.username == "devon_bleibtrey" or
-                            request.user.username == "tyler_wiersing"):
-                        tag_obj = Tag(name=slugify(tag.lower())).save()
-                        question.tags.connect(tag_obj)
-                    else:
-                        continue
+                if (request.user.username == "devon_bleibtrey" or
+                        request.user.username == "tyler_wiersing" or
+                        owner.reputation >= 1250):
+                    tag_obj = Tag(name=slugify(tag)).save()
+                    question.tags.connect(tag_obj)
+                else:
+                    continue
             else:
                 tag_obj = Tag.inflate(res.one)
                 question.tags.connect(tag_obj)
@@ -184,6 +184,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
                 "external_id": question.external_location_id})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": question.object_uuid})
+        spawn_task(task_func=create_question_summary_task, task_param={
+            'object_uuid': question.object_uuid
+        })
         question.refresh()
         cache.set(question.object_uuid, question)
         return question
@@ -218,6 +221,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
                 "external_id": instance.external_location_id})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
+        spawn_task(task_func=create_question_summary_task, task_param={
+            'object_uuid': instance.object_uuid
+        })
         return super(QuestionSerializerNeo, self).update(
             instance, validated_data)
 
@@ -228,35 +234,35 @@ class QuestionSerializerNeo(TitledContentSerializer):
         return solution_count(obj.object_uuid)
 
     def get_solutions(self, obj):
+        expand_param = self.context.get('expand_param', None)
         request, expand, _, relations, expedite = gather_request_data(
             self.context,
             expedite_param=self.context.get('expedite_param', None),
-            expand_param=self.context.get('expand_param', None))
+            expand_param=expand_param)
         if expedite == "true":
             return []
-        solutions = obj.get_solution_ids()
-        solution_urls = []
-        if expand == "true":
-            for solution_uuid in solutions:
-                query = 'MATCH (s:Solution {object_uuid: "%s"}) RETURN s' % (
-                    solution_uuid)
-                res, _ = db.cypher_query(query)
-                solution_urls.append(SolutionSerializerNeo(
-                    Solution.inflate(res.one),
-                    context={"request": request,
-                             "expand_param": self.context.get('expand_param',
-                                                              None)}).data)
+        solutions = []
+        if expand == "true" and relations != "hyperlink":
+            query = 'MATCH (a:Question {object_uuid: "%s"})' \
+                '-[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
+                'WHERE solutions.to_be_deleted = false ' \
+                'RETURN solutions' % obj.object_uuid
+            res, _ = db.cypher_query(query)
+            solutions = SolutionSerializerNeo(
+                [Solution.inflate(row[0]) for row in res], many=True,
+                context={"request": request, "expand_param": expand_param}).data
         else:
-            if relations == "hyperlinked":
-                for solution_uuid in solutions:
-                    solution_urls.append(reverse(
-                        'solution-detail', kwargs={
-                            'object_uuid': solution_uuid},
-                        request=request))
+            if relations == "hyperlink":
+                solutions = [
+                    reverse('solution-detail',
+                            kwargs={'object_uuid': solution_uuid},
+                            request=request)
+                    for solution_uuid in obj.get_solution_ids()
+                ]
             else:
                 return solutions
 
-        return solution_urls
+        return solutions
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(
@@ -266,3 +272,19 @@ class QuestionSerializerNeo(TitledContentSerializer):
         return reverse(
             'question-detail', kwargs={'object_uuid': obj.object_uuid},
             request=request)
+
+    def get_tags_formatted(self, obj):
+        return ", ".join([tag.replace("-", " ").replace("_", " ").title()
+                         for tag in obj.get_tags()])
+
+    def get_mission(self, obj):
+        from sb_missions.serializers import MissionSerializer
+        query = 'MATCH (question:Question)<-[:ASSOCIATED_WITH]-' \
+                '(mission:Mission) RETURN mission'
+        res, _ = db.cypher_query(query)
+        if res.one:
+            return MissionSerializer(res.one).data
+        return res.one
+
+    def get_views(self, obj):
+        return obj.get_view_count()

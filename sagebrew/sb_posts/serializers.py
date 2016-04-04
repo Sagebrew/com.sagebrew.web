@@ -46,7 +46,6 @@ class PostSerializerNeo(ContentSerializer):
                     object_uuid=uuid, url=url, href=href,
                     **validated_data).save()
         post.owned_by.connect(owner)
-        owner.posts.connect(post)
         wall = wall_owner.get_wall()
         post.posted_on_wall.connect(wall)
         wall.posts.connect(post)

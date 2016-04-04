@@ -3,6 +3,7 @@ import markdown
 from django.core.cache import cache
 from django.utils.text import slugify
 from django.conf import settings
+from django.templatetags.static import static
 
 from rest_framework import serializers, status
 from rest_framework.reverse import reverse
@@ -28,13 +29,13 @@ class MissionSerializer(SBSerializer):
     focus_on_type = serializers.ChoiceField(required=True, choices=[
         ('position', "Public Office"), ('advocacy', "Advocacy"),
         ('question', "Question")])
-    facebook = serializers.CharField(required=False, allow_blank=True)
-    linkedin = serializers.CharField(required=False, allow_blank=True)
-    youtube = serializers.CharField(required=False, allow_blank=True)
-    twitter = serializers.CharField(required=False, allow_blank=True)
-    website = serializers.CharField(required=False, allow_blank=True)
+    facebook = serializers.URLField(required=False, allow_blank=True)
+    linkedin = serializers.URLField(required=False, allow_blank=True)
+    youtube = serializers.URLField(required=False, allow_blank=True)
+    twitter = serializers.URLField(required=False, allow_blank=True)
+    website = serializers.URLField(required=False, allow_blank=True)
     wallpaper_pic = serializers.CharField(required=False)
-    title = serializers.CharField(max_length=140, required=False,
+    title = serializers.CharField(max_length=240, required=False,
                                   allow_blank=True)
     owner_username = serializers.CharField(read_only=True)
     location_name = serializers.CharField(required=False, allow_null=True)
@@ -93,8 +94,7 @@ class MissionSerializer(SBSerializer):
         location = validated_data.get('location_name')
         if location is not None:
             location = location.replace(
-                " Of", " of").replace(
-                " And", " and").replace(" Or", " or")
+                " Of", " of").replace(" And", " and").replace(" Or", " or")
         focused_on = validated_data.get('focus_name')
         if focus_type == "advocacy":
             focused_on = slugify(focused_on)
@@ -108,7 +108,9 @@ class MissionSerializer(SBSerializer):
         mission = Mission(owner_username=owner_username, level=level,
                           focus_on_type=focus_type,
                           focus_name=focused_on,
-                          title=title).save()
+                          title=title,
+                          wallpaper_pic=static(
+                              'images/wallpaper_capitol_2.jpg')).save()
         if focus_type == "position":
             if level == "federal":
                 if district:
@@ -248,10 +250,14 @@ class MissionSerializer(SBSerializer):
         instance.about = empty_text_to_none(
             validated_data.get('about', instance.about))
         instance.epic = validated_data.pop('epic', instance.epic)
-        instance.facebook = validated_data.pop('facebook', instance.facebook)
-        instance.linkedin = validated_data.pop('linkedin', instance.linkedin)
-        instance.youtube = validated_data.pop('youtube', instance.youtube)
-        instance.twitter = validated_data.pop('twitter', instance.twitter)
+        instance.facebook = clean_url(
+            validated_data.get('facebook', instance.facebook))
+        instance.linkedin = clean_url(
+            validated_data.get('linkedin', instance.linkedin))
+        instance.youtube = clean_url(
+            validated_data.get('youtube', instance.youtube))
+        instance.twitter = clean_url(
+            validated_data.get('twitter', instance.twitter))
         instance.website = clean_url(
             validated_data.get('website', instance.website))
         instance.wallpaper_pic = validated_data.pop('wallpaper_pic',

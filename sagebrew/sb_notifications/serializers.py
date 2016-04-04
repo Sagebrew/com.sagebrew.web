@@ -35,6 +35,7 @@ class NotificationSerializer(SBSerializer):
     def get_notification_from(self, obj):
         query = 'MATCH (a:Notification {object_uuid: "%s"})-' \
                 '[:NOTIFICATION_FROM]->(b:Pleb) RETURN b' % obj.object_uuid
-        res, col = db.cypher_query(query)
-
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            return {}
         return PlebSerializerNeo(Pleb.inflate(res[0][0])).data

@@ -7,8 +7,7 @@ class Command(BaseCommand):
     args = 'None.'
 
     def clear_neo_db(self):
-        db.cypher_query('match (n)-[r]-() delete n, r')
+        db.cypher_query('MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r')
 
     def handle(self, *args, **options):
         self.clear_neo_db()
-        print 'Cleared Neo DB'

@@ -1,0 +1,19 @@
+{{# if can_flag.status }}
+    {{#if flagged }}
+        <button class="btn sb_btn_icon" type="button">
+            <i class="fa fa-flag sb_btn_icon sb_btn_icon_purple sb_span_icon"></i>
+        </button>
+    {{ else }}
+        <button class="btn dropdown-toggle sb_btn_icon" type="button" id="flag_{{id}}"
+                data-toggle="modal" data-target="#flagModal" data-href="{{ href }}flags/"
+                data-parent_id="{{ id }}">
+            <i class="fa fa-flag sb_btn_icon_violet_hover"></i>
+        </button>
+    {{/if }}
+{{ else }}
+    <button class="btn sb_btn_icon sb_btn_disabled"
+            data-toggle="tooltip" data-placement="top"
+            data-title="{{ can_flag.short_detail }}" type="button">
+        <i class="fa fa-flag sb_restricted flag_restriction"></i>
+    </button>
+{{/if }}

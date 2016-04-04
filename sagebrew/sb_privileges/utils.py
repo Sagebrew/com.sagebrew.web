@@ -7,7 +7,6 @@ from django.core.cache import cache
 
 from neomodel import (DoesNotExist, CypherException, db)
 
-from plebs.neo_models import Pleb
 from sb_requirements.neo_models import Requirement
 
 from .neo_models import Privilege, SBAction
@@ -37,10 +36,6 @@ def manage_privilege_relation(username):
     :param username:
     :return:
     """
-    try:
-        pleb = Pleb.get(username=username, cache_buster=True)
-    except (CypherException, IOError, DoesNotExist, Pleb.DoesNotExist) as e:
-        return e
     try:
         privileges = Privilege.nodes.all()
     except(CypherException, IOError) as e:
@@ -89,10 +84,8 @@ def manage_privilege_relation(username):
         # task
         sleep(1)
     cache.delete(username)
-    cache.set("%s_privileges" % username,
-              pleb.get_privileges(cache_buster=True))
-    cache.set("%s_actions" % username,
-              pleb.get_actions(cache_buster=True))
+    cache.delete("%s_privileges" % username)
+    cache.delete("%s_actions" % username)
     return True
 
 

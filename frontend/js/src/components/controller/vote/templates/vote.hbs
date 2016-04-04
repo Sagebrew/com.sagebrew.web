@@ -1,0 +1,28 @@
+<div class="row sb_votes vote-wrapper">
+    <div class="col-xs-12 sb_up_vote-wrapper {{#unless can_upvote.status }}sb_restricted {{/unless}}">
+        <button class="btn sb_btn vote_up sb_btn_vote
+        {{#if upvote }} vote_up_active{{/if}} js-vote-up {{#unless can_upvote.status }} sb_restricted {{/unless}}"
+                data-parent_id="{{ id }}"
+                data-parent_type="{{ type }}"
+                {{#unless can_upvote.status}}
+                data-toggle="tooltip" data-placement="top"
+                data-title="{{ can_upvote.short_detail }}"{{/unless}}>
+            <span class="fa fa-chevron-up"></span>
+        </button>
+    </div>
+    <div class="col-lg-12 vote_count_wrapper">
+        <span class="vote_count">{{ vote_count }}</span>
+    </div>
+    <div class="col-lg-12 col-md-12 sb_down_vote_wrapper
+                {{#unless can_downvote.status }}sb_restricted {{/unless}}">
+        <button class="btn sb_btn sb_btn_vote vote_down{{#if downvote }} vote_down_active{{/if}} js-vote-down
+                    {{#unless can_downvote.status }}sb_restricted {{/unless}}"
+                    data-parent_id="{{ id }}"
+                    data-parent_type="{{ type }}"
+                    {{#unless can_downvote.status}}
+                    data-toggle="tooltip" data-placement="top"
+                    data-title="{{ can_downvote.short_detail }}"{{/unless}}>
+            <span class="fa fa-chevron-down"></span>
+        </button>
+    </div>
+</div>

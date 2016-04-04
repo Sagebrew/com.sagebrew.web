@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.template.loader import get_template
 from django.template import Context
+from django.utils.text import slugify
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -72,7 +73,7 @@ def quest_signup(request):
 def login_view(request):
     try:
         if request.user.is_authenticated() is True:
-            return redirect('root_profile_page')
+            return redirect('newsfeed')
     except AttributeError:
         pass
     return render(request, 'login.html')
@@ -223,7 +224,6 @@ def profile_information(request):
                                   'congressional_district'],
                               county=address_clean['county']).save()
             address.owned_by.connect(citizen)
-            citizen.address.connect(address)
             citizen.determine_reps()
             spawn_task(task_func=update_address_location,
                        task_param={"object_uuid": address.object_uuid})
@@ -269,12 +269,20 @@ def interests(request):
     if interest_form.is_valid():
         if "select_all" in interest_form.cleaned_data:
             interest_form.cleaned_data.pop('select_all', None)
-        queries = [('MATCH (pleb:Pleb {username: "%s"}), '
-                    '(tag:Tag {name: "%s"}) '
-                    'CREATE UNIQUE (pleb)-[:INTERESTED_IN]->(tag) '
-                    'RETURN pleb' % (request.user.username, key.lower()), {})
-                   for key, value in interest_form.cleaned_data.iteritems()]
-        db.cypher_batch_query(queries)
+        if "specific_interests" in interest_form.cleaned_data:
+            interest_form.cleaned_data.pop('specific_interests', None)
+        # not using batch query because it requires at least 2 items. Since
+        # users may select no, one, or more interests just using regular
+        # query rather than adding additional logic.
+        interests_list = [
+            key for key, value in interest_form.cleaned_data.iteritems()
+            if value is True]
+        [db.cypher_query(
+            'MATCH (pleb:Pleb {username: "%s"}), '
+            '(tag:Tag {name: "%s"}) '
+            'CREATE UNIQUE (pleb)-[:INTERESTED_IN]->(tag) '
+            'RETURN pleb' % (request.user.username, slugify(tag)))
+            for tag in interests_list]
         cache.delete(request.user.username)
         return redirect('profile_picture')
 
@@ -282,8 +290,6 @@ def interests(request):
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def profile_picture(request):
     """
     The profile picture view accepts an image from the user, which is stored in

@@ -228,17 +228,17 @@ class PlebSerializerNeo(SBSerializer):
                                             instance.customer_token)
         email = validated_data.get('email', instance.email).lower()
         user_obj = User.objects.get(username=instance.username)
-        if first_name != instance.first_name:
+        if first_name != user_obj.first_name:
             instance.first_name = first_name
             user_obj.first_name = first_name
-        if last_name != instance.last_name:
+        if last_name != user_obj.last_name:
             instance.last_name = last_name
             user_obj.last_name = last_name
-        if email != instance.email:
+        if email != user_obj.email:
             instance.email = email
             user_obj.email = email
             if instance.get_quest():
-                quest = Quest.get(instance.username)
+                quest = Quest.get(instance.username, cache_buster=True)
                 if quest.stripe_customer_id:
                     customer = \
                         stripe.Customer.retrieve(quest.stripe_customer_id)
@@ -247,7 +247,7 @@ class PlebSerializerNeo(SBSerializer):
         if user_obj.check_password(validated_data.get('password', "")) is True:
             user_obj.set_password(validated_data.get(
                 'new_password', validated_data.get('password', "")))
-            update_session_auth_hash(self.context['request'], user_obj)
+            update_session_auth_hash(self.context.get('request'), user_obj)
         user_obj.save()
         profile_pic = validated_data.get('profile_pic')
         if profile_pic is not None and profile_pic != "":
@@ -334,6 +334,9 @@ class PlebSerializerNeo(SBSerializer):
     def get_is_following(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
         if request is not None:
+            # Backwards because we don't want to be dependent on the Pleb as
+            # the object running the query so the user can follow multiple
+            # types of objects. Such as Quest or Plebs.
             return obj.is_following(request.user.username)
         return False
 
@@ -363,7 +366,6 @@ class AddressSerializer(SBSerializer):
         address.set_encompassing()
         pleb = Pleb.get(username=request.user.username, cache_buster=True)
         address.owned_by.connect(pleb)
-        pleb.address.connect(address)
         pleb.completed_profile_info = True
         pleb.save()
         pleb.determine_reps()

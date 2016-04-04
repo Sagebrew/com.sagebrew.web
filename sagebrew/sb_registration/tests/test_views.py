@@ -17,7 +17,7 @@ from django.core.cache import cache
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, db
 
 from sb_quests.neo_models import Position
 from sb_public_official.neo_models import PublicOfficial
@@ -36,6 +36,8 @@ from plebs.neo_models import Pleb, Address
 class InterestsTest(TestCase):
 
     def setUp(self):
+        query = "MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r"
+        db.cypher_query(query)
         call_command("create_prepopulated_tags")
         time.sleep(3)
         self.factory = RequestFactory()
@@ -59,6 +61,59 @@ class InterestsTest(TestCase):
         response = interests(request)
 
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(self.pleb.interests.all()), 0)
+
+    def test_one_topic_selected(self):
+        my_dict = {"fiscal": True, "education": False, "space": False,
+                   "drugs": False, "science": False, "energy": False,
+                   "environment": False, "defense": False, "health": False,
+                   "social": False, "foreign_policy": False,
+                   "agriculture": False}
+        request = self.factory.post('/registration/interests',
+                                    data=my_dict)
+        request.user = self.user
+        response = interests(request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(self.pleb.interests.all()), 1)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "education"}) RETURN a' % self.pleb.username
+        res, _ = db.cypher_query(query)
+        self.assertIsNone(res.one)
+
+    def test_select_all_selected(self):
+        my_dict = {"fiscal": True, "education": True, "space": True,
+                   "drugs": True, "science": True, "energy": True,
+                   "environment": True, "defense": True, "health": True,
+                   "social": True, "foreign_policy": True,
+                   "agriculture": True, 'select_all': True}
+        request = self.factory.post('/registration/interests', data=my_dict)
+        request.user = self.user
+        response = interests(request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(self.pleb.interests.all()), 12)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "education"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "energy"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
 
     def test_all_topics_selected(self):
         my_dict = {"fiscal": True, "education": True, "space": True,
@@ -72,6 +127,12 @@ class InterestsTest(TestCase):
         response = interests(request)
 
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(self.pleb.interests.all()), 12)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "social"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
 
     def test_some_topics_selected(self):
         my_dict = {"fiscal": False, "education": True, "space": False,
@@ -85,6 +146,12 @@ class InterestsTest(TestCase):
         response = interests(request)
 
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(self.pleb.interests.all()), 7)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "drugs"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
 
     def test_interests_pleb_does_not_exist(self):
         my_dict = {"fiscal": False, "education": True, "space": False,
@@ -128,9 +195,8 @@ class TestProfileInfoView(TestCase):
                                            gt_id=str(uuid1())).save()
         addresses = Address.nodes.all()
         for address in addresses:
-            if self.pleb.address.is_connected(address):
+            if address.owned_by.is_connected(self.pleb):
                 address.owned_by.disconnect(self.pleb)
-                self.pleb.address.disconnect(address)
 
     def test_user_info_population_no_birthday(self):
         my_dict = {'date_of_birth': [u'']}
@@ -384,7 +450,7 @@ class TestProfileInfoView(TestCase):
                                     data=my_dict)
         request.session = {}
         address = Address(address_hash=str(uuid1())).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(self.pleb)
         request.user = self.user
         response = profile_information(request)
 
@@ -404,7 +470,7 @@ class TestProfileInfoView(TestCase):
                                     data=my_dict)
         request.session = {}
         address = Address(address_hash=str(uuid1())).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(self.pleb)
         request.user = self.user
         response = profile_information(request)
 
@@ -434,9 +500,7 @@ class TestSignupView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
@@ -496,9 +560,7 @@ class TestLoginView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
@@ -524,9 +586,7 @@ class TestFeatureViews(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
@@ -594,9 +654,7 @@ class TestLoginAPIView(TestCase):
         self.store = SessionStore()
         self.factory = APIRequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
@@ -730,9 +788,7 @@ class TestLogoutView(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = True
         self.pleb.save()
@@ -757,9 +813,7 @@ class TestEmailVerificationView(TestCase):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = False
         self.pleb.save()
@@ -820,9 +874,7 @@ class TestResendEmailVerificationView(TestCase):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = False
         self.pleb.save()
@@ -861,9 +913,7 @@ class TestConfirmView(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
 
     def test_anon_user(self):
@@ -885,9 +935,7 @@ class TestAgeRestrictionView(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
 
     def test_anon_user(self):
@@ -934,9 +982,7 @@ class TestProfilePicture(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.client = Client()
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.completed_profile_info = True
         self.pleb.email_verified = True

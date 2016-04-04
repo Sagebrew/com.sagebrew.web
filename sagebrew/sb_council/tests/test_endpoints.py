@@ -1,9 +1,9 @@
 from uuid import uuid1
-import time
 from dateutil import parser
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.conf import settings
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -29,10 +29,9 @@ class CouncilEndpointTests(APITestCase):
         self.url = "http://testserver"
         self.flag = Flag().save()
         self.question = Question(owner_username=self.pleb.username,
-                                 title=str(uuid1())).save()
+                                 title=str(uuid1()), content="hello").save()
         self.question.flags.connect(self.flag)
         self.question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(self.question)
 
     def test_unauthorized(self):
         url = reverse('council-list')
@@ -131,11 +130,13 @@ class CouncilEndpointTests(APITestCase):
 
     def test_list_with_solution(self):
         flag = Flag().save()
+
         solution = Solution(owner_username=self.pleb.username,
-                            content=str(uuid1())).save()
+                            content=str(uuid1()),
+                            parent_id=self.question.object_uuid).save()
         solution.flags.connect(flag)
+        self.question.solutions.connect(solution)
         solution.owned_by.connect(self.pleb)
-        self.pleb.solutions.connect(solution)
         self.client.force_authenticate(user=self.user)
         url = reverse('council-list')
 
@@ -148,7 +149,6 @@ class CouncilEndpointTests(APITestCase):
                     content=str(uuid1())).save()
         post.flags.connect(flag)
         post.owned_by.connect(self.pleb)
-        self.pleb.posts.connect(post)
         self.client.force_authenticate(user=self.user)
         url = reverse('council-list')
 
@@ -161,7 +161,6 @@ class CouncilEndpointTests(APITestCase):
                           content=str(uuid1())).save()
         comment.flags.connect(flag)
         comment.owned_by.connect(self.pleb)
-        self.pleb.comments.connect(comment)
         self.client.force_authenticate(user=self.user)
         url = reverse('council-list')
 
@@ -241,7 +240,7 @@ class CouncilEndpointTests(APITestCase):
                       kwargs={'object_uuid': self.question.object_uuid})
 
         response = self.client.get(url, format='json')
-        self.assertIsNone(response.data['content'])
+        self.assertEqual(response.data['content'], "hello")
 
     def test_get_url(self):
         self.client.force_authenticate(user=self.user)
@@ -320,12 +319,13 @@ class CouncilEndpointTests(APITestCase):
         self.assertFalse(response.data['council_vote'])
 
     def test_get_after_vote(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.client.force_authenticate(user=self.user)
         url = reverse('council-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
         self.client.put(url, data={'vote_type': True}, format='json')
-        time.sleep(10)  # allow for task to finish
         get_response = self.client.get(url, format='json')
+        settings.CELERY_ALWAYS_EAGER = False
         self.assertTrue(get_response.data['is_closed'])
 
     def test_positions(self):

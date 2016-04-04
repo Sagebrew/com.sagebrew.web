@@ -1,13 +1,21 @@
 import bleach
 import string
-import urlparse
+import io
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 import requests
-import cStringIO
-import HTMLParser
+try:
+    import HTMLParser
+except ImportError:
+    from html.parser import HTMLParser
 from uuid import uuid1
+from copy import deepcopy
 from PIL import Image
 from mimetypes import guess_extension
 
+from django.core.files.uploadhandler import TemporaryUploadedFile
 from django.conf import settings
 
 from rest_framework import status
@@ -71,12 +79,23 @@ def resize_image(image, resize_width, resize_height):
 
 
 def crop_image2(image, width, height, x, y):
-    region = image.crop((x, y, x + width, y + height))
-    return region
+    cropped_image = image.crop((x, y, x + width, y + height))
+    return cropped_image
+
+
+def check_sagebrew_url(url, folder, file_name, file_object, type_known=True):
+    # Check if a sagebrew url, https, and is stored in correct folder
+    if url is None:
+        return upload_image(folder, file_name, file_object, type_known)
+    parsed_url = urlparse(url)
+    if parsed_url.netloc not in settings.ALLOWED_HOSTS or \
+            folder not in parsed_url.path or parsed_url.scheme == "https":
+        url = upload_image(folder, file_name, file_object, type_known)
+    return url
 
 
 def is_absolute(url):
-    return bool(urlparse.urlparse(url).netloc)
+    return bool(urlparse(url).netloc)
 
 
 def get_page_image(url, soup, content_type='html/text'):
@@ -106,7 +125,7 @@ def get_page_image(url, soup, content_type='html/text'):
         res = requests.get(image)
         if res.status_code == status.HTTP_200_OK:
             try:
-                temp_file = cStringIO.StringIO(res.content)
+                temp_file = io.BytesIO(res.content)
             except IOError:  # pragma: no cover
                 # this IOError catches issues created by passing StringIO some
                 # corrupt or invalid data which we cannot test reliably
@@ -174,3 +193,26 @@ def parse_page_html(soupified, url, content_type='html/text'):
     description = get_page_description(soupified)
     title = get_page_title(soupified)
     return title, description, image, width, height
+
+
+def get_image_data(object_uuid, file_object):
+    if isinstance(file_object, io.BytesIO):
+        image = Image.open(file_object)
+    else:
+        another_file_object = deepcopy(file_object)
+        if isinstance(another_file_object, TemporaryUploadedFile):
+            image = Image.open(another_file_object.temporary_file_path())
+        else:
+            image = Image.open(another_file_object)
+    image_format = image.format
+    width, height = image.size
+    file_name = "%s.%s" % (object_uuid, image_format.lower())
+
+    return width, height, file_name, image
+
+
+def hamming_distance(s1, s2):
+    """Return the Hamming distance between equal-length sequences"""
+    if len(s1) != len(s2):
+        raise ValueError("Undefined for sequences of unequal length")
+    return sum(bool(ord(ch1) - ord(ch2)) for ch1, ch2 in zip(s1, s2))

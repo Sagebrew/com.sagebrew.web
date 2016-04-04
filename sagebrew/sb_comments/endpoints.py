@@ -1,8 +1,4 @@
 from uuid import uuid1
-from dateutil import parser
-
-from django.template.loader import render_to_string
-from django.template import RequestContext
 
 from rest_framework.reverse import reverse
 from rest_framework.decorators import (api_view, permission_classes)
@@ -11,6 +7,7 @@ from rest_framework.permissions import (IsAuthenticated,
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.generics import (ListCreateAPIView)
+from rest_framework.exceptions import NotAuthenticated
 
 from neomodel import db
 
@@ -28,10 +25,19 @@ class ObjectCommentsRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
     serializer_class = CommentSerializer
     lookup_field = "object_uuid"
     lookup_url_kwarg = "comment_uuid"
+    permission_classes = (IsAuthenticatedOrReadOnly,)
 
     def get_object(self):
-        return Comment.nodes.get(
+        obj = Comment.nodes.get(
             object_uuid=self.kwargs[self.lookup_url_kwarg])
+        if obj.visibility == "private":
+            # TODO restrict comments to only be shown to users who follow the
+            # owner
+            if self.request.user.is_authenticated():
+                return obj
+            else:
+                raise NotAuthenticated
+        return obj
 
 
 class ObjectCommentsListCreate(ListCreateAPIView):
@@ -58,6 +64,7 @@ class ObjectCommentsListCreate(ListCreateAPIView):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
+        page = page[::-1]
         [row[0].pull() for row in page]
         page = [Comment.inflate(row[0]) for row in page]
         serializer = self.get_serializer(page, many=True)
@@ -84,52 +91,8 @@ class ObjectCommentsListCreate(ListCreateAPIView):
                 'notification_id': notification_id,
                 'comment_on_comment_id': str(uuid1())
             })
-            if request.query_params.get('html', 'false').lower() == "true":
-                serializer_data['last_edited_on'] = parser.parse(
-                    serializer_data['last_edited_on']).replace(microsecond=0)
-                serializer_data['created'] = parser.parse(
-                    serializer_data['created']).replace(microsecond=0)
-                return Response(
-                    {
-                        "html": [render_to_string(
-                            'comment.html',
-                            RequestContext(request, serializer_data))],
-                        "ids": [serializer_data["object_uuid"]]
-                    },
-                    status=status.HTTP_200_OK)
             return Response(serializer_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(["GET"])
-@permission_classes((IsAuthenticatedOrReadOnly,))
-def comment_renderer(request, object_uuid=None):
-    """
-    This is a intermediate step on the way to utilizing a JS Framework to
-    handle template rendering.
-    """
-    html_array = []
-    id_array = []
-    comments = ObjectCommentsListCreate.as_view()(
-        request, object_uuid=object_uuid)
-    # reasoning behind [::-1] is here
-    # http://stackoverflow.com/questions/10201977/how-to-reverse-tuples-in-python?lq=1
-    # basically using [::-1] allows us to loop through the list backwards
-    # without creating a new variable, also this method works for tuples,
-    # lists, dict
-    # We need to order the cypher query as DESC and then flip it here to
-    # make the ordering of comments work properly after reaching 3 and
-    # needing to populate the more comments button.
-    for comment in comments.data['results'][::-1]:
-        comment['last_edited_on'] = parser.parse(
-            comment['last_edited_on']).replace(microsecond=0)
-        comment['created'] = parser.parse(
-            comment['created']).replace(microsecond=0)
-        html_array.append(render_to_string(
-            'comment.html', RequestContext(request, comment)))
-        id_array.append(comment["object_uuid"])
-    comments.data['results'] = {"html": html_array, "ids": id_array}
-    return Response(comments.data, status=status.HTTP_200_OK)
 
 
 @api_view(["GET"])

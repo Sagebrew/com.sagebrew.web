@@ -10,7 +10,7 @@
     {% block description %}{% endblock description %}
     {% block keywords %}{% endblock keywords %}
     {% block css %}
-    <link rel="stylesheet" href="{% static 'dist/css/styles.css' %}"/>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"/>
     {% endblock css %}
 
     {% block page-javascript %}
@@ -42,8 +42,8 @@
     </div>
 {% include "partials/intercom.html" %}
 {% block scripts %}
-    <script src="{% static 'dist/js/vendor.js' %}"></script>
-    <script src="{% static 'dist/js/sagebrew.js' %}"></script>
+    <script src="{% static 'js/vendor.js' %}"></script>
+    <script src="{% static 'js/sagebrew.js' %}"></script>
 {% endblock scripts %}
 
 {% block external_scripts %}
@@ -52,7 +52,7 @@
 
 <script>
     {% if request.user.is_authenticated %}
-        {%  block intercom %}
+        {% block intercom %}
         {% endblock %}
     {% endif %}
 </script>

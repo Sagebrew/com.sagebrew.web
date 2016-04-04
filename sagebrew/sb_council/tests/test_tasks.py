@@ -4,7 +4,6 @@ from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_flags.neo_models import Flag
 from sb_questions.neo_models import Question
@@ -16,11 +15,9 @@ from sb_council.tasks import (update_closed_task,
 class TestUpdateClosedTask(TestCase):
 
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.flag = Flag().save()
         self.question = Question(title=str(uuid1())).save()
@@ -29,7 +26,6 @@ class TestUpdateClosedTask(TestCase):
         self.vote_rel.active = True
         self.vote_rel.vote_type = True
         self.vote_rel.save()
-        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -48,11 +44,9 @@ class TestUpdateClosedTask(TestCase):
 class TestCheckClosedReputationChangesTask(TestCase):
 
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.flag = Flag().save()
         self.question = Question(title=str(uuid1())).save()
@@ -61,7 +55,6 @@ class TestCheckClosedReputationChangesTask(TestCase):
         self.vote_rel.active = True
         self.vote_rel.vote_type = True
         self.vote_rel.save()
-        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False

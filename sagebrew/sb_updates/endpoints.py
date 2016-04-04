@@ -1,12 +1,8 @@
 from uuid import uuid1
-from dateutil import parser
 
 from django.utils.text import slugify
-from django.template.loader import render_to_string
-from django.template import RequestContext
 
 from rest_framework.reverse import reverse
-from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import (IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
 from rest_framework import generics
@@ -104,25 +100,3 @@ class UpdateRetrieveUpdateDestroy(ObjectRetrieveUpdateDestroy):
             {"detail": "Sorry we do not allow deletion of updates.",
              "status_code": status.HTTP_405_METHOD_NOT_ALLOWED},
             status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
-
-@api_view(['GET'])
-@permission_classes((IsAuthenticatedOrReadOnly,))
-def update_renderer(request, object_uuid=None):
-    html_array = []
-    id_array = []
-    args = []
-    kwargs = {"object_uuid": object_uuid}
-    updates = UpdateListCreate.as_view()(request, *args, **kwargs)
-    for update in updates.data['results']:
-        update['last_edited_on'] = parser.parse(
-            update['last_edited_on']).replace(microsecond=0)
-        update['created'] = parser.parse(
-            update['created']).replace(microsecond=0)
-        update['vote_count'] = str(update['vote_count'])
-
-        context = RequestContext(request, update)
-        html_array.append(render_to_string('update.html', context))
-        id_array.append(update['object_uuid'])
-    updates.data['results'] = {'html': html_array, 'ids': id_array}
-    return Response(updates.data, status=status.HTTP_200_OK)

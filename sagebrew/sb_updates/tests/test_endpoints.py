@@ -35,7 +35,7 @@ class UpdateEndpointsTest(APITestCase):
         self.quest.updates.connect(self.update)
         self.quest.missions.connect(self.mission)
         self.update.mission.connect(self.mission)
-        self.pleb.quest.connect(self.quest)
+        self.quest.owner.connect(self.pleb)
         self.update.owned_by.connect(self.pleb)
 
     def test_unauthorized(self):
@@ -204,14 +204,6 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.data['flagged_by'], [])
-
-    def test_get_html_content(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('update-detail',
-                      kwargs={'object_uuid': self.update.object_uuid})
-        response = self.client.get(url)
-
-        self.assertEqual(response.data['html_content'], "<p>Test Content</p>")
 
     def test_get_title(self):
         self.client.force_authenticate(user=self.user)

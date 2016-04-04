@@ -54,6 +54,7 @@ class Searchable(SBObject):
     search_id = StringProperty()
     populated_es_index = BooleanProperty(default=False)
     view_count = IntegerProperty(default=0)
+    summary = StringProperty()
 
     # relationships
     viewed_by = RelationshipTo('plebs.neo_models.Pleb', "VIEWED_BY",

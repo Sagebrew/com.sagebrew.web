@@ -1,0 +1,136 @@
+{% extends "layout/hero-two-col-right.html" %}
+{% load staticfiles %}
+{% block title %}{% if mission.focus_on_type == "position" %}{% if mission.focused_on.full_name %}{{ mission.focused_on.full_name|title }}{% else %}{{ mission.focus_name_formatted }}{% endif %}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}{% endblock %}
+
+{% block hero %}
+    {% include "manage/activate_partial.html" %}
+    <div class="block" style="margin-top: -20px !important;">
+        <div class="col-xs-12 text-center">
+            <h1>{% if mission.focus_on_type == "position" %}{% if mission.focused_on.full_name %}{{ mission.focused_on.full_name|title }}{% else %}{{ mission.focus_name_formatted }}{% endif %}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}</h1>
+            <a href="{% url "quest" quest.owner_username %}">By: {{ quest.title }} </a>
+            {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
+            {%  if request.user.username == quest.owner_username %}
+                <div class="wallpaper mission-wallpaper" id="js-croppic-wrapper-div-id">
+                    <img id="js-croppic-img-id" class="js-croppic-img-class"
+                         src="{{ mission.wallpaper_pic|default_if_none:default_wallpaper }}">
+                </div>
+            {% else %}
+                <div class="wallpaper mission-wallpaper">
+                    <img src="{{ mission.wallpaper_pic|default_if_none:default_wallpaper }}">
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-content ">
+            <ul class="nav">
+                {% comment %}
+                    For some reason if I remove this ul all the background color goes away
+                    for the hero section...
+                {% endcomment %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+{% block tertiary_nav %}
+    {% if mission.active != False or request.user.username == mission.owner_username %}
+        <div class="radio-button-selector-nav">
+            <ul class="block-content block-container-radio-nav block-float-background ">
+                <li class="radio-li-nav-selector">
+                    <a href="{% url 'mission_donation_amount' mission.id mission.slug %}">
+                        <div class="radio-image-selector-white-nav js-contribution">
+                            <h4 class="sb-profile-not-friend-header"><i class="fa fa-money"></i> Donate</h4>
+                        </div>
+                    </a>
+                </li>
+                <li class="radio-li-nav-selector">
+                    <a href="{% url 'mission_volunteer_option' mission.id mission.slug %}">
+                        <div class="radio-image-selector-white-nav js-contribution">
+                            <h4 class="sb-profile-not-friend-header"><i class="fa fa-calendar"></i> Volunteer</h4>
+                        </div>
+                    </a>
+                </li>
+                <li class="radio-li-nav-selector">
+                    <a href="{% url 'mission_endorse' mission.id mission.slug %}">
+                        <div class="radio-image-selector-white-nav js-contribution">
+                            <h4 class="sb-profile-not-friend-header"><i class="fa fa-check-circle-o"></i> Endorse</h4>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    {% endif %}
+{% endblock %}
+{% block secondary_nav %}
+    <div class="block block-type-title">
+        <div class="block-content ">
+            <ul class="nav nav-pills">
+                <li {% if "updates" not in request.path and "endorsements" not in request.path %} class="active" {% endif %}><a href="{% url 'mission' mission.id mission.slug %}">Epic <span class="sr-only">(current)</span></a></li>
+                <li {% if "updates" in request.path %} class="active" {% endif %}><a href="{% url "mission_updates" mission.id mission.slug %}">Updates</a></li>
+                <li {% if "endorsements" in request.path %} class="active" {% endif %}><a href="{% url "mission_endorsements" mission.id mission.slug %}">Endorsements</a></li>
+            </ul>
+            <div class="title-important-actions">
+                {% if quest.is_moderator or quest.is_editor or request.user.username == quest.owner_username %}
+                    <a class="hidden-xs btn btn-primary btn-lg sb_btn" href="{% url 'mission_settings' mission.id mission.slug %}">Settings</a>
+                {% endif %}
+                <div class="btn-group" role="group">
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block sidebar_right %}
+    <div class="block" id="about-wrapper">
+        <h4 class="block-title">About</h4>
+        <div class="block-content block-holder-sm" id="about-parent">
+            <small>{{ mission.about|default:"No information has been provided."|default_if_none:"No information has been provided." }}</small>
+        </div>
+        {% if mission.website %}
+        <div class="block-content" style="padding-bottom: 0;" id="website">
+                <small>Website: {{ mission.website|urlize }}</small>
+        </div>
+        {% endif %}
+        <div class="block-content no-top-padding" id="social-media">
+            {% if mission.facebook %}
+                <a href="{{ mission.facebook }}" target="_blank"
+                        class="btn btn-primary sb_btn_icon sb_btn_icon_green">
+                    <span class="fa fa-facebook"></span>
+                </a>
+            {% else %}
+                <button class="btn btn-primary sb_btn_icon disabled">
+                    <span class="fa fa-facebook"></span>
+                </button>
+            {% endif %}
+            {% if mission.twitter %}
+                <a href="{{ mission.twitter }}" target="_blank"
+                        class="btn btn-primary sb_btn_icon sb_btn_icon_green">
+                    <span class="fa fa-twitter"></span>
+                </a>
+            {% else %}
+                <button class="btn btn-primary sb_btn_icon disabled">
+                    <span class="fa fa-twitter"></span>
+                </button>
+            {% endif %}
+            {% if mission.youtube %}
+                <a href="{{ mission.youtube }}" target="_blank"
+                        class="btn btn-primary sb_btn_icon sb_btn_icon_green">
+                    <span class="fa fa-youtube-play"></span>
+                </a>
+            {% else %}
+                <button class="btn btn-primary sb_btn_icon disabled">
+                    <span class="fa fa-youtube-play"></span>
+                </button>
+            {% endif %}
+            {% if  mission.linkedin %}
+                <a href="{{ mission.linkedin }}" target="_blank"
+                        class="btn btn-primary sb_btn_icon sb_btn_icon_green"><span
+                        class="fa fa-linkedin"></span></a>
+            {% else %}
+                <button class="btn btn-primary sb_btn_icon disabled"><span
+                        class="fa fa-linkedin"></span></button>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

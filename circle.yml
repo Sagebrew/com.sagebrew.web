@@ -2,25 +2,29 @@ machine:
   services:
     - rabbitmq-server
     - docker
+    - redis
+    - memcached
 
 dependencies:
   cache_directories:
     - elasticsearch-2.2.0
     - DynamoDBLocal_lib
     - neo4j-community-2.2.2
+    - ../../virtualenvs
+    - ../../nltk_data
 
   pre:
     - sudo apt-get update
     - pip install setuptools==12.3
     - pip install awscli
-    - sudo apt-get -y install libjpeg-dev
+    - sudo apt-get -y install libjpeg-dev libblas-dev liblapack-dev libatlas-base-dev gfortran libicu-dev python-pyicu
     - npm install -g gulp
     - npm prune && npm install:
-        pwd: frontend
+        pwd: ../frontend
     - bower prune && bower install:
-        pwd: frontend
+        pwd: ../frontend
     - gulp build --env production:
-        pwd: frontend
+        pwd: ../frontend
 
   post:
     - pip install -r ~/com.sagebrew.web/requirements/test.txt --exists-action=w
@@ -49,6 +53,7 @@ dependencies:
     - python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
     - python ~/com.sagebrew.web/sagebrew/manage.py populate_indices
     - python ~/com.sagebrew.web/sagebrew/manage.py clear_neo_db
+    - python ~/com.sagebrew.web/sagebrew/manage.py populate_nltk
 
 checkout:
   post:
@@ -62,11 +67,11 @@ test:
     - coverage html --fail-under=70
     - coveralls
   post:
-    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
+    - python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
-    - docker build -t sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
-    - docker build -t sagebrew/sb_web:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/web_app/
-    - docker build -t sagebrew/sys_util:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/sys_util/
+    - docker build -t docker.io/sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
+    - docker build -t docker.io/sagebrew/sb_web:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/web_app/
+    - docker build -t docker.io/sagebrew/sys_util:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/sys_util/
     # DO NOT CHANGE GRAPHEN_NEO4J_REST_URL to NEO4J_REST_URL the NEO4J_REST_URL
     # points to the local circle instance and the docker instance needs the
     # graphen instance to work

@@ -1,6 +1,11 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# coding=utf-8
+
 from __future__ import absolute_import
 
 from os import environ, path, makedirs
+import re
 from unipath import Path
 import multiprocessing
 from datetime import datetime
@@ -63,18 +68,16 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    '%s/frontend/build/' % REPO_DIR, # Frontend Repo
     '%s/help_center/static/' % PROJECT_DIR,
-    '%s/sagebrew/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
-    '%s/sb_missions/static/' % PROJECT_DIR,  # TODO Need to remove this and move
-    # info over to new arch
+    '%s/sb_missions/static/' % PROJECT_DIR,
     '%s/sb_notifications/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_quests/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
     '%s/sb_public_official/static/' % PROJECT_DIR,
-    '%s/sb_solutions/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
 )
 
@@ -122,7 +125,6 @@ TEMPLATES = [{
         '%s/sb_solutions/templates/' % PROJECT_DIR,
         '%s/sb_badges/templates/' % PROJECT_DIR,
         '%s/sb_base/templates/' % PROJECT_DIR,
-        '%s/sb_comments/templates/' % PROJECT_DIR,
         '%s/sb_contributions/templates/' % PROJECT_DIR,
         '%s/sb_council/templates' % PROJECT_DIR,
         '%s/sb_flag/templates/' % PROJECT_DIR,
@@ -201,6 +203,7 @@ INSTALLED_APPS = (
     'sb_flags',
     'sb_locations',
     'sb_missions',
+    'sb_news',
     'sb_notifications',
     'sb_posts',
     'sb_privileges',
@@ -272,8 +275,14 @@ ADDRESS_VALIDATION_ID = environ.get("ADDRESS_VALIDATION_ID", '')
 ADDRESS_VALIDATION_TOKEN = environ.get("ADDRESS_VALIDATION_TOKEN", '')
 # Used for JS
 ADDRESS_AUTH_ID = environ.get("ADDRESS_AUTH_ID", '')
+# Intercom
+INTERCOM_API_KEY = environ.get("INTERCOM_API_KEY", '')
+INTERCOM_APP_ID = environ.get("INTERCOM_APP_ID", '')
+INTERCOM_ADMIN_ID_DEVON = environ.get("INTERCOM_APP_ID", '')
 LONG_TERM_STATIC_DOMAIN = "https://d2m0mj9tyf6rjw.cloudfront.net"
 WEBHOSE_KEY = environ.get("WEBHOSE_KEY", '')
+WEBHOSE_FREE = True
+EMBEDLY_KEY = environ.get("EMBEDLY_KEY", '808adeb9c5da4db7a4eb359c242cdada')
 STRIPE_PUBLIC_KEY = environ.get("STRIPE_PUBLIC_KEY", '')
 STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
 STRIPE_TRANSACTION_PERCENT = .029
@@ -304,13 +313,23 @@ CACHES = {
     }
 }
 
-CELERYBEAT_SCHEDULE = {
-    'check-closed-reputation-changes': {
-        'task': 'sb_council.tasks.check_closed_reputation_changes_task',
-        'schedule': crontab(minute=0, hour=3),
-        'args': ()
+if not DEBUG:
+    CELERYBEAT_SCHEDULE = {
+        'check-closed-reputation-changes': {
+            'task': 'sb_council.tasks.check_closed_reputation_changes_task',
+            'schedule': crontab(minute=0, hour=3),
+            'args': ()
+        },
+        'find-tag-news': {
+            'task': 'sb_news.tasks.find_tag_news',
+            'schedule': crontab(minute=0, hour=3),
+            'args': ()
+        },
+        'check-unverified-quests': {
+            'task': 'sb_accounting.tasks.check_unverified_quest',
+            'schedule': crontab(minute=0, hour=0)
+        }
     }
-}
 
 CELERY_TIMEZONE = 'UTC'
 OPBEAT = {
@@ -405,6 +424,11 @@ OPERATOR_TYPES = [
     ('coperator\ntruth\np0\n.', 'truth')
 ]
 
+ALLOWED_IMAGE_FORMATS = ['gif', 'jpeg', 'jpg', 'png', 'GIF', 'JPEG', 'JPG',
+                         'PNG']
+
+ALLOWED_IMAGE_SIZE = 20000000 # 20 MB
+
 NON_SAFE = ["REMOVE", "DELETE", "CREATE", "SET",
             "FOREACH", "MERGE", "MATCH", "START"]
 
@@ -460,7 +484,68 @@ VOLUNTEER_ACTIVITIES = [
     ("attend_a_house_party", "Attend A House Party")
 ]
 
-EXPLICIT_STIES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',
+DEFAULT_SENTENCE_COUNT = 7
+DEFAULT_SUMMARY_LENGTH = 250
+TIME_EXCLUSION_REGEX = re.compile(
+    r'(1[012]|[1-9]):[0-5][0-9](\\s)?(?i)\s?(am|pm|AM|PM)')
+URL_REGEX = r'\b((?:https?:(?:|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu' \
+            r'|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name' \
+            r'|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar' \
+            r'|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs' \
+            r'|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu' \
+            r'|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi' \
+            r'|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs' \
+            r'|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it' \
+            r'|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk' \
+            r'|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr' \
+            r'|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz' \
+            r'|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru' \
+            r'|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su' \
+            r'|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw' \
+            r'|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za' \
+            r'|zm|zw))(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?' \
+            r'\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s' \
+            r']+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:[a-z0-9]+(?:[.\-][a" \
+            r'-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop' \
+            r'|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad' \
+            r'|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|' \
+            r'bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|' \
+            r'ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|' \
+            r'dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|' \
+            r'gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|' \
+            r'id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|' \
+            r'kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|' \
+            r'mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|' \
+            r'ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|' \
+            r'pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|' \
+            r'Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|' \
+            r'tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|' \
+            r'vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b(?!@)))'
+DEFAULT_EXCLUDE_SENTENCES = ["Story highlights", "#", "##", "Discover Dubai",
+                             "By ", "Caption", "caption", "photos:", "1 of ",
+                             'JPG', 'jpg', 'png', "PNG", "ID:", "(REUTERS)",
+                             "Image", "BREAKING", "FORM", "1.", "by",
+                             "FFFD", "Fuck", "Shit", "Ass", "Cunt", "Jizz",
+                             '[', ']', '{', '}', '*', 'Related Topics:',
+                             'related topics:', '+', '=']
+
+DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
+                            'Burn More Calories and Lose Weight',
+                            'Burn More Calories', 'Lose Weight',
+                            "lose weight",
+                            "No one wants to adopt Rory the cat: "
+                            "Called 'Cat Dracula' | Examiner.com",
+                            "Petition:", "petition:", "Petition",
+                            "Sex Positions", "sex positions", "Orgasm",
+                            "orgasm", "Fuck", "Shit", "Ass", "Cunt",
+                            "Jizz"]
+
+UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', ]
+COMPANY_ACRONYMS = ['ABC', 'CNN', 'CBS', 'MSNBC', 'BBC',
+                    'CBC', 'CBS', 'NBC', 'NYT', 'abc7.com', 'NPR']
+
+
+EXPLICIT_SITES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',
                   'redtube.com', 'youporn.com', 'tube8.com', 'youjizz.com',
                   'hardsextube.com', 'beeg.com', 'motherless.com',
                   'drtuber.com', 'nuvid.com', 'pornerbros.com',
@@ -686,3 +771,255 @@ EXPLICIT_STIES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',
                   'www.adultfunnow.com', 'youporn.us.com', 'www.babecumtv.com',
                   'www.girlskissinggirlsvideos.com',
                   'www.specialtytubeporn.com']
+
+COUNTRIES = [
+    (u'US', u'United States of America'),
+    (u'BD', u'Bangladesh'),
+    (u'BE', u'Belgium'),
+    (u'BF', u'Burkina Faso'),
+    (u'BG', u'Bulgaria'),
+    (u'BA', u'Bosnia and Herzegovina'),
+    (u'BB', u'Barbados'),
+    (u'WF', u'Wallis and Futuna'),
+    (u'BL', u'Saint Barth\xe9lemy'),
+    (u'BM', u'Bermuda'),
+    (u'BN', u'Brunei'),
+    (u'BO', u'Bolivia'),
+    (u'BH', u'Bahrain'),
+    (u'BI', u'Burundi'),
+    (u'BJ', u'Benin'),
+    (u'BT', u'Bhutan'),
+    (u'JM', u'Jamaica'),
+    (u'BV', u'Bouvet Island'),
+    (u'BW', u'Botswana'),
+    (u'WS', u'Samoa'),
+    (u'BQ', u'Bonaire, Sint Eustatius and Saba'),
+    (u'BR', u'Brazil'),
+    (u'BS', u'Bahamas'),
+    (u'JE', u'Jersey'),
+    (u'BY', u'Belarus'),
+    (u'BZ', u'Belize'),
+    (u'RU', u'Russia'),
+    (u'RW', u'Rwanda'),
+    (u'RS', u'Serbia'),
+    (u'TL', u'Timor-Leste'),
+    (u'RE', u'R\xe9union'),
+    (u'TM', u'Turkmenistan'),
+    (u'TJ', u'Tajikistan'),
+    (u'RO', u'Romania'),
+    (u'TK', u'Tokelau'),
+    (u'GW', u'Guinea-Bissau'),
+    (u'GU', u'Guam'),
+    (u'GT', u'Guatemala'),
+    (u'GS', u'South Georgia and the South Sandwich Islands'),
+    (u'GR', u'Greece'),
+    (u'GQ', u'Equatorial Guinea'),
+    (u'GP', u'Guadeloupe'),
+    (u'JP', u'Japan'),
+    (u'GY', u'Guyana'),
+    (u'GG', u'Guernsey'),
+    (u'GF', u'French Guiana'),
+    (u'GE', u'Georgia'),
+    (u'GD', u'Grenada'),
+    (u'GB', u'United Kingdom'),
+    (u'GA', u'Gabon'),
+    (u'GN', u'Guinea'),
+    (u'GM', u'Gambia'),
+    (u'GL', u'Greenland'),
+    (u'GI', u'Gibraltar'),
+    (u'GH', u'Ghana'),
+    (u'OM', u'Oman'),
+    (u'TN', u'Tunisia'),
+    (u'JO', u'Jordan'),
+    (u'HR', u'Croatia'),
+    (u'HT', u'Haiti'),
+    (u'HU', u'Hungary'),
+    (u'HK', u'Hong Kong'),
+    (u'HN', u'Honduras'),
+    (u'HM', u'Heard Island and McDonald Islands'),
+    (u'VE', u'Venezuela'),
+    (u'PR', u'Puerto Rico'),
+    (u'PS', u'Palestine, State of'),
+    (u'PW', u'Palau'),
+    (u'PT', u'Portugal'),
+    (u'KN', u'Saint Kitts and Nevis'),
+    (u'PY', u'Paraguay'),
+    (u'IQ', u'Iraq'),
+    (u'PA', u'Panama'),
+    (u'PF', u'French Polynesia'),
+    (u'PG', u'Papua New Guinea'),
+    (u'PE', u'Peru'),
+    (u'PK', u'Pakistan'),
+    (u'PH', u'Philippines'),
+    (u'PN', u'Pitcairn'),
+    (u'PL', u'Poland'),
+    (u'PM', u'Saint Pierre and Miquelon'),
+    (u'ZM', u'Zambia'),
+    (u'EH', u'Western Sahara'),
+    (u'EE', u'Estonia'),
+    (u'EG', u'Egypt'),
+    (u'ZA', u'South Africa'),
+    (u'EC', u'Ecuador'),
+    (u'IT', u'Italy'),
+    (u'VN', u'Vietnam'),
+    (u'SB', u'Solomon Islands'),
+    (u'ET', u'Ethiopia'),
+    (u'SO', u'Somalia'),
+    (u'ZW', u'Zimbabwe'),
+    (u'SA', u'Saudi Arabia'),
+    (u'ES', u'Spain'),
+    (u'ER', u'Eritrea'),
+    (u'ME', u'Montenegro'),
+    (u'MD', u'Moldova'),
+    (u'MG', u'Madagascar'),
+    (u'MF', u'Saint Martin (French part)'),
+    (u'MA', u'Morocco'),
+    (u'MC', u'Monaco'),
+    (u'UZ', u'Uzbekistan'),
+    (u'MM', u'Myanmar'),
+    (u'ML', u'Mali'),
+    (u'MO', u'Macao'),
+    (u'MN', u'Mongolia'),
+    (u'MH', u'Marshall Islands'),
+    (u'MK', u'Macedonia'),
+    (u'MU', u'Mauritius'),
+    (u'MT', u'Malta'),
+    (u'MW', u'Malawi'),
+    (u'MV', u'Maldives'),
+    (u'MQ', u'Martinique'),
+    (u'MP', u'Northern Mariana Islands'),
+    (u'MS', u'Montserrat'),
+    (u'MR', u'Mauritania'),
+    (u'IM', u'Isle of Man'),
+    (u'UG', u'Uganda'),
+    (u'TZ', u'Tanzania'),
+    (u'MY', u'Malaysia'),
+    (u'MX', u'Mexico'),
+    (u'IL', u'Israel'),
+    (u'FR', u'France'),
+    (u'AW', u'Aruba'),
+    (u'SH', u'Saint Helena, Ascension and Tristan da Cunha'),
+    (u'SJ', u'Svalbard and Jan Mayen'),
+    (u'FI', u'Finland'),
+    (u'FJ', u'Fiji'),
+    (u'FK', u'Falkland Islands  [Malvinas]'),
+    (u'FM', u'Micronesia (Federated States of)'),
+    (u'FO', u'Faroe Islands'),
+    (u'NI', u'Nicaragua'),
+    (u'NL', u'Netherlands'),
+    (u'NO', u'Norway'),
+    (u'NA', u'Namibia'),
+    (u'VU', u'Vanuatu'),
+    (u'NC', u'New Caledonia'),
+    (u'NE', u'Niger'),
+    (u'NF', u'Norfolk Island'),
+    (u'NG', u'Nigeria'),
+    (u'NZ', u'New Zealand'),
+    (u'NP', u'Nepal'),
+    (u'NR', u'Nauru'),
+    (u'NU', u'Niue'),
+    (u'CK', u'Cook Islands'),
+    (u'CI', u"C\xf4te d'Ivoire"),
+    (u'CH', u'Switzerland'),
+    (u'CO', u'Colombia'),
+    (u'CN', u'China'),
+    (u'CM', u'Cameroon'),
+    (u'CL', u'Chile'),
+    (u'CC', u'Cocos (Keeling) Islands'),
+    (u'CA', u'Canada'),
+    (u'CG', u'Congo'),
+    (u'CF', u'Central African Republic'),
+    (u'CD', u'Congo (the Democratic Republic of the)'),
+    (u'CZ', u'Czech Republic'),
+    (u'CY', u'Cyprus'),
+    (u'CX', u'Christmas Island'),
+    (u'CR', u'Costa Rica'),
+    (u'CW', u'Cura\xe7ao'),
+    (u'CV', u'Cabo Verde'),
+    (u'CU', u'Cuba'),
+    (u'SZ', u'Swaziland'),
+    (u'SY', u'Syria'),
+    (u'SX', u'Sint Maarten (Dutch part)'),
+    (u'KG', u'Kyrgyzstan'),
+    (u'KE', u'Kenya'),
+    (u'SS', u'South Sudan'),
+    (u'SR', u'Suriname'),
+    (u'KI', u'Kiribati'),
+    (u'KH', u'Cambodia'),
+    (u'SV', u'El Salvador'),
+    (u'KM', u'Comoros'),
+    (u'ST', u'Sao Tome and Principe'),
+    (u'SK', u'Slovakia'),
+    (u'KR', u'South Korea'),
+    (u'SI', u'Slovenia'),
+    (u'KP', u'North Korea'),
+    (u'KW', u'Kuwait'),
+    (u'SN', u'Senegal'),
+    (u'SM', u'San Marino'),
+    (u'SL', u'Sierra Leone'),
+    (u'SC', u'Seychelles'),
+    (u'KZ', u'Kazakhstan'),
+    (u'KY', u'Cayman Islands'),
+    (u'SG', u'Singapore'),
+    (u'SE', u'Sweden'),
+    (u'SD', u'Sudan'),
+    (u'DO', u'Dominican Republic'),
+    (u'DM', u'Dominica'),
+    (u'DJ', u'Djibouti'),
+    (u'DK', u'Denmark'),
+    (u'VG', u'Virgin Islands (British)'),
+    (u'DE', u'Germany'),
+    (u'YE', u'Yemen'),
+    (u'DZ', u'Algeria'),
+    (u'UY', u'Uruguay'),
+    (u'YT', u'Mayotte'),
+    (u'UM', u'United States Minor Outlying Islands'),
+    (u'LB', u'Lebanon'),
+    (u'LC', u'Saint Lucia'),
+    (u'LA', u'Laos'),
+    (u'TV', u'Tuvalu'),
+    (u'TW', u'Taiwan'),
+    (u'TT', u'Trinidad and Tobago'),
+    (u'TR', u'Turkey'),
+    (u'LK', u'Sri Lanka'),
+    (u'LI', u'Liechtenstein'),
+    (u'LV', u'Latvia'),
+    (u'TO', u'Tonga'),
+    (u'LT', u'Lithuania'),
+    (u'LU', u'Luxembourg'),
+    (u'LR', u'Liberia'),
+    (u'LS', u'Lesotho'),
+    (u'TH', u'Thailand'),
+    (u'TF', u'French Southern Territories'),
+    (u'TG', u'Togo'),
+    (u'TD', u'Chad'),
+    (u'TC', u'Turks and Caicos Islands'),
+    (u'LY', u'Libya'),
+    (u'VA', u'Holy See'),
+    (u'VC', u'Saint Vincent and the Grenadines'),
+    (u'AE', u'United Arab Emirates'),
+    (u'AD', u'Andorra'),
+    (u'AG', u'Antigua and Barbuda'),
+    (u'AF', u'Afghanistan'),
+    (u'AI', u'Anguilla'),
+    (u'VI', u'Virgin Islands (U.S.)'),
+    (u'IS', u'Iceland'),
+    (u'IR', u'Iran'),
+    (u'AM', u'Armenia'),
+    (u'AL', u'Albania'),
+    (u'AO', u'Angola'),
+    (u'AQ', u'Antarctica'),
+    (u'AS', u'American Samoa'),
+    (u'AR', u'Argentina'),
+    (u'AU', u'Australia'),
+    (u'AT', u'Austria'),
+    (u'IO', u'British Indian Ocean Territory'),
+    (u'IN', u'India'),
+    (u'AX', u'\xc5land Islands'),
+    (u'AZ', u'Azerbaijan'),
+    (u'IE', u'Ireland'),
+    (u'ID', u'Indonesia'),
+    (u'UA', u'Ukraine'),
+    (u'QA', u'Qatar'),
+    (u'MZ', u'Mozambique')
+]

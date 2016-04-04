@@ -1,0 +1,24 @@
+<div class="js-comment-loader" id="comment-{{ id }}"></div>
+<div class="block">
+    <div class="block-content">
+        {{#if can_comment.status }}
+            <div class="input-group sb_comment comment-input">
+                <textarea class="input-group form-control sb_comment_input"
+                          rows="2" name="comment_content"
+                          placeholder="{{ comment_description }}"></textarea>
+                <a class="btn input-group-btn comment-btn"
+                    data-id="{{ parent_id }}"
+                    data-type="{{ parent_type }}">
+                <span class="fa fa-plus"></span></a>
+            </div>
+        {{ else }}
+            <small>
+                <span class="sb_comment_disabled" data-toggle="tooltip"
+                      data-placement="top"
+                      data-title="{{ can_comment.short_detail }}">
+                    comment
+                </span>
+            </small>
+        {{/if}}
+    </div>
+</div>

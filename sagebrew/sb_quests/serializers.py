@@ -1,7 +1,7 @@
 import pytz
-from datetime import datetime
 import time
 import stripe
+from datetime import datetime
 from stripe.error import InvalidRequestError
 from dateutil.relativedelta import relativedelta
 
@@ -30,11 +30,11 @@ class QuestSerializer(SBSerializer):
     title = serializers.CharField(required=False, allow_blank=True)
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=128)
-    facebook = serializers.CharField(required=False, allow_blank=True)
-    linkedin = serializers.CharField(required=False, allow_blank=True)
-    youtube = serializers.CharField(required=False, allow_blank=True)
-    twitter = serializers.CharField(required=False, allow_blank=True)
-    website = serializers.CharField(required=False, allow_blank=True)
+    facebook = serializers.URLField(required=False, allow_blank=True)
+    linkedin = serializers.URLField(required=False, allow_blank=True)
+    youtube = serializers.URLField(required=False, allow_blank=True)
+    twitter = serializers.URLField(required=False, allow_blank=True)
+    website = serializers.URLField(required=False, allow_blank=True)
     wallpaper_pic = serializers.CharField(required=False)
     profile_pic = serializers.CharField(required=False)
     owner_username = serializers.CharField(read_only=True)
@@ -64,6 +64,8 @@ class QuestSerializer(SBSerializer):
         read_only=True,
         choices=[('unverified', "Unverified"), ('pending', "Pending"),
                  ('verified', "Verified")])
+    account_verification_fields_needed = serializers.ListField(read_only=True)
+    account_verification_details = serializers.CharField(read_only=True)
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
@@ -73,6 +75,7 @@ class QuestSerializer(SBSerializer):
     completed_stripe = serializers.SerializerMethodField()
     completed_customer = serializers.SerializerMethodField()
     missions = serializers.SerializerMethodField()
+    endorsed = serializers.SerializerMethodField()
     total_donation_amount = serializers.SerializerMethodField()
 
     def create(self, validated_data):
@@ -92,7 +95,7 @@ class QuestSerializer(SBSerializer):
                       profile_pic=owner.profile_pic,
                       account_type=account_type, title=default_title).save()
 
-        owner.quest.connect(quest)
+        quest.owner.connect(owner)
         quest.editors.connect(owner)
         quest.moderators.connect(owner)
         account = stripe.Account.create(managed=True, country="US",
@@ -164,10 +167,14 @@ class QuestSerializer(SBSerializer):
         instance.active = active
         instance.title = empty_text_to_none(
             validated_data.pop('title', instance.title))
-        instance.facebook = validated_data.get('facebook', instance.facebook)
-        instance.linkedin = validated_data.get('linkedin', instance.linkedin)
-        instance.youtube = validated_data.get('youtube', instance.youtube)
-        instance.twitter = validated_data.get('twitter', instance.twitter)
+        instance.facebook = clean_url(
+            validated_data.get('facebook', instance.facebook))
+        instance.linkedin = clean_url(
+            validated_data.get('linkedin', instance.linkedin))
+        instance.youtube = clean_url(
+            validated_data.get('youtube', instance.youtube))
+        instance.twitter = clean_url(
+            validated_data.get('twitter', instance.twitter))
         if initial_state is True and active is False:
             remove_search_object(instance.object_uuid, "quest")
         instance.website = clean_url(validated_data.get(
@@ -254,13 +261,12 @@ class QuestSerializer(SBSerializer):
         # ** Managed Account Setup **
         if stripe_token is not None:
             if instance.stripe_id is None or instance.stripe_id == "Not Set":
-                stripe_res = stripe.Account.create(managed=True, country="US",
-                                                   email=owner.email)
-                instance.stripe_id = stripe_res['id']
+                account = stripe.Account.create(managed=True, country="US",
+                                                email=owner.email)
+                instance.stripe_id = account['id']
+            else:
+                account = stripe.Account.retrieve(instance.stripe_id)
 
-            # TODO is this necessary or can we use the repsonse from the
-            # creation?
-            account = stripe.Account.retrieve(instance.stripe_id)
             try:
                 account.external_accounts.create(external_account=stripe_token)
             except InvalidRequestError:
@@ -385,6 +391,24 @@ class QuestSerializer(SBSerializer):
         if obj.stripe_customer_id is None:
             return False
         return True
+
+    def get_endorsed(self, obj):
+        from sb_missions.neo_models import Mission
+        from sb_missions.serializers import MissionSerializer
+        expand = self.context.get('expand', 'false').lower()
+        query = 'MATCH (quest:Quest {owner_username: "%s"})-[:ENDORSES]->' \
+                '(mission:Mission) RETURN mission' % obj.owner_username
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            return None
+        if expand == 'true':
+            return [MissionSerializer(Mission.inflate(row[0])).data
+                    for row in res]
+        return [reverse('mission-detail',
+                        kwargs={
+                            'object_uuid': Mission.inflate(row[0]).object_uuid
+                        }, request=self.context.get('request', None))
+                for row in res]
 
     def get_missions(self, obj):
         from sb_missions.neo_models import Mission

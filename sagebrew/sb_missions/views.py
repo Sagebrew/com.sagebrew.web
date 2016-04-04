@@ -1,15 +1,13 @@
 from django.utils.text import slugify
 from django.views.generic import View
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 
 from py2neo.cypher.error import ClientError
 from neomodel import db, CypherException, DoesNotExist
 
 from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
-from sb_registration.utils import (verify_completed_registration)
 from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
 from sb_quests.neo_models import Quest
@@ -18,28 +16,22 @@ from sb_quests.serializers import QuestSerializer
 
 def mission_list(request):
     serializer_data = []
-    return render(request, 'mission_list.html', serializer_data)
+    return render(request, 'mission/list.html', serializer_data)
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def select_mission(request):
-    return render(request, 'mission_selector.html')
+    return render(request, 'mission/selector.html')
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def public_office_mission(request):
-    return render(request, 'public_office_mission.html')
+    return render(request, 'mission/public_office.html')
 
 
 @login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
 def advocate_mission(request):
-    return render(request, 'advocate_mission.html')
+    return render(request, 'mission/advocate.html')
 
 
 def mission_redirect_page(request, object_uuid=None):
@@ -98,7 +90,7 @@ def mission_updates(request, object_uuid, slug=None):
     # hit the endpoint to gather the actual updates.
     quest = Quest.inflate(res.one.quest)
     mission_obj = Mission.inflate(res.one.mission)
-    return render(request, 'mission_updates.html', {
+    return render(request, 'mission/updates.html', {
         "updates": res.one.update,
         "mission": MissionSerializer(mission_obj).data,
         "slug": slugify(mission_obj.get_mission_title()),
@@ -119,7 +111,7 @@ def mission_endorsements(request, object_uuid, slug=None):
     # hit the endpoint to gather the actual updates.
     quest = Quest.inflate(res.one.quest)
     mission_obj = Mission.inflate(res.one.mission)
-    return render(request, 'mission_endorsements.html', {
+    return render(request, 'mission/endorsements.html', {
         "quest": QuestSerializer(quest).data,
         "mission": MissionSerializer(mission_obj).data,
         "slug": slugify(mission_obj.get_mission_title()),
@@ -138,12 +130,6 @@ class LoginRequiredMixin(View):
 
 class MissionSettingsView(LoginRequiredMixin):
     template_name = 'manage/mission_settings.html'
-
-    @method_decorator(user_passes_test(
-        verify_completed_registration,
-        login_url='/registration/profile_information'))
-    def dispatch(self, *args, **kwargs):
-        return super(MissionSettingsView, self).dispatch(*args, **kwargs)
 
     def get(self, request, object_uuid=None, slug=None):
         # Do a second optional match to get the list of missions,
@@ -181,14 +167,8 @@ class MissionSettingsView(LoginRequiredMixin):
         })
 
 
-class MissionBaseView(LoginRequiredMixin):
-    template_name = 'mission.html'
-
-    @method_decorator(user_passes_test(
-        verify_completed_registration,
-        login_url='/registration/profile_information'))
-    def dispatch(self, *args, **kwargs):
-        return super(MissionBaseView, self).dispatch(*args, **kwargs)
+class MissionBaseView(View):
+    template_name = 'mission/mission.html'
 
     def get(self, request, object_uuid=None, slug=None):
         try:

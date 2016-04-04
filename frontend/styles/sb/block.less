@@ -1,0 +1,239 @@
+//
+// Blocks
+// -------------------------------------------------
+.block {
+  margin-bottom:20px;
+  padding:0;
+  border-radius: 2px;
+  height: auto;
+  background-color: @sb_off_white;
+  .block-hero-image {
+    height: 160px;
+    img {
+      max-width:100%;
+      height:auto;
+    }
+  }
+  .block-title {
+    display:block;
+    padding:20px 0 6px 0;
+    margin:0 20px;
+    font-weight:300;
+    border-bottom:1px solid #A2A2A2;
+    font-size:1.3em;
+  }
+  .no-underline {
+    border-bottom: none;
+  }
+  .center-title {
+    padding-bottom: 20px;
+  }
+  .tight {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  .block-content {
+    padding:20px;
+  }
+
+  .block-holder-lg {
+  min-height: 400px;
+  }
+
+  .block-holder-md {
+    min-height: 250px;
+  }
+
+  .block-holder-sm {
+    min-height: 100px;
+  }
+  .block-wrap {
+    display: inline-block;
+  }
+  .no-top-padding {
+    padding-top: 0;
+  }
+}
+.block-profile {
+  margin-left: 20px;
+}
+
+.block-footer {
+  position: absolute;
+  background-image: linear-gradient(rgba(255, 255, 255, 0) 0%, rgb(255, 255, 255) 26%);
+  padding-left: 20px;
+  padding-right: 20px;
+  height: 110px !important;
+  margin-bottom: 20px;
+  left: 15px;
+  right: 15px;
+  bottom: 0;
+  a {
+    position: absolute;
+    bottom: 20px;
+  }
+}
+
+.type-nav {
+    @media only screen and (max-width: 992px) {
+      h1{
+        width: 100%;
+        padding-left: 10px !important;
+      }
+    }
+    @media only screen and (max-width: 768px) {
+      h1{
+        width: 100%;
+      }
+    }
+  }
+.block-float-background {
+  overflow: auto;
+}
+
+.block-content > ul.list-group {
+  margin:0;
+}
+
+//
+// Nav block type
+.block.block-type-nav  {
+  ul.nav-list-vivid {
+    background: transparent;
+
+  }
+}
+
+//
+// Title block type
+.block.block-type-title {
+  .block-content {
+    padding:0;
+  }
+  h1 {
+    display:inline-block;
+    font-weight:300;
+    font-size:1.5em;
+    margin:0;
+    padding:20px;
+    vertical-align: middle;
+
+
+  }
+  ul.nav {
+    display: inline-block;
+    vertical-align: middle;
+    margin-left:30px;
+    li > a {
+      padding:19px 8px 20px;
+    }
+  }
+  .title-important-actions {
+    padding:12px 20px 0;
+    float:right;
+    display: inline-block;
+    @media only screen and (max-width: 768px){
+      padding-left: 10px;
+      padding-right: 10px;
+      padding-top: 10px;
+    }
+  }
+}
+
+//
+// Search blocks
+//
+.search-block{
+  &:extend(.block);
+  margin-bottom: 15px;
+  background-color: white;
+  border-radius: 2px;
+  height: auto;
+  min-height: 130px;
+  padding: @sb_common_padding_positive !important;
+  a {
+    color: @sb_grey_dark;
+    font-size: 20px;
+    @media only screen and (max-width: 768px){
+      font-size: 18px;
+    }
+    &:hover {
+      color: @sb_green;
+    }
+  }
+  ul{
+    padding-left: 0;
+  }
+  p{
+    margin-bottom: 0;
+  }
+}
+.search-content-block{
+  margin-top: 20px;
+  @media only screen and (max-width: 768px){
+    margin-top: 0;
+  }
+  p{
+    font-size: 16px;
+    @media only screen and (max-width: 768px){
+      font-size: 12px;
+    }
+  }
+}
+.search-vote-block{
+  margin-top: 20px;
+  @media only screen and (max-width: 768px){
+    margin-top: 15px;
+  }
+  h6{
+    @media only screen and (max-width: 768px){
+      font-size: 16px;
+    }
+  }
+}
+.search-thumbnail{
+  &:extend(.sb_thumbnail_md);
+  @media only screen and (max-width: 768px){
+    width: 85px;
+  }
+  margin-right: 15px;
+}
+.header-lg-only {
+  font-weight:300;
+  font-size:2em;
+}
+.block-image-text-overlay {
+  position: relative;
+  height: 600px;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+  align-items: center;
+  width:100%;
+  div {
+    z-index: 2;
+    position: absolute;
+    top: 30%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    margin-top: -13px; /* 1/2 height */
+    text-align: center;
+    h1 {
+      font-weight:300;
+      font-size:2em;
+      color: white;
+    }
+    button {
+      width: 200px;
+      height: 50px;
+    }
+  }
+
+  img{
+    z-index: 1;
+    flex: none;
+  }
+}

@@ -18,7 +18,6 @@ RUN newrelic-admin generate-config {{NEW_RELIC_LICENSE}} /home/apps/newrelic.ini
 
 RUN apt-get remove --auto-remove -y git
 
-
 # nginx command must come first because running supervisor as a nodaemon means
 # it would never get to the && nginx if it were first. We might want to run
 # something else endlessly rather than run supervisor as a nodaemon. Not sure
@@ -30,5 +29,6 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && python manage.py \
   && python manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}} \
   && chown root /etc/supervisor/conf.d/ && chown {{APP_USER}} /etc/nginx/ \
   && python manage.py populatenginx {{APP_USER}} {{SUPER_TEMPLATE}} && \
+  python manage.py populate_nltk && \
   chown root /etc/nginx/ && nginx && supervisord -c \
   /etc/supervisor/supervisord.conf --nodaemon

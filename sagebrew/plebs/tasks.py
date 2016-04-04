@@ -180,15 +180,17 @@ def finalize_citizen_creation(username):
 
 @shared_task()
 def create_wall_task(username=None):
+    from sb_wall.neo_models import Wall
     try:
         query = 'MATCH (pleb:Pleb {username: "%s"})' \
                 '-[:OWNS_WALL]->(wall:Wall) RETURN wall' % username
         res, _ = db.cypher_query(query)
-        if not res.one:
-            query = 'MATCH (pleb:Pleb {username: "%s"}) ' \
-                    'CREATE UNIQUE (pleb)-[:OWNS_WALL]->' \
+        if res.one is None:
+            wall = Wall(wall_id=str(uuid1())).save()
+            query = 'MATCH (pleb:Pleb {username: "%s"}),' \
                     '(wall:Wall {wall_id: "%s"}) ' \
-                    'RETURN wall' % (username, str(uuid1()))
+                    'CREATE UNIQUE (pleb)-[:OWNS_WALL]->(wall) ' \
+                    'RETURN wall' % (username, wall.wall_id)
             res, _ = db.cypher_query(query)
         spawned = spawn_task(task_func=finalize_citizen_creation,
                              task_param={"username": username})

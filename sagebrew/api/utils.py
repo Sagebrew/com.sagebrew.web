@@ -1,6 +1,7 @@
 import warnings
 import time
 import csv
+import icu
 import pytz
 import boto.sqs
 import requests
@@ -9,8 +10,15 @@ import shortuuid
 import collections
 from uuid import uuid1
 from json import dumps
+import unicodedata as ud
 from datetime import datetime
 from logging import getLogger
+
+from sumy.parsers.plaintext import PlaintextParser
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.summarizers.lex_rank import LexRankSummarizer
+from sumy.nlp.stemmers import Stemmer
+from sumy.utils import get_stop_words
 
 from django.core import signing
 from django.conf import settings
@@ -192,7 +200,9 @@ def spawn_task(task_func, task_param, countdown=0, task_id=None):
     try:
         return task_func.apply_async(kwargs=task_param, countdown=countdown,
                                      task_id=task_id)
-    except (IOError, Exception) as e:
+    except (IOError, Exception) as e:  # pragma: no cover
+        # Not requiring coverage because this requires a hardware failure to
+        # test or a system going out.  - Devon Bleibtrey
         failure_uuid = str(uuid1())
         failure_dict = {
             'action': 'failed_task',
@@ -306,7 +316,7 @@ def generate_csv_html_file_response(name, list_data, keys):
 
 
 def deprecation(message):
-    warnings.warn(message, DeprecationWarning, stacklevel=2)
+    warnings.warn(message, DeprecationWarning, stacklevel=2)  # pragma: no cover
 
 
 def calc_stripe_application_fee(amount, quest_application_fee,
@@ -372,3 +382,63 @@ def empty_text_to_none(data):
     else:
         return data
     return result
+
+
+def generate_summary(content):
+    if content is None:
+        return ""
+    language = "english"
+    stemmer = Stemmer(language)
+    summarizer = LexRankSummarizer(stemmer)
+    summarizer.stop_words = get_stop_words(language)
+    summary = ""
+    # encoding and decoding clears up some issues with ascii
+    # codec parsing.
+    sentence_list = [
+        unicode(sentence) for sentence in summarizer(
+            PlaintextParser.from_string(
+                content.encode(
+                    'utf-8').strip().decode('utf-8'),
+                Tokenizer(language)).document,
+            settings.DEFAULT_SENTENCE_COUNT)]
+    for sentence in sentence_list:
+        excluded = [exclude
+                    for exclude in settings.DEFAULT_EXCLUDE_SENTENCES
+                    if exclude.lower() in sentence.lower()]
+        if settings.TIME_EXCLUSION_REGEX.search(sentence) is None \
+                and len(summary) < settings.DEFAULT_SUMMARY_LENGTH \
+                and len(excluded) == 0:
+            summary += " " + sentence
+    return summary.strip()
+
+
+def cleanup_title(value):
+    # Need to use this rather than .title() because .title()
+    # does not handle things like "Wouldn't" properly. It
+    # converts it to "Wouldn'T" rather than keeping the T
+    # lowercase
+    if value[0] == '"' or value[0] == "'":
+        value = value[1:]
+    if value[len(value) - 1] == '"' or value[len(value) - 1] == "'":
+        value = value[:len(value) - 1]
+    value = value.replace('"', "").strip()
+    for acronym in settings.COMPANY_ACRONYMS:
+        if " %s " % acronym.lower() in value.lower():
+            value = value.replace(acronym.lower(), acronym)
+    en_us_locale = icu.Locale('en_US')
+    break_iter = icu.BreakIterator.createWordInstance(
+        en_us_locale)
+    temp_title = icu.UnicodeString(value)
+    return unicode(temp_title.toTitle(break_iter, en_us_locale))
+
+
+def is_latin(uchr):
+    latin_letters = {}
+    try:
+        return latin_letters[uchr]
+    except KeyError:
+        return latin_letters.setdefault(uchr, 'LATIN' in ud.name(uchr))
+
+
+def only_roman_chars(unistr):
+    return all(is_latin(uchr) for uchr in unistr if uchr.isalpha())

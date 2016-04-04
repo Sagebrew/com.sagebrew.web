@@ -5,9 +5,9 @@ from django.utils.crypto import constant_time_compare, salted_hmac
 
 
 class EmailAuthTokenGenerator(object):
-    '''
+    """
     This object is created for user email verification
-    '''
+    """
 
     def make_token(self, user, pleb):
         if pleb is None:

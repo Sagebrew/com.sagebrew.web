@@ -68,7 +68,7 @@ class ApplicationTests(APITestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_save_image_data(self):
-        with open(settings.PROJECT_DIR + "/sagebrew/static/favicon.ico",
+        with open(settings.REPO_DIR + "/frontend/assets/images/favicon.ico",
                   "rb") as image_file:
             image = b64encode(image_file.read())
         self.client.force_authenticate(user=self.user)

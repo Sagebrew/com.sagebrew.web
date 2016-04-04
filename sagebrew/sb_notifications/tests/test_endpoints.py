@@ -4,6 +4,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
 
+from neomodel import db
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -100,8 +102,9 @@ class UserNotificationRetrieveTest(APITestCase):
 
     def test_empty_list(self):
         self.client.force_authenticate(user=self.user)
-        for notification in self.pleb.notifications.all():
-            notification.delete()
+        query = 'MATCH (p:Pleb {username:"%s"})<-[r1:NOTIFICATION_TO]-' \
+                '(n:Notification)-[r2]-() DELETE r1, r2, n' % self.pleb.username
+        db.cypher_query(query)
         url = reverse('notification-list')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 0)
@@ -113,7 +116,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = reverse('notification-list')
         response = self.client.get(url, format='json')
         self.assertGreater(response.data['count'], 0)
@@ -124,7 +126,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = "%s?seen=true" % reverse('notification-list')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['results'], [])
@@ -135,7 +136,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = "%s?seen=true" % reverse('notification-list')
         self.client.get(url, format='json')
         url = reverse('notification-unseen')
@@ -148,7 +148,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = reverse('notification-unseen')
         response = self.client.get(url, format='json')
         self.assertGreater(response.data['unseen'], 0)
@@ -160,7 +159,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = reverse('notification-detail',
                       kwargs={'object_uuid': notification.object_uuid})
         response = self.client.delete(url, format='json')
@@ -174,7 +172,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = reverse('notification-detail',
                       kwargs={'object_uuid': notification.object_uuid})
         response = self.client.get(url, format='json')
@@ -186,7 +183,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = reverse('notification-detail',
                       kwargs={'object_uuid': notification.object_uuid})
         response = self.client.get(url, format='json')
@@ -198,7 +194,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = reverse('notification-detail',
                       kwargs={'object_uuid': notification.object_uuid})
         response = self.client.get(url, format='json')
@@ -210,7 +205,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = reverse('notification-detail',
                       kwargs={'object_uuid': notification.object_uuid})
         response = self.client.get(url, format='json')
@@ -223,7 +217,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = "%s?seen=true" % reverse('notification-list')
         self.client.get(url, format='json')
         url = reverse('notification-detail',
@@ -239,7 +232,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = reverse('notification-detail',
                       kwargs={'object_uuid': notification.object_uuid})
         response = self.client.get(url, format='json')
@@ -251,7 +243,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = reverse('notification-detail',
                       kwargs={'object_uuid': notification.object_uuid})
         response = self.client.get(url, format='json')
@@ -263,7 +254,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = reverse('notification-detail',
                       kwargs={'object_uuid': notification.object_uuid})
         response = self.client.get(url, format='json')
@@ -275,7 +265,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = reverse('notification-detail',
                       kwargs={'object_uuid': notification.object_uuid})
         response = self.client.get(url, format='json')
@@ -288,7 +277,6 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = reverse('notification-detail',
                       kwargs={'object_uuid': notification.object_uuid})
         response = self.client.get(url, format='json')
@@ -300,9 +288,18 @@ class UserNotificationRetrieveTest(APITestCase):
             action_name="This is it! a notification").save()
         notification.notification_from.connect(self.pleb)
         notification.notification_to.connect(self.pleb)
-        self.pleb.notifications.connect(notification)
         url = reverse('notification-detail',
                       kwargs={'object_uuid': notification.object_uuid})
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['notification_from']['id'],
                          self.pleb.username)
+
+    def test_get_system_notification(self):
+        self.client.force_authenticate(user=self.user)
+        notification = Notification(
+            action_name="This is it! a notification").save()
+        notification.notification_to.connect(self.pleb)
+        url = reverse('notification-detail',
+                      kwargs={'object_uuid': notification.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertFalse(response.data['notification_from'])

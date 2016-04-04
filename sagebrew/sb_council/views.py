@@ -1,10 +1,8 @@
 from django.views.generic import View
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.decorators import method_decorator
+from django.contrib.auth.decorators import login_required
 
 from plebs.neo_models import Pleb
-from sb_registration.utils import verify_completed_registration
 
 
 class LoginRequiredMixin(View):
@@ -18,9 +16,6 @@ class LoginRequiredMixin(View):
 class CouncilView(LoginRequiredMixin):
     template_name = 'council_page.html'
 
-    @method_decorator(user_passes_test(
-        verify_completed_registration,
-        login_url='/registration/profile_information'))
     def dispatch(self, *args, **kwargs):
         profile = Pleb.get(username=self.request.user.username)
         if self.request.user.username == 'tyler_wiersing' \

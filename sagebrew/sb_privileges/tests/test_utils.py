@@ -11,7 +11,6 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 
 from sb_privileges.neo_models import SBAction, Privilege
@@ -22,16 +21,14 @@ from sb_requirements.neo_models import Requirement
 class TestManagePrivilegeRelation(APITestCase):
 
     def setUp(self):
-        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r"
         db.cypher_query(query)
         cache.clear()
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
+        self.username = self.pleb.username
         self.privilege_name = str(uuid1())
         self.privilege = Privilege(name=self.privilege_name).save()
         self.requirement = Requirement(name=str(uuid1()),
@@ -47,10 +44,6 @@ class TestManagePrivilegeRelation(APITestCase):
         self.action.privilege.connect(self.privilege)
         self.test_url = settings.WEB_ADDRESS
         self.privilege.requirements.connect(self.requirement)
-
-    def test_pleb_does_not_exist(self):
-        response = manage_privilege_relation(username=str(uuid1()))
-        self.assertIsInstance(response, Exception)
 
     def test_no_privileges(self):
         for privilege in Privilege.nodes.all():
@@ -113,10 +106,7 @@ class TestCreatePrivilege(TestCase):
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.privilege = Privilege(name=str(uuid1())).save()
         self.requirement = Requirement(name=str(uuid1()),

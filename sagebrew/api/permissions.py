@@ -44,19 +44,6 @@ class IsAnonCreateReadOnlyOrIsAuthenticated(permissions.BasePermission):
         return obj.username == request.user.username
 
 
-class IsSelf(permissions.BasePermission):
-    """
-    @DEPRECATED
-    This is deprecated due to the implementation of the /me endpoint.
-    Any endpoints that should only be accessible by the currently logged
-    in user should be placed on this endpoint.
-    See WA-1250 https://sagebrew.atlassian.net/browse/WA-1250
-    """
-
-    def has_object_permission(self, request, view, obj):
-        return obj.username == request.user.username
-
-
 class IsUserOrAdmin(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
@@ -89,15 +76,6 @@ class IsAdminOrReadOnly(permissions.BasePermission):
             return True
 
         return request.user.is_staff
-
-
-class IsOwnerOrEditorOrAccountant(permissions.BasePermission):
-
-    def has_object_permission(self, request, view, obj):
-        if request.user.username in Quest.get_quest_helpers(obj):
-            return True
-        else:
-            return False
 
 
 class IsOwnerOrModeratorOrReadOnly(permissions.BasePermission):

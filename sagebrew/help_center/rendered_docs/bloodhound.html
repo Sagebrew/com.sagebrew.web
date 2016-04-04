@@ -1,0 +1,256 @@
+<h1>Bloodhound</h1>
+<p>Bloodhound is the typeahead.js suggestion engine. Bloodhound is robust, 
+flexible, and offers advanced functionalities such as prefetching, intelligent
+caching, fast lookups, and backfilling with remote data.</p>
+<h2>Table of Contents</h2>
+<ul>
+<li><a href="#features">Features</a></li>
+<li><a href="#usage">Usage</a></li>
+<li><a href="#api">API</a></li>
+<li><a href="#options">Options</a></li>
+<li><a href="#prefetch">Prefetch</a></li>
+<li><a href="#remote">Remote</a></li>
+</ul>
+<h2>Features</h2>
+<ul>
+<li>Works with hardcoded data</li>
+<li>Prefetches data on initialization to reduce suggestion latency</li>
+<li>Uses local storage intelligently to cut down on network requests</li>
+<li>Backfills suggestions from a remote source</li>
+<li>Rate-limits and caches network requests to remote sources to lighten the load</li>
+</ul>
+<h2>Usage</h2>
+<h3>API</h3>
+<ul>
+<li><a href="#new-bloodhoundoptions"><code>new Bloodhound(options)</code></a></li>
+<li><a href="#bloodhoundnoconflict"><code>Bloodhound.noConflict()</code></a></li>
+<li><a href="#bloodhoundinitializereinitialize"><code>Bloodhound#initialize(reinitialize)</code></a></li>
+<li><a href="#bloodhoundadddata"><code>Bloodhound#add(data)</code></a></li>
+<li><a href="#bloodhoundgetids"><code>Bloodhound#get(ids)</code></a></li>
+<li><a href="#bloodhoundsearchquery-sync-async"><code>Bloodhound#search(query, sync, async)</code></a></li>
+<li><a href="#bloodhoundclear"><code>Bloodhound#clear()</code></a></li>
+</ul>
+<h4>new Bloodhound(options)</h4>
+<p>The constructor function. It takes an <a href="#options">options hash</a> as its only 
+argument.</p>
+<pre><code class="javascript">var engine = new Bloodhound({
+  local: ['dog', 'pig', 'moose'],
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  datumTokenizer: Bloodhound.tokenizers.whitespace
+});
+</code></pre>
+
+<h4>Bloodhound.noConflict()</h4>
+<p>Returns a reference to <code>Bloodhound</code> and reverts <code>window.Bloodhound</code> to its 
+previous value. Can be used to avoid naming collisions. </p>
+<pre><code class="javascript">var Dachshund = Bloodhound.noConflict();
+</code></pre>
+
+<h4>Bloodhound#initialize(reinitialize)</h4>
+<p>Kicks off the initialization of the suggestion engine. Initialization entails
+adding the data provided by <code>local</code> and <code>prefetch</code> to the internal search 
+index as well as setting up transport mechanism used by <code>remote</code>. Before 
+<code>#initialize</code> is called, the <code>#get</code> and <code>#search</code> methods will effectively be
+no-ops.</p>
+<p>Note, unless the <code>initialize</code> option is <code>false</code>, this method is implicitly
+called by the constructor.</p>
+<pre><code class="javascript">var engine = new Bloodhound({
+  initialize: false,
+  local: ['dog', 'pig', 'moose'],
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  datumTokenizer: Bloodhound.tokenizers.whitespace
+});
+
+var promise = engine.initialize();
+
+promise
+.done(function() { console.log('ready to go!'); })
+.fail(function() { console.log('err, something went wrong :('); });
+</code></pre>
+
+<p>After initialization, how subsequent invocations of <code>#initialize</code> behave 
+depends on the <code>reinitialize</code> argument. If <code>reinitialize</code> is falsy, the
+method will not execute the initialization logic and will just return the same 
+jQuery promise returned by the initial invocation. If <code>reinitialize</code> is truthy,
+the method will behave as if it were being called for the first time.</p>
+<pre><code class="javascript">var promise1 = engine.initialize();
+var promise2 = engine.initialize();
+var promise3 = engine.initialize(true);
+
+assert(promise1 === promise2);
+assert(promise3 !== promise1 &amp;&amp; promise3 !== promise2);
+</code></pre>
+
+<!-- section links -->
+
+<h4>Bloodhound#add(data)</h4>
+<p>Takes one argument, <code>data</code>, which is expected to be an array. The data passed
+in will get added to the internal search index.</p>
+<pre><code class="javascript">engine.add([{ val: 'one' }, { val: 'two' }]);
+</code></pre>
+
+<h4>Bloodhound#get(ids)</h4>
+<p>Returns the data in the local search index corresponding to <code>ids</code>.</p>
+<pre><code class="javascript">  var engine = new Bloodhound({
+    local: [{ id: 1, name: 'dog' }, { id: 2, name: 'pig' }],
+    identify: function(obj) { return obj.id; },
+    queryTokenizer: Bloodhound.tokenizers.whitespace,
+    datumTokenizer: Bloodhound.tokenizers.whitespace
+  });
+
+  engine.get([1, 3]); // [{ id: 1, name: 'dog' }, null]
+</code></pre>
+
+<h4>Bloodhound#search(query, sync, async)</h4>
+<p>Returns the data that matches <code>query</code>. Matches found in the local search index
+will be passed to the <code>sync</code> callback. If the data passed to <code>sync</code> doesn't 
+contain at least <code>sufficient</code> number of datums, <code>remote</code> data will be requested 
+and then passed to the <code>async</code> callback.</p>
+<pre><code class="javascript">bloodhound.get(myQuery, sync, async);
+
+function sync(datums) {
+  console.log('datums from `local`, `prefetch`, and `#add`');
+  console.log(datums);
+}
+
+function async(datums) {
+  console.log('datums from `remote`');
+  console.log(datums);
+}
+</code></pre>
+
+<h4>Bloodhound#clear()</h4>
+<p>Clears the internal search index that's powered by <code>local</code>, <code>prefetch</code>, and 
+<code>#add</code>.</p>
+<pre><code class="javascript">engine.clear();
+</code></pre>
+
+<h3>Options</h3>
+<p>When instantiating a Bloodhound suggestion engine, there are a number of 
+options you can configure.</p>
+<ul>
+<li>
+<p><code>datumTokenizer</code> – A function with the signature <code>(datum)</code> that transforms a
+  datum into an array of string tokens. <strong>Required</strong>.</p>
+</li>
+<li>
+<p><code>queryTokenizer</code> – A function with the signature <code>(query)</code> that transforms a
+  query into an array of string tokens. <strong>Required</strong>.</p>
+</li>
+<li>
+<p><code>initialize</code> – If set to <code>false</code>, the Bloodhound instance will not be 
+  implicitly initialized by the constructor function. Defaults to <code>true</code>.</p>
+</li>
+<li>
+<p><code>identify</code> – Given a datum, this function is expected to return a unique id
+  for it. Defaults to <code>JSON.stringify</code>. Note that it is <strong>highly recommended</strong>
+  to override this option.</p>
+</li>
+<li>
+<p><code>sufficient</code> – If the number of datums provided from the internal search 
+  index is less than <code>sufficient</code>, <code>remote</code> will be used to backfill search
+  requests triggered by calling <code>#search</code>. Defaults to <code>5</code>.</p>
+</li>
+<li>
+<p><code>sorter</code> – A <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort">compare function</a> used to sort data returned from the internal
+  search index.</p>
+</li>
+<li>
+<p><code>local</code> – An array of data or a function that returns an array of data. The 
+  data will be added to the internal search index when <code>#initialize</code> is called.</p>
+</li>
+<li>
+<p><code>prefetch</code> – Can be a URL to a JSON file containing an array of data or, if 
+  more configurability is needed, a <a href="#prefetch">prefetch options hash</a>.</p>
+</li>
+<li>
+<p><code>remote</code> – Can be a URL to fetch data from when the data provided by 
+  the internal search index is insufficient or, if more configurability is 
+  needed, a <a href="#remote">remote options hash</a>.</p>
+</li>
+</ul>
+<!-- section links -->
+
+<h3>Prefetch</h3>
+<p>Prefetched data is fetched and processed on initialization. If the browser 
+supports local storage, the processed data will be cached there to 
+prevent additional network requests on subsequent page loads.</p>
+<p><strong>WARNING:</strong> While it's possible to get away with it for smaller data sets, 
+prefetched data isn't meant to contain entire sets of data. Rather, it should 
+act as a first-level cache. Ignoring this warning means you'll run the risk of 
+hitting <a href="http://stackoverflow.com/a/2989317">local storage limits</a>.</p>
+<p>When configuring <code>prefetch</code>, the following options are available.</p>
+<ul>
+<li>
+<p><code>url</code> – The URL prefetch data should be loaded from. <strong>Required.</strong></p>
+</li>
+<li>
+<p><code>cache</code> – If <code>false</code>, will not attempt to read or write to local storage and
+  will always load prefetch data from <code>url</code> on initialization.  Defaults to 
+  <code>true</code>.</p>
+</li>
+<li>
+<p><code>ttl</code> – The time (in milliseconds) the prefetched data should be cached in 
+  local storage. Defaults to <code>86400000</code> (1 day).</p>
+</li>
+<li>
+<p><code>cacheKey</code> – The key that data will be stored in local storage under. 
+  Defaults to value of <code>url</code>.</p>
+</li>
+<li>
+<p><code>thumbprint</code> – A string used for thumbprinting prefetched data. If this
+  doesn't match what's stored in local storage, the data will be refetched.</p>
+</li>
+<li>
+<p><code>prepare</code> – A function that provides a hook to allow you to prepare the 
+  settings object passed to <code>transport</code> when a request is about to be made. 
+  The function signature should be <code>prepare(settings)</code> where <code>settings</code> is the 
+  default settings object created internally by the Bloodhound instance. The 
+  <code>prepare</code> function should return a settings object. Defaults to the 
+  <a href="http://en.wikipedia.org/wiki/Identity_function">identity function</a>.</p>
+</li>
+<li>
+<p><code>transform</code> – A function with the signature <code>transform(response)</code> that allows
+  you to transform the prefetch response before the Bloodhound instance operates 
+  on it. Defaults to the <a href="http://en.wikipedia.org/wiki/Identity_function">identity function</a>.</p>
+</li>
+</ul>
+<!-- section links -->
+
+<h3>Remote</h3>
+<p>Bloodhound only goes to the network when the internal search engine cannot 
+provide a sufficient number of results. In order to prevent an obscene number 
+of requests being made to the remote endpoint, requests are rate-limited.</p>
+<p>When configuring <code>remote</code>, the following options are available.</p>
+<ul>
+<li>
+<p><code>url</code> – The URL remote data should be loaded from. <strong>Required.</strong></p>
+</li>
+<li>
+<p><code>prepare</code> – A function that provides a hook to allow you to prepare the 
+  settings object passed to <code>transport</code> when a request is about to be made. 
+  The function signature should be <code>prepare(query, settings)</code>, where <code>query</code> is
+  the query <code>#search</code> was called with and <code>settings</code> is the default settings
+  object created internally by the Bloodhound instance. The <code>prepare</code> function
+  should return a settings object. Defaults to the <a href="http://en.wikipedia.org/wiki/Identity_function">identity function</a>.</p>
+</li>
+<li>
+<p><code>wildcard</code> – A convenience option for <code>prepare</code>. If set, <code>prepare</code> will be a
+  function that replaces the value of this option in <code>url</code> with the URI encoded
+  query.</p>
+</li>
+<li>
+<p><code>rateLimitBy</code> – The method used to rate-limit network requests. Can be either 
+  <code>debounce</code> or <code>throttle</code>. Defaults to <code>debounce</code>.</p>
+</li>
+<li>
+<p><code>rateLimitWait</code> – The time interval in milliseconds that will be used by 
+  <code>rateLimitBy</code>. Defaults to <code>300</code>.</p>
+</li>
+<li>
+<p><code>transform</code> – A function with the signature <code>transform(response)</code> that allows
+  you to transform the remote response before the Bloodhound instance operates 
+  on it. Defaults to the <a href="http://en.wikipedia.org/wiki/Identity_function">identity function</a>.</p>
+</li>
+</ul>
+<!-- section links -->

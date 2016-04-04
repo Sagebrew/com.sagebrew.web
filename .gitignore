@@ -1,4 +1,4 @@
-sagebrew/frontend/js/src/components/template_build/templates.js
+frontend/js/src/components/template_build/templates.js
 npm-debug.log
 htmlcov/
 coverage_results/
@@ -92,3 +92,4 @@ certs/key.pem
 
 *.map
 sagebrew/sagebrew/static/dist/*
+frontend/build/*

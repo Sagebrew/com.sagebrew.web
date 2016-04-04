@@ -17,6 +17,7 @@ class FlagSerializer(VotableContentSerializer):
     # of flags that can be placed on a piece of content from a single user to
     # one
     flag_on = serializers.SerializerMethodField()
+    flagged = serializers.HiddenField(default=None)
     content = serializers.CharField(required=False)
     flag_type = serializers.ChoiceField([('explicit', 'Explicit'),
                                          ('duplicate', 'Duplicate'),

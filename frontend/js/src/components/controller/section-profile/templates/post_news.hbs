@@ -1,0 +1,80 @@
+<div class="block" id="post-block-{{ id }}">
+    <div class="block-content no-top-bottom-padding">
+        <div class="dropdown">
+            <small>Author: <a href="{{ profile.url }}">{{ profile.first_name }} {{ profile.last_name }}</a>
+                <b>&middot;</b>
+                {{ created }} <b>&middot;</b> Private </small>
+            <div class="pull-right settings-icon-wrapper">
+                {{# if is_owner }}
+                    <button class="btn dropdown-toggle sb_btn_icon"
+                            type="button" id="dropdownMenu1" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="true">
+                        <span class="fa fa-caret-down sb_btn_icon_green_hover"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><a class="sb_post_dropdown_menu js-edit-post"
+                               data-id="{{ id }}"
+                               type="submit">Edit</a>
+                        </li>
+                        <li class="sb_divider"></li>
+                        <li>
+                            <a class='sb_post_dropdown_menu js-delete-post'
+                                    data-id="{{ id }}" data-parent_id="{{ parent_id }}"
+                                    data-parent_type="{{ parent_type }}">
+                                Delete
+                            </a>
+                        </li>
+                    </ul>
+                {{ else }}
+                    {{> 'controller/flag/templates/create_flag.hbs' id=id
+                        can_flag=can_flag flagged=flagged href=href }}
+                {{/if }}
+            </div>
+        </div>
+    </div>
+    <div class="block-content">
+        <div class="row">
+            <div class="hidden-xs col-sm-1 sb_vote_wrapper no-left-right-padding">
+                <div class="vote_lg vote_count_large">
+                    {{> 'controller/vote/templates/vote.hbs' id=id
+                    vote_count=vote_count upvote=upvote downvote=downvote type=type
+                    can_upvote=can_upvote can_downvote=can_downvote }}
+                </div>
+            </div>
+            <div class="col-xs-12 col-sm-11">
+                <div class="block-content" id="js-post-{{id}}">
+                    <p>{{{ html_content }}}</p>
+                    {{# if uploaded_objects }}
+                        <div class="row sb-post-image-wrapper">
+                            {{> 'controller/section-profile/templates/image_container.hbs'
+                                uploaded_objects=uploaded_objects }}
+                        </div>
+                    {{ else if first_url_content }}
+                        {{> 'controller/section-profile/templates/expand_url_content.hbs'
+                                first_url_content=first_url_content }}
+                    {{/if}}
+                </div>
+                <div id="js-edit-container-{{id}}" style="display: none">
+                    <form class="js-edit-post-form" action="" method="POST"
+                          data-id="{{ id }}">
+                        <div class="row">
+                            <textarea class="form-control edit_post_input_class resize-vertical"
+                                      name="content"
+                                      id="js-edit-ta-{{id}}"
+                                      rows="5">{{ content }}</textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-xs-12 col-sm-4 col-sm-offset-8">
+                                <button class='btn btn-block btn-primary sb_btn_fill'>Save</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{> 'controller/comments/templates/create_comment.hbs' parent_id=id
+        parent_type=type
+        can_comment=can_comment
+        comment_description="Leave a comment..."}}
+</div>

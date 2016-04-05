@@ -21,7 +21,7 @@
                 </div>
                 <div class="form-group">
                     <label for="about">About</label>
-                    <textarea id="about" class="form-control" rows="3"
+                    <textarea id="about" class="form-control resize-vertical" rows="3"
                               placeholder="Describe yourself or your group in 128 characters or less"
                               name="about">{{ quest.about|default_if_none:'' }}</textarea>
                     <small id="js-about-char-count" class="help-block">128 Characters Remaining</small>

@@ -17,7 +17,7 @@ from django.core.cache import cache
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, db
 
 from sb_quests.neo_models import Position
 from sb_public_official.neo_models import PublicOfficial
@@ -36,6 +36,8 @@ from plebs.neo_models import Pleb, Address
 class InterestsTest(TestCase):
 
     def setUp(self):
+        query = "MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r"
+        db.cypher_query(query)
         call_command("create_prepopulated_tags")
         time.sleep(3)
         self.factory = RequestFactory()
@@ -59,6 +61,59 @@ class InterestsTest(TestCase):
         response = interests(request)
 
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(self.pleb.interests.all()), 0)
+
+    def test_one_topic_selected(self):
+        my_dict = {"fiscal": True, "education": False, "space": False,
+                   "drugs": False, "science": False, "energy": False,
+                   "environment": False, "defense": False, "health": False,
+                   "social": False, "foreign_policy": False,
+                   "agriculture": False}
+        request = self.factory.post('/registration/interests',
+                                    data=my_dict)
+        request.user = self.user
+        response = interests(request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(self.pleb.interests.all()), 1)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "education"}) RETURN a' % self.pleb.username
+        res, _ = db.cypher_query(query)
+        self.assertIsNone(res.one)
+
+    def test_select_all_selected(self):
+        my_dict = {"fiscal": True, "education": True, "space": True,
+                   "drugs": True, "science": True, "energy": True,
+                   "environment": True, "defense": True, "health": True,
+                   "social": True, "foreign_policy": True,
+                   "agriculture": True, 'select_all': True}
+        request = self.factory.post('/registration/interests', data=my_dict)
+        request.user = self.user
+        response = interests(request)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(self.pleb.interests.all()), 12)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "education"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "energy"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
 
     def test_all_topics_selected(self):
         my_dict = {"fiscal": True, "education": True, "space": True,
@@ -72,6 +127,12 @@ class InterestsTest(TestCase):
         response = interests(request)
 
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(self.pleb.interests.all()), 12)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "social"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
 
     def test_some_topics_selected(self):
         my_dict = {"fiscal": False, "education": True, "space": False,
@@ -85,6 +146,12 @@ class InterestsTest(TestCase):
         response = interests(request)
 
         self.assertEqual(response.status_code, 302)
+        self.assertEqual(len(self.pleb.interests.all()), 7)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "drugs"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
 
     def test_interests_pleb_does_not_exist(self):
         my_dict = {"fiscal": False, "education": True, "space": False,

@@ -108,6 +108,54 @@ class QuestionEndpointTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_create_with_new_tags_no_rep(self):
+        self.client.force_authenticate(user=self.user)
+        content = "This is the content to my question, it's a pretty good " \
+                  "question."
+        title = "This is a question that must be asked. What is blue?"
+        tag_name = 'non-existent tag'
+        tags = ['taxes', tag_name]
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        query = 'MATCH (a:Tag {name: "%s"}) RETURN a' % slugify(tag_name)
+        res, _ = db.cypher_query(query)
+        self.assertIsNone(res.one)
+
+    def test_create_with_new_tags_with_rep(self):
+        self.client.force_authenticate(user=self.user)
+        self.pleb.reputation = 1250
+        self.pleb.save()
+        cache.clear()
+        tag_name = 'non-existent tag with more'
+        content = "This is the content to my question, it's a pretty good " \
+                  "question."
+        title = "This is a new question that doesn't have a title green"
+        tags = ['taxes', tag_name]
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        self.pleb.reputation = 0
+        self.pleb.save()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        query = 'MATCH (a:Tag {name: "%s"}) RETURN a' % slugify(tag_name)
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+        query = 'MATCH (a:Tag {name: "%s"})<-[:TAGGED_AS]-' \
+                '(question:Question {object_uuid: "%s"}) ' \
+                'RETURN question' % (slugify(tag_name), response.data['id'])
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+
     def test_create_with_image(self):
         self.client.force_authenticate(user=self.user)
         content = "![enter image description here][1] " \

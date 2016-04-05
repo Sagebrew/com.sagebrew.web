@@ -41,6 +41,88 @@
     "highlightTitle": ""
   },
   {
+    "organizations": [],
+    "uuid": "c6dd81cf775476d17fd9effe3a43d13d060eb2c8",
+    "thread": {
+      "site_full": "www.weeklystandard.com",
+      "main_image": "https://s3.amazonaws.com/sagebrew/long_term_static/help/settings_select.png",
+      "site_section": "http://feeds.feedburner.com/DrudgeReportFeed",
+      "section_title": "Drudge Report Feed",
+      "url": "http://omgili.com/r/rPCDLkAl21RfGYxRm28TAS5pKfMpSNX1_gEC1NUgLJYFchJZp8X78KMRqwjSXXrheptzdPA4cg5jsCaYxFDOmHfsudKw2rcVqoCGcd6rbUdzIpI2f7_3xgUwgNLNPTEUSPTE6QzMCqQUJpdLp5HzQA--",
+      "country": "US",
+      "title": "'What's this another new title it's a miracle...'",
+      "performance_score": 10,
+      "site": "weeklystandard.com",
+      "participants_count": 0,
+      "title_full": "'What's this another new title it's a miracle...'",
+      "spam_score": 0.0,
+      "site_type": "news",
+      "published": "2016-03-21T21:40:00.000+02:00",
+      "replies_count": 0,
+      "uuid": "89c14b83ea237fc71a2b7f0bea523d0353562921"
+    },
+    "author": "",
+    "url": "http://omgili.com/r/rPCDLkAl21RfGYxRm28TAS5pKfMpSNX1_gEC1NUgLJYFchJZp8X78KMRqwjSXXrheptzdPA4cg5jsCaYxFDOmHfsudKw2rcVqoCGcd6rbUdzIpI2f7_3xgUwgNLNPTEUSPTE6QzMCqQUJpdLp5HzQA--",
+    "ord_in_thread": 0,
+    "title": "'What's this another new title it's a miracle...'",
+    "locations": [
+      "America"
+    ],
+    "highlightText": "",
+    "language": "english",
+    "persons": [
+      "Castro",
+      "Michael Warren Obama",
+      "OBAMA"
+    ],
+    "text": "This is some new text for the new title that shouldn't reflect something else.",
+    "external_links": [],
+    "published": "2016-03-21T21:40:00.000+02:00",
+    "crawled": "2016-03-21T21:58:45.321+02:00",
+    "highlightTitle": ""
+  },
+  {
+    "organizations": [],
+    "uuid": "c8dd81cf775476d17fd9effe3a43d13d060eb2c8",
+    "thread": {
+      "site_full": "www.weeklystandard.com",
+      "main_image": "http://a.abcnews.go.com/images/Live/ABC_APPLETV_DEVNOW_16x9_992.jpg",
+      "site_section": "http://feeds.feedburner.com/DrudgeReportFeed",
+      "section_title": "Drudge Report Feed",
+      "url": "http://omgili.com/r/0xd.sZhj5je9U_t6r8x3rRh9UalHcWfoAazeTXZApqy8C1pd3c0HP9fFj1h1kLXad8AYPMwBGxQ-",
+      "country": "US",
+      "title": "\"Yet another title! What is this!\"",
+      "performance_score": 10,
+      "site": "weeklystandard.com",
+      "participants_count": 0,
+      "title_full": "\"Yet another title! What is this!\"",
+      "spam_score": 0.0,
+      "site_type": "news",
+      "published": "2016-03-21T21:40:00.000+02:00",
+      "replies_count": 0,
+      "uuid": "89c14b83ea237fc71a2b7f0bea523d0353562921"
+    },
+    "author": "",
+    "url": "http://omgili.com/r/0xd.sZhj5je9U_t6r8x3rRh9UalHcWfoAazeTXZApqy8C1pd3c0HP9fFj1h1kLXad8AYPMwBGxQ-",
+    "ord_in_thread": 0,
+    "title": "\"Yet another title! What is this!\"",
+    "locations": [
+      "America"
+    ],
+    "highlightText": "",
+    "language": "english",
+    "persons": [
+      "Castro",
+      "Michael Warren Obama",
+      "OBAMA"
+    ],
+    "text": "Hey more text that shouldn't be anything like existing text because that would causes some issues. So let's make up some stuff that won't be close to the other things in this test.",
+    "external_links": [],
+    "published": "2016-03-21T21:40:00.000+02:00",
+    "crawled": "2016-03-21T21:58:45.321+02:00",
+    "highlightTitle": ""
+  },
+  {
     "organizations": [
       "Pew Research Center",
       "Democratic National Committee",

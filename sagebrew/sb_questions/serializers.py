@@ -3,7 +3,6 @@ import pytz
 from uuid import uuid1
 from datetime import datetime
 
-from django.conf import settings
 from django.core.cache import cache
 from django.utils.text import slugify
 
@@ -166,20 +165,16 @@ class QuestionSerializerNeo(TitledContentSerializer):
         question.owned_by.connect(owner)
         for tag in tags:
             query = 'MATCH (t:Tag {name:"%s"}) WHERE NOT t:AutoTag ' \
-                    'RETURN t' % tag.lower()
+                    'RETURN t' % slugify(tag)
             res, _ = db.cypher_query(query)
             if not res.one:
-                if settings.DEBUG is True:
-                    # TODO this is only here because we don't have a stable
-                    # setup for ES and initial tags. Once @matt finishes up
-                    # ansible and we can get tags to register consistently
-                    # we can remove this.
-                    if (request.user.username == "devon_bleibtrey" or
-                            request.user.username == "tyler_wiersing"):
-                        tag_obj = Tag(name=slugify(tag.lower())).save()
-                        question.tags.connect(tag_obj)
-                    else:
-                        continue
+                if (request.user.username == "devon_bleibtrey" or
+                        request.user.username == "tyler_wiersing" or
+                        owner.reputation >= 1250):
+                    tag_obj = Tag(name=slugify(tag)).save()
+                    question.tags.connect(tag_obj)
+                else:
+                    continue
             else:
                 tag_obj = Tag.inflate(res.one)
                 question.tags.connect(tag_obj)

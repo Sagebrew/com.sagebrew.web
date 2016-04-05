@@ -23,6 +23,7 @@ from rest_framework import status
 from api.utils import smart_truncate
 from sb_registration.utils import upload_image
 
+
 """
 def crop_image(image, height, width, x, y, f_uuid=None):
     if f_uuid is None:
@@ -223,6 +224,20 @@ def thumbnail_image(image, resize_height, resize_width):
     """
     image.thumbnail((resize_width, resize_height), Image.ANTIALIAS)
     return image
+
+def upload_modified_image(file_name, file_stream, request, parent_uuid):
+    """
+    This function will handle upload and serialization of a modified object.
+    These objects are created when an image has to be cropped or thumbnailed.
+    """
+    from sb_uploads.serializers import ModifiedSerializer
+    url = check_sagebrew_url(None, settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
+                             file_name, file_stream.read())
+    serializer = ModifiedSerializer(
+        data={'url': url},
+        context={"request": request, "file_name": file_name,
+                 "parent_id": parent_uuid})
+    return serializer
 
 
 def hamming_distance(s1, s2):

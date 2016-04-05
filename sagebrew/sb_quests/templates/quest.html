@@ -22,7 +22,6 @@ a{% extends "layout/hero-two-col-right.html" %}
         <div class="col-xs-12 col-sm-7 wallpaper quest-wallpaper">
             <img src="{{ quest.wallpaper_pic|default_if_none:default_wallpaper }}">
         </div>
-        {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
 
         {% if quest.active %}
             {% if quest.missions %}

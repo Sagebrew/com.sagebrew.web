@@ -22,7 +22,7 @@ from .serializers import (UploadSerializer, ModifiedSerializer, CropSerializer,
                           URLContentSerializer, ThumbnailSerializer)
 from .neo_models import (UploadedObject, URLContent)
 from .utils import (resize_image, crop_image2, check_sagebrew_url,
-                    thumbnail_image)
+                    thumbnail_image, upload_modified_image)
 
 
 class UploadViewSet(viewsets.ModelViewSet):
@@ -122,12 +122,8 @@ class UploadViewSet(viewsets.ModelViewSet):
         file_name = "%s-%sx%s.%s" % (object_uuid, crop_data['crop_width'],
                                      crop_data['crop_height'],
                                      image_format.lower())
-        url = check_sagebrew_url(None, settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
-                                 file_name, file_stream.read())
-        serializer = ModifiedSerializer(
-            data={'url': url},
-            context={"request": request, "file_name": file_name,
-                     "parent_id": object_uuid})
+        serializer = upload_modified_image(
+            file_name, file_stream.read(), request, object_uuid)
 
         if serializer.is_valid():
             owner = Pleb.get(request.user.username)
@@ -147,11 +143,8 @@ class UploadViewSet(viewsets.ModelViewSet):
                   serializer_class=ThumbnailSerializer,
                   parser_classes=(JSONParser,))
     def thumbnail(self, request, object_uuid=None):
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
         uploaded_object = self.get_object()
         img_file = urllib2.urlopen(uploaded_object.url)
-        logger.info(img_file)
         read_file = img_file.read()
         file_object = BytesIO(read_file)
         image = Image.open(file_object)
@@ -166,7 +159,7 @@ class UploadViewSet(viewsets.ModelViewSet):
         thumbnailed_image = thumbnail_image(
             image, thumbnail_data['thumbnail_height'],
             thumbnail_data['thumbnail_width'])
-        # Fill cropped image into buffer
+        # Fill thumbnailed image into buffer
         file_stream = BytesIO()
         thumbnailed_image.save(file_stream, format=image_format)
         file_stream.seek(0)
@@ -178,12 +171,8 @@ class UploadViewSet(viewsets.ModelViewSet):
                                      thumbnail_data['thumbnail_width'],
                                      thumbnail_data['thumbnail_height'],
                                      image_format.lower())
-        url = check_sagebrew_url(None, settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
-                                 file_name, file_stream.read())
-        serializer = ModifiedSerializer(
-            data={'url': url},
-            context={"request": request, "file_name": file_name,
-                     "parent_id": object_uuid})
+        serializer = upload_modified_image(
+            file_name, file_stream.read(), request, object_uuid)
 
         if serializer.is_valid():
             owner = Pleb.get(request.user.username)

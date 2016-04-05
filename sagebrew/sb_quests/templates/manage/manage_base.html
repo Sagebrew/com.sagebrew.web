@@ -65,24 +65,17 @@
         <div class="block-title">
             Verification Status
         </div>
-        <div class="block-content">
-            {% if quest.account_verified == "unverified" %}
-                <span class="label label-danger js-verified">Verification: Incomplete</span>
-            {% elif quest.account_verified == "pending" %}
-                <span class="label label-warning js-verified">Verification: Pending</span>
-            {% else %}
-                <span class="label label-success js-verified">Verification: Completed</span>
-            {% endif %}
-            <br/>
-            {% if quest.account_verification_fields_needed %}
-                <span class="label label-warning" id="js-fields-needed">
-                    Fields Needed: {% for reason in quest.account_verification_fields_needed %}{{ reason }}, {% endfor %}
-                </span>
-            {% endif %}
-            <br/>
-            {% if quest.account_verification_details %}
-                <span class="label label-warning" id="js-verification-details">Details: {{ quest.account_verification_details }}</span>
-            {% endif %}
+        <div class="block-title no-underline center-title">
+        <ul class="nav nav-list nav-list-vivid">
+            <li>
+                <a id="js-quest-signup"
+                   class="{% if quest.account_verified == "unverified" %}red-href{% elif quest.account_verified == "pending" %}yellow-href{% endif %}"
+                   href="{% url "quest_manage_banking" quest.owner_username %}">
+                    <i class="fa {% if quest.account_verified == "verified" %}fa-check{% elif quest.account_verified == "pending" %}fa-hourglass-half{% else %}fa-times{% endif %} quest-rocket"></i> {{ quest.account_verified|title }}
+                </a>
+            </li>
+        </ul>
+
         </div>
     </div>
     <div class="block block-type-nav">
@@ -92,11 +85,11 @@
         <div class="block-content">
             <ul class="nav nav-list nav-list-vivid">
                 <li>
-                    <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="Complete the Accounting Section so you can recieve Donations!" {% if quest.account_verified != "verified" %}class="red-href"{% endif %} href="{% url "quest_manage_banking" quest.owner_username %}"><i class="fa {% if quest.account_verified == "verified" %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete Accounting</a>
+                    <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="Complete the accounting section so you can receive donations!" {% if quest.account_verified != "verified" %}class="red-href"{% endif %} href="{% url "quest_manage_banking" quest.owner_username %}"><i class="fa {% if quest.account_verified == "verified" %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete Accounting</a>
                 </li>
                 {% if quest.account_verification_fields_needed %}
                     <li>
-                        <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="There are a few more things we need from you to enable Donations" {% if quest.account_verified != "verified" %}class="red-href"{% endif %} href="{% url "quest_manage_banking" quest.owner_username %}"><i class="fa {% if quest.account_verified == "verified" %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete Verification</a>
+                        <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="There are a few more things we need from you to enable donations" {% if quest.account_verified != "verified" %}class="red-href"{% endif %} href="{% url "quest_manage_banking" quest.owner_username %}"><i class="fa {% if quest.account_verified == "verified" %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Complete Verification</a>
                     </li>
                 {% endif %}
                 <li>
@@ -106,10 +99,10 @@
                     <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="Upload a picture which represents your Quest!" {% if 'images/wallpaper_capitol_2.jpg' in quest.wallpaper_pic %}class="red-href"{% endif %} href="{% url "quest" quest.owner_username %}"><i class="fa {% if 'images/wallpaper_capitol_2.jpg' not in quest.wallpaper_pic %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Upload a Photo</a>
                 </li>
                 <li>
-                    <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="Take your Quest live to get the word out!" {% if not quest.active %}class="red-href"{% endif %} href="{% url "quest_manage_settings" quest.owner_username %}"><i class="fa {% if quest.active %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Take Quest Live</a>
+                    <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="Take your Quest live to enable Missions!" {% if not quest.active %}class="red-href"{% endif %} href="{% url "quest_manage_settings" quest.owner_username %}"><i class="fa {% if quest.active %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Take Quest Live</a>
                 </li>
                 <li>
-                    <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="Create a Mission and start collecting Donations!" {% if not quest.missions %}class="red-href"{% endif %} href="{% url "select_mission" %}"><i class="fa {% if quest.missions %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Embark on a Mission</a>
+                    <a id="js-quest-signup" data-toggle="tooltip" data-placement="top" data-title="Create a Mission to start collecting donations!" {% if not quest.missions %}class="red-href"{% endif %} href="{% url "select_mission" %}"><i class="fa {% if quest.missions %}fa-check{% else %}fa-times{% endif %} quest-rocket"></i> Embark on a Mission</a>
                 </li>
             </ul>
         </div>

@@ -32,14 +32,13 @@ class PostSerializerNeo(ContentSerializer):
 
     def validate(self, data):
         if data.get('images', None) is not None and \
-                        len(data.get('images', [])) > 0:
+                len(data.get('images', [])) > 0:
             return data
         else:
             if data.get('content') is None or data.get('content') == '':
                 raise ValidationError('Content may not be blank.')
 
         return data
-
 
     def create(self, validated_data):
         request = self.context["request"]

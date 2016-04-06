@@ -12,7 +12,7 @@ from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import detail_route
 from rest_framework import status
-from rest_framework.parsers import FileUploadParser, MultiPartParser
+from rest_framework.parsers import MultiPartParser
 
 
 from plebs.neo_models import Pleb

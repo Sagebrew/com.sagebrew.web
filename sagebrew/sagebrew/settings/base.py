@@ -68,7 +68,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '%s/frontend/build/' % REPO_DIR, # Frontend Repo
+    '%s/frontend/build/' % REPO_DIR,  # Frontend Repo
     '%s/help_center/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_missions/static/' % PROJECT_DIR,

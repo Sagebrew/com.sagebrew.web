@@ -5,6 +5,7 @@ from datetime import datetime
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
+from rest_framework.exceptions import ValidationError
 
 from neomodel import DoesNotExist
 
@@ -18,6 +19,7 @@ from .neo_models import Post
 
 
 class PostSerializerNeo(ContentSerializer):
+    content = serializers.CharField(allow_blank=True)
     href = serializers.HyperlinkedIdentityField(view_name='post-detail',
                                                 lookup_field="object_uuid")
     images = serializers.ListField(write_only=True, required=False)
@@ -27,6 +29,17 @@ class PostSerializerNeo(ContentSerializer):
     uploaded_objects = serializers.SerializerMethodField()
     first_url_content = serializers.SerializerMethodField()
     wall_owner_profile = serializers.SerializerMethodField()
+
+    def validate(self, data):
+        if data.get('images', None) is not None and \
+                        len(data.get('images', [])) > 0:
+            return data
+        else:
+            if data.get('content') is None or data.get('content') == '':
+                raise ValidationError('Content may not be blank.')
+
+        return data
+
 
     def create(self, validated_data):
         request = self.context["request"]

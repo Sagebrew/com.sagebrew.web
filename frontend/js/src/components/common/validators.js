@@ -361,7 +361,6 @@ export function questManageValidator(manageForm) {
                 validators: {
                     callback: {
                         callback: function (value) {
-                            console.log(value);
                             if ($.trim(value).indexOf("http://") === 0 || $.trim(value).indexOf("https://") === 0 || $.trim(value) === "") {
                                 return true;
                             } else {

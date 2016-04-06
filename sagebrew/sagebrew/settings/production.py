@@ -54,10 +54,7 @@ REST_FRAMEWORK = {
     #        'rest_framework.renderers.JSONRenderer',
     #    ),
     'DEFAULT_PAGINATION_CLASS':
-        'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 15,
-    'MAX_PAGINATE_BY': 100,
-    'PAGINATE_BY_PARAM': 'page_size',
+        'sagebrew.pagination.StandardResultsSetPagination',
     'EXCEPTION_HANDLER': 'sb_base.utils.custom_exception_handler',
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',

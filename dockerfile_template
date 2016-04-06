@@ -27,6 +27,5 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && python manage.py \
   && python manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}} \
   && chown root /etc/supervisor/conf.d/ && chown {{APP_USER}} /etc/nginx/ \
   && python manage.py populatenginx {{APP_USER}} {{SUPER_TEMPLATE}} && \
-  python manage.py populate_nltk && \
   chown root /etc/nginx/ && nginx && supervisord -c \
   /etc/supervisor/supervisord.conf --nodaemon

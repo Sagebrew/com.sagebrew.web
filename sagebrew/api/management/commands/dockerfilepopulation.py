@@ -49,7 +49,7 @@ class Command(BaseCommand):
                                 os.environ.get("CIRCLECI", "false").lower())
             web_docker = data.replace('{{SUPER_TEMPLATE}}', "web")
             web_docker = web_docker.replace('{{IMAGE_TYPE}}', "frontend")
-            web_docker = web_docker.replace('{{VERSION}}', "7")
+            web_docker = web_docker.replace('{{VERSION}}', "8")
             worker_docker = data.replace('{{SUPER_TEMPLATE}}', "worker")
             worker_docker = worker_docker.replace('{{IMAGE_TYPE}}', "base")
             worker_docker = worker_docker.replace('{{VERSION}}', "20")

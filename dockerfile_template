@@ -7,8 +7,6 @@ RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 WORKDIR /home/apps/{{PROJECT_REPONAME}}/
 RUN git submodule update --init --recursive
 RUN mkdir /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/static/
-RUN pip install pip==6.0.8
-RUN pip install setuptools==12.3
 RUN pip install -r /home/apps/{{PROJECT_REPONAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
@@ -29,6 +27,5 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && python manage.py \
   && python manage.py populatesupervisor {{SUPER_TEMPLATE}} {{APP_USER}} \
   && chown root /etc/supervisor/conf.d/ && chown {{APP_USER}} /etc/nginx/ \
   && python manage.py populatenginx {{APP_USER}} {{SUPER_TEMPLATE}} && \
-  python manage.py populate_nltk && \
   chown root /etc/nginx/ && nginx && supervisord -c \
   /etc/supervisor/supervisord.conf --nodaemon

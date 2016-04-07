@@ -222,7 +222,6 @@ INSTALLED_APPS = (
     'sb_wall',
     'sb_oauth',
     'elasticsearch',
-    'textblob',
     'help_center'
 )
 

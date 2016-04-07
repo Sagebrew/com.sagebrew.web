@@ -9,7 +9,7 @@ dependencies:
   cache_directories:
     - elasticsearch-2.2.0
     - DynamoDBLocal_lib
-    - neo4j-community-2.2.2
+    - neo4j-community-2.3.3
     - ../../virtualenvs
     - ../../nltk_data
 

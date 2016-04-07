@@ -6,6 +6,7 @@ Unipath==1.1
 amqp<2.0,>=1.4.5
 beautifulsoup4==4.4.1
 billiard<3.4,>=3.3.0.20
+subprocess32==3.2.7
 -e git+https://github.com/bleib1dj/boto.git@develop#egg=boto
 celery==3.1.23
 certifi==2016.2.28

@@ -63,6 +63,9 @@
                         <li {% if "/missions/" in request.path %}class="active"{% endif %}><a href="{% url 'mission_list' %}">Missions</a></li>
                         <li {% if "/help/" in request.path %}class="active"{% endif %}><a href="{% url 'help_center' %}">Help</a></li>
                         <li {% if "/settings/" in request.path %}class="active"{% endif %}><a href="{% url 'general_settings' %}">Settings</a></li>
+                        {% if request_profile.quest %}
+                            <li {% if "/manage/general/" in request.path %}class="active"{% endif %}><a href="{% url "quest_manage_settings" request_profile.username %}">Quest Settings</a></li>
+                        {% endif %}
                         <li><a href="http://shop.sagebrew.com">Shop <i class="fa fa-external-link"></i></a></li>
                         <li><a href="http://blog.sagebrew.com">Blog <i class="fa fa-external-link"></i></a></li>
                         <li><a href="{% url 'logout'%}">Logout</a></li>

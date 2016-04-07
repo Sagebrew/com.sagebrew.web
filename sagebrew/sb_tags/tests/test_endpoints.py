@@ -5,7 +5,7 @@ from django.utils.text import slugify
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from neomodel import UniqueProperty
+from neomodel import db
 
 from plebs.neo_models import Pleb
 from sb_tags.neo_models import Tag
@@ -15,22 +15,18 @@ from sb_registration.utils import create_user_util_test
 class TagEndpointTest(APITestCase):
 
     def setUp(self):
+        query = 'MATCH (a:Tag) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
         create_user_util_test(self.email)
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
-        try:
-            self.tag = Tag(name='test_tag',
-                           owner_username=self.pleb.username).save()
-        except UniqueProperty:
-            self.tag = Tag.nodes.get(name='test_tag')
-        try:
-            self.base_tag = Tag(name='test_base_tag', base=True,
-                                owner_username=self.pleb.username).save()
-        except UniqueProperty:
-            self.base_tag = Tag.nodes.get(name='test_base_tag')
+        self.tag = Tag(name='test_tag',
+                       owner_username=self.pleb.username).save()
+        self.base_tag = Tag(name='test_base_tag', base=True,
+                            owner_username=self.pleb.username).save()
 
     def test_list_unauthorized(self):
         url = reverse('tag-list')

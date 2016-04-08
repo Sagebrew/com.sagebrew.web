@@ -67,6 +67,9 @@ export function load () {
                         additionalCommentWrapper.remove();
                         $(commentContainer).append(wrapperString);
                     }
+                    for (var i = 0; i < data.results.length; i++) {
+                        data.results[i].html_content = Autolinker.link(data.results[i].html_content);
+                    }
                     $(commentContainer).prepend(commentsRenderTemplate({comments: helpers.votableContentPrep(data.results)}));
 
 
@@ -139,6 +142,9 @@ export function load () {
             request.get({url:"/v1/" + commentParentData.type + "s/" + commentParentData.id + "/comments/?expand=true&page_size=3"})
                 .done(function (data) {
                     var commentContainer = $('#comment-' + commentParentData.id);
+                    for (var i = 0; i < data.results.length; i++) {
+                        data.results[i].html_content = Autolinker.link(data.results[i].html_content);
+                    }
                     commentContainer.append(commentsRenderTemplate({"comments": helpers.votableContentPrep(data.results)}));
                     if (data.count > 3) {
                         // TODO this may break in IE

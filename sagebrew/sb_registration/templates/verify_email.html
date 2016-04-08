@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "layout/one-col.html" %}
 {% load staticfiles %}
 {% block title %}Email Verification{% endblock title %}
 {% block css %}
@@ -7,14 +7,15 @@
 {% block background_image %}
     <img class="sb_sign_up_background" src="{% static 'images/sign_up.jpg' %}">
 {% endblock background_image %}
-{% block content %}
+{% block live %}
 <div class="row-fluid" align="center">
     <div class="col-lg-8 col-sm-10 col-xs-12 col-lg-offset-2 col-md-offset-1 col-sm-offset-1"
          style="background:rgba(255,255,255,0.5);">
-        <h1>Please verify your email!</h1>
-        <h2>Please check your email for your verification email.</h2>
-        <p>If it has been awhile and you still haven't received an email
-        click <a href="{% url 'resend_verification' %}">here</a> to get another.</p>
+        <h1>Please verify your email</h1>
+        <h2>Please check your email for your verification email</h2>
+        <button id="confirmation-email" class="btn btn-primary sb_btn margin-bottom-15">Resend Verification Email</button>
+        <p class="sb_hidden confirmation-email-sent">Verification Email Resent</p>
+        <p class="sb_hidden confirmation-email-sent">Please refresh the page if you need it sent again</p>
     </div>
 </div>
 {% endblock %}

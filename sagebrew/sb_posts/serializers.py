@@ -44,7 +44,6 @@ class PostSerializerNeo(ContentSerializer):
         request = self.context["request"]
         owner = Pleb.get(request.user.username)
         wall_owner = validated_data.pop('wall_owner_profile', None)
-        content = validated_data.pop('content')
         images = validated_data.pop('images', [])
         included_urls = validated_data.pop('included_urls', [])
         uuid = str(uuid1())
@@ -53,7 +52,6 @@ class PostSerializerNeo(ContentSerializer):
         href = reverse('post-detail', kwargs={'object_uuid': uuid},
                        request=request)
         post = Post(owner_username=owner.username,
-                    content=bleach.clean(content),
                     wall_owner_username=wall_owner.username,
                     object_uuid=uuid, url=url, href=href,
                     **validated_data).save()

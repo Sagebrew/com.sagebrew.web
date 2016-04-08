@@ -356,25 +356,6 @@ export function missionManageValidator(manageForm, aboutLengthLimit) {
                     },
                     notEmpty: {
                         message: 'You must have a title'
-                        max: 128,
-                        message: 'About section must be less than 128 characters'
-                    }
-                }
-            },
-            website: {
-                selector: "#website",
-                validators: {
-                    callback: {
-                        callback: function (value) {
-                            if ($.trim(value).indexOf("http://") === 0 || $.trim(value).indexOf("https://") === 0 || $.trim(value) === "") {
-                                return true;
-                            } else {
-                                return {
-                                    valid: false,
-                                    message: 'Please enter a valid fully qualified url including "http://" or "https://"'
-                                };
-                            }
-                        }
                     }
                 }
             },

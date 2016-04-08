@@ -17,6 +17,7 @@ class Command(BaseCommand):
             parent = SBContent.inflate(res.one)
             comment.parent_id = parent.object_uuid
             comment.save()
+        self.stdout.write("completed comment migration\n", ending='')
 
     def handle(self, *args, **options):
         self.migrate_comments()

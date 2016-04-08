@@ -89,7 +89,7 @@
         </div>
         {% if mission.website %}
         <div class="block-content" style="padding-bottom: 0;" id="website">
-                <small>Website: {{ mission.website|urlize }}</small>
+                <small>Website: <a href="{{ mission.website }}" target="_blank">{{ mission.website }}</a> </small>
         </div>
         {% endif %}
         <div class="block-content no-top-padding" id="social-media">

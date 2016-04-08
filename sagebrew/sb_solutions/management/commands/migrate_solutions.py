@@ -25,5 +25,7 @@ class Command(BaseCommand):
                 'object_uuid': solution.object_uuid
             })
 
+        self.stdout.write("completed solution migration\n", ending='')
+
     def handle(self, *args, **options):
         self.migrate_solutions()

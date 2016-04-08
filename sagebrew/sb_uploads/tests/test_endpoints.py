@@ -53,35 +53,35 @@ class UploadEndpointTests(APITestCase):
         data = {'false-img-key': 'test'}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code,
-                         status.HTTP_400_BAD_REQUEST)
+                         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_save_int_data(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('upload-list')
         response = self.client.post(url, 1111111, format='json')
         self.assertEqual(response.status_code,
-                         status.HTTP_400_BAD_REQUEST)
+                         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_save_string_data(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('upload-list')
         response = self.client.post(url, "string", format='json')
         self.assertEqual(response.status_code,
-                         status.HTTP_400_BAD_REQUEST)
+                         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_save_list_data(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('upload-list')
         response = self.client.post(url, [], format='json')
         self.assertEqual(response.status_code,
-                         status.HTTP_400_BAD_REQUEST)
+                         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_save_float_data(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('upload-list')
         response = self.client.post(url, 111.1111, format='json')
         self.assertEqual(response.status_code,
-                         status.HTTP_400_BAD_REQUEST)
+                         status.HTTP_415_UNSUPPORTED_MEDIA_TYPE)
 
     def test_create(self):
         self.client.force_authenticate(user=self.user)

@@ -117,7 +117,6 @@ export function init () {
             $('#upload_image').click();
         })
         .on('change', '#upload_image', function () {
-            console.log("upload image");
             var files = $(this).val(),
                 jsImageWrapper = $("#js-image-wrapper"),
                 postInput = $("#post_input_id");

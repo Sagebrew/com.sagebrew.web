@@ -445,6 +445,9 @@ class MeViewSet(mixins.UpdateModelMixin,
     def get_object(self):
         return Pleb.get(self.request.user.username)
 
+    def get_queryset(self):
+        return []
+
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = Pleb.get(username=request.user.username, cache_buster=True)

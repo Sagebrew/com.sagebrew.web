@@ -1,4 +1,5 @@
 import markdown
+from bs4 import BeautifulSoup
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
@@ -380,6 +381,18 @@ class MarkdownContentSerializer(ContentSerializer):
         if obj.content is not None:
             content = markdown.markdown(obj.content.replace(
                 '&gt;', '>')).replace('<a', '<a target="_blank"')
+            if content[:4] == "<h1>":
+                # Only parse the content if we need to since it can be a long
+                # process (lxml should make it pretty fast though)
+                soup = BeautifulSoup(content, 'lxml')
+                soup.h1['style'] = "padding-top: 0; margin-top: 5px;"
+                content = str(soup).replace("<html><body>", "") \
+                    .replace("</body></html>", "")
+            elif content[:4] == "<h2>":
+                soup = BeautifulSoup(content, 'lxml')
+                soup.h2['style'] = "padding-top: 0; margin-top: 5px;"
+                content = str(soup).replace("<html><body>", "") \
+                    .replace("</body></html>", "")
             # Iterate through each image tag within the document and add the
             # necessary a tag for lightbox to work.
             return replace_images(content, content, obj.object_uuid)

@@ -1,4 +1,5 @@
 import markdown
+from bs4 import BeautifulSoup
 
 from django.core.cache import cache
 from django.utils.text import slugify
@@ -282,7 +283,21 @@ class MissionSerializer(SBSerializer):
 
     def get_rendered_epic(self, obj):
         if obj.epic is not None:
-            return markdown.markdown(obj.epic.replace('&gt;', '>'))
+            content = markdown.markdown(obj.epic.replace(
+                '&gt;', '>')).replace('<a', '<a target="_blank"')
+            if content[:4] == "<h1>":
+                # Only parse the content if we need to since it can be a long
+                # process (lxml should make it pretty fast though)
+                soup = BeautifulSoup(content, 'lxml')
+                soup.h1['style'] = "padding-top: 0; margin-top: 5px;"
+                content = str(soup).replace("<html><body>", "") \
+                    .replace("</body></html>", "")
+            elif content[:4] == "<h2>":
+                soup = BeautifulSoup(content, 'lxml')
+                soup.h2['style'] = "padding-top: 0; margin-top: 5px;"
+                content = str(soup).replace("<html><body>", "") \
+                    .replace("</body></html>", "")
+            return content
         else:
             return ""
 

@@ -579,6 +579,68 @@ class MissionEndpointTests(APITestCase):
         mission = Mission.nodes.get(object_uuid=response.data['id'])
         self.assertEqual(mission.facebook, data['facebook'])
 
+    def test_update_epic_with_h1_first(self):
+        self.client.force_authenticate(user=self.user)
+        mission = Mission(title=str(uuid1()),
+                          owner_username=self.pleb.username).save()
+
+        self.quest.missions.connect(mission)
+        content = "# hello world this is a h1 #\n" \
+                  "## with a h2 after it ##\n" \
+                  "# another h1 #\n" \
+                  "and then some text"
+        data = {
+            "epic": content,
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
+            "about": str(uuid1())
+        }
+        url = reverse('mission-detail',
+                      kwargs={'object_uuid': mission.object_uuid})
+        response = self.client.patch(url, data, format='json')
+        html_content = '<h1 style="padding-top: 0; ' \
+                       'margin-top: 5px;">hello world this is a h1</h1>\n' \
+                       '<h2>with a h2 after it</h2>\n' \
+                       '<h1>another h1</h1>\n' \
+                       '<p>and then some text</p>'
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['rendered_epic'], html_content)
+
+    def test_update_epic_with_h2_first(self):
+        self.client.force_authenticate(user=self.user)
+        mission = Mission(title=str(uuid1()),
+                          owner_username=self.pleb.username).save()
+
+        self.quest.missions.connect(mission)
+        content = "## hello world this is a h2 ##\n" \
+                  "# with a h1 after it #\n" \
+                  "## another h2 ##\n" \
+                  "and then some text"
+        data = {
+            "epic": content,
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
+            "about": str(uuid1())
+        }
+        url = reverse('mission-detail',
+                      kwargs={'object_uuid': mission.object_uuid})
+        response = self.client.patch(url, data, format='json')
+        html_content = '<h2 style="padding-top: 0; ' \
+                       'margin-top: 5px;">hello world this is a h2</h2>' \
+                       '\n<h1>with a h1 after it</h1>' \
+                       '\n<h2>another h2</h2>\n<p>' \
+                       'and then some text</p>'
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['rendered_epic'], html_content)
+
     def test_update_take_active(self):
         self.client.force_authenticate(user=self.user)
         mission = Mission(title=str(uuid1()),

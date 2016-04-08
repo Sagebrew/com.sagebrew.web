@@ -106,12 +106,11 @@ BROKER_URL = 'amqp://%s:%s@%s:%s//' % (environ.get("QUEUE_USERNAME", ""),
                                        environ.get("QUEUE_HOST", ""),
                                        environ.get("QUEUE_PORT", ""))
 CELERY_IGNORE_RESULT = False
+
+
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS':
-        'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 15,
-    'MAX_PAGINATE_BY': 100,
-    'PAGINATE_BY_PARAM': 'page_size',
+        'sagebrew.pagination.StandardResultsSetPagination',
     'EXCEPTION_HANDLER': 'sb_base.utils.custom_exception_handler',
     'DEFAULT_MODEL_SERIALIZER_CLASS':
         'rest_framework.serializers.HyperlinkedModelSerializer',

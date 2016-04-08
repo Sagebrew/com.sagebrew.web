@@ -13,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import detail_route
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser, JSONParser
+from rest_framework.parsers import MultiPartParser
 
 
 from plebs.neo_models import Pleb
@@ -39,7 +40,7 @@ class UploadViewSet(viewsets.ModelViewSet):
     """
     serializer_class = UploadSerializer
     lookup_field = 'object_uuid'
-    parser_classes = (FileUploadParser, )
+    parser_classes = (MultiPartParser, )
     permission_classes = (IsAuthenticated, )
 
     def get_object(self):

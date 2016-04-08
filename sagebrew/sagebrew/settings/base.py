@@ -68,7 +68,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '%s/frontend/build/' % REPO_DIR, # Frontend Repo
+    '%s/frontend/build/' % REPO_DIR,  # Frontend Repo
     '%s/help_center/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_missions/static/' % PROJECT_DIR,
@@ -77,7 +77,6 @@ STATICFILES_DIRS = (
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_quests/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
-    '%s/sb_public_official/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
 )
 
@@ -123,7 +122,6 @@ TEMPLATES = [{
         '%s/plebs/templates/' % PROJECT_DIR,
         '%s/sagebrew/templates/' % PROJECT_DIR,
         '%s/sb_solutions/templates/' % PROJECT_DIR,
-        '%s/sb_badges/templates/' % PROJECT_DIR,
         '%s/sb_base/templates/' % PROJECT_DIR,
         '%s/sb_contributions/templates/' % PROJECT_DIR,
         '%s/sb_council/templates' % PROJECT_DIR,
@@ -132,7 +130,6 @@ TEMPLATES = [{
         '%s/sb_notifications/templates/' % PROJECT_DIR,
         '%s/sb_posts/templates/' % PROJECT_DIR,
         '%s/sb_privileges/templates/' % PROJECT_DIR,
-        '%s/sb_public_official/templates/' % PROJECT_DIR,
         '%s/sb_questions/templates/' % PROJECT_DIR,
         '%s/sb_quests/templates/' % PROJECT_DIR,
         '%s/sb_registration/templates/' % PROJECT_DIR,
@@ -140,7 +137,6 @@ TEMPLATES = [{
         '%s/sb_search/templates/' % PROJECT_DIR,
         '%s/sb_tags/templates/' % PROJECT_DIR,
         '%s/sb_updates/templates/' % PROJECT_DIR,
-        '%s/sb_uploads/templates/' % PROJECT_DIR,
         '%s/sb_volunteers/templates/' % PROJECT_DIR,
     ),
     'OPTIONS': {
@@ -193,6 +189,7 @@ INSTALLED_APPS = (
     'neomodel',
     "opbeat.contrib.django",
     'sb_solutions',
+    'sb_accounting',
     'sb_badges',
     'sb_base',
     'sb_comments',
@@ -222,7 +219,6 @@ INSTALLED_APPS = (
     'sb_wall',
     'sb_oauth',
     'elasticsearch',
-    'textblob',
     'help_center'
 )
 
@@ -327,7 +323,8 @@ if not DEBUG:
         },
         'check-unverified-quests': {
             'task': 'sb_accounting.tasks.check_unverified_quest',
-            'schedule': crontab(minute=0, hour=0)
+            'schedule': crontab(minute=0, hour=0),
+            'args': ()
         }
     }
 
@@ -427,7 +424,7 @@ OPERATOR_TYPES = [
 ALLOWED_IMAGE_FORMATS = ['gif', 'jpeg', 'jpg', 'png', 'GIF', 'JPEG', 'JPG',
                          'PNG']
 
-ALLOWED_IMAGE_SIZE = 20000000 # 20 MB
+ALLOWED_IMAGE_SIZE = 20000000  # 20 MB
 
 NON_SAFE = ["REMOVE", "DELETE", "CREATE", "SET",
             "FOREACH", "MERGE", "MATCH", "START"]

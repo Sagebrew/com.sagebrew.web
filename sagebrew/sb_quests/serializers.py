@@ -71,6 +71,7 @@ class QuestSerializer(SBSerializer):
     # verification of the managed account
     # ex. ["legal_entity.type", "legal_entity.business_name"]
     account_verification_fields_needed = serializers.ListField(read_only=True)
+
     # https://stripe.com/docs/connect/identity-verification
     # #confirming-id-verification
     # verification_details is a user readable string that will contain a string
@@ -89,6 +90,7 @@ class QuestSerializer(SBSerializer):
     missions = serializers.SerializerMethodField()
     endorsed = serializers.SerializerMethodField()
     total_donation_amount = serializers.SerializerMethodField()
+    fields_needed_human_readable = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -449,6 +451,11 @@ class QuestSerializer(SBSerializer):
         if request is None:
             return None
         return obj.is_following(request.user.username)
+
+    def get_fields_needed_human_readable(self, obj):
+        return ', '.join(
+            [settings.STRIPE_FIELDS_NEEDED[field_needed]
+             for field_needed in obj.account_verification_fields_needed])
 
 
 class EditorSerializer(serializers.Serializer):

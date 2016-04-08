@@ -39,7 +39,6 @@ export function load() {
                     window.location.href = "/missions/" + this.dataset.id + "/" + this.dataset.slug + "/" + contributionType + "/option/";
                 }
             } else if (contributionType === "endorse") {
-                console.log(settings.user.type);
                 if (settings.user.type === "anon"){
                     window.location.href = "/missions/" + this.dataset.id + "/" + this.dataset.slug + "/" + contributionType + "/name/";
                 } else {

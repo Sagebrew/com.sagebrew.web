@@ -1,4 +1,6 @@
+
 var request = require('api').request,
+    Autolinker = require('autolinker'),
     helpers = require('common/helpers'),
     Handlebars = require('handlebars'),
     moment = require('moment'),

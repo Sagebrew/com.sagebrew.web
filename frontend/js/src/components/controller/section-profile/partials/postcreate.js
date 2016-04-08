@@ -158,7 +158,7 @@ export function init () {
                             styleAddition = fixDisplay($(this).width(), $(this).height());
                             newImage.css({top: styleAddition.newTop, left: styleAddition.newLeft, position: 'absolute'});
                         });
-                    })
+                    });
             }
         });
 

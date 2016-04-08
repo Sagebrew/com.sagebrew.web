@@ -1,6 +1,3 @@
-import markdown
-from bs4 import BeautifulSoup
-
 from django.core.cache import cache
 from django.utils.text import slugify
 from django.conf import settings

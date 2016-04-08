@@ -1,5 +1,4 @@
-var request = require('api').request,
-    helpers = require('common/helpers');
+var request = require('api').request;
 
 export const meta = {
     controller: "registration/confirm_email",
@@ -29,7 +28,7 @@ export function load() {
             sentEmail[0].classList.remove('sb_hidden');
             sentEmail[1].classList.remove('sb_hidden');
             request.get({url: "/registration/email_confirmation/resend/"});
-        })
+        });
 }
 
 /**

@@ -13,6 +13,7 @@ class Command(BaseCommand):
             spawn_task(task_func=create_question_summary_task, task_param={
                 'object_uuid': question.object_uuid
             })
+        self.stdout.write("completed question migration\n", ending='')
 
     def handle(self, *args, **options):
         self.migrate_questions()

@@ -1,6 +1,3 @@
-import markdown
-from bs4 import BeautifulSoup
-
 from django.core.cache import cache
 from django.utils.text import slugify
 from django.conf import settings
@@ -12,7 +9,7 @@ from rest_framework.reverse import reverse
 from neomodel import db, DoesNotExist
 
 from api.utils import (gather_request_data, clean_url, empty_text_to_none,
-                       smart_truncate)
+                       smart_truncate, render_content)
 from api.serializers import SBSerializer
 from sb_locations.serializers import LocationSerializer
 from sb_tags.neo_models import Tag
@@ -282,24 +279,7 @@ class MissionSerializer(SBSerializer):
                        request=self.context.get('request', None))
 
     def get_rendered_epic(self, obj):
-        if obj.epic is not None:
-            content = markdown.markdown(obj.epic.replace(
-                '&gt;', '>')).replace('<a', '<a target="_blank"')
-            if content[:4] == "<h1>":
-                # Only parse the content if we need to since it can be a long
-                # process (lxml should make it pretty fast though)
-                soup = BeautifulSoup(content, 'lxml')
-                soup.h1['style'] = "padding-top: 0; margin-top: 5px;"
-                content = str(soup).replace("<html><body>", "") \
-                    .replace("</body></html>", "")
-            elif content[:4] == "<h2>":
-                soup = BeautifulSoup(content, 'lxml')
-                soup.h2['style'] = "padding-top: 0; margin-top: 5px;"
-                content = str(soup).replace("<html><body>", "") \
-                    .replace("</body></html>", "")
-            return content
-        else:
-            return ""
+        return render_content(obj.epic, obj.object_uuid)
 
     def get_location(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)

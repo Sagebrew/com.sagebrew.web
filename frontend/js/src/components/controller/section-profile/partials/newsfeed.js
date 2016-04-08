@@ -43,13 +43,18 @@ export function init () {
             return request.get({url:url});
         },
         renderCallback: function($container, data) {
+            // Only perform AutoLinker on html_content and other rendered content
+            // so that we don't cause href's to get populated into the raw content
+            // specifically posts for when we do inline editing.
             data.results = helpers.votableContentPrep(data.results);
             for (var i = 0; i < data.results.length; i++) {
                 if (data.results[i].type === "news_article") {
+                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].published = moment(data.results[i].published).format("dddd, MMMM Do YYYY, h:mm a");
                     data.results[i].html = newsTemplate(data.results[i]);
                 } else if (data.results[i].type === "mission") {
                     data.results[i].title = missions.determineTitle(data.results[i]);
+                    data.results[i].rendered_epic = Autolinker.link(data.results[i].rendered_epic);
                     // TODO this should probably be done in the backend and saved off since it's just repeated all the time
                     if (data.results[i].focus_on_type === "position"){
                         if(data.results[i].quest.title !== "" && data.results[i].quest.title !== null){
@@ -64,19 +69,23 @@ export function init () {
                     }
                     data.results[i].html = missionNewsTemplate(data.results[i]);
                 } else if (data.results[i].type === "question") {
+                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = questionNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "solution") {
+                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = solutionNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "post") {
+                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = postNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "update") {
+                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = updateNewsTemplate(data.results[i]);
 
                 }
-                $container.append(Autolinker.link(data.results[i].html));
+                $container.append(data.results[i].html);
                 $('[data-toggle="tooltip"]').tooltip();
                 if(data.results[i].type !== "mission" && data.results[i].type !== "update" && data.results[i].type !== "news_article"){
                     $app.trigger("sb:populate:comments", {id: data.results[i].id, type: data.results[i].type});

@@ -11,6 +11,7 @@ class Command(BaseCommand):
             if not quest.title:
                 quest.title = "%s %s" % (quest.first_name, quest.last_name)
                 quest.save()
+        self.stdout.write("completed quest titles\n", ending='')
 
     def handle(self, *args, **options):
         self.set_quest_titles()

@@ -3157,6 +3157,9 @@ class TestFollowEndpoints(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_following(self):
+        query = 'MATCH (a:Pleb {username: "%s") ' \
+                'OPTIONAL MATCH (a)-[r]-() DELETE r' % self.pleb.username
+        db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         url = reverse('profile-follow',
                       kwargs={'username': self.pleb2.username})
@@ -3169,7 +3172,11 @@ class TestFollowEndpoints(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_following_no_one(self):
+        query = 'MATCH (a:Pleb {username: "%s") ' \
+                'OPTIONAL MATCH (a)-[r]-() DELETE r' % self.pleb.username
+        db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
+        self.pleb.follow(self.pleb2.username)
         url = reverse('profile-unfollow',
                       kwargs={'username': self.pleb2.username})
         self.client.post(url)

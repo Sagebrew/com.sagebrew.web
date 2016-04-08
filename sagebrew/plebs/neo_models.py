@@ -634,7 +634,7 @@ class Pleb(Searchable):
         :param username:
         """
         query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-(p2:Pleb ' \
-                '{username:"%s"}) SET r.active=false RETURN r.active' \
+                '{username:"%s"}) DELETE r' \
                 % (self.username, username)
         res, _ = db.cypher_query(query)
         return res.one

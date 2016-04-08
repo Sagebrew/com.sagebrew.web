@@ -3157,7 +3157,7 @@ class TestFollowEndpoints(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_following(self):
-        query = 'MATCH (a:Pleb {username: "%s") ' \
+        query = 'MATCH (a:Pleb {username: "%s"}) ' \
                 'OPTIONAL MATCH (a)-[r]-() DELETE r' % self.pleb.username
         db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
@@ -3172,7 +3172,7 @@ class TestFollowEndpoints(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_following_no_one(self):
-        query = 'MATCH (a:Pleb {username: "%s") ' \
+        query = 'MATCH (a:Pleb {username: "%s"}) ' \
                 'OPTIONAL MATCH (a)-[r]-() DELETE r' % self.pleb.username
         db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
@@ -3181,7 +3181,7 @@ class TestFollowEndpoints(APITestCase):
                       kwargs={'username': self.pleb2.username})
         self.client.post(url)
         url = reverse('profile-following',
-                      kwargs={'username': self.pleb2.username})
+                      kwargs={'username': self.pleb.username})
         response = self.client.get(url)
         self.assertEqual(len(response.data['results']), 0)
         self.assertEqual(response.status_code, status.HTTP_200_OK)

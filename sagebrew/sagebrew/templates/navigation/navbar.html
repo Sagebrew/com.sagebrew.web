@@ -80,7 +80,7 @@
                         <li {% if "/missions/" in request.path %}class="active"{% endif %}><a href="{% url 'mission_list' %}">Missions</a></li>
                         <li {% if "/political/" in request.path %}class="active"{% endif %}><a href="{% url 'political' %}">Political Campaigns</a></li>
                         <li {% if "/advocacy/" in request.path %}class="active"{% endif %}><a href="{% url 'advocacy' %}">Advocacy</a></li>
-                        <li><a href="http://about.sagebrew.com">About</a></li>
+                        <li><a href="http://about.sagebrew.com">About <i class="fa fa-external-link"></i></a></li>
                         <li><a href="http://shop.sagebrew.com">Shop <i class="fa fa-external-link"></i></a></li>
                         <li><a href="http://blog.sagebrew.com">Blog <i class="fa fa-external-link"></i></a></li>
                         <li {% if "/help/" in request.path %}class="active"{% endif %}><a href="{% url 'help_center' %}">Help</a></li>

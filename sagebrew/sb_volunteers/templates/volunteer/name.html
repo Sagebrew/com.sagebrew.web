@@ -73,9 +73,6 @@
             </form>
         </div>
     </div>
-    {% if request.user.is_authenticated == False and selected.focus_on_type == "position" %}
-        {% include "donations/campaign_finance.html" %}
-    {% endif %}
     <div class="block">
         <h3 class="block-title">
             Address

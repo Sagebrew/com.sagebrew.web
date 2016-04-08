@@ -15,6 +15,9 @@ def create_notification_util(sb_object, from_pleb, to_plebs, notification_id,
     another person to the from or to pleb if there is another. Also it
     will create the notification if one does not exist.
 
+    :param url:
+    :param action_name:
+    :param public:
     :param sb_object:
     :param from_pleb:
     :param to_plebs:

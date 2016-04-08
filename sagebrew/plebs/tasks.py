@@ -141,6 +141,11 @@ def finalize_citizen_creation(username):
     except (DoesNotExist, Exception) as e:
         raise finalize_citizen_creation.retry(
             exc=e, countdown=5, max_retries=None)
+    try:
+        user_instance = User.objects.get(username=username)
+    except User.DoesNotExist as e:
+        raise finalize_citizen_creation.retry(exc=e, countdown=5,
+                                              max_retries=None)
     task_list = {}
     task_data = {
         "object_uuid": pleb.object_uuid,
@@ -154,7 +159,6 @@ def finalize_citizen_creation(username):
         task_func=check_privileges, task_param={"username": username},
         countdown=20)
     if not pleb.initial_verification_email_sent:
-        user_instance = User.objects.get(username=username)
         generated_token = token_gen.make_token(user_instance, pleb)
         template_dict = {
             'full_name': user_instance.get_full_name(),

@@ -100,8 +100,9 @@ class LocationManagerSerializer(SBSerializer):
         query = 'MATCH (l:Location {name: "%s"}) RETURN l' % temp_value
         res, _ = db.cypher_query(query)
         if res.one is not None:
-            raise serializers.ValidationError("Sorry looks like a Location"
-                                              " with that Name already Exists")
+            raise serializers.ValidationError(
+                {"name": "Sorry looks like a Location with that Name "
+                         "already Exists"})
         return value
 
     def create(self, validated_data):

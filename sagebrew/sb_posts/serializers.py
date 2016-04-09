@@ -10,7 +10,7 @@ from rest_framework.exceptions import ValidationError
 from neomodel import DoesNotExist
 
 from api.utils import gather_request_data
-from sb_base.serializers import ContentSerializer
+from sb_base.serializers import ContentSerializer, validate_is_owner
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
 from sb_uploads.neo_models import UploadedObject, URLContent
@@ -36,7 +36,8 @@ class PostSerializerNeo(ContentSerializer):
             return data
         else:
             if data.get('content') is None or data.get('content') == '':
-                raise ValidationError('Content may not be blank.')
+                raise ValidationError(
+                    {'content': 'This field may not be blank'})
 
         return data
 
@@ -69,6 +70,7 @@ class PostSerializerNeo(ContentSerializer):
         return post
 
     def update(self, instance, validated_data):
+        validate_is_owner(self.context.get('request', None), instance)
         instance.content = bleach.clean(validated_data.get(
             'content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)

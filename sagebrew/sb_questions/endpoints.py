@@ -78,10 +78,9 @@ class QuestionViewSet(viewsets.ModelViewSet):
         return Question.get(self.kwargs[self.lookup_field])
 
     def create(self, request, *args, **kwargs):
-        request_data = request.data
-        if "tags" in request_data:
-            if isinstance(request_data['tags'], basestring):
-                request_data['tags'] = request_data['tags'].split(',')
+        if "tags" in request.data:
+            if isinstance(request.data['tags'], basestring):
+                request.data['tags'] = request.data['tags'].split(',')
         serializer = self.get_serializer(data=request.data,
                                          context={"request": request})
         if serializer.is_valid():

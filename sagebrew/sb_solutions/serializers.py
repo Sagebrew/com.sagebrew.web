@@ -8,7 +8,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from api.utils import gather_request_data, spawn_task, smart_truncate
-from sb_base.serializers import MarkdownContentSerializer
+from sb_base.serializers import MarkdownContentSerializer, validate_is_owner
 from plebs.neo_models import Pleb
 
 
@@ -46,6 +46,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         return solution
 
     def update(self, instance, validated_data):
+        validate_is_owner(self.context.get('request', None), instance)
         instance.content = bleach.clean(validated_data.get('content',
                                                            instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)

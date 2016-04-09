@@ -73,17 +73,17 @@ class MissionSerializer(SBSerializer):
             if quest.account_type == "free":
                 if res.one['mission_count'] >= settings.FREE_MISSIONS:
                     raise serializers.ValidationError(
-                        detail={"detail": "Sorry free Quests can only "
-                                          "have 5 Missions.",
-                                "developer_message": "",
-                                "status_code": status.HTTP_400_BAD_REQUEST})
+                        {"detail": "Sorry free Quests can only "
+                                   "have 5 Missions.",
+                         "developer_message": "",
+                         "status_code": status.HTTP_400_BAD_REQUEST})
         else:
             raise serializers.ValidationError(
-                detail={"detail": "We couldn't find a Quest for this "
-                                  "Mission. Please contact us if this "
-                                  "problem continues.",
-                        "developer_message": "",
-                        "status_code": status.HTTP_404_NOT_FOUND})
+                {"detail": "We couldn't find a Quest for this "
+                           "Mission. Please contact us if this "
+                           "problem continues.",
+                 "developer_message": "",
+                 "status_code": status.HTTP_404_NOT_FOUND})
         add_district = ""
         focus_type = validated_data.get('focus_on_type')
         level = validated_data.get('level')
@@ -216,11 +216,11 @@ class MissionSerializer(SBSerializer):
                                 '"United States of America"}) '
             else:
                 raise serializers.ValidationError(
-                    detail={"detail": "Sorry Could Not Determine Where You're "
-                                      "advocating. Please try a different "
-                                      "location or contact us.",
-                            "developer_message": "",
-                            "status_code": status.HTTP_400_BAD_REQUEST})
+                    {"detail": "Sorry Could Not Determine Where You're "
+                               "advocating. Please try a different "
+                               "location or contact us.",
+                     "developer_message": "",
+                     "status_code": status.HTTP_400_BAD_REQUEST})
             query = 'MATCH (tag:Tag {name: "%s"}), ' \
                     '(quest:Quest {owner_username: "%s"}), ' \
                     '(mission:Mission {object_uuid: "%s"}), ' \

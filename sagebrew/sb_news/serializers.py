@@ -64,7 +64,7 @@ class NewsArticleSerializer(VotableContentSerializer):
 
     def validate_title(self, value):
         if not only_roman_chars(value):
-            raise ValidationError("Title can only have roman characters")
+            raise ValidationError("Can only have roman characters")
         # Clean up the title
         value = cleanup_title(value)
         # Check if title is in our excluded list or close to it
@@ -75,7 +75,7 @@ class NewsArticleSerializer(VotableContentSerializer):
             # huge issue since this is normally called in a task.
             if SequenceMatcher(
                     a=excluded_article.lower(), b=value.lower()).ratio() > .70:
-                raise ValidationError("Title contains content that is "
+                raise ValidationError("Contains content that is "
                                       "not allowed")
         # Check if title already exists
         query = 'MATCH (news:NewsArticle {title: "%s"}) ' \

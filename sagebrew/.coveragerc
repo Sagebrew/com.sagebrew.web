@@ -67,6 +67,7 @@ omit =
     */management/commands/populate_sectors.py
     */management/commands/populate_all_state_legislative_positions.py
     */management/commands/populate_existing_state_districts.py
+    */management/commands/convert_social_links.py
     */sagebrew/test_runner.py
 
 [report]

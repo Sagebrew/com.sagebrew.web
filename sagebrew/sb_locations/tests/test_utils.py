@@ -336,9 +336,8 @@ class TestGooglePlaces(TestCase):
         self.user = User.objects.get(email=self.email)
 
     def test_google_places_city(self):
-        for location in Location.nodes.all():
-            location.delete()
-
+        query = 'MATCH (a:Location) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         location = parse_google_places(wixom_data['address_components'],
                                        wixom_data['place_id'])
 
@@ -357,8 +356,8 @@ class TestGooglePlaces(TestCase):
 
     @requests_mock.mock()
     def test_google_places_city_without_state(self, m):
-        for location in Location.nodes.all():
-            location.delete()
+        query = 'MATCH (a:Location) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         url = "https://maps.googleapis.com/maps/api/" \
               "place/details/json?placeid=%s&key=%s" % (
                   wixom_without_state_data['place_id'],
@@ -383,9 +382,8 @@ class TestGooglePlaces(TestCase):
         self.assertTrue(state in country.encompasses)
 
     def test_google_places_state(self):
-        for location in Location.nodes.all():
-            location.delete()
-
+        query = 'MATCH (a:Location) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         location = parse_google_places(quebec_data['address_components'],
                                        quebec_data['place_id'])
 
@@ -398,9 +396,8 @@ class TestGooglePlaces(TestCase):
         self.assertTrue(location in country.encompasses)
 
     def test_google_places_country(self):
-        for location in Location.nodes.all():
-            location.delete()
-
+        query = 'MATCH (a:Location) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         location = parse_google_places(us_data['address_components'],
                                        us_data['place_id'])
 
@@ -408,8 +405,8 @@ class TestGooglePlaces(TestCase):
         self.assertIsInstance(location, Location)
 
     def test_google_places_country_already_exists(self):
-        for location in Location.nodes.all():
-            location.delete()
+        query = 'MATCH (a:Location) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         old_location = Location(name="United States of America").save()
         location = parse_google_places(us_data['address_components'],
                                        us_data['place_id'])
@@ -419,8 +416,8 @@ class TestGooglePlaces(TestCase):
         self.assertEqual(old_location.object_uuid, location.object_uuid)
 
     def test_google_places_city_already_exists(self):
-        for location in Location.nodes.all():
-            location.delete()
+        query = 'MATCH (a:Location) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         old_country = Location(name="United States of America").save()
         old_state = Location(name="Michigan").save()
         old_city = Location(name="Wixom").save()
@@ -471,8 +468,8 @@ class TestGooglePlaces(TestCase):
 
     def test_connect_related_element(self):
         cache.clear()
-        for questions in Question.nodes.all():
-            questions.delete()
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         question = Question(title="Hello this is my question",
                             content="This is content",
                             external_location_id=wixom_data['place_id'],
@@ -485,8 +482,8 @@ class TestGooglePlaces(TestCase):
 
     def test_connect_no_related_element(self):
         cache.clear()
-        for questions in Question.nodes.all():
-            questions.delete()
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         question = Question(title="Hello this is my question",
                             content="This is content",
                             owner_username=self.pleb.username).save()

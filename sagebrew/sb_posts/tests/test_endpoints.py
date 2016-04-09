@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 
-from neomodel import UniqueProperty
+from neomodel import UniqueProperty, db
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -392,8 +392,8 @@ class WallPostListCreateTest(APITestCase):
 
     def test_empty_list(self):
         self.client.force_authenticate(user=self.user)
-        for post in self.pleb.get_wall().posts.all():
-            post.delete()
+        query = 'MATCH (a:Post) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         url = reverse('profile-wall', kwargs={'username': self.pleb.username})
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 0)
@@ -633,8 +633,8 @@ class PostListCreateTest(APITestCase):
 
     def test_empty_list(self):
         self.client.force_authenticate(user=self.user)
-        for post in self.pleb.get_wall().posts.all():
-            post.delete()
+        query = 'MATCH (a:Post) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         url = reverse('post-list')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 0)

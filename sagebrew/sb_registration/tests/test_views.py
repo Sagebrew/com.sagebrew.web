@@ -629,8 +629,8 @@ class TestFeatureViews(TestCase):
         s.save()
         request.session = s
         request.user = AnonymousUser()
-        for campaign in Position.nodes.all():
-            campaign.delete()
+        query = 'MATCH (a:Position) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         res = political_campaign(request)
 
         self.assertEqual(res.status_code, 200)

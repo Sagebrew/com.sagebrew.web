@@ -4,7 +4,6 @@ from neomodel import db
 
 from api.utils import spawn_task
 
-from sb_questions.neo_models import Question
 from sb_solutions.neo_models import Solution
 from sb_solutions.tasks import create_solution_summary_task
 

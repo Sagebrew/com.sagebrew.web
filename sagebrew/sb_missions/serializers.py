@@ -1,5 +1,3 @@
-import markdown
-
 from django.core.cache import cache
 from django.utils.text import slugify
 from django.conf import settings
@@ -11,8 +9,9 @@ from rest_framework.reverse import reverse
 from neomodel import db, DoesNotExist
 
 from api.utils import (gather_request_data, clean_url, empty_text_to_none,
-                       smart_truncate)
+                       smart_truncate, render_content)
 from api.serializers import SBSerializer
+
 from sb_locations.serializers import LocationSerializer
 from sb_tags.neo_models import Tag
 from sb_search.utils import remove_search_object
@@ -75,17 +74,17 @@ class MissionSerializer(SBSerializer):
             if quest.account_type == "free":
                 if res.one['mission_count'] >= settings.FREE_MISSIONS:
                     raise serializers.ValidationError(
-                        detail={"detail": "Sorry free Quests can only "
-                                          "have 5 Missions.",
-                                "developer_message": "",
-                                "status_code": status.HTTP_400_BAD_REQUEST})
+                        {"detail": "Sorry free Quests can only "
+                                   "have 5 Missions.",
+                         "developer_message": "",
+                         "status_code": status.HTTP_400_BAD_REQUEST})
         else:
             raise serializers.ValidationError(
-                detail={"detail": "We couldn't find a Quest for this "
-                                  "Mission. Please contact us if this "
-                                  "problem continues.",
-                        "developer_message": "",
-                        "status_code": status.HTTP_404_NOT_FOUND})
+                {"detail": "We couldn't find a Quest for this "
+                           "Mission. Please contact us if this "
+                           "problem continues.",
+                 "developer_message": "",
+                 "status_code": status.HTTP_404_NOT_FOUND})
         add_district = ""
         focus_type = validated_data.get('focus_on_type')
         level = validated_data.get('level')
@@ -218,11 +217,11 @@ class MissionSerializer(SBSerializer):
                                 '"United States of America"}) '
             else:
                 raise serializers.ValidationError(
-                    detail={"detail": "Sorry Could Not Determine Where You're "
-                                      "advocating. Please try a different "
-                                      "location or contact us.",
-                            "developer_message": "",
-                            "status_code": status.HTTP_400_BAD_REQUEST})
+                    {"detail": "Sorry Could Not Determine Where You're "
+                               "advocating. Please try a different "
+                               "location or contact us.",
+                     "developer_message": "",
+                     "status_code": status.HTTP_400_BAD_REQUEST})
             query = 'MATCH (tag:Tag {name: "%s"}), ' \
                     '(quest:Quest {owner_username: "%s"}), ' \
                     '(mission:Mission {object_uuid: "%s"}), ' \
@@ -238,6 +237,8 @@ class MissionSerializer(SBSerializer):
         return mission
 
     def update(self, instance, validated_data):
+        from sb_base.serializers import validate_is_owner
+        validate_is_owner(self.context.get('request', None), instance)
         initial_state = instance.active
         instance.active = validated_data.pop('active', instance.active)
         if initial_state is True and instance.active is False:
@@ -281,10 +282,7 @@ class MissionSerializer(SBSerializer):
                        request=self.context.get('request', None))
 
     def get_rendered_epic(self, obj):
-        if obj.epic is not None:
-            return markdown.markdown(obj.epic.replace('&gt;', '>'))
-        else:
-            return ""
+        return render_content(obj.epic, obj.object_uuid)
 
     def get_location(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)

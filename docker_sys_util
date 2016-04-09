@@ -1,4 +1,4 @@
-FROM {{PROJECT_NAME}}/django.web.primary.frontend:v4
+FROM {{PROJECT_NAME}}/django.web.primary.frontend:v8
 
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 
@@ -24,5 +24,6 @@ CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py migrate_solutions && \
     python manage.py migrate_friends_to_followers && \
     python manage.py migrate_questions && \
+    python manage.py convert_social_links && \
     python manage.py clear_cache && \
     python manage.py clearsessions

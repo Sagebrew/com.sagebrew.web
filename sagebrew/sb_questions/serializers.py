@@ -9,10 +9,11 @@ from django.utils.text import slugify
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+
 from neomodel import db
 
 from api.utils import spawn_task, gather_request_data, smart_truncate
-from sb_base.serializers import TitledContentSerializer
+from sb_base.serializers import TitledContentSerializer, validate_is_owner
 from plebs.neo_models import Pleb
 from sb_locations.tasks import create_location_tree
 
@@ -37,33 +38,6 @@ def solution_count(question_uuid):
     except IndexError:
         count = 0
     return count
-
-
-class QuestionTitleUpdate:
-    """
-    This class will attempt to get the parent instance of the serializer and
-    set self.object_uuid to it, this allows it to validate that there are no
-    solutions to a question when attempting to update the tile of a question,
-    but also allows creation of the question by setting self.object_uuid to
-    None if there is not an instance in the serializer.
-    """
-
-    def __init__(self):
-        pass
-
-    def __call__(self, value):
-        if (self.object_uuid is not None and
-                solution_count(self.object_uuid) > 0):
-            message = 'Cannot edit Title when there have ' \
-                      'already been solutions provided'
-            raise serializers.ValidationError(message)
-        return value
-
-    def set_context(self, serializer_field):
-        try:
-            self.object_uuid = serializer_field.parent.instance.object_uuid
-        except AttributeError:
-            self.object_uuid = None
 
 
 class PopulateTags:
@@ -110,7 +84,6 @@ class QuestionSerializerNeo(TitledContentSerializer):
         child=serializers.CharField(max_length=240),
     )
     title = serializers.CharField(required=False,
-                                  validators=[QuestionTitleUpdate(), ],
                                   min_length=15, max_length=140)
     solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
@@ -129,8 +102,15 @@ class QuestionSerializerNeo(TitledContentSerializer):
     def validate_title(self, value):
         # We need to escape quotes prior to passing the title to the query.
         # Otherwise the query will fail due to the string being terminated.
-        if self.instance is not None and self.instance.title == value:
-            return value
+        if self.instance is not None:
+            if self.instance.title == value:
+                return value
+            if self.instance.object_uuid is not None \
+                    and solution_count(self.instance.object_uuid) > 0 and \
+                    self.instance.title != value:
+                message = 'Cannot edit when there have ' \
+                          'already been solutions provided'
+                raise serializers.ValidationError(message)
         temp_value = value
         temp_value = temp_value.replace('"', '\\"')
         temp_value = temp_value.replace("'", "\\'")
@@ -203,6 +183,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         instance.edits.connect(edit)
         edit.edit_to.connect(instance)
         """
+        validate_is_owner(self.context.get('request', None), instance)
         instance.title = validated_data.get('title', instance.title)
         instance.content = bleach.clean(validated_data.get('content',
                                                            instance.content))

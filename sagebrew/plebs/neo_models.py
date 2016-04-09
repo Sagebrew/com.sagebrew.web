@@ -619,6 +619,8 @@ class Pleb(Searchable):
         """
         The username passed to this function is the user who will be following
         the user the method is called upon.
+        This method is not idempotent on it's own. You must first call
+        is_following to ensure the relationship doesn't already exist.
         :param username:
         """
         query = 'MATCH (p:Pleb {username:"%s"}), (p2:Pleb {username:"%s"}) ' \

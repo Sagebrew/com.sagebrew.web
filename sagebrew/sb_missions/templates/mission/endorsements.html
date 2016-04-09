@@ -29,16 +29,16 @@
             {% elif endorsements %}
                 <div class="row">
                 <div id="js-endorsements-list">
-
                     <div id="js-endorsements-container">
                         <div class="loader"></div>
                     </div>
-
                 </div>
                 </div>
             {% else %}
-                <div class="block">
-                    <h4 class="block-content block-holder-lg" style="margin-top:0;">{{ quest.title }}  doesn't have any endorsements for this Mission yet.</h4>
+                <div class="block block-holder-lg">
+                    <h4 class="block-title center-title no-underline" style="margin-top:0;">
+                        {{ quest.title }} doesn't have any endorsements for this Mission yet.
+                    </h4>
                 </div>
             {% endif %}
         {% endif %}

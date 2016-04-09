@@ -117,7 +117,6 @@ export function init () {
             $('#upload_image').click();
         })
         .on('change', '#upload_image', function () {
-            console.log("upload image");
             var files = $(this).val(),
                 jsImageWrapper = $("#js-image-wrapper"),
                 postInput = $("#post_input_id");
@@ -159,7 +158,7 @@ export function init () {
                             styleAddition = fixDisplay($(this).width(), $(this).height());
                             newImage.css({top: styleAddition.newTop, left: styleAddition.newLeft, position: 'absolute'});
                         });
-                    })
+                    });
             }
         });
 
@@ -206,7 +205,6 @@ export function load () {
             event.preventDefault();
             var update = helpers.getFormData(this),
                 objectID = this.dataset.id;
-            var $form = $(this);
 
             request.patch({
                 url: "/v1/posts/" + this.dataset.id + "/",

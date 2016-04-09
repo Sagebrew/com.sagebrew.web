@@ -46,9 +46,8 @@ class TestManagePrivilegeRelation(APITestCase):
         self.privilege.requirements.connect(self.requirement)
 
     def test_no_privileges(self):
-        for privilege in Privilege.nodes.all():
-            privilege.delete()
-
+        query = 'MATCH (a:Privilege) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         response = manage_privilege_relation(username=self.username)
         self.assertTrue(response)
 

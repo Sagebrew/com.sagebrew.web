@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.views.generic import View
 
-from neomodel import DoesNotExist
+from neomodel import DoesNotExist, db
 
 from sb_questions.neo_models import Question
 
@@ -64,6 +64,13 @@ def solution_edit_page(request, solution_uuid=None):
     We can move it to solutions.views but that will require some changing for
     the single page setup.
     """
+    query = 'MATCH (a:Solution {object_uuid: "%s"}) ' \
+            'RETURN CASE '\
+            'WHEN a.owner_username = "%s" THEN TRUE ' \
+            'ELSE FALSE END' % (solution_uuid, request.user.username)
+    res, _ = db.cypher_query(query)
+    if res.one is False:
+        return redirect('401_Error')
     return render(request, 'edit_solution.html', {"object_uuid": solution_uuid})
 
 
@@ -86,6 +93,9 @@ class QuestionManagerView(LoginRequiredMixin):
                 question = Question.get(question_uuid)
             except (DoesNotExist, Question.DoesNotExist):
                 return redirect('404_Error')
+            if question.owner_username != request.user.username \
+                    and self.template_name == "questions/edit.html":
+                return redirect('401_Error')
             return render(request, self.template_name, {
                 'sort_by': 'uuid',
                 'authors': question.get_conversation_authors(),

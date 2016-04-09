@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.management import call_command
 
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.test import APITestCase
 
 from neomodel.exception import DoesNotExist
@@ -16,6 +16,7 @@ from neomodel import db
 from sb_privileges.neo_models import Privilege
 from sb_tags.neo_models import Tag
 from sb_questions.neo_models import Question
+from sb_questions.serializers import QuestionSerializerNeo
 from sb_solutions.neo_models import Solution
 from sb_registration.utils import create_user_util_test
 
@@ -34,6 +35,7 @@ class QuestionEndpointTests(APITestCase):
                                  owner_username=self.pleb.username).save()
         self.question.owned_by.connect(self.pleb)
         self.user = User.objects.get(email=self.email)
+        self.user2 = User.objects.get(email=self.email2)
         try:
             Tag.nodes.get(name='taxes')
         except DoesNotExist:
@@ -155,6 +157,58 @@ class QuestionEndpointTests(APITestCase):
                 'RETURN question' % (slugify(tag_name), response.data['id'])
         res, _ = db.cypher_query(query)
         self.assertIsNotNone(res.one)
+
+    def test_create_with_h1_first(self):
+        self.client.force_authenticate(user=self.user)
+        content = "# hello world this is a h1 #\n" \
+                  "## with a h2 after it ##\n" \
+                  "# another h1 #\n" \
+                  "and then some text"
+        title = "This is a question that must be t is blue216666?"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        html_content = '<h1 style="padding-top: 0; ' \
+                       'margin-top: 5px;">hello world this is a h1</h1>\n' \
+                       '<h2>with a h2 after it</h2>\n' \
+                       '<h1>another h1</h1>\n' \
+                       '<p>and then some text</p>'
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['html_content'], html_content)
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+
+    def test_create_with_h2_first(self):
+        self.client.force_authenticate(user=self.user)
+        content = "## hello world this is a h2 ##\n" \
+                  "# with a h1 after it #\n" \
+                  "## another h2 ##\n" \
+                  "and then some text"
+        title = "This is a question that must be t is blue21222?"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        html_content = '<h2 style="padding-top: 0; ' \
+                       'margin-top: 5px;">hello world this is a h2</h2>' \
+                       '\n<h1>with a h1 after it</h1>' \
+                       '\n<h2>another h2</h2>\n<p>' \
+                       'and then some text</p>'
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['html_content'], html_content)
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
 
     def test_create_with_image(self):
         self.client.force_authenticate(user=self.user)
@@ -678,6 +732,30 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(updated_question.affected_area, affected_area)
         self.assertEqual(updated_question.external_location_id, external_id)
 
+    def test_update_not_owner(self):
+        self.client.force_authenticate(user=self.user2)
+        title = str(uuid1())
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': self.question.object_uuid})
+        data = {
+            "title": title
+        }
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.data, ['Only the owner can edit this'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_no_request(self):
+        serializer = QuestionSerializerNeo(data={
+            "title": self.question.title
+        }, instance=self.question, partial=True)
+        serializer.is_valid()
+        try:
+            serializer.save()
+            # We shouldn't be able to save unless is_valid has errors set.
+            self.assertTrue(False)
+        except serializers.ValidationError as e:
+            self.assertEqual(e.detail, ['Cannot update without request'])
+
     def test_update_title(self):
         self.client.force_authenticate(user=self.user)
         title = str(uuid1())
@@ -690,6 +768,19 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(response.data['title'], title)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Question.get(self.question.object_uuid).title, title)
+
+    def test_update_same_title(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': self.question.object_uuid})
+        data = {
+            "title": self.question.title
+        }
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.data['title'], self.question.title)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Question.get(self.question.object_uuid).title,
+                         self.question.title)
 
     def test_update_tags(self):
         self.client.force_authenticate(user=self.user)
@@ -722,8 +813,8 @@ class QuestionEndpointTests(APITestCase):
         self.question.solutions.disconnect(solution)
         solution.delete()
         self.assertEqual(response.data['title'],
-                         ['Cannot edit Title when there have already '
-                          'been solutions provided'])
+                         ['Cannot edit when there have already been '
+                          'solutions provided'])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Question.get(self.question.object_uuid).title,
                          self.title)

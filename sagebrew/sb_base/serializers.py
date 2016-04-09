@@ -1,39 +1,13 @@
-import markdown
+import bleach
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from api.serializers import SBSerializer
-from api.utils import gather_request_data
+from api.utils import gather_request_data, render_content
 
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
-
-
-def replace_images(end_temp, content, identifier):
-    # Get the beginning of the image tag to the end of the document
-    image = end_temp.find('<img ')
-    if image == -1:
-        return content
-    temp_content = end_temp[image:]
-    # Set the remaining string to parse to the end of the current image tag
-    end_temp = temp_content[temp_content.find("/>") + 2:]
-    # Chop off the rest of the document after the close of the img
-    # tag
-    temp_content = temp_content[:temp_content.find("/>") + 2]
-    # Need to get the source of the image to populate the a href
-    # so find the src and chop off anything before it
-    src = temp_content[temp_content.find('src="') + 5:]
-    # Chop off anything after it is closed
-    src = src[:src.find('"')]
-    # Build the wrapper
-    lightbox_wrapper = '<a href="%s" data-lightbox="%s">%s</a>' % (
-        src, identifier, temp_content)
-    # Replace the instances of the image tag with the new wrapper
-    content = content.replace(temp_content, lightbox_wrapper, 1)
-    if end_temp.find('<img ') != -1:
-        return replace_images(end_temp, content, identifier)
-    return content
 
 
 class VotableContentSerializer(SBSerializer):
@@ -143,7 +117,7 @@ class VotableContentSerializer(SBSerializer):
 
     def get_html_content(self, obj):
         if obj.content is not None:
-            return obj.content.replace('\n', "<br />")
+            return bleach.clean(obj.content).replace('\n', "<br />")
         else:
             return None
 
@@ -377,16 +351,18 @@ class MarkdownContentSerializer(ContentSerializer):
     html_content = serializers.SerializerMethodField()
 
     def get_html_content(self, obj):
-        if obj.content is not None:
-            content = markdown.markdown(obj.content.replace(
-                '&gt;', '>')).replace('<a', '<a target="_blank"')
-            # Iterate through each image tag within the document and add the
-            # necessary a tag for lightbox to work.
-            return replace_images(content, content, obj.object_uuid)
-        else:
-            return ""
+        return render_content(obj.content, obj.object_uuid)
 
 
 class TitledContentSerializer(MarkdownContentSerializer):
     title = serializers.CharField(required=False,
                                   min_length=15, max_length=140)
+
+
+def validate_is_owner(request, instance):
+    if request is None:
+        raise serializers.ValidationError("Cannot update without request")
+    if instance.owner_username is not None:
+        if instance.owner_username != request.user.username:
+            raise serializers.ValidationError("Only the owner can edit this")
+    return True

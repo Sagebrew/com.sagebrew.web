@@ -27,6 +27,7 @@ class Command(BaseCommand):
                 res, _ = db.cypher_query(friends_query)
                 for friend in [Pleb.inflate(row[0]) for row in res]:
                     friend.follow(profile)
+        self.stdout.write("completed friend migration\n", ending='')
 
         return True
 

@@ -36,9 +36,21 @@
             </div>
         </div>
     </div>
-    <div class="block"></div>
+    <div class="block">
+        <h1 class="block-title center-title no-underline">{{ page_profile.first_name }} {{ page_profile.last_name }}</h1>
+    </div>
 {% endblock hero %}
 {% block sidebar_left %}
+    {% if is_owner %}
+        <div class="block block-type-nav">
+            <div class="block-title">
+                Start a Mission
+            </div>
+            <div class="block-content">
+                <a class="btn btn-primary sb_btn sb_btn_fill js-quest-signup" href="#"><i class="fa fa-rocket quest-rocket"></i> Embark</a>
+            </div>
+        </div>
+    {% endif %}
     <div class="block standard-bottom-padding">
         <h6 class="block-title">Missions</h6>
         <div id="js-mission-list">
@@ -61,14 +73,6 @@
     {% if is_owner %}
         <div class="block block-type-nav">
             <div class="block-title">
-                Start a Mission
-            </div>
-            <div class="block-content">
-                <a class="btn btn-primary sb_btn sb_btn_fill js-quest-signup" href="#"><i class="fa fa-rocket quest-rocket"></i> Embark</a>
-            </div>
-        </div>
-        <div class="block block-type-nav">
-            <div class="block-title">
                 Start a Conversation
             </div>
             <div class="block-content">
@@ -77,7 +81,10 @@
         </div>
     {% endif %}
     <div class="block">
-        <h6 class="block-title no-underline center-title">Network</h6>
+        <h6 class="block-title">Reputation</h6>
+        <div class="block-title no-underline center-title centered-content">
+            {{ page_profile.reputation }}
+        </div>
     </div>
     {% if user.is_authenticated %}
         {% if not is_owner %}

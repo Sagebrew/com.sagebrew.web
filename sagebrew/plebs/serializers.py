@@ -66,8 +66,9 @@ class ReputationNotificationValidator:
 
     def __call__(self, value):
         if not value or value is None:
-            message = 'Cannot change reputation_update_seen to false.'
-            raise serializers.ValidationError(message)
+            message = 'Cannot change this field to false.'
+            raise serializers.ValidationError(
+                {"reputation_update_seen": message})
         return value
 
 

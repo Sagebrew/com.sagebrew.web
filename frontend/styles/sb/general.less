@@ -2122,8 +2122,8 @@ textarea.sb_comment_input{
 }
 
 .no-left-right-padding {
-  padding-left:0;
-  padding-right:0;
+  padding-left:0 !important;
+  padding-right:0 !important;
 }
 
 .five-padding-bottom {
@@ -2147,12 +2147,17 @@ textarea.sb_comment_input{
 .no-padding-right {
   padding-right: 0;
 }
+
 .no-margin-top-bottom{
   margin-top: 0 !important;
   margin-bottom: 0 !important;
 }
 .no-margin-bottom {
   margin-bottom: 0 !important;
+}
+
+.margin-bottom-15 {
+  margin-bottom: 15px;
 }
 
 .resize-vertical {
@@ -2164,7 +2169,55 @@ textarea.sb_comment_input{
   margin-top: -10px !important;
 }
 
+.width-100 {
+  width: 100% !important;
+}
+
+.upload-image-preview{
+  max-width: 100%;
+  padding: 0 15px 0 15px;
+}
+
+.dropbox-area{
+  height: 100px;
+  width: 100%;
+  outline: 2px dashed @sb_grey;
+  outline-offset: -2px;
+  display: table;
+  text-align: center;
+  margin-top: 15px;
+
+  span{
+    display: table-cell;
+    vertical-align: middle;
+  }
+}
+
+.centered-content {
+  text-align: center;
+}
+
+.small-mission-image {
+  height: 175px !important;
+}
+
 // Used in JS
 .additional-comments{
   font-size: 13px;
+}
+
+.red-href {
+  color: @sb_red;
+}
+
+.red-href:hover {
+  color: @sb_red;
+}
+
+.yellow-href {
+  color: #f1c40f;
+}
+
+.yellow-href:hover {
+  color: #f1c40f;
 }

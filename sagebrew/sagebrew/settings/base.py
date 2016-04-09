@@ -68,7 +68,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    '%s/frontend/build/' % REPO_DIR, # Frontend Repo
+    '%s/frontend/build/' % REPO_DIR,  # Frontend Repo
     '%s/help_center/static/' % PROJECT_DIR,
     '%s/plebs/static/' % PROJECT_DIR,
     '%s/sb_missions/static/' % PROJECT_DIR,
@@ -77,7 +77,6 @@ STATICFILES_DIRS = (
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_quests/static/' % PROJECT_DIR,
     '%s/sb_registration/static/' % PROJECT_DIR,
-    '%s/sb_public_official/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
 )
 
@@ -123,7 +122,6 @@ TEMPLATES = [{
         '%s/plebs/templates/' % PROJECT_DIR,
         '%s/sagebrew/templates/' % PROJECT_DIR,
         '%s/sb_solutions/templates/' % PROJECT_DIR,
-        '%s/sb_badges/templates/' % PROJECT_DIR,
         '%s/sb_base/templates/' % PROJECT_DIR,
         '%s/sb_contributions/templates/' % PROJECT_DIR,
         '%s/sb_council/templates' % PROJECT_DIR,
@@ -132,7 +130,6 @@ TEMPLATES = [{
         '%s/sb_notifications/templates/' % PROJECT_DIR,
         '%s/sb_posts/templates/' % PROJECT_DIR,
         '%s/sb_privileges/templates/' % PROJECT_DIR,
-        '%s/sb_public_official/templates/' % PROJECT_DIR,
         '%s/sb_questions/templates/' % PROJECT_DIR,
         '%s/sb_quests/templates/' % PROJECT_DIR,
         '%s/sb_registration/templates/' % PROJECT_DIR,
@@ -140,7 +137,6 @@ TEMPLATES = [{
         '%s/sb_search/templates/' % PROJECT_DIR,
         '%s/sb_tags/templates/' % PROJECT_DIR,
         '%s/sb_updates/templates/' % PROJECT_DIR,
-        '%s/sb_uploads/templates/' % PROJECT_DIR,
         '%s/sb_volunteers/templates/' % PROJECT_DIR,
     ),
     'OPTIONS': {
@@ -193,6 +189,7 @@ INSTALLED_APPS = (
     'neomodel',
     "opbeat.contrib.django",
     'sb_solutions',
+    'sb_accounting',
     'sb_badges',
     'sb_base',
     'sb_comments',
@@ -222,7 +219,6 @@ INSTALLED_APPS = (
     'sb_wall',
     'sb_oauth',
     'elasticsearch',
-    'textblob',
     'help_center'
 )
 
@@ -327,7 +323,8 @@ if not DEBUG:
         },
         'check-unverified-quests': {
             'task': 'sb_accounting.tasks.check_unverified_quest',
-            'schedule': crontab(minute=0, hour=0)
+            'schedule': crontab(minute=0, hour=0),
+            'args': ()
         }
     }
 
@@ -427,7 +424,7 @@ OPERATOR_TYPES = [
 ALLOWED_IMAGE_FORMATS = ['gif', 'jpeg', 'jpg', 'png', 'GIF', 'JPEG', 'JPG',
                          'PNG']
 
-ALLOWED_IMAGE_SIZE = 20000000 # 20 MB
+ALLOWED_IMAGE_SIZE = 20000000  # 20 MB
 
 NON_SAFE = ["REMOVE", "DELETE", "CREATE", "SET",
             "FOREACH", "MERGE", "MATCH", "START"]
@@ -443,6 +440,26 @@ QUERY_OPERATIONS = {
     "lt": "<",
     "ge": ">=",
     "gt": ">",
+}
+
+STRIPE_FIELDS_NEEDED = {
+    "external_account": "Bank Account",
+    "legal_entity.address.city": "City",
+    "legal_entity.address.line1": "Street Address",
+    "legal_entity.address.postal_code": "ZIP Code",
+    "legal_entity.address.state": "State",
+    "legal_entity.business_name": "Business Name",
+    "legal_entity.business_tax_id": "Business EIN",
+    "legal_entity.dob.day": "Birth Day",
+    "legal_entity.dob.month": "Birth Month",
+    "legal_entity.dob.year": "Birth Year",
+    "legal_entity.first_name": "First Name",
+    "legal_entity.last_name": "Last Name",
+    "legal_entity.personal_id_number": "SSN",
+    "legal_entity.ssn_last_4": "Last 4 Digits of SSN",
+    "legal_entity.type": "Type (Individual or Company)",
+    "tos_acceptance.date": "Terms of Service Acceptance Date",
+    "tos_acceptance.ip": "Terms of Service Acceptance IP"
 }
 
 FREE_MISSIONS = 5
@@ -1023,3 +1040,74 @@ COUNTRIES = [
     (u'QA', u'Qatar'),
     (u'MZ', u'Mozambique')
 ]
+
+
+EPIC_TEMPLATE = """
+*Below are some ideas on what you might want to include in your Epic. It's completely up to you if you'd like to use them or take the page in a completely different direction :). You can see a preview of what it'll look like on the front page of your mission by scrolling down.*
+
+## Mission Statement ##
+Start off by grabbing your audience and telling them what you're trying to achieve.
+
+- What are the core pieces of your platform?
+- What's driving you and/or your group?
+- What's this mission all about?
+
+
+## Objectives & Roadmap ##
+Help potential donors and volunteers understand more about your objectives.
+
+- How are you planning on reaching them?
+- What's needed to obtain each objective?
+ - Cost estimates
+ - Volunteer needs
+ - Timing estimates
+- What can donors expect once your objectives have been completed
+
+
+
+### Objective One ###
+Try laying initial objectives that are easily achievable that you can complete while you're getting started with raising funds and finding volunteers. Once you've completed an objective create an Update highlighting what you've done, what it took to achieve the objective, and how much fun you had doing it :).
+
+![Updates][1]
+
+Providing updates on things you've already accomplished is a great way to build confidence with your supporters and help them to get engaged.
+
+### Objective Two ###
+Longer term objectives might not be as fleshed out, but that's okay you can always come back and update them as you gather more information!
+
+
+## In the Press ##
+![press][2]
+
+Has your movement or campaign been featured in a newspaper, in a blog, or by a local organization? If so, showcase the exposure and link users to the relevant articles.
+
+
+## Conversations ##
+The [Conversation Cloud][3] is a great place to start up discussions about your Mission. You can use a conversation to get feedback or vet your solutions with the community. If you already have some conversations opened up, it's a good idea to link to them to build context around your Mission and to show your engagement with others on the topic.
+
+## The Team ##
+
+![teamwork][4]
+
+Your Quest page gives you somewhere to introduce yourself, your team, or your organization but if you want to add some more images or descriptions this would be the place to do it!
+
+## FAQ ##
+Receive the same questions over and over? You might want to include a FAQ that tries to resolve these questions before they get asked again :).
+
+
+
+#### Some Other Tips: ####
+
+- Use images and videos
+ - Creating an engaging Epic that captures supporters’ attention means more donations, volunteers, and endorsements
+- An Epic can be as long or as short as you'd like, there isn't a limit on the size but keep your target audience's attention span in mind
+
+
+  [1]: https://s3.amazonaws.com/sagebrew/long_term_static/help/updates.gif
+  [2]: https://s3.amazonaws.com/sagebrew/long_term_static/help/press_release.jpg
+  [3]: https://www.sagebrew.com/conversations/
+  [4]: https://s3.amazonaws.com/sagebrew/long_term_static/help/teamoverview.jpg
+
+
+
+"""

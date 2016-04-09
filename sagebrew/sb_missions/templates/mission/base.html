@@ -9,16 +9,9 @@
             <h1>{% if mission.focus_on_type == "position" %}{% if mission.focused_on.full_name %}{{ mission.focused_on.full_name|title }}{% else %}{{ mission.focus_name_formatted }}{% endif %}{% else %}{% if mission.title %}{{ mission.title|title }}{% else %} {{ mission.focus_name_formatted|title }} {% endif %}{% endif %}</h1>
             <a href="{% url "quest" quest.owner_username %}">By: {{ quest.title }} </a>
             {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
-            {%  if request.user.username == quest.owner_username %}
-                <div class="wallpaper mission-wallpaper" id="js-croppic-wrapper-div-id">
-                    <img id="js-croppic-img-id" class="js-croppic-img-class"
-                         src="{{ mission.wallpaper_pic|default_if_none:default_wallpaper }}">
-                </div>
-            {% else %}
-                <div class="wallpaper mission-wallpaper">
-                    <img src="{{ mission.wallpaper_pic|default_if_none:default_wallpaper }}">
-                </div>
-            {% endif %}
+            <div class="wallpaper mission-wallpaper">
+                <img src="{{ mission.wallpaper_pic|default_if_none:default_wallpaper }}">
+            </div>
         </div>
     </div>
     <div class="block">
@@ -89,7 +82,7 @@
         </div>
         {% if mission.website %}
         <div class="block-content" style="padding-bottom: 0;" id="website">
-                <small>Website: {{ mission.website|urlize }}</small>
+                <small>Website: <a href="{{ mission.website }}" target="_blank">{{ mission.website }}</a> </small>
         </div>
         {% endif %}
         <div class="block-content no-top-padding" id="social-media">

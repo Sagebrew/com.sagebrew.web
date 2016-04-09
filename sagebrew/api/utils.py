@@ -11,6 +11,8 @@ import collections
 from uuid import uuid1
 from json import dumps
 import unicodedata as ud
+import markdown
+from bs4 import BeautifulSoup
 from datetime import datetime
 from logging import getLogger
 
@@ -442,3 +444,52 @@ def is_latin(uchr):
 
 def only_roman_chars(unistr):
     return all(is_latin(uchr) for uchr in unistr if uchr.isalpha())
+
+
+def replace_images(end_temp, content, identifier):
+    # Get the beginning of the image tag to the end of the document
+    image = end_temp.find('<img ')
+    if image == -1:
+        return content
+    temp_content = end_temp[image:]
+    # Set the remaining string to parse to the end of the current image tag
+    end_temp = temp_content[temp_content.find("/>") + 2:]
+    # Chop off the rest of the document after the close of the img
+    # tag
+    temp_content = temp_content[:temp_content.find("/>") + 2]
+    # Need to get the source of the image to populate the a href
+    # so find the src and chop off anything before it
+    src = temp_content[temp_content.find('src="') + 5:]
+    # Chop off anything after it is closed
+    src = src[:src.find('"')]
+    # Build the wrapper
+    lightbox_wrapper = '<a href="%s" data-lightbox="%s">%s</a>' % (
+        src, identifier, temp_content)
+    # Replace the instances of the image tag with the new wrapper
+    content = content.replace(temp_content, lightbox_wrapper, 1)
+    if end_temp.find('<img ') != -1:
+        return replace_images(end_temp, content, identifier)
+    return content
+
+
+def render_content(content, object_uuid):
+    if content is not None:
+        content = markdown.markdown(content.replace(
+            '&gt;', '>')).replace('<a', '<a target="_blank"')
+        if content[:4] == "<h1>":
+            # Only parse the content if we need to since it can be a long
+            # process (lxml should make it pretty fast though)
+            soup = BeautifulSoup(content, 'lxml')
+            soup.h1['style'] = "padding-top: 0; margin-top: 5px;"
+            content = str(soup).replace("<html><body>", "") \
+                .replace("</body></html>", "")
+        elif content[:4] == "<h2>":
+            soup = BeautifulSoup(content, 'lxml')
+            soup.h2['style'] = "padding-top: 0; margin-top: 5px;"
+            content = str(soup).replace("<html><body>", "") \
+                .replace("</body></html>", "")
+        # Iterate through each image tag within the document and add the
+        # necessary a tag for lightbox to work.
+        return replace_images(content, content, object_uuid)
+    else:
+        return ""

@@ -5,6 +5,8 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
 
+from neomodel import db
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -24,10 +26,10 @@ class LocationEndpointTests(APITestCase):
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
         self.url = "http://testserver"
-        for item in Position.nodes.all():
-            item.delete()
-        for item in Location.nodes.all():
-            item.delete()
+        query = 'MATCH (a:Position) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        query = 'MATCH (a:Location) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.location = Location(name="Michigan").save()
         self.city = Location(name="Walled Lake").save()
         self.senator = Position(name="Senator").save()

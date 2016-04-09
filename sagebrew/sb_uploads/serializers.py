@@ -214,6 +214,11 @@ class CropSerializer(serializers.Serializer):
     resize_height = serializers.FloatField()
 
 
+class ThumbnailSerializer(serializers.Serializer):
+    thumbnail_width = serializers.IntegerField()
+    thumbnail_height = serializers.IntegerField()
+
+
 class URLContentSerializer(SBSerializer):
     refresh_timer = serializers.IntegerField(read_only=True)
     url = serializers.CharField(required=True)
@@ -231,26 +236,26 @@ class URLContentSerializer(SBSerializer):
         owner = validated_data.pop('owner', None)
         if hasattr(owner, 'username'):
             validated_data['owner_username'] = owner.username
-        new_url = clean_url(validated_data['url'])
+        validated_data['url'] = clean_url(validated_data['url'])
         try:
-            return URLContent.nodes.get(url=new_url)
+            return URLContent.nodes.get(url=validated_data['url'])
         except (URLContent.DoesNotExist, DoesNotExist):
             pass
-        if any(s in new_url for s in settings.EXPLICIT_SITES):
+        if any(s in validated_data['url'] for s in settings.EXPLICIT_SITES):
             validated_data['is_explicit'] = True
         try:
-            response = requests.get(new_url,
+            response = requests.get(validated_data['url'],
                                     headers={'content-type': 'html/text'},
                                     timeout=5, verify=False)
         except requests.Timeout:
-            return URLContent(url=new_url).save()
+            return URLContent(url=validated_data['url']).save()
         except requests.ConnectionError:
-            return URLContent(url=new_url).save()
+            return URLContent(url=validated_data['url']).save()
         if response.status_code != status.HTTP_200_OK:
-            return URLContent(url=new_url).save()
+            return URLContent(url=validated_data['url']).save()
         soupified = BeautifulSoup(response.text, 'html.parser')
         title, description, image, width, height = \
-            parse_page_html(soupified, new_url,
+            parse_page_html(soupified, validated_data['url'],
                             response.headers.get('Content-Type', 'html/text'))
         url_content = URLContent(selected_image=image, title=title,
                                  description=description,

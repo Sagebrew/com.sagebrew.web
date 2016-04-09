@@ -19,17 +19,9 @@ a{% extends "layout/hero-two-col-right.html" %}
             <h1> {{ quest.title }} </h1>
         </div>
         {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
-        {% if request.user.username == quest.owner_username %}
-            <div class="col-xs-12 col-sm-7 wallpaper quest-wallpaper" id="js-croppic-wrapper-div-id">
-                <img id="js-croppic-img-id" class="js-croppic-img-class"
-                     src="{{ quest.wallpaper_pic|default_if_none:default_wallpaper }}">
-            </div>
-        {% else %}
-            <div class="col-xs-12 col-sm-7 wallpaper quest-wallpaper">
-                <img src="{{ quest.wallpaper_pic|default_if_none:default_wallpaper }}">
-            </div>
-            {% comment %} A hack to get non-friend pages to load correctly{% endcomment %}
-        {% endif %}
+        <div class="col-xs-12 col-sm-7 wallpaper quest-wallpaper">
+            <img src="{{ quest.wallpaper_pic|default_if_none:default_wallpaper }}">
+        </div>
 
         {% if quest.active %}
             {% if quest.missions %}
@@ -82,7 +74,7 @@ a{% extends "layout/hero-two-col-right.html" %}
                     <ul class="list-inline">
                         {% if quest.website %}
                             <li>
-                                <a href="{{ quest.website }}"
+                                <a href="{{ quest.website }}" target="_blank"
                                    class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                                     <i class="fa fa-globe"></i>
                                 </a>
@@ -90,7 +82,7 @@ a{% extends "layout/hero-two-col-right.html" %}
                         {% endif %}
                         {% if quest.facebook %}
                             <li>
-                                <a href="{{ quest.facebook }}"
+                                <a href="{{ quest.facebook }}" target="_blank"
                                    class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                                     <span class="fa fa-facebook"></span>
                                 </a>
@@ -98,7 +90,7 @@ a{% extends "layout/hero-two-col-right.html" %}
                         {% endif %}
                         {% if quest.twitter %}
                             <li>
-                                <a href="{{ quest.twitter }}"
+                                <a href="{{ quest.twitter }}" target="_blank"
                                    class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                                     <span class="fa fa-twitter"></span>
                                 </a>
@@ -106,7 +98,7 @@ a{% extends "layout/hero-two-col-right.html" %}
                         {% endif %}
                         {% if quest.youtube %}
                             <li>
-                                <a href="{{ quest.youtube }}"
+                                <a href="{{ quest.youtube }}" target="_blank"
                                    class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                                     <span class="fa fa-youtube-play"></span>
                                 </a>
@@ -114,7 +106,7 @@ a{% extends "layout/hero-two-col-right.html" %}
                         {% endif %}
                         {% if quest.linkedin %}
                             <li>
-                                <a href="{{ quest.linkedin }}"
+                                <a href="{{ quest.linkedin }}" target="_blank"
                                    class="btn btn-primary sb_btn_icon sb_btn_icon_green">
                                     <span class="fa fa-linkedin"></span>
                                 </a>

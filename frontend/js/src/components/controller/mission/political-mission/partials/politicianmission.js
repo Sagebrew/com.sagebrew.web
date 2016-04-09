@@ -27,7 +27,9 @@ export function load() {
         positionSelector = document.getElementById('js-position-selector'),
         positionInputRow = document.getElementById('position-input-row'),
         greyPage = document.getElementById('sb-greyout-page'),
-        positionInput = $('#position-input');
+        positionInput = $('#position-input'),
+        positionInputCharCount = $("#js-position-char-count"),
+        positionInputCharLimit = 240;
     // We just loaded the app, jam in some place holders to look nice.
     // Didn't include directly in the Django template so we don't have duplicate formatting
     positionSelector.innerHTML = positionHolderTemplate({static_url: settings.static_url});
@@ -73,12 +75,19 @@ export function load() {
         localStorage.setItem(positionKey, suggestion);
     });
     positionInput.keyup(function() {
-        var $this = $(this);
+        var $this = $(this),
+            positionInputWrapper = $(".position-input-wrapper");
+        helpers.characterCountRemaining(positionInputCharLimit, positionInput, positionInputCharCount);
         if ($this.val().length <= 0) {
             startBtn.disabled = true;
 
+        } else if ($this.val().length > positionInputCharLimit) {
+            startBtn.disabled = true;
+            positionInputWrapper.removeClass("has-success");
+            positionInputWrapper.addClass("has-error");
         } else {
-
+            positionInputWrapper.removeClass("has-error");
+            positionInputWrapper.addClass("has-success");
             // Should remove the previous item to ensure that only the most
             // recent input is passed to the endpoint
             localStorage.removeItem(positionKey);

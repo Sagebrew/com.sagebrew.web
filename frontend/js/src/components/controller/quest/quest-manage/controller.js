@@ -32,6 +32,7 @@ export function load() {
     } else {
         questID = helpers.args(1);
     }
+    $('[data-toggle="tooltip"]').tooltip();
     $app
         .on('click', '#take-live', function () {
             event.preventDefault();

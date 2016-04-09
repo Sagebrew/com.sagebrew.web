@@ -7,7 +7,8 @@ export const meta = {
     match_method: "path",
     check: [
         "^quests\/[A-Za-z0-9.@_%+-]{2,36}\/donate\/choose",
-        "^quests\/[A-Za-z0-9.@_%+-]{2,36}\/volunteer\/choose"
+        "^quests\/[A-Za-z0-9.@_%+-]{2,36}\/volunteer\/choose",
+        "^quests\/[A-Za-z0-9.@_%+-]{2,36}\/endorse\/choose"
     ]
 };
 
@@ -36,6 +37,12 @@ export function load() {
                     window.location.href = "/missions/" + this.dataset.id + "/" + this.dataset.slug + "/" + contributionType + "/name/";
                 } else {
                     window.location.href = "/missions/" + this.dataset.id + "/" + this.dataset.slug + "/" + contributionType + "/option/";
+                }
+            } else if (contributionType === "endorse") {
+                if (settings.user.type === "anon"){
+                    window.location.href = "/missions/" + this.dataset.id + "/" + this.dataset.slug + "/" + contributionType + "/name/";
+                } else {
+                    window.location.href = "/missions/" + this.dataset.id + "/" + this.dataset.slug + "/" + contributionType + "/";
                 }
             } else {
                 window.location.href = "/missions/" + this.dataset.id + "/" + this.dataset.slug + "/" + contributionType + "/amount/";

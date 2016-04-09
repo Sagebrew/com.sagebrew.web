@@ -80,7 +80,7 @@ def get_reformed_url(url):
         if "omgili.com" not in url:
             return url
         intermediate_page = requests.get(url)
-        soup = BeautifulSoup(intermediate_page.text)
+        soup = BeautifulSoup(intermediate_page.text, 'html.parser')
         for script in soup.find_all('script'):
             index_value = str(script).find('window.location.href')
             chop_string = str(

@@ -18,7 +18,7 @@ from neomodel import DoesNotExist, db
 from api.serializers import SBSerializer
 from api.utils import clean_url
 
-from .utils import (parse_page_html, get_image_data, thumbnail_image,
+from .utils import (parse_page_html, get_image_data,
                     check_sagebrew_url, hamming_distance)
 from .neo_models import UploadedObject, ModifiedObject, URLContent
 

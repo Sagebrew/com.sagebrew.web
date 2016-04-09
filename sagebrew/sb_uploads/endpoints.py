@@ -12,18 +12,18 @@ from rest_framework.reverse import reverse
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import detail_route
 from rest_framework import status
-from rest_framework.parsers import FileUploadParser, JSONParser
+from rest_framework.parsers import JSONParser
 from rest_framework.parsers import MultiPartParser
 
 
 from plebs.neo_models import Pleb
 from sb_registration.utils import delete_image
 
-from .serializers import (UploadSerializer, ModifiedSerializer, CropSerializer,
+from .serializers import (UploadSerializer, CropSerializer,
                           URLContentSerializer, ThumbnailSerializer)
 from .neo_models import (UploadedObject, URLContent)
-from .utils import (resize_image, crop_image2, check_sagebrew_url,
-                    thumbnail_image, upload_modified_image)
+from .utils import (resize_image, crop_image2, thumbnail_image,
+                    upload_modified_image)
 
 
 class UploadViewSet(viewsets.ModelViewSet):
@@ -140,7 +140,7 @@ class UploadViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @detail_route(methods=['post'], permission_classes=[IsAuthenticated,],
+    @detail_route(methods=['post'], permission_classes=[IsAuthenticated, ],
                   serializer_class=ThumbnailSerializer,
                   parser_classes=(JSONParser,))
     def thumbnail(self, request, object_uuid=None):

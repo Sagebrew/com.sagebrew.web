@@ -225,6 +225,7 @@ def thumbnail_image(image, resize_height, resize_width):
     image.thumbnail((resize_width, resize_height), Image.ANTIALIAS)
     return image
 
+
 def upload_modified_image(file_name, file_stream, request, parent_uuid):
     """
     This function will handle upload and serialization of a modified object.

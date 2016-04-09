@@ -459,7 +459,7 @@ STRIPE_FIELDS_NEEDED = {
     "legal_entity.ssn_last_4": "Last 4 Digits of SSN",
     "legal_entity.type": "Type (Individual or Company)",
     "tos_acceptance.date": "Terms of Service Acceptance Date",
-    "tod_acceptance.ip": "Terms of Service Acceptance IP"
+    "tos_acceptance.ip": "Terms of Service Acceptance IP"
 }
 
 FREE_MISSIONS = 5

@@ -579,6 +579,22 @@ class MissionEndpointTests(APITestCase):
         mission = Mission.nodes.get(object_uuid=response.data['id'])
         self.assertEqual(mission.facebook, data['facebook'])
 
+    def test_update_not_owner(self):
+        self.client.force_authenticate(user=self.user2)
+        mission_old = Mission(title=str(uuid1()),
+                              owner_username=self.pleb.username).save()
+        self.quest.missions.connect(mission_old)
+        data = {
+            "epic": "Fake epic content that was made by a fake user",
+        }
+        url = reverse('mission-detail',
+                      kwargs={'object_uuid': mission_old.object_uuid})
+        response = self.client.patch(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        self.assertEqual(mission.epic, mission_old.epic)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, ['Only the owner can edit this'])
+
     def test_update_epic_with_h1_first(self):
         self.client.force_authenticate(user=self.user)
         mission = Mission(title=str(uuid1()),

@@ -864,6 +864,19 @@ class QuestEndpointTests(APITestCase):
         customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
 
+    def test_update_not_owner(self):
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "title": "This is a fake title that a non owner set"
+        }
+        response = self.client.put(url, data=data, format='json')
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(quest.title, self.quest.title)
+        self.assertEqual(response.data, ['Only the owner can edit this'])
+
     def test_stripe_token(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',

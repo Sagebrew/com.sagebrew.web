@@ -22,10 +22,13 @@ class PostsEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
+        self.email2 = "bounces@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb2 = create_user_util_test(self.email2)
+        self.user2 = User.objects.get(email=self.email2)
         self.post = Post(content="Hey I'm a post",
                          owner_username=self.pleb.username,
                          wall_owner_username=self.pleb.username).save()
@@ -252,6 +255,20 @@ class PostsEndpointTests(APITestCase):
                       kwargs={"object_uuid": self.post.object_uuid})
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_not_owner_update(self):
+        self.client.force_authenticate(user=self.user2)
+        data = {
+            "content": "Hey it's a new post"
+        }
+        url = reverse('post-detail',
+                      kwargs={"object_uuid": self.post.object_uuid})
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, ['Only the owner can edit this'])
+        self.assertEqual(
+            Post.nodes.get(object_uuid=self.post.object_uuid).content,
+            self.post.content)
 
     def test_owner_update_detail(self):
         self.client.force_authenticate(user=self.user)

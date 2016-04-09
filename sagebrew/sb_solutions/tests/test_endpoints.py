@@ -20,7 +20,12 @@ class SolutionEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
+        self.email = "success@simulator.amazonses.com"
+        self.email2 = "bounces@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
+        self.pleb2 = create_user_util_test(self.email2)
+        self.user2 = User.objects.get(email=self.email2)
         self.title = str(uuid1())
         self.question = Question(content="Hey I'm a question",
                                  title=self.title,
@@ -30,7 +35,6 @@ class SolutionEndpointTests(APITestCase):
                                  parent_id=self.question.object_uuid).save()
         self.solution.owned_by.connect(self.pleb)
         self.question.owned_by.connect(self.pleb)
-        self.user = User.objects.get(email=self.email)
         try:
             Tag.nodes.get(name='taxes')
         except DoesNotExist:
@@ -123,6 +127,35 @@ class SolutionEndpointTests(APITestCase):
         res = self.client.get(url, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['id'], self.solution.object_uuid)
+
+    def test_update(self):
+        self.client.force_authenticate(user=self.user)
+        new_content = "This is the new solution to the problem and it has " \
+                      "some new information stored within it!"
+        url = reverse(
+            "solution-detail",
+            kwargs={"object_uuid": self.solution.object_uuid})
+        res = self.client.patch(url, data={'content': new_content},
+                                format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            Solution.nodes.get(object_uuid=self.solution.object_uuid).content,
+            new_content)
+
+    def test_update_not_owner(self):
+        self.client.force_authenticate(user=self.user2)
+        new_content = "This is the new solution to the problem and it has " \
+                      "some new information stored within it!"
+        url = reverse(
+            "solution-detail",
+            kwargs={"object_uuid": self.solution.object_uuid})
+        res = self.client.patch(url, data={'content': new_content},
+                                format='json')
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            Solution.nodes.get(object_uuid=self.solution.object_uuid).content,
+            self.solution.content)
+        self.assertEqual(res.data, ['Only the owner can edit this'])
 
     def test_create_fail(self):
         self.client.force_authenticate(user=self.user)

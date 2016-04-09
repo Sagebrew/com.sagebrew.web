@@ -25,8 +25,11 @@ class TestCommentsRetrieveUpdateDestroy(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'comment'
         self.email = "success@simulator.amazonses.com"
+        self.email2 = "bounces@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
+        self.pleb2 = create_user_util_test(self.email2)
+        self.user2 = User.objects.get(email=self.email2)
         self.url = "http://testserver"
         self.post = Post(content='test content',
                          owner_username=self.pleb.username,
@@ -118,6 +121,37 @@ class TestCommentsRetrieveUpdateDestroy(APITestCase):
                       kwargs={'comment_uuid': comment.object_uuid})
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_update_comment(self):
+        self.client.force_authenticate(user=self.user)
+        new_content = "this is the new content"
+        comment = Comment(url='this is a url',
+                          content='this is content').save()
+        parent = Post(content='some content').save()
+        parent.comments.connect(comment)
+        url = reverse("comment-detail",
+                      kwargs={'comment_uuid': comment.object_uuid})
+        response = self.client.patch(
+            url, data={'content': new_content}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Comment.nodes.get(
+            object_uuid=comment.object_uuid).content, new_content)
+
+    def test_update_comment_not_owner(self):
+        self.client.force_authenticate(user=self.user2)
+        new_content = "this is the new content"
+        comment = Comment(url='this is a url',
+                          content='this is content').save()
+        parent = Post(content='some content').save()
+        parent.comments.connect(comment)
+        url = reverse("comment-detail",
+                      kwargs={'comment_uuid': comment.object_uuid})
+        response = self.client.patch(
+            url, data={'content': new_content}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(Comment.nodes.get(
+            object_uuid=comment.object_uuid).content, 'this is content')
+        self.assertEqual(response.data, ['Only the owner can edit this'])
 
 
 class TestCommentListCreate(APITestCase):

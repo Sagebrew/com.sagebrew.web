@@ -11,7 +11,7 @@ from rest_framework import serializers
 from neomodel import db
 
 from api.utils import request_to_api, gather_request_data
-from sb_base.serializers import ContentSerializer
+from sb_base.serializers import ContentSerializer, validate_is_owner
 from sb_base.neo_models import SBContent
 
 from .neo_models import Comment
@@ -52,6 +52,7 @@ class CommentSerializer(ContentSerializer):
         return comment
 
     def update(self, instance, validated_data):
+        validate_is_owner(self.context.get('request', None), instance)
         instance.content = bleach.clean(
             validated_data.get('content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)

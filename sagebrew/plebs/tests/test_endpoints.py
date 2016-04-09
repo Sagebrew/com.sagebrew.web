@@ -343,8 +343,8 @@ class MeEndpointTests(APITestCase):
         self.assertTrue(res.data['sagebrew_donations'], [donation.object_uuid])
 
     def test_donations_with_only_sagebrew_donation(self):
-        for donation in Donation.nodes.all():
-            donation.delete()
+        query = 'MATCH (a:Donation) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         donation = Donation(amount=100).save()
         self.pleb.donations.connect(donation)
         donation.owned_by.connect(self.pleb)
@@ -1093,8 +1093,8 @@ class ProfileContentMethodTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_pleb_question_id(self):
-        for item in Question.nodes.all():
-            item.delete()
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
             content="This is the content for my question.",
@@ -1108,8 +1108,8 @@ class ProfileContentMethodTests(APITestCase):
                          question.object_uuid)
 
     def test_get_pleb_question_type(self):
-        for item in Question.nodes.all():
-            item.delete()
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
             content="This is the content for my question.",
@@ -1123,8 +1123,8 @@ class ProfileContentMethodTests(APITestCase):
                          'question')
 
     def test_get_pleb_question_object_uuid(self):
-        for item in Question.nodes.all():
-            item.delete()
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
             content="This is the content for my question.",
@@ -1138,8 +1138,8 @@ class ProfileContentMethodTests(APITestCase):
                          question.object_uuid)
 
     def test_get_pleb_question_content(self):
-        for item in Question.nodes.all():
-            item.delete()
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
             content="This is the content for my question.",
@@ -1153,8 +1153,8 @@ class ProfileContentMethodTests(APITestCase):
                          question.content)
 
     def test_get_pleb_question_profile(self):
-        for item in Question.nodes.all():
-            item.delete()
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
             content="This is the content for my question.",
@@ -1168,8 +1168,8 @@ class ProfileContentMethodTests(APITestCase):
                          "test_test")
 
     def test_get_pleb_question_url(self):
-        for item in Question.nodes.all():
-            item.delete()
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         question = Question(
             title=str(uuid1()),
             content="This is the content for my question.",
@@ -1185,8 +1185,8 @@ class ProfileContentMethodTests(APITestCase):
                                      slugify(question.title)))
 
     def test_get_pleb_question_title(self):
-        for item in Question.nodes.all():
-            item.delete()
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         title = str(uuid1())
         question = Question(
             title=title,

@@ -357,3 +357,12 @@ class MarkdownContentSerializer(ContentSerializer):
 class TitledContentSerializer(MarkdownContentSerializer):
     title = serializers.CharField(required=False,
                                   min_length=15, max_length=140)
+
+
+def validate_is_owner(request, instance):
+    if request is None:
+        raise serializers.ValidationError("Cannot update without request")
+    if instance.owner_username is not None:
+        if instance.owner_username != request.user.username:
+            raise serializers.ValidationError("Only the owner can edit this")
+    return True

@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
 
-from neomodel import UniqueProperty
+from neomodel import UniqueProperty, db
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -22,10 +22,13 @@ class PostsEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
+        self.email2 = "bounces@simulator.amazonses.com"
         res = create_user_util_test(self.email, task=True)
         while not res['task_id'].ready():
             time.sleep(.1)
         self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb2 = create_user_util_test(self.email2)
+        self.user2 = User.objects.get(email=self.email2)
         self.post = Post(content="Hey I'm a post",
                          owner_username=self.pleb.username,
                          wall_owner_username=self.pleb.username).save()
@@ -253,6 +256,20 @@ class PostsEndpointTests(APITestCase):
         response = self.client.put(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_not_owner_update(self):
+        self.client.force_authenticate(user=self.user2)
+        data = {
+            "content": "Hey it's a new post"
+        }
+        url = reverse('post-detail',
+                      kwargs={"object_uuid": self.post.object_uuid})
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, ['Only the owner can edit this'])
+        self.assertEqual(
+            Post.nodes.get(object_uuid=self.post.object_uuid).content,
+            self.post.content)
+
     def test_owner_update_detail(self):
         self.client.force_authenticate(user=self.user)
         data = {
@@ -301,164 +318,6 @@ class PostsEndpointTests(APITestCase):
                        "included_urls": ["http://reddit.com"]}, format='json')
         self.assertTrue(post.url_content.is_connected(url_content))
         url_content.delete()
-
-
-class WallPostListCreateTest(APITestCase):
-
-    def setUp(self):
-        self.unit_under_test_name = 'post'
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-
-    def test_unauthorized(self):
-        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
-        data = {}
-        response = self.client.post(url, data, format='json')
-        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
-                                             status.HTTP_403_FORBIDDEN])
-
-    def test_missing_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
-        data = {}
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_400_BAD_REQUEST)
-
-    def test_save_int_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
-        response = self.client.post(url, 98897965, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_400_BAD_REQUEST)
-
-    def test_save_string_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
-        response = self.client.post(url, 'asfonosdnf', format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_400_BAD_REQUEST)
-
-    def test_save_list_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
-        response = self.client.post(url, [], format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_400_BAD_REQUEST)
-
-    def test_save_float_data(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
-        response = self.client.post(url, 1.010101010, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_400_BAD_REQUEST)
-
-    def test_create_on_detail_status(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
-        data = {}
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code,
-                         status.HTTP_400_BAD_REQUEST)
-
-    def test_create_on_detail_message(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
-        data = {}
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.data['content'][
-                         0], 'This field is required.')
-
-    def test_delete_status(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
-        response = self.client.delete(url, format='json')
-        self.assertEqual(response.data['status_code'],
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-        self.assertEqual(response.status_code,
-                         status.HTTP_405_METHOD_NOT_ALLOWED)
-
-    def test_delete_message(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
-        data = {}
-        response = self.client.delete(url, data=data, format='json')
-        self.assertEqual(response.data['detail'],
-                         'Method "DELETE" not allowed.')
-
-    def test_empty_list(self):
-        self.client.force_authenticate(user=self.user)
-        for post in self.pleb.get_wall().posts.all():
-            post.delete()
-        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.data['count'], 0)
-
-    def test_list_with_items(self):
-        self.client.force_authenticate(user=self.user)
-        post = Post(content="My first post",
-                    owner_username=self.pleb.username,
-                    wall_owner_username=self.pleb.username).save()
-        post.owned_by.connect(self.pleb)
-        wall = self.pleb.get_wall()
-        wall.posts.connect(post)
-        post.posted_on_wall.connect(wall)
-        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
-        response = self.client.get(url, format='json')
-        self.assertGreater(response.data['count'], 0)
-
-    def test_list_with_items_not_friends(self):
-        self.client.force_authenticate(user=self.user)
-        email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(email2, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        friend = Pleb.nodes.get(email=email2)
-        post = Post(content="My first post",
-                    owner_username=self.pleb.username,
-                    wall_owner_username=self.pleb.username).save()
-        post.owned_by.connect(self.pleb)
-        wall = friend.get_wall()
-        wall.posts.connect(post)
-        post.posted_on_wall.connect(wall)
-        self.pleb.friends.disconnect(friend)
-        friend.friends.disconnect(self.pleb)
-        url = reverse('profile-wall', kwargs={'username': friend.username})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.data['results'], [])
-
-    def test_list_with_items_friends(self):
-        self.client.force_authenticate(user=self.user)
-        email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(email2, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        friend = Pleb.nodes.get(email=email2)
-        post = Post(content="My first post",
-                    owner_username=self.pleb.username,
-                    wall_owner_username=self.pleb.username).save()
-        post.owned_by.connect(self.pleb)
-        wall = friend.get_wall()
-        wall.posts.connect(post)
-        post.posted_on_wall.connect(wall)
-        self.pleb.friends.connect(friend)
-        friend.friends.connect(self.pleb)
-        url = reverse('profile-wall', kwargs={'username': friend.username})
-        response = self.client.get(url, format='json')
-        self.assertGreater(response.data['count'], 0)
-
-    def test_create(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('profile-wall',
-                      kwargs={'username': self.pleb.username}) + "?html=true"
-        response = self.client.post(
-            url, data={'content': 'this is a test content thing'},
-            format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
 class PostListCreateTest(APITestCase):
@@ -633,8 +492,8 @@ class PostListCreateTest(APITestCase):
 
     def test_empty_list(self):
         self.client.force_authenticate(user=self.user)
-        for post in self.pleb.get_wall().posts.all():
-            post.delete()
+        query = 'MATCH (a:Post) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         url = reverse('post-list')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 0)

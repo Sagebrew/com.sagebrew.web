@@ -12,7 +12,7 @@
                         <textarea class="form-control markdown-input"
                                   id="epic_content_id"
                                   name="epic_content"
-                                  rows="10">{{ mission.epic|default_if_none:"" }}</textarea>
+                                  rows="15">{{ mission.epic|default_if_none:epic_template }}</textarea>
                     </div>
                 </div>
                 <div id="validation-errors"></div>

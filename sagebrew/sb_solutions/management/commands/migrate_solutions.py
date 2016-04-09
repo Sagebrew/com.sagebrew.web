@@ -13,18 +13,13 @@ class Command(BaseCommand):
     args = 'None.'
 
     def migrate_solutions(self):
-        for solution in Solution.nodes.all():
-            query = "MATCH (a:Solution {object_uuid:'%s'})" \
-                    "-[:POSSIBLE_ANSWER]->" \
-                    "(b:Question) RETURN b" % solution.object_uuid
-            res, _ = db.cypher_query(query)
-            parent = Question.inflate(res.one)
-            solution.parent_id = parent.object_uuid
-            solution.save()
+        query = 'MATCH (a:Solution)-[:POSSIBLE_ANSWER]->(b:Question) ' \
+                'SET a.parent_id=b.object_uuid RETURN a'
+        res, _ = db.cypher_query(query)
+        for solution in [Solution.inflate(row[0]) for row in res]:
             spawn_task(task_func=create_solution_summary_task, task_param={
                 'object_uuid': solution.object_uuid
             })
-
         self.stdout.write("completed solution migration\n", ending='')
 
     def handle(self, *args, **options):

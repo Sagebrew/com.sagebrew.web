@@ -19,7 +19,6 @@ from rest_framework import status
 
 from neomodel import DoesNotExist, db
 
-from sb_quests.neo_models import Position
 from sb_public_official.neo_models import PublicOfficial
 from sb_registration.views import (profile_information,
                                    logout_view,

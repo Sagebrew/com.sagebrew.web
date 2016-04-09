@@ -1,6 +1,7 @@
 var request = require('api').request,
     markdown = require('common/markdown').addMarkdown,
-    mediumEditor = require('medium-editor');
+    mediumEditor = require('medium-editor'),
+    mediumEditorInsert = require('medium-editor-insert-plugin');
 
 export const meta = {
     controller: "mission/mission-manage/epic",
@@ -25,7 +26,9 @@ export function load() {
     // markdown($("textarea.markdown-input"));
     var $app = $(".app-sb"),
         missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
-        editor = new mediumEditor("#js-epic-editor");
+        editor = new mediumEditor(".editable", {
+            buttonLabels: true
+        });
 
     $app
         .on('click', '#submit', function(event) {

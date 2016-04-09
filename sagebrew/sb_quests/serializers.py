@@ -27,7 +27,8 @@ from .neo_models import (Position, Quest)
 
 class QuestSerializer(SBSerializer):
     active = serializers.BooleanField(required=False)
-    title = serializers.CharField(required=False, allow_blank=True)
+    title = serializers.CharField(required=False, allow_blank=True,
+                                  max_length=240)
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=128)
     facebook = serializers.URLField(required=False, allow_blank=True)
@@ -64,7 +65,19 @@ class QuestSerializer(SBSerializer):
         read_only=True,
         choices=[('unverified', "Unverified"), ('pending', "Pending"),
                  ('verified', "Verified")])
+    # https://stripe.com/docs/connect/identity-verification
+    # #confirming-id-verification
+    # fields_needed is a list of fields that are still required for
+    # verification of the managed account
+    # ex. ["legal_entity.type", "legal_entity.business_name"]
     account_verification_fields_needed = serializers.ListField(read_only=True)
+
+    # https://stripe.com/docs/connect/identity-verification
+    # #confirming-id-verification
+    # verification_details is a user readable string that will contain a string
+    # describing an problems with verification such as a corrupted/unreadable
+    # image has been uploaded.
+    # ex. "The image supplied was not readable"
     account_verification_details = serializers.CharField(read_only=True)
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
@@ -77,6 +90,7 @@ class QuestSerializer(SBSerializer):
     missions = serializers.SerializerMethodField()
     endorsed = serializers.SerializerMethodField()
     total_donation_amount = serializers.SerializerMethodField()
+    fields_needed_human_readable = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -179,6 +193,7 @@ class QuestSerializer(SBSerializer):
             validated_data.get('twitter', instance.twitter))
         if initial_state is True and active is False:
             remove_search_object(instance.object_uuid, "quest")
+            # TODO make all missions inactive upon taking quest inactive
         instance.website = clean_url(validated_data.get(
             'website', instance.website))
         instance.about = empty_text_to_none(
@@ -438,6 +453,12 @@ class QuestSerializer(SBSerializer):
         if request is None:
             return None
         return obj.is_following(request.user.username)
+
+    def get_fields_needed_human_readable(self, obj):
+        if obj.account_verification_fields_needed is not None:
+            return ', '.join(
+                [settings.STRIPE_FIELDS_NEEDED[field_needed]
+                 for field_needed in obj.account_verification_fields_needed])
 
 
 class EditorSerializer(serializers.Serializer):

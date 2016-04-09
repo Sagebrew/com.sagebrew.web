@@ -214,6 +214,11 @@ class CropSerializer(serializers.Serializer):
     resize_height = serializers.FloatField()
 
 
+class ThumbnailSerializer(serializers.Serializer):
+    thumbnail_width = serializers.IntegerField()
+    thumbnail_height = serializers.IntegerField()
+
+
 class URLContentSerializer(SBSerializer):
     refresh_timer = serializers.IntegerField(read_only=True)
     url = serializers.CharField(required=True)

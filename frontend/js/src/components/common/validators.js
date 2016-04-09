@@ -342,121 +342,29 @@ export function solutionValidator (solutionForm) {
 }
 
 
-export function questManageValidator(manageForm) {
+export function missionManageValidator(manageForm, aboutLengthLimit) {
     manageForm.formValidation({
         framework: 'bootstrap',
         live: 'enabled',
         fields: {
+            title: {
+                selector: '#title',
+                validators: {
+                    stringLength: {
+                        max: 240,
+                        message: ' '
+                    },
+                    notEmpty: {
+                        message: 'You must have a title'
+                    }
+                }
+            },
             about: {
                 selector: '#about',
                 validators: {
                     stringLength: {
-                        max: 128,
-                        message: 'About section must be less than 128 characters'
-                    }
-                }
-            },
-            website: {
-                selector: "#website",
-                validators: {
-                    callback: {
-                        callback: function (value) {
-                            if ($.trim(value).indexOf("http://") === 0 || $.trim(value).indexOf("https://") === 0 || $.trim(value) === "") {
-                                return true;
-                            } else {
-                                return {
-                                    valid: false,
-                                    message: 'Please enter a valid fully qualified url including "http://" or "https://"'
-                                };
-                            }
-                        }
-                    }
-                }
-            },
-            facebook: {
-                selector: "#facebook-social-address",
-                validators: {
-                    callback: {
-                        callback: function (value) {
-                            if ($.trim(value).indexOf("https://www.facebook.com/") === 0 || $.trim(value).indexOf("http://www.facebook.com/") === 0 || $.trim(value).indexOf("www.facebook.com/") === 0 || $.trim(value) === "") {
-                                return true;
-                            } else {
-                                return {
-                                    valid: false,
-                                    message: 'Please enter a valid fully qualified Facebook url'
-                                };
-                            }
-                        }
-                    }
-                }
-            },
-            twitter: {
-                selector: "#twitter-social-address",
-                validators: {
-                    callback: {
-                        callback: function (value) {
-                            if ($.trim(value).indexOf("https://twitter.com/") === 0 || $.trim(value).indexOf("https://www.twitter.com/") === 0 || $.trim(value).indexOf("www.twitter.com/") === 0 || $.trim(value) === "") {
-                                return true;
-                            } else {
-                                return {
-                                    valid: false,
-                                    message: 'Please enter a valid fully qualified Twitter url'
-                                };
-                            }
-                        }
-                    }
-                }
-            },
-            linkedin: {
-                selector: "#linkedin-social-address",
-                validators: {
-                    callback: {
-                        callback: function (value) {
-                            if ($.trim(value).indexOf("https://www.linkedin.com/") === 0 || $.trim(value).indexOf("http://www.linkedin.com/") === 0 || $.trim(value).indexOf("www.linkedin.com/") === 0 || $.trim(value) === "") {
-                                return true;
-                            } else {
-                                return {
-                                    valid: false,
-                                    message: 'Please enter a valid fully qualified LinkedIn url'
-                                };
-                            }
-                        }
-                    }
-                }
-            },
-            youtube: {
-                selector: "#youtube-social-address",
-                validators: {
-                    callback: {
-                        callback: function (value) {
-                            if ($.trim(value).indexOf("https://www.youtube.com/") === 0 || $.trim(value).indexOf("www.youtube.com/") === 0 || $.trim(value).indexOf("https://youtu.be/") === 0 || $.trim(value).indexOf("www.youtube.com/") === 0 || $.trim(value).indexOf("http://youtu.be/") === 0 || $.trim(value).indexOf("www.youtu.be/") === 0 || $.trim(value) === ""){
-                                return true;
-                            } else {
-                                return {
-                                    valid: false,
-                                    message: 'Please enter a valid fully qualified Youtube url'
-                                };
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-
-export function missionManageValidator(manageForm) {
-    manageForm.formValidation({
-        framework: 'bootstrap',
-        live: 'enabled',
-        fields: {
-            about: {
-                selector: '#about',
-                validators: {
-                    stringLength: {
-                        max: 255,
-                        message: 'About section must be less than 255 characters'
+                        max: aboutLengthLimit,
+                        message: ' '
                     }
                 }
             },

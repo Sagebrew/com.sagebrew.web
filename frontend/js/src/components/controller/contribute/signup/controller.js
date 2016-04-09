@@ -9,7 +9,8 @@ export const meta = {
     match_method: "path",
     check: [
         "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/donate\/name",
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/volunteer\/name"
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/volunteer\/name",
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/endorse\/name"
     ]
 };
 
@@ -88,8 +89,11 @@ export function load() {
                     requests.post({url: "/v1/addresses/", data: JSON.stringify(addressData)})
                         .done(function () {
                             if(contributionType === "volunteer") {
-                                    window.location.href = "/missions/" + donateToID + "/" +
-                                        missionSlug + "/" + contributionType + "/option/";
+                                window.location.href = "/missions/" + donateToID + "/" +
+                                    missionSlug + "/" + contributionType + "/option/";
+                            } else if (contributionType == "endorse") {
+                                window.location.href = "/missions/" + donateToID + "/" +
+                                    missionSlug + "/" + contributionType + "/";
                             } else {
                                 window.location.href = "/missions/" + donateToID + "/" +
                                     missionSlug + "/donate/payment/";

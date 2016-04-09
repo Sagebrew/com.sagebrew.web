@@ -80,6 +80,11 @@ urlpatterns = patterns(
         r'endorse/$',
         ContributionMissionView.as_view(template_name='mission/endorse.html'),
         name="mission_endorse"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'endorse/name/$',
+        ContributionMissionView.as_view(
+            template_name='mission/endorse_name.html'),
+        name="mission_endorse_name"),
 
     # View
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/updates/$',

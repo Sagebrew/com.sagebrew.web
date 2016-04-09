@@ -1107,6 +1107,12 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(self.pleb in self.mission.profile_endorsements)
 
+    def test_endorse_unauthorized(self):
+        url = "/v1/missions/%s/endorse/" % self.mission.object_uuid
+        response = self.client.post(url, data={"endorse_as": "profile"},
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
     def test_unendorse(self):
         self.client.force_authenticate(user=self.user)
         url = "/v1/missions/%s/unendorse/" % self.mission.object_uuid

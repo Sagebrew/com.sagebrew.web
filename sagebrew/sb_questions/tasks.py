@@ -22,7 +22,8 @@ def create_question_summary_task(object_uuid):
         raise create_question_summary_task.retry(exc=e, countdown=5,
                                                  max_retries=None)
     summary = generate_summary(question.content)
-    question.summary = summary
+    if summary is not None and summary != "":
+        question.summary = summary
     question.save()
     cache.delete(question.object_uuid)
 

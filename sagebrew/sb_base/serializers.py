@@ -361,11 +361,8 @@ class TitledContentSerializer(MarkdownContentSerializer):
 
 def validate_is_owner(request, instance):
     if request is None:
-        raise serializers.ValidationError(
-            "Cannot Update Without Request")
+        raise serializers.ValidationError("Cannot update without request")
     if instance.owner_username is not None:
         if instance.owner_username != request.user.username:
-            raise serializers.ValidationError(
-                "Only The Owner Can Edit This")
-
+            raise serializers.ValidationError("Only the owner can edit this")
     return True

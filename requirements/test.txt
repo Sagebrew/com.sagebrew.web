@@ -1,4 +1,4 @@
 -r base.txt
-coveralls-python
+coveralls
 flake8
 requests_mock

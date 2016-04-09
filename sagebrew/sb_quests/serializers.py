@@ -17,6 +17,7 @@ from neomodel.exception import DoesNotExist
 from api.serializers import SBSerializer
 from api.utils import (gather_request_data, spawn_task, clean_url,
                        empty_text_to_none)
+from sb_base.serializers import validate_is_owner
 from plebs.neo_models import Pleb
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
@@ -143,6 +144,7 @@ class QuestSerializer(SBSerializer):
         return quest
 
     def update(self, instance, validated_data):
+        validate_is_owner(self.context.get('request', None), instance)
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe_token = validated_data.pop('stripe_token', None)
         promotion_key = validated_data.pop('promotion_key', None)

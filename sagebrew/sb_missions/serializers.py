@@ -11,6 +11,7 @@ from neomodel import db, DoesNotExist
 from api.utils import (gather_request_data, clean_url, empty_text_to_none,
                        smart_truncate, render_content)
 from api.serializers import SBSerializer
+from sb_base.serializers import validate_is_owner
 from sb_locations.serializers import LocationSerializer
 from sb_tags.neo_models import Tag
 from sb_search.utils import remove_search_object
@@ -236,6 +237,7 @@ class MissionSerializer(SBSerializer):
         return mission
 
     def update(self, instance, validated_data):
+        validate_is_owner(self.context.get('request', None), instance)
         initial_state = instance.active
         instance.active = validated_data.pop('active', instance.active)
         if initial_state is True and instance.active is False:

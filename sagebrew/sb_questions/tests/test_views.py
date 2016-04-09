@@ -46,8 +46,11 @@ class TestGetQuestionView(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
+        self.email2 = "bounces@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user = User.objects.get(email=self.email)
+        self.user2 = User.objects.get(email=self.email2)
         self.pleb.first_name = 'Tyler'
         self.pleb.last_name = 'Wiersing'
         self.factory = RequestFactory()
@@ -125,6 +128,21 @@ class TestGetQuestionView(TestCase):
             "question-edit", kwargs={"question_uuid": question.object_uuid}))
         self.assertTrue(res.status_code, status.HTTP_200_OK)
 
+    def test_edit_question_not_owner(self):
+        question = Question(object_uuid=str(uuid1()), content='test',
+                            title=str(uuid1()),
+                            owner_username=self.pleb.username).save()
+
+        question.owned_by.connect(self.pleb)
+        request = self.factory.get(reverse(
+            "question-edit", kwargs={"question_uuid": question.object_uuid}))
+        request.user = self.user2
+        view = QuestionManagerView.as_view(
+            template_name="questions/edit.html")
+        response = view(request, question_uuid=question.object_uuid,
+                        slug=slugify(question.title))
+        self.assertTrue(response.status_code, status.HTTP_302_FOUND)
+
 
 class TestGetQuestionListView(APITestCase):
 
@@ -175,8 +193,11 @@ class TestEditSolutionPage(TestCase):
     def setUp(self):
         cache.clear()
         self.email = "success@simulator.amazonses.com"
+        self.email2 = "bounces@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user = User.objects.get(email=self.email)
+        self.user2 = User.objects.get(email=self.email2)
         self.title = str(uuid1())
         self.factory = RequestFactory()
         self.question = Question(content="Hey I'm a question",
@@ -194,5 +215,15 @@ class TestEditSolutionPage(TestCase):
                       kwargs={"solution_uuid": self.solution.object_uuid})
         request = self.factory.get(url)
         request.user = self.user
-        response = solution_edit_page(request)
+        response = solution_edit_page(request,
+                                      solution_uuid=self.solution.object_uuid)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_edit_solution_not_owner(self):
+        url = reverse("solution-edit",
+                      kwargs={"solution_uuid": self.solution.object_uuid})
+        request = self.factory.get(url)
+        request.user = self.user2
+        response = solution_edit_page(request,
+                                      solution_uuid=self.solution.object_uuid)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)

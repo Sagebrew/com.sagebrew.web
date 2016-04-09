@@ -12,7 +12,7 @@ class Command(BaseCommand):
     args = 'None.'
 
     def migrate_solutions(self):
-        query = 'MATCH (a:Solution)-[:POSSIBLE_ANSWER]->(b:Question) ' \
+        query = 'MATCH (a:Solution)<-[:POSSIBLE_ANSWER]-(b:Question) ' \
                 'SET a.parent_id=b.object_uuid RETURN a'
         res, _ = db.cypher_query(query)
         for solution in [Solution.inflate(row[0]) for row in res]:

@@ -157,6 +157,8 @@ class QuestSerializer(SBSerializer):
         return quest
 
     def update(self, instance, validated_data):
+        from sb_base.serializers import validate_is_owner
+        validate_is_owner(self.context.get('request', None), instance)
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe_token = validated_data.pop('stripe_token', None)
         promotion_key = validated_data.pop('promotion_key', None)

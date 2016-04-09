@@ -1040,3 +1040,74 @@ COUNTRIES = [
     (u'QA', u'Qatar'),
     (u'MZ', u'Mozambique')
 ]
+
+
+EPIC_TEMPLATE = """
+*Below are some ideas on what you might want to include in your Epic. It's completely up to you if you'd like to use them or take the page in a completely different direction :). You can see a preview of what it'll look like on the front page of your mission by scrolling down.*
+
+## Mission Statement ##
+Start off by grabbing your audience and telling them what you're trying to achieve.
+
+- What are the core pieces of your platform?
+- What's driving you and/or your group?
+- What's this mission all about?
+
+
+## Objectives & Roadmap ##
+Help potential donors and volunteers understand more about your objectives.
+
+- How are you planning on reaching them?
+- What's needed to obtain each objective?
+ - Cost estimates
+ - Volunteer needs
+ - Timing estimates
+- What can donors expect once your objectives have been completed
+
+
+
+### Objective One ###
+Try laying initial objectives that are easily achievable that you can complete while you're getting started with raising funds and finding volunteers. Once you've completed an objective create an Update highlighting what you've done, what it took to achieve the objective, and how much fun you had doing it :).
+
+![Updates][1]
+
+Providing updates on things you've already accomplished is a great way to build confidence with your supporters and help them to get engaged.
+
+### Objective Two ###
+Longer term objectives might not be as fleshed out, but that's okay you can always come back and update them as you gather more information!
+
+
+## In the Press ##
+![press][2]
+
+Has your movement or campaign been featured in a newspaper, in a blog, or by a local organization? If so, showcase the exposure and link users to the relevant articles.
+
+
+## Conversations ##
+The [Conversation Cloud][3] is a great place to start up discussions about your Mission. You can use a conversation to get feedback or vet your solutions with the community. If you already have some conversations opened up, it's a good idea to link to them to build context around your Mission and to show your engagement with others on the topic.
+
+## The Team ##
+
+![teamwork][4]
+
+Your Quest page gives you somewhere to introduce yourself, your team, or your organization but if you want to add some more images or descriptions this would be the place to do it!
+
+## FAQ ##
+Receive the same questions over and over? You might want to include a FAQ that tries to resolve these questions before they get asked again :).
+
+
+
+#### Some Other Tips: ####
+
+- Use images and videos
+ - Creating an engaging Epic that captures supporters’ attention means more donations, volunteers, and endorsements
+- An Epic can be as long or as short as you'd like, there isn't a limit on the size but keep your target audience's attention span in mind
+
+
+  [1]: https://s3.amazonaws.com/sagebrew/long_term_static/help/updates.gif
+  [2]: https://s3.amazonaws.com/sagebrew/long_term_static/help/press_release.jpg
+  [3]: https://www.sagebrew.com/conversations/
+  [4]: https://s3.amazonaws.com/sagebrew/long_term_static/help/teamoverview.jpg
+
+
+
+"""

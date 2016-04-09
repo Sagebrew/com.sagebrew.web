@@ -19,7 +19,6 @@ from rest_framework import status
 
 from neomodel import DoesNotExist, db
 
-from sb_quests.neo_models import Position
 from sb_public_official.neo_models import PublicOfficial
 from sb_registration.views import (profile_information,
                                    logout_view,
@@ -629,8 +628,8 @@ class TestFeatureViews(TestCase):
         s.save()
         request.session = s
         request.user = AnonymousUser()
-        for campaign in Position.nodes.all():
-            campaign.delete()
+        query = 'MATCH (a:Position) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         res = political_campaign(request)
 
         self.assertEqual(res.status_code, 200)

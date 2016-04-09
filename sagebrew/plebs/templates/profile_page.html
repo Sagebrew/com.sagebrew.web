@@ -36,7 +36,9 @@
             </div>
         </div>
     </div>
-    <div class="block"></div>
+    <div class="block">
+        <h1 class="block-title center-title no-underline">{{ page_profile.first_name }} {{ page_profile.last_name }}</h1>
+    </div>
 {% endblock hero %}
 {% block sidebar_left %}
     {% if is_owner %}

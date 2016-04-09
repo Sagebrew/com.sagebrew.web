@@ -72,8 +72,8 @@ class QuestEndpointTests(APITestCase):
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_create(self):
-        for quest in Quest.nodes.all():
-            quest.delete()
+        query = 'MATCH (a:Quest) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         position = Position(name="Senator").save()
         url = reverse('quest-list')
@@ -94,8 +94,8 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_with_tos(self):
-        for quest in Quest.nodes.all():
-            quest.delete()
+        query = 'MATCH (a:Quest) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         position = Position(name="Senator").save()
         url = reverse('quest-list')
@@ -117,8 +117,8 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_x_forwarded(self):
-        for quest in Quest.nodes.all():
-            quest.delete()
+        query = 'MATCH (a:Quest) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         position = Position(name="Senator").save()
         url = reverse('quest-list')
@@ -140,8 +140,8 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_duplicate(self):
-        for quest in Quest.nodes.all():
-            quest.delete()
+        query = 'MATCH (a:Quest) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         position = Position(name="Senator").save()
         url = reverse('quest-list')
@@ -239,8 +239,8 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list_no_quests(self):
-        for quest in Quest.nodes.all():
-            quest.delete()
+        query = 'MATCH (a:Quest) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-list')
         response = self.client.get(url, format='json')
@@ -254,7 +254,7 @@ class QuestEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,
@@ -623,7 +623,7 @@ class QuestEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,
@@ -645,7 +645,7 @@ class QuestEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,
@@ -660,7 +660,7 @@ class QuestEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,
@@ -783,7 +783,7 @@ class QuestEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,
@@ -813,7 +813,7 @@ class QuestEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,
@@ -863,6 +863,19 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(quest.application_fee, 0.041)
         customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
+
+    def test_update_not_owner(self):
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "title": "This is a fake title that a non owner set"
+        }
+        response = self.client.put(url, data=data, format='json')
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(quest.title, self.quest.title)
+        self.assertEqual(response.data, ['Only the owner can edit this'])
 
     def test_stripe_token(self):
         self.client.force_authenticate(user=self.user)
@@ -1148,8 +1161,8 @@ class PositionEndpointTests(APITestCase):
         self.quest.editors.connect(self.pleb)
         self.position = Position(name="Senator").save()
         self.mission.position.connect(self.position)
-        for item in Location.nodes.all():
-            item.delete()
+        query = 'MATCH (a:Location) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.location = Location(name="Michigan").save()
         cache.clear()
 

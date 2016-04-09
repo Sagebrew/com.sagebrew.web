@@ -11,7 +11,7 @@ from rest_framework.reverse import reverse
 
 from plebs.neo_models import Pleb
 from api.utils import gather_request_data, spawn_task
-from sb_base.serializers import TitledContentSerializer
+from sb_base.serializers import TitledContentSerializer, validate_is_owner
 from sb_notifications.tasks import spawn_notifications
 
 from .neo_models import Update
@@ -64,6 +64,7 @@ class UpdateSerializer(TitledContentSerializer):
         return update
 
     def update(self, instance, validated_data):
+        validate_is_owner(self.context.get('request', None), instance)
         instance.title = validated_data.pop('title', instance.title)
         instance.content = validated_data.pop('content', instance.content)
         instance.last_edited_on = datetime.now(pytz.utc)

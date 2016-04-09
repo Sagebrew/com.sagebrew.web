@@ -2,21 +2,14 @@ from django.core.management.base import BaseCommand
 
 from neomodel import db
 
-from sb_base.neo_models import SBContent
-from sb_comments.neo_models import Comment
-
 
 class Command(BaseCommand):
     args = 'None.'
 
     def migrate_comments(self):
-        for comment in Comment.nodes.all():
-            query = "MATCH (a:Comment {object_uuid:'%s'})<-[:HAS_A]-" \
-                    "(b:SBContent) RETURN b" % comment.object_uuid
-            res, _ = db.cypher_query(query)
-            parent = SBContent.inflate(res.one)
-            comment.parent_id = parent.object_uuid
-            comment.save()
+        query = 'MATCH (a:Comment)<-[:HAS_A]-(b:SBContent) ' \
+                'SET a.parent_id=b.object_uuid RETURN a'
+        db.cypher_query(query)
         self.stdout.write("completed comment migration\n", ending='')
 
     def handle(self, *args, **options):

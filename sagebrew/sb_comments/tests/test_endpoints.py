@@ -141,7 +141,8 @@ class TestCommentsRetrieveUpdateDestroy(APITestCase):
         self.client.force_authenticate(user=self.user2)
         new_content = "this is the new content"
         comment = Comment(url='this is a url',
-                          content='this is content').save()
+                          content='this is content',
+                          owner_username=self.pleb.username).save()
         parent = Post(content='some content').save()
         parent.comments.connect(comment)
         url = reverse("comment-detail",

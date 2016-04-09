@@ -590,7 +590,7 @@ class MissionEndpointTests(APITestCase):
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission_old.object_uuid})
         response = self.client.patch(url, data=data, format='json')
-        mission = Mission.nodes.get(object_uuid=response.data['id'])
+        mission = Mission.nodes.get(object_uuid=mission_old.object_uuid)
         self.assertEqual(mission.epic, mission_old.epic)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, ['Only the owner can edit this'])

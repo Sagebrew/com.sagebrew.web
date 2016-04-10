@@ -21,6 +21,9 @@ export function init() {
  * Load
  */
 export function load() {
+    require('drmonty-garlicjs');
+    var epicForm = $("#epicForm");
+    epicForm.garlic();
     markdown($("textarea.markdown-input"));
     var $app = $(".app-sb"),
         missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0];

@@ -47,7 +47,7 @@ from sb_news.neo_models import NewsArticle
 from sb_news.serializers import NewsArticleSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
                           FriendRequestSerializer, PoliticalPartySerializer,
-                          InterestsSerializer)
+                          InterestsSerializer, TopicInterestsSerializer)
 from .neo_models import Pleb, Address, FriendRequest
 from .utils import get_filter_by
 
@@ -825,6 +825,22 @@ class MeViewSet(mixins.UpdateModelMixin,
             response = serializer.data
             response['interests'] = added
             return Response(response, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @list_route(methods=['post'], serializer_class=TopicInterestsSerializer,
+                permission_classes=(IsAuthenticated,))
+    def add_topics_of_interest(self, request):
+        """
+        Connects the authenticated pleb up to all the existing parties that
+        are passed within a list. Returns all of names of the successfully
+        connected parties.
+        :param request:
+        """
+        serializer = self.get_serializer(data=request.data,
+                                         context={"request": request})
+        if serializer.is_valid():
+            saved_interests = serializer.save()
+            return Response(saved_interests, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

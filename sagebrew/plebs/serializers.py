@@ -6,10 +6,14 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.contrib.auth import login, authenticate
+from django.conf import settings
+from django.utils.text import slugify
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.reverse import reverse
+
+from py2neo.cypher.error.schema import ConstraintViolation
 
 from neomodel import db, DoesNotExist
 
@@ -472,3 +476,30 @@ class InterestsSerializer(SBSerializer):
     interests = serializers.ListField(
         child=serializers.CharField(max_length=126),
     )
+
+
+class TopicInterestsSerializer(SBSerializer):
+    interests = serializers.MultipleChoiceField(
+        choices=settings.TOPICS_OF_INTEREST,
+        allow_blank=True)
+
+    def create(self, validated_data):
+        from sb_tags.neo_models import Tag
+        from sb_tags.serializers import TagSerializer
+        request, _, _, _, _ = gather_request_data(self.context)
+        generated_tags = []
+        if request is None:
+            raise serializers.ValidationError(
+                "Must perform creation from web request")
+        for tag in validated_data['interests']:
+            try:
+                query = 'MATCH (profile:Pleb {username: "%s"}), ' \
+                        '(tag:Tag {name: "%s"}) ' \
+                        'CREATE UNIQUE (profile)-[:INTERESTED_IN]->(tag) ' \
+                        'RETURN tag' % (request.user.username, slugify(tag))
+                res, _ = db.cypher_query(query)
+                generated_tags.append(TagSerializer(Tag.inflate(res.one)).data)
+            except(ConstraintViolation, Exception):
+                pass
+        cache.delete(request.user.username)
+        return generated_tags

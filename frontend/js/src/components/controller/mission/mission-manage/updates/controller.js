@@ -1,6 +1,7 @@
 var request = require('api').request,
     markdown = require('common/markdown').addMarkdown,
     validators = require('common/validators'),
+    Autolinker = require('autolinker'),
     moment = require('moment'),
     updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs');
 
@@ -40,7 +41,7 @@ export function load() {
                 // we prepopulate it. So if they remove it we want to set it to
                 // an empty string in the backend.
                 if (input.name) {
-                  data[input.name] = input.value;
+                    data[input.name] = input.value;
                 }
             }
             data.about_type = "mission";

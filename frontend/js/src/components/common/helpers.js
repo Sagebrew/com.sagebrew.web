@@ -283,6 +283,22 @@ export function selectAllFields(wrapperDivID) {
     });
 }
 
+
+// Pass the checkbox name to the function
+export function getCheckedBoxes(chkboxName) {
+    var checkboxes = document.getElementsByName(chkboxName);
+    var checkboxesChecked = [];
+    // loop over them all
+    for (var i=0; i < checkboxes.length; i++) {
+        // And stick the checked ones onto an array...
+        if (checkboxes[i].checked) {
+            checkboxesChecked.push(checkboxes[i].id);
+        }
+    }
+    // Return the array if it is non-empty, or null
+    return checkboxesChecked.length > 0 ? checkboxesChecked : [];
+}
+
 export function replaceAll(search, replacement) {
     var target = this;
     return target.replace(new RegExp(search, 'g'), replacement);

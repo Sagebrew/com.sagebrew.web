@@ -257,6 +257,7 @@ def profile_information(request):
                   login_url='/registration/profile_information')
 def interests(request):
     """
+    DEPRECATED use /v1/me/add_topics_of_interest/
     The interests view creates an InterestForm populates the topics that
     a user can choose from and if a POST request is passed then the function
     checks the validity of the arguments POSTed. If the form is valid then
@@ -285,7 +286,6 @@ def interests(request):
             for tag in interests_list]
         cache.delete(request.user.username)
         return redirect('profile_picture')
-
     return render(request, 'interests.html', {'interest_form': interest_form})
 
 

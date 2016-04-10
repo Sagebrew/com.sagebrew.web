@@ -74,7 +74,12 @@ export function load() {
                 });
             }
             $.when(addParties, addInterests).done(function () {
-                document.interstForm.submit();
+                request.post({
+                    url: "/v1/me/add_topics_of_interest/",
+                    data: JSON.stringify({interests: helpers.getCheckedBoxes('interests')})
+                }).done(function () {
+                    window.location.href = "/registration/profile_picture/";
+                });
             });
 
         });

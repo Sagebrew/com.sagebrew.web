@@ -77,11 +77,11 @@
                                 </div>
                             </div>
                             <div class="col-xs-1 col-sm-2">
-                                <label class="checkbox" for="{{ field.id_for_label }}">
+                                <label class="checkbox" for="{{ field.html_name }}">
                                     <input type="checkbox"
                                            value="{{ field.value|default_if_none:"false" }}"
-                                           name="{{ field.html_name }}"
-                                           id="{{ field.id_for_label }}"
+                                           name="interests"
+                                           id="{{ field.html_name }}"
                                            data-toggle="checkbox">
                                 </label>
                             </div>

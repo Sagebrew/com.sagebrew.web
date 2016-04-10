@@ -18,12 +18,14 @@ class Command(BaseCommand):
                 break
             for profile in [Pleb.inflate(row[0]) for row in res]:
                 friend_query = 'MATCH (a:Pleb {username: "%s"})' \
-                               '-[:FRIENDS_WITH]->(b:Pleb) RETURN b'
+                               '-[:FRIENDS_WITH]->(b:Pleb) ' \
+                               'RETURN b' % profile.username
                 res, _ = db.cypher_query(friend_query)
                 for friend in [Pleb.inflate(row[0]) for row in res]:
                     profile.follow(friend)
                 friends_query = 'MATCH (a:Pleb {username: "%s"})' \
-                                '<-[:FRIENDS_WITH]-(b:Pleb) RETURN b'
+                                '<-[:FRIENDS_WITH]-(b:Pleb) ' \
+                                'RETURN b' % profile.username
                 res, _ = db.cypher_query(friends_query)
                 for friend in [Pleb.inflate(row[0]) for row in res]:
                     friend.follow(profile)

@@ -91,7 +91,7 @@ export function load() {
                             if(contributionType === "volunteer") {
                                 window.location.href = "/missions/" + donateToID + "/" +
                                     missionSlug + "/" + contributionType + "/option/";
-                            } else if (contributionType == "endorse") {
+                            } else if (contributionType === "endorse") {
                                 window.location.href = "/missions/" + donateToID + "/" +
                                     missionSlug + "/" + contributionType + "/";
                             } else {

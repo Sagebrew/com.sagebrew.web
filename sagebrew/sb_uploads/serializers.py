@@ -201,7 +201,6 @@ class ModifiedSerializer(UploadSerializer):
         modified_object = ModifiedObject(
             owner_username=owner.username, **validated_data).save()
         modified_object.owned_by.connect(owner)
-        owner.uploads.connect(modified_object)
         if self.context.get('parent_id') is not None:
             parent_object = UploadedObject.nodes.get(
                 object_uuid=self.context.get('parent_id'))

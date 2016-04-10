@@ -1,5 +1,6 @@
 var request = require('api').request,
     moment = require('moment'),
+    Autolinker = require('autolinker'),
     updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs');
 
 export const meta = {

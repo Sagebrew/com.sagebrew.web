@@ -501,6 +501,22 @@ VOLUNTEER_ACTIVITIES = [
     ("attend_a_house_party", "Attend A House Party")
 ]
 
+
+TOPICS_OF_INTEREST = [
+    ("foreign_policy", "Foreign Policy"),
+    ("education", "Education"),
+    ("environment", "Environment"),
+    ("agriculture", "Agriculture"),
+    ("energy", "Energy"),
+    ("space", "Space"),
+    ("fiscal", "Fiscal"),
+    ("social", "Social"),
+    ("science", "Science"),
+    ("drugs", "Drugs"),
+    ("defense", "Defense"),
+    ("health", "Health")
+]
+
 DEFAULT_SENTENCE_COUNT = 7
 DEFAULT_SUMMARY_LENGTH = 250
 TIME_EXCLUSION_REGEX = re.compile(

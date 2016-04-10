@@ -12,6 +12,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.conf import settings
+from django.core.management import call_command
 
 from neomodel import db, DoesNotExist
 
@@ -3856,3 +3857,103 @@ class PublicDataTests(APITestCase):
         url = reverse('me-public')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 1)
+
+
+class InterestsEndpointTest(APITestCase):
+
+    def setUp(self):
+        query = "MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r"
+        db.cypher_query(query)
+        cache.clear()
+        call_command("create_prepopulated_tags")
+        time.sleep(3)
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
+
+    def test_no_topics_selected(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.post(url, {'interests': []}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(self.pleb.interests.all()), 0)
+
+    def test_one_topic_selected(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.post(
+            url, {'interests': ['fiscal']}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(len(self.pleb.interests.all()), 1)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "education"}) RETURN a' % self.pleb.username
+        res, _ = db.cypher_query(query)
+        self.assertIsNone(res.one)
+
+    def test_all_topics_selected(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.post(
+            url, {'interests': [
+                'fiscal', 'education', 'space', 'drugs',
+                'science', 'energy', 'environment', 'defense',
+                'health', 'social', 'foreign_policy', 'agriculture'
+            ]}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(self.pleb.interests.all()), 12)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "social"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+
+    def test_some_topics_selected(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.post(
+            url, {'interests': [
+                'fiscal', 'education', 'space', 'drugs',
+            ]}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(self.pleb.interests.all()), 4)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "drugs"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+
+    def test_topics_dont_exist(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.post(
+            url, {'interests': [
+                'hello', 'world', 'have',
+            ]}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(self.pleb.interests.all()), 0)
+        self.assertEqual(response.data,
+                         {'interests': [u'"hello" is not a valid choice.']})
+
+    def test_interests_pleb_does_not_exist(self):
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.post(
+            url, {'interests': [
+                'fiscal', 'education', 'space', 'drugs',
+                'science', 'energy', 'environment', 'defense',
+                'health', 'social', 'foreign_policy', 'agriculture'
+            ]}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_request(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)

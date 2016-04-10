@@ -3,6 +3,7 @@ from uuid import uuid1
 from datetime import datetime
 from dateutil import parser
 
+from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.template.response import TemplateResponse
@@ -577,6 +578,7 @@ class WallPostListCreateTest(APITestCase):
         from sb_wall.neo_models import Wall
         query = 'MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
         db.cypher_query(query)
+        cache.clear()
         self.unit_under_test_name = 'post'
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)

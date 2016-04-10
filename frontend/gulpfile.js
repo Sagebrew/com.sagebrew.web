@@ -41,6 +41,7 @@ var config = {
         'bower_components/jquery-mousewheel/jquery.mousewheel.js',
         'bower_components/bootstrap-switch/dist/js/bootstrap-switch.js',
         'bower_components/packery/dist/packery.pkgd.js',
+        'bower_components/medium-editor-insert-plugin/js/medium-editor-insert-plugin.min.js',
         'node_modules/bootstrap-tokenfield/dist/bootstrap-tokenfield.min.js', // TODO Remove this after transitioning registration and tag input to new format and use require
         'js/vendor/flatui/radiocheck.js',
         'js/vendor/flatui/fileinput.js',

@@ -1,7 +1,6 @@
 var request = require('api').request,
     markdown = require('common/markdown').addMarkdown,
-    mediumEditor = require('medium-editor'),
-    mediumEditorInsert = require('medium-editor-insert-plugin');
+    mediumEditor = require('medium-editor');
 
 export const meta = {
     controller: "mission/mission-manage/epic",
@@ -29,6 +28,9 @@ export function load() {
         editor = new mediumEditor(".editable", {
             buttonLabels: true
         });
+    $(".editable").mediumInsert({
+        editor: editor
+    });
 
     $app
         .on('click', '#submit', function(event) {

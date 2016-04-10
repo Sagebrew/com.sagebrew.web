@@ -233,7 +233,7 @@ def upload_modified_image(file_name, file_stream, request, parent_uuid):
     """
     from sb_uploads.serializers import ModifiedSerializer
     url = check_sagebrew_url(None, settings.AWS_PROFILE_PICTURE_FOLDER_NAME,
-                             file_name, file_stream.read())
+                             file_name, file_stream)
     serializer = ModifiedSerializer(
         data={'url': url},
         context={"request": request, "file_name": file_name,

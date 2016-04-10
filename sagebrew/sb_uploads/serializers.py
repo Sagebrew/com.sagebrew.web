@@ -178,8 +178,13 @@ class UploadSerializer(SBSerializer):
 
         uploaded_object = UploadedObject(**validated_data).save()
         if owner is not None:
-            uploaded_object.owned_by.connect(owner)
-            owner.uploads.connect(uploaded_object)
+            query = 'MATCH (pleb:Pleb {username:"%s"}), ' \
+                    '(uploaded:UploadedObject {object_uuid:"%s"}) ' \
+                    'WITH pleb, uploaded ' \
+                    'CREATE UNIQUE (pleb)-[:UPLOADS]->(uploaded), ' \
+                    '(uploaded)-[:OWNED_BY]->(pleb)' % \
+                    (owner.username, uploaded_object.object_uuid)
+            res, _ = db.cypher_query(query)
         return uploaded_object
 
     def update(self, instance, validated_data):

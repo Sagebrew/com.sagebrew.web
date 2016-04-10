@@ -193,9 +193,9 @@ class UploadEndpointTests(APITestCase):
             url = reverse('upload-list') + "?random=" + uuid
             response = self.client.post(url, data, format='multipart')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-        thumbnail_url = reverse('upload-thumbnail',
-                                kwargs={'object_uuid': response.data['id']})\
-                        + "?resize=true"
+        thumbnail_url = reverse(
+            'upload-thumbnail', kwargs={'object_uuid': response.data['id']}) +\
+            "?resize=true"
         thumbnail_data = {
             "thumbnail_width": 500,
             "thumbnail_height": 500

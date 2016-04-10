@@ -1,5 +1,4 @@
 import urllib2
-import traceback
 
 from io import BytesIO
 

@@ -3,8 +3,7 @@
  */
 var request = require('api').request,
     helpers = require('common/helpers'),
-    validation = require('common/validators'),
-    garlic = require('drmonty-garlicjs');
+    validation = require('common/validators');
 
 /**
  * Meta.
@@ -22,7 +21,7 @@ export const meta = {
  * Load.
  */
 export function load() {
-
+    require('drmonty-garlicjs');
     var $app = $(".app-sb"),
         questID = helpers.args(1),
         socialForm = $("#socialForm"),

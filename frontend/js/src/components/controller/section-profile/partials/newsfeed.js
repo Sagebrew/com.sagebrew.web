@@ -83,7 +83,6 @@ export function init () {
                 } else if (data.results[i].type === "update") {
                     data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = updateNewsTemplate(data.results[i]);
-
                 }
                 $container.append(data.results[i].html);
                 $('[data-toggle="tooltip"]').tooltip();

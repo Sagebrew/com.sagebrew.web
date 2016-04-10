@@ -15,8 +15,7 @@ class Command(BaseCommand):
         youtube_string = "https://www.youtube.com/user/%s"
         query = 'MATCH (q:Quest) RETURN q'
         res, _ = db.cypher_query(query)
-        for row in res:
-            quest = Quest.inflate(row[0])
+        for quest in [Quest.inflate(row[0]) for row in res]:
             if quest.twitter:
                 quest.twitter = twitter_string % quest.twitter
             if quest.facebook:

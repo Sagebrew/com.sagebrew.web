@@ -22,8 +22,9 @@ class Command(BaseCommand):
                 friend_query = 'MATCH (a:Pleb {username: "%s"})' \
                                '-[:FRIENDS_WITH]->(b:Pleb) ' \
                                'RETURN b' % profile.username
-                res, _ = db.cypher_query(friend_query)
-                for friend in [Pleb.inflate(row[0]) for row in res]:
+                friend_res, _ = db.cypher_query(friend_query)
+                for friend in [Pleb.inflate(friend_row[0])
+                               for friend_row in friend_res]:
                     try:
                         profile.follow(friend)
                         friend.follow(profile)

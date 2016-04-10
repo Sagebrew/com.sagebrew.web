@@ -1,4 +1,5 @@
 import time
+from uuid import uuid1
 from datetime import datetime
 from dateutil import parser
 
@@ -568,3 +569,181 @@ class TestSinglePostPage(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response, TemplateResponse)
+
+
+class WallPostListCreateTest(APITestCase):
+
+    def setUp(self):
+        from sb_wall.neo_models import Wall
+        query = 'MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        self.unit_under_test_name = 'post'
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
+        query = 'MATCH (pleb:Pleb {username: "%s"})' \
+                '-[:OWNS_WALL]->(wall:Wall) ' \
+                'RETURN wall' % self.pleb.username
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            wall = Wall(wall_id=str(uuid1())).save()
+            query = 'MATCH (pleb:Pleb {username: "%s"}),' \
+                    '(wall:Wall {wall_id: "%s"}) ' \
+                    'CREATE UNIQUE (pleb)-[:OWNS_WALL]->(wall) ' \
+                    'RETURN wall' % (self.pleb.username, wall.wall_id)
+            res, _ = db.cypher_query(query)
+        self.wall = Wall.inflate(res.one)
+
+    def test_unauthorized(self):
+        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertIn(response.status_code, [status.HTTP_401_UNAUTHORIZED,
+                                             status.HTTP_403_FORBIDDEN])
+
+    def test_missing_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_400_BAD_REQUEST)
+
+    def test_save_int_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
+        response = self.client.post(url, 98897965, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_400_BAD_REQUEST)
+
+    def test_save_string_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
+        response = self.client.post(url, 'asfonosdnf', format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_400_BAD_REQUEST)
+
+    def test_save_list_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
+        response = self.client.post(url, [], format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_400_BAD_REQUEST)
+
+    def test_save_float_data(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
+        response = self.client.post(url, 1.010101010, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_400_BAD_REQUEST)
+
+    def test_create_on_detail_status(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code,
+                         status.HTTP_400_BAD_REQUEST)
+
+    def test_create_on_detail_message(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.data['content'][
+                         0], 'This field is required.')
+
+    def test_delete_status(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
+        response = self.client.delete(url, format='json')
+        self.assertEqual(response.data['status_code'],
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_message(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
+        data = {}
+        response = self.client.delete(url, data=data, format='json')
+        self.assertEqual(response.data['detail'],
+                         'Method "DELETE" not allowed.')
+
+    def test_empty_list(self):
+        self.client.force_authenticate(user=self.user)
+        query = 'MATCH (a:Post) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 0)
+
+    def test_list_with_items(self):
+        self.client.force_authenticate(user=self.user)
+        post = Post(content="My first post",
+                    owner_username=self.pleb.username,
+                    wall_owner_username=self.pleb.username).save()
+        post.owned_by.connect(self.pleb)
+        self.wall.posts.connect(post)
+        post.posted_on_wall.connect(self.wall)
+        url = reverse('profile-wall', kwargs={'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertGreater(response.data['count'], 0)
+
+    def test_list_with_items_not_friends(self):
+        self.client.force_authenticate(user=self.user)
+        email2 = "bounce@simulator.amazonses.com"
+        res = create_user_util_test(email2, task=True)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        friend = Pleb.nodes.get(email=email2)
+        post = Post(content="My first post",
+                    owner_username=self.pleb.username,
+                    wall_owner_username=self.pleb.username).save()
+        post.owned_by.connect(self.pleb)
+        wall = friend.get_wall()
+        wall.posts.connect(post)
+        post.posted_on_wall.connect(wall)
+        self.pleb.friends.disconnect(friend)
+        friend.friends.disconnect(self.pleb)
+        url = reverse('profile-wall', kwargs={'username': friend.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['results'], [])
+
+    def test_list_with_items_friends(self):
+        from sb_wall.neo_models import Wall
+        self.client.force_authenticate(user=self.user)
+        email2 = "bounce@simulator.amazonses.com"
+        friend = create_user_util_test(email2)
+        query = 'MATCH (pleb:Pleb {username: "%s"})' \
+                '-[:OWNS_WALL]->(wall:Wall) ' \
+                'RETURN wall' % friend.username
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            wall = Wall(wall_id=str(uuid1())).save()
+            query = 'MATCH (pleb:Pleb {username: "%s"}),' \
+                    '(wall:Wall {wall_id: "%s"}) ' \
+                    'CREATE UNIQUE (pleb)-[:OWNS_WALL]->(wall) ' \
+                    'RETURN wall' % (friend.username, wall.wall_id)
+            res, _ = db.cypher_query(query)
+        wall = Wall.inflate(res.one)
+        post = Post(content="My first post",
+                    owner_username=self.pleb.username,
+                    wall_owner_username=self.pleb.username).save()
+        post.owned_by.connect(self.pleb)
+        wall.posts.connect(post)
+        post.posted_on_wall.connect(wall)
+        self.pleb.friends.connect(friend)
+        friend.friends.connect(self.pleb)
+        url = reverse('profile-wall', kwargs={'username': friend.username})
+        response = self.client.get(url, format='json')
+        self.assertGreater(response.data['count'], 0)
+
+    def test_create(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-wall',
+                      kwargs={'username': self.pleb.username}) + "?html=true"
+        response = self.client.post(
+            url, data={'content': 'this is a test content thing'},
+            format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

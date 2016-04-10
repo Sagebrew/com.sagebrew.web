@@ -52,7 +52,7 @@ class QuestSettingsView(LoginRequiredMixin):
                 request.user.username)
         try:
             res, _ = db.cypher_query(query)
-            if res.one.quest is None:
+            if res.one is None:
                 return redirect("404_Error")
         except(CypherException, ClientError):
             return redirect("500_Error")

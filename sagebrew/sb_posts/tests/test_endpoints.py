@@ -1,4 +1,5 @@
 import time
+from uuid import uuid1
 from datetime import datetime
 from dateutil import parser
 
@@ -573,13 +574,25 @@ class TestSinglePostPage(APITestCase):
 class WallPostListCreateTest(APITestCase):
 
     def setUp(self):
+        from sb_wall.neo_models import Wall
+        query = 'MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.unit_under_test_name = 'post'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
+        query = 'MATCH (pleb:Pleb {username: "%s"})' \
+                '-[:OWNS_WALL]->(wall:Wall) ' \
+                'RETURN wall' % self.pleb.username
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            wall = Wall(wall_id=str(uuid1())).save()
+            query = 'MATCH (pleb:Pleb {username: "%s"}),' \
+                    '(wall:Wall {wall_id: "%s"}) ' \
+                    'CREATE UNIQUE (pleb)-[:OWNS_WALL]->(wall) ' \
+                    'RETURN wall' % (self.pleb.username, wall.wall_id)
+            res, _ = db.cypher_query(query)
+        self.wall = Wall.inflate(res.one)
 
     def test_unauthorized(self):
         url = reverse('profile-wall', kwargs={'username': self.pleb.username})
@@ -671,9 +684,8 @@ class WallPostListCreateTest(APITestCase):
                     owner_username=self.pleb.username,
                     wall_owner_username=self.pleb.username).save()
         post.owned_by.connect(self.pleb)
-        wall = self.pleb.get_wall()
-        wall.posts.connect(post)
-        post.posted_on_wall.connect(wall)
+        self.wall.posts.connect(post)
+        post.posted_on_wall.connect(self.wall)
         url = reverse('profile-wall', kwargs={'username': self.pleb.username})
         response = self.client.get(url, format='json')
         self.assertGreater(response.data['count'], 0)
@@ -699,17 +711,26 @@ class WallPostListCreateTest(APITestCase):
         self.assertEqual(response.data['results'], [])
 
     def test_list_with_items_friends(self):
+        from sb_wall.neo_models import Wall
         self.client.force_authenticate(user=self.user)
         email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(email2, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        friend = Pleb.nodes.get(email=email2)
+        friend = create_user_util_test(email2)
+        query = 'MATCH (pleb:Pleb {username: "%s"})' \
+                '-[:OWNS_WALL]->(wall:Wall) ' \
+                'RETURN wall' % friend.username
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            wall = Wall(wall_id=str(uuid1())).save()
+            query = 'MATCH (pleb:Pleb {username: "%s"}),' \
+                    '(wall:Wall {wall_id: "%s"}) ' \
+                    'CREATE UNIQUE (pleb)-[:OWNS_WALL]->(wall) ' \
+                    'RETURN wall' % (friend.username, wall.wall_id)
+            res, _ = db.cypher_query(query)
+        wall = Wall.inflate(res.one)
         post = Post(content="My first post",
                     owner_username=self.pleb.username,
                     wall_owner_username=self.pleb.username).save()
         post.owned_by.connect(self.pleb)
-        wall = friend.get_wall()
         wall.posts.connect(post)
         post.posted_on_wall.connect(wall)
         self.pleb.friends.connect(friend)

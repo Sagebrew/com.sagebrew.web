@@ -1,7 +1,6 @@
 var request = require('api').request,
     helpers = require('common/helpers'),
-    validators = require('common/validators'),
-    garlic = require('drmonty-garlicjs');
+    validators = require('common/validators');
 
 export const meta = {
     controller: "mission/mission-manage/general",
@@ -23,6 +22,7 @@ export function init() {
  * Load
  */
 export function load() {
+    require('drmonty-garlicjs');
     var $app = $(".app-sb"),
         missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         socialForm = $("#socialForm"),

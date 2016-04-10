@@ -32,7 +32,6 @@ class UploadEndpointTests(APITestCase):
         self.image_width = 2200
         self.image_height = 600
         self.file_size = 428455
-
         with open(self.image_path, 'rb') as image:
             data = {"file": image}
             url = reverse('upload-list') + "?random=" + self.uuid
@@ -194,9 +193,9 @@ class UploadEndpointTests(APITestCase):
             url = reverse('upload-list') + "?random=" + uuid
             response = self.client.post(url, data, format='multipart')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
-        thumbnail_url = reverse('upload-thumbnail',
-                                kwargs={'object_uuid': uuid}) + \
-            "?resize=true&croppic=true"
+        thumbnail_url = reverse(
+            'upload-thumbnail', kwargs={'object_uuid': response.data['id']}) +\
+            "?resize=true"
         thumbnail_data = {
             "thumbnail_width": 500,
             "thumbnail_height": 500

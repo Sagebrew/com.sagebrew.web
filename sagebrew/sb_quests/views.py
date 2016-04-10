@@ -1,6 +1,8 @@
 from django.views.generic import View
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.utils.text import slugify
 
 from py2neo.cypher import ClientError
 from neomodel import DoesNotExist, CypherException, db
@@ -42,18 +44,33 @@ class QuestSettingsView(LoginRequiredMixin):
     template_name = 'manage/quest_settings.html'
 
     def get(self, request, username=None):
+        from sb_missions.neo_models import Mission
         query = 'MATCH (person:Pleb {username: "%s"})' \
-            '-[r:IS_WAGING]->(quest:Quest) RETURN quest' % (
+            '-[r:IS_WAGING]->(quest:Quest) WITH quest ' \
+            'OPTIONAL MATCH (quest)-[:EMBARKS_ON]->(missions:Mission) ' \
+            'RETURN quest, missions ORDER BY missions.created DESC' % (
                 request.user.username)
         try:
             res, _ = db.cypher_query(query)
-            if res.one is None:
+            if res.one.quest is None:
                 return redirect("404_Error")
         except(CypherException, ClientError):
             return redirect("500_Error")
-        res.one.pull()
-        quest_obj = Quest.inflate(res.one)
+        res.one.quest.pull()
+        quest_obj = Quest.inflate(res.one.quest)
         quest_ser = QuestSerializer(quest_obj,
                                     context={'request': request}).data
         quest_ser['account_type'] = quest_obj.account_type
-        return render(request, self.template_name, {"quest": quest_ser})
+        if res.one.missions is None:
+            mission_link = reverse('select_mission')
+            mission_active = False
+        else:
+            mission_obj = Mission.inflate(res[0].missions)
+            mission_link = reverse(
+                'mission_settings',
+                kwargs={"object_uuid": mission_obj.object_uuid,
+                        "slug": slugify(mission_obj.get_mission_title())})
+            mission_active = mission_obj.active
+        return render(request, self.template_name,
+                      {"quest": quest_ser, "mission_link": mission_link,
+                       "mission_active": mission_active})

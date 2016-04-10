@@ -1,6 +1,7 @@
 var request = require('api').request,
     markdown = require('common/markdown').addMarkdown,
     validators = require('common/validators'),
+    moment = require('moment'),
     updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs');
 
 export const meta = {
@@ -76,6 +77,8 @@ export function load() {
             },
             renderCallback: function($container, data) {
                 for (var i = 0; i < data.count; i++) {
+                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
+                    data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
                     $container.append(updateNewsTemplate(data.results[i]));
                 }
             }

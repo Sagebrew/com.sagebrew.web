@@ -3,6 +3,7 @@
 {% block title %}Quest Settings{% endblock title %}
 
 {% block live %}
+    {% include "partials/image_upload_block.html" with title_text="Quest Wallpaper" save_button_text="Save Picture" current_image=quest.wallpaper_pic %}
     <div class="block">
         <h3 class="block-title">
             General Settings
@@ -16,6 +17,7 @@
                        name="title" class="form-control"
                        placeholder="Name of your group, organization, or what you'd like to be called instead of your first and last name."
                        value="{{ quest.title }}">
+                    <small id="js-title-char-count" class="help-block">240 Characters Remaining</small>
                 </div>
                 <div class="form-group">
                     <label for="about">About</label>
@@ -87,6 +89,7 @@
             </form>
         </div>
     </div>
+
 {% endblock %}
 
 

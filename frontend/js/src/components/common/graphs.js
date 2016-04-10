@@ -1,7 +1,4 @@
 /* global $*/
-// Even though gulp complains this seems to cause highcharts to work for
-// whatever reason...
-var highcharts = require('highcharts');
 
 function prepareDonationData(donationData) {
     var parsedData = [],
@@ -37,6 +34,7 @@ function prepareDonationData(donationData) {
 }
 
 export function donationsGraph(data, elementID) {
+    require('highcharts');
     var preparedData = prepareDonationData(data.results);
     // Create a scatter plot showing each donation received as a point
     $(elementID).highcharts({

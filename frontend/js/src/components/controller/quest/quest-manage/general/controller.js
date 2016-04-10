@@ -21,9 +21,23 @@ export const meta = {
  * Load.
  */
 export function load() {
-
+    require('drmonty-garlicjs');
     var $app = $(".app-sb"),
-        questID = helpers.args(1);
+        questID = helpers.args(1),
+        socialForm = $("#socialForm"),
+        $about = $("#about"),
+        $title = $("#title"),
+        $remaining = $("#js-about-char-count"),
+        $titleRemaining = $("#js-title-char-count"),
+        aboutCharLimit = 128,
+        titleCharLimit = 240,
+        $imageForm = $("#js-image-upload-form"),
+        $previewContainer = $('#js-image-preview'),
+        $saveProfilePicButton = $("#js-submit-profile-picture");
+    validation.missionManageValidator($('#socialForm'), aboutCharLimit);
+    socialForm.garlic();
+    helpers.characterCountRemaining(aboutCharLimit, $about, $remaining);
+    helpers.characterCountRemaining(titleCharLimit, $title, $titleRemaining);
     $app
         .on('click', '#submit', function(event) {
             event.preventDefault();
@@ -35,14 +49,21 @@ export function load() {
             });
         })
         .on('keyup', '#about', function(){
-            var $this = $(this),
-                count = $this.val().length,
-                remaining = $("#js-about-char-count"),
-                newCount = 128 - count;
-            if (newCount < 0) {
-                newCount = 0;
-            }
-            remaining.text(newCount + " Characters Remaining");
+            helpers.characterCountRemaining(aboutCharLimit, $about, $remaining);
+        })
+        .on('keyup', '#title', function(){
+            helpers.characterCountRemaining(titleCharLimit, $title, $titleRemaining);
+        })
+        .on('dragover', '#drop', function (event) {
+            event.preventDefault();
+        })
+        .on('click', '#js-submit-profile-picture', function(event) {
+            event.preventDefault();
+            request.patch({url: "/v1/quests/" + questID + "/",
+                data: JSON.stringify({"wallpaper_pic": $previewContainer.attr('src')})
+            }).done(function (){
+                $.notify({message: "Successfully Updated Wallpaper Picture"}, {type: "success"});
+            });
         });
-    validation.questManageValidator($('#socialForm'));
+    helpers.setupImageUpload($app, $imageForm, $previewContainer, $saveProfilePicButton, 500, 500, true);
 }

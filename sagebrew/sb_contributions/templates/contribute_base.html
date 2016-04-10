@@ -32,7 +32,7 @@
     <div class="block block-type-nav">
         <div class="donation-img-wrapper">
             {% static 'images/wallpaper_capitol_2.jpg' as default_wallpaper %}
-            <img src="{{ selected.wallpaper_pic|default_if_none:default_wallpaper }}">
+            <img class="small-mission-image" src="{{ selected.wallpaper_pic|default_if_none:default_wallpaper }}">
         </div>
     </div>
     <div class="block">

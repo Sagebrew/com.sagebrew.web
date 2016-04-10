@@ -47,6 +47,7 @@
     "bloodhound-js": "^1.2.0",
     "bootstrap-tokenfield": "^0.12.0",
     "card": "^1.2.0",
+    "drmonty-garlicjs": "^1.2.3",
     "handlebars": "^4.0.5",
     "highcharts": "^4.1.7",
     "medium-editor": "^5.15.1",

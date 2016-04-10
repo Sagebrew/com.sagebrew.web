@@ -4,7 +4,8 @@
  */
 
 var settings = require('./../settings').settings,
-    moment = require('moment');
+    moment = require('moment'),
+    requests = require('api').request;
 
 /**
  * Get cookie based by name.
@@ -322,4 +323,111 @@ export function votableContentPrep(contentList) {
 export function toTitleCase(str)
 {
     return str.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+}
+
+
+/**
+ * Get remaining character count and display it
+ */
+export function characterCountRemaining(characterLimit, $selector, $remainingSelector) {
+    $remainingSelector.text((characterLimit - $selector.val().length) + " Characters Remaining");
+}
+
+/**
+ * Setup a file upload area using jquery-file-upload
+ */
+export function setupImageUpload($app, $formSelector, $previewContainer, $submitButton, imageMinWidth, imageMinHeight, thumbnail){
+    var dropArea = $formSelector.children("#drop"),
+        $fileInput = $formSelector.children("input#js-file-input"),
+        $fileInputButton = $formSelector.children("a#js-file-input-button"),
+        $greyOut = $("#sb-greyout-page");
+
+    // This allows for proper styling of a browse files button
+    $fileInputButton.on('click', function(event){
+        event.preventDefault();
+        $fileInput.value = '';
+        $previewContainer.attr('src', "");
+        $previewContainer.addClass('hidden');
+        dropArea.show();
+
+        $fileInput.click();
+    });
+    // Simulate a click when drag and drop is clicked on
+    dropArea.click(function(){
+        $fileInput.click();
+    });
+
+    $formSelector.fileupload({// This element will accept file drag/drop uploading
+        dropZone: dropArea,
+        imageMinWidth: imageMinWidth,
+        imageMinHeight: imageMinHeight,
+        replaceFileInput: false,
+        // This function is called when a file is added
+        // either via the browse button, or via drag/drop
+        add: function (e, data) {
+            var img = new Image(),
+                allowSubmit = true;
+            window.URL = window.URL || window.webkitURL;
+            $greyOut.removeClass("sb_hidden");
+            $previewContainer.addClass('hidden');
+            img.onload = function() {
+                var widthError = false,
+                    heightError = false;
+                if (img.naturalWidth < imageMinWidth) {
+                    widthError = true;
+                }
+                if (img.naturalHeight < imageMinHeight) {
+                    heightError = true;
+                }
+                if (widthError) {
+                    $.notify({message: "Your image is not wide enough, it must be at least " + imageMinWidth + " pixels wide"}, {type: "danger"});
+                    allowSubmit = false;
+                }
+                if (heightError) {
+                    $.notify({message: "Your image is not tall enough, it must be at least " + imageMinHeight + " pixels tall"}, {type: "danger"});
+                    allowSubmit = false;
+                }
+                window.URL.revokeObjectURL(img.src);
+                if (allowSubmit) {
+                    data.submit();
+                } else {
+                    $submitButton.addClass('disabled');
+                    $submitButton.prop('disabled', true);
+                    $greyOut.addClass('sb_hidden');
+                }
+            };
+            img.src = window.URL.createObjectURL(data.files[0]);
+        },
+        done: function(e, data) {
+            var result = data._response.result;
+            if (result.height > result.width && thumbnail) {
+                requests.post({
+                    url: "/v1/upload/" + result.id + "/thumbnail/",
+                    data: JSON.stringify({
+                        thumbnail_width: imageMinWidth,
+                        thumbnail_height: imageMinHeight})
+                }).done(function(data) {
+                    $("#js-current-image").hide();
+                    $previewContainer.attr('src', data.url);
+                    $previewContainer.removeClass('hidden');
+                    $submitButton.removeClass('disabled');
+                    $submitButton.prop('disabled', false);
+                    $greyOut.addClass('sb_hidden');
+                    dropArea.hide();
+                });
+            } else {
+                $("#js-current-image").hide();
+                $previewContainer.attr('src', result.url);
+                $previewContainer.removeClass('hidden');
+                $submitButton.removeClass('disabled');
+                $submitButton.prop('disabled', false);
+                $greyOut.addClass('sb_hidden');
+                dropArea.hide();
+            }
+
+        },
+        fail: function(){
+            $greyOut.addClass('sb_hidden');
+        }
+    });
 }

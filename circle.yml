@@ -67,7 +67,7 @@ test:
     - flake8 ~/com.sagebrew.web/sagebrew/ --ignore C901
     - coverage run --source='.' manage.py test --failfast
     - coverage html --fail-under=85
-    - coveralls
+    - COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls
   post:
     - python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg

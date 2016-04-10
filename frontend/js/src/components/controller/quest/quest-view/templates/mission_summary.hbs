@@ -4,7 +4,7 @@
             <div class="col-sm-4">
                 <div class="block {{#if this.active }}block-state-active{{else}}block-state-inactive{{/if}} {{#if this.complete }}block-state-complete{{else}}block-state-incomplete{{/if}}" id="{{ this.id }}" data-slug="{{ this.slug }}">
                     <div class="block-hero-image" style="height: 120px; overflow: hidden;">
-                        <img src="{{this.wallpaper_pic}}" />
+                        <img class='width-100' src="{{this.wallpaper_pic}}" />
                     </div>
                     <a class="block-title js-position" data-id="{{ this.id }}"
                        data-slug="{{ this.slug }}" href="#">{{ this.title_summary }}</a>

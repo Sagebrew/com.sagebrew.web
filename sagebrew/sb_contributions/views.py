@@ -44,6 +44,10 @@ class ContributionMissionView(View):
                 reverse("mission_donation_payment", kwargs=reverse_params) and \
                 not request.user.is_authenticated():
             return redirect("mission_donation_amount", **reverse_params)
+        elif request.path == \
+                reverse("mission_endorse", kwargs=reverse_params) and \
+                not request.user.is_authenticated():
+            return redirect("mission_endorse_name", **reverse_params)
         return render(request, self.template_name, {
             "selected": MissionSerializer(
                 mission, context={'request': request}).data,

@@ -442,6 +442,26 @@ QUERY_OPERATIONS = {
     "gt": ">",
 }
 
+STRIPE_FIELDS_NEEDED = {
+    "external_account": "Bank Account",
+    "legal_entity.address.city": "City",
+    "legal_entity.address.line1": "Street Address",
+    "legal_entity.address.postal_code": "ZIP Code",
+    "legal_entity.address.state": "State",
+    "legal_entity.business_name": "Business Name",
+    "legal_entity.business_tax_id": "Business EIN",
+    "legal_entity.dob.day": "Birth Day",
+    "legal_entity.dob.month": "Birth Month",
+    "legal_entity.dob.year": "Birth Year",
+    "legal_entity.first_name": "First Name",
+    "legal_entity.last_name": "Last Name",
+    "legal_entity.personal_id_number": "SSN",
+    "legal_entity.ssn_last_4": "Last 4 Digits of SSN",
+    "legal_entity.type": "Type (Individual or Company)",
+    "tos_acceptance.date": "Terms of Service Acceptance Date",
+    "tos_acceptance.ip": "Terms of Service Acceptance IP"
+}
+
 FREE_MISSIONS = 5
 
 OPERATOR_DICT = {

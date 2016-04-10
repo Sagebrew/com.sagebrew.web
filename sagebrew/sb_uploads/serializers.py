@@ -178,8 +178,13 @@ class UploadSerializer(SBSerializer):
 
         uploaded_object = UploadedObject(**validated_data).save()
         if owner is not None:
-            uploaded_object.owned_by.connect(owner)
-            owner.uploads.connect(uploaded_object)
+            query = 'MATCH (pleb:Pleb {username:"%s"}), ' \
+                    '(uploaded:UploadedObject {object_uuid:"%s"}) ' \
+                    'WITH pleb, uploaded ' \
+                    'CREATE UNIQUE (pleb)-[:UPLOADS]->(uploaded), ' \
+                    '(uploaded)-[:OWNED_BY]->(pleb)' % \
+                    (owner.username, uploaded_object.object_uuid)
+            res, _ = db.cypher_query(query)
         return uploaded_object
 
     def update(self, instance, validated_data):
@@ -196,7 +201,6 @@ class ModifiedSerializer(UploadSerializer):
         modified_object = ModifiedObject(
             owner_username=owner.username, **validated_data).save()
         modified_object.owned_by.connect(owner)
-        owner.uploads.connect(modified_object)
         if self.context.get('parent_id') is not None:
             parent_object = UploadedObject.nodes.get(
                 object_uuid=self.context.get('parent_id'))
@@ -212,6 +216,11 @@ class CropSerializer(serializers.Serializer):
     image_y1 = serializers.IntegerField()
     resize_width = serializers.FloatField()
     resize_height = serializers.FloatField()
+
+
+class ThumbnailSerializer(serializers.Serializer):
+    thumbnail_width = serializers.IntegerField()
+    thumbnail_height = serializers.IntegerField()
 
 
 class URLContentSerializer(SBSerializer):

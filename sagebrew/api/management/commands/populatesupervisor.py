@@ -34,8 +34,6 @@ class Command(BaseCommand):
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
             f.write(data)
             f.close()
-            f.write(data)
-            f.close()
         elif env == "worker-test":
             with open("%s/supervisor_confs/worker_template_circle.conf" % (
                     settings.REPO_DIR), "r") as dockerfile:

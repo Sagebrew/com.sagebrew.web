@@ -21,6 +21,7 @@ export function init() {
  * Load
  */
 export function load() {
+    var greyPage = document.getElementById('sb-greyout-page');
     helpers.selectAllFields('#select_all_checkboxes');
 
     $("[data-toggle='tooltip']").tooltip('hide');
@@ -40,6 +41,7 @@ export function load() {
         })
         .on('click', '#submit-js', function(event) {
             event.preventDefault();
+            greyPage.classList.remove('sb_hidden');
             var parties = [],
                 interests = [],
                 addParties = null,
@@ -78,6 +80,7 @@ export function load() {
                     url: "/v1/me/add_topics_of_interest/",
                     data: JSON.stringify({interests: helpers.getCheckedBoxes('interests')})
                 }).done(function () {
+                    greyPage.classList.add('sb_hidden');
                     window.location.href = "/registration/profile_picture/";
                 });
             });

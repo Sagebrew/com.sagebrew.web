@@ -28,7 +28,7 @@ class Command(BaseCommand):
                 if quest.youtube:
                     quest.youtube = youtube_string % quest.youtube
                 quest.save()
-        except (CypherException, Exception) as e:
+        except (CypherException, Exception):
             logger.exception("Convert Social Links: ")
             pass
         try:
@@ -43,7 +43,7 @@ class Command(BaseCommand):
                 if mission.youtube:
                     mission.youtube = youtube_string % mission.youtube
                 mission.save()
-        except (CypherException, Exception) as e:
+        except (CypherException, Exception):
             logger.exception("Convert Social Links: ")
             pass
 

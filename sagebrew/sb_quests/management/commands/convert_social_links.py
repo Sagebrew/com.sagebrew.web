@@ -1,4 +1,6 @@
 from logging import getLogger
+
+from django.core.cache import cache
 from django.core.management.base import BaseCommand
 
 from neomodel import db, CypherException
@@ -28,6 +30,7 @@ class Command(BaseCommand):
                 if quest.youtube and youtube_string not in quest.youtube:
                     quest.youtube = "%s%s" % (youtube_string, quest.youtube)
                 quest.save()
+                cache.delete("%s_quest" % quest.object_uuid)
         except (CypherException, Exception):
             logger.exception("Convert Social Links: ")
             pass
@@ -45,6 +48,7 @@ class Command(BaseCommand):
                 if mission.youtube and youtube_string not in mission.youtube:
                     mission.youtube = "%s%s" % (youtube_string, mission.youtube)
                 mission.save()
+                cache.delete("%s_mission" % mission.object_uuid)
         except (CypherException, Exception):
             logger.exception("Convert Social Links: ")
             pass

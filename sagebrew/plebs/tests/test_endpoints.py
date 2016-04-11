@@ -1221,6 +1221,71 @@ class ProfileContentMethodTests(APITestCase):
 
         self.assertGreater(response.data['count'], 0)
 
+    def test_get_pleb_question_public_content_to_be_deleted(self):
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username,
+            to_be_deleted=True).save()
+        question.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-public-content', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.data['count'], 0)
+
+    def test_get_solution_public(self):
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        query = 'MATCH (a:Solution) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        content = 'this is fake content'
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-public-content', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 2)
+
+    def test_get_solution_public_to_be_deleted(self):
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        query = 'MATCH (a:Solution) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        content = 'this is fake content'
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid,
+                            to_be_deleted=True).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-public-content', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 1)
+
     def test_get_pleb_question_public_unauthed(self):
         question = Question(
             title=str(uuid1()),
@@ -3761,6 +3826,68 @@ class PublicDataTests(APITestCase):
         url = reverse('me-public')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 0)
+
+    def test_get_pleb_question_public_content_to_be_deleted(self):
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username,
+            to_be_deleted=True).save()
+        question.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.data['count'], 0)
+
+    def test_get_solution_public(self):
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        query = 'MATCH (a:Solution) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        content = 'this is fake content'
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 2)
+
+    def test_get_solution_public_to_be_deleted(self):
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        query = 'MATCH (a:Solution) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        content = 'this is fake content'
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid,
+                            to_be_deleted=True).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 1)
 
     def test_get_solutions_by_you(self):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \

@@ -70,6 +70,7 @@ def get_public_content(api, username, request):
             'AND solutions.created > %s' \
             ' AND solutions.is_closed = False ' \
             'AND s_question.is_closed = False ' \
+            'AND solutions.to_be_deleted = False ' \
             'RETURN solutions, NULL AS questions, ' \
             'solutions.created AS created, s_question AS s_question' \
             % (username, then, username, then)

@@ -1,12 +1,9 @@
 from os import environ
 
-import logging
 import multiprocessing
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
-
-logger = logging.getLogger('loggly_logs')
 
 
 class Command(BaseCommand):
@@ -35,7 +32,6 @@ class Command(BaseCommand):
                 data = dockerfile.read()
                 data = populate_general_values(data, user, worker_count)
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
-            print(data)
             f.write(data)
             f.close()
             f.write(data)
@@ -46,8 +42,6 @@ class Command(BaseCommand):
                 data = dockerfile.read()
                 data = populate_general_values(data, user, worker_count)
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
-            logger.critical(data)
-            print(data)
             f.write(data)
             f.close()
         else:

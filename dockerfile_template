@@ -8,12 +8,11 @@ WORKDIR /home/apps/{{PROJECT_REPONAME}}/
 RUN git submodule update --init --recursive
 RUN mkdir /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/static/
 RUN /bin/bash -c "source /home/apps/venv/bin/activate && \
-    pip install -r /home/apps/{{PROJECT_REPONAME}}/requirements/{{REQUIREMENTS_FILE}}.txt"
+    pip install -r /home/apps/{{PROJECT_REPONAME}}/requirements/{{REQUIREMENTS_FILE}}.txt && \
+    nrsysmond-config --set license_key={{NEW_RELIC_LICENSE}} && \
+    newrelic-admin generate-config {{NEW_RELIC_LICENSE}} /home/apps/newrelic.ini"
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
-
-RUN nrsysmond-config --set license_key={{NEW_RELIC_LICENSE}}
-RUN newrelic-admin generate-config {{NEW_RELIC_LICENSE}} /home/apps/newrelic.ini
 
 RUN apt-get remove --auto-remove -y git
 

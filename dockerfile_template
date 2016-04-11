@@ -21,7 +21,7 @@ RUN apt-get remove --auto-remove -y git
 # something else endlessly rather than run supervisor as a nodaemon. Not sure
 # the reprocutions of this.
 WORKDIR /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/
-CMD /bin/bash -c "source /home/apps/venv/bin/activate \
+CMD /bin/bash -c "source /home/apps/venv/bin/activate && \
   chown {{APP_USER}} /etc/rsyslog.d/ && python manage.py \
   logglypopulation && chown root /etc/rsyslog.d/ && service \
   rsyslog restart && chown {{APP_USER}} /etc/supervisor/conf.d/ \

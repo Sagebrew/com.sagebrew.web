@@ -17,10 +17,10 @@ class Command(BaseCommand):
 
     def populate_supervisor(self, env, user):
         worker_count = (multiprocessing.cpu_count() * 3) + 2
-        if(environ.get("CIRCLECI", "false").lower() == "true"):
+        if environ.get("CIRCLECI", "false").lower() == "true":
             worker_count = 2
         worker_count = str(worker_count)
-        if(env == "web"):
+        if env == "web":
             with open("%s/supervisor_confs/web_template.conf" % (
                     settings.REPO_DIR), "r") as dockerfile:
                 data = dockerfile.read()
@@ -29,20 +29,25 @@ class Command(BaseCommand):
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
             f.write(data)
             f.close()
-        elif(env == "worker"):
+        elif env == "worker":
             with open("%s/supervisor_confs/worker_template.conf" % (
                     settings.REPO_DIR), "r") as dockerfile:
                 data = dockerfile.read()
                 data = populate_general_values(data, user, worker_count)
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
+            print(data)
             f.write(data)
             f.close()
-        elif(env == "worker-test"):
+            f.write(data)
+            f.close()
+        elif env == "worker-test":
             with open("%s/supervisor_confs/worker_template_circle.conf" % (
                     settings.REPO_DIR), "r") as dockerfile:
                 data = dockerfile.read()
                 data = populate_general_values(data, user, worker_count)
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
+            logger.critical(data)
+            print(data)
             f.write(data)
             f.close()
         else:

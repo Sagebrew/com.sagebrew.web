@@ -573,7 +573,7 @@ DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
                             "orgasm", "Fuck", "Shit", "Ass", "Cunt",
                             "Jizz"]
 
-UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', ]
+UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', 'circleci.com']
 COMPANY_ACRONYMS = ['ABC', 'CNN', 'CBS', 'MSNBC', 'BBC',
                     'CBC', 'CBS', 'NBC', 'NYT', 'abc7.com', 'NPR']
 

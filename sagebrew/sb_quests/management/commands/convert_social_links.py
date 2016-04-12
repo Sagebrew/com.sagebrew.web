@@ -1,4 +1,6 @@
 from logging import getLogger
+
+from django.core.cache import cache
 from django.core.management.base import BaseCommand
 
 from neomodel import db, CypherException
@@ -12,37 +14,41 @@ class Command(BaseCommand):
     args = 'None.'
 
     def convert_social_links(self):
-        twitter_string = "https://www.twitter.com/%s"
-        facebook_string = "https://www.facebook.com/%s"
-        linkedin_string = "https://www.linkedin.com/in/%s"
-        youtube_string = "https://www.youtube.com/user/%s"
+        twitter_string = "https://www.twitter.com/"
+        facebook_string = "https://www.facebook.com/"
+        linkedin_string = "https://www.linkedin.com/in/"
+        youtube_string = "https://www.youtube.com/user/"
         try:
             res, _ = db.cypher_query('MATCH (q:Quest) RETURN q')
             for quest in [Quest.inflate(row[0]) for row in res]:
-                if quest.twitter:
-                    quest.twitter = twitter_string % quest.twitter
-                if quest.facebook:
-                    quest.facebook = facebook_string % quest.facebook
-                if quest.linkedin:
-                    quest.linkedin = linkedin_string % quest.linkedin
-                if quest.youtube:
-                    quest.youtube = youtube_string % quest.youtube
+                if quest.twitter and twitter_string not in quest.twitter:
+                    quest.twitter = "%s%s" % (twitter_string, quest.twitter)
+                if quest.facebook and facebook_string not in quest.facebook:
+                    quest.facebook = "%s%s" % (facebook_string, quest.facebook)
+                if quest.linkedin and linkedin_string not in quest.linkedin:
+                    quest.linkedin = "%s%s" % (linkedin_string, quest.linkedin)
+                if quest.youtube and youtube_string not in quest.youtube:
+                    quest.youtube = "%s%s" % (youtube_string, quest.youtube)
                 quest.save()
+                cache.delete("%s_quest" % quest.object_uuid)
         except (CypherException, Exception):
             logger.exception("Convert Social Links: ")
             pass
         try:
             res, _ = db.cypher_query('MATCH (a:Mission) RETURN a')
             for mission in [Mission.inflate(row[0]) for row in res]:
-                if mission.twitter:
-                    mission.twitter = twitter_string % mission.twitter
-                if mission.facebook:
-                    mission.facebook = facebook_string % mission.facebook
-                if mission.linkedin:
-                    mission.linkedin = linkedin_string % mission.linkedin
-                if mission.youtube:
-                    mission.youtube = youtube_string % mission.youtube
+                if mission.twitter and twitter_string not in mission.twitter:
+                    mission.twitter = "%s%s" % (twitter_string, mission.twitter)
+                if mission.facebook and facebook_string not in mission.facebook:
+                    mission.facebook = "%s%s" % (
+                        facebook_string, mission.facebook)
+                if mission.linkedin and linkedin_string not in mission.linkedin:
+                    mission.linkedin = "%s%s" % (
+                        linkedin_string, mission.linkedin)
+                if mission.youtube and youtube_string not in mission.youtube:
+                    mission.youtube = "%s%s" % (youtube_string, mission.youtube)
                 mission.save()
+                cache.delete("%s_mission" % mission.object_uuid)
         except (CypherException, Exception):
             logger.exception("Convert Social Links: ")
             pass

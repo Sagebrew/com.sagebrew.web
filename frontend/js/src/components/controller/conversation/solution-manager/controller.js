@@ -29,12 +29,12 @@ export function load() {
     addMarkdown($('#js-solution-markdown'));
     request.get({url: "/v1/solutions/" + solutionID + "/"})
         .done(function (data) {
-            var solution_content = $('#wmd-input-0');
-            solution_content.html("");
-            solution_content.append(data.content);
-            var solution_preview = $("#wmd-preview-0");
-            solution_preview.html("");
-            solution_preview.append(data.html_content);
+            var solutionContent = $('#wmd-input-0');
+            solutionContent.html("");
+            solutionContent.append(data.content);
+            var solutionPreview = $("#wmd-preview-0");
+            solutionPreview.html("");
+            solutionPreview.append(data.html_content);
         });
 
     $app

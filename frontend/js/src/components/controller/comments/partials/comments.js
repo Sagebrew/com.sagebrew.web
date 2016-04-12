@@ -41,7 +41,7 @@ export function load () {
                                 '</div>' +
                                 '</div>';
             $(commentContainer).sb_contentLoader({
-                emptyDataMessage: '',
+                emptyDataMessage: "",
                 loadingMoreItemsMessage: "",
                 loadMoreMessage: "",
                 continuousLoad: false,

@@ -7,7 +7,9 @@ var postcreate = require('../partials/postcreate'),
     questionSummaryTemplate = require('controller/conversation/conversation-list/templates/question_summary.hbs'),
     solutionSummaryTemplate = require('controller/conversation/conversation-list/templates/solution_summary.hbs'),
     profilePicTemplate = require('../templates/profile_pic.hbs'),
-    missionMinTemplate = require('../templates/mission_min.hbs');
+    missionMinTemplate = require('../templates/mission_min.hbs'),
+    showMoreFollowers = require('../templates/show_more_followers.hbs'),
+    showMoreFollowing = require('../templates/show_more_following.hbs');
 
 /**
  * Meta.
@@ -40,7 +42,7 @@ export function load() {
         $followerList = $("#js-follower-list"),
         $followingList = $("#js-following-list"),
         $appNewsfeed = $("#js-recent-contributions"),
-        profile_page_user = helpers.args(1),
+        profilePageUser = helpers.args(1),
         fileName = helpers.generateUuid(),
         wallpaperID = helpers.generateUuid(),
         $app = $(".app-sb");
@@ -68,6 +70,76 @@ export function load() {
                     thisHolder.classList.remove('js-unfollow');
                     thisHolder.classList.remove('disabled');
                 });
+        })
+        .on('click', '.additional-followers', function (event) {
+            event.preventDefault();
+            var currentPage = parseInt(this.dataset.page),
+                nextPage = currentPage + 1,
+                additionalFollowersWrapper = $(".additional-followers");
+            $followerList.sb_contentLoader({
+                emptyDataMessage: '<div class="block"><div class="block-content no-top-bottom-padding">' +
+                '<p>Expand Your Base</p>' +
+                '</div></div>',
+                url: '/v1/profiles/' + profilePageUser + '/followers/',
+                itemsPerPage: 21,
+                continuousLoad: false,
+                startingPage: nextPage,
+                dataCallback: function(baseUrl, params) {
+                    var urlParams = $.param(params);
+                    var url;
+                    if (urlParams) {
+                        url = baseUrl + "?" + urlParams;
+                    }
+                    else {
+                        url = baseUrl;
+                    }
+                    return request.get({url:url});
+                },
+                renderCallback: function($container, data) {
+                    if (additionalFollowersWrapper !== null && data.next === null) {
+                        additionalFollowersWrapper.remove();
+                    } else {
+                        additionalFollowersWrapper.remove();
+                        $followerList.append(showMoreFollowers({page: currentPage}));
+                    }
+                    $container.append(profilePicTemplate({profiles: data.results}));
+                }
+            });
+        })
+        .on('click', '.additional-following', function (event) {
+            event.preventDefault();
+            var currentPage = parseInt(this.dataset.page),
+                nextPage = currentPage + 1,
+                additionalFollowingWrapper = $(".additional-following");
+            $followingList.sb_contentLoader({
+                emptyDataMessage: '<div class="block"><div class="block-content no-top-bottom-padding">' +
+                '<p>Expand Your Base</p>' +
+                '</div></div>',
+                url: '/v1/profiles/' + profilePageUser + '/following/',
+                itemsPerPage: 21,
+                continuousLoad: false,
+                startingPage: nextPage,
+                dataCallback: function(baseUrl, params) {
+                    var urlParams = $.param(params);
+                    var url;
+                    if (urlParams) {
+                        url = baseUrl + "?" + urlParams;
+                    }
+                    else {
+                        url = baseUrl;
+                    }
+                    return request.get({url:url});
+                },
+                renderCallback: function($container, data) {
+                    if (additionalFollowingWrapper !== null && data.next === null) {
+                        additionalFollowingWrapper.remove();
+                    } else {
+                        additionalFollowingWrapper.remove();
+                        $followingList.append(showMoreFollowing({page: currentPage}));
+                    }
+                    $container.append(profilePicTemplate({profiles: data.results}));
+                }
+            });
         });
     $appNewsfeed.sb_contentLoader({
         emptyDataMessage: '<div class="block"><div class="block-content">' +
@@ -113,41 +185,60 @@ export function load() {
         emptyDataMessage: '<div class="block"><div class="block-content no-top-bottom-padding">' +
         '<p>Expand Your Base</p>' +
         '</div></div>',
-        url: '/v1/profiles/' + profile_page_user + '/followers/',
-        endingPage: 5,
-        dataCallback: function(base_url, params) {
+        url: '/v1/profiles/' + profilePageUser + '/followers/',
+        itemsPerPage: 21,
+        continuousLoad: false,
+        loadMoreMessage: "Click here to see more followers",
+        dataCallback: function(baseUrl, params) {
             var urlParams = $.param(params);
             var url;
             if (urlParams) {
-                url = base_url + "?" + urlParams;
+                url = baseUrl + "?" + urlParams;
             }
             else {
-                url = base_url;
+                url = baseUrl;
             }
             return request.get({url:url});
         },
         renderCallback: function($container, data) {
+            var additionalFollowers = $(".additional-followers");
+            if (additionalFollowers !== null && data.next === null) {
+                additionalFollowers.remove();
+            } else {
+                additionalFollowers.remove();
+                $followingList.append(showMoreFollowers({page: 1}));
+            }
             $container.append(profilePicTemplate({profiles: data.results}));
         }
     });
     $followingList.sb_contentLoader({
         emptyDataMessage: '<div class="block"><div class="block-content no-top-bottom-padding">' +
         '<p>Expand Your Base</p></div></div>',
-        url: '/v1/profiles/' + profile_page_user + '/following/',
-        endingPage: 5,
-        dataCallback: function(base_url, params) {
+        url: '/v1/profiles/' + profilePageUser + '/following/',
+        itemsPerPage: 21,
+        continuousLoad: false,
+        loadMoreMessage: "Click here to see more following",
+        dataCallback: function(baseUrl, params) {
             var urlParams = $.param(params);
             var url;
             if (urlParams) {
-                url = base_url + "?" + urlParams;
+                url = baseUrl + "?" + urlParams;
             }
             else {
-                url = base_url;
+                url = baseUrl;
             }
             return request.get({url:url});
         },
         renderCallback: function($container, data) {
+            var additionalFollowing = $(".additional-following");
+            if (additionalFollowing !== null && data.next === null) {
+                additionalFollowing.remove();
+            } else {
+                additionalFollowing.remove();
+                $followingList.append(showMoreFollowing({page: 1}));
+            }
             $container.append(profilePicTemplate({profiles: data.results}));
+            
         }
     });
 

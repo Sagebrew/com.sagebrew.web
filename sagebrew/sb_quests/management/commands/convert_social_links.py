@@ -18,22 +18,31 @@ class Command(BaseCommand):
         facebook_string = "https://www.facebook.com/"
         linkedin_string = "https://www.linkedin.com/in/"
         youtube_string = "https://www.youtube.com/user/"
-        try:
-            res, _ = db.cypher_query('MATCH (q:Quest) RETURN q')
-            for quest in [Quest.inflate(row[0]) for row in res]:
-                if quest.twitter and twitter_string not in quest.twitter:
-                    quest.twitter = "%s%s" % (twitter_string, quest.twitter)
-                if quest.facebook and facebook_string not in quest.facebook:
-                    quest.facebook = "%s%s" % (facebook_string, quest.facebook)
-                if quest.linkedin and linkedin_string not in quest.linkedin:
-                    quest.linkedin = "%s%s" % (linkedin_string, quest.linkedin)
-                if quest.youtube and youtube_string not in quest.youtube:
-                    quest.youtube = "%s%s" % (youtube_string, quest.youtube)
-                quest.save()
-                cache.delete("%s_quest" % quest.object_uuid)
-        except (CypherException, Exception):
-            logger.exception("Convert Social Links: ")
-            pass
+        skip = 0
+        while True:
+            query = 'MATCH (q:Quest) RETURN q ' \
+                    'SKIP %s LIMIT 25' % skip
+            skip += 24
+            res, _ = db.cypher_query(query)
+            if not res.one:
+                break
+            try:
+                for quest in [Quest.inflate(row[0]) for row in res]:
+                    if quest.twitter and twitter_string not in quest.twitter:
+                        quest.twitter = "%s%s" % (twitter_string, quest.twitter)
+                    if quest.facebook and facebook_string not in quest.facebook:
+                        quest.facebook = "%s%s" % (
+                            facebook_string, quest.facebook)
+                    if quest.linkedin and linkedin_string not in quest.linkedin:
+                        quest.linkedin = "%s%s" % (
+                            linkedin_string, quest.linkedin)
+                    if quest.youtube and youtube_string not in quest.youtube:
+                        quest.youtube = "%s%s" % (youtube_string, quest.youtube)
+                    quest.save()
+                    cache.delete("%s_quest" % quest.object_uuid)
+            except (CypherException, Exception):
+                logger.exception("Convert Social Links: ")
+                pass
         try:
             res, _ = db.cypher_query('MATCH (a:Mission) RETURN a')
             for mission in [Mission.inflate(row[0]) for row in res]:

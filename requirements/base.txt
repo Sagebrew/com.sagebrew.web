@@ -27,7 +27,7 @@ nltk==3.2.1
 oauthlib==1.0.1
 opbeat>=3.0,<4.0
 psycopg2==2.6.1
--e git+https://github.com/bleib1dj/py2neo.git@release/2.0.8#egg=py2neo
+py2neo==2.0.8
 python-dateutil==2.4.2
 python-memcached==1.57
 pytz==2016.3

@@ -313,17 +313,17 @@ if not DEBUG:
     CELERYBEAT_SCHEDULE = {
         'check-closed-reputation-changes': {
             'task': 'sb_council.tasks.check_closed_reputation_changes_task',
-            'schedule': crontab(minute=0, hour=3),
+            'schedule': crontab(minute=0, hour=6),
             'args': ()
         },
         'find-tag-news': {
             'task': 'sb_news.tasks.find_tag_news',
-            'schedule': crontab(minute=0, hour=3),
+            'schedule': crontab(minute=0, hour=6),
             'args': ()
         },
         'check-unverified-quests': {
             'task': 'sb_accounting.tasks.check_unverified_quest',
-            'schedule': crontab(minute=0, hour=0),
+            'schedule': crontab(minute=0, hour=3),
             'args': ()
         }
     }

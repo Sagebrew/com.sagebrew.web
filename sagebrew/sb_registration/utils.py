@@ -4,6 +4,7 @@ from unidecode import unidecode
 from datetime import datetime, timedelta
 from boto.ses.exceptions import SESMaxSendingRateExceededError
 from datetime import date
+
 from django.conf import settings
 from django.contrib.auth.models import User
 
@@ -52,11 +53,17 @@ def upload_image(folder_name, file_uuid, image_file, type_known=False):
     k = Key(conn.get_bucket(bucket))
     if type_known:
         key_string = "%s/%s" % (folder_name, file_uuid)
+        k.content_type = 'image/%s' % file_uuid[file_uuid.find('.') + 1:]
     else:
         key_string = "%s/%s%s" % (folder_name, file_uuid, ".png")
+        k.content_type = 'image/png'
     k.key = key_string
-    image_file.seek(0)
-    k.set_contents_from_string(image_file.read())
+
+    if not isinstance(image_file, str):
+        image_file.seek(0)
+        k.set_contents_from_string(image_file.read())
+    else:
+        k.set_contents_from_string(image_file)
     k.make_public()
     image_uri = k.generate_url(expires_in=0, query_auth=False)
     return image_uri
@@ -95,7 +102,8 @@ def verify_completed_registration(user):
     :return:
     """
     try:
-        return Pleb.get(username=user.username).completed_profile_info
+        return Pleb.get(
+            username=user.username, cache_buster=True).completed_profile_info
     except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError):
         return False
 
@@ -109,8 +117,8 @@ def verify_verified_email(user):
     :return:
     """
     try:
-        pleb = Pleb.get(username=user.username)
-        return pleb.email_verified
+        return Pleb.get(
+            username=user.username, cache_buster=True).email_verified
     except (Pleb.DoesNotExist, DoesNotExist):
         return False
     except (CypherException, IOError) as e:
@@ -226,5 +234,6 @@ def create_user_util_test(email, first_name="test", last_name="test",
         if isinstance(res, Exception) is True:
             return res
         else:
-            return {"task_id": res, "username": username, "user": user}
+            return {"task_id": res, "username": username, "user": user,
+                    "pleb": pleb}
     return pleb

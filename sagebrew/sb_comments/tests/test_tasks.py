@@ -8,7 +8,6 @@ from django.contrib.auth.models import User
 
 from rest_framework import status
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 from sb_notifications.neo_models import Notification
@@ -20,22 +19,18 @@ from sb_comments.tasks import spawn_comment_notifications
 class TestSpawnCommentNotifications(TestCase):
 
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.api_endpoint = "http://testserver/v1"
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.question = Question(title=str(uuid1())).save()
         self.comment = Comment(
             owner_username=self.pleb.username,
             url="%s/questions/%s/" %
                 (self.api_endpoint, self.question.object_uuid)).save()
-        settings.CELERY_ALWAYS_EAGER = True
         self.email2 = "bounce@simulator.amazonses.com"
-        create_user_util_test(self.email2)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -84,15 +79,11 @@ class TestSpawnCommentNotifications(TestCase):
         self.question.owner_username = self.pleb.username
         self.question.save()
 
-        self.pleb.comments.connect(comment)
         comment.owned_by.connect(self.pleb)
         self.question.comments.connect(comment)
-        comment.comment_on.connect(self.question)
 
-        self.pleb2.comments.connect(comment2)
         comment2.owned_by.connect(self.pleb2)
         self.question.comments.connect(comment2)
-        comment2.comment_on.connect(self.question)
 
         notification_id = str(uuid1())
         comment_on_comment_id = str(uuid1())
@@ -113,4 +104,4 @@ class TestSpawnCommentNotifications(TestCase):
             object_uuid=comment_on_comment_id)
         self.assertEqual(notification.action_name, "commented on a question "
                                                    "you commented on")
-        self.assertTrue(self.pleb2.notifications.is_connected(notification))
+        self.assertTrue(self.pleb2 in notification.notification_to)

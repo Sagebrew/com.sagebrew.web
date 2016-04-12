@@ -2,25 +2,31 @@ machine:
   services:
     - rabbitmq-server
     - docker
+    - redis
+    - memcached
 
 dependencies:
   cache_directories:
     - elasticsearch-2.2.0
     - DynamoDBLocal_lib
-    - neo4j-community-2.2.2
+    - neo4j-community-2.2.9
+    - ../../virtualenvs
+    - ../../nltk_data
 
   pre:
     - sudo apt-get update
     - pip install setuptools==12.3
     - pip install awscli
-    - sudo apt-get -y install libjpeg-dev
+    - pip install numpy
+    - pip install scipy
+    - sudo apt-get -y install libjpeg-dev libblas-dev liblapack-dev libatlas-base-dev gfortran libicu-dev python-pyicu
     - npm install -g gulp
     - npm prune && npm install:
-        pwd: frontend
+        pwd: ../frontend
     - bower prune && bower install:
-        pwd: frontend
+        pwd: ../frontend
     - gulp build --env production:
-        pwd: frontend
+        pwd: ../frontend
 
   post:
     - pip install -r ~/com.sagebrew.web/requirements/test.txt --exists-action=w
@@ -30,8 +36,8 @@ dependencies:
     - sudo service rsyslog restart
     - if [[ ! -e elasticsearch-2.2.0 ]]; then wget https://s3.amazonaws.com/sagebrew/elasticsearch-2.2.0.tar && tar -xvf elasticsearch-2.2.0.tar; fi
     - if [[ ! -e dynamodb_local_latest.tar ]]; then wget https://s3.amazonaws.com/sagebrew/dynamodb_local_2015-04-27_1.0.tar && tar -xvf dynamodb_local_2015-04-27_1.0.tar; fi
-    - if [[ ! -e neo4j-community-2.2.2 ]]; then wget https://s3.amazonaws.com/sagebrew/neo4j-community-2.2.2.zip && yes Y | unzip neo4j-community-2.2.2.zip; fi
-    - neo4j-community-2.2.2/bin/neo4j start:
+    - if [[ ! -e neo4j-community-2.2.9 ]]; then wget https://s3.amazonaws.com/sagebrew/neo4j-community-2.2.9-unix.tar && yes Y | tar -xf neo4j-community-2.2.9-unix.tar; fi
+    - neo4j-community-2.2.9/bin/neo4j start:
         background: true
     - java  -Xmx1024m -Djava.library.path=DynamoDBLocal_lib/DynamoDBLocal_lib -jar DynamoDBLocal.jar:
         background: true
@@ -49,6 +55,7 @@ dependencies:
     - python ~/com.sagebrew.web/sagebrew/manage.py create_dynamo_tables
     - python ~/com.sagebrew.web/sagebrew/manage.py populate_indices
     - python ~/com.sagebrew.web/sagebrew/manage.py clear_neo_db
+    - python ~/com.sagebrew.web/sagebrew/manage.py populate_nltk
 
 checkout:
   post:
@@ -59,14 +66,14 @@ test:
   override:
     - flake8 ~/com.sagebrew.web/sagebrew/ --ignore C901
     - coverage run --source='.' manage.py test --failfast
-    - coverage html --fail-under=70
-    - coveralls
+    - coverage html --fail-under=85
+    - COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls
   post:
-    - ~/virtualenvs/venv-system/bin/python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
+    - python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation
     - sed "s/<EMAIL>/$DOCKER_EMAIL/;s/<AUTH>/$DOCKER_AUTH/" < ~/com.sagebrew.web/dockercfg.template > ~/.dockercfg
-    - docker build -t sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
-    - docker build -t sagebrew/sb_web:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/web_app/
-    - docker build -t sagebrew/sys_util:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/sys_util/
+    - docker build --no-cache -t docker.io/sagebrew/sb_worker:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/worker/
+    - docker build --no-cache -t docker.io/sagebrew/sb_web:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/web_app/
+    - docker build --no-cache -t docker.io/sagebrew/sys_util:$CIRCLE_SHA1 ~/com.sagebrew.web/dockerfiles/sys_util/
     # DO NOT CHANGE GRAPHEN_NEO4J_REST_URL to NEO4J_REST_URL the NEO4J_REST_URL
     # points to the local circle instance and the docker instance needs the
     # graphen instance to work
@@ -194,6 +201,7 @@ test:
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/quest/
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/help/
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/conversations/
+    - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/missions/
     - curl -X POST -d "grant_type=password&username=test_username&password=development&client_id=test_env_client_id&client_secret=test_env_this_is_it" https://localhost/o/token/ --insecure
     - docker logs sb_web >> $CIRCLE_ARTIFACTS/sb_web.log
     - docker logs sb_worker >> $CIRCLE_ARTIFACTS/sb_worker.log

@@ -28,7 +28,7 @@ from sb_quests.serializers import QuestSerializer
 class QuestEndpointTests(APITestCase):
 
     def setUp(self):
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"
@@ -72,18 +72,19 @@ class QuestEndpointTests(APITestCase):
                          status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_create(self):
-        for quest in Quest.nodes.all():
-            quest.delete()
+        query = 'MATCH (a:Quest) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         position = Position(name="Senator").save()
         url = reverse('quest-list')
         data = {
             "about": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json')
@@ -93,18 +94,19 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_with_tos(self):
-        for quest in Quest.nodes.all():
-            quest.delete()
+        query = 'MATCH (a:Quest) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         position = Position(name="Senator").save()
         url = reverse('quest-list')
         data = {
             "about": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "position": position.object_uuid,
             "tos_acceptance": True,
         }
@@ -115,18 +117,19 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_x_forwarded(self):
-        for quest in Quest.nodes.all():
-            quest.delete()
+        query = 'MATCH (a:Quest) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         position = Position(name="Senator").save()
         url = reverse('quest-list')
         data = {
             "about": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "position": position.object_uuid
         }
         response = self.client.post(url, data=data, format='json',
@@ -137,18 +140,19 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
     def test_create_duplicate(self):
-        for quest in Quest.nodes.all():
-            quest.delete()
+        query = 'MATCH (a:Quest) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         position = Position(name="Senator").save()
         url = reverse('quest-list')
         data = {
             "about": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "position": position.object_uuid
         }
         self.client.post(url, data=data, format='json')
@@ -173,11 +177,12 @@ class QuestEndpointTests(APITestCase):
         url = reverse('quest-list')
         data = {
             "about": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "position": position.object_uuid
         }
         self.client.post(url, data=data, format='json')
@@ -200,11 +205,12 @@ class QuestEndpointTests(APITestCase):
         url = reverse('quest-list')
         data = {
             "about": "this is a test bio",
-            "facebook": "fake facebook link",
-            "linkedin": "fake linkedin link",
-            "youtube": "fake youtube link",
-            "twitter": "fake twitter link",
-            "website": "fake campaign website",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "position": position.object_uuid
         }
         self.client.post(url, data=data, format='json')
@@ -225,6 +231,18 @@ class QuestEndpointTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_get_fields_needed_human_readable(self):
+        self.client.force_authenticate(user=self.user)
+        self.quest.account_verification_fields_needed = \
+            ['legal_entity.address.city', 'tos_acceptance.date']
+        self.quest.save()
+        cache.clear()
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        response = self.client.get(url)
+        self.assertEqual(response.data['fields_needed_human_readable'],
+                         'City, Terms of Service Acceptance Date')
+
     def test_list(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-list')
@@ -233,8 +251,8 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_list_no_quests(self):
-        for quest in Quest.nodes.all():
-            quest.delete()
+        query = 'MATCH (a:Quest) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-list')
         response = self.client.get(url, format='json')
@@ -248,7 +266,7 @@ class QuestEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,
@@ -363,7 +381,7 @@ class QuestEndpointTests(APITestCase):
         response = self.client.put(url, data=data, format='json')
         self.assertEqual(response.status_code, 400)
 
-    def test_update_facebook(self):
+    def test_update_facebook_fail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
                       kwargs={'owner_username': self.quest.owner_username})
@@ -371,9 +389,20 @@ class QuestEndpointTests(APITestCase):
             "facebook": "this is an update"
         }
         response = self.client.put(url, data=data, format='json')
-        self.assertEqual(response.data['facebook'], data['facebook'])
+        self.assertIn('Enter a valid URL.', response.data['facebook'])
 
-    def test_update_linkedin(self):
+    def test_update_facebook_success(self):
+        new_url = "http://www.facebook.com/johnnyapple"
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "facebook": new_url
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(new_url, response.data['facebook'])
+
+    def test_update_linkedin_fail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
                       kwargs={'owner_username': self.quest.owner_username})
@@ -381,10 +410,20 @@ class QuestEndpointTests(APITestCase):
             "linkedin": "this is an update"
         }
         response = self.client.put(url, data=data, format='json')
+        self.assertIn('Enter a valid URL.', response.data['linkedin'])
 
-        self.assertEqual(response.data['linkedin'], data['linkedin'])
+    def test_update_linkedin_success(self):
+        new_url = "https://www.linkedin.com/in/devonbleibtrey"
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "linkedin": new_url
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(new_url, response.data['linkedin'])
 
-    def test_update_youtube(self):
+    def test_update_youtube_fail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
                       kwargs={'owner_username': self.quest.owner_username})
@@ -392,10 +431,20 @@ class QuestEndpointTests(APITestCase):
             "youtube": "this is an update"
         }
         response = self.client.put(url, data=data, format='json')
+        self.assertIn('Enter a valid URL.', response.data['youtube'])
 
-        self.assertEqual(response.data['youtube'], data['youtube'])
+    def test_update_youtube_success(self):
+        new_url = "https://www.youtube.com/channel/UCCvhBF5Vfw05GOLdUYFATiQ"
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "youtube": new_url
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(new_url, response.data['youtube'])
 
-    def test_update_twitter(self):
+    def test_update_twitter_fail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
                       kwargs={'owner_username': self.quest.owner_username})
@@ -403,10 +452,20 @@ class QuestEndpointTests(APITestCase):
             "twitter": "this is an update"
         }
         response = self.client.put(url, data=data, format='json')
+        self.assertIn('Enter a valid URL.', response.data['twitter'])
 
-        self.assertEqual(response.data['twitter'], data['twitter'])
+    def test_update_twitter_success(self):
+        new_url = "https://twitter.com/devonbleibtrey"
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "twitter": new_url
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(new_url, response.data['twitter'])
 
-    def test_update_website(self):
+    def test_update_website_fail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
                       kwargs={'owner_username': self.quest.owner_username})
@@ -414,8 +473,18 @@ class QuestEndpointTests(APITestCase):
             "website": "this is an update"
         }
         response = self.client.put(url, data=data, format='json')
+        self.assertIn('Enter a valid URL.', response.data['website'])
 
-        self.assertEqual(response.data['website'], "http://this is an update")
+    def test_update_website_success(self):
+        new_url = "https://www.sagebrew.com"
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "website": new_url
+        }
+        response = self.client.put(url, data=data, format='json')
+        self.assertEqual(new_url, response.data['website'])
 
     def test_update_wallpaper_pic(self):
         self.client.force_authenticate(user=self.user)
@@ -473,7 +542,7 @@ class QuestEndpointTests(APITestCase):
                           county="Oakland",
                           congressional_district=11,
                           validated=True).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(self.pleb)
         stripe_res = stripe.Token.create(
             bank_account={
                 "country": "US",
@@ -505,7 +574,7 @@ class QuestEndpointTests(APITestCase):
                           county="Oakland",
                           congressional_district=11,
                           validated=True).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(self.pleb)
         self.quest.tos_acceptance = True
         self.quest.save()
         stripe_res = stripe.Token.create(
@@ -539,7 +608,7 @@ class QuestEndpointTests(APITestCase):
                           county="Oakland",
                           congressional_district=11,
                           validated=True).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(self.pleb)
         stripe_res = stripe.Token.create(
             bank_account={
                 "country": "US",
@@ -566,7 +635,7 @@ class QuestEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,
@@ -588,7 +657,7 @@ class QuestEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,
@@ -603,7 +672,7 @@ class QuestEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,
@@ -726,7 +795,7 @@ class QuestEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,
@@ -756,7 +825,7 @@ class QuestEndpointTests(APITestCase):
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,
-                "exp_month": 02,
+                "exp_month": 0o2,
                 "number": "4242424242424242",
                 "currency": "usd",
                 "cvc": 123,
@@ -807,6 +876,19 @@ class QuestEndpointTests(APITestCase):
         customer = stripe.Customer.retrieve(quest.stripe_customer_id)
         customer.delete()
 
+    def test_update_not_owner(self):
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "title": "This is a fake title that a non owner set"
+        }
+        response = self.client.put(url, data=data, format='json')
+        quest = Quest.nodes.get(object_uuid=self.quest.object_uuid)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(quest.title, self.quest.title)
+        self.assertEqual(response.data, ['Only the owner can edit this'])
+
     def test_stripe_token(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',
@@ -819,7 +901,7 @@ class QuestEndpointTests(APITestCase):
                           county="Oakland",
                           congressional_district=11,
                           validated=True).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(self.pleb)
         stripe_res = stripe.Token.create(
             bank_account={
                 "country": "US",
@@ -852,7 +934,7 @@ class QuestEndpointTests(APITestCase):
                           county="Oakland",
                           congressional_district=11,
                           validated=True).save()
-        self.pleb.address.connect(address)
+        address.owned_by.connect(self.pleb)
         stripe_res = stripe.Token.create(
             bank_account={
                 "country": "US",
@@ -1061,6 +1143,17 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(data['title'], response.data['title'])
 
+    def test_endorsements(self):
+        mission = Mission(owner_username=self.pleb.username).save()
+        self.quest.missions.connect(mission)
+        mission.quest_endorsements.connect(self.quest)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('quest-endorsed',
+                      kwargs={'owner_username': self.pleb.username})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(mission.object_uuid, res.data['results'][0]['id'])
+
 
 class PositionEndpointTests(APITestCase):
 
@@ -1075,13 +1168,13 @@ class PositionEndpointTests(APITestCase):
             about='Test Bio', owner_username=self.pleb.username).save()
         self.mission = Mission(owner_username=self.quest.owner_username,
                                focus_on_type="position").save()
-        self.pleb.quest.connect(self.quest)
+        self.quest.owner.connect(self.pleb)
         self.quest.moderators.connect(self.pleb)
         self.quest.editors.connect(self.pleb)
         self.position = Position(name="Senator").save()
         self.mission.position.connect(self.position)
-        for item in Location.nodes.all():
-            item.delete()
+        query = 'MATCH (a:Location) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.location = Location(name="Michigan").save()
         cache.clear()
 

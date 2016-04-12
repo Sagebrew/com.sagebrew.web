@@ -1,31 +1,9 @@
 {% extends "donations/base.html" %}
 {% load staticfiles %}
 {% block title %}
-    Empower Your Movement
+    Donate To Your Movement
 {% endblock title %}
-{% block description %}
 
-{% endblock description %}
-{% block keywords %}
-
-{% endblock keywords %}
-
-
-{% block live %}
-    <div class="block">
-        <h3 class="block-title">
-            Missions
-        </h3>
-        <div class="row block block-padding-bottom-15 row-no-margin">
-            <div class="col-xs-12">
-                <div class="block-content" id="js-mission-list">
-                    <div id="js-mission-container"></div>
-                    <div class="loader"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-{% endblock %}
 
 {% block intercom %}
     Intercom('trackEvent', 'visited-donation-mission-selector');

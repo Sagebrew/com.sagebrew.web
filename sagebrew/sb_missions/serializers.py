@@ -1,8 +1,7 @@
-import markdown
-
 from django.core.cache import cache
 from django.utils.text import slugify
 from django.conf import settings
+from django.templatetags.static import static
 
 from rest_framework import serializers, status
 from rest_framework.reverse import reverse
@@ -10,8 +9,9 @@ from rest_framework.reverse import reverse
 from neomodel import db, DoesNotExist
 
 from api.utils import (gather_request_data, clean_url, empty_text_to_none,
-                       smart_truncate)
+                       smart_truncate, render_content)
 from api.serializers import SBSerializer
+
 from sb_locations.serializers import LocationSerializer
 from sb_tags.neo_models import Tag
 from sb_search.utils import remove_search_object
@@ -28,13 +28,13 @@ class MissionSerializer(SBSerializer):
     focus_on_type = serializers.ChoiceField(required=True, choices=[
         ('position', "Public Office"), ('advocacy', "Advocacy"),
         ('question', "Question")])
-    facebook = serializers.CharField(required=False, allow_blank=True)
-    linkedin = serializers.CharField(required=False, allow_blank=True)
-    youtube = serializers.CharField(required=False, allow_blank=True)
-    twitter = serializers.CharField(required=False, allow_blank=True)
-    website = serializers.CharField(required=False, allow_blank=True)
+    facebook = serializers.URLField(required=False, allow_blank=True)
+    linkedin = serializers.URLField(required=False, allow_blank=True)
+    youtube = serializers.URLField(required=False, allow_blank=True)
+    twitter = serializers.URLField(required=False, allow_blank=True)
+    website = serializers.URLField(required=False, allow_blank=True)
     wallpaper_pic = serializers.CharField(required=False)
-    title = serializers.CharField(max_length=140, required=False,
+    title = serializers.CharField(max_length=240, required=False,
                                   allow_blank=True)
     owner_username = serializers.CharField(read_only=True)
     location_name = serializers.CharField(required=False, allow_null=True)
@@ -47,6 +47,8 @@ class MissionSerializer(SBSerializer):
     rendered_epic = serializers.SerializerMethodField()
     is_editor = serializers.SerializerMethodField()
     is_moderator = serializers.SerializerMethodField()
+    has_endorsed_quest = serializers.SerializerMethodField()
+    has_endorsed_profile = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
     focus_name_formatted = serializers.SerializerMethodField()
     slug = serializers.SerializerMethodField()
@@ -72,17 +74,17 @@ class MissionSerializer(SBSerializer):
             if quest.account_type == "free":
                 if res.one['mission_count'] >= settings.FREE_MISSIONS:
                     raise serializers.ValidationError(
-                        detail={"detail": "Sorry free Quests can only "
-                                          "have 5 Missions.",
-                                "developer_message": "",
-                                "status_code": status.HTTP_400_BAD_REQUEST})
+                        {"detail": "Sorry free Quests can only "
+                                   "have 5 Missions.",
+                         "developer_message": "",
+                         "status_code": status.HTTP_400_BAD_REQUEST})
         else:
             raise serializers.ValidationError(
-                detail={"detail": "We couldn't find a Quest for this "
-                                  "Mission. Please contact us if this "
-                                  "problem continues.",
-                        "developer_message": "",
-                        "status_code": status.HTTP_404_NOT_FOUND})
+                {"detail": "We couldn't find a Quest for this "
+                           "Mission. Please contact us if this "
+                           "problem continues.",
+                 "developer_message": "",
+                 "status_code": status.HTTP_404_NOT_FOUND})
         add_district = ""
         focus_type = validated_data.get('focus_on_type')
         level = validated_data.get('level')
@@ -91,8 +93,7 @@ class MissionSerializer(SBSerializer):
         location = validated_data.get('location_name')
         if location is not None:
             location = location.replace(
-                " Of", " of").replace(
-                " And", " and").replace(" Or", " or")
+                " Of", " of").replace(" And", " and").replace(" Or", " or")
         focused_on = validated_data.get('focus_name')
         if focus_type == "advocacy":
             focused_on = slugify(focused_on)
@@ -106,7 +107,9 @@ class MissionSerializer(SBSerializer):
         mission = Mission(owner_username=owner_username, level=level,
                           focus_on_type=focus_type,
                           focus_name=focused_on,
-                          title=title).save()
+                          title=title,
+                          wallpaper_pic=static(
+                              'images/wallpaper_capitol_2.jpg')).save()
         if focus_type == "position":
             if level == "federal":
                 if district:
@@ -214,11 +217,11 @@ class MissionSerializer(SBSerializer):
                                 '"United States of America"}) '
             else:
                 raise serializers.ValidationError(
-                    detail={"detail": "Sorry Could Not Determine Where You're "
-                                      "advocating. Please try a different "
-                                      "location or contact us.",
-                            "developer_message": "",
-                            "status_code": status.HTTP_400_BAD_REQUEST})
+                    {"detail": "Sorry Could Not Determine Where You're "
+                               "advocating. Please try a different "
+                               "location or contact us.",
+                     "developer_message": "",
+                     "status_code": status.HTTP_400_BAD_REQUEST})
             query = 'MATCH (tag:Tag {name: "%s"}), ' \
                     '(quest:Quest {owner_username: "%s"}), ' \
                     '(mission:Mission {object_uuid: "%s"}), ' \
@@ -234,6 +237,8 @@ class MissionSerializer(SBSerializer):
         return mission
 
     def update(self, instance, validated_data):
+        from sb_base.serializers import validate_is_owner
+        validate_is_owner(self.context.get('request', None), instance)
         initial_state = instance.active
         instance.active = validated_data.pop('active', instance.active)
         if initial_state is True and instance.active is False:
@@ -246,10 +251,14 @@ class MissionSerializer(SBSerializer):
         instance.about = empty_text_to_none(
             validated_data.get('about', instance.about))
         instance.epic = validated_data.pop('epic', instance.epic)
-        instance.facebook = validated_data.pop('facebook', instance.facebook)
-        instance.linkedin = validated_data.pop('linkedin', instance.linkedin)
-        instance.youtube = validated_data.pop('youtube', instance.youtube)
-        instance.twitter = validated_data.pop('twitter', instance.twitter)
+        instance.facebook = clean_url(
+            validated_data.get('facebook', instance.facebook))
+        instance.linkedin = clean_url(
+            validated_data.get('linkedin', instance.linkedin))
+        instance.youtube = clean_url(
+            validated_data.get('youtube', instance.youtube))
+        instance.twitter = clean_url(
+            validated_data.get('twitter', instance.twitter))
         instance.website = clean_url(
             validated_data.get('website', instance.website))
         instance.wallpaper_pic = validated_data.pop('wallpaper_pic',
@@ -273,10 +282,7 @@ class MissionSerializer(SBSerializer):
                        request=self.context.get('request', None))
 
     def get_rendered_epic(self, obj):
-        if obj.epic is not None:
-            return markdown.markdown(obj.epic.replace('&gt;', '>'))
-        else:
-            return ""
+        return render_content(obj.epic, obj.object_uuid)
 
     def get_location(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
@@ -326,6 +332,18 @@ class MissionSerializer(SBSerializer):
 
     def get_total_donation_amount(self, obj):
         return obj.get_total_donation_amount()
+
+    def get_has_endorsed_profile(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return obj.get_has_endorsed_profile(request.user.username)
+
+    def get_has_endorsed_quest(self, obj):
+        request, _, _, _, _ = gather_request_data(self.context)
+        if request is None:
+            return None
+        return obj.get_has_endorsed_quest(request.user.username)
 
     def get_title_summary(self, obj):
         if obj.title is not None:

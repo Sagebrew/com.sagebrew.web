@@ -4,10 +4,9 @@ from time import sleep
 from datetime import datetime
 
 from django.core.cache import cache
-
+from py2neo.cypher.error.schema import ConstraintViolation
 from neomodel import (DoesNotExist, CypherException, db)
 
-from plebs.neo_models import Pleb
 from sb_requirements.neo_models import Requirement
 
 from .neo_models import Privilege, SBAction
@@ -38,10 +37,6 @@ def manage_privilege_relation(username):
     :return:
     """
     try:
-        pleb = Pleb.get(username=username, cache_buster=True)
-    except (CypherException, IOError, DoesNotExist, Pleb.DoesNotExist) as e:
-        return e
-    try:
         privileges = Privilege.nodes.all()
     except(CypherException, IOError) as e:
         return e
@@ -69,30 +64,45 @@ def manage_privilege_relation(username):
             if res.one is not None:
                 continue
         else:
-            query = 'MATCH (pleb:Pleb {username: "%s"}),' \
-                    '(privilege:Privilege {name: "%s"}) ' \
-                    'CREATE UNIQUE (pleb)-[r:HAS]->(privilege) ' \
-                    'SET r.active=true, r.gained_on=%s ' \
-                    'RETURN privilege' % (
-                        username, privilege.name, current_time)
-            res, _ = db.cypher_query(query)
-            query = 'MATCH (pleb:Pleb {username: "%s"}),' \
-                    '(privilege:Privilege {name: "%s"})-[:GRANTS]->' \
-                    '(action:SBAction) ' \
-                    'CREATE UNIQUE (pleb)-[r:CAN]->(action) ' \
-                    'SET r.active=true, r.gained_on=%s ' \
-                    'RETURN action' % (
-                        username, privilege.name, current_time)
-            res, _ = db.cypher_query(query)
+            try:
+                query = 'MATCH (pleb:Pleb {username: "%s"}),' \
+                        '(privilege:Privilege {name: "%s"}) ' \
+                        'CREATE UNIQUE (pleb)-[r:HAS]->(privilege) ' \
+                        'SET r.active=true, r.gained_on=%s ' \
+                        'RETURN privilege' % (
+                            username, privilege.name, current_time)
+                res, _ = db.cypher_query(query)
+            except(ConstraintViolation, Exception):
+                query = 'MATCH (pleb:Pleb {username: "%s"})-[r:HAS]->' \
+                        '(privilege:Privilege {name: "%s"}) ' \
+                        'SET r.active=true, r.gained_on=%s ' \
+                        'RETURN privilege' % (
+                            username, privilege.name, current_time)
+                res, _ = db.cypher_query(query)
+            try:
+                query = 'MATCH (pleb:Pleb {username: "%s"}),' \
+                        '(privilege:Privilege {name: "%s"})-[:GRANTS]->' \
+                        '(action:SBAction) ' \
+                        'CREATE UNIQUE (pleb)-[r:CAN]->(action) ' \
+                        'SET r.active=true, r.gained_on=%s ' \
+                        'RETURN action' % (
+                            username, privilege.name, current_time)
+                res, _ = db.cypher_query(query)
+            except(ConstraintViolation, Exception):
+                query = 'MATCH (privilege:Privilege {name: "%s"})-[:GRANTS]->' \
+                        '(action:SBAction)<-[r:CAN]-' \
+                        '(pleb:Pleb {username: "%s"}) ' \
+                        'SET r.active=true, r.gained_on=%s ' \
+                        'RETURN action' % (
+                            username, privilege.name, current_time)
+                res, _ = db.cypher_query(query)
         # Adding short sleep so we don't DDoS ourselves
         # Because of this, this fxn should only ever be called from an async
         # task
         sleep(1)
     cache.delete(username)
-    cache.set("%s_privileges" % username,
-              pleb.get_privileges(cache_buster=True))
-    cache.set("%s_actions" % username,
-              pleb.get_actions(cache_buster=True))
+    cache.delete("%s_privileges" % username)
+    cache.delete("%s_actions" % username)
     return True
 
 

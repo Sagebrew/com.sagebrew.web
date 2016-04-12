@@ -9,7 +9,7 @@ class SBTestRunner(DiscoverRunner):
     def setup_databases(self, *args, **kwargs):
         call("sudo service neo4j-service stop", shell=True)
         sleep(1)
-        success = call("/webapps/neo-test/neo4j-community-2.2.2/bin/neo4j"
+        success = call("/webapps/neo-test/neo4j-community-2.2.9/bin/neo4j"
                        " start-no-wait", shell=True)
         sleep(10)
         if success != 0:
@@ -21,16 +21,16 @@ class SBTestRunner(DiscoverRunner):
         except OSError:
             pass
         from neomodel import db
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         super(SBTestRunner, self).__init__(*args, **kwargs)
 
     def teardown_databases(self, old_config, **kwargs):
         from neomodel import db
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         sleep(1)
-        success = call("/webapps/neo-test/neo4j-community-2.2.2/bin/neo4j"
+        success = call("/webapps/neo-test/neo4j-community-2.2.9/bin/neo4j"
                        " stop", shell=True)
         if success != 0:
             return False

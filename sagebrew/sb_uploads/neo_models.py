@@ -10,10 +10,16 @@ class UploadedObject(SBContent):
     height = FloatProperty()
     width = FloatProperty()
     file_size = FloatProperty()
+    image_hash = StringProperty()
 
     # relationships
     modifications = RelationshipTo('sb_uploads.neo_models.ModifiedObject',
                                    "MODIFICATION")
+
+    @property
+    def file_object(self):
+        # DO NOT USE: NON-USE PLACEHOLDER FOR SERIALIZER
+        return None
 
 
 class ModifiedObject(UploadedObject):

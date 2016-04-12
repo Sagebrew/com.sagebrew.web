@@ -3,11 +3,14 @@ from uuid import uuid1
 from django.contrib.auth.models import User
 from django.test import TestCase
 
+from rest_framework.reverse import reverse
+
 from sb_comments.neo_models import Comment
 from sb_posts.neo_models import Post
 from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-from sb_notifications.utils import create_notification_util
+from sb_notifications.utils import (create_notification_util,
+                                    create_system_notification)
 from sb_notifications.neo_models import Notification
 
 
@@ -116,3 +119,26 @@ class TestNotificationUtils(TestCase):
                                             notification.object_uuid, self.url,
                                             post.action_name)
         self.assertTrue(response)
+
+    def test_create_system_notification(self):
+        notification_id = str(uuid1())
+        res = create_system_notification(
+            [self.pleb], notification_id,
+            reverse('profile_page',
+                    kwargs={"pleb_username": self.pleb.username}),
+            "This is a test notification!")
+        self.assertTrue(res)
+        notification = Notification.nodes.get(object_uuid=notification_id)
+        self.assertTrue(self.pleb in notification.notification_to)
+
+    def test_create_system_notification_exists(self):
+        notification = Notification().save()
+        res = create_system_notification(
+            [self.pleb], notification.object_uuid,
+            reverse('profile_page',
+                    kwargs={"pleb_username": self.pleb.username}),
+            "This is a test notification!")
+        self.assertTrue(res)
+        notification = Notification.nodes.get(
+            object_uuid=notification.object_uuid)
+        self.assertTrue(self.pleb in notification.notification_to)

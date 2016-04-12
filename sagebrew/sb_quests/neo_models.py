@@ -1,14 +1,19 @@
 from django.contrib.humanize.templatetags.humanize import ordinal
 from django.core.cache import cache
 from django.conf import settings
+from django.templatetags.static import static
 
 from rest_framework.reverse import reverse
 
 from neomodel import (db, StringProperty, RelationshipTo, BooleanProperty,
                       FloatProperty, DoesNotExist, RelationshipFrom,
-                      DateTimeProperty)
+                      DateTimeProperty, ArrayProperty)
 
 from sb_search.neo_models import Searchable, SBObject
+
+
+def get_default_wallpaper_pic():
+    return static('images/wallpaper_capitol_2.jpg')
 
 
 class Quest(Searchable):
@@ -41,6 +46,12 @@ class Quest(Searchable):
     #     pending
     #     verified
     account_verified = StringProperty(default="unverified")
+    # fields_needed contains a string which states what is needed for an
+    # account to get verified
+    account_verification_fields_needed = ArrayProperty()
+    # A user readable string which states the reason verification has failed.
+    account_verification_details = StringProperty()
+    account_first_updated = DateTimeProperty(default=None)
     account_verified_date = DateTimeProperty()
 
     # Valid options are:
@@ -64,7 +75,7 @@ class Quest(Searchable):
     # These are the wallpaper and profile specific to the campaign/action page
     # That way they have separation between the campaign and their personal
     # image.
-    wallpaper_pic = StringProperty()
+    wallpaper_pic = StringProperty(default=get_default_wallpaper_pic)
     profile_pic = StringProperty()
     # Application fee's total up to 7% + 30 cents for a Free Subscription and
     # 5% + 30 cents for a paid $100 subscription. .029 and the 30 comes from
@@ -109,15 +120,15 @@ class Quest(Searchable):
     # Embarks on is a mission this Quest manages and is trying to accomplish.
     # Donations to these missions come back to the Quest's account
     missions = RelationshipTo('sb_missions.neo_models.Mission', "EMBARKS_ON")
-    # Endorses are missions the Quest is supporting. These should be linked to
-    # from the Quest page but are actively managed by other users/Quests.
-    # Donations to these missions do not come back to this Quest.
-    endorses = RelationshipTo('sb_missions.neo_models.Mission', "ENDORSES")
     holds = RelationshipTo('sb_quests.neo_models.Seat', "HOLDS")
-
+    news_articles = RelationshipTo('sb_news.neo_models.NewsArticle',
+                                   "NEWS")
     # Followers are users which have decided to follow a Quest, this means that
     # they will get a notification whenever the quest makes an update.
     followers = RelationshipTo('plebs.neo_models.Pleb', "FOLLOWERS")
+
+    # Owner of the Quest
+    owner = RelationshipFrom('plebs.neo_models.Pleb', 'IS_WAGING')
 
     @property
     def ein(self):
@@ -155,9 +166,11 @@ class Quest(Searchable):
         return None
 
     @classmethod
-    def get(cls, owner_username):
-        quest = cache.get("%s_quest" % owner_username)
-        if quest is None:
+    def get(cls, owner_username, cache_buster=False):
+        quest = None
+        if cache_buster is False:
+            quest = cache.get("%s_quest" % owner_username)
+        if quest is None or cache_buster:
             query = 'MATCH (c:Quest {owner_username: "%s"}) RETURN c' % \
                     owner_username
             res, _ = db.cypher_query(query)

@@ -14,7 +14,7 @@ class Command(BaseCommand):
             if "pull" in circle_branch:
                 circle_branch = "staging"
             data = dockerfile.read()
-            if(circle_branch is not None):
+            if circle_branch is not None:
                 data = data.replace("{{PROJECT_REPONAME}}",
                                     os.environ.get("CIRCLE_PROJECT_REPONAME",
                                                    ""))
@@ -24,11 +24,11 @@ class Command(BaseCommand):
                 data = data.replace("{{CIRCLE_BRANCH}}", circle_branch)
 
                 data = populate_general_env(data)
-                if(circle_branch == "staging"):
+                if circle_branch == "staging":
                     data = populate_staging_env(data)
-                elif("dev" in circle_branch):
+                elif "dev" in circle_branch:
                     data = populate_test_env(data)
-                elif(circle_branch == "master"):
+                elif circle_branch == "master":
                     data = populate_prod_env(data)
                 else:
                     data = populate_test_env(data)
@@ -49,10 +49,10 @@ class Command(BaseCommand):
                                 os.environ.get("CIRCLECI", "false").lower())
             web_docker = data.replace('{{SUPER_TEMPLATE}}', "web")
             web_docker = web_docker.replace('{{IMAGE_TYPE}}', "frontend")
-            web_docker = web_docker.replace('{{VERSION}}', "4")
+            web_docker = web_docker.replace('{{VERSION}}', "10")
             worker_docker = data.replace('{{SUPER_TEMPLATE}}', "worker")
             worker_docker = worker_docker.replace('{{IMAGE_TYPE}}', "base")
-            worker_docker = worker_docker.replace('{{VERSION}}', "15")
+            worker_docker = worker_docker.replace('{{VERSION}}', "21")
 
         f = open("%s/dockerfiles/web_app/Dockerfile" % settings.REPO_DIR, "w")
         f.write(web_docker)
@@ -66,7 +66,7 @@ class Command(BaseCommand):
             if "pull" in circle_branch:
                 circle_branch = "staging"
             data = dockerfile.read()
-            if(circle_branch is not None):
+            if circle_branch is not None:
                 data = data.replace("{{PROJECT_REPONAME}}",
                                     os.environ.get("CIRCLE_PROJECT_REPONAME",
                                                    ""))
@@ -74,11 +74,11 @@ class Command(BaseCommand):
                                     os.environ.get("CIRCLE_PROJECT_USERNAME",
                                                    ""))
                 data = populate_general_env(data)
-                if(circle_branch == "staging"):
+                if circle_branch == "staging":
                     data = populate_staging_env(data)
-                elif("dev" in circle_branch):
+                elif "dev" in circle_branch:
                     data = populate_test_env(data)
-                elif(circle_branch == "master"):
+                elif circle_branch == "master":
                     data = populate_prod_env(data)
                 else:
                     data = populate_test_env(data)

@@ -44,14 +44,10 @@ class TestCreateFriendRequestUtil(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb1 = Pleb.nodes.get(email=self.email)
+        self.pleb1 = create_user_util_test(self.email)
         self.user1 = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        res = create_user_util_test(self.email2, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
 
     def test_create_friend_request_util_success(self):

@@ -7,7 +7,6 @@ from django.contrib.auth.models import User
 
 from neomodel import DoesNotExist
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_quests.neo_models import Position, Quest
@@ -18,13 +17,10 @@ from sb_public_official.neo_models import PublicOfficial
 class TestCreateStateDistricts(TestCase):
 
     def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.headers = {"content-type": 'application/json; charset=utf8'}
         self.lookup_url = 'http://openstates.org/api/v1/legislators/geo/?' \
                           'lat=42.532020&long=-83.496500&apikey=' \

@@ -11,7 +11,7 @@ from rest_framework import serializers
 from neomodel import db
 
 from api.utils import request_to_api, gather_request_data
-from sb_base.serializers import ContentSerializer
+from sb_base.serializers import ContentSerializer, validate_is_owner
 from sb_base.neo_models import SBContent
 
 from .neo_models import Comment
@@ -19,6 +19,7 @@ from .neo_models import Comment
 
 class CommentSerializer(ContentSerializer):
     parent_type = serializers.CharField(read_only=True)
+    parent_id = serializers.UUIDField(read_only=True)
 
     href = serializers.SerializerMethodField()
     comment_on = serializers.SerializerMethodField()
@@ -39,9 +40,9 @@ class CommentSerializer(ContentSerializer):
         url = parent_object.url
         comment = Comment(parent_type=parent_object.get_child_label().lower(),
                           url=url, href=href, object_uuid=uuid,
+                          parent_id=parent_object.object_uuid,
                           **validated_data).save()
         comment.owned_by.connect(owner)
-        owner.comments.connect(comment)
         parent_object.comments.connect(comment)
         if parent_object.visibility == "public":
             comment.visibility = "public"
@@ -51,6 +52,7 @@ class CommentSerializer(ContentSerializer):
         return comment
 
     def update(self, instance, validated_data):
+        validate_is_owner(self.context.get('request', None), instance)
         instance.content = bleach.clean(
             validated_data.get('content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
@@ -114,7 +116,7 @@ class CommentSerializer(ContentSerializer):
 
 def get_parent_object(object_uuid):
     try:
-        query = "MATCH (a:Comment {object_uuid:'%s'})-[:COMMENT_ON]->" \
+        query = "MATCH (a:Comment {object_uuid:'%s'})<-[:HAS_A]-" \
                 "(b:SBContent) RETURN b" % object_uuid
         res, col = db.cypher_query(query)
         return SBContent.inflate(res[0][0])

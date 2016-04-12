@@ -3,11 +3,13 @@
 {% block title %}Quest Settings{% endblock title %}
 
 {% block live %}
+    {% include "partials/image_upload_block.html" with title_text="Quest Wallpaper" save_button_text="Save Picture" current_image=quest.wallpaper_pic %}
     <div class="block">
         <h3 class="block-title">
             General Settings
         </h3>
         <div class="block-content">
+            <a name="general"></a>
             <form id="socialForm">
                 <div class="form-group">
                     <label for="title">Title</label>
@@ -15,13 +17,15 @@
                        id="title"
                        name="title" class="form-control"
                        placeholder="Name of your group, organization, or what you'd like to be called instead of your first and last name."
-                       value="{% if quest.title %}{{ quest.title }}{% endif %}">
+                       value="{{ quest.title }}">
+                    <small id="js-title-char-count" class="help-block">240 Characters Remaining</small>
                 </div>
                 <div class="form-group">
                     <label for="about">About</label>
-                    <textarea id="about" class="form-control" rows="3"
+                    <textarea id="about" class="form-control resize-vertical" rows="3"
                               placeholder="Describe yourself or your group in 128 characters or less"
                               name="about">{{ quest.about|default_if_none:'' }}</textarea>
+                    <small id="js-about-char-count" class="help-block">128 Characters Remaining</small>
                 </div>
 
                 <div class="form-group">
@@ -35,41 +39,41 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="facebook-social-address">Facebook Username</label>
+                    <label for="facebook-social-address">Facebook URL</label>
                     <input type="text"
                        id="facebook-social-address"
                        name="facebook"
-                       placeholder="Facebook Username"
+                       placeholder="ex. https://www.facebook.com/"
                        value="{{ quest.facebook|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="twitter-social-address">Twitter ID</label>
+                    <label for="twitter-social-address">Twitter URL</label>
                     <input type="text"
                        id="twitter-social-address"
                        name="twitter"
-                       placeholder="Twitter ID"
+                       placeholder="ex. https://www.twitter.com/"
                        value="{{ quest.twitter|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="linkedin-social-address">LinkedIn Username</label>
+                    <label for="linkedin-social-address">LinkedIn URL</label>
                     <input type="text"
                        name="linkedin"
                        id="linkedin-social-address"
-                       placeholder="LinkedIn Username"
+                       placeholder="ex. https://www.linkedin.com/"
                        value="{{ quest.linkedin|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="youtube-social-address">YouTube Username</label>
+                    <label for="youtube-social-address">YouTube URL</label>
                     <input type="text"
                        name="youtube"
                        id="youtube-social-address"
-                       placeholder="Youtube Username"
+                       placeholder="ex. https://www.youtube.com/"
                        value="{{ quest.youtube|default_if_none:'' }}"
                        class="form-control">
                 </div>
@@ -78,7 +82,7 @@
                     <div id="validation-errors"></div>
                     <div class="col-lg-4 col-md-6">
                         <button class="btn btn-primary sb_btn sb_btn_fill"
-                                id="submit">
+                                id="submit" type="submit">
                             Save Changes
                         </button>
                     </div>
@@ -86,6 +90,7 @@
             </form>
         </div>
     </div>
+
 {% endblock %}
 
 

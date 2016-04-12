@@ -8,7 +8,6 @@ from django.test.client import RequestFactory
 
 from elasticsearch import Elasticsearch
 
-from plebs.neo_models import Pleb
 from sb_search.tasks import (update_search_query, create_keyword,
                              update_search_object)
 from sb_registration.utils import create_user_util_test
@@ -26,11 +25,10 @@ from sb_solutions.serializers import SolutionSerializerNeo
 class TestUpdateSearchQuery(TestCase):
 
     def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -128,12 +126,10 @@ class TestUpdateSearchQuery(TestCase):
 class TestCreateKeywordTask(TestCase):
 
     def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -203,18 +199,15 @@ class TestCreateKeywordTask(TestCase):
 class TestUpdateSearchObject(TestCase):
 
     def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
         settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
         self.es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
 
     def test_question(self):
         question = Question(title=str(uuid1()),
                             content="some test content",).save()
-        self.pleb.questions.connect(question)
         question.owned_by.connect(self.pleb)
         question.owner_username = self.pleb.username
         object_data = QuestionSerializerNeo(question).data
@@ -258,7 +251,7 @@ class TestUpdateSearchObject(TestCase):
 
     def test_quest(self):
         quest = Quest().save()
-        self.pleb.quest.connect(quest)
+        quest.owner.connect(self.pleb)
         quest.owner_username = self.pleb.username
         object_data = QuestSerializer(quest).data
         res = self.es.index(index='full-search-base',
@@ -310,8 +303,13 @@ class TestUpdateSearchObject(TestCase):
     def test_not_valid(self):
         request = RequestFactory().get('')
         request.user = self.user
-        solution = Solution().save()
+        question = Question(
+            content="hello", owner_username=self.pleb.username,
+            title=str(uuid1())).save()
+        solution = Solution(parent_id=question.object_uuid).save()
+        question.solutions.connect(solution)
         solution.owner_username = self.pleb.username
+
         object_data = SolutionSerializerNeo(solution,
                                             context={"request": request}).data
         res = self.es.index(index='full-search-base',
@@ -362,7 +360,12 @@ class TestUpdateSearchObject(TestCase):
     def test_no_label_not_question(self):
         request = RequestFactory().get('')
         request.user = self.user
-        solution = Solution().save()
+        question = Question(
+            content="hello", owner_username=self.pleb.username,
+            title=str(uuid1())
+        ).save()
+        solution = Solution(parent_id=question.object_uuid).save()
+        question.solutions.connect(solution)
         solution.owner_username = self.pleb.username
         object_data = SolutionSerializerNeo(solution,
                                             context={"request": request}).data

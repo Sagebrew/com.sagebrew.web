@@ -1,7 +1,7 @@
 import pytz
-from datetime import datetime
 import time
 import stripe
+from datetime import datetime
 from stripe.error import InvalidRequestError
 from dateutil.relativedelta import relativedelta
 
@@ -27,14 +27,15 @@ from .neo_models import (Position, Quest)
 
 class QuestSerializer(SBSerializer):
     active = serializers.BooleanField(required=False)
-    title = serializers.CharField(required=False, allow_blank=True)
+    title = serializers.CharField(required=False, allow_blank=True,
+                                  max_length=240)
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=128)
-    facebook = serializers.CharField(required=False, allow_blank=True)
-    linkedin = serializers.CharField(required=False, allow_blank=True)
-    youtube = serializers.CharField(required=False, allow_blank=True)
-    twitter = serializers.CharField(required=False, allow_blank=True)
-    website = serializers.CharField(required=False, allow_blank=True)
+    facebook = serializers.URLField(required=False, allow_blank=True)
+    linkedin = serializers.URLField(required=False, allow_blank=True)
+    youtube = serializers.URLField(required=False, allow_blank=True)
+    twitter = serializers.URLField(required=False, allow_blank=True)
+    website = serializers.URLField(required=False, allow_blank=True)
     wallpaper_pic = serializers.CharField(required=False)
     profile_pic = serializers.CharField(required=False)
     owner_username = serializers.CharField(read_only=True)
@@ -64,6 +65,20 @@ class QuestSerializer(SBSerializer):
         read_only=True,
         choices=[('unverified', "Unverified"), ('pending', "Pending"),
                  ('verified', "Verified")])
+    # https://stripe.com/docs/connect/identity-verification
+    # #confirming-id-verification
+    # fields_needed is a list of fields that are still required for
+    # verification of the managed account
+    # ex. ["legal_entity.type", "legal_entity.business_name"]
+    account_verification_fields_needed = serializers.ListField(read_only=True)
+
+    # https://stripe.com/docs/connect/identity-verification
+    # #confirming-id-verification
+    # verification_details is a user readable string that will contain a string
+    # describing an problems with verification such as a corrupted/unreadable
+    # image has been uploaded.
+    # ex. "The image supplied was not readable"
+    account_verification_details = serializers.CharField(read_only=True)
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
     updates = serializers.SerializerMethodField()
@@ -73,7 +88,9 @@ class QuestSerializer(SBSerializer):
     completed_stripe = serializers.SerializerMethodField()
     completed_customer = serializers.SerializerMethodField()
     missions = serializers.SerializerMethodField()
+    endorsed = serializers.SerializerMethodField()
     total_donation_amount = serializers.SerializerMethodField()
+    fields_needed_human_readable = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -86,12 +103,13 @@ class QuestSerializer(SBSerializer):
                 detail={"detail": "You may only have one Quest!",
                         "developer_message": "",
                         "status_code": status.HTTP_400_BAD_REQUEST})
+        default_title = "%s %s" % (owner.first_name, owner.last_name)
         quest = Quest(first_name=owner.first_name, last_name=owner.last_name,
                       owner_username=owner.username, object_uuid=owner.username,
                       profile_pic=owner.profile_pic,
-                      account_type=account_type).save()
+                      account_type=account_type, title=default_title).save()
 
-        owner.quest.connect(quest)
+        quest.owner.connect(owner)
         quest.editors.connect(owner)
         quest.moderators.connect(owner)
         account = stripe.Account.create(managed=True, country="US",
@@ -139,6 +157,8 @@ class QuestSerializer(SBSerializer):
         return quest
 
     def update(self, instance, validated_data):
+        from sb_base.serializers import validate_is_owner
+        validate_is_owner(self.context.get('request', None), instance)
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe_token = validated_data.pop('stripe_token', None)
         promotion_key = validated_data.pop('promotion_key', None)
@@ -163,12 +183,17 @@ class QuestSerializer(SBSerializer):
         instance.active = active
         instance.title = empty_text_to_none(
             validated_data.pop('title', instance.title))
-        instance.facebook = validated_data.get('facebook', instance.facebook)
-        instance.linkedin = validated_data.get('linkedin', instance.linkedin)
-        instance.youtube = validated_data.get('youtube', instance.youtube)
-        instance.twitter = validated_data.get('twitter', instance.twitter)
+        instance.facebook = clean_url(
+            validated_data.get('facebook', instance.facebook))
+        instance.linkedin = clean_url(
+            validated_data.get('linkedin', instance.linkedin))
+        instance.youtube = clean_url(
+            validated_data.get('youtube', instance.youtube))
+        instance.twitter = clean_url(
+            validated_data.get('twitter', instance.twitter))
         if initial_state is True and active is False:
             remove_search_object(instance.object_uuid, "quest")
+            # TODO make all missions inactive upon taking quest inactive
         instance.website = clean_url(validated_data.get(
             'website', instance.website))
         instance.about = empty_text_to_none(
@@ -253,13 +278,12 @@ class QuestSerializer(SBSerializer):
         # ** Managed Account Setup **
         if stripe_token is not None:
             if instance.stripe_id is None or instance.stripe_id == "Not Set":
-                stripe_res = stripe.Account.create(managed=True, country="US",
-                                                   email=owner.email)
-                instance.stripe_id = stripe_res['id']
+                account = stripe.Account.create(managed=True, country="US",
+                                                email=owner.email)
+                instance.stripe_id = account['id']
+            else:
+                account = stripe.Account.retrieve(instance.stripe_id)
 
-            # TODO is this necessary or can we use the repsonse from the
-            # creation?
-            account = stripe.Account.retrieve(instance.stripe_id)
             try:
                 account.external_accounts.create(external_account=stripe_token)
             except InvalidRequestError:
@@ -385,6 +409,24 @@ class QuestSerializer(SBSerializer):
             return False
         return True
 
+    def get_endorsed(self, obj):
+        from sb_missions.neo_models import Mission
+        from sb_missions.serializers import MissionSerializer
+        expand = self.context.get('expand', 'false').lower()
+        query = 'MATCH (quest:Quest {owner_username: "%s"})-[:ENDORSES]->' \
+                '(mission:Mission) RETURN mission' % obj.owner_username
+        res, _ = db.cypher_query(query)
+        if res.one is None:
+            return None
+        if expand == 'true':
+            return [MissionSerializer(Mission.inflate(row[0])).data
+                    for row in res]
+        return [reverse('mission-detail',
+                        kwargs={
+                            'object_uuid': Mission.inflate(row[0]).object_uuid
+                        }, request=self.context.get('request', None))
+                for row in res]
+
     def get_missions(self, obj):
         from sb_missions.neo_models import Mission
         from sb_missions.serializers import MissionSerializer
@@ -411,6 +453,12 @@ class QuestSerializer(SBSerializer):
         if request is None:
             return None
         return obj.is_following(request.user.username)
+
+    def get_fields_needed_human_readable(self, obj):
+        if obj.account_verification_fields_needed is not None:
+            return ', '.join(
+                [settings.STRIPE_FIELDS_NEEDED[field_needed]
+                 for field_needed in obj.account_verification_fields_needed])
 
 
 class EditorSerializer(serializers.Serializer):

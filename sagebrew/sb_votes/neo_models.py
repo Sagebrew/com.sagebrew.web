@@ -30,8 +30,3 @@ class Vote(SBObject):
     owned_by = RelationshipTo('plebs.neo_models.Pleb', 'MADE_VOTE')
     vote_on = RelationshipTo('sb_base.neo_models.VotableContent', 'VOTE_ON')
     next_vote = RelationshipTo('sb_votes.neo_models.Vote', 'NEXT_VOTE')
-
-    def change_type(self, vote_type):
-        self.vote_type = vote_type
-        self.save()
-        return self

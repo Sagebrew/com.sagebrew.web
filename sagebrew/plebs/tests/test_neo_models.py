@@ -1,14 +1,10 @@
-# import time
 from uuid import uuid1
 
 from django.test.testcases import TestCase
 from django.contrib.auth.models import User
-# from django.core.cache import cache
 
 from neomodel import DoesNotExist, MultipleNodesReturned, db
 
-# from sb_votes.neo_models import Vote
-from sb_comments.neo_models import Comment
 from sb_donations.neo_models import Donation
 from sb_questions.neo_models import Question
 from sb_locations.neo_models import Location
@@ -21,10 +17,7 @@ class TestBetaUser(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
 
     def test_beta_user_invite(self):
@@ -37,10 +30,7 @@ class TestPleb(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
 
     def test_update_quest(self):
@@ -54,10 +44,6 @@ class TestPleb(TestCase):
 
     def test_get_full_name(self):
         self.assertEqual(self.pleb.get_full_name(), "test test")
-
-    def test_relate_comment(self):
-        comment = Comment().save()
-        self.assertTrue(self.pleb.relate_comment(comment))
 
     def test_update_weight_relationship(self):
         sb_object = Question(title="Hello I'm testing weights on my "
@@ -131,105 +117,8 @@ class TestPlebReputationChange(TestCase):
 
     def setUp(self):
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
-
-'''
-    def test_get_reputation_change_over_time(self):
-        cache.clear()
-        comment = Comment(content="some arbitrary test comment",
-                          owner_username=self.pleb.username).save()
-        comment.owned_by.connect(self.pleb)
-        self.pleb.comments.connect(comment)
-        old_vote = Vote(vote_type=1, reputation_change=5).save()
-        self.pleb.last_counted_vote_node = old_vote.object_uuid
-        self.pleb.save()
-        time.sleep(1)  # ensure vote gets connected to later second
-        vote = Vote(vote_type=1, reputation_change=2).save()
-        comment.last_votes.connect(vote)
-        comment.first_votes.connect(vote)
-        vote.vote_on.connect(comment)
-        res = self.pleb.reputation_change
-        self.assertEqual(res, 2)
-
-    def test_get_reputation_change_no_change(self):
-        cache.clear()
-        comment = Comment(content="some arbitrary test comment",
-                          owner_username=self.pleb.username).save()
-        comment.owned_by.connect(self.pleb)
-        self.pleb.comments.connect(comment)
-        old_vote = Vote(vote_type=1, reputation_change=5).save()
-        self.pleb.last_counted_vote_node = old_vote.object_uuid
-        self.pleb.save()
-        time.sleep(1)  # ensure vote gets connected to later second
-        res = self.pleb.reputation_change
-        self.assertEqual(res, 0)
-
-    def test_reputation_change_over_1000(self):
-        cache.clear()
-        comment = Comment(content="some arbitrary test comment",
-                          owner_username=self.pleb.username).save()
-        comment.owned_by.connect(self.pleb)
-        self.pleb.comments.connect(comment)
-        old_vote = Vote(vote_type=1, reputation_change=5).save()
-        self.pleb.last_counted_vote_node = old_vote.object_uuid
-        self.pleb.save()
-        time.sleep(1)  # ensure vote gets connected to later second
-        vote = Vote(vote_type=1, reputation_change=1001).save()
-        comment.last_votes.connect(vote)
-        comment.first_votes.connect(vote)
-        vote.vote_on.connect(comment)
-        res = self.pleb.reputation_change
-        self.assertEqual(res, "1k")
-
-    def test_reputation_change_under_1000(self):
-        cache.clear()
-        comment = Comment(content="some arbitrary test comment",
-                          owner_username=self.pleb.username).save()
-        comment.owned_by.connect(self.pleb)
-        self.pleb.comments.connect(comment)
-        old_vote = Vote(vote_type=1, reputation_change=5).save()
-        self.pleb.last_counted_vote_node = old_vote.object_uuid
-        self.pleb.save()
-        time.sleep(1)  # ensure vote gets connected to later second
-        vote = Vote(vote_type=1, reputation_change=-1001).save()
-        comment.last_votes.connect(vote)
-        comment.first_votes.connect(vote)
-        vote.vote_on.connect(comment)
-        res = self.pleb.reputation_change
-        self.assertEqual(res, "-1k")
-
-    def test_reputation_change_no_nodes(self):
-        cache.clear()
-        for vote in Vote.nodes.all():
-            vote.delete()
-        res = self.pleb.reputation_change
-        self.assertEqual(res, 0)
-
-    def test_reputation_change_under_1000_cache(self):
-        cache.clear()
-        comment = Comment(content="some arbitrary test comment",
-                          owner_username=self.pleb.username).save()
-        comment.owned_by.connect(self.pleb)
-        self.pleb.comments.connect(comment)
-        old_vote = Vote(vote_type=1, reputation_change=5).save()
-        self.pleb.last_counted_vote_node = old_vote.object_uuid
-        self.pleb.save()
-        time.sleep(1)  # ensure vote gets connected to later second
-        vote = Vote(vote_type=1, reputation_change=-1001).save()
-        comment.last_votes.connect(vote)
-        comment.first_votes.connect(vote)
-        vote.vote_on.connect(comment)
-        res = self.pleb.reputation_change
-        self.assertEqual(res, "-1k")
-        res = self.pleb.reputation_change
-        self.assertEqual(res, "-1k")
-        self.assertEqual(cache.get(
-            '%s_reputation_change' % self.pleb.username)['rep_change'], -1001)
-'''
 
 
 class TestAddress(TestCase):

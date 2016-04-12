@@ -9,8 +9,8 @@ from django.core.cache import cache
 from django.templatetags.static import static
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, StructuredRel,
-                      BooleanProperty, FloatProperty, CypherException,
+                      DateTimeProperty, RelationshipTo, RelationshipFrom,
+                      StructuredRel, BooleanProperty, FloatProperty,
                       DoesNotExist, MultipleNodesReturned)
 from neomodel import db
 
@@ -210,27 +210,10 @@ class Pleb(Searchable):
     voted_on = RelationshipTo('sb_base.neo_models.VotableContent', 'VOTES')
     viewed = RelationshipTo('sb_search.neo_models.Searchable', "VIEWED",
                             model=Impression)
-    address = RelationshipTo("Address", "LIVES_AT")
     interests = RelationshipTo("sb_tags.neo_models.Tag", "INTERESTED_IN")
     friends = RelationshipTo("Pleb", "FRIENDS_WITH", model=FriendRelationship)
     # Optimization
-    # Due to the large amounts of content it is more performant to explicitly
-    # have relationships with each of the different pieces of content rather
-    # than just OWNS
-    posts = RelationshipTo('sb_posts.neo_models.Post', 'OWNS_POST',
-                           model=PostObjectCreated)
-    questions = RelationshipTo('sb_questions.neo_models.Question',
-                               'OWNS_QUESTION',
-                               model=PostObjectCreated)
-    solutions = RelationshipTo('sb_solutions.neo_models.Solution',
-                               'OWNS_SOLUTION',
-                               model=PostObjectCreated)
-    comments = RelationshipTo('sb_comments.neo_models.Comment',
-                              'OWNS_COMMENT',
-                              model=PostObjectCreated)
     wall = RelationshipTo('sb_wall.neo_models.Wall', 'OWNS_WALL')
-    notifications = RelationshipTo(
-        'sb_notifications.neo_models.Notification', 'RECEIVED_A')
     friend_requests_sent = RelationshipTo(
         "plebs.neo_models.FriendRequest", 'SENT_A_REQUEST')
     friend_requests_received = RelationshipTo(
@@ -265,7 +248,6 @@ class Pleb(Searchable):
                                'HAS_PRESIDENT')
     flags = RelationshipTo('sb_flags.neo_models.Flag', "FLAGS")
     beta_user = RelationshipTo('plebs.neo_models.BetaUser', "BETA_USER")
-    uploads = RelationshipTo('sb_uploads.neo_models.UploadedObject', 'UPLOADS')
     url_content = RelationshipTo('sb_uploads.neo_models.URLContent',
                                  'URL_CONTENT')
 
@@ -276,7 +258,11 @@ class Pleb(Searchable):
     # things to. If a user is waging a `PoliticalCampaign` their Action page
     # changes a little and they start being able to receive pledged votes and
     # there are more limitations on how donations occur.
-    quest = RelationshipTo('sb_quests.neo_models.Quest', 'IS_WAGING')
+
+    # Quest
+    # Access if this Pleb is waging a Quest
+    # Neomodel: quest Cypher IS_WAGING
+    # RelationshipFrom('sb_quests.neo_models.Quest')
 
     # Edits
     # Access if this Pleb can edit a Quest through:
@@ -316,7 +302,11 @@ class Pleb(Searchable):
 
     @classmethod
     def get(cls, username, cache_buster=False):
-        profile = cache.get(username)
+        profile = None
+        if username is None:
+            return None
+        if cache_buster is False:
+            profile = cache.get(username)
         if profile is None or cache_buster:
             res, _ = db.cypher_query(
                 "MATCH (a:%s {username:'%s'}) RETURN a" % (
@@ -454,16 +444,6 @@ class Pleb(Searchable):
     def get_full_name(self):
         return str(self.first_name) + " " + str(self.last_name)
 
-    def relate_comment(self, comment):
-        try:
-            rel_to_pleb = comment.owned_by.connect(self)
-            rel_to_pleb.save()
-            rel_from_pleb = self.comments.connect(comment)
-            rel_from_pleb.save()
-            return True
-        except CypherException as e:
-            return e
-
     def update_quest(self):
         query = 'MATCH (p:Pleb {username:"%s"})-[:IS_WAGING]->' \
                 '(c:Quest) SET c.first_name="%s", c.last_name="%s"' % \
@@ -526,16 +506,28 @@ class Pleb(Searchable):
         pass
 
     def get_question_count(self):
-        return len(self.questions.all())
+        query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
+                '(question:Question) RETURN COUNT(question)' % self.username
+        res, _ = db.cypher_query(query)
+        return res.one
 
     def get_solution_count(self):
-        return len(self.solutions.all())
+        query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
+                '(solution:Solution) RETURN COUNT(solution)' % self.username
+        res, _ = db.cypher_query(query)
+        return res.one
 
     def get_post_count(self):
-        return len(self.posts.all())
+        query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
+                '(post:Post) RETURN COUNT(post)' % self.username
+        res, _ = db.cypher_query(query)
+        return res.one
 
     def get_comment_count(self):
-        return len(self.comments.all())
+        query = 'MATCH (pleb:Pleb {username:"%s"})<-[:OWNED_BY]-' \
+                '(comment:Comment) RETURN COUNT(comment)' % self.username
+        res, _ = db.cypher_query(query)
+        return res.one
 
     def get_friends(self):
         return self.friends.all()
@@ -626,6 +618,8 @@ class Pleb(Searchable):
         """
         The username passed to this function is the user who will be following
         the user the method is called upon.
+        This method is not idempotent on it's own. You must first call
+        is_following to ensure the relationship doesn't already exist.
         :param username:
         """
         query = 'MATCH (p:Pleb {username:"%s"}), (p2:Pleb {username:"%s"}) ' \
@@ -735,7 +729,7 @@ class Address(SBObject):
     validated = BooleanProperty(default=False)
 
     # Relationships
-    owned_by = RelationshipTo("Pleb", 'LIVES_IN')
+    owned_by = RelationshipFrom("Pleb", 'LIVES_AT')
     encompassed_by = RelationshipTo('sb_locations.neo_models.Location',
                                     'ENCOMPASSED_BY')
 
@@ -766,7 +760,7 @@ class Address(SBObject):
                 encompassed_by.encompassed_by.connect(city_encompassed)
             if encompassed_by not in city_encompassed.encompasses:
                 city_encompassed.encompasses.connect(encompassed_by)
-        except MultipleNodesReturned:
+        except (MultipleNodesReturned, Exception):
             query = 'MATCH (l1:Location {name:"%s"})-[:ENCOMPASSED_BY]->' \
                     '(l2:Location {name:"%s"}) RETURN l1' % \
                     (self.city, self.state)

@@ -1,0 +1,19 @@
+{% extends "layout/two-col-left.html" %}
+{% load staticfiles %}
+{% block title %}{{ page_user.first_name }} {{ page_user.last_name }}{% endblock title %}
+
+{% block sidebar_left %}
+    {% include "settings/user_settings_nav.html" %}
+{% endblock %}
+
+{% block live %}
+    <div class="block">
+        <h3 class="block-title no-underline center-title">
+            Mission Donations
+        </h3>
+    </div>
+    <div id="js-donation-wrapper">
+        <div id="js-donation-container"></div>
+        <div class="loader"></div>
+    </div>
+{% endblock %}

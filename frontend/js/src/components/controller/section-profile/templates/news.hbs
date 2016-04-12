@@ -1,0 +1,20 @@
+<div class="block">
+    <div class="block-title">
+        <a href="{{ url }}" target="_blank">
+            {{ title }}
+        </a>
+    </div>
+    <div class="block-content no-top-bottom-padding">
+        <small>{{ published }}</small>
+        <small class="pull-right five-padding-top">
+           <i class="fa fa-users ten-margin-right"></i>Public
+        </small>
+    </div>
+    <div class="block-content">
+        <div class="image-wrapper">
+            <!-- <a href="{{ image }}" data-lightbox="{{ id }}"><img alt="{{title}}" class="sb-post-image sb-post-image-tall js-enlarge-post-image" src="{{ image }}"></a>
+            --><a href="{{ url }}" target="_blank"><img alt="{{ title }}" class="sb-post-image js-enlarge-post-image" src="{{ image }}"></a>
+        </div>
+        <p>{{ summary }}</p>
+    </div>
+</div>

@@ -4,7 +4,11 @@ from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 
-from sb_notifications.tasks import (spawn_notifications)
+from rest_framework.reverse import reverse
+
+from sb_notifications.tasks import (spawn_notifications,
+                                    spawn_system_notification)
+from sb_notifications.neo_models import Notification
 from sb_posts.neo_models import Post
 from sb_comments.neo_models import Comment
 from plebs.neo_models import Pleb
@@ -14,9 +18,9 @@ from sb_registration.utils import create_user_util_test
 class TestNotificationTasks(TestCase):
 
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
         create_user_util_test(self.email2)
@@ -25,7 +29,6 @@ class TestNotificationTasks(TestCase):
 
         self.post_info_dict = {'content': 'test post',
                                'object_uuid': str(uuid1())}
-        settings.CELERY_ALWAYS_EAGER = True
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -72,5 +75,22 @@ class TestNotificationTasks(TestCase):
         response = spawn_notifications.apply_async(kwargs=data)
         while not response.ready():
             time.sleep(1)
-
         self.assertIsInstance(response.result, Exception)
+
+    def test_create_system_notification(self):
+        data = {
+            "to_plebs": [self.pleb.username],
+            "notification_id": str(uuid1()),
+            "url": reverse("profile_page",
+                           kwargs={"pleb_username": self.pleb.username}),
+            "action_name": "This is a test notification "
+                           "that links to your profile page!"
+        }
+        res = spawn_system_notification.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        notification = Notification.nodes.get(
+            object_uuid=data['notification_id'])
+        self.assertEqual(notification.action_name, data['action_name'])
+        self.assertTrue(self.pleb in notification.notification_to)
+        self.assertTrue(res.result)

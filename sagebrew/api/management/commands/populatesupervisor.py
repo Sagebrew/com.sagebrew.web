@@ -1,12 +1,9 @@
 from os import environ
 
-import logging
 import multiprocessing
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
-
-logger = logging.getLogger('loggly_logs')
 
 
 class Command(BaseCommand):
@@ -17,10 +14,10 @@ class Command(BaseCommand):
 
     def populate_supervisor(self, env, user):
         worker_count = (multiprocessing.cpu_count() * 3) + 2
-        if(environ.get("CIRCLECI", "false").lower() == "true"):
+        if environ.get("CIRCLECI", "false").lower() == "true":
             worker_count = 2
         worker_count = str(worker_count)
-        if(env == "web"):
+        if env == "web":
             with open("%s/supervisor_confs/web_template.conf" % (
                     settings.REPO_DIR), "r") as dockerfile:
                 data = dockerfile.read()
@@ -29,7 +26,7 @@ class Command(BaseCommand):
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
             f.write(data)
             f.close()
-        elif(env == "worker"):
+        elif env == "worker":
             with open("%s/supervisor_confs/worker_template.conf" % (
                     settings.REPO_DIR), "r") as dockerfile:
                 data = dockerfile.read()
@@ -37,7 +34,7 @@ class Command(BaseCommand):
             f = open("/etc/supervisor/conf.d/sagebrew.conf", "w")
             f.write(data)
             f.close()
-        elif(env == "worker-test"):
+        elif env == "worker-test":
             with open("%s/supervisor_confs/worker_template_circle.conf" % (
                     settings.REPO_DIR), "r") as dockerfile:
                 data = dockerfile.read()
@@ -153,4 +150,10 @@ def populate_general_values(data, user, worker_count):
     data = data.replace("%(ENV_SUNLIGHT_FOUNDATION_KEY)s",
                         environ.get("SUNLIGHT_FOUNDATION_KEY", ""))
     data = data.replace("%(ENV_WEBHOSE_KEY)s", environ.get("WEBHOSE_KEY", ""))
+    data = data.replace("%(ENV_INTERCOM_API_KEY)s",
+                        environ.get("INTERCOM_API_KEY", ""))
+    data = data.replace("%(ENV_INTERCOM_APP_ID)s",
+                        environ.get("INTERCOM_APP_ID", ""))
+    data = data.replace("%(ENV_INTERCOM_ADMIN_ID_DEVON)s",
+                        environ.get("INTERCOM_ADMIN_ID_DEVON", ""))
     return data

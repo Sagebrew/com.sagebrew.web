@@ -1,5 +1,4 @@
 from uuid import uuid1
-import time
 
 from django.core import signing
 from django.test import TestCase
@@ -15,7 +14,7 @@ from api.utils import (add_failure_to_queue,
                        generate_long_token, smart_truncate,
                        gather_request_data, flatten_lists,
                        calc_stripe_application_fee, clean_url,
-                       empty_text_to_none)
+                       empty_text_to_none, generate_summary)
 from sb_questions.neo_models import Question
 
 
@@ -96,16 +95,12 @@ class TestGatherRequestData(TestCase):
         self.factory = APIRequestFactory()
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.title = str(uuid1())
         self.question = Question(content=str(uuid1()),
                                  title=self.title,
                                  owner_username=self.pleb.username).save()
         self.question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(self.question)
 
     def test_no_query_params_request(self):
         request = self.factory.get('/conversations/%s/' %
@@ -243,3 +238,38 @@ class TestEmptyTextToNone(TestCase):
     def test_none(self):
         res = empty_text_to_none(None)
         self.assertIsNone(res)
+
+
+class TestGenerateSummary(TestCase):
+
+    def test_no_text(self):
+        res = generate_summary("")
+        self.assertEqual("", res)
+
+    def test_short_text(self):
+        text = "hello world this is great"
+        res = generate_summary("hello world this is great")
+        self.assertEqual(res, text)
+
+    def test_multi_sentence_summary(self):
+        text = "Wow, I really can't believe it. " \
+               "It's 2015 and I just stumbled over this. " \
+               "I need Visual Studio 2010 compatible compilation for x64 to " \
+               "build Python 3 extensions. " \
+               "It seems this is absolutely impossible now without going " \
+               "back to a Windows that is never updated. " \
+               "Very disappointing. " \
+               "I originally tried to fix this issue: " \
+               "http://stackoverflow.com/questions/10888391/error-link-fatal" \
+               "-error-lnk1123-failure-during-conversion-to-coff-file-inval " \
+               "(I only have the SDK installed, no Visual Studio) and " \
+               'installed the "Visual C++ 2010 SP1 Compiler Update" for ' \
+               'that, and now I have this stupid header issue which is not ' \
+               'going to be fixed. Why does compiling under Windows always ' \
+               'have to be such a massive pain?'
+        res = generate_summary(text)
+        self.assertIn("visual studio", res.lower())
+
+    def test_none(self):
+        res = generate_summary(None)
+        self.assertEqual(res, "")

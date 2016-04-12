@@ -34,7 +34,7 @@ class MissionViewTests(TestCase):
                                title=str(uuid1())).save()
         self.quest = Quest(owner_username=self.pleb.username).save()
         self.quest.missions.connect(self.mission)
-        self.pleb.quest.connect(self.quest)
+        self.quest.owner.connect(self.pleb)
 
     def test_mission_list(self):
         self.client.login(username=self.user.username, password=self.password)
@@ -142,3 +142,18 @@ class MissionViewTests(TestCase):
                               'slug': self.mission.get_mission_title()})
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_endorse(self):
+        self.client.login(username=self.user.username, password=self.password)
+        url = reverse('mission_endorse',
+                      kwargs={'object_uuid': self.mission.object_uuid,
+                              'slug': self.mission.get_mission_title()})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_endorse_unauthorized(self):
+        url = reverse('mission_endorse',
+                      kwargs={'object_uuid': self.mission.object_uuid,
+                              'slug': self.mission.get_mission_title()})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)

@@ -18,9 +18,9 @@ class Command(BaseCommand):
         with open("%s/aws_environment_config/base.config" % (
                 settings.REPO_DIR), "r") as dockerfile:
             data = dockerfile.read()
-            if(cur_branch == "staging"):
+            if cur_branch == "staging":
                 data = populate_staging_values(data)
-            elif(cur_branch == "master"):
+            elif cur_branch == "master":
                 data = populate_production_values(data)
             else:
                 data = populate_test_values(data)
@@ -28,25 +28,25 @@ class Command(BaseCommand):
         with open("%s/aws_environment_config/base_worker.config" % (
                 settings.REPO_DIR), "r") as docker_worker:
             data_worker = docker_worker.read()
-            if(cur_branch == "staging"):
+            if cur_branch == "staging":
                 data_worker = populate_staging_values(data_worker)
-            elif(cur_branch == "master"):
+            elif cur_branch == "master":
                 data_worker = populate_production_values(data_worker)
             else:
                 data_worker = populate_test_values(data_worker)
             data_worker = populate_general_values(data_worker)
-        f = open("%s" % (web_env), "w")
+        f = open("%s" % web_env, "w")
         f.write(data)
         f.close()
-        f = open("%s" % (worker_env), "w")
+        f = open("%s" % worker_env, "w")
         f.write(data_worker)
         f.close()
         with open("%s/aws_environment_config/sys_util.config" % (
                 settings.REPO_DIR), "r") as docker_sys:
             data_worker = docker_sys.read()
-            if(cur_branch == "staging"):
+            if cur_branch == "staging":
                 data_worker = populate_staging_values(data_worker)
-            elif(cur_branch == "master"):
+            elif cur_branch == "master":
                 data_worker = populate_production_values(data_worker)
             else:
                 data_worker = populate_test_values(data_worker)
@@ -85,8 +85,6 @@ def populate_staging_values(data):
                         environ.get("RDS_PASSWORD_STAGING", ""))
     data = data.replace("<RDS_HOSTNAME>",
                         environ.get("RDS_HOSTNAME_STAGING", ""))
-    data = data.replace("<CELERY_QUEUE>",
-                        environ.get("CELERY_QUEUE_STAGING", ""))
     data = data.replace("<WEB_SECURITY_GROUP>",
                         environ.get("WEB_SECURITY_GROUP_STAGING", ""))
     data = data.replace("<STRIPE_PUBLIC_KEY>",
@@ -143,6 +141,12 @@ def populate_staging_values(data):
                         environ.get("GOOGLE_MAPS_API_STAGING", ""))
     data = data.replace("<GOOGLE_MAPS_JS>",
                         environ.get("GOOGLE_MAPS_JS_STAGING", ""))
+    data = data.replace("<INTERCOM_API_KEY>",
+                        environ.get("INTERCOM_API_KEY_STAGING", ""))
+    data = data.replace("<INTERCOM_APP_ID>",
+                        environ.get("INTERCOM_APP_ID_STAGING", ""))
+    data = data.replace("<INTERCOM_ADMIN_ID_DEVON>",
+                        environ.get("INTERCOM_ADMIN_ID_DEVON_STAGING", ""))
     return data
 
 
@@ -170,8 +174,6 @@ def populate_production_values(data):
                         environ.get("RDS_PASSWORD_PROD", ""))
     data = data.replace("<RDS_HOSTNAME>",
                         environ.get("RDS_HOSTNAME_PROD", ""))
-    data = data.replace("<CELERY_QUEUE>",
-                        environ.get("CELERY_QUEUE_PROD", ""))
     data = data.replace("<WEB_SECURITY_GROUP>",
                         environ.get("WEB_SECURITY_GROUP_PROD", ""))
     data = data.replace("<STRIPE_PUBLIC_KEY>",
@@ -228,6 +230,12 @@ def populate_production_values(data):
                         environ.get("GOOGLE_MAPS_API_PROD", ""))
     data = data.replace("<GOOGLE_MAPS_JS>",
                         environ.get("GOOGLE_MAPS_JS_PROD", ""))
+    data = data.replace("<INTERCOM_API_KEY>",
+                        environ.get("INTERCOM_API_KEY_PROD", ""))
+    data = data.replace("<INTERCOM_APP_ID>",
+                        environ.get("INTERCOM_APP_ID_PROD", ""))
+    data = data.replace("<INTERCOM_ADMIN_ID_DEVON>",
+                        environ.get("INTERCOM_ADMIN_ID_DEVON_PROD", ""))
     return data
 
 
@@ -287,6 +295,12 @@ def populate_test_values(data):
                         environ.get("GOOGLE_MAPS_API", ""))
     data = data.replace("<GOOGLE_MAPS_JS>",
                         environ.get("GOOGLE_MAPS_JS", ""))
+    data = data.replace("<INTERCOM_API_KEY>",
+                        environ.get("INTERCOM_API_KEY_STAGING", ""))
+    data = data.replace("<INTERCOM_APP_ID>",
+                        environ.get("INTERCOM_APP_ID_STAGING", ""))
+    data = data.replace("<INTERCOM_ADMIN_ID_DEVON>",
+                        environ.get("INTERCOM_ADMIN_ID_DEVON_STAGING", ""))
     return data
 
 

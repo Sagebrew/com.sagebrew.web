@@ -9,10 +9,13 @@ from django.contrib.sitemaps.views import sitemap
 
 from sb_registration.views import (login_view, logout_view, signup_view,
                                    quest_signup, advocacy, political_campaign)
+from plebs.sitemap import ProfileSitemap
 from sb_registration.forms import CustomPasswordResetForm
 from sb_questions.sitemap import QuestionSitemap, ConversationSitemap
 from sagebrew.sitemap import (StaticViewSitemap, SignupSitemap)
-from sb_quests.sitemap import QuestEpicSitemap, QuestUpdateSitemap
+from sb_quests.sitemap import QuestSitemap
+from sb_missions.sitemap import (MissionSitemap,
+                                 MissionUpdateSitemap, MissionListSitemap)
 from help_center.sitemap import (AccountHelpSitemap, ConversationHelpSitemap,
                                  DonationsHelpSitemap, PoliciesHelpSitemap,
                                  PrivilegeHelpSitemap, QuestHelpSitemap,
@@ -24,7 +27,7 @@ from help_center.sitemap import (AccountHelpSitemap, ConversationHelpSitemap,
 
 urlpatterns = patterns(
     '',
-    (r'^favicon\.ico$', RedirectView.as_view(url="%sfavicon.ico" % (
+    (r'^favicon\.ico$', RedirectView.as_view(url="%s/images/favicon.ico" % (
         settings.STATIC_URL), permanent=True)),
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
@@ -81,9 +84,12 @@ urlpatterns = patterns(
     url(r'^sitemap\.xml$', sitemap,
         {'sitemaps': {
             'questions': QuestionSitemap,
+            'profiles': ProfileSitemap,
             'conversation_cloud': ConversationSitemap,
-            'quests': QuestEpicSitemap,
-            'updates': QuestUpdateSitemap,
+            'quests': QuestSitemap,
+            'missions': MissionSitemap,
+            'mission_list': MissionListSitemap,
+            'updates': MissionUpdateSitemap,
             'static_pages': StaticViewSitemap,
             'sign_up': SignupSitemap,
             'account_help': AccountHelpSitemap,
@@ -104,12 +110,10 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_solutions.apis.v1')),
     (r'^v1/', include('sb_oauth.apis.v1')),
     (r'^v1/', include('plebs.apis.v1')),
-    (r'^v1/', include('plebs.apis.beta_urls')),
     (r'^v1/', include('sb_posts.apis.v1')),
     (r'^v1/', include('sb_comments.apis.v1')),
-    (r'^v1/', include('sb_flags.apis.v1')),
+    (r'^v1/', include('sb_news.apis.v1')),
     (r'^v1/', include('sb_missions.apis.v1')),
-    (r'^v1/', include('sb_votes.apis.v1')),
     (r'^v1/', include('sb_privileges.apis.v1')),
     (r'^v1/', include('sb_tags.apis.v1')),
     (r'^v1/', include('sb_updates.apis.v1')),

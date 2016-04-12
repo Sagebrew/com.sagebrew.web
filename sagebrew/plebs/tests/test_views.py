@@ -1,3 +1,4 @@
+import time
 from uuid import uuid1
 
 from rest_framework import status
@@ -25,11 +26,11 @@ class ProfilePageTest(TestCase):
         self.email = "success@simulator.amazonses.com"
         self.password = "testpassword"
         res = create_user_util_test(self.email, task=True)
-        self.username = res["username"]
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
+        while not res['task_id'].ready():
+            time.sleep(.1)
+        self.pleb = res['pleb']
+        self.user = res['user']
+        self.username = self.pleb.username
         self.pleb.completed_profile_info = True
         self.pleb.email_verified = True
         self.pleb.save()
@@ -39,14 +40,15 @@ class ProfilePageTest(TestCase):
         request.user = AnonymousUser()
         profile_page = ProfileView.as_view()
         response = profile_page(request, self.pleb.username)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_without_post(self):
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         profile_page = ProfileView.as_view()
         response = profile_page(request, self.pleb.username)
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
 
     def test_with_post(self):
         test_post = Post(content='test', object_uuid=str(uuid1()),
@@ -56,15 +58,13 @@ class ProfilePageTest(TestCase):
         wall = self.pleb.get_wall()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
-        rel = test_post.owned_by.connect(self.pleb)
-        rel.save()
-        rel_from_pleb = self.pleb.posts.connect(test_post)
-        rel_from_pleb.save()
+        test_post.owned_by.connect(self.pleb)
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         profile_page = ProfileView.as_view()
         response = profile_page(request, self.pleb.username)
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
         test_post.delete()
 
     def test_post_with_comments(self):
@@ -75,24 +75,18 @@ class ProfilePageTest(TestCase):
         wall = self.pleb.get_wall()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
-        rel = test_post.owned_by.connect(self.pleb)
-        rel.save()
-        rel_from_pleb = self.pleb.posts.connect(test_post)
-        rel_from_pleb.save()
+        test_post.owned_by.connect(self.pleb)
         my_comment = Comment(content='test comment', object_uuid=str(uuid1()),
                              owner_username=self.pleb.username)
         my_comment.save()
-        rel_to_pleb = my_comment.owned_by.connect(self.pleb)
-        rel_to_pleb.save()
-        rel_from_pleb = self.pleb.comments.connect(my_comment)
-        rel_from_pleb.save()
-        rel_from_post = test_post.comments.connect(my_comment)
-        rel_from_post.save()
+        my_comment.owned_by.connect(self.pleb)
+        test_post.comments.connect(my_comment)
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         profile_page = ProfileView.as_view()
         response = profile_page(request, self.pleb.username)
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
         test_post.delete()
         my_comment.delete()
 
@@ -107,19 +101,12 @@ class ProfilePageTest(TestCase):
         wall = self.pleb.wall.all()[0]
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
-        rel = test_post.owned_by.connect(self.pleb)
-        rel.save()
-        rel_from_pleb = self.pleb.posts.connect(test_post)
-        rel_from_pleb.save()
+        test_post.owned_by.connect(self.pleb)
         my_comment = Comment(content='test comment', object_uuid=str(uuid1()),
                              owner_username=self.pleb.username)
         my_comment.save()
-        rel_to_pleb = my_comment.owned_by.connect(test_user)
-        rel_to_pleb.save()
-        rel_from_pleb = test_user.comments.connect(my_comment)
-        rel_from_pleb.save()
-        rel_from_post = test_post.comments.connect(my_comment)
-        rel_from_post.save()
+        my_comment.owned_by.connect(test_user)
+        test_post.comments.connect(my_comment)
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         profile_page = ProfileView.as_view()
@@ -155,10 +142,7 @@ class ProfilePageTest(TestCase):
             test_post.save()
             test_post.posted_on_wall.connect(wall)
             wall.posts.connect(test_post)
-            rel = test_post.owned_by.connect(self.pleb)
-            rel.save()
-            rel_from_pleb = self.pleb.posts.connect(test_post)
-            rel_from_pleb.save()
+            test_post.owned_by.connect(self.pleb)
             post_array.append(test_post)
         self.client.login(username=self.username, password=self.password)
         response = self.client.get(reverse("profile_page",
@@ -186,10 +170,7 @@ class ProfilePageTest(TestCase):
                 test_post.save()
                 test_post.posted_on_wall.connect(wall)
                 wall.posts.connect(test_post)
-                rel = test_post.owned_by.connect(test_pleb)
-                rel.save()
-                rel_from_pleb = test_pleb.posts.connect(test_post)
-                rel_from_pleb.save()
+                test_post.owned_by.connect(test_pleb)
                 post_array.append(test_post)
         test_post = Post(content='test', object_uuid=str(uuid1()),
                          owner_username=self.pleb.username,
@@ -197,15 +178,13 @@ class ProfilePageTest(TestCase):
         test_post.save()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
-        rel = test_post.owned_by.connect(self.pleb)
-        rel.save()
-        rel_from_pleb = self.pleb.posts.connect(test_post)
-        rel_from_pleb.save()
+        test_post.owned_by.connect(self.pleb)
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         profile_page = ProfileView.as_view()
         response = profile_page(request, self.pleb.username)
-        self.assertIn(response.status_code, [302, 200])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
         for item in pleb_array:
             item.delete()
         for post in post_array:
@@ -229,33 +208,22 @@ class ProfilePageTest(TestCase):
                 test_post.save()
                 test_post.posted_on_wall.connect(wall)
                 wall.posts.connect(test_post)
-                rel = test_post.owned_by.connect(test_pleb)
-                rel.save()
-                rel_from_pleb = test_pleb.posts.connect(test_post)
-                rel_from_pleb.save()
+                test_post.owned_by.connect(test_pleb)
                 post_array.append(test_post)
                 for num in range(0, 1):
                     my_comment = Comment(content='test comment',
                                          object_uuid=str(uuid1()),
                                          owner_username=self.pleb.username)
                     my_comment.save()
-                    rel_to_pleb = my_comment.owned_by.connect(test_pleb)
-                    rel_to_pleb.save()
-                    rel_from_pleb = test_pleb.comments.connect(my_comment)
-                    rel_from_pleb.save()
-                    rel_from_post = test_post.comments.connect(my_comment)
-                    rel_from_post.save()
+                    my_comment.owned_by.connect(test_pleb)
+                    test_post.comments.connect(my_comment)
                     comment_array.append(my_comment)
                     my_comment = Comment(content='test comment',
                                          object_uuid=str(uuid1()),
                                          owner_username=self.pleb.username)
                     my_comment.save()
-                    rel_to_pleb = my_comment.owned_by.connect(self.pleb)
-                    rel_to_pleb.save()
-                    rel_from_pleb = self.pleb.comments.connect(my_comment)
-                    rel_from_pleb.save()
-                    rel_from_post = test_post.comments.connect(my_comment)
-                    rel_from_post.save()
+                    my_comment.owned_by.connect(self.pleb)
+                    test_post.comments.connect(my_comment)
                     comment_array.append(my_comment)
         test_post = Post(content='test', object_uuid=str(uuid1()),
                          owner_username=self.pleb.username,
@@ -263,15 +231,13 @@ class ProfilePageTest(TestCase):
         test_post.save()
         test_post.posted_on_wall.connect(wall)
         wall.posts.connect(test_post)
-        rel = test_post.owned_by.connect(self.pleb)
-        rel.save()
-        rel_from_pleb = self.pleb.posts.connect(test_post)
-        rel_from_pleb.save()
+        test_post.owned_by.connect(self.pleb)
         request = self.factory.get('/%s' % self.pleb.username)
         request.user = self.user
         profile_page = ProfileView.as_view()
         response = profile_page(request, self.pleb.username)
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
         for item in pleb_array:
             item.delete()
         for post in post_array:
@@ -286,7 +252,7 @@ class ProfilePageTest(TestCase):
         profile_page = ProfileView.as_view()
         response = profile_page(request, 'fake_username')
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
 
 class TestSettingPages(TestCase):

@@ -46,7 +46,7 @@
                 {% for field in interest_form %}
                     {% if field.id_for_label == "id_select_all" %}
                         <div class="row-fluid">
-                            <div class="col-xs-10 col-sm-3 col-sm-offset-1 registration-tooltip">
+                            <div class="col-xs-10 col-sm-3 col-sm-offset-1 no-padding-right">
                                 <div class="has-popover"
                                      data-toggle="tooltip"
                                      data-original-title="{{ field.help_text }}">
@@ -77,11 +77,11 @@
                                 </div>
                             </div>
                             <div class="col-xs-1 col-sm-2">
-                                <label class="checkbox" for="{{ field.id_for_label }}">
+                                <label class="checkbox" for="{{ field.html_name }}">
                                     <input type="checkbox"
                                            value="{{ field.value|default_if_none:"false" }}"
-                                           name="{{ field.html_name }}"
-                                           id="{{ field.id_for_label }}"
+                                           name="interests"
+                                           id="{{ field.html_name }}"
                                            data-toggle="checkbox">
                                 </label>
                             </div>

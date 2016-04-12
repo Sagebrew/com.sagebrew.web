@@ -6,10 +6,14 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.contrib.auth import login, authenticate
+from django.conf import settings
+from django.utils.text import slugify
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.reverse import reverse
+
+from py2neo.cypher.error.schema import ConstraintViolation
 
 from neomodel import db, DoesNotExist
 
@@ -66,8 +70,9 @@ class ReputationNotificationValidator:
 
     def __call__(self, value):
         if not value or value is None:
-            message = 'Cannot change reputation_update_seen to false.'
-            raise serializers.ValidationError(message)
+            message = 'Cannot change this field to false.'
+            raise serializers.ValidationError(
+                {"reputation_update_seen": message})
         return value
 
 
@@ -181,7 +186,7 @@ class PlebSerializerNeo(SBSerializer):
         user = User.objects.create_user(
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
-            email=validated_data['email'],
+            email=validated_data['email'].lower(),
             password=validated_data['password'], username=username)
         user.save()
         pleb = Pleb(email=user.email,
@@ -226,19 +231,19 @@ class PlebSerializerNeo(SBSerializer):
         last_name = validated_data.get('last_name', instance.last_name)
         customer_token = validated_data.pop('customer_token',
                                             instance.customer_token)
-        email = validated_data.get('email', instance.email)
+        email = validated_data.get('email', instance.email).lower()
         user_obj = User.objects.get(username=instance.username)
-        if first_name != instance.first_name:
+        if first_name != user_obj.first_name:
             instance.first_name = first_name
             user_obj.first_name = first_name
-        if last_name != instance.last_name:
+        if last_name != user_obj.last_name:
             instance.last_name = last_name
             user_obj.last_name = last_name
-        if email != instance.email:
+        if email != user_obj.email:
             instance.email = email
             user_obj.email = email
             if instance.get_quest():
-                quest = Quest.get(instance.username)
+                quest = Quest.get(instance.username, cache_buster=True)
                 if quest.stripe_customer_id:
                     customer = \
                         stripe.Customer.retrieve(quest.stripe_customer_id)
@@ -247,7 +252,7 @@ class PlebSerializerNeo(SBSerializer):
         if user_obj.check_password(validated_data.get('password', "")) is True:
             user_obj.set_password(validated_data.get(
                 'new_password', validated_data.get('password', "")))
-            update_session_auth_hash(self.context['request'], user_obj)
+            update_session_auth_hash(self.context.get('request'), user_obj)
         user_obj.save()
         profile_pic = validated_data.get('profile_pic')
         if profile_pic is not None and profile_pic != "":
@@ -334,6 +339,9 @@ class PlebSerializerNeo(SBSerializer):
     def get_is_following(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)
         if request is not None:
+            # Backwards because we don't want to be dependent on the Pleb as
+            # the object running the query so the user can follow multiple
+            # types of objects. Such as Quest or Plebs.
             return obj.is_following(request.user.username)
         return False
 
@@ -363,7 +371,6 @@ class AddressSerializer(SBSerializer):
         address.set_encompassing()
         pleb = Pleb.get(username=request.user.username, cache_buster=True)
         address.owned_by.connect(pleb)
-        pleb.address.connect(address)
         pleb.completed_profile_info = True
         pleb.save()
         pleb.determine_reps()
@@ -469,3 +476,30 @@ class InterestsSerializer(SBSerializer):
     interests = serializers.ListField(
         child=serializers.CharField(max_length=126),
     )
+
+
+class TopicInterestsSerializer(SBSerializer):
+    interests = serializers.MultipleChoiceField(
+        choices=settings.TOPICS_OF_INTEREST,
+        allow_blank=True)
+
+    def create(self, validated_data):
+        from sb_tags.neo_models import Tag
+        from sb_tags.serializers import TagSerializer
+        request, _, _, _, _ = gather_request_data(self.context)
+        generated_tags = []
+        if request is None:
+            raise serializers.ValidationError(
+                "Must perform creation from web request")
+        for tag in validated_data['interests']:
+            try:
+                query = 'MATCH (profile:Pleb {username: "%s"}), ' \
+                        '(tag:Tag {name: "%s"}) ' \
+                        'CREATE UNIQUE (profile)-[:INTERESTED_IN]->(tag) ' \
+                        'RETURN tag' % (request.user.username, slugify(tag))
+                res, _ = db.cypher_query(query)
+                generated_tags.append(TagSerializer(Tag.inflate(res.one)).data)
+            except(ConstraintViolation, Exception):
+                pass
+        cache.delete(request.user.username)
+        return generated_tags

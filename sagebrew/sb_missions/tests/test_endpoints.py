@@ -19,7 +19,7 @@ from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
 from sb_donations.neo_models import Donation
-from sb_updates.neo_models import Update
+
 from sb_volunteers.neo_models import Volunteer
 
 from sb_quests.neo_models import Quest
@@ -28,7 +28,7 @@ from sb_quests.neo_models import Quest
 class MissionEndpointTests(APITestCase):
 
     def setUp(self):
-        query = "match (n)-[r]-() delete n,r"
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
         self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"
@@ -206,8 +206,9 @@ class MissionEndpointTests(APITestCase):
 
     def test_create_with_no_quest(self):
         self.client.force_authenticate(user=self.user)
-        for quest in self.pleb.quest.all():
-            self.pleb.quest.disconnect(quest)
+        query = 'MATCH (a:Pleb {username: "%s"})-[r:IS_WAGING]->(q:Quest) ' \
+                'DELETE q, r' % self.pleb.username
+        res, _ = db.cypher_query(query)
         self.quest.moderators.disconnect(self.pleb)
         self.quest.editors.disconnect(self.pleb)
         usa = Location(name="United States of America").save()
@@ -564,11 +565,12 @@ class MissionEndpointTests(APITestCase):
         self.quest.missions.connect(mission)
         data = {
             "epic": "This is my epic",
-            "facebook": str(uuid1()),
-            "linkedin": str(uuid1()),
-            "youtube": str(uuid1()),
-            "twitter": str(uuid1()),
-            "website": str(uuid1()),
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "about": str(uuid1())
         }
         url = reverse('mission-detail',
@@ -576,8 +578,84 @@ class MissionEndpointTests(APITestCase):
         response = self.client.patch(url, data=data, format='json')
         mission = Mission.nodes.get(object_uuid=response.data['id'])
         self.assertEqual(mission.facebook, data['facebook'])
-        self.assertContains(response, data['epic'],
-                            status_code=status.HTTP_200_OK)
+
+    def test_update_not_owner(self):
+        self.client.force_authenticate(user=self.user2)
+        mission_old = Mission(title=str(uuid1()),
+                              owner_username=self.pleb.username).save()
+        self.quest.missions.connect(mission_old)
+        data = {
+            "epic": "Fake epic content that was made by a fake user",
+        }
+        url = reverse('mission-detail',
+                      kwargs={'object_uuid': mission_old.object_uuid})
+        response = self.client.patch(url, data=data, format='json')
+        mission = Mission.nodes.get(object_uuid=mission_old.object_uuid)
+        self.assertEqual(mission.epic, mission_old.epic)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data, ['Only the owner can edit this'])
+
+    def test_update_epic_with_h1_first(self):
+        self.client.force_authenticate(user=self.user)
+        mission = Mission(title=str(uuid1()),
+                          owner_username=self.pleb.username).save()
+
+        self.quest.missions.connect(mission)
+        content = "# hello world this is a h1 #\n" \
+                  "## with a h2 after it ##\n" \
+                  "# another h1 #\n" \
+                  "and then some text"
+        data = {
+            "epic": content,
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
+            "about": str(uuid1())
+        }
+        url = reverse('mission-detail',
+                      kwargs={'object_uuid': mission.object_uuid})
+        response = self.client.patch(url, data, format='json')
+        html_content = '<h1 style="padding-top: 0; ' \
+                       'margin-top: 5px;">hello world this is a h1</h1>\n' \
+                       '<h2>with a h2 after it</h2>\n' \
+                       '<h1>another h1</h1>\n' \
+                       '<p>and then some text</p>'
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['rendered_epic'], html_content)
+
+    def test_update_epic_with_h2_first(self):
+        self.client.force_authenticate(user=self.user)
+        mission = Mission(title=str(uuid1()),
+                          owner_username=self.pleb.username).save()
+
+        self.quest.missions.connect(mission)
+        content = "## hello world this is a h2 ##\n" \
+                  "# with a h1 after it #\n" \
+                  "## another h2 ##\n" \
+                  "and then some text"
+        data = {
+            "epic": content,
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
+            "about": str(uuid1())
+        }
+        url = reverse('mission-detail',
+                      kwargs={'object_uuid': mission.object_uuid})
+        response = self.client.patch(url, data, format='json')
+        html_content = '<h2 style="padding-top: 0; ' \
+                       'margin-top: 5px;">hello world this is a h2</h2>' \
+                       '\n<h1>with a h1 after it</h1>' \
+                       '\n<h2>another h2</h2>\n<p>' \
+                       'and then some text</p>'
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['rendered_epic'], html_content)
 
     def test_update_take_active(self):
         self.client.force_authenticate(user=self.user)
@@ -585,20 +663,12 @@ class MissionEndpointTests(APITestCase):
                           owner_username=self.pleb.username).save()
         self.quest.missions.connect(mission)
         data = {
-            "epic": "This is my epic",
-            "facebook": str(uuid1()),
-            "linkedin": str(uuid1()),
-            "youtube": str(uuid1()),
-            "twitter": str(uuid1()),
-            "website": str(uuid1()),
             "active": True,
-            "about": "     "
         }
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data=data, format='json')
-        self.assertContains(response, data['epic'],
-                            status_code=status.HTTP_200_OK)
+        self.assertTrue(response.data['active'])
         mission.refresh()
         self.assertTrue(mission.active)
 
@@ -609,19 +679,12 @@ class MissionEndpointTests(APITestCase):
                           active=True).save()
         self.quest.missions.connect(mission)
         data = {
-            "epic": "This is my epic",
-            "facebook": str(uuid1()),
-            "linkedin": str(uuid1()),
-            "youtube": str(uuid1()),
-            "twitter": str(uuid1()),
-            "website": str(uuid1()),
             "active": False
         }
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data=data, format='json')
-        self.assertContains(response, data['epic'],
-                            status_code=status.HTTP_200_OK)
+        self.assertFalse(response.data['active'])
         mission.refresh()
         self.assertFalse(mission.active)
 
@@ -633,11 +696,12 @@ class MissionEndpointTests(APITestCase):
         self.quest.missions.connect(mission)
         data = {
             "epic": "This is my epic",
-            "facebook": str(uuid1()),
-            "linkedin": str(uuid1()),
-            "youtube": str(uuid1()),
-            "twitter": str(uuid1()),
-            "website": "https://sagebrew.com/",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
             "active": False
         }
         url = reverse('mission-detail',
@@ -991,18 +1055,6 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(data['title'], response.data['title'])
 
-    def test_update_render(self):
-        self.client.force_authenticate(user=self.user)
-        update = Update(title=str(uuid1()),
-                        content=str(uuid1())).save()
-        update.mission.connect(self.mission)
-        url = reverse('update-render',
-                      kwargs={'object_uuid': self.mission.object_uuid}) + \
-            "?about_type=mission"
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn(update.object_uuid, response.data['results']['ids'])
-
     def test_volunteer_export(self):
         self.client.force_authenticate(user=self.user)
         volunteer = Volunteer(activities=["get_out_the_vote"],
@@ -1011,7 +1063,7 @@ class MissionEndpointTests(APITestCase):
         volunteer.mission.connect(self.mission)
         volunteer.volunteer.connect(self.pleb2)
         address = Address(city="Walled Lake", state="Michigan").save()
-        self.pleb2.address.connect(address)
+        address.owned_by.connect(self.pleb2)
         url = "/v1/missions/%s/volunteer_data/" % self.mission.object_uuid
         response = self.client.get(url, format='json')
 
@@ -1046,3 +1098,41 @@ class MissionEndpointTests(APITestCase):
                                            'Data Entry,Host A Meeting,Host A '
                                            'Fundraiser,Host A House Party,'
                                            'Attend A House Party\r\n')
+
+    def test_endorse(self):
+        self.client.force_authenticate(user=self.user)
+        url = "/v1/missions/%s/endorse/" % self.mission.object_uuid
+        response = self.client.post(url, data={"endorse_as": "profile"},
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(self.pleb in self.mission.profile_endorsements)
+
+    def test_endorse_unauthorized(self):
+        url = "/v1/missions/%s/endorse/" % self.mission.object_uuid
+        response = self.client.post(url, data={"endorse_as": "profile"},
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_unendorse(self):
+        self.client.force_authenticate(user=self.user)
+        url = "/v1/missions/%s/unendorse/" % self.mission.object_uuid
+        response = self.client.post(url, data={"endorse_as": "profile"},
+                                    format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(self.pleb in self.mission.profile_endorsements)
+
+    def test_endorsements(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.profile_endorsements.connect(self.pleb)
+        url = "/v1/missions/%s/endorsements/" % self.mission.object_uuid
+        res = self.client.get(url, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['results'][0]['id'], self.pleb.username)
+
+    def test_endorsements_quest(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.quest_endorsements.connect(self.quest)
+        url = "/v1/missions/%s/endorsements/" % self.mission.object_uuid
+        res = self.client.get(url, format='json')
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['results'][0]['id'], self.quest.object_uuid)

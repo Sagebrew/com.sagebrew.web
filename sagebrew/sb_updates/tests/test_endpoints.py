@@ -7,7 +7,6 @@ from django.core.cache import cache
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
 from sb_quests.neo_models import Quest
 from sb_missions.neo_models import Mission
@@ -20,9 +19,11 @@ class UpdateEndpointsTest(APITestCase):
         cache.clear()
         self.unit_under_test_name = 'goal'
         self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.email2 = "bounces@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
+        self.pleb2 = create_user_util_test(self.email2)
+        self.user2 = User.objects.get(email=self.email2)
         self.url = "http://testserver"
         self.quest = Quest(active=True,
                            owner_username=self.pleb.username).save()
@@ -35,7 +36,7 @@ class UpdateEndpointsTest(APITestCase):
         self.quest.updates.connect(self.update)
         self.quest.missions.connect(self.mission)
         self.update.mission.connect(self.mission)
-        self.pleb.quest.connect(self.quest)
+        self.quest.owner.connect(self.pleb)
         self.update.owned_by.connect(self.pleb)
 
     def test_unauthorized(self):
@@ -205,14 +206,6 @@ class UpdateEndpointsTest(APITestCase):
 
         self.assertEqual(response.data['flagged_by'], [])
 
-    def test_get_html_content(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('update-detail',
-                      kwargs={'object_uuid': self.update.object_uuid})
-        response = self.client.get(url)
-
-        self.assertEqual(response.data['html_content'], "<p>Test Content</p>")
-
     def test_get_title(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('update-detail',
@@ -271,6 +264,20 @@ class UpdateEndpointsTest(APITestCase):
         response = self.client.patch(url, data=data, format='json')
 
         self.assertEqual(response.data['content'], data['content'])
+
+    def test_patch_content_not_owner(self):
+        self.client.force_authenticate(user=self.user2)
+        url = reverse('update-detail',
+                      kwargs={'object_uuid': self.update.object_uuid})
+        data = {
+            'content': 'testing update'
+        }
+        response = self.client.patch(url, data=data, format='json')
+        self.assertEqual(response.data, ['Only the owner can edit this'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            Update.nodes.get(object_uuid=self.update.object_uuid).content,
+            self.update.content)
 
     def test_post(self):
         self.client.force_authenticate(user=self.user)

@@ -1,21 +1,22 @@
 from uuid import uuid1
-import time
 from dateutil import parser
 
 from django.utils.text import slugify
 from django.core.cache import cache
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
+from django.core.management import call_command
 
-from rest_framework import status
+from rest_framework import status, serializers
 from rest_framework.test import APITestCase
 
 from neomodel.exception import DoesNotExist
 from neomodel import db
 
-from plebs.neo_models import Pleb
+from sb_privileges.neo_models import Privilege
 from sb_tags.neo_models import Tag
 from sb_questions.neo_models import Question
+from sb_questions.serializers import QuestionSerializerNeo
 from sb_solutions.neo_models import Solution
 from sb_registration.utils import create_user_util_test
 
@@ -25,17 +26,16 @@ class QuestionEndpointTests(APITestCase):
     def setUp(self):
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        while not res['task_id'].ready():
-            time.sleep(.1)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.email2 = "bounces@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.pleb2 = create_user_util_test(self.email2)
         self.title = str(uuid1())
         self.question = Question(content="Hey I'm a question",
                                  title=self.title,
                                  owner_username=self.pleb.username).save()
         self.question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(self.question)
         self.user = User.objects.get(email=self.email)
+        self.user2 = User.objects.get(email=self.email2)
         try:
             Tag.nodes.get(name='taxes')
         except DoesNotExist:
@@ -110,6 +110,106 @@ class QuestionEndpointTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
+    def test_create_with_new_tags_no_rep(self):
+        self.client.force_authenticate(user=self.user)
+        content = "This is the content to my question, it's a pretty good " \
+                  "question."
+        title = "This is a question that must be asked. What is blue?"
+        tag_name = 'non-existent tag'
+        tags = ['taxes', tag_name]
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        query = 'MATCH (a:Tag {name: "%s"}) RETURN a' % slugify(tag_name)
+        res, _ = db.cypher_query(query)
+        self.assertIsNone(res.one)
+
+    def test_create_with_new_tags_with_rep(self):
+        self.client.force_authenticate(user=self.user)
+        self.pleb.reputation = 1250
+        self.pleb.save()
+        cache.clear()
+        tag_name = 'non-existent tag with more'
+        content = "This is the content to my question, it's a pretty good " \
+                  "question."
+        title = "This is a new question that doesn't have a title green"
+        tags = ['taxes', tag_name]
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        self.pleb.reputation = 0
+        self.pleb.save()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        query = 'MATCH (a:Tag {name: "%s"}) RETURN a' % slugify(tag_name)
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+        query = 'MATCH (a:Tag {name: "%s"})<-[:TAGGED_AS]-' \
+                '(question:Question {object_uuid: "%s"}) ' \
+                'RETURN question' % (slugify(tag_name), response.data['id'])
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+
+    def test_create_with_h1_first(self):
+        self.client.force_authenticate(user=self.user)
+        content = "# hello world this is a h1 #\n" \
+                  "## with a h2 after it ##\n" \
+                  "# another h1 #\n" \
+                  "and then some text"
+        title = "This is a question that must be t is blue216666?"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        html_content = '<h1 style="padding-top: 0; ' \
+                       'margin-top: 5px;">hello world this is a h1</h1>\n' \
+                       '<h2>with a h2 after it</h2>\n' \
+                       '<h1>another h1</h1>\n' \
+                       '<p>and then some text</p>'
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['html_content'], html_content)
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+
+    def test_create_with_h2_first(self):
+        self.client.force_authenticate(user=self.user)
+        content = "## hello world this is a h2 ##\n" \
+                  "# with a h1 after it #\n" \
+                  "## another h2 ##\n" \
+                  "and then some text"
+        title = "This is a question that must be t is blue21222?"
+        tags = ['taxes', 'environment']
+        url = reverse('question-list')
+        data = {
+            "content": content,
+            "title": title,
+            "tags": tags
+        }
+        response = self.client.post(url, data, format='json')
+        html_content = '<h2 style="padding-top: 0; ' \
+                       'margin-top: 5px;">hello world this is a h2</h2>' \
+                       '\n<h1>with a h1 after it</h1>' \
+                       '\n<h2>another h2</h2>\n<p>' \
+                       'and then some text</p>'
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['html_content'], html_content)
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+
     def test_create_with_image(self):
         self.client.force_authenticate(user=self.user)
         content = "![enter image description here][1] " \
@@ -132,7 +232,9 @@ class QuestionEndpointTests(APITestCase):
                        response.data['id']
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
-        Question.get(object_uuid=response.data['object_uuid']).delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
 
     def test_create_with_fake_image(self):
         self.client.force_authenticate(user=self.user)
@@ -153,7 +255,9 @@ class QuestionEndpointTests(APITestCase):
                        'asdfasdfasdfasdfadsfasdfasdfa</p>'
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
-        Question.get(object_uuid=response.data['id']).delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
 
     def test_create_with_multiple_image(self):
         self.client.force_authenticate(user=self.user)
@@ -204,7 +308,9 @@ class QuestionEndpointTests(APITestCase):
                           response.data['id'],)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
-        Question.get(object_uuid=response.data['id']).delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
 
     def test_create_with_script(self):
         self.client.force_authenticate(user=self.user)
@@ -221,7 +327,9 @@ class QuestionEndpointTests(APITestCase):
         html_content = "<p>&lt;script&gt;alert('hello')&lt;/script&gt;</p>"
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
-        Question.get(object_uuid=response.data['id']).delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
 
     def test_create_with_focus_area(self):
         self.client.force_authenticate(user=self.user)
@@ -323,25 +431,6 @@ class QuestionEndpointTests(APITestCase):
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['title'], title)
-
-    def test_create_rendered(self):
-        self.client.force_authenticate(user=self.user)
-        content = "This is the content to my question, it's a pretty good " \
-                  "question."
-        title = str(uuid1())
-        tags = ['taxes', 'environment']
-        url = "%s?html=true" % reverse('question-list')
-        data = {
-            "content": content,
-            "title": title,
-            "tags": tags
-        }
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertTrue("html" in response.data)
-        self.assertTrue("ids" in response.data)
-        self.assertEqual(len(response.data['ids']), 1)
-        self.assertEqual(len(response.data['html']), 1)
 
     def test_create_content(self):
         self.client.force_authenticate(user=self.user)
@@ -643,6 +732,30 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(updated_question.affected_area, affected_area)
         self.assertEqual(updated_question.external_location_id, external_id)
 
+    def test_update_not_owner(self):
+        self.client.force_authenticate(user=self.user2)
+        title = str(uuid1())
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': self.question.object_uuid})
+        data = {
+            "title": title
+        }
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.data, ['Only the owner can edit this'])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_update_no_request(self):
+        serializer = QuestionSerializerNeo(data={
+            "title": self.question.title
+        }, instance=self.question, partial=True)
+        serializer.is_valid()
+        try:
+            serializer.save()
+            # We shouldn't be able to save unless is_valid has errors set.
+            self.assertTrue(False)
+        except serializers.ValidationError as e:
+            self.assertEqual(e.detail, ['Cannot update without request'])
+
     def test_update_title(self):
         self.client.force_authenticate(user=self.user)
         title = str(uuid1())
@@ -655,6 +768,19 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(response.data['title'], title)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(Question.get(self.question.object_uuid).title, title)
+
+    def test_update_same_title(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': self.question.object_uuid})
+        data = {
+            "title": self.question.title
+        }
+        response = self.client.patch(url, data, format='json')
+        self.assertEqual(response.data['title'], self.question.title)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(Question.get(self.question.object_uuid).title,
+                         self.question.title)
 
     def test_update_tags(self):
         self.client.force_authenticate(user=self.user)
@@ -683,16 +809,12 @@ class QuestionEndpointTests(APITestCase):
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
         self.question.solutions.connect(solution)
-        solution.solution_to.connect(self.question)
-        self.pleb.solutions.connect(solution)
         response = self.client.patch(url, data, format='json')
-        solution.solution_to.disconnect(self.question)
         self.question.solutions.disconnect(solution)
-        self.pleb.solutions.disconnect(solution)
         solution.delete()
         self.assertEqual(response.data['title'],
-                         ['Cannot edit Title when there have already '
-                          'been solutions provided'])
+                         ['Cannot edit when there have already been '
+                          'solutions provided'])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(Question.get(self.question.object_uuid).title,
                          self.title)
@@ -717,27 +839,7 @@ class QuestionEndpointTests(APITestCase):
         url = reverse('question-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
         response = self.client.get(url, format='json')
-        self.assertEqual('test_test',
-                         response.data['profile'])
-
-    def test_get_rendered(self):
-        self.client.force_authenticate(user=self.user)
-        url = "%s?html=true" % reverse(
-            'question-detail',
-            kwargs={'object_uuid': self.question.object_uuid})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue("html" in response.data)
-        self.assertTrue("ids" in response.data)
-        self.assertTrue("solution_count" in response.data)
-
-    def test_list_rendered(self):
-        self.client.force_authenticate(user=self.user)
-        url = reverse('question-render')
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertTrue("html" in response.data['results'])
-        self.assertTrue("ids" in response.data['results'])
+        self.assertEqual('test_test', response.data['profile']['username'])
 
     def test_get_solutions_expedited(self):
         self.client.force_authenticate(user=self.user)
@@ -748,12 +850,8 @@ class QuestionEndpointTests(APITestCase):
                             owner_username=self.pleb.username).save()
         solution.owned_by.connect(self.pleb)
         self.question.solutions.connect(solution)
-        solution.solution_to.connect(self.question)
-        self.pleb.solutions.connect(solution)
         response = self.client.get(url, format='json')
-        solution.solution_to.disconnect(self.question)
         self.question.solutions.disconnect(solution)
-        self.pleb.solutions.disconnect(solution)
         solution.delete()
 
         self.assertEqual([], response.data['solutions'])
@@ -764,39 +862,15 @@ class QuestionEndpointTests(APITestCase):
             'question-detail',
             kwargs={'object_uuid': self.question.object_uuid})
         solution = Solution(content='this is fake content',
-                            owner_username=self.pleb.username).save()
+                            owner_username=self.pleb.username,
+                            parent_id=self.question.object_uuid).save()
         solution.owned_by.connect(self.pleb)
         self.question.solutions.connect(solution)
-        solution.solution_to.connect(self.question)
-        self.pleb.solutions.connect(solution)
         response = self.client.get(url, format='json')
-        solution.solution_to.disconnect(self.question)
         self.question.solutions.disconnect(solution)
-        self.pleb.solutions.disconnect(solution)
         solution.delete()
         self.assertEqual(len(response.data['solutions']), 1)
         self.assertEqual(response.data['solutions'][0]['object_uuid'],
-                         solution.object_uuid)
-
-    def test_get_solutions_hyperlinked(self):
-        self.client.force_authenticate(user=self.user)
-        url = "%s?relations=hyperlinked" % reverse(
-            'question-detail',
-            kwargs={'object_uuid': self.question.object_uuid})
-        solution = Solution(content='this is fake content',
-                            owner_username=self.pleb.username).save()
-        solution.owned_by.connect(self.pleb)
-        self.question.solutions.connect(solution)
-        solution.solution_to.connect(self.question)
-        self.pleb.solutions.connect(solution)
-        response = self.client.get(url, format='json')
-        solution.solution_to.disconnect(self.question)
-        self.question.solutions.disconnect(solution)
-        self.pleb.solutions.disconnect(solution)
-        solution.delete()
-        self.assertEqual(len(response.data['solutions']), 1)
-        self.assertEqual(response.data['solutions'][0],
-                         'http://testserver/v1/solutions/%s/' %
                          solution.object_uuid)
 
     def test_get_view_count(self):
@@ -898,12 +972,12 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual('question', response.data['type'])
 
     def test_get_list(self):
-        for question in Question.nodes.all():
-            question.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(question)
         self.client.force_authenticate(user=self.user)
         url = reverse('question-list')
         response = self.client.get(url, format='json')
@@ -912,13 +986,13 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(1, len(response.data['results']))
 
     def test_list_tagged_as(self):
-        for question in Question.nodes.all():
-            question.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         tag = Tag.nodes.get(name='fiscal')
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(question)
         question.tags.connect(tag)
         self.client.force_authenticate(user=self.user)
         url = reverse('question-list') + "?limit=5&offset=0&" \
@@ -928,13 +1002,13 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(response.data['results'][0]['tags'][0], 'fiscal')
 
     def test_list_tagged_as_non_core(self):
-        for question in Question.nodes.all():
-            question.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         tag = Tag.nodes.get(name='taxes')
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(question)
         question.tags.connect(tag)
         self.client.force_authenticate(user=self.user)
         url = reverse('question-list') + "?limit=5&offset=0&" \
@@ -944,13 +1018,13 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(response.data['results'][0]['tags'][0], 'taxes')
 
     def test_list_most_recent(self):
-        for question in Question.nodes.all():
-            question.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(question)
         url = reverse('question-list') + "?limit=5&offset=0&" \
                                          "expand=true&sort_by=-created"
         response = self.client.get(url, format='json')
@@ -958,13 +1032,13 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(len(response.data['results']), 1)
 
     def test_list_least_recent(self):
-        for question in Question.nodes.all():
-            question.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         question = Question(title=str(uuid1()), content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(question)
         url = reverse('question-list') + "?limit=5&offset=0&" \
                                          "expand=true&sort_by=created"
         response = self.client.get(url, format='json')
@@ -972,26 +1046,234 @@ class QuestionEndpointTests(APITestCase):
         self.assertEqual(len(response.data['results']), 1)
 
     def test_list_vote_count(self):
-        for question in Question.nodes.all():
-            question.delete()
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         question = Question(title='test_title', content='test_content',
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
-        self.pleb.questions.connect(question)
         url = reverse('question-list') + "?limit=5&offset=0&" \
                                          "expand=true&sort_by=vote_count"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
 
-    def test_get_html(self):
+
+class SBBaseSerializerTests(APITestCase):
+    # TODO This should be moved somewhere not tighly coupled to a give content
+    # object.
+    def setUp(self):
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        self.email2 = "bounces@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.pleb2 = create_user_util_test(self.email2)
+        self.title = str(uuid1())
+        self.question = Question(content="Hey I'm a question",
+                                 title=self.title,
+                                 owner_username=self.pleb.username).save()
+        self.question.owned_by.connect(self.pleb)
+        self.user = User.objects.get(email=self.email)
+        try:
+            Tag.nodes.get(name='taxes')
+        except DoesNotExist:
+            Tag(name='taxes').save()
+        try:
+            Tag.nodes.get(name='fiscal')
+        except DoesNotExist:
+            Tag(name='fiscal').save()
+        try:
+            Tag.nodes.get(name='environment')
+        except DoesNotExist:
+            Tag(name='environment').save()
+        try:
+            Privilege.nodes.get(name="flag")
+        except(Privilege.DoesNotExist, DoesNotExist):
+            call_command('create_privileges')
+
+    def test_can_comment_own(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
-        url = reverse(
-            "question-detail",
-            kwargs={'object_uuid': self.question.object_uuid}) \
-            + "?html=true"
-        res = self.client.get(url, format='json')
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-        self.assertIn("html", res.data.keys())
-        self.assertIsNotNone(res.data['html'])
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        for item in self.pleb.privileges.all():
+            self.pleb.privileges.disconnect(item)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['can_comment']['status'])
+        self.assertIsNone(response.data['can_comment']['detail'])
+        self.assertIsNone(response.data['can_comment']['short_detail'])
+
+    def test_can_comment_other(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb2)
+        privilege = Privilege.nodes.get(name="comment")
+        self.pleb.privileges.connect(privilege)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.pleb.privileges.disconnect(privilege)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['can_comment']['status'])
+        self.assertIsNone(response.data['can_comment']['detail'])
+        self.assertIsNone(response.data['can_comment']['short_detail'])
+
+    def test_cannot_comment_other(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb2.username).save()
+        question.owned_by.connect(self.pleb2)
+        for item in self.pleb.privileges.all():
+            self.pleb.privileges.disconnect(item)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['can_comment']['status'])
+        self.assertEqual(response.data['can_comment']['detail'],
+                         "You must have 20+ reputation to comment on "
+                         "Conversation Cloud content.")
+        self.assertEqual(response.data['can_comment']['short_detail'],
+                         "Requirement: 20+ Reputation")
+
+    def test_login_to_comment(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['can_comment']['status'])
+        self.assertEqual(response.data['can_comment']['detail'],
+                         "You must be logged in to comment on content.")
+        self.assertEqual(response.data['can_comment']['short_detail'],
+                         "Signup To Comment")
+
+    def test_content_is_none(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content=None,
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['html_content'], "")
+
+    def test_is_not_owner(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb2.username).save()
+        question.owned_by.connect(self.pleb2)
+        for item in self.pleb.privileges.all():
+            self.pleb.privileges.disconnect(item)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['is_owner'])
+
+    def test_can_flag(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb2.username).save()
+        question.owned_by.connect(self.pleb2)
+        privilege = Privilege.nodes.get(name="flag")
+        self.pleb.privileges.connect(privilege)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.pleb.privileges.disconnect(privilege)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.data['can_flag']['status'])
+        self.assertIsNone(response.data['can_flag']['detail'])
+        self.assertIsNone(response.data['can_flag']['short_detail'])
+
+    def test_login_to_flag(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['can_flag']['status'])
+        self.assertEqual(response.data['can_flag']['detail'],
+                         "You must be logged in to flag content.")
+        self.assertEqual(response.data['can_flag']['short_detail'],
+                         "Signup To Flag")
+
+    def test_can_not_flag(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb2.username).save()
+        question.owned_by.connect(self.pleb2)
+        for item in self.pleb.privileges.all():
+            self.pleb.privileges.disconnect(item)
+        cache.clear()
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['can_flag']['status'])
+        self.assertEqual(response.data['can_flag']['detail'],
+                         "You must have 50+ reputation to flag Conversation "
+                         "Cloud content.")
+        self.assertEqual(response.data['can_flag']['short_detail'],
+                         "Requirement: 50+ Reputation")
+
+    def test_can_not_flag_own(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        url = reverse('question-detail',
+                      kwargs={'object_uuid': question.object_uuid})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(response.data['can_flag']['status'])
+        self.assertEqual(response.data['can_flag']['detail'],
+                         "You cannot flag your own content")
+        self.assertEqual(response.data['can_flag']['short_detail'],
+                         "Cannot Flag Own Content")

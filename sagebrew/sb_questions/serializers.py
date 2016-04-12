@@ -3,17 +3,17 @@ import pytz
 from uuid import uuid1
 from datetime import datetime
 
-from django.conf import settings
 from django.core.cache import cache
 from django.utils.text import slugify
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
+
 from neomodel import db
 
-from api.utils import spawn_task, gather_request_data
-from sb_base.serializers import TitledContentSerializer
+from api.utils import spawn_task, gather_request_data, smart_truncate
+from sb_base.serializers import TitledContentSerializer, validate_is_owner
 from plebs.neo_models import Pleb
 from sb_locations.tasks import create_location_tree
 
@@ -23,7 +23,8 @@ from sb_solutions.serializers import SolutionSerializerNeo
 from sb_solutions.neo_models import Solution
 
 from .neo_models import Question
-from .tasks import add_auto_tags_to_question_task
+from .tasks import (add_auto_tags_to_question_task,
+                    create_question_summary_task)
 
 
 def solution_count(question_uuid):
@@ -37,33 +38,6 @@ def solution_count(question_uuid):
     except IndexError:
         count = 0
     return count
-
-
-class QuestionTitleUpdate:
-    """
-    This class will attempt to get the parent instance of the serializer and
-    set self.object_uuid to it, this allows it to validate that there are no
-    solutions to a question when attempting to update the tile of a question,
-    but also allows creation of the question by setting self.object_uuid to
-    None if there is not an instance in the serializer.
-    """
-
-    def __init__(self):
-        pass
-
-    def __call__(self, value):
-        if (self.object_uuid is not None and
-                solution_count(self.object_uuid) > 0):
-            message = 'Cannot edit Title when there have ' \
-                      'already been solutions provided'
-            raise serializers.ValidationError(message)
-        return value
-
-    def set_context(self, serializer_field):
-        try:
-            self.object_uuid = serializer_field.parent.instance.object_uuid
-        except AttributeError:
-            self.object_uuid = None
 
 
 class PopulateTags:
@@ -102,6 +76,7 @@ def limit_5_tags(value):
 class QuestionSerializerNeo(TitledContentSerializer):
     content = serializers.CharField(min_length=15)
     href = serializers.SerializerMethodField()
+    summary = serializers.CharField(read_only=True)
     # This might be better as a choice field
     tags = serializers.ListField(
         source='get_tags',
@@ -109,7 +84,6 @@ class QuestionSerializerNeo(TitledContentSerializer):
         child=serializers.CharField(max_length=240),
     )
     title = serializers.CharField(required=False,
-                                  validators=[QuestionTitleUpdate(), ],
                                   min_length=15, max_length=140)
     solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
@@ -121,12 +95,22 @@ class QuestionSerializerNeo(TitledContentSerializer):
     external_location_id = serializers.CharField(write_only=True,
                                                  required=False,
                                                  allow_null=True)
+    tags_formatted = serializers.SerializerMethodField()
+    views = serializers.SerializerMethodField()
+    mission = serializers.SerializerMethodField()
 
     def validate_title(self, value):
         # We need to escape quotes prior to passing the title to the query.
         # Otherwise the query will fail due to the string being terminated.
-        if self.instance is not None and self.instance.title == value:
-            return value
+        if self.instance is not None:
+            if self.instance.title == value:
+                return value
+            if self.instance.object_uuid is not None \
+                    and solution_count(self.instance.object_uuid) > 0 and \
+                    self.instance.title != value:
+                message = 'Cannot edit when there have ' \
+                          'already been solutions provided'
+                raise serializers.ValidationError(message)
         temp_value = value
         temp_value = temp_value.replace('"', '\\"')
         temp_value = temp_value.replace("'", "\\'")
@@ -156,25 +140,21 @@ class QuestionSerializerNeo(TitledContentSerializer):
                        request=request)
 
         question = Question(url=url, href=href, object_uuid=uuid,
+                            summary=smart_truncate(validated_data['content']),
                             **validated_data).save()
         question.owned_by.connect(owner)
-        owner.questions.connect(question)
         for tag in tags:
             query = 'MATCH (t:Tag {name:"%s"}) WHERE NOT t:AutoTag ' \
-                    'RETURN t' % tag.lower()
+                    'RETURN t' % slugify(tag)
             res, _ = db.cypher_query(query)
             if not res.one:
-                if settings.DEBUG is True:
-                    # TODO this is only here because we don't have a stable
-                    # setup for ES and initial tags. Once @matt finishes up
-                    # ansible and we can get tags to register consistently
-                    # we can remove this.
-                    if (request.user.username == "devon_bleibtrey" or
-                            request.user.username == "tyler_wiersing"):
-                        tag_obj = Tag(name=slugify(tag.lower())).save()
-                        question.tags.connect(tag_obj)
-                    else:
-                        continue
+                if (request.user.username == "devon_bleibtrey" or
+                        request.user.username == "tyler_wiersing" or
+                        owner.reputation >= 1250):
+                    tag_obj = Tag(name=slugify(tag)).save()
+                    question.tags.connect(tag_obj)
+                else:
+                    continue
             else:
                 tag_obj = Tag.inflate(res.one)
                 question.tags.connect(tag_obj)
@@ -184,6 +164,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
                 "external_id": question.external_location_id})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": question.object_uuid})
+        spawn_task(task_func=create_question_summary_task, task_param={
+            'object_uuid': question.object_uuid
+        })
         question.refresh()
         cache.set(question.object_uuid, question)
         return question
@@ -200,6 +183,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         instance.edits.connect(edit)
         edit.edit_to.connect(instance)
         """
+        validate_is_owner(self.context.get('request', None), instance)
         instance.title = validated_data.get('title', instance.title)
         instance.content = bleach.clean(validated_data.get('content',
                                                            instance.content))
@@ -218,6 +202,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
                 "external_id": instance.external_location_id})
         spawn_task(task_func=add_auto_tags_to_question_task, task_param={
             "object_uuid": instance.object_uuid})
+        spawn_task(task_func=create_question_summary_task, task_param={
+            'object_uuid': instance.object_uuid
+        })
         return super(QuestionSerializerNeo, self).update(
             instance, validated_data)
 
@@ -228,35 +215,35 @@ class QuestionSerializerNeo(TitledContentSerializer):
         return solution_count(obj.object_uuid)
 
     def get_solutions(self, obj):
+        expand_param = self.context.get('expand_param', None)
         request, expand, _, relations, expedite = gather_request_data(
             self.context,
             expedite_param=self.context.get('expedite_param', None),
-            expand_param=self.context.get('expand_param', None))
+            expand_param=expand_param)
         if expedite == "true":
             return []
-        solutions = obj.get_solution_ids()
-        solution_urls = []
-        if expand == "true":
-            for solution_uuid in solutions:
-                query = 'MATCH (s:Solution {object_uuid: "%s"}) RETURN s' % (
-                    solution_uuid)
-                res, _ = db.cypher_query(query)
-                solution_urls.append(SolutionSerializerNeo(
-                    Solution.inflate(res.one),
-                    context={"request": request,
-                             "expand_param": self.context.get('expand_param',
-                                                              None)}).data)
+        solutions = []
+        if expand == "true" and relations != "hyperlink":
+            query = 'MATCH (a:Question {object_uuid: "%s"})' \
+                '-[:POSSIBLE_ANSWER]->(solutions:Solution) ' \
+                'WHERE solutions.to_be_deleted = false ' \
+                'RETURN solutions' % obj.object_uuid
+            res, _ = db.cypher_query(query)
+            solutions = SolutionSerializerNeo(
+                [Solution.inflate(row[0]) for row in res], many=True,
+                context={"request": request, "expand_param": expand_param}).data
         else:
-            if relations == "hyperlinked":
-                for solution_uuid in solutions:
-                    solution_urls.append(reverse(
-                        'solution-detail', kwargs={
-                            'object_uuid': solution_uuid},
-                        request=request))
+            if relations == "hyperlink":
+                solutions = [
+                    reverse('solution-detail',
+                            kwargs={'object_uuid': solution_uuid},
+                            request=request)
+                    for solution_uuid in obj.get_solution_ids()
+                ]
             else:
                 return solutions
 
-        return solution_urls
+        return solutions
 
     def get_href(self, obj):
         request, _, _, _, _ = gather_request_data(
@@ -266,3 +253,19 @@ class QuestionSerializerNeo(TitledContentSerializer):
         return reverse(
             'question-detail', kwargs={'object_uuid': obj.object_uuid},
             request=request)
+
+    def get_tags_formatted(self, obj):
+        return ", ".join([tag.replace("-", " ").replace("_", " ").title()
+                         for tag in obj.get_tags()])
+
+    def get_mission(self, obj):
+        from sb_missions.serializers import MissionSerializer
+        query = 'MATCH (question:Question)<-[:ASSOCIATED_WITH]-' \
+                '(mission:Mission) RETURN mission'
+        res, _ = db.cypher_query(query)
+        if res.one:
+            return MissionSerializer(res.one).data
+        return res.one
+
+    def get_views(self, obj):
+        return obj.get_view_count()

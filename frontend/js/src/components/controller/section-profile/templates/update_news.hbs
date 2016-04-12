@@ -1,0 +1,39 @@
+<div class="block">
+    <div class="block-title">
+        <a href="{{ url }}">
+            Update: {{ title }}
+        </a>
+    </div>
+    <div class="block-content no-top-bottom-padding">
+        <div class="dropdown">
+            <small>Author: <a href="{{ mission.url }}">{{ mission.title }}</a>  <b>&middot;</b>
+                {{ created }} <b>&middot;</b> Public</small>
+            <div class="pull-right settings-icon-wrapper">
+                {{# if is_owner }}
+                    <button class="btn dropdown-toggle sb_btn_icon"
+                            type="button" id="dropdownMenu1" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="true">
+                        <span class="fa fa-caret-down sb_btn_icon_green_hover"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><a class="sb_post_dropdown_menu js-edit-question"
+                               data-id="{{ id }}"
+                               href="/missions/{{ about.id }}/{{ about.slug }}/manage/updates/{{id}}/edit/">Edit</a>
+                        </li>
+                    </ul>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+    <div class="block-content">
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="sb-content-body-news">
+                    <div class="sb_markdown block-vertical-news">
+                        {{{ html_content }}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

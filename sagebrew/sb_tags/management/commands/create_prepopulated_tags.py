@@ -39,7 +39,8 @@ class Command(BaseCommand):
                     try:
                         sub_tag_node = Tag.nodes.get(name=sub_tag)
                     except (Tag.DoesNotExist, DoesNotExist):
-                        sub_tag_node = Tag(name=sub_tag, base=False).save()
+                        sub_tag_node = Tag(name=slugify(sub_tag),
+                                           base=False).save()
                     except (CypherException, IOError):
                         logger.exception(
                             dumps(

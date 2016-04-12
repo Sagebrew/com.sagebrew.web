@@ -1,0 +1,186 @@
+<h1>Migrating to typeahead.js v0.10.0</h1>
+<h2>Preamble</h2>
+<p>v0.10.0 of typeahead.js ended up being almost a complete rewrite. Many things 
+stayed the same, but there were a handful of changes you need to be aware of 
+if you plan on upgrading from an older version. This document aims to call out 
+those changes and explain what you need to do in order to have an painless 
+upgrade.</p>
+<h2>Notable Changes</h2>
+<h3>First Argument to the jQuery Plugin</h3>
+<p>In v0.10.0, the first argument to <code>jQuery#typeahead</code> is an options hash that
+can be used to configure the behavior of the typeahead. This is in contrast
+to previous versions where <code>jQuery#typeahead</code> expected just a series of datasets
+to be passed to it:</p>
+<pre><code class="javascript">// pre-v0.10.0
+$('.typeahead').typeahead(myDataset);
+
+// v0.10.0
+$('.typeahead').typeahead({
+  highlight: true,
+  hint: false
+}, myDataset);
+</code></pre>
+
+<p>If you're fine with the default configuration, you can just pass <code>null</code> as the 
+first argument:</p>
+<pre><code class="javascript">$('.typeahead').typeahead(null, myDataset);
+</code></pre>
+
+<h3>Bloodhound Suggestion Engine</h3>
+<p>The most notable change in v0.10.0 is that typeahead.js has been decomposed into
+a suggestion engine and a UI view. As part of this change, the way you configure
+datasets has changed. Previously, a dataset config would have looked like:</p>
+<pre><code class="javascript">{
+  valueKey: 'num',
+  local: [{ num: 'one' }, { num: 'two' }, { num: 'three' }],
+  prefetch: '/prefetch',
+  remote: '/remote?q=%QUERY'
+}
+</code></pre>
+
+<p>In v0.10.0, an equivalent dataset config would look like:</p>
+<pre><code class="javascript">{
+ displayKey: 'num',
+ source: mySource
+}
+</code></pre>
+
+<p>As you can see, <code>local</code>, <code>prefetch</code>, and <code>remote</code> are no longer defined at the 
+dataset level. Instead, all you set in a dataset config is <code>source</code>. <code>source</code> is
+expected to be a function with the signature <code>function(query, callback)</code>. When a
+typeahead's query changes, suggestions will be requested from  <code>source</code>. It's
+expected <code>source</code> will compute the suggestion set and invoke <code>callback</code> with an array
+of suggestion objects. The typeahead will then go on to render those suggestions.</p>
+<p>If you're wondering if you can still configure <code>local</code>, <code>prefetch</code>, and 
+<code>remote</code>, don't worry, that's where the Bloodhound suggestion engine comes in.
+Here's how you would define <code>mySource</code> which was referenced in the previous 
+code snippet:</p>
+<pre><code>var mySource = new Bloodhound({
+  datumTokenizer: function(d) { 
+    return Bloodhound.tokenizers.whitespace(d.num); 
+  },
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  local: [{ num: 'one' }, { num: 'two' }, { num: 'three' }],
+  prefetch: '/prefetch',
+  remote: '/remote?q=%QUERY'
+});
+
+// this kicks off the loading and processing of local and prefetch data
+// the suggestion engine will be useless until it is initialized
+mySource.initialize();
+</code></pre>
+
+<p>In the above snippet, a Bloodhound suggestion engine is initialized and that's 
+what will be used as the source of your dataset. There's still one last thing
+that needs to be done before you can use a Bloodhound suggestion engine as the 
+source of a dataset. Because datasets expect <code>source</code> to be function, the 
+Bloodhound instance needs to be wrapped in an adapter so it can meet that 
+expectation.</p>
+<pre><code>mySource = mySource.ttAdapter();
+</code></pre>
+
+<p>Put it all together:</p>
+<pre><code class="javascript">var mySource = new Bloodhound({
+  datumTokenizer: function(d) { 
+    return Bloodhound.tokenizers.whitespace(d.num); 
+  },
+  queryTokenizer: Bloodhound.tokenizers.whitespace,
+  local: [{ num: 'one' }, { num: 'two' }, { num: 'three' }],
+  prefetch: '/prefetch',
+  remote: '/remote?q=%QUERY'
+});
+
+mySource.initialize();
+
+$('.typeahead').typeahead(null, {
+  displayKey: 'num',
+  source: mySource.ttAdapter()
+});
+</code></pre>
+
+<h3>Tokenization Methods Must Be Provided</h3>
+<p>The Bloodhound suggestion engine is token-based, so how datums and queries are
+tokenized plays a vital role in the quality of search results. Pre-v0.10.0,
+it was not possible to configure the tokenization method. Starting in v0.10.0,
+you <strong>must</strong> specify how you want datums and queries tokenized. </p>
+<p>The most common tokenization methods split a given string on whitespace or 
+non-word characters. Bloodhound provides implementations for those methods
+out of the box:</p>
+<pre><code class="javascript">// returns ['one', 'two', 'twenty-five']
+Bloodhound.tokenizers.whitespace('  one two  twenty-five');
+
+// returns ['one', 'two', 'twenty', 'five']
+Bloodhound.tokenizers.nonword('  one two  twenty-five');
+</code></pre>
+
+<p>For query tokenization, you'll probably want to use one of the above methods.
+For datum tokenization, this is where you may want to do something a tad bit
+more advanced.</p>
+<p>For datums, sometimes you want tokens to be dervied from more than one property. 
+For example, if you were building a search engine for GitHub repositories, it'd 
+probably be wise to have tokens derived from the repo's name, owner, and 
+primary language:</p>
+<pre><code class="javascript">var repos = [
+  { name: 'example', owner: 'John Doe', language: 'JavaScript' },
+  { name: 'another example', owner: 'Joe Doe', language: 'Scala' }
+];
+
+function customTokenizer(datum) {
+  var nameTokens = Bloodhound.tokenizers.whitespace(datum.name);
+  var ownerTokens = Bloodhound.tokenizers.whitespace(datum.owner);
+  var languageTokens = Bloodhound.tokenizers.whitespace(datum.language);
+
+  return nameTokens.concat(ownerTokens).concat(languageTokens);
+}
+</code></pre>
+
+<p>There may also be the scenario where you want datum tokenization to be performed
+on the backend. The best way to do that is to just add a property to your datums 
+that contains those tokens. You can then provide a tokenizer that just returns 
+the already existing tokens:</p>
+<pre><code class="javascript">var sports = [
+  { value: 'football', tokens: ['football', 'pigskin'] },
+  { value: 'basketball', tokens: ['basketball', 'bball'] }
+];
+
+function customTokenizer(datum) { return datum.tokens; }
+</code></pre>
+
+<p>There are plenty of other ways you could go about tokenizing datums, it really
+just depends on what you are trying to accomplish.</p>
+<h3>String Datums Are No Longer Supported</h3>
+<p>Dropping support for string datums was a difficult choice, but in the end it
+made sense for a number of reasons. If you still want to hydrate the suggestion 
+engine with string datums, you'll need to use the <code>filter</code> function:</p>
+<pre><code class="javascript">var engine = new Bloodhound({
+  prefetch: {
+    url: '/data',
+    filter: function(data) {
+      // assume data is an array of strings e.g. ['one', 'two', 'three']
+      return $.map(data, function(str) { return { value: str }; });
+    },
+    datumTokenizer: function(d) { 
+      return Bloodhound.tokenizers.whitespace(d.value); 
+    },
+    queryTokenizer: Bloodhound.tokenizers.whitespace
+  }
+});
+</code></pre>
+
+<h3>Precompiled Templates Are Now Required</h3>
+<p>In previous versions of typeahead.js, you could specify a string template along
+with the templating engine that should be used to compile/render it. In 
+v0.10.0, you can no longer specify templating engines; instead you must provide
+precompiled templates. Precompiled templates are functions that take one 
+argument: the context the template should be rendered with. </p>
+<p>Most of the popular templating engines allow for the creation of precompiled 
+templates. For example, you can generate one using Handlebars by doing the
+following:</p>
+<pre><code class="javascript">var precompiledTemplate = Handlebars.compile('&lt;p&gt;{{value}}&lt;/p&gt;');
+</code></pre>
+
+<h3>CSS Class Changes</h3>
+<p><code>tt-is-under-cursor</code> is now <code>tt-cursor</code> - Applied to a hovered-on suggestion (either via cursor or arrow key).</p>
+<p><code>tt-query</code> is now <code>tt-input</code> - Applied to the typeahead input field.</p>
+<h2>Something Missing?</h2>
+<p>If something is missing from this migration guide, pull requests are accepted :)</p>

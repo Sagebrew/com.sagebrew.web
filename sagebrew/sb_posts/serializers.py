@@ -5,11 +5,12 @@ from datetime import datetime
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
+from rest_framework.exceptions import ValidationError
 
 from neomodel import DoesNotExist
 
 from api.utils import gather_request_data
-from sb_base.serializers import ContentSerializer
+from sb_base.serializers import ContentSerializer, validate_is_owner
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
 from sb_uploads.neo_models import UploadedObject, URLContent
@@ -18,6 +19,7 @@ from .neo_models import Post
 
 
 class PostSerializerNeo(ContentSerializer):
+    content = serializers.CharField(allow_blank=True)
     href = serializers.HyperlinkedIdentityField(view_name='post-detail',
                                                 lookup_field="object_uuid")
     images = serializers.ListField(write_only=True, required=False)
@@ -28,11 +30,21 @@ class PostSerializerNeo(ContentSerializer):
     first_url_content = serializers.SerializerMethodField()
     wall_owner_profile = serializers.SerializerMethodField()
 
+    def validate(self, data):
+        if data.get('images', None) is not None and \
+                len(data.get('images', [])) > 0:
+            return data
+        else:
+            if data.get('content') is None or data.get('content') == '':
+                raise ValidationError(
+                    {'content': 'This field may not be blank'})
+
+        return data
+
     def create(self, validated_data):
         request = self.context["request"]
         owner = Pleb.get(request.user.username)
         wall_owner = validated_data.pop('wall_owner_profile', None)
-        content = validated_data.pop('content')
         images = validated_data.pop('images', [])
         included_urls = validated_data.pop('included_urls', [])
         uuid = str(uuid1())
@@ -41,12 +53,10 @@ class PostSerializerNeo(ContentSerializer):
         href = reverse('post-detail', kwargs={'object_uuid': uuid},
                        request=request)
         post = Post(owner_username=owner.username,
-                    content=bleach.clean(content),
                     wall_owner_username=wall_owner.username,
                     object_uuid=uuid, url=url, href=href,
                     **validated_data).save()
         post.owned_by.connect(owner)
-        owner.posts.connect(post)
         wall = wall_owner.get_wall()
         post.posted_on_wall.connect(wall)
         wall.posts.connect(post)
@@ -60,6 +70,7 @@ class PostSerializerNeo(ContentSerializer):
         return post
 
     def update(self, instance, validated_data):
+        validate_is_owner(self.context.get('request', None), instance)
         instance.content = bleach.clean(validated_data.get(
             'content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)

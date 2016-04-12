@@ -1,3 +1,6 @@
+from django.utils.text import slugify
+
+from neomodel import db
 from neomodel.exception import CypherException
 
 from sb_base.decorators import apply_defense
@@ -63,7 +66,7 @@ def update_tags_util(tags):
         # This task should only ever be called after tags have been associated
         # with a user so the Tags should exist
         try:
-            tag = Tag.nodes.get(name=name.lower())
+            tag = Tag.nodes.get(name=slugify(name))
             tag.tag_used += 1
             tag.save()
         except(CypherException, IOError) as e:
@@ -79,3 +82,10 @@ def update_tags_util(tags):
                 pass
 
     return tags
+
+
+def limit_offset_query(skip, limit):
+    query = 'MATCH (tag:Tag) WHERE NOT tag:AutoTag ' \
+            'RETURN tag SKIP %s LIMIT %s' % (skip, limit)
+    res, _ = db.cypher_query(query)
+    return [Tag.inflate(row[0]) for row in res]

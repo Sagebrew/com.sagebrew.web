@@ -3,11 +3,13 @@
 {% block title %}Mission Settings{% endblock title %}
 
 {% block live %}
+    {% include "partials/image_upload_block.html" with title_text="Mission Wallpaper" save_button_text="Save Wallpaper" current_image=mission.wallpaper_pic required_width=450 required_height=450 %}
     <div class="block">
         <h3 class="block-title">
             Mission Settings
         </h3>
         <div class="block-content">
+            <a name="general"></a>
             <form id="socialForm">
                 {% if mission.focus_on_type != "position" %}
                     <div class="form-group">
@@ -17,56 +19,63 @@
                            placeholder="Mission Title (Defaults to the position you're running for or the focus of your advocacy)"
                            value="{{ mission.title|default_if_none:'' }}"
                            class="form-control">
+                        <small id="js-title-char-count" class="help-block">240 Characters Remaining</small>
                     </div>
                 {% endif %}
                 <div class="form-group">
                     <label for="about">About</label>
-                    <textarea class="form-control"
-                              placeholder="128 Characters about the Mission"
-                              rows="3" name="about">{{ mission.about|default_if_none:'' }}</textarea>
+                    <textarea class="form-control resize-vertical"
+                              placeholder="255 Characters about the Mission"
+                              rows="3" name="about" id="about">{{ mission.about|default_if_none:'' }}</textarea>
+                    <small id="js-about-char-count" class="help-block">255 Characters Remaining</small>
                 </div>
 
                 <div class="form-group">
-                    <label for="">Website URL</label>
+                    <label for="website">Website URL</label>
                     <input type="text"
+                       id="website"
                        name="website"
-                       placeholder="Website URL"
+                       placeholder="https://"
                        value="{{ mission.website|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="">Facebook Username</label>
+                    <label for="facebook-social-address">Facebook URL</label>
                     <input type="text"
+                       id="facebook-social-address"
                        name="facebook"
-                       placeholder="Facebook Username"
+                       placeholder="ex. https://www.facebook.com/"
                        value="{{ mission.facebook|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="">Twitter ID</label>
+                    <label for="twitter-social-address">Twitter URL</label>
                     <input type="text"
+                       id="twitter-social-address"
                        name="twitter"
-                       placeholder="Twitter ID"
+                       placeholder="ex. https://www.twitter.com/"
                        value="{{ mission.twitter|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="">LinkedIn Username</label>
+                    <label for="linkedin-social-address">LinkedIn URL</label>
                     <input type="text"
                        name="linkedin"
-                       placeholder="LinkedIn Username"
+                       id="linkedin-social-address"
+                       placeholder="ex. https://www.linkedin.com/"
                        value="{{ mission.linkedin|default_if_none:'' }}"
                        class="form-control">
                 </div>
 
                 <div class="form-group">
-                    <label for="">YouTube Username</label>
+                    <label for="youtube-social-address">YouTube URL</label>
                     <input type="text"
                        name="youtube"
-                       placeholder="Youtube Username"
+                       id="youtube-social-address"
+                       placeholder="ex. https://www.youtube.com/"
                        value="{{ mission.youtube|default_if_none:'' }}"
                        class="form-control">
                 </div>
@@ -81,7 +90,6 @@
             </form>
         </div>
     </div>
-
 {% endblock %}
 
 

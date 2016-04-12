@@ -1,11 +1,16 @@
 from django.core.cache import cache
 from django.conf import settings
+from django.templatetags.static import static
 
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist,
-                      BooleanProperty)
+                      BooleanProperty, RelationshipFrom)
 
 from sb_search.neo_models import Searchable
 from sb_base.neo_models import VoteRelationship
+
+
+def get_default_wallpaper_pic():
+    return static('images/wallpaper_capitol_2.jpg')
 
 
 class Mission(Searchable):
@@ -47,7 +52,7 @@ class Mission(Searchable):
     website = StringProperty()
 
     # Allow the mission to have it's own wallpaper and a title
-    wallpaper_pic = StringProperty()
+    wallpaper_pic = StringProperty(default=get_default_wallpaper_pic)
     title = StringProperty()
 
     # Optimizations
@@ -111,6 +116,10 @@ class Mission(Searchable):
     # in relation to locations but tags might be associated with multiple
     # locations.
     location = RelationshipTo('sb_locations.neo_models.Location', "WITHIN")
+
+    profile_endorsements = RelationshipFrom('plebs.neo_models.Pleb', "ENDORSES")
+    quest_endorsements = RelationshipFrom('sb_quests.neo_models.Quest',
+                                          "ENDORSES")
 
     # DEPRECATED
     # Pledge votes are from old campaigns. We're working on a new process
@@ -211,6 +220,35 @@ class Mission(Searchable):
         res, _ = db.cypher_query(query)
         return [Donation.inflate(donation[0]) for donation in res]
 
+    @classmethod
+    def get_endorsements(self, object_uuid):
+        query = 'MATCH (m:Mission {object_uuid:"%s"})<-[:ENDORSES]-(e) ' \
+                'RETURN e, labels(e) as labels' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        return res
+
+    @classmethod
+    def endorse(cls, object_uuid, endorsed_id, endorsing_as='quest'):
+        endorsed_query = '(e:Quest {owner_username:"%s"})' % endorsed_id
+        if endorsing_as == "profile":
+            endorsed_query = '(e:Pleb {username:"%s"})' % endorsed_id
+        query = 'MATCH (m:Mission {object_uuid:"%s"}), %s ' \
+                'CREATE UNIQUE (m)<-[r:ENDORSES]-(e) ' \
+                'RETURN r' % (object_uuid, endorsed_query)
+        res, _ = db.cypher_query(query)
+        return res
+
+    @classmethod
+    def unendorse(cls, object_uuid, endorsed_id, endorsing_as='quest'):
+        endorsed_query = '(e:Quest {owner_username:"%s"})' % endorsed_id
+        if endorsing_as == "profile":
+            endorsed_query = '(e:Pleb {username:"%s"})' % endorsed_id
+        query = 'MATCH (m:Mission {object_uuid:"%s"})<-[r:ENDORSES]-%s ' \
+                'DELETE r' % (object_uuid, endorsed_query)
+        res, _ = db.cypher_query(query)
+        return True
+
     def get_mission_title(self):
         if self.title:
             title = self.title
@@ -236,3 +274,17 @@ class Mission(Searchable):
             return '{:,.2f}'.format(float(res.one) / 100)
         else:
             return "0.00"
+
+    def get_has_endorsed_profile(self, username=None):
+        query = 'MATCH (m:Mission {object_uuid:"%s"})<-[:ENDORSES]-' \
+                '(pleb:Pleb {username:"%s"}) RETURN pleb' \
+                % (self.object_uuid, username)
+        res, _ = db.cypher_query(query)
+        return bool(res)
+
+    def get_has_endorsed_quest(self, username=None):
+        query = 'MATCH (m:Mission {object_uuid:"%s"})<-[:ENDORSES]-' \
+                '(quest:Quest {owner_username:"%s"}) RETURN quest' \
+                % (self.object_uuid, username)
+        res, _ = db.cypher_query(query)
+        return bool(res)

@@ -141,6 +141,11 @@ def finalize_citizen_creation(username):
     except (DoesNotExist, Exception) as e:
         raise finalize_citizen_creation.retry(
             exc=e, countdown=5, max_retries=None)
+    try:
+        user_instance = User.objects.get(username=username)
+    except User.DoesNotExist as e:
+        raise finalize_citizen_creation.retry(exc=e, countdown=5,
+                                              max_retries=None)
     task_list = {}
     task_data = {
         "object_uuid": pleb.object_uuid,
@@ -154,7 +159,6 @@ def finalize_citizen_creation(username):
         task_func=check_privileges, task_param={"username": username},
         countdown=20)
     if not pleb.initial_verification_email_sent:
-        user_instance = User.objects.get(username=username)
         generated_token = token_gen.make_token(user_instance, pleb)
         template_dict = {
             'full_name': user_instance.get_full_name(),
@@ -180,15 +184,17 @@ def finalize_citizen_creation(username):
 
 @shared_task()
 def create_wall_task(username=None):
+    from sb_wall.neo_models import Wall
     try:
         query = 'MATCH (pleb:Pleb {username: "%s"})' \
                 '-[:OWNS_WALL]->(wall:Wall) RETURN wall' % username
         res, _ = db.cypher_query(query)
-        if not res.one:
-            query = 'MATCH (pleb:Pleb {username: "%s"}) ' \
-                    'CREATE UNIQUE (pleb)-[:OWNS_WALL]->' \
+        if res.one is None:
+            wall = Wall(wall_id=str(uuid1())).save()
+            query = 'MATCH (pleb:Pleb {username: "%s"}),' \
                     '(wall:Wall {wall_id: "%s"}) ' \
-                    'RETURN wall' % (username, str(uuid1()))
+                    'CREATE UNIQUE (pleb)-[:OWNS_WALL]->(wall) ' \
+                    'RETURN wall' % (username, wall.wall_id)
             res, _ = db.cypher_query(query)
         spawned = spawn_task(task_func=finalize_citizen_creation,
                              task_param={"username": username})

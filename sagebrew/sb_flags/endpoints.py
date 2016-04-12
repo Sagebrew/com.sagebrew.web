@@ -1,10 +1,5 @@
-from datetime import datetime
-
 from django.core.cache import cache
-from django.template.loader import render_to_string
-from django.template import RequestContext
 
-from rest_framework.decorators import (api_view, permission_classes)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -71,62 +66,5 @@ class ObjectFlagsListCreate(ListCreateAPIView):
             }
             spawn_task(task_func=create_flag_relations, task_param=data)
             '''
-            html = request.query_params.get('html', 'false').lower()
-            if html == "true":
-                serializer_data["vote_count"] = str(
-                    serializer_data["vote_count"])
-                serializer_data['last_edited_on'] = datetime.strptime(
-                    serializer_data['last_edited_on'][:len(
-                        serializer_data['last_edited_on']) - 6],
-                    '%Y-%m-%dT%H:%M:%S.%f')
-                context = RequestContext(request, serializer_data)
-                return Response(
-                    {
-                        "html": [render_to_string('comment.html', context)],
-                        "ids": [serializer_data["object_uuid"]]
-                    },
-                    status=status.HTTP_200_OK)
             return Response(serializer_data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(["GET"])
-@permission_classes((IsAuthenticated,))
-def flag_renderer(request, object_uuid=None):
-    """
-    This is a intermediate step on the way to utilizing a JS Framework to
-    handle template rendering.
-    """
-    html_array = []
-    id_array = []
-    args = []
-    kwargs = {"object_uuid": object_uuid}
-    comments = ObjectFlagsListCreate.as_view()(request, *args, **kwargs)
-    for comment in comments.data['results']:
-        comment['last_edited_on'] = datetime.strptime(
-            comment[
-                'last_edited_on'][:len(comment['last_edited_on']) - 6],
-            '%Y-%m-%dT%H:%M:%S.%f')
-        # This is a work around for django templates and our current
-        # implementation of spacing for vote count in the template.
-        comment["vote_count"] = str(comment["vote_count"])
-        context = RequestContext(request, comment)
-        html_array.append(render_to_string('comment.html', context))
-        id_array.append(comment["object_uuid"])
-    comments.data['results'] = {"html": html_array, "ids": id_array}
-    return Response(comments.data, status=status.HTTP_200_OK)
-
-
-@api_view(["GET"])
-@permission_classes((IsAuthenticated,))
-def flag_list(request):
-    response = {
-        "status": status.HTTP_501_NOT_IMPLEMENTED,
-        "detail": "We do not allow users to query all the Flags on the site.",
-        "developer_message":
-            "We're working on enabling easier access to flags based."
-            "However this endpoint currently does not return any "
-            "flag data. Please use the other content endpoints to "
-            "reference the flags on them."
-    }
-    return Response(response, status=status.HTTP_501_NOT_IMPLEMENTED)

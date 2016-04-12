@@ -1,5 +1,3 @@
-from django.core.cache import cache
-
 from neomodel import (db, StringProperty, RelationshipTo)
 
 from api.neo_models import SBObject
@@ -37,21 +35,6 @@ class Location(SBObject):
     # ID provided by a third party representing the ID that should be used
     # when querying their service.
     external_id = StringProperty(default=None, index=True)
-
-    @classmethod
-    def get(cls, object_uuid):
-        location = cache.get(object_uuid)
-        if location is None:
-            query = 'MATCH (n:`Location` {object_uuid: "%s"}) RETURN n' % (
-                object_uuid)
-            res, _ = db.cypher_query(query)
-            if res.one:
-                res.one.pull()
-                location = Location.inflate(res.one)
-                cache.set(object_uuid, location)
-            else:
-                location = None
-        return location
 
     @classmethod
     def get_encompasses(cls, object_uuid):

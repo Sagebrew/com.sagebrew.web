@@ -24,7 +24,7 @@ class TestMission(TestCase):
         self.owner = Pleb.nodes.get(email=self.email)
         self.quest = Quest(owner_username=self.owner.username,
                            object_uuid=str(uuid1())).save()
-        self.owner.quest.connect(self.quest)
+        self.quest.owner.connect(self.owner)
         self.mission = Mission(owner_username=self.owner.username,
                                title=str(uuid1())).save()
         self.quest.missions.connect(self.mission)
@@ -110,3 +110,26 @@ class TestMission(TestCase):
         donation2.mission.connect(self.mission)
         res = self.mission.get_total_donation_amount()
         self.assertEqual(res, "2.19")
+
+    def test_endorse_pleb(self):
+        res = Mission.endorse(self.mission.object_uuid,
+                              self.owner.username, "profile")
+        self.assertTrue(res)
+
+    def test_endorse_quest(self):
+        res = Mission.endorse(self.mission.object_uuid, self.owner.username)
+        self.assertTrue(res)
+
+    def test_unendorse_pleb(self):
+        res = Mission.endorse(self.mission.object_uuid,
+                              self.owner.username, "profile")
+        self.assertTrue(res)
+        res = Mission.unendorse(self.mission.object_uuid,
+                                self.owner.username, "profile")
+        self.assertTrue(res)
+
+    def test_unendorse_quest(self):
+        res = Mission.endorse(self.mission.object_uuid, self.owner.username)
+        self.assertTrue(res)
+        res = Mission.unendorse(self.mission.object_uuid, self.owner.username)
+        self.assertTrue(res)

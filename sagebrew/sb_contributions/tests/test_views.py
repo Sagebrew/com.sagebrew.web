@@ -11,7 +11,6 @@ from django.core.cache import cache
 
 from sb_registration.utils import create_user_util_test
 from sb_quests.neo_models import Quest
-from plebs.neo_models import Pleb
 from sb_missions.neo_models import Mission
 
 
@@ -22,12 +21,10 @@ class ContributionViewTests(TestCase):
         self.client = Client()
         self.email = "success@simulator.amazonses.com"
         self.password = "test_test"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
+        self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.email2 = "bounce@simulator.amazonses.com"
-        create_user_util_test(self.email2)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
         self.pleb.completed_profile_info = True
         self.pleb.email_verified = True
@@ -38,7 +35,7 @@ class ContributionViewTests(TestCase):
         self.quest = Quest(owner_username=self.pleb.username).save()
         self.quest2 = Quest(owner_username=self.pleb2.username).save()
         self.quest.missions.connect(self.mission)
-        self.pleb.quest.connect(self.quest)
+        self.quest.owner.connect(self.pleb)
 
     def test_contribution_mission_get(self):
         self.client.login(username=self.user.username, password=self.password)

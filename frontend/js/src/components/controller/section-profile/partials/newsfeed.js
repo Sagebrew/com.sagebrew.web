@@ -27,6 +27,7 @@ export function init () {
         $app = $(".app-sb");
     $appNewsfeed.sb_contentLoader({
         emptyDataMessage: 'Get out there and make some news :)',
+        loadMoreMessage: "",
         url: '/v1/me/newsfeed/',
         params: {
             expand: 'true'

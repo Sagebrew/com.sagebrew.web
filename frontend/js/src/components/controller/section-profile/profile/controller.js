@@ -84,6 +84,7 @@ export function load() {
                 itemsPerPage: 21,
                 continuousLoad: false,
                 startingPage: nextPage,
+                specifiedContainer: $followerList,
                 dataCallback: function(baseUrl, params) {
                     var urlParams = $.param(params);
                     var url;
@@ -96,13 +97,13 @@ export function load() {
                     return request.get({url:url});
                 },
                 renderCallback: function($container, data) {
-                    if (additionalFollowersWrapper !== null && data.next === null) {
-                        additionalFollowersWrapper.remove();
-                    } else {
-                        additionalFollowersWrapper.remove();
-                        $followerList.append(showMoreFollowers({page: currentPage}));
-                    }
                     $container.append(profilePicTemplate({profiles: data.results}));
+                    if (additionalFollowersWrapper !== null && data.next === null) {
+                        $(".additional-followers-wrapper").remove();
+                    } else {
+                        $(".additional-followers-wrapper").remove();
+                        $followerList.append(showMoreFollowers({page: nextPage}));
+                    }
                 }
             });
         })
@@ -119,6 +120,7 @@ export function load() {
                 itemsPerPage: 21,
                 continuousLoad: false,
                 startingPage: nextPage,
+                specifiedContainer: $followingList,
                 dataCallback: function(baseUrl, params) {
                     var urlParams = $.param(params);
                     var url;
@@ -131,13 +133,13 @@ export function load() {
                     return request.get({url:url});
                 },
                 renderCallback: function($container, data) {
-                    if (additionalFollowingWrapper !== null && data.next === null) {
-                        additionalFollowingWrapper.remove();
-                    } else {
-                        additionalFollowingWrapper.remove();
-                        $followingList.append(showMoreFollowing({page: currentPage}));
-                    }
                     $container.append(profilePicTemplate({profiles: data.results}));
+                    if (additionalFollowingWrapper !== null && data.next === null) {
+                        $(".additional-following-wrapper").remove();
+                    } else {
+                        $(".additional-following-wrapper").remove();
+                        $followingList.append(showMoreFollowing({page: nextPage}));
+                    }
                 }
             });
         });
@@ -188,6 +190,7 @@ export function load() {
         url: '/v1/profiles/' + profilePageUser + '/followers/',
         itemsPerPage: 21,
         continuousLoad: false,
+        specifiedContainer: $followerList,
         loadMoreMessage: "Click here to see more followers",
         dataCallback: function(baseUrl, params) {
             var urlParams = $.param(params);
@@ -201,14 +204,15 @@ export function load() {
             return request.get({url:url});
         },
         renderCallback: function($container, data) {
+            $container.append(profilePicTemplate({profiles: data.results}));
             var additionalFollowers = $(".additional-followers");
             if (additionalFollowers !== null && data.next === null) {
-                additionalFollowers.remove();
+                $(".additional-followers-wrapper").remove();
             } else {
-                additionalFollowers.remove();
+                $(".additional-followers-wrapper").remove();
                 $followingList.append(showMoreFollowers({page: 1}));
             }
-            $container.append(profilePicTemplate({profiles: data.results}));
+
         }
     });
     $followingList.sb_contentLoader({
@@ -218,6 +222,7 @@ export function load() {
         itemsPerPage: 21,
         continuousLoad: false,
         loadMoreMessage: "Click here to see more following",
+        specifiedContainer: $followingList,
         dataCallback: function(baseUrl, params) {
             var urlParams = $.param(params);
             var url;
@@ -230,15 +235,14 @@ export function load() {
             return request.get({url:url});
         },
         renderCallback: function($container, data) {
+            $container.append(profilePicTemplate({profiles: data.results}));
             var additionalFollowing = $(".additional-following");
             if (additionalFollowing !== null && data.next === null) {
-                additionalFollowing.remove();
+                $(".additional-following-wrapper").remove();
             } else {
-                additionalFollowing.remove();
+                $(".additional-following-wrapper").remove();
                 $followingList.append(showMoreFollowing({page: 1}));
             }
-            $container.append(profilePicTemplate({profiles: data.results}));
-            
         }
     });
 

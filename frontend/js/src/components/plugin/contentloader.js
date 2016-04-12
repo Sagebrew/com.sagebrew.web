@@ -38,8 +38,12 @@
             if (!isInited) {
                 //
                 // Insert List Container.
-                $listContainer = $('<div class="list-container"></div>');
-                base.$el.append($listContainer);
+                if (base.options.specifiedContainer !== null) {
+                    $listContainer = base.options.specifiedContainer;
+                } else {
+                    $listContainer = $('<div class="list-container"></div>');
+                    base.$el.append($listContainer);
+                }
 
                 //
                 // Insert load more link.
@@ -70,8 +74,12 @@
             if (!isInited) {
                 //
                 // Insert List Container. I'm not sure if we should do this.
-                $listContainer = $('<div class="list-container"></div>');
-                base.$el.append($listContainer);
+                if (base.options.specifiedContainer !== null) {
+                    $listContainer = base.options.specifiedContainer;
+                } else {
+                    $listContainer = $('<div class="list-container"></div>');
+                    base.$el.append($listContainer);
+                }
                 $listContainer.append($('<h3 class="list-empty">' + base.options.emptyDataMessage + '</h3>'));
             }
             isInited = true;
@@ -130,7 +138,7 @@
 
             //
             //Ensure there is a loader. Sometimes this is already on the page.
-            if (!$(".loader", base.$el).length) {
+            if (!$(".loader", base.$el).length && base.options.showLoader === true) {
                 base.$el.append($('<div class="loader">Loading...</div>'));
             }
 
@@ -166,8 +174,10 @@
         itemsPerPage: 5,
         startingPage: 1,
         endingPage: null,
+        showLoader: true,
         continuousLoad: true,
         url: '',
+        specifiedContainer: null,
         params: {
 
         },

@@ -26,8 +26,8 @@ class Command(BaseCommand):
                 for friend in [Pleb.inflate(friend_row[0])
                                for friend_row in friend_res]:
                     try:
-                        profile.follow(friend)
-                        friend.follow(profile)
+                        profile.follow(friend.username)
+                        friend.follow(profile.username)
                     except(ConstraintViolation, Exception):
                         pass
         self.stdout.write("completed friend migration\n", ending='')

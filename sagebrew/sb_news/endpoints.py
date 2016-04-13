@@ -2,6 +2,7 @@ from neomodel import db
 from rest_framework import viewsets
 
 from api.permissions import (IsOwnerOrModeratorOrReadOnly, )
+from sb_base.utils import NeoQuerySet
 
 from .serializers import NewsArticleSerializer
 from .neo_models import NewsArticle
@@ -13,10 +14,7 @@ class NewsArticleViewSet(viewsets.ModelViewSet):
     permission_classes = (IsOwnerOrModeratorOrReadOnly,)
 
     def get_queryset(self):
-        query = 'MATCH (news:NewsArticle) RETURN news'
-        res, _ = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        return [NewsArticle.inflate(row[0]) for row in res]
+        return NeoQuerySet(NewsArticle)
 
     def get_object(self):
         return NewsArticle.nodes.get(object_uuid=self.kwargs[self.lookup_field])

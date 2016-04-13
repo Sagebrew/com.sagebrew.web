@@ -168,8 +168,8 @@ class NeoQuerySet(object):
 
     def __getitem__(self, k):
         """
-            Retrieves an item or slice from the set of results.
-            """
+        Retrieves an item or slice from the set of results.
+        """
         if not isinstance(k, (slice,) + six.integer_types):
             raise TypeError
         assert ((not isinstance(k, slice) and (k >= 0)) or
@@ -206,10 +206,6 @@ class NeoQuerySet(object):
         return res.one
 
     def filter(self, query_filter):
-        """
-        Returns a new QuerySet instance with the args ANDed to the existing
-        set.
-        """
         return self._filter_or_exclude(query_filter)
 
     def _filter_or_exclude(self, query_filter):

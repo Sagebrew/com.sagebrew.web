@@ -12,8 +12,9 @@ class QuestSitemap(Sitemap):
     protocol = 'https'
 
     def items(self):
-        query = "MATCH (n:Quest) WHERE n.active=true " \
-                "RETURN n"
+        query = "MATCH (n:Quest)-[:EMBARKS_ON]->(m:Mission) " \
+                "WHERE n.active=true " \
+                "RETURN DISTINCT n"
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Quest.inflate(row[0]) for row in res]

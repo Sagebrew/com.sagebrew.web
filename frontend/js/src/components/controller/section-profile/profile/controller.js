@@ -210,7 +210,7 @@ export function load() {
                 $(".additional-followers-wrapper").remove();
             } else {
                 $(".additional-followers-wrapper").remove();
-                $followingList.append(showMoreFollowers({page: 1}));
+                $followerList.append(showMoreFollowers({page: 1}));
             }
 
         }

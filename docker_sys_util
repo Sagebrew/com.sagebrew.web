@@ -18,6 +18,7 @@ CMD /bin/bash -c "source /home/apps/venv/bin/activate && \
     chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py logglypopulation && \
     chown root /etc/rsyslog.d/ && service rsyslog restart && \
+    python manage.py makemigrations && \
     python manage.py migrate oauth2_provider --fake && \
     python manage.py migrate --noinput && \
     python manage.py create_privileges && \

@@ -15,6 +15,7 @@ from neomodel import db
 
 from sb_privileges.neo_models import Privilege
 from sb_tags.neo_models import Tag
+from sb_votes.utils import create_vote_relationship
 from sb_questions.neo_models import Question
 from sb_questions.serializers import QuestionSerializerNeo
 from sb_solutions.neo_models import Solution
@@ -1026,10 +1027,51 @@ class QuestionEndpointTests(APITestCase):
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         url = reverse('question-list') + "?limit=5&offset=0&" \
-                                         "expand=true&sort_by=-created"
+                                         "expand=true&ordering=-created"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
+
+    def test_list_most_recent_ordering(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        # Question 1
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb2.username).save()
+        question.owned_by.connect(self.pleb2)
+        # Question 2
+        question2 = Question(title='test_title22', content='test_content22',
+                             owner_username=self.pleb.username).save()
+        question2.owned_by.connect(self.pleb)
+        # Question 3
+        question3 = Question(title='test_title33', content='test_content33',
+                             owner_username=self.pleb.username).save()
+        question3.owned_by.connect(self.pleb)
+        # Question 4
+        question4 = Question(title='test_title44', content='test_content44',
+                             owner_username=self.pleb2.username).save()
+        question4.owned_by.connect(self.pleb2)
+        # Question 5
+        question5 = Question(title='test_title55', content='test_content55',
+                             owner_username=self.pleb.username).save()
+        question5.owned_by.connect(self.pleb)
+        url = reverse('question-list') + "?limit=5&offset=0&" \
+                                         "expand=true&ordering=-created"
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 5)
+        self.assertEqual(response.data['results'][0]['id'],
+                         question5.object_uuid)
+        self.assertEqual(response.data['results'][1]['id'],
+                         question4.object_uuid)
+        self.assertEqual(response.data['results'][2]['id'],
+                         question3.object_uuid)
+        self.assertEqual(response.data['results'][3]['id'],
+                         question2.object_uuid)
+        self.assertEqual(response.data['results'][4]['id'],
+                         question.object_uuid)
 
     def test_list_least_recent(self):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
@@ -1040,10 +1082,51 @@ class QuestionEndpointTests(APITestCase):
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         url = reverse('question-list') + "?limit=5&offset=0&" \
-                                         "expand=true&sort_by=created"
+                                         "expand=true&ordering=created"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
+
+    def test_list_least_recent_ordering(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        # Question 1
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb2.username).save()
+        question.owned_by.connect(self.pleb2)
+        # Question 2
+        question2 = Question(title='test_title22', content='test_content22',
+                             owner_username=self.pleb.username).save()
+        question2.owned_by.connect(self.pleb)
+        # Question 3
+        question3 = Question(title='test_title33', content='test_content33',
+                             owner_username=self.pleb.username).save()
+        question3.owned_by.connect(self.pleb)
+        # Question 4
+        question4 = Question(title='test_title44', content='test_content44',
+                             owner_username=self.pleb2.username).save()
+        question4.owned_by.connect(self.pleb2)
+        # Question 5
+        question5 = Question(title='test_title55', content='test_content55',
+                             owner_username=self.pleb.username).save()
+        question5.owned_by.connect(self.pleb)
+        url = reverse('question-list') + "?limit=5&offset=0&" \
+                                         "expand=true&ordering=created"
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 5)
+        self.assertEqual(response.data['results'][0]['id'],
+                         question.object_uuid)
+        self.assertEqual(response.data['results'][1]['id'],
+                         question2.object_uuid)
+        self.assertEqual(response.data['results'][2]['id'],
+                         question3.object_uuid)
+        self.assertEqual(response.data['results'][3]['id'],
+                         question4.object_uuid)
+        self.assertEqual(response.data['results'][4]['id'],
+                         question5.object_uuid)
 
     def test_list_vote_count(self):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
@@ -1054,10 +1137,69 @@ class QuestionEndpointTests(APITestCase):
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         url = reverse('question-list') + "?limit=5&offset=0&" \
-                                         "expand=true&sort_by=vote_count"
+                                         "expand=true&ordering=vote_count"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
+
+    def test_list_vote_count_ordering(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        pleb3 = create_user_util_test("devon@sagebrew.com")
+        # Question 1 Upvote 1
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        create_vote_relationship(question.object_uuid, self.pleb2.username,
+                                 "true", "true")
+        # Question 2 Downvote 1
+        question2 = Question(title='test_title22', content='test_content22',
+                             owner_username=self.pleb.username).save()
+
+        question2.owned_by.connect(self.pleb)
+        create_vote_relationship(question2.object_uuid, self.pleb2.username,
+                                 "true", "false")
+        # Question 3 No Votes
+        question3 = Question(title='test_title33', content='test_content33',
+                             owner_username=self.pleb.username).save()
+
+        question3.owned_by.connect(self.pleb)
+        # Question 4 Downvote 2
+        question4 = Question(title='test_title44', content='test_content44',
+                             owner_username=self.pleb.username).save()
+
+        question4.owned_by.connect(self.pleb)
+        create_vote_relationship(question4.object_uuid, self.pleb2.username,
+                                 "true", "false")
+
+        create_vote_relationship(question4.object_uuid, pleb3.username,
+                                 "true", "false")
+        # Question 5 Upvote 2
+        question5 = Question(title='test_title55', content='test_content55',
+                             owner_username=self.pleb.username).save()
+
+        question5.owned_by.connect(self.pleb)
+        create_vote_relationship(question5.object_uuid, self.pleb2.username,
+                                 "true", "true")
+        create_vote_relationship(question5.object_uuid, pleb3.username,
+                                 "true", "true")
+        url = reverse('question-list') + "?limit=5&offset=0&" \
+                                         "expand=true&ordering=vote_count"
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 5)
+        self.assertEqual(response.data['results'][0]['id'],
+                         question5.object_uuid)
+        self.assertEqual(response.data['results'][1]['id'],
+                         question.object_uuid)
+        self.assertEqual(response.data['results'][2]['id'],
+                         question3.object_uuid)
+        self.assertEqual(response.data['results'][3]['id'],
+                         question2.object_uuid)
+        self.assertEqual(response.data['results'][4]['id'],
+                         question4.object_uuid)
 
 
 class SBBaseSerializerTests(APITestCase):

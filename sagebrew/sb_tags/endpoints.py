@@ -7,6 +7,7 @@ from rest_framework import status
 from neomodel import db
 
 from api.permissions import IsAdminOrReadOnly
+from sb_base.utils import NeoQuerySet
 
 from .serializers import TagSerializer
 from .neo_models import Tag
@@ -15,7 +16,6 @@ from .neo_models import Tag
 class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
     lookup_field = "name"
-    queryset = Tag.nodes.all()
     permission_classes = (IsAuthenticated, IsAdminOrReadOnly)
 
     def get_object(self):
@@ -25,13 +25,11 @@ class TagViewSet(viewsets.ModelViewSet):
         exclude_base = self.request.query_params.get('exclude_base', 'false')\
             .lower()
         if exclude_base == 'true':
-            query_mod = "WHERE t.base=false AND NOT t:AutoTag"
+            query_mod = "WHERE res.base=false AND NOT res:AutoTag"
         else:
-            query_mod = "WHERE NOT t:AutoTag"
-        query = "MATCH (t:Tag) %s RETURN t" % query_mod
-        res, col = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        return [Tag.inflate(row[0]) for row in res]
+            query_mod = "WHERE NOT res:AutoTag"
+
+        return NeoQuerySet(Tag).filter(query_mod)
 
     def create(self, request, *args, **kwargs):
         """

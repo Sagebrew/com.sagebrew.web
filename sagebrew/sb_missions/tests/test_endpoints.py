@@ -13,7 +13,7 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
-from plebs.neo_models import Pleb, Address
+from plebs.neo_models import Address
 from api.utils import calc_stripe_application_fee
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
@@ -39,16 +39,32 @@ class MissionEndpointTests(APITestCase):
             about='Test Bio', owner_username=self.pleb.username).save()
         self.quest.editors.connect(self.pleb)
         self.quest.moderators.connect(self.pleb)
+        self.usa = Location(name="United States of America").save()
+        self.michigan = Location(name="Michigan").save()
+        self.d11 = Location(name="11", sector="federal").save()
+        self.usa.encompasses.connect(self.michigan)
+        self.michigan.encompassed_by.connect(self.usa)
+        self.michigan.encompasses.connect(self.d11)
+        self.d11.encompassed_by.connect(self.michigan)
+        self.address = Address(
+            street="125 Glenwood Drive",
+            city="Walled Lake", state="Michigan",
+            postal_code="48390",
+            country="USA", county="Oakland",
+            congressional_district=11, validated=True).save()
+        self.address.encompassed_by.connect(self.d11)
+        self.address.owned_by.connect(self.pleb)
         cache.clear()
         self.stripe = stripe
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
         self.mission = Mission(owner_username=self.pleb.username,
                                title=str(uuid1()),
-                               focus_name="advocacy").save()
+                               focus_name="advocacy",
+                               location_name="11").save()
+        self.mission.location.connect(self.d11)
         self.quest.missions.connect(self.mission)
         self.email2 = "bounce@simulator.amazonses.com"
-        create_user_util_test(self.email2)
-        self.pleb2 = Pleb.nodes.get(email=self.email2)
+        self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
 
     def test_unauthorized(self):
@@ -731,6 +747,14 @@ class MissionEndpointTests(APITestCase):
     def test_list_affect_me(self):
         self.client.force_authenticate(user=self.user)
         url = "%s?affects=me" % reverse('mission-list')
+        mission2 = Mission(owner_username=self.pleb.username,
+                           title=str(uuid1()),
+                           focus_name="advocacy",
+                           location_name="12").save()
+        d12 = Location(name="12", sector="state_lower").save()
+        d12.encompassed_by.connect(self.michigan)
+        mission2.location.connect(d12)
+        self.quest.missions.connect(self.mission)
         response = self.client.get(url, format='json')
         self.assertGreaterEqual(len(response.data), 1)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -739,7 +763,30 @@ class MissionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = "%s?affects=friends" % reverse('mission-list')
         response = self.client.get(url, format='json')
-        self.assertGreaterEqual(len(response.data), 1)
+        mission2 = Mission(owner_username=self.pleb.username,
+                           title=str(uuid1()),
+                           focus_name="advocacy",
+                           location_name="12").save()
+        mission3 = Mission(owner_username=self.pleb.username,
+                           title=str(uuid1()),
+                           focus_name="advocacy",
+                           location_name="13").save()
+        address = Address(
+            street="3295 Rio Vista St",
+            city="Commerce Township", state="Michigan",
+            postal_code="48382",
+            country="USA", county="Oakland",
+            congressional_district=12, validated=True).save()
+        address.owned_by.connect(self.pleb2)
+        d12 = Location(name="12", sector="state_lower").save()
+        d13 = Location(name="13", sector="state_lower").save()
+        d12.encompassed_by.connect(self.michigan)
+        d13.encompassed_by.connect(self.michigan)
+        mission2.location.connect(d12)
+        mission3.location.connect(d13)
+        self.pleb.friends.connect(self.pleb2)
+        self.pleb2.friends.connect(self.pleb)
+        self.assertGreaterEqual(len(response.data), 2)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_donation_data(self):

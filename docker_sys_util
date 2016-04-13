@@ -21,11 +21,5 @@ CMD /bin/bash -c "source /home/apps/venv/bin/activate && \
     python manage.py migrate oauth2_provider --fake && \
     python manage.py migrate --noinput && \
     python manage.py create_privileges && \
-    python manage.py set_quest_titles && \
-    python manage.py migrate_comments && \
-    python manage.py migrate_solutions && \
-    python manage.py migrate_friends_to_followers && \
-    python manage.py migrate_questions && \
-    python manage.py convert_social_links && \
     python manage.py clear_cache && \
     python manage.py clearsessions"

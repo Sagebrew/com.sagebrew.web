@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from api.utils import (calc_stripe_application_fee, humanize_dict_keys,
                        generate_csv_html_file_response)
+from sb_base.utils import NeoQuerySet
 from sb_donations.serializers import DonationExportSerializer
 from api.permissions import (IsOwnerOrModeratorOrReadOnly, IsOwnerOrModerator)
 from plebs.neo_models import Pleb
@@ -25,32 +26,26 @@ class MissionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         if self.request.query_params.get('affects', "") == "me":
-            query = 'MATCH (pleb:Pleb {username: "%s"})-[:LIVES_AT]->' \
+            query = '(pleb:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(address:Address)-[:ENCOMPASSED_BY*..]->' \
                     '(location:Location)<-[:WITHIN]-' \
-                    '(mission:Mission {active: true})<-[:EMBARKS_ON]-' \
-                    '(quest:Quest {active: true}) ' \
-                    'WHERE NOT((mission)-[:FOCUSED_ON]->' \
-                    '(:Position {verified:false})) ' \
-                    'RETURN DISTINCT mission ' \
-                    'ORDER BY mission.created DESC' % self.request.user.username
+                    '(res:Mission {active: true})<-[:EMBARKS_ON]-' \
+                    '(quest:Quest {active: true})' % self.request.user.username
         elif self.request.query_params.get('affects', "") == "friends":
-            query = 'MATCH (pleb:Pleb {username: "%s"})-[:FRIENDS_WITH]' \
+            query = '(pleb:Pleb {username: "%s"})-[:FRIENDS_WITH]' \
                     '->(friends:Pleb)-[:LIVES_AT]->' \
                     '(address:Address)-[:ENCOMPASSED_BY*..]->' \
                     '(location:Location)<-[:WITHIN]-' \
-                    '(mission:Mission {active: true})<-[:EMBARKS_ON]-' \
-                    '(quest:Quest {active: true}) ' \
-                    'RETURN DISTINCT mission' % self.request.user.username
+                    '(res:Mission {active: true})<-[:EMBARKS_ON]-' \
+                    '(quest:Quest {active: true})' % self.request.user.username
         else:
-            query = 'MATCH (mission:Mission {active: true})<-[:EMBARKS_ON]-' \
-                    '(quest:Quest {active: true}) ' \
-                    'WHERE NOT((mission)-[:FOCUSED_ON]->' \
-                    '(:Position {verified:false})) ' \
-                    'RETURN mission ORDER BY mission.created DESC'
-        res, _ = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        return [Mission.inflate(row[0]) for row in res]
+            query = '(res:Mission {active: true})<-[:EMBARKS_ON]-' \
+                    '(quest:Quest {active: true})'
+        return NeoQuerySet(
+            Mission, query=query, distinct=True, descending=True) \
+            .filter('WHERE NOT ((res)-[:FOCUSED_ON]->'
+                    '(:Position {verified:false}))') \
+            .order_by('ORDER BY res.created')
 
     def get_object(self):
         return Mission.nodes.get(object_uuid=self.kwargs[self.lookup_field])

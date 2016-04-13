@@ -186,7 +186,6 @@ class NeoQuerySet(object):
             else:
                 stop = 0
             limit = stop - start
-            logger.critical(self.query)
             exe_query = "MATCH %s WITH %s res %s %s " \
                         "RETURN res " \
                         "SKIP %d LIMIT %d" % (

@@ -4,8 +4,6 @@ from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 from rest_framework import status
 
-from neomodel import db
-
 from api.utils import spawn_task
 from sb_base.utils import get_ordering, get_tagged_as, NeoQuerySet
 from sb_search.tasks import update_search_object
@@ -69,13 +67,10 @@ class QuestionViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        return self.get_paginated_response(
+            self.get_serializer(
+                self.paginate_queryset(queryset), many=True,
+                context={"request": self.request}).data)
 
     def get_object(self):
         return Question.get(self.kwargs[self.lookup_field])

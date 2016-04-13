@@ -1058,7 +1058,8 @@ class ProfileEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_endorsements(self):
-        mission = Mission(owner_username=self.pleb.username).save()
+        mission = Mission(owner_username=self.pleb.username,
+                          active=True).save()
         quest = Quest(owner_username=self.pleb.username).save()
         quest.missions.connect(mission)
         mission.profile_endorsements.connect(self.pleb)

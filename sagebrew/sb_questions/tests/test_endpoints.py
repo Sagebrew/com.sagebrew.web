@@ -1,4 +1,3 @@
-from time import sleep
 from uuid import uuid1
 from dateutil import parser
 
@@ -1028,7 +1027,7 @@ class QuestionEndpointTests(APITestCase):
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         url = reverse('question-list') + "?limit=5&offset=0&" \
-                                         "expand=true&sort_by=-created"
+                                         "expand=true&ordering=-created"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
@@ -1042,41 +1041,25 @@ class QuestionEndpointTests(APITestCase):
         question = Question(title='test_title', content='test_content',
                             owner_username=self.pleb2.username).save()
         question.owned_by.connect(self.pleb2)
-        sleep(1)
         # Question 2
         question2 = Question(title='test_title22', content='test_content22',
                              owner_username=self.pleb.username).save()
         question2.owned_by.connect(self.pleb)
-        sleep(1)
         # Question 3
         question3 = Question(title='test_title33', content='test_content33',
                              owner_username=self.pleb.username).save()
         question3.owned_by.connect(self.pleb)
-        sleep(1)
         # Question 4
         question4 = Question(title='test_title44', content='test_content44',
                              owner_username=self.pleb2.username).save()
         question4.owned_by.connect(self.pleb2)
-        sleep(1)
         # Question 5
         question5 = Question(title='test_title55', content='test_content55',
                              owner_username=self.pleb.username).save()
         question5.owned_by.connect(self.pleb)
-        sleep(1)
         url = reverse('question-list') + "?limit=5&offset=0&" \
-                                         "expand=true&sort_by=-created"
-        print(question5.title)
-        print(question4.title)
-        print(question3.title)
-        print(question2.title)
-        print(question.title)
+                                         "expand=true&ordering=-created"
         response = self.client.get(url, format='json')
-        print('seperator')
-        print(response.data['results'][0]['title'])
-        print(response.data['results'][1]['title'])
-        print(response.data['results'][2]['title'])
-        print(response.data['results'][3]['title'])
-        print(response.data['results'][4]['title'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 5)
         self.assertEqual(response.data['results'][0]['id'],
@@ -1099,7 +1082,7 @@ class QuestionEndpointTests(APITestCase):
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         url = reverse('question-list') + "?limit=5&offset=0&" \
-                                         "expand=true&sort_by=created"
+                                         "expand=true&ordering=created"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
@@ -1113,40 +1096,25 @@ class QuestionEndpointTests(APITestCase):
         question = Question(title='test_title', content='test_content',
                             owner_username=self.pleb2.username).save()
         question.owned_by.connect(self.pleb2)
-        sleep(1)
         # Question 2
         question2 = Question(title='test_title22', content='test_content22',
                              owner_username=self.pleb.username).save()
         question2.owned_by.connect(self.pleb)
-        sleep(1)
         # Question 3
         question3 = Question(title='test_title33', content='test_content33',
                              owner_username=self.pleb.username).save()
         question3.owned_by.connect(self.pleb)
-        sleep(1)
         # Question 4
         question4 = Question(title='test_title44', content='test_content44',
                              owner_username=self.pleb2.username).save()
         question4.owned_by.connect(self.pleb2)
-        sleep(1)
         # Question 5
         question5 = Question(title='test_title55', content='test_content55',
                              owner_username=self.pleb.username).save()
         question5.owned_by.connect(self.pleb)
         url = reverse('question-list') + "?limit=5&offset=0&" \
-                                         "expand=true&sort_by=created"
-        print(question.title)
-        print(question2.title)
-        print(question3.title)
-        print(question4.title)
-        print(question5.title)
+                                         "expand=true&ordering=created"
         response = self.client.get(url, format='json')
-        print('seperator')
-        print(response.data['results'][0]['title'])
-        print(response.data['results'][1]['title'])
-        print(response.data['results'][2]['title'])
-        print(response.data['results'][3]['title'])
-        print(response.data['results'][4]['title'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 5)
         self.assertEqual(response.data['results'][0]['id'],
@@ -1169,7 +1137,7 @@ class QuestionEndpointTests(APITestCase):
                             owner_username=self.pleb.username).save()
         question.owned_by.connect(self.pleb)
         url = reverse('question-list') + "?limit=5&offset=0&" \
-                                         "expand=true&sort_by=vote_count"
+                                         "expand=true&ordering=vote_count"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 1)
@@ -1218,7 +1186,7 @@ class QuestionEndpointTests(APITestCase):
         create_vote_relationship(question5.object_uuid, pleb3.username,
                                  "true", "true")
         url = reverse('question-list') + "?limit=5&offset=0&" \
-                                         "expand=true&sort_by=vote_count"
+                                         "expand=true&ordering=vote_count"
         response = self.client.get(url, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data['results']), 5)

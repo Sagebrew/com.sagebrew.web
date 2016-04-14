@@ -112,6 +112,9 @@ def resend_email_verification(request):
             'user_id': request.user.username
         }
     }
+    # We don't have exception handling here because if this fails we already
+    # provide a notification to the user from the JS. If that changes we'll
+    # need to add some handling.
     Message.create(**message_data)
     return redirect("confirm_view")
 

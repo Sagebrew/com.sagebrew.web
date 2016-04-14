@@ -1,7 +1,5 @@
 from localflavor.us.us_states import US_STATES
-from intercom import (Message, Intercom, ResourceNotFound,
-                      UnexpectedError, RateLimitExceeded, ServerError,
-                      ServiceUnavailableError, BadGatewayError, HttpError)
+from intercom import Message, Intercom
 
 from django.core.cache import cache
 from django.conf import settings
@@ -114,12 +112,10 @@ def resend_email_verification(request):
             'user_id': request.user.username
         }
     }
-    try:
-        Message.create(**message_data)
-    except(ResourceNotFound, UnexpectedError, RateLimitExceeded,
-           ServerError, ServiceUnavailableError, BadGatewayError,
-           HttpError):
-        return redirect('500_Error')
+    # We don't have exception handling here because if this fails we already
+    # provide a notification to the user from the JS. If that changes we'll
+    # need to add some handling.
+    Message.create(**message_data)
     return redirect("confirm_view")
 
 

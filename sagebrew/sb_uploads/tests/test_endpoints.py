@@ -1,9 +1,11 @@
+import requests_mock
 from uuid import uuid1
 
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.core.cache import cache
+from django.template.loader import render_to_string
 
 from neomodel import UniqueProperty
 
@@ -269,33 +271,51 @@ class URLContentEndpointTests(APITestCase):
         self.assertEqual(response.data['selected_image'],
                          self.url_content.selected_image)
 
-    def test_create_with_og(self):
+    @requests_mock.mock()
+    def test_create_with_og(self, m):
         self.client.force_authenticate(user=self.user)
         url = reverse('urlcontent-list')
-        data = {
-            "url": "https://twitter.com/twitter/status/628335876867645440"
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.data['title'], 'Twitter on Twitter')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        mock_url = "https://twitter.com/twitter/status/628335876867645440"
+        m.get(mock_url, text=render_to_string("tests/twitter_test.html"),
+              status_code=status.HTTP_200_OK)
+        image_mock = "https://pbs.twimg.com/profile_images/" \
+                     "666407537084796928/YBGgi9BO_400x400.png"
+        with open("sb_uploads/tests/images/twitter_test.png") as image:
+            m.get(image_mock, body=image, status_code=status.HTTP_200_OK,
+                  headers={'Content-Type': 'image/png'})
+            data = {
+                "url": mock_url
+            }
+            response = self.client.post(url, data=data, format='json')
+            self.assertEqual(response.data['title'], 'Twitter on Twitter')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_create_just_image(self):
+    @requests_mock.mock()
+    def test_create_just_image(self, m):
         self.client.force_authenticate(user=self.user)
         url = reverse('urlcontent-list')
-        data = {
-            "url": "http://i.imgur.com/Mh17Blf.jpg"
-        }
-        response = self.client.post(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn('.s3.amazonaws.com/media/',
-                      response.data['selected_image'])
+        mock_url = "http://i.imgur.com/Mh17Blf.jpg"
+        with open("sb_uploads/tests/images/imgur_test.jpg") as image:
+            m.get(mock_url, body=image, status_code=status.HTTP_200_OK,
+                  headers={'Content-Type': 'image/jpeg'})
+            data = {
+                "url": mock_url
+            }
+            response = self.client.post(url, data=data, format='json')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertIn('.s3.amazonaws.com/media/',
+                          response.data['selected_image'])
 
-    def test_create_not_og(self):
+    @requests_mock.mock()
+    def test_create_not_og(self, m):
         self.client.force_authenticate(user=self.user)
         url = reverse('urlcontent-list')
-        data = {
-            "url": "http://www.crummy.com/software/"
+        mock_url = "https://www.crummy.com/software/" \
                    "BeautifulSoup/bs4/doc/#the-name-argument"
+        m.get(mock_url, text=render_to_string("tests/beautiful_soup_test.html"),
+              status_code=status.HTTP_200_OK)
+        data = {
+            "url": mock_url
         }
         response = self.client.post(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)

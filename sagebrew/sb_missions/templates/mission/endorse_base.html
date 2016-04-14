@@ -17,7 +17,7 @@
                         </a>
                     </li>
                 {% endif %}
-                <li {% if "/endorse/choose/" in request.path %}class="disabled" {% elif "/endorse/choose/" not in request.path and "endorse/name/" not in request.path %}class="active" {% endif %}>
+                <li {% if "/endorse/choose/" in request.path or request.user.is_authenticated == False %}class="disabled" {% elif "/endorse/choose/" not in request.path and "endorse/name/" not in request.path %}class="active" {% endif %}>
                     <a href="{% if "endorse/choose/" in request.path %}#{% else %}{% url "mission_endorse" selected.id selected.slug %}{% endif %}">
                         Endorse
                     </a>

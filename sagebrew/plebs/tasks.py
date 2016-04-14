@@ -1,7 +1,9 @@
 import us
 import requests
 from uuid import uuid1
-from intercom import Message, Intercom
+from intercom import (Message, Intercom, ResourceNotFound,
+                      UnexpectedError, RateLimitExceeded, ServerError,
+                      ServiceUnavailableError, BadGatewayError, HttpError)
 
 from django.core import signing
 from django.conf import settings
@@ -126,11 +128,11 @@ def finalize_citizen_creation(username):
         pleb = Pleb.get(username=username, cache_buster=True)
     except (DoesNotExist, Exception) as e:
         raise finalize_citizen_creation.retry(
-            exc=e, countdown=5, max_retries=None)
+            exc=e, countdown=10, max_retries=None)
     try:
         user_instance = User.objects.get(username=username)
     except User.DoesNotExist as e:
-        raise finalize_citizen_creation.retry(exc=e, countdown=5,
+        raise finalize_citizen_creation.retry(exc=e, countdown=10,
                                               max_retries=None)
     task_list = {}
     task_data = {
@@ -167,7 +169,13 @@ def finalize_citizen_creation(username):
                 'user_id': user_instance.username
             }
         }
-        Message.create(**message_data)
+        try:
+            Message.create(**message_data)
+        except (ResourceNotFound, UnexpectedError, RateLimitExceeded,
+                ServerError, ServiceUnavailableError, BadGatewayError,
+                HttpError) as e:
+            raise finalize_citizen_creation.retry(exc=e, countdown=10,
+                                                  max_retries=None)
         pleb.initial_verification_email_sent = True
         pleb.save()
     cache.delete(pleb.username)

@@ -1,69 +1,33 @@
 {% extends "email_templates/email_base.html" %}
-
-
 {% block email_content %}
-        <h2 style="color: #397a69;
-                   font-size: 15pt">Hi {{ full_name }}!</h2>
-        <p style="font-size: 12px;
-                  color: #000000;
-                  margin-bottom: 25px;
-                  line-height: 15px">
-            Welcome to Sagebrew, the political network. It's your hub for creating a change!
-            You've made the first step in becoming more involved in your community, but we'll need to
+        <p>Hi {{ first_name }}, <br />
+            Welcome to Sagebrew; The Political Network. Your hub for creating change!
+            You've made the first step towards becoming more involved in your community, but we'll
+            need you to click the link below to
             confirm your email and verify you're a real person and not a robot.
         </p>
         <div align="center">
-        <a style="font-size: 15pt;
-                  background-color: #397a69;
-                  color: #ffffff;
-                  border-radius: 5px;
-                  padding: 5px 30px 5px 30px;
-                  text-decoration: none"
-           href="{{ verification_url }}">
-            Complete Your Registration
-        </a>
+            <a href="{{ verification_url }}">Confirm Your Email</a>
+            <br/>
+            <br/>
         </div>
-        <p style="font-size: 12px;
-                  color: #000000;
-                  margin-top: 25px;
-                  line-height: 15px">
-            Once you've verified your email we'll walk you through a couple more registration steps
-            to help us better connect you with people that can help make the changes you want a reality.
+        <p>
+            Once you've verified your email we'll walk you through a couple more simple steps that
+            help us better connect you with people that can help make the changes you want a reality.
         </p>
-        <p style="font-size: 12px;
-                  color: #000000;
-                  margin-top: 25px;
-                  line-height: 15px">
-            After that you'll be able to: </p>
+        <p>After that you'll be able to: </p>
             <ul>
-                <li>Start missions to gain funds, volunteers, and endorsements for a political campaign or advocacy movement</li>
+                <li>Start missions to gain funds, volunteers, and endorsements for a political
+                    campaign or advocacy movement</li>
                 <li>Start a conversation to find solutions to key issues you care about</li>
                 <li>Donate money to missions you want to succeed</li>
                 <li>Volunteer time and expertise to missions near you</li>
                 <li>Endorse missions that align with your views</li>
             </ul>
-
-        <p style="font-size: 12px;
-                  color: #000000">
-            Happy Brewing,
+        <p>
+            Sincerely,
         </p>
-        <p style="font-size: 12px;
-                  color: #000000;
-                  margin-bottom: 25px">
+        <p>
             The Sagebrew Team
         </p>
-        <div style="background-color: #e0e7e1;
-                    padding: 1px 0px 1px 0px">
-        </div>
-        <div style="margin-top: 25px"
-             class="row-fluid">
-            <p style="font-size: 11px;
-                      color: #838c92;
-                      line-height: 10px">
-               You are receiving this email because you have registered at Sagebrew and agreed to receive emails
-               from us regarding new features, events, and special offers about Sagebrew services.
-            </p>
-            <h1 style="color:#838c92;
-                   font-size: 15pt">Sagebrew</h1>
-        </div>
 {% endblock email_content %}

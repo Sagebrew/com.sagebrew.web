@@ -1,6 +1,7 @@
 import us
 import requests
 from uuid import uuid1
+from intercom import Message, Intercom
 
 from django.core import signing
 from django.conf import settings
@@ -9,7 +10,6 @@ from django.template import Context
 from django.core.cache import cache
 from django.contrib.auth.models import User
 
-from boto.ses.exceptions import SESMaxSendingRateExceededError
 from celery import shared_task
 
 from py2neo.cypher.error.transaction import ClientError, CouldNotCommit
@@ -17,7 +17,6 @@ from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task, generate_oauth_user
 from sb_search.tasks import update_search_object
-from sb_base.utils import defensive_exception
 from sb_public_official.tasks import create_and_attach_state_level_reps
 from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
@@ -25,21 +24,6 @@ from sb_locations.neo_models import Location
 
 from .neo_models import Pleb, OauthUser, Address
 from .utils import create_friend_request_util
-
-
-@shared_task()
-def send_email_task(source, to, subject, html_content):
-    from sb_registration.utils import sb_send_email
-    try:
-        res = sb_send_email(source, to, subject, html_content)
-        if isinstance(res, Exception):
-            raise send_email_task.retry(exc=res, countdown=5, max_retries=None)
-    except SESMaxSendingRateExceededError as e:
-        raise send_email_task.retry(exc=e, countdown=5, max_retries=None)
-    except Exception as e:
-        raise defensive_exception(send_email_task.__name__, e,
-                                  send_email_task.retry(exc=e, countdown=3,
-                                                        max_retries=None))
 
 
 @shared_task()
@@ -136,6 +120,8 @@ def connect_to_state_districts(object_uuid):
 @shared_task()
 def finalize_citizen_creation(username):
     # TODO look into celery chaining and/or grouping
+    Intercom.app_id = settings.INTERCOM_APP_ID
+    Intercom.app_api_key = settings.INTERCOM_API_KEY
     try:
         pleb = Pleb.get(username=username, cache_buster=True)
     except (DoesNotExist, Exception) as e:
@@ -161,23 +147,29 @@ def finalize_citizen_creation(username):
     if not pleb.initial_verification_email_sent:
         generated_token = token_gen.make_token(user_instance, pleb)
         template_dict = {
-            'full_name': user_instance.get_full_name(),
+            'first_name': user_instance.first_name,
             'verification_url': "%s%s/" % (settings.EMAIL_VERIFICATION_URL,
                                            generated_token)
         }
-        subject, to = "Sagebrew Email Verification", pleb.email
-        html_content = get_template(
-            'email_templates/email_verification.html').render(
-            Context(template_dict))
-        task_dict = {
-            "to": to, "subject": subject,
-            "html_content": html_content, "source": "support@sagebrew.com"
+        message_data = {
+            'message_type': 'email',
+            'subject': 'Sagebrew Email Verification',
+            'body': get_template(
+                'email_templates/email_verification.html').render(
+                Context(template_dict)),
+            'template': "personal",
+            'from': {
+                'type': "admin",
+                'id': settings.INTERCOM_ADMIN_ID_DEVON
+            },
+            'to': {
+                'type': "user",
+                'user_id': user_instance.username
+            }
         }
-        task_list["send_email_task"] = spawn_task(
-            task_func=send_email_task, task_param=task_dict)
-        if task_list['send_email_task'] is not None:
-            pleb.initial_verification_email_sent = True
-            pleb.save()
+        Message.create(**message_data)
+        pleb.initial_verification_email_sent = True
+        pleb.save()
     cache.delete(pleb.username)
     return task_list
 

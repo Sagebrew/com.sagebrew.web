@@ -1,4 +1,5 @@
 from localflavor.us.us_states import US_STATES
+from intercom import Message, Intercom
 
 from django.core.cache import cache
 from django.conf import settings
@@ -19,7 +20,7 @@ from rest_framework import status
 from neomodel import (CypherException, db, DoesNotExist)
 
 from api.utils import spawn_task
-from plebs.tasks import send_email_task, update_address_location
+from plebs.tasks import update_address_location
 from plebs.neo_models import Pleb, Address
 
 from .forms import (AddressInfoForm, InterestForm,
@@ -81,6 +82,8 @@ def login_view(request):
 
 @login_required()
 def resend_email_verification(request):
+    Intercom.app_id = settings.INTERCOM_APP_ID
+    Intercom.app_api_key = settings.INTERCOM_API_KEY
     try:
         profile = Pleb.get(username=request.user.username, cache_buster=True)
     except DoesNotExist:
@@ -89,22 +92,27 @@ def resend_email_verification(request):
         return redirect('500_Error')
 
     template_dict = {
-        'full_name': request.user.get_full_name(),
+        'first_name': request.user.first_name,
         'verification_url': "%s%s%s" % (settings.EMAIL_VERIFICATION_URL,
                                         token_gen.make_token(
                                             request.user, profile), '/')
     }
-    subject, to = "Sagebrew Email Verification", request.user.email
-    # text_content = get_template(
-    # 'email_templates/email_verification.txt').render(Context(template_dict))
-    html_content = get_template(
-        'email_templates/email_verification.html').render(
-        Context(template_dict))
-    task_data = {'to': to, 'subject': subject, 'html_content': html_content,
-                 "source": "support@sagebrew.com"}
-    spawned = spawn_task(task_func=send_email_task, task_param=task_data)
-    if isinstance(spawned, Exception):
-        return redirect('500_Error')
+    message_data = {
+        'message_type': 'email',
+        'subject': 'Sagebrew Email Verification',
+        'body': get_template('email_templates/email_verification.html').render(
+            Context(template_dict)),
+        'template': "personal",
+        'from': {
+            'type': "admin",
+            'id': settings.INTERCOM_ADMIN_ID_DEVON
+        },
+        'to': {
+            'type': "user",
+            'user_id': request.user.username
+        }
+    }
+    Message.create(**message_data)
     return redirect("confirm_view")
 
 

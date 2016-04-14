@@ -146,7 +146,7 @@ def authenticate_representative(request):
         'message_type': 'email',
         'subject': "Representative Authentication",
         'body': render_to_string(
-            "email_templates/email_internal_representative_confirmation.html",
+            "email_templates/internal_representative_confirmation.html",
             {"username": pleb.username, "phone": pleb.get_official_phone()}),
         'template': "personal",
         'from': {

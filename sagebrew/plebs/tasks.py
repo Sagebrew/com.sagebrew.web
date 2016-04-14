@@ -155,7 +155,7 @@ def finalize_citizen_creation(username):
             'message_type': 'email',
             'subject': 'Sagebrew Email Verification',
             'body': get_template(
-                'email_templates/email_verification.html').render(
+                'email_templates/verification.html').render(
                 Context(template_dict)),
             'template': "personal",
             'from': {

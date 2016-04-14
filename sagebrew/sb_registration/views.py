@@ -100,7 +100,7 @@ def resend_email_verification(request):
     message_data = {
         'message_type': 'email',
         'subject': 'Sagebrew Email Verification',
-        'body': get_template('email_templates/email_verification.html').render(
+        'body': get_template('email_templates/verification.html').render(
             Context(template_dict)),
         'template': "personal",
         'from': {

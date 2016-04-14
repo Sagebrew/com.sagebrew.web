@@ -148,6 +148,15 @@ def get_filter_params(filter_by, sb_instance):
 
 
 class NeoQuerySet(object):
+    """
+    NeoQuerySet requires that you treat `res` as a keyword in your query. This
+    is used as the result value that will be used to run orders and filters
+    on and will eventually be returned.
+    NeoQuerySet does not support multiple responses currently.
+    NeoQuerySet expects "query" to be set to the root of the query you're
+    attempting to execute. So there shouldn't be a MATCH or RETURN in it and
+    it should use `res` to indicate the value that will be returned.
+    """
     def __init__(self, model=None, query=None, using=None, hints=None,
                  distinct=None, descending=None, query_order=None):
         self.model = model

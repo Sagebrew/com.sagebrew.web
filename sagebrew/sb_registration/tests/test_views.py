@@ -872,13 +872,15 @@ class TestResendEmailVerificationView(TestCase):
     def setUp(self):
         self.token_gen = EmailAuthTokenGenerator()
         self.factory = RequestFactory()
-        self.email = "success@simulator.amazonses.com"
+        self.email = "example@sagebrew.com"
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
         self.pleb.email_verified = False
         self.pleb.save()
 
     def test_resend_email_verification_view_success(self):
+        from intercom import User
+        User.create(user_id=self.user.username, email='example@sagebrew.com')
         user = authenticate(username=self.user.username,
                             password='test_test')
         request = self.factory.request()

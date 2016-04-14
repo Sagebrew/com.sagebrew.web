@@ -34,7 +34,7 @@ urlpatterns = patterns(
     url(r'^password_reset/', 'django.contrib.auth.views.password_reset',
         {
             "html_email_template_name":
-                "email_templates/email_password_reset.html",
+                "email_templates/password_reset.html",
             "template_name": "password_reset/password_reset.html",
             "password_reset_form": CustomPasswordResetForm
         }, name="reset_password_page"),

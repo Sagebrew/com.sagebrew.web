@@ -17,7 +17,7 @@ class MissionSitemap(Sitemap):
 
     def items(self):
         query = "MATCH (n:Mission) WHERE n.active=true " \
-                "RETURN n"
+                "RETURN DISTINCT n"
         res, _ = db.cypher_query(query)
         [row[0].pull() for row in res]
         return [Mission.inflate(row[0]) for row in res]

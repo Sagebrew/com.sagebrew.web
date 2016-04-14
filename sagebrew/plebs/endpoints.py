@@ -26,7 +26,7 @@ from sagebrew import errors
 
 from api.permissions import (IsSelfOrReadOnly,
                              IsAnonCreateReadOnlyOrIsAuthenticated)
-from sb_base.utils import get_filter_params
+from sb_base.utils import get_filter_params, NeoQuerySet
 from sb_base.neo_models import SBContent
 from sb_base.serializers import MarkdownContentSerializer
 from sb_posts.neo_models import Post
@@ -193,7 +193,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     """
     serializer_class = PlebSerializerNeo
     lookup_field = "username"
-    queryset = Pleb.nodes.all()
+    queryset = NeoQuerySet(Pleb)
     permission_classes = (IsAnonCreateReadOnlyOrIsAuthenticated, )
 
     def get_object(self):
@@ -212,7 +212,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], serializer_class=QuestionSerializerNeo)
     def questions(self, request, username=None):
         filter_by = request.query_params.get('filter', "")
         try:
@@ -220,19 +220,16 @@ class ProfileViewSet(viewsets.ModelViewSet):
         except(IndexError, KeyError, ValueError):
             return Response(errors.QUERY_DETERMINATION_EXCEPTION,
                             status=status.HTTP_400_BAD_REQUEST)
-        query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-' \
-                '(b:Question) WHERE b.to_be_deleted=false' \
-                ' %s RETURN b' % (username, additional_params)
-        res, col = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        queryset = [Question.inflate(row[0]) for row in res]
+        query = '(a:Pleb {username: "%s"})<-[:OWNED_BY]-' \
+                '(res:Question)' % username
+        queryset = NeoQuerySet(
+            Question, query=query).filter(
+            'WHERE res.to_be_deleted=false %s' % additional_params)
+        return self.get_paginated_response(
+            self.serializer_class(self.paginate_queryset(queryset), many=True,
+                                  context={'request': request}).data)
 
-        page = self.paginate_queryset(queryset)
-        serializer = QuestionSerializerNeo(page, many=True,
-                                           context={'request': request})
-        return self.get_paginated_response(serializer.data)
-
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], serializer_class=MarkdownContentSerializer)
     def public_content(self, request, username=None):
         filter_by = request.query_params.get('filter', "")
         try:
@@ -240,19 +237,14 @@ class ProfileViewSet(viewsets.ModelViewSet):
         except(IndexError, KeyError, ValueError):
             return Response(errors.QUERY_DETERMINATION_EXCEPTION,
                             status=status.HTTP_400_BAD_REQUEST)
-        query = 'MATCH (b:`SBPublicContent`)-[:OWNED_BY]->(a:Pleb ' \
-                '{username: "%s"}) ' \
-                'WHERE b.to_be_deleted=false ' \
-                ' %s RETURN b' % (username, additional_params)
-
-        res, col = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        queryset = [SBContent.inflate(row[0]) for row in res]
-
-        page = self.paginate_queryset(queryset)
-        serializer = MarkdownContentSerializer(page, many=True,
-                                               context={'request': request})
-        return self.get_paginated_response(serializer.data)
+        query = '(res:SBPublicContent)-[:OWNED_BY]->(a:Pleb ' \
+                '{username: "%s"})' % username
+        queryset = NeoQuerySet(
+            SBContent, query=query).filter(
+            'WHERE res.to_be_deleted=false %s' % additional_params)
+        return self.get_paginated_response(
+            self.serializer_class(self.paginate_queryset(queryset), many=True,
+                                  context={'request': request}).data)
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticatedOrReadOnly,))
@@ -281,28 +273,22 @@ class ProfileViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated,))
     def followers(self, request, username=None):
-        query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-' \
-                '(followers:Pleb) WHERE r.active ' \
-                'RETURN followers' % username
-        res, _ = db.cypher_query(query)
-        if res.one:
-            follower_list = [Pleb.inflate(row[0]) for row in res]
-            return self.get_paginated_response(self.paginate_queryset(
-                PlebSerializerNeo(follower_list, many=True).data))
-        return self.get_paginated_response(self.paginate_queryset([]))
+        queryset = NeoQuerySet(
+            Pleb, query='(p:Pleb {username:"%s"})<-[r:FOLLOWING]-'
+                        '(res:Pleb)' % username).filter('WHERE r.active')
+        return self.get_paginated_response(
+            PlebSerializerNeo(self.paginate_queryset(queryset), many=True,
+                              context={'request': request}).data)
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated,))
     def following(self, request, username=None):
-        query = 'MATCH (p:Pleb {username:"%s"})-[r:FOLLOWING]->' \
-                '(followers:Pleb) WHERE r.active ' \
-                'RETURN followers' % username
-        res, _ = db.cypher_query(query)
-        if res.one:
-            follower_list = [Pleb.inflate(row[0]) for row in res]
-            return self.get_paginated_response(self.paginate_queryset(
-                PlebSerializerNeo(follower_list, many=True).data))
-        return self.get_paginated_response(self.paginate_queryset([]))
+        queryset = NeoQuerySet(
+            Pleb, query='(p:Pleb {username:"%s"})-[r:FOLLOWING]->'
+                        '(res:Pleb)' % username).filter('WHERE r.active')
+        return self.get_paginated_response(
+            PlebSerializerNeo(self.paginate_queryset(queryset), many=True,
+                              context={'request': request}).data)
 
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated, IsSelfOrReadOnly))
@@ -406,30 +392,25 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(PublicOfficialSerializer(president).data,
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'],
+    @detail_route(methods=['get'], serializer_class=MissionSerializer,
                   permission_classes=(IsAuthenticatedOrReadOnly,))
     def missions(self, request, username):
-        query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
-                '[:EMBARKS_ON]->(m:Mission) RETURN m' % username
-        res, _ = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        queryset = [Mission.inflate(row[0]) for row in res]
-        page = self.paginate_queryset(queryset)
-        serializer = MissionSerializer(page, many=True,
-                                       context={'request': request})
-        return self.get_paginated_response(serializer.data)
+        query = '(quest:Quest {owner_username: "%s"})-' \
+                '[:EMBARKS_ON]->(res:Mission)' % username
+        queryset = NeoQuerySet(Mission, query=query).filter('WHERE res.active')
+        return self.get_paginated_response(
+            self.serializer_class(self.paginate_queryset(queryset), many=True,
+                                  context={'request': request}).data)
 
     @detail_route(methods=["GET"], serializer_class=MissionSerializer,
                   permission_classes=(IsAuthenticatedOrReadOnly,))
     def endorsed(self, request, username):
-        query = 'MATCH (p:Pleb {username:"%s"})-' \
-                '[:ENDORSES]->(m:Mission) RETURN m' % username
-        res, _ = db.cypher_query(query)
-        page = self.paginate_queryset(
-            [Mission.inflate(mission[0]) for mission in res])
-        serializer = self.serializer_class(page, many=True,
-                                           context={'request': request})
-        return self.get_paginated_response(serializer.data)
+        query = '(p:Pleb {username:"%s"})-' \
+                '[:ENDORSES]->(res:Mission)' % username
+        queryset = NeoQuerySet(Mission, query=query).filter('WHERE res.active')
+        return self.get_paginated_response(
+            self.serializer_class(self.paginate_queryset(queryset), many=True,
+                                  context={'request': request}).data)
 
 
 class MeViewSet(mixins.UpdateModelMixin,

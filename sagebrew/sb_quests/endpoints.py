@@ -16,6 +16,7 @@ from rest_framework.parsers import FileUploadParser
 
 from neomodel import db
 
+from sb_base.utils import NeoQuerySet
 from api.utils import (calc_stripe_application_fee, humanize_dict_keys,
                        generate_csv_html_file_response)
 from api.permissions import (IsOwnerOrAdmin, IsOwnerOrModerator,
@@ -39,10 +40,7 @@ class QuestViewSet(viewsets.ModelViewSet):
     permission_classes = (IsOwnerOrModeratorOrReadOnly,)
 
     def get_queryset(self):
-        query = "MATCH (c:Quest) RETURN c"
-        res, col = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        return [Quest.inflate(row[0]) for row in res]
+        return NeoQuerySet(Quest)
 
     def get_object(self):
         return Quest.get(owner_username=self.kwargs[self.lookup_field])
@@ -270,20 +268,16 @@ class QuestViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticatedOrReadOnly,))
     def missions(self, request, owner_username):
+        query = '(quest:Quest {owner_username: "%s"})-' \
+                '[:EMBARKS_ON]->(res:Mission)' % owner_username
         if request.user.username == owner_username:
-            query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
-                    '[:EMBARKS_ON]->(m:Mission) RETURN m' % owner_username
+            queryset = NeoQuerySet(Mission, query=query)
         else:
-            query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
-                '[:EMBARKS_ON]->(m:Mission) WHERE m.active=true' \
-                ' RETURN m' % owner_username
-        res, _ = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        queryset = [Mission.inflate(row[0]) for row in res]
-        page = self.paginate_queryset(queryset)
-        serializer = MissionSerializer(page, many=True,
-                                       context={'request': request})
-        return self.get_paginated_response(serializer.data)
+            queryset = NeoQuerySet(
+                Mission, query=query).filter('WHERE res.active')
+        return self.get_paginated_response(
+            MissionSerializer(self.paginate_queryset(queryset), many=True,
+                              context={'request': request}).data)
 
     @detail_route(methods=['get'], permission_classes=(IsAuthenticated,
                                                        IsOwnerOrModerator,))

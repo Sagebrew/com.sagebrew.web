@@ -63,7 +63,7 @@ class AccountingViewSet(viewsets.ViewSet):
                 },
                 'to': {
                     'type': 'user',
-                    'id': pleb.username
+                    'user_id': pleb.username
                 }
             }
             Message.create(**message_data)

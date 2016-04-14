@@ -1,3 +1,6 @@
+from neomodel import db
+from py2neo.cypher.error.schema import ConstraintViolation
+
 from sb_docstore.utils import get_vote, add_object_to_table, update_vote
 
 
@@ -44,3 +47,23 @@ def handle_vote(parent_object_uuid, status, username, now):
     else:
         update_vote(parent_object_uuid, username, status, now)
     return True
+
+
+def create_vote_relationship(content_id, voter_username,
+                             vote_active, vote_type):
+    try:
+        query = 'MATCH (v:VotableContent {object_uuid:"%s"}), ' \
+                '(p:Pleb {username:"%s"}) ' \
+                'CREATE UNIQUE (v)<-[vote:PLEB_VOTES]-(p) ' \
+                'WITH v, vote, p SET vote.active=%s, ' \
+                'vote.vote_type=%s RETURN v' % (
+                    content_id, voter_username, vote_active, vote_type)
+        res, _ = db.cypher_query(query)
+    except(ConstraintViolation, Exception):
+        query = 'MATCH (v:VotableContent {object_uuid:"%s"})' \
+                '<-[vote:PLEB_VOTES]-(p:Pleb {username:"%s"}) ' \
+                'SET vote.active=%s, vote.vote_type=%s RETURN v' % (
+                    content_id, voter_username, vote_active, vote_type)
+        res, _ = db.cypher_query(query)
+
+    return res

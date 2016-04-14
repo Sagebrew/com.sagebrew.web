@@ -12,7 +12,6 @@ from plebs.neo_models import Pleb, Address
 from sb_locations.neo_models import Location
 from sb_registration.utils import create_user_util_test
 from plebs.tasks import (create_wall_task,
-                         finalize_citizen_creation, send_email_task,
                          create_friend_request_task,
                          determine_pleb_reps,
                          update_reputation, connect_to_state_districts)
@@ -76,109 +75,6 @@ class TestCreateWallTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertFalse(isinstance(res.result, Exception))
-
-
-class TestFinalizeCitizenCreationTask(TestCase):
-
-    def setUp(self):
-        settings.CELERY_ALWAYS_EAGER = True
-        self.email2 = 'suppressionlist@simulator.amazonses.com'
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        try:
-            pleb = Pleb.nodes.get(email=self.email2)
-            pleb.delete()
-            user = User.objects.get(email=self.email2)
-            user.delete()
-        except (Pleb.DoesNotExist, User.DoesNotExist):
-            pass
-        self.fake_user = User.objects.create_user(
-            first_name='fake', last_name='user',
-            email='suppressionlist@simulator.amazonses.com',
-            password='fakepass',
-            username='thisisafakeusername1')
-        self.fake_user.save()
-        self.fake_pleb = Pleb(email=self.fake_user.email,
-                              first_name=self.fake_user.first_name,
-                              last_name=self.fake_user.last_name,
-                              username=self.fake_user.username).save()
-
-    def tearDown(self):
-        self.fake_pleb.delete()
-        self.fake_user.delete()
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_finalize_citizen_creation_email_not_sent(self):
-        task_data = {
-            'username': self.fake_user.username
-        }
-        res = finalize_citizen_creation.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-
-        self.assertNotIsInstance(res.result, Exception)
-
-    def test_finalize_citizen_creation_email_sent(self):
-        self.fake_pleb.initial_verification_email_sent = True
-        self.fake_pleb.save()
-        task_data = {
-            'username': self.fake_user.username
-        }
-        res = finalize_citizen_creation.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-
-        self.assertNotIsInstance(res.result, Exception)
-
-
-class TestSendEmailTask(TestCase):
-
-    def setUp(self):
-        settings.CELERY_ALWAYS_EAGER = True
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        try:
-            pleb = Pleb.nodes.get(
-                email='suppressionlist@simulator.amazonses.com')
-            pleb.delete()
-            user = User.objects.get(
-                email='suppressionlist@simulator.amazonses.com')
-            user.delete()
-        except (Pleb.DoesNotExist, User.DoesNotExist):
-            pass
-        self.fake_user = User.objects.create_user(
-            first_name='test', last_name='test',
-            email='suppressionlist@simulator.amazonses.com',
-            password='fakepass',
-            username='thisisafakeusername')
-        self.fake_user.save()
-        self.fake_pleb = Pleb(email=self.fake_user.email,
-                              first_name=self.fake_user.first_name,
-                              last_name=self.fake_user.last_name,
-                              username='thisisafakeusername').save()
-
-    def tearDown(self):
-        self.fake_pleb.delete()
-        self.fake_user.delete()
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_send_email_task(self):
-        task_data = {'to': self.fake_pleb.email,
-                     'subject': 'This is a fake subject',
-                     'html_content': "<div>Fake HTML Content</div>",
-                     "source": "support@sagebrew.com"}
-        res = send_email_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
         self.assertFalse(isinstance(res.result, Exception))
 
 

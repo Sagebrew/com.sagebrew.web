@@ -77,10 +77,10 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                     "OPTIONAL MATCH (res)<-[vs:PLEB_VOTES]-() " \
                     "WHERE vs.active=True" % self.kwargs[self.lookup_field]
             reduce_query = ", reduce(vote_count = 0, v in collect(vs)|" \
-                    "CASE WHEN v.vote_type=True THEN vote_count+1 " \
-                    "WHEN v.vote_type=False THEN vote_count-1 " \
-                    "ELSE vote_count END) as reduction " \
-                    "ORDER BY reduction"
+                           "CASE WHEN v.vote_type=True THEN vote_count+1 " \
+                           "WHEN v.vote_type=False THEN vote_count-1 " \
+                           "ELSE vote_count END) as reduction " \
+                           "ORDER BY reduction"
         else:
             query = "(a:Question {object_uuid:'%s'})-" \
                     "[:POSSIBLE_ANSWER]->" \

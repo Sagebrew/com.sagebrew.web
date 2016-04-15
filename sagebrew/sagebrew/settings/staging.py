@@ -1,7 +1,7 @@
 from production import *
 
 ALLOWED_HOSTS = ['staging.sagebrew.com', ]
-WEBHOSE_REQUEST_LIMIT = 900
+WEBHOSE_REQUEST_LIMIT = 400
 S3_URL = "https://d3bfx8awejj0jg.cloudfront.net/"
 AWS_S3_CUSTOM_DOMAIN = "d3bfx8awejj0jg.cloudfront.net"
 WEB_ADDRESS = "https://staging.sagebrew.com"

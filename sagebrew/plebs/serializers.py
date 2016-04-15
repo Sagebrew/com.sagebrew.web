@@ -1,17 +1,25 @@
 import us
 import stripe
-
+from intercom import Intercom, Message
 from unidecode import unidecode
+
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import login, authenticate
 from django.conf import settings
 from django.utils.text import slugify
+from django.template.loader import get_template
+from django.template import Context
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.reverse import reverse
+from rest_framework.exceptions import ValidationError
 
 from py2neo.cypher.error.schema import ConstraintViolation
 
@@ -80,6 +88,52 @@ class BetaUserSerializer(serializers.Serializer):
     email = serializers.EmailField()
     invited = serializers.BooleanField()
     signup_date = serializers.DateTimeField()
+
+
+class EmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate(self, validated_data):
+        try:
+            user = User.objects.get(email=validated_data.get('email'))
+        except User.DoesNotExist:
+            raise ValidationError("Sorry we couldn't find that address")
+        validated_data['user'] = user
+        return validated_data
+
+    def create(self, validated_data):
+        Intercom.app_id = settings.INTERCOM_APP_ID
+        Intercom.app_api_key = settings.INTERCOM_API_KEY
+        user = validated_data['user']
+        current_site = get_current_site(self.context.get('request'))
+        site_name = current_site.name
+        context = {
+            'email': validated_data['email'],
+            'domain': current_site.domain,
+            'site_name': site_name,
+            'first_name': user.first_name,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'user': user,
+            'token': default_token_generator.make_token(user)
+        }
+        message_data = {
+            'message_type': 'email',
+            'subject': 'Sagebrew Reset Password Request',
+            'body': get_template('email_templates/password_reset.html').render(
+                Context(context)),
+            'template': "personal",
+            'from': {
+                'type': "admin",
+                'id': settings.INTERCOM_ADMIN_ID_DEVON
+            },
+            'to': {
+                'type': "user",
+                'user_id': user.username
+            }
+        }
+        Message.create(**message_data)
+
+        return True
 
 
 class UserSerializer(SBSerializer):

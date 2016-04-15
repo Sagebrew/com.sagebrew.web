@@ -12,12 +12,13 @@ from django.core.cache import cache
 from django.template import RequestContext
 from django.conf import settings
 
+from rest_framework.throttling import UserRateThrottle
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.generics import (RetrieveUpdateDestroyAPIView, mixins)
 
 from neomodel import db
@@ -47,9 +48,32 @@ from sb_news.neo_models import NewsArticle
 from sb_news.serializers import NewsArticleSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
                           FriendRequestSerializer, PoliticalPartySerializer,
-                          InterestsSerializer, TopicInterestsSerializer)
+                          InterestsSerializer, TopicInterestsSerializer,
+                          EmailSerializer)
 from .neo_models import Pleb, Address, FriendRequest
 from .utils import get_filter_by
+
+
+class LimitPerDayUserThrottle(UserRateThrottle):
+    rate = '60/day'
+
+
+class PasswordReset(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = EmailSerializer
+    throttle_classes = (LimitPerDayUserThrottle, )
+
+    def post(self, request, *args, **kwargs):
+        serializer = EmailSerializer(data=request.data,
+                                     context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"detail": "Reset email successfully sent",
+                             "status": status.HTTP_200_OK},
+                            status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors,
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 def get_public_content(api, username, request):

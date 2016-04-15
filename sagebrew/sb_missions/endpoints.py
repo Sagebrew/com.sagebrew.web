@@ -32,7 +32,7 @@ class MissionViewSet(viewsets.ModelViewSet):
                     '(res:Mission {active: true})<-[:EMBARKS_ON]-' \
                     '(quest:Quest {active: true})' % self.request.user.username
         elif self.request.query_params.get('affects', "") == "friends":
-            query = '(pleb:Pleb {username: "%s"})-[:FRIENDS_WITH]' \
+            query = '(pleb:Pleb {username: "%s"})-[:FOLLOWING]' \
                     '->(friends:Pleb)-[:LIVES_AT]->' \
                     '(address:Address)-[:ENCOMPASSED_BY*..]->' \
                     '(location:Location)<-[:WITHIN]-' \

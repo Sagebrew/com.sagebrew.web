@@ -278,7 +278,10 @@ class URLContentSerializer(SBSerializer):
         return instance.get_images()
 
     def get_image_viewable(self, instance):
-        return instance.selected_image and not instance.is_explicit
+        # Adding .svg check as a quick and dirty way to fix empty url expansion
+        return instance.selected_image \
+            and ".svg" not in instance.selected_image \
+            and not instance.is_explicit
 
     def get_is_portrait(self, instance):
         return instance.image_height > instance.image_width

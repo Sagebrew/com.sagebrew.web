@@ -30,11 +30,11 @@ class Command(BaseCommand):
                 except IndexError:
                     continue
                 donation_query = 'MATCH (a:Quest {owner_username: "%s"})' \
-                                     '<-[:CONTRIBUTED_TO]-(b:Donation) ' \
-                                     'RETURN b' % quest.owner_username
+                                 '<-[:CONTRIBUTED_TO]-(b:Donation) ' \
+                                 'RETURN b' % quest.owner_username
                 donation_res, _ = db.cypher_query(donation_query)
                 for donation in [Donation.inflate(donation_row[0])
-                               for donation_row in donation_res]:
+                                 for donation_row in donation_res]:
                     try:
                         if not Donation.get_mission(donation.object_uuid):
                             donation.mission.connect(mission)

@@ -318,7 +318,7 @@ if not DEBUG:
         },
         'find-tag-news': {
             'task': 'sb_news.tasks.find_tag_news',
-            'schedule': crontab(minute=0, hour=6),
+            'schedule': crontab(minute=0, hour=19),
             'args': ()
         },
         'check-unverified-quests': {

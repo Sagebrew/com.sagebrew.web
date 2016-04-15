@@ -51,7 +51,7 @@ class MissionViewSet(viewsets.ModelViewSet):
         return Mission.nodes.get(object_uuid=self.kwargs[self.lookup_field])
 
     def create(self, request, *args, **kwargs):
-        query = 'MATCH (a:Pleb {username: "%s"})-[IS_WAGING]->(b:Quest)' \
+        query = 'MATCH (a:Pleb {username: "%s"})-[IS_WAGING]->(b:Quest) ' \
                 'RETURN b' % request.user.username
         res, _ = db.cypher_query(query)
         if res.one is None:

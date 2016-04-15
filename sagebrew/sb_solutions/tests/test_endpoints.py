@@ -7,12 +7,14 @@ from django.template.response import TemplateResponse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from neomodel import db
 from neomodel.exception import DoesNotExist
 
 from sb_tags.neo_models import Tag
 from sb_questions.neo_models import Question
 from sb_solutions.neo_models import Solution
 from sb_registration.utils import create_user_util_test
+from sb_votes.utils import create_vote_relationship
 
 
 class SolutionEndpointTests(APITestCase):
@@ -167,6 +169,192 @@ class SolutionEndpointTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_list_most_recent_ordering(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb2.user_weight).save()
+        question.owned_by.connect(self.pleb2)
+        # Question 1
+        solution = Solution(content='test_content',
+                            owner_username=self.pleb2.username,
+                            parent_id=question.object_uuid).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+        # Question 2
+        solution2 = Solution(content='test_content22',
+                             owner_username=self.pleb.username,
+                             parent_id=question.object_uuid).save()
+        solution2.owned_by.connect(self.pleb)
+        question.solutions.connect(solution2)
+        # Question 3
+        solution3 = Solution(content='test_content33',
+                             owner_username=self.pleb.username,
+                             parent_id=question.object_uuid).save()
+        solution3.owned_by.connect(self.pleb)
+        question.solutions.connect(solution3)
+        # Question 4
+        solution4 = Solution(content='test_content44',
+                             owner_username=self.pleb2.username,
+                             parent_id=question.object_uuid).save()
+        solution4.owned_by.connect(self.pleb2)
+        question.solutions.connect(solution4)
+        # Solution 5
+        solution5 = Solution(content='test_content55',
+                             owner_username=self.pleb.username,
+                             parent_id=question.object_uuid).save()
+        solution5.owned_by.connect(self.pleb)
+        question.solutions.connect(solution5)
+        url = reverse('question-solutions',
+                      kwargs={"object_uuid": question.object_uuid}) \
+            + "?limit=5&offset=0&expand=true&ordering=-created"
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 5)
+        self.assertEqual(response.data['results'][0]['id'],
+                         solution5.object_uuid)
+        self.assertEqual(response.data['results'][1]['id'],
+                         solution4.object_uuid)
+        self.assertEqual(response.data['results'][2]['id'],
+                         solution3.object_uuid)
+        self.assertEqual(response.data['results'][3]['id'],
+                         solution2.object_uuid)
+        self.assertEqual(response.data['results'][4]['id'],
+                         solution.object_uuid)
+
+    def test_list_least_recent_ordering(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb2.user_weight).save()
+        question.owned_by.connect(self.pleb2)
+        # Solution 1
+        solution = Solution(content='test_content',
+                            owner_username=self.pleb2.username,
+                            parent_id=question.object_uuid).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+        # Solution 2
+        solution2 = Solution(content='test_content22',
+                             owner_username=self.pleb.username,
+                             parent_id=question.object_uuid).save()
+        solution2.owned_by.connect(self.pleb)
+        question.solutions.connect(solution2)
+        # Solution 3
+        solution3 = Solution(content='test_content33',
+                             owner_username=self.pleb.username,
+                             parent_id=question.object_uuid).save()
+        solution3.owned_by.connect(self.pleb)
+        question.solutions.connect(solution3)
+        # Solution 4
+        solution4 = Solution(content='test_content44',
+                             owner_username=self.pleb2.username,
+                             parent_id=question.object_uuid).save()
+        solution4.owned_by.connect(self.pleb2)
+        question.solutions.connect(solution4)
+        # Solution 5
+        solution5 = Solution(content='test_content55',
+                             owner_username=self.pleb.username,
+                             parent_id=question.object_uuid).save()
+        solution5.owned_by.connect(self.pleb)
+        question.solutions.connect(solution5)
+        url = reverse('question-solutions',
+                      kwargs={"object_uuid": question.object_uuid}) \
+            + "?limit=5&offset=0&expand=true&ordering=created"
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 5)
+        self.assertEqual(response.data['results'][0]['id'],
+                         solution.object_uuid)
+        self.assertEqual(response.data['results'][1]['id'],
+                         solution2.object_uuid)
+        self.assertEqual(response.data['results'][2]['id'],
+                         solution3.object_uuid)
+        self.assertEqual(response.data['results'][3]['id'],
+                         solution4.object_uuid)
+        self.assertEqual(response.data['results'][4]['id'],
+                         solution5.object_uuid)
+
+    def test_list_vote_count_ordering(self):
+        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
+                "(n:SBContent)-[r]-() DELETE n,r"
+        res, _ = db.cypher_query(query)
+        self.client.force_authenticate(user=self.user)
+        pleb3 = create_user_util_test("devon@sagebrew.com")
+        question = Question(title='test_title', content='test_content',
+                            owner_username=self.pleb2.user_weight).save()
+
+        question.owned_by.connect(self.pleb2)
+        # Solution 1 1 Upvote
+        solution = Solution(content='test_content',
+                            owner_username=self.pleb2.username,
+                            parent_id=question.object_uuid).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+        create_vote_relationship(solution.object_uuid, self.pleb2.username,
+                                 "true", "true")
+        # Solution 2 1 Downvote
+        solution2 = Solution(content='test_content22',
+                             owner_username=self.pleb.username,
+                             parent_id=question.object_uuid).save()
+        solution2.owned_by.connect(self.pleb)
+        question.solutions.connect(solution2)
+        create_vote_relationship(solution2.object_uuid,
+                                 self.pleb2.username,
+                                 "true", "false")
+        # Solution 3 No Votes
+        solution3 = Solution(content='test_content33',
+                             owner_username=self.pleb.username,
+                             parent_id=question.object_uuid).save()
+        solution3.owned_by.connect(self.pleb)
+        question.solutions.connect(solution3)
+        # Solution 4 2 Downvotes
+        solution4 = Solution(content='test_content44',
+                             owner_username=self.pleb2.username,
+                             parent_id=question.object_uuid).save()
+        solution4.owned_by.connect(self.pleb2)
+        question.solutions.connect(solution4)
+        create_vote_relationship(solution4.object_uuid,
+                                 self.pleb2.username,
+                                 "true", "false")
+
+        create_vote_relationship(solution4.object_uuid, pleb3.username,
+                                 "true", "false")
+        # Solution 5 2 Upvotes
+        solution5 = Solution(content='test_content55',
+                             owner_username=self.pleb.username,
+                             parent_id=question.object_uuid).save()
+        solution5.owned_by.connect(self.pleb)
+        question.solutions.connect(solution5)
+        create_vote_relationship(solution5.object_uuid,
+                                 self.pleb2.username,
+                                 "true", "true")
+
+        create_vote_relationship(solution5.object_uuid, pleb3.username,
+                                 "true", "true")
+
+        url = reverse('question-solutions',
+                      kwargs={"object_uuid": question.object_uuid}) \
+            + "?limit=5&offset=0&expand=true&ordering=vote_count"
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data['results']), 5)
+        self.assertEqual(response.data['results'][0]['id'],
+                         solution5.object_uuid)
+        self.assertEqual(response.data['results'][1]['id'],
+                         solution.object_uuid)
+        self.assertEqual(response.data['results'][2]['id'],
+                         solution3.object_uuid)
+        self.assertEqual(response.data['results'][3]['id'],
+                         solution2.object_uuid)
+        self.assertEqual(response.data['results'][4]['id'],
+                         solution4.object_uuid)
 
 
 class TestSingleSolutionPage(APITestCase):

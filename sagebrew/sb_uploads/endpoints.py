@@ -74,20 +74,25 @@ class UploadViewSet(viewsets.ModelViewSet):
             file_object = request.data.get('file', None)
         if file_object is None:
             file_object = request.data.get('img', None)
-        serializer = self.get_serializer(
-            data={"file_object": file_object},
-            context={'request': request})
-        if serializer.is_valid():
-            owner = Pleb.get(request.user.username)
-            upload = serializer.save(owner=owner)
-            if croppic == 'true':
-                return Response({"status": "success",
-                                 "url": upload.url,
-                                 "width": upload.width,
-                                 "height": upload.height},
-                                status=status.HTTP_200_OK)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            serializer = self.get_serializer(
+                data={"file_object": file_object},
+                context={'request': request})
+            if serializer.is_valid():
+                owner = Pleb.get(request.user.username)
+                upload = serializer.save(owner=owner)
+                if croppic == 'true':
+                    return Response({"status": "success",
+                                     "url": upload.url,
+                                     "width": upload.width,
+                                     "height": upload.height},
+                                    status=status.HTTP_200_OK)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            from logging import getLogger
+            logger = getLogger("loggly_logs")
+            logger.info(e)
 
     @detail_route(methods=['post'], permission_classes=[IsAuthenticated])
     def crop(self, request, object_uuid=None):

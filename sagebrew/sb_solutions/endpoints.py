@@ -76,12 +76,11 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                     "WHERE res.to_be_deleted=false " \
                     "OPTIONAL MATCH (res)<-[vs:PLEB_VOTES]-() " \
                     "WHERE vs.active=True" % self.kwargs[self.lookup_field]
-            additional_params = ", vs "
             reduce_query = ", reduce(vote_count = 0, v in collect(vs)|" \
                     "CASE WHEN v.vote_type=True THEN vote_count+1 " \
                     "WHEN v.vote_type=False THEN vote_count-1 " \
                     "ELSE vote_count END) as reduction " \
-                    "ORDER BY reduction DESC"
+                    "ORDER BY reduction"
         else:
             query = "(a:Question {object_uuid:'%s'})-" \
                     "[:POSSIBLE_ANSWER]->" \
@@ -90,8 +89,9 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                 Solution, query=query, distinct=True, descending=desc)\
                 .filter("WHERE res.to_be_deleted=false")\
                 .order_by(sort_by)
-        return NeoQuerySet(Solution, query=query, reduce_query=reduce_query,
-                           additional_query_params=additional_params)
+        return NeoQuerySet(
+            Solution, query=query, distinct=True, descending=True)\
+            .order_by(reduce_query)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())

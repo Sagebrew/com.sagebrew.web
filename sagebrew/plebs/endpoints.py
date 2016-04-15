@@ -574,46 +574,6 @@ class MeViewSet(mixins.UpdateModelMixin,
             'NULL AS s_question, NULL as mission, q_mission, ' \
             'NULL AS news UNION ' \
             '' \
-            "// Retrieve all the current user's friends posts on their \n" \
-            '// walls\n' \
-            'MATCH (a:Pleb {username: "%s"})-' \
-            '[r:FRIENDS_WITH {active: True}]->(p:Pleb)<-' \
-            '[:OWNED_BY]-(posts:Post) ' \
-            'WHERE (posts)-[:POSTED_ON]->(:Wall)<-[:OWNS_WALL]-(p) AND ' \
-            'HAS(r.active) AND posts.to_be_deleted = False ' \
-            'AND posts.created > %s AND posts.is_closed = False ' \
-            'RETURN posts, NULL AS questions, NULL AS solutions, ' \
-            'posts.created AS created, NULL AS s_question, ' \
-            'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
-            'NULL AS news UNION ' \
-            '' \
-            '// Retrieve all the current users friends and friends of friends' \
-            '// questions \n' \
-            'MATCH (a:Pleb {username: "%s"})-' \
-            '[manyFriends:FRIENDS_WITH*..2 {active: True}]' \
-            '->(:Pleb)<-[:OWNED_BY]-(questions:Question) ' \
-            'WHERE questions.to_be_deleted = False AND ' \
-            'questions.created > %s AND questions.is_closed = False ' \
-            'RETURN questions, NULL AS posts, NULL AS solutions, ' \
-            'questions.created AS created, NULL AS s_question, ' \
-            'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
-            'NULL AS news UNION ' \
-            '' \
-            '// Retrieve all the current users friends and friends of friends' \
-            '// solutions \n' \
-            'MATCH (a:Pleb {username: "%s"})-' \
-            '[manyFriends:FRIENDS_WITH*..2 {active: True}]->' \
-            '(:Pleb)<-[:OWNED_BY]-' \
-            '(solutions:Solution)<-[:POSSIBLE_ANSWER]-' \
-            '(s_question:Question) ' \
-            'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
-            ' AND solutions.is_closed = False ' \
-            'AND s_question.is_closed = False ' \
-            'RETURN solutions, NULL AS posts, NULL AS questions, ' \
-            'solutions.created AS created, s_question AS s_question,' \
-            'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
-            'NULL AS news UNION ' \
-            '' \
             '// Retrieve all the posts owned by users that the current user ' \
             '// is following \n' \
             'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
@@ -652,8 +612,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'NULL AS news' \
             % (
                 request.user.username, then, request.user.username, then,
-                request.user.username, then, request.user.username, then,
-                request.user.username, then, request.user.username, then,
+                request.user.username, then,
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then,

@@ -10,7 +10,7 @@ from neomodel import db
 
 from api.utils import spawn_task
 from sb_notifications.tasks import spawn_notifications
-from sb_base.utils import get_ordering
+from sb_base.utils import get_ordering, NeoQuerySet
 from sb_base.views import ObjectRetrieveUpdateDestroy
 from sb_questions.neo_models import Question
 from plebs.neo_models import Pleb
@@ -66,33 +66,36 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
 
     def get_queryset(self):
         sort_by = self.request.query_params.get('ordering', "")
+        desc = False
+        if "-" in sort_by:
+            desc = True
         sort_by, ordering = get_ordering(sort_by)
         if sort_by == "" or sort_by == "vote_count":
-            query = "MATCH (q:Question {object_uuid: '%s'})-" \
-                    "[:POSSIBLE_ANSWER]->(b:Solution) " \
-                    "WHERE b.to_be_deleted=false " \
-                    "OPTIONAL MATCH (b)<-[vs:PLEB_VOTES]-() " \
-                    "WHERE vs.active=True " \
-                    "RETURN b, reduce(vote_count = 0, v in collect(vs)|" \
+            query = "(q:Question {object_uuid: '%s'})-" \
+                    "[:POSSIBLE_ANSWER]->(res:Solution) " \
+                    "WHERE res.to_be_deleted=false " \
+                    "OPTIONAL MATCH (res)<-[vs:PLEB_VOTES]-() " \
+                    "WHERE vs.active=True" % self.kwargs[self.lookup_field]
+            additional_params = ", vs "
+            reduce_query = ", reduce(vote_count = 0, v in collect(vs)|" \
                     "CASE WHEN v.vote_type=True THEN vote_count+1 " \
                     "WHEN v.vote_type=False THEN vote_count-1 " \
                     "ELSE vote_count END) as reduction " \
-                    "ORDER BY reduction DESC" % (
-                        self.kwargs[self.lookup_field])
+                    "ORDER BY reduction DESC"
         else:
-            query = "MATCH (a:Question {object_uuid:'%s'})-" \
+            query = "(a:Question {object_uuid:'%s'})-" \
                     "[:POSSIBLE_ANSWER]->" \
-                    "(b:Solution) WHERE b.to_be_deleted=false" \
-                    " RETURN b %s %s" % (self.kwargs[self.lookup_field],
-                                         sort_by, ordering)
-        res, col = db.cypher_query(query)
-        return res
+                    "(res:Solution)" % self.kwargs[self.lookup_field]
+            return NeoQuerySet(
+                Solution, query=query, distinct=True, descending=desc)\
+                .filter("WHERE res.to_be_deleted=false")\
+                .order_by(sort_by)
+        return NeoQuerySet(Solution, query=query, reduce_query=reduce_query,
+                           additional_query_params=additional_params)
 
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
-        [row[0].pull() for row in page]
-        page = [Solution.inflate(row[0]) for row in page]
         serializer = self.get_serializer(page, many=True)
         return self.get_paginated_response(serializer.data)
 

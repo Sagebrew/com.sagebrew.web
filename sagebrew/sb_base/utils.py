@@ -158,10 +158,13 @@ class NeoQuerySet(object):
     it should use `res` to indicate the value that will be returned.
     """
     def __init__(self, model=None, query=None, using=None, hints=None,
-                 distinct=None, descending=None, query_order=None):
+                 distinct=None, descending=None, reduce_query=None,
+                 query_order=None, additional_query_params=None):
         self.model = model
         self.distinct = distinct
         self.descending = descending
+        self.reduce = reduce_query
+        self.additional_query_params = additional_query_params
         self._db = using
         self._hints = hints or {}
         self.query = query or "(res:%s)" % \
@@ -195,11 +198,12 @@ class NeoQuerySet(object):
             else:
                 stop = 0
             limit = stop - start
-            exe_query = "MATCH %s WITH %s res %s %s " \
-                        "RETURN res " \
+            exe_query = "MATCH %s WITH %s res%s %s %s " \
+                        "RETURN res%s " \
                         "SKIP %d LIMIT %d" % (
-                            self.query, self.is_distinct(), self.query_order,
-                            self.reverse_order(), start, limit)
+                            self.query, self.is_distinct(),
+                            self.additional_query_params, self.query_order,
+                            self.reverse_order(), self.reduce, start, limit)
             qs, _ = db.cypher_query(exe_query)
             [row[0].pull() for row in qs]
             qs = [self.model.inflate(neoinstance[0]) for neoinstance in qs]

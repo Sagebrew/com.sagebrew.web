@@ -94,6 +94,7 @@ def get_reformed_url(url):
 def query_webhose(results, tag):
     for post in results['posts']:
         thread = post.pop('thread', None)
+        logger.critical(thread['spam_score'])
         if thread['spam_score'] < 0.3:
             external_id = post.pop('uuid', None)
             post.pop('ord_in_thread', None)
@@ -120,8 +121,10 @@ def query_webhose(results, tag):
             post["published"] = published
             post["provider"] = "webhose"
             post['language'] = "en"
+            logger.critical("run serializer")
             serializer = NewsArticleSerializer(data=post)
             if serializer.is_valid():
+                logger.critical("save object")
                 article = serializer.save()
             else:
                 logger.critical(serializer.errors)
@@ -138,5 +141,8 @@ def tag_callback(news_objects):
         results = gather_news_results(query)
         logger.critical("Tag name: %s" % tag.name)
         logger.critical("Result length: %d" % len(results))
+        post = results.get('posts', None)
+        logger.critical(post)
+        logger.critical("posts")
         requests_left = query_webhose(results, tag)
     return requests_left

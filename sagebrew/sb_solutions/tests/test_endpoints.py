@@ -178,25 +178,25 @@ class SolutionEndpointTests(APITestCase):
         question = Question(title='test_title', content='test_content',
                             owner_username=self.pleb2.user_weight).save()
         question.owned_by.connect(self.pleb2)
-        # Question 1
+        # Solution 1
         solution = Solution(content='test_content',
                             owner_username=self.pleb2.username,
                             parent_id=question.object_uuid).save()
         solution.owned_by.connect(self.pleb)
         question.solutions.connect(solution)
-        # Question 2
+        # Solution 2
         solution2 = Solution(content='test_content22',
                              owner_username=self.pleb.username,
                              parent_id=question.object_uuid).save()
         solution2.owned_by.connect(self.pleb)
         question.solutions.connect(solution2)
-        # Question 3
+        # Solution 3
         solution3 = Solution(content='test_content33',
                              owner_username=self.pleb.username,
                              parent_id=question.object_uuid).save()
         solution3.owned_by.connect(self.pleb)
         question.solutions.connect(solution3)
-        # Question 4
+        # Solution 4
         solution4 = Solution(content='test_content44',
                              owner_username=self.pleb2.username,
                              parent_id=question.object_uuid).save()
@@ -232,7 +232,7 @@ class SolutionEndpointTests(APITestCase):
         res, _ = db.cypher_query(query)
         self.client.force_authenticate(user=self.user)
         question = Question(title='test_title', content='test_content',
-                            owner_username=self.pleb2.user_weight).save()
+                            owner_username=self.pleb2.username).save()
         question.owned_by.connect(self.pleb2)
         # Solution 1
         solution = Solution(content='test_content',

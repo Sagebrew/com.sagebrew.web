@@ -167,8 +167,6 @@ class TestUpdateReputation(TestCase):
             "username": self.pleb.username
         }
         res = update_reputation.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
         self.assertTrue(res.result)
 
     def test_updated_rep(self):
@@ -188,9 +186,7 @@ class TestUpdateReputation(TestCase):
         data = {
             "username": self.pleb.username
         }
-        res = update_reputation.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
+        update_reputation.apply_async(kwargs=data)
         pleb = Pleb.nodes.get(username=self.pleb.username)
         self.assertFalse(pleb.reputation_update_seen)
         self.assertEqual(pleb.reputation, 5)
@@ -200,8 +196,6 @@ class TestUpdateReputation(TestCase):
             "username": str(uuid1())
         }
         res = update_reputation.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
         self.assertIsInstance(res.result, Exception)
 
 

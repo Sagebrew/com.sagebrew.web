@@ -44,7 +44,7 @@ class AccountingHooksTests(APITestCase):
             "id": "evt_00000000000000"
         }
         response = self.client.post(url, data=data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @requests_mock.mock()
     def test_valid_event_request(self, m):
@@ -101,7 +101,7 @@ class AccountingHooksTests(APITestCase):
             "id": "evt_00000000000000"
         }
         response = self.client.post(url, data=data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @requests_mock.mock()
     def test_valid_event_request_account_updated(self, m):

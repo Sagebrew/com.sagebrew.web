@@ -588,7 +588,7 @@ class Pleb(Searchable):
     def get_sagebrew_donations(self):
         query = 'MATCH (p:`Pleb` {username: "%s"})-[:DONATIONS_GIVEN]->' \
                 '(d:`Donation`) WHERE NOT (d)-[:CONTRIBUTED_TO]->(:Mission) ' \
-                'OR NOT (d)-[:CONTRIBUTED_TO]->(:Quest) ' \
+                'AND NOT (d)-[:CONTRIBUTED_TO]->(:Quest) ' \
                 'RETURN d.object_uuid' % self.username
         res, col = db.cypher_query(query)
         return [row[0] for row in res]

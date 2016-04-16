@@ -17,6 +17,8 @@ from plebs.neo_models import Pleb
 from sb_quests.neo_models import Quest
 from sb_notifications.tasks import spawn_system_notification
 
+from .serializers import IntercomMessageSerializer
+
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):
 
@@ -44,6 +46,7 @@ class AccountingViewSet(viewsets.ViewSet):
             except stripe.InvalidRequestError:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=customer['email'])
+
             message_data = {
                 'message_type': 'email',
                 'subject': 'Subscription Failure Notice',
@@ -57,16 +60,21 @@ class AccountingViewSet(viewsets.ViewSet):
                         "email and we'd be happy to help!\n\nBest Regards,"
                         "\n\nDevon",
                 'template': 'personal',
-                'from': {
+                'from_user': {
                     'type': 'admin',
                     'id': settings.INTERCOM_ADMIN_ID_DEVON
                 },
-                'to': {
+                'to_user': {
                     'type': 'user',
-                    'user_id': pleb.username
+                    'id': pleb.username
                 }
             }
-            Message.create(**message_data)
+            serializer = IntercomMessageSerializer(message_data)
+            if serializer.is_valid():
+                serialized = serializer.data
+                serialized['from'] = serialized.pop('from_user', None)
+                serialized['to'] = serialized.pop('to_user', None)
+                Message.create(**serialized)
             return Response({"detail": "Invoice Payment Failed"},
                             status=status.HTTP_200_OK)
         if event.type == "account.updated":

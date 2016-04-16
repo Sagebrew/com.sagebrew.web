@@ -90,7 +90,7 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                 .filter("WHERE res.to_be_deleted=false")\
                 .order_by(sort_by)
         return NeoQuerySet(
-            Solution, query=query, distinct=True, descending=True)\
+            Solution, query=query, distinct=True, descending=desc)\
             .order_by(reduce_query)
 
     def create(self, request, *args, **kwargs):

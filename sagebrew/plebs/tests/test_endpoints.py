@@ -23,7 +23,6 @@ from sagebrew import errors
 from sb_public_official.neo_models import PublicOfficial
 from plebs.neo_models import (Pleb, FriendRequest, Address,
                               PoliticalParty, ActivityInterest)
-from plebs.serializers import ResendEmailVerificationSerializer
 from sb_privileges.neo_models import Privilege, SBAction
 from sb_quests.neo_models import Position, Quest
 from sb_updates.neo_models import Update
@@ -111,6 +110,13 @@ class TestResendEmailVerification(APITestCase):
 
         self.assertEqual(response.status_code,
                          status.HTTP_429_TOO_MANY_REQUESTS)
+
+    def test_no_user_supplied(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-resend-verification')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data, {})
 
 
 class MeEndpointTests(APITestCase):

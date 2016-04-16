@@ -3,6 +3,7 @@ import time
 from uuid import uuid1
 from django.conf import settings
 from django.test import TestCase
+from django.core.cache import cache
 from django.contrib.auth.models import User
 
 from neomodel import db
@@ -11,10 +12,12 @@ from api.utils import wait_util
 from plebs.neo_models import Pleb, Address
 from sb_locations.neo_models import Location
 from sb_registration.utils import create_user_util_test
+from sb_questions.neo_models import Question
 from plebs.tasks import (create_wall_task,
                          create_friend_request_task,
                          determine_pleb_reps,
                          update_reputation, connect_to_state_districts)
+from sb_votes.utils import create_vote_relationship
 from sb_wall.neo_models import Wall
 
 
@@ -161,6 +164,33 @@ class TestUpdateReputation(TestCase):
         while not res.ready():
             time.sleep(1)
         self.assertTrue(res.result)
+
+    def test_updated_rep(self):
+        self.pleb.reputation_update_seen = True
+        self.pleb.save()
+        question = Question(title=str(uuid1()), content="some test content",
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        create_vote_relationship(question.object_uuid, self.pleb.username,
+                                 "true", "true")
+        cache.clear()
+        data = {
+            "username": self.pleb.username
+        }
+        res = update_reputation.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        pleb = Pleb.nodes.get(username=self.pleb.username)
+        self.assertFalse(pleb.reputation_update_seen)
+
+    def test_pleb_doesnt_exist(self):
+        data = {
+            "username": str(uuid1())
+        }
+        res = update_reputation.apply_async(kwargs=data)
+        while not res.ready():
+            time.sleep(1)
+        self.assertIsInstance(res.result, Exception)
 
 
 class TestCreateStateDistricts(TestCase):

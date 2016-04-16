@@ -140,8 +140,8 @@ def finalize_citizen_creation(username):
         countdown=20)
 
     if not pleb.initial_verification_email_sent:
-        serializer = ResendEmailVerificationSerializer(data={},
-            context={"user": user_instance})
+        serializer = ResendEmailVerificationSerializer(
+            data={}, context={"user": user_instance})
         serializer.is_valid(raise_exception=True)
         serializer.save()
     cache.delete(pleb.username)

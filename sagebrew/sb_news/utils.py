@@ -36,7 +36,6 @@ def find_news(limit_offset_fxn, count_query, link_objects_callback):
             break
         skip += limit
         sleep(5)
-    logger.critical("Completed finding news")
     return True
 
 
@@ -94,7 +93,6 @@ def get_reformed_url(url):
 def query_webhose(results, tag):
     for post in results['posts']:
         thread = post.pop('thread', None)
-        logger.critical(thread['spam_score'])
         if thread['spam_score'] < 0.3:
             external_id = post.pop('uuid', None)
             post.pop('ord_in_thread', None)
@@ -121,10 +119,8 @@ def query_webhose(results, tag):
             post["published"] = published
             post["provider"] = "webhose"
             post['language'] = "en"
-            logger.critical("run serializer")
             serializer = NewsArticleSerializer(data=post)
             if serializer.is_valid():
-                logger.critical("save object")
                 article = serializer.save()
             else:
                 logger.critical(serializer.errors)
@@ -136,13 +132,9 @@ def query_webhose(results, tag):
 def tag_callback(news_objects):
     requests_left = 0
     for tag in news_objects:
-        query = '"%s political" language:(english) thread.country:US ' \
-                'performance_score:>8 (site_type:news)' % tag.name
+        query = '%s politics language:(english) thread.country:US ' \
+                'performance_score:>8 (site_type:news)' % (
+                    tag.name.replace('-', " ").replace('_', " "))
         results = gather_news_results(query)
-        logger.critical("Tag name: %s" % tag.name)
-        logger.critical("Result length: %d" % len(results))
-        post = results.get('posts', None)
-        logger.critical(post)
-        logger.critical("posts")
         requests_left = query_webhose(results, tag)
     return requests_left

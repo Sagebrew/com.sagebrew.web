@@ -4,9 +4,6 @@ from datetime import datetime, timedelta
 from dateutil import parser
 from operator import attrgetter
 from elasticsearch import Elasticsearch, NotFoundError
-from intercom import (ResourceNotFound,
-                      UnexpectedError, RateLimitExceeded, ServerError,
-                      ServiceUnavailableError, BadGatewayError, HttpError)
 
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User

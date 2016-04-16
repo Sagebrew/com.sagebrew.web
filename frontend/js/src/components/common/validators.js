@@ -69,10 +69,6 @@ export function accountValidator(formVal) {
                         min: 8,
                         max: 128,
                         message: "Passwords must be between 8 and 128 characters long"
-                    },
-                    identical: {
-                        field: 'password2',
-                        message: 'Passwords must be the same'
                     }
                 }
             },
@@ -81,11 +77,6 @@ export function accountValidator(formVal) {
                 validators: {
                     notEmpty: {
                         message: "Password 2 is required"
-                    },
-                    stringLength: {
-                        min: 8,
-                        max: 128,
-                        message: "Passwords must be between 8 and 128 characters long"
                     },
                     identical: {
                         field: 'password1',
@@ -187,10 +178,6 @@ export function passwordValidator(passwordVal) {
                         min: 8,
                         max: 128,
                         message: "Passwords must be between 8 and 128 characters long"
-                    },
-                    identical: {
-                        field: 'password2',
-                        message: 'Passwords must be the same'
                     }
                 }
             },
@@ -199,11 +186,6 @@ export function passwordValidator(passwordVal) {
                 validators: {
                     notEmpty: {
                         message: "Password 2 is required"
-                    },
-                    stringLength: {
-                        min: 8,
-                        max: 128,
-                        message: "Passwords must be between 8 and 128 characters long"
                     },
                     identical: {
                         field: 'password1',

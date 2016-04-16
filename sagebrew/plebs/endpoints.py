@@ -4,6 +4,9 @@ from datetime import datetime, timedelta
 from dateutil import parser
 from operator import attrgetter
 from elasticsearch import Elasticsearch, NotFoundError
+from intercom import (ResourceNotFound,
+                      UnexpectedError, RateLimitExceeded, ServerError,
+                      ServiceUnavailableError, BadGatewayError, HttpError)
 
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
@@ -12,12 +15,13 @@ from django.core.cache import cache
 from django.template import RequestContext
 from django.conf import settings
 
+from rest_framework.throttling import UserRateThrottle
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.generics import (RetrieveUpdateDestroyAPIView, mixins)
 
 from neomodel import db
@@ -47,9 +51,28 @@ from sb_news.neo_models import NewsArticle
 from sb_news.serializers import NewsArticleSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
                           FriendRequestSerializer, PoliticalPartySerializer,
-                          InterestsSerializer, TopicInterestsSerializer)
+                          InterestsSerializer, TopicInterestsSerializer,
+                          ResetPasswordEmailSerializer,
+                          ResendEmailVerificationSerializer)
 from .neo_models import Pleb, Address, FriendRequest
 from .utils import get_filter_by
+
+
+class LimitPerDayUserThrottle(UserRateThrottle):
+    rate = '10/day'
+
+
+class PasswordReset(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = ResetPasswordEmailSerializer
+    throttle_classes = (LimitPerDayUserThrottle, )
+
+
+class ResendEmailVerification(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = ResendEmailVerificationSerializer
+    throttle_classes = (LimitPerDayUserThrottle, )
+    authentication_classes = (IsAuthenticated, )
 
 
 def get_public_content(api, username, request):
@@ -574,46 +597,6 @@ class MeViewSet(mixins.UpdateModelMixin,
             'NULL AS s_question, NULL as mission, q_mission, ' \
             'NULL AS news UNION ' \
             '' \
-            "// Retrieve all the current user's friends posts on their \n" \
-            '// walls\n' \
-            'MATCH (a:Pleb {username: "%s"})-' \
-            '[r:FRIENDS_WITH {active: True}]->(p:Pleb)<-' \
-            '[:OWNED_BY]-(posts:Post) ' \
-            'WHERE (posts)-[:POSTED_ON]->(:Wall)<-[:OWNS_WALL]-(p) AND ' \
-            'HAS(r.active) AND posts.to_be_deleted = False ' \
-            'AND posts.created > %s AND posts.is_closed = False ' \
-            'RETURN posts, NULL AS questions, NULL AS solutions, ' \
-            'posts.created AS created, NULL AS s_question, ' \
-            'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
-            'NULL AS news UNION ' \
-            '' \
-            '// Retrieve all the current users friends and friends of friends' \
-            '// questions \n' \
-            'MATCH (a:Pleb {username: "%s"})-' \
-            '[manyFriends:FRIENDS_WITH*..2 {active: True}]' \
-            '->(:Pleb)<-[:OWNED_BY]-(questions:Question) ' \
-            'WHERE questions.to_be_deleted = False AND ' \
-            'questions.created > %s AND questions.is_closed = False ' \
-            'RETURN questions, NULL AS posts, NULL AS solutions, ' \
-            'questions.created AS created, NULL AS s_question, ' \
-            'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
-            'NULL AS news UNION ' \
-            '' \
-            '// Retrieve all the current users friends and friends of friends' \
-            '// solutions \n' \
-            'MATCH (a:Pleb {username: "%s"})-' \
-            '[manyFriends:FRIENDS_WITH*..2 {active: True}]->' \
-            '(:Pleb)<-[:OWNED_BY]-' \
-            '(solutions:Solution)<-[:POSSIBLE_ANSWER]-' \
-            '(s_question:Question) ' \
-            'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
-            ' AND solutions.is_closed = False ' \
-            'AND s_question.is_closed = False ' \
-            'RETURN solutions, NULL AS posts, NULL AS questions, ' \
-            'solutions.created AS created, s_question AS s_question,' \
-            'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
-            'NULL AS news UNION ' \
-            '' \
             '// Retrieve all the posts owned by users that the current user ' \
             '// is following \n' \
             'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
@@ -652,8 +635,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'NULL AS news' \
             % (
                 request.user.username, then, request.user.username, then,
-                request.user.username, then, request.user.username, then,
-                request.user.username, then, request.user.username, then,
+                request.user.username, then,
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then,

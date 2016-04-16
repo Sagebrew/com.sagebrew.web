@@ -1,14 +1,9 @@
 import us
 import requests
 from uuid import uuid1
-from intercom import (Message, Intercom, ResourceNotFound,
-                      UnexpectedError, RateLimitExceeded, ServerError,
-                      ServiceUnavailableError, BadGatewayError, HttpError)
 
 from django.core import signing
 from django.conf import settings
-from django.template.loader import get_template
-from django.template import Context
 from django.core.cache import cache
 from django.contrib.auth.models import User
 
@@ -20,7 +15,6 @@ from neomodel import DoesNotExist, CypherException, db
 from api.utils import spawn_task, generate_oauth_user
 from sb_search.tasks import update_search_object
 from sb_public_official.tasks import create_and_attach_state_level_reps
-from sb_registration.models import token_gen
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
 
@@ -121,9 +115,7 @@ def connect_to_state_districts(object_uuid):
 
 @shared_task()
 def finalize_citizen_creation(username):
-    # TODO look into celery chaining and/or grouping
-    Intercom.app_id = settings.INTERCOM_APP_ID
-    Intercom.app_api_key = settings.INTERCOM_API_KEY
+    from .serializers import ResendEmailVerificationSerializer
     try:
         pleb = Pleb.get(username=username, cache_buster=True)
     except (DoesNotExist, Exception) as e:
@@ -146,38 +138,12 @@ def finalize_citizen_creation(username):
     task_list["check_privileges_task"] = spawn_task(
         task_func=check_privileges, task_param={"username": username},
         countdown=20)
+
     if not pleb.initial_verification_email_sent:
-        generated_token = token_gen.make_token(user_instance, pleb)
-        template_dict = {
-            'first_name': user_instance.first_name,
-            'verification_url': "%s%s/" % (settings.EMAIL_VERIFICATION_URL,
-                                           generated_token)
-        }
-        message_data = {
-            'message_type': 'email',
-            'subject': 'Sagebrew Email Verification',
-            'body': get_template(
-                'email_templates/verification.html').render(
-                Context(template_dict)),
-            'template': "personal",
-            'from': {
-                'type': "admin",
-                'id': settings.INTERCOM_ADMIN_ID_DEVON
-            },
-            'to': {
-                'type': "user",
-                'user_id': user_instance.username
-            }
-        }
-        try:
-            Message.create(**message_data)
-        except (ResourceNotFound, UnexpectedError, RateLimitExceeded,
-                ServerError, ServiceUnavailableError, BadGatewayError,
-                HttpError) as e:
-            raise finalize_citizen_creation.retry(exc=e, countdown=10,
-                                                  max_retries=None)
-        pleb.initial_verification_email_sent = True
-        pleb.save()
+        serializer = ResendEmailVerificationSerializer(
+            data={}, context={"user": user_instance})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
     cache.delete(pleb.username)
     return task_list
 

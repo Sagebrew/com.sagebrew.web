@@ -23,11 +23,16 @@ export function load() {
     $(".app-sb")
         .on('click', '#confirmation-email', function (event) {
             event.preventDefault();
-            document.getElementById('confirmation-email').classList.add('sb_hidden');
-            var sentEmail = document.getElementsByClassName('confirmation-email-sent');
-            sentEmail[0].classList.remove('sb_hidden');
-            sentEmail[1].classList.remove('sb_hidden');
-            request.get({url: "/registration/email_confirmation/resend/"});
+            var greyOut = document.getElementById('sb-greyout-page');
+            greyOut.classList.remove('sb_hidden');
+            request.post({url: "/v1/me/resend_verification/"})
+                .done(function() {
+                    greyOut.classList.add('sb_hidden');
+                    document.getElementById('confirmation-email').classList.add('sb_hidden');
+                    var sentEmail = document.getElementsByClassName('confirmation-email-sent');
+                    sentEmail[0].classList.remove('sb_hidden');
+                    sentEmail[1].classList.remove('sb_hidden');
+                });
         });
 }
 

@@ -1,17 +1,27 @@
 import us
 import stripe
-
+from datetime import date
 from unidecode import unidecode
+
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth import login, authenticate
 from django.conf import settings
 from django.utils.text import slugify
+from django.template.loader import get_template
+from django.template import Context
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+from django.utils.http import int_to_base36, base36_to_int
+from django.utils.crypto import constant_time_compare, salted_hmac
 
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 from rest_framework.reverse import reverse
+from rest_framework.exceptions import ValidationError
 
 from py2neo.cypher.error.schema import ConstraintViolation
 
@@ -19,6 +29,7 @@ from neomodel import db, DoesNotExist
 
 from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data, SBUniqueValidator
+from sb_base.tasks import create_email, create_event
 from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
 
@@ -26,6 +37,58 @@ from .neo_models import Address, Pleb
 from .tasks import (determine_pleb_reps,
                     update_address_location, create_wall_task,
                     generate_oauth_info)
+
+
+class EmailAuthTokenGenerator(object):
+    """
+    This object is created for user email verification
+    """
+
+    def make_token(self, user, pleb):
+        if pleb is None:
+            return None
+        return self._make_timestamp_token(user, self._num_days(self._today()),
+                                          pleb)
+
+    def check_token(self, user, token, pleb):
+        if token is None:
+            return False
+        try:
+            timestamp_base36, hash_key = token.split("-")
+        except ValueError:
+            return False
+
+        try:
+            timestamp = base36_to_int(timestamp_base36)
+        except ValueError:
+            return False
+
+        if not constant_time_compare(self._make_timestamp_token(
+                user, timestamp, pleb), token):
+            return False
+
+        if (self._num_days(self._today()) - timestamp) > \
+                settings.EMAIL_VERIFICATION_TIMEOUT_DAYS:
+            return False
+
+        return True
+
+    def _make_timestamp_token(self, user, timestamp, pleb):
+        timestamp_base36 = int_to_base36(timestamp)
+
+        key_salt = "sagebrew.sb_registration.models.EmailAuthTokenGenerator"
+        hash_val = "%s%s%s%s%s" % (user.username, user.first_name,
+                                   user.last_name, user.email,
+                                   pleb.email_verified)
+
+        created_hash = salted_hmac(key_salt, hash_val).hexdigest()[::2]
+        return "%s-%s" % (timestamp_base36, created_hash)
+
+    def _num_days(self, dt):
+        return (dt - date(2001, 1, 1)).days
+
+    def _today(self):
+        return date.today()
 
 
 def generate_username(first_name, last_name):
@@ -80,6 +143,91 @@ class BetaUserSerializer(serializers.Serializer):
     email = serializers.EmailField()
     invited = serializers.BooleanField()
     signup_date = serializers.DateTimeField()
+
+
+class ResendEmailVerificationSerializer(serializers.Serializer):
+    def create(self, validated_data):
+        request = self.context.get('request')
+        user = self.context.get('user')
+        if request is None and user is None:
+            raise ValidationError("User must be supplied")
+        if user is None:
+            user = request.user
+        token_gen = EmailAuthTokenGenerator()
+        profile = Pleb.get(username=user.username, cache_buster=True)
+        message_data = {
+            'message_type': 'email',
+            'subject': 'Sagebrew Email Verification',
+            'body': get_template('email_templates/verification.html').render(
+                Context({
+                    'first_name': user.first_name,
+                    'verification_url': "%s%s%s" % (
+                        settings.EMAIL_VERIFICATION_URL,
+                        token_gen.make_token(user, profile), '/')
+                })),
+            'template': "personal",
+            'from': {
+                'type': "admin",
+                'id': settings.INTERCOM_ADMIN_ID_DEVON
+            },
+            'to': {
+                'type': "user",
+                'user_id': user.username
+            }
+        }
+        spawn_task(task_func=create_email,
+                   task_param={"message_data": message_data})
+        profile.initial_verification_email_sent = True
+        profile.save()
+        cache.delete(user.username)
+        return {"detail": "Verification email successfully sent",
+                "status": status.HTTP_200_OK}
+
+
+class ResetPasswordEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate(self, validated_data):
+        try:
+            user = User.objects.get(email=validated_data.get('email'))
+        except User.DoesNotExist:
+            raise ValidationError("Sorry we couldn't find that address")
+        validated_data['user'] = user
+        return validated_data
+
+    def create(self, validated_data):
+        user = validated_data['user']
+        current_site = get_current_site(self.context.get('request'))
+        site_name = current_site.name
+        context = {
+            'email': validated_data['email'],
+            'domain': current_site.domain,
+            'site_name': site_name,
+            'first_name': user.first_name,
+            'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+            'user': user,
+            'token': default_token_generator.make_token(user)
+        }
+        message_data = {
+            'message_type': 'email',
+            'subject': 'Sagebrew Reset Password Request',
+            'body': get_template('email_templates/password_reset.html').render(
+                Context(context)),
+            'template': "personal",
+            'from': {
+                'type': "admin",
+                'id': settings.INTERCOM_ADMIN_ID_DEVON
+            },
+            'to': {
+                'type': "user",
+                'user_id': user.username
+            }
+        }
+        spawn_task(task_func=create_email,
+                   task_param={"message_data": message_data})
+        return {"detail": "Reset email successfully sent",
+                "status": status.HTTP_200_OK,
+                "email": validated_data['email']}
 
 
 class UserSerializer(SBSerializer):
@@ -178,6 +326,7 @@ class PlebSerializerNeo(SBSerializer):
 
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
+        mission_signup = validated_data.get('mission_signup', None)
         quest_registration = request.session.get('account_type')
         username = generate_username(validated_data['first_name'],
                                      validated_data['last_name'])
@@ -196,8 +345,14 @@ class PlebSerializerNeo(SBSerializer):
                     date_of_birth=birthday)
         pleb.occupation_name = validated_data.get('occupation_name', None)
         pleb.employer_name = validated_data.get('employer_name', None)
-        pleb.mission_signup = validated_data.get('mission_signup', None)
+        pleb.mission_signup = mission_signup
         pleb.save()
+        if mission_signup is None:
+            mission_signup = "no"
+        spawn_task(
+            task_func=create_event,
+            task_param={"event_name": "signup-%s-mission" % mission_signup,
+                        "username": username})
         if not request.user.is_authenticated():
             user = authenticate(username=user.username,
                                 password=validated_data['password'])

@@ -18,38 +18,26 @@ export function navbar() {
 
     //
     // Load navbar count(s)
-    var notifications = request.get({url: "/v1/me/notifications/"}),
-        friends = request.get({url: "/v1/me/friend_requests/render/"});
+    request.get({url: "/v1/me/notifications/"})
+        .done(function(data) {
+            //Notifications
+            if (data.count) {
+                var notifications = notificationTemplate({
+                    default_profile: settings.default_profile_pic,
+                    notifications: data.results
+                });
+                $('#notification_wrapper').append(notifications);
+                request.get({url: "/v1/me/notifications/unseen/"}).done(function (data) {
+                    if (data.unseen > 0) {
+                        $('#js-notification_notifier_wrapper').append('<span class="navbar-new sb_notifier" id="js-sb_notifications_notifier">' + data.unseen + '</span>');
+                    }
+                });
+            } else {
+                $('#notification_wrapper').append("No new notifications.");
+            }
+        });
     //Rep
     $("#reputation_total").append(settings.profile.reputation);
-    $.when(notifications, friends).done(function(notificationData, friendsData) {
-
-        //Notifications
-        if (notificationData[0].count) {
-            notifications = notificationTemplate({
-                default_profile: settings.default_profile_pic,
-                notifications: notificationData[0].results
-            });
-            $('#notification_wrapper').append(notifications);
-            request.get({url: "/v1/me/notifications/unseen/"}).done(function (data) {
-                if (data.unseen > 0) {
-                    $('#js-notification_notifier_wrapper').append('<span class="navbar-new sb_notifier" id="js-sb_notifications_notifier">' + data.unseen + '</span>');
-                }
-            });
-        } else {
-            $('#notification_wrapper').append("No new notifications.");
-        }
-
-        //Friends
-        if (friendsData[0].count) {
-            $('#friend_request_wrapper').append(friendsData[0].results.html);
-            if (friendsData[0].results.unseen > 0) {
-                $('#js-friend_request_notifier_wrapper').append('<span class="navbar-new sb_notifier" id="js-sb_friend_request_notifier">' + friendsData[0].results.unseen + '</span>');
-            }
-        } else {
-            $('#friend_request_wrapper').append("No new requests.");
-        }
-    });
 
     //
     // Bind Navbar Events.

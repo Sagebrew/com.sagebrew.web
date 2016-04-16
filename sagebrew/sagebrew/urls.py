@@ -31,7 +31,7 @@ urlpatterns = patterns(
         settings.STATIC_URL), permanent=True)),
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
-    url(r'^password_reset/', 'django.contrib.auth.views.password_reset',
+    url(r'^password_reset/$', 'django.contrib.auth.views.password_reset',
         {
             "html_email_template_name":
                 "email_templates/password_reset.html",
@@ -39,7 +39,8 @@ urlpatterns = patterns(
             "password_reset_form": CustomPasswordResetForm
         }, name="reset_password_page"),
     url(r'^password_reset/done/$',
-        'django.contrib.auth.views.password_reset_done',
+        'django.contrib.auth.views.password_reset_done', {
+            "template_name": "password_reset/password_reset_sent.html"},
         name="password_reset_done"),
     url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/'
         r'(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',

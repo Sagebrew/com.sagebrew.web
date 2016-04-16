@@ -41,9 +41,13 @@
 {% endblock %}
 
 {% block live %}
-    {% include "post_create.html" %}
+    {% include "posts/create.html" %}
     <div class="app-newsfeed" id="wall_app">
 
     </div>
     {% include "flag_modal.html" %}
 {% endblock live %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-newsfeed');
+{% endblock %}

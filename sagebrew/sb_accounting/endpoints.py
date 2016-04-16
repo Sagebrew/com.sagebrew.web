@@ -35,14 +35,14 @@ class AccountingViewSet(viewsets.ViewSet):
         try:
             event = stripe.Event.retrieve(request.data['id'])
         except stripe.InvalidRequestError:
-            return Response(status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         if event.type == "invoice.payment_failed":
             try:
                 customer = stripe.Customer.retrieve(
                     event.data.object.customer)
             except stripe.InvalidRequestError:
-                return Response(status=status.HTTP_200_OK)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=customer['email'])
             message_data = {
                 'message_type': 'email',
@@ -75,7 +75,7 @@ class AccountingViewSet(viewsets.ViewSet):
                     event.data.object.id
                 )
             except stripe.InvalidRequestError:
-                return Response(status=status.HTTP_200_OK)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=account.email)
             quest = Quest.get(pleb.username)
             if account.verification.fields_needed:
@@ -115,7 +115,7 @@ class AccountingViewSet(viewsets.ViewSet):
                         transfer.destination
                     )
             except stripe.InvalidRequestError:
-                return Response(status=status.HTTP_200_OK)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=account.email)
             spawn_task(
                 task_func=spawn_system_notification,
@@ -140,7 +140,7 @@ class AccountingViewSet(viewsets.ViewSet):
                     event.data.object.customer
                 )
             except stripe.InvalidRequestError:
-                return Response(status=status.HTTP_200_OK)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=customer.email)
             spawn_task(
                 task_func=spawn_system_notification,

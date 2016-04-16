@@ -47,3 +47,7 @@
     </div>
     {% include "flag_modal.html" %}
 {% endblock live %}
+
+{% block intercom %}
+    Intercom('trackEvent', 'visited-newsfeed');
+{% endblock %}

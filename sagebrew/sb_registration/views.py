@@ -1,5 +1,4 @@
 from localflavor.us.us_states import US_STATES
-from intercom import Message, Intercom
 
 from django.core.cache import cache
 from django.conf import settings
@@ -9,8 +8,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.template.loader import get_template
-from django.template import Context
 from django.utils.text import slugify
 
 from rest_framework.decorators import api_view
@@ -22,12 +19,11 @@ from neomodel import (CypherException, db, DoesNotExist)
 from api.utils import spawn_task
 from plebs.tasks import update_address_location
 from plebs.neo_models import Pleb, Address
-
+from plebs.serializers import EmailAuthTokenGenerator
 from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm,
                     LoginForm)
 from .utils import (verify_completed_registration, verify_verified_email)
-from .models import token_gen
 
 
 def advocacy(request):
@@ -78,45 +74,6 @@ def login_view(request):
     except AttributeError:
         pass
     return render(request, 'login.html')
-
-
-@login_required()
-def resend_email_verification(request):
-    Intercom.app_id = settings.INTERCOM_APP_ID
-    Intercom.app_api_key = settings.INTERCOM_API_KEY
-    try:
-        profile = Pleb.get(username=request.user.username, cache_buster=True)
-    except DoesNotExist:
-        return render(request, 'login.html')
-    except (CypherException, IOError):
-        return redirect('500_Error')
-
-    template_dict = {
-        'first_name': request.user.first_name,
-        'verification_url': "%s%s%s" % (settings.EMAIL_VERIFICATION_URL,
-                                        token_gen.make_token(
-                                            request.user, profile), '/')
-    }
-    message_data = {
-        'message_type': 'email',
-        'subject': 'Sagebrew Email Verification',
-        'body': get_template('email_templates/verification.html').render(
-            Context(template_dict)),
-        'template': "personal",
-        'from': {
-            'type': "admin",
-            'id': settings.INTERCOM_ADMIN_ID_DEVON
-        },
-        'to': {
-            'type': "user",
-            'user_id': request.user.username
-        }
-    }
-    # We don't have exception handling here because if this fails we already
-    # provide a notification to the user from the JS. If that changes we'll
-    # need to add some handling.
-    Message.create(**message_data)
-    return redirect("confirm_view")
 
 
 @api_view(['POST'])
@@ -173,6 +130,7 @@ def email_verification(request, confirmation):
                                cache_buster=True)
         except DoesNotExist:
             return redirect('logout')
+        token_gen = EmailAuthTokenGenerator()
         if token_gen.check_token(request.user, confirmation, profile):
             profile.email_verified = True
             profile.save()

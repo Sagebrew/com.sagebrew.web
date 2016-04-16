@@ -46,5 +46,8 @@
 {% endblock %}
 
 {% block intercom %}
-   Intercom('trackEvent', 'mission-update-page');
+   Intercom('trackEvent', 'mission-endorsements-page', {
+            owner: '{{ quest.owner_username }}',
+            title: '{% if mission.title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}'
+        });
 {% endblock %}

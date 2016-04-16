@@ -5,7 +5,7 @@ from rest_framework import routers
 from plebs.endpoints import (UserViewSet, ProfileViewSet, AddressViewSet,
                              SentFriendRequestViewSet, MeViewSet,
                              FriendManager, FriendRequestList,
-                             PasswordReset)
+                             PasswordReset, ResendEmailVerification)
 from sb_posts.endpoints import (WallPostsRetrieveUpdateDestroy,
                                 WallPostsListCreate)
 
@@ -29,6 +29,8 @@ me_router.register(r'friend_requests', FriendRequestList,
 urlpatterns = patterns(
     'plebs.endpoints',
     url(r'^me/', include('sb_notifications.apis.relations.v1')),
+    url(r'^me/resend_verification/$', ResendEmailVerification.as_view(),
+        name='profile-resend-verification'),
     url(r'^me/', include(me_router.urls)),
     url(r'^me/friends/(?P<friend_username>[A-Za-z0-9.@_%+-]{2,30})/$',
         FriendManager.as_view(), name="friend-detail"),

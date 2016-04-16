@@ -4,6 +4,9 @@ from datetime import datetime, timedelta
 from dateutil import parser
 from operator import attrgetter
 from elasticsearch import Elasticsearch, NotFoundError
+from intercom import (ResourceNotFound,
+                      UnexpectedError, RateLimitExceeded, ServerError,
+                      ServiceUnavailableError, BadGatewayError, HttpError)
 
 from django.template.loader import render_to_string
 from django.contrib.auth.models import User
@@ -49,31 +52,27 @@ from sb_news.serializers import NewsArticleSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
                           FriendRequestSerializer, PoliticalPartySerializer,
                           InterestsSerializer, TopicInterestsSerializer,
-                          EmailSerializer)
+                          ResetPasswordEmailSerializer,
+                          ResendEmailVerificationSerializer)
 from .neo_models import Pleb, Address, FriendRequest
 from .utils import get_filter_by
 
 
 class LimitPerDayUserThrottle(UserRateThrottle):
-    rate = '60/day'
+    rate = '10/day'
 
 
 class PasswordReset(generics.CreateAPIView):
     queryset = User.objects.all()
-    serializer_class = EmailSerializer
+    serializer_class = ResetPasswordEmailSerializer
     throttle_classes = (LimitPerDayUserThrottle, )
 
-    def post(self, request, *args, **kwargs):
-        serializer = EmailSerializer(data=request.data,
-                                     context={'request': request})
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"detail": "Reset email successfully sent",
-                             "status": status.HTTP_200_OK},
-                            status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+
+class ResendEmailVerification(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = ResendEmailVerificationSerializer
+    throttle_classes = (LimitPerDayUserThrottle, )
+    authentication_classes = (IsAuthenticated, )
 
 
 def get_public_content(api, username, request):

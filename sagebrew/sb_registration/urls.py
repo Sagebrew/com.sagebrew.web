@@ -3,8 +3,7 @@ from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 
 from .views import (profile_information, interests, profile_picture,
-                    login_view_api, email_verification,
-                    resend_email_verification)
+                    login_view_api, email_verification)
 
 
 urlpatterns = patterns(
@@ -20,8 +19,6 @@ urlpatterns = patterns(
     url(r'^age_restriction/$', TemplateView.as_view(
         template_name='age_restriction_13.html'),
         name="age_restriction_13"),
-    url(r'^email_confirmation/resend/$', resend_email_verification,
-        name="resend_verification"),
     url(r'^email_confirmation/(?P<confirmation>[A-Za-z0-9.@_%+-]{24})/$',
         email_verification, name="email_verification")
 )

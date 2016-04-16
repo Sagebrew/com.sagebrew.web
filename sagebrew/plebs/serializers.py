@@ -18,7 +18,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.http import int_to_base36, base36_to_int
 from django.utils.crypto import constant_time_compare, salted_hmac
 
-from rest_framework import serializers, status
+from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import ValidationError

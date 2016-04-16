@@ -219,7 +219,7 @@ class TestProfileInfoView(TestCase):
         response = profile_information(request)
         self.user.username = temp_username
         self.user.save()
-        self.assertIn(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_user_info_population_incorrect_birthday(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],

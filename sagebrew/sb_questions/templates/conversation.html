@@ -162,6 +162,7 @@
 
 {% block intercom %}
     Intercom('trackEvent', 'visited-conversation-page', {
-            title: '{{ question.title|slugify }}'
+            title: '{{ question.title|slugify }}',
+            id: '{{ question.object_uuid }}'
         });
 {% endblock %}

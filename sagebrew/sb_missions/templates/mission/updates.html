@@ -38,6 +38,7 @@
 {% block intercom %}
     Intercom('trackEvent', 'mission-update-page', {
             owner: '{{ quest.owner_username }}',
-            title: '{% if mission.title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}'
+            title: '{% if mission.title %} {{ mission.title }} {% else %} {{ mission.focus_name_formatted }} {% endif %}',
+            id: '{{ mission.object_uuid }}'
         });
 {% endblock %}

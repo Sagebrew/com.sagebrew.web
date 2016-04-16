@@ -226,7 +226,8 @@ class ResetPasswordEmailSerializer(serializers.Serializer):
         spawn_task(task_func=create_email,
                    task_param={"message_data": message_data})
         return {"detail": "Reset email successfully sent",
-                "status": status.HTTP_200_OK}
+                "status": status.HTTP_200_OK,
+                "email": validated_data['email']}
 
 
 class UserSerializer(SBSerializer):

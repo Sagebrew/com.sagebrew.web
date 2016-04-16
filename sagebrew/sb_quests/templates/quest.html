@@ -166,7 +166,8 @@ a{% extends "layout/hero-two-col-right.html" %}
     {% else %}
         Intercom('trackEvent', 'visited-quest', {
             owner: '{{ quest.owner_username }}',
-            title: '{{ quest.title }}'
+            title: '{{ quest.title }}',
+            id: '{{ quest.object_uuid }}'
         });
     {% endif %}
 {% endblock %}

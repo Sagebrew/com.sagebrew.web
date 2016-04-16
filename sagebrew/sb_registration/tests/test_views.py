@@ -23,11 +23,10 @@ from sb_public_official.neo_models import PublicOfficial
 from sb_registration.views import (profile_information,
                                    logout_view,
                                    login_view, login_view_api,
-                                   resend_email_verification,
                                    email_verification, interests,
                                    advocacy, political_campaign,
                                    quest_signup, signup_view)
-from sb_registration.models import EmailAuthTokenGenerator
+from plebs.serializers import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util_test
 from plebs.neo_models import Pleb, Address
 
@@ -865,48 +864,6 @@ class TestEmailVerificationView(TestCase):
         # currently don't have an email verification failure page if the
         # user does not exist. See WA-1058
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
-
-
-class TestResendEmailVerificationView(TestCase):
-
-    def setUp(self):
-        self.token_gen = EmailAuthTokenGenerator()
-        self.factory = RequestFactory()
-        self.email = "example@sagebrew.com"
-        self.pleb = create_user_util_test(self.email)
-        self.user = User.objects.get(email=self.email)
-        self.pleb.email_verified = False
-        self.pleb.save()
-
-    def test_resend_email_verification_view_success(self):
-        from intercom import User
-        User.create(user_id=self.user.username, email='example@sagebrew.com')
-        user = authenticate(username=self.user.username,
-                            password='test_test')
-        request = self.factory.request()
-        s = SessionStore()
-        s.save()
-        request.session = s
-        login(request, user)
-        request.user = user
-
-        res = resend_email_verification(request)
-
-        self.assertEqual(res.status_code, 302)
-
-    def test_resend_email_verification_view_failure_pleb_does_not_exist(self):
-        user = authenticate(username=self.user.username,
-                            password='test_test')
-        request = self.factory.request()
-        s = SessionStore()
-        s.save()
-        request.session = s
-        login(request, user)
-        request.user = user
-        request.user.username = 'totallynotafakeuser'
-        res = resend_email_verification(request)
-        # This should succeed as it redirects to the login page
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
 
 class TestConfirmView(TestCase):

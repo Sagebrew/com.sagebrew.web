@@ -1,3 +1,4 @@
+from logging import getLogger
 from localflavor.us.us_states import US_STATES
 
 from django.core.cache import cache
@@ -25,6 +26,8 @@ from .forms import (AddressInfoForm, InterestForm,
                     LoginForm)
 from .utils import (verify_completed_registration, verify_verified_email)
 
+logger = getLogger('loggly_logs')
+
 
 def advocacy(request):
     if request.user.is_authenticated() is True:
@@ -39,9 +42,9 @@ def political_campaign(request):
         query = 'MATCH (position:Position) RETURN COUNT(position)'
         res, _ = db.cypher_query(query)
         position_count = res.one
-        if position_count is None:
+        if position_count is None:  # pragma: no cover
             position_count = 7274
-    except (CypherException, IOError):
+    except (CypherException, IOError):  # pragma: no cover
         position_count = 7274
     return render(request, 'political_campaign.html',
                   {"position_count": position_count})
@@ -90,7 +93,8 @@ def login_view_api(request):
             return Response({'detail': 'Incorrect password and '
                                        'username combination.'},
                             status=400)
-        except MultipleObjectsReturned:
+        except MultipleObjectsReturned:  # pragma: no cover
+            logger.exception("Multiple Objects Returned: ")
             return Response({'detail': 'Appears we have two users with '
                                        'that email. Please contact '
                                        'support@sagebrew.com.'},
@@ -138,7 +142,7 @@ def email_verification(request, confirmation):
             return redirect('profile_info')
         else:
             return redirect('401_Error')
-    except(CypherException, IOError):
+    except(CypherException, IOError):    # pragma: no cover
         return redirect('500_Error')
 
 
@@ -167,8 +171,8 @@ def profile_information(request):
     try:
         citizen = Pleb.get(username=request.user.username, cache_buster=True)
     except DoesNotExist:
-        return render(request, 'login.html')
-    except (CypherException, IOError):
+        return redirect('login')
+    except (CypherException, IOError):  # pragma: no cover
         return redirect('500_Error')
     if citizen.completed_profile_info:
         return redirect("interests")
@@ -179,7 +183,7 @@ def profile_information(request):
                 address_clean.get('original_selected', False) is True):
             try:
                 state = dict(US_STATES)[address_clean['state']]
-            except KeyError:
+            except KeyError:  # pragma: no cover
                 return address_clean['state']
             address = Address(street=address_clean['primary_address'],
                               street_aditional=address_clean[
@@ -200,7 +204,7 @@ def profile_information(request):
                 citizen.completed_profile_info = True
                 citizen.save()
                 cache.delete(citizen.username)
-            except (CypherException, IOError):
+            except (CypherException, IOError):  # pragma: no cover
                 return redirect('500_Error')
             account_type = request.session.get('account_type')
             if account_type is not None:

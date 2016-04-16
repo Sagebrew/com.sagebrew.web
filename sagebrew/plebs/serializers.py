@@ -180,8 +180,7 @@ class ResendEmailVerificationSerializer(serializers.Serializer):
         profile.initial_verification_email_sent = True
         profile.save()
         cache.delete(user.username)
-        return {"detail": "Verification email successfully sent",
-                "status": status.HTTP_200_OK}
+        return {}
 
 
 class ResetPasswordEmailSerializer(serializers.Serializer):
@@ -225,9 +224,7 @@ class ResetPasswordEmailSerializer(serializers.Serializer):
         }
         spawn_task(task_func=create_email,
                    task_param={"message_data": message_data})
-        return {"detail": "Reset email successfully sent",
-                "status": status.HTTP_200_OK,
-                "email": validated_data['email']}
+        return {"email": validated_data['email']}
 
 
 class UserSerializer(SBSerializer):

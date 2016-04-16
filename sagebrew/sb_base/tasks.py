@@ -18,7 +18,9 @@ def create_email(message_data):
     except (ResourceNotFound, UnexpectedError) as e:
         raise create_email.retry(exc=e, countdown=10, max_retries=None)
     except (RateLimitExceeded, ServerError, ServiceUnavailableError,
-            BadGatewayError, HttpError) as e:
+            BadGatewayError, HttpError) as e:  # pragma: no cover
+        # Not covering because Intercom does not have a good way of
+        # simulating these conditions as of 04/16/2016  - Devon Bleibtrey
         raise create_email.retry(exc=e, countdown=120, max_retries=None)
 
 
@@ -37,5 +39,7 @@ def create_event(event_name, username, metadata=None):
     except (ResourceNotFound, UnexpectedError) as e:
         raise create_event.retry(exc=e, countdown=10, max_retries=None)
     except (RateLimitExceeded, ServerError, ServiceUnavailableError,
-            BadGatewayError, HttpError) as e:
+            BadGatewayError, HttpError) as e:  # pragma: no cover
+        # Not covering because Intercom does not have a good way of
+        # simulating these conditions as of 04/16/2016  - Devon Bleibtrey
         raise create_event.retry(exc=e, countdown=10, max_retries=None)

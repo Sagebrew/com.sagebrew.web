@@ -1,7 +1,8 @@
-from neomodel import db, DoesNotExist
+from neomodel import DoesNotExist
 from rest_framework import serializers
 
 from plebs.neo_models import Pleb
+
 
 class IntercomMessageSerializer(serializers.Serializer):
     message_type = serializers.CharField()
@@ -31,4 +32,3 @@ class IntercomMessageSerializer(serializers.Serializer):
             raise serializers.ValidationError("The only valid types for "
                                               "to_user are 'user' and 'admin'")
         return value
-

@@ -1,3 +1,4 @@
+from logging import getLogger
 import us
 import requests
 from uuid import uuid1
@@ -6,6 +7,8 @@ from django.core import signing
 from django.conf import settings
 from django.core.cache import cache
 from django.contrib.auth.models import User
+
+from rest_framework.exceptions import ValidationError, APIException
 
 from celery import shared_task
 
@@ -20,6 +23,8 @@ from sb_locations.neo_models import Location
 
 from .neo_models import Pleb, OauthUser, Address
 from .utils import create_friend_request_util
+
+logger = getLogger('loggly_logs')
 
 
 @shared_task()
@@ -142,7 +147,12 @@ def finalize_citizen_creation(username):
     if not pleb.initial_verification_email_sent:
         serializer = ResendEmailVerificationSerializer(
             data={}, context={"user": user_instance})
-        serializer.is_valid(raise_exception=True)
+        try:
+            serializer.is_valid(raise_exception=True)
+        except(ValidationError, APIException) as e:
+            logger.critical(serializer.errors)
+            raise finalize_citizen_creation.retry(exc=e, countdown=10,
+                                                  max_retries=10)
         serializer.save()
     cache.delete(pleb.username)
     return task_list

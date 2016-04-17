@@ -395,7 +395,7 @@ def validate_to_or_from(value):
                                               "attempting to send a message "
                                               "to or from an admin")
 
-        if str(passed_id) not in [admin.id for admin in Admin.all()]:
+        if str(passed_id) not in [str(admin.id) for admin in Admin.all()]:
             raise serializers.ValidationError(
                 "%s is not a valid admin ID" % passed_id)
     try:
@@ -426,7 +426,8 @@ class IntercomMessageSerializer(serializers.Serializer):
         to_user = validated_data.pop('to_user', None)
         validated_data['from'] = from_user
         validated_data['to'] = to_user
-        spawn_task(task_func=create_email, task_param=validated_data)
+        spawn_task(task_func=create_email,
+                   task_param={"message_data": validated_data})
         validated_data['from_user'] = from_user
         validated_data['to_user'] = to_user
         return validated_data

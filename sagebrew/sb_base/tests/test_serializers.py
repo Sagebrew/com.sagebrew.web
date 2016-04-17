@@ -32,7 +32,7 @@ class IntercomMessageSerializerTests(APITestCase):
             "admins": [
                 {
                     "type": "admin",
-                    "id": "69989",
+                    "id": 69989,
                     "name": "Devon Bleibtrey",
                     "email": "devon@sagebrew.com"
                 }
@@ -105,7 +105,7 @@ class IntercomMessageSerializerTests(APITestCase):
             "admins": [
                 {
                     "type": "admin",
-                    "id": "69989",
+                    "id": 69989,
                     "name": "Devon Bleibtrey",
                     "email": "devon@sagebrew.com"
                 }
@@ -150,7 +150,7 @@ class IntercomMessageSerializerTests(APITestCase):
             "admins": [
                 {
                     "type": "admin",
-                    "id": "69989",
+                    "id": 69989,
                     "name": "Devon Bleibtrey",
                     "email": "devon@sagebrew.com"
                 }
@@ -196,7 +196,7 @@ class IntercomMessageSerializerTests(APITestCase):
             "admins": [
                 {
                     "type": "admin",
-                    "id": "69989",
+                    "id": 69989,
                     "name": "Devon Bleibtrey",
                     "email": "devon@sagebrew.com"
                 }
@@ -241,7 +241,7 @@ class IntercomMessageSerializerTests(APITestCase):
             "admins": [
                 {
                     "type": "admin",
-                    "id": "69989",
+                    "id": 69989,
                     "name": "Devon Bleibtrey",
                     "email": "devon@sagebrew.com"
                 }

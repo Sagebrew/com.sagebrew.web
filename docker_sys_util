@@ -20,6 +20,7 @@ CMD /bin/bash -c "source /home/apps/venv/bin/activate && \
     python manage.py migrate oauth2_provider --fake && \
     python manage.py migrate --noinput && \
     python manage.py create_privileges && \
-    python manage.py convert_donations && \
+    python manage.py remove_full_search_base && \
+    python manage.py repopulate_elasticsearch && \
     python manage.py clear_cache && \
     python manage.py clearsessions"

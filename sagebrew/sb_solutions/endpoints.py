@@ -66,10 +66,11 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
 
     def get_queryset(self):
         sort_by = self.request.query_params.get('ordering', "")
-        desc = False
-        if "-" in sort_by:
-            desc = True
         sort_by, ordering = get_ordering(sort_by)
+        if ordering == "DESC":
+            descending = True
+        else:
+            descending = False
         if sort_by == "" or sort_by == "vote_count":
             query = "(q:Question {object_uuid: '%s'})-" \
                     "[:POSSIBLE_ANSWER]->(res:Solution) " \
@@ -81,17 +82,17 @@ class ObjectSolutionsListCreate(ListCreateAPIView):
                            "WHEN v.vote_type=False THEN vote_count-1 " \
                            "ELSE vote_count END) as reduction " \
                            "ORDER BY reduction"
+            return NeoQuerySet(Solution, query=query,
+                               distinct=True,
+                               descending=not descending).order_by(reduce_query)
         else:
             query = "(a:Question {object_uuid:'%s'})-" \
                     "[:POSSIBLE_ANSWER]->" \
                     "(res:Solution)" % self.kwargs[self.lookup_field]
-            return NeoQuerySet(
-                Solution, query=query, distinct=True, descending=desc)\
+            return NeoQuerySet(Solution, query=query, distinct=True,
+                               descending=descending)\
                 .filter("WHERE res.to_be_deleted=false")\
                 .order_by(sort_by)
-        return NeoQuerySet(
-            Solution, query=query, distinct=True, descending=desc)\
-            .order_by(reduce_query)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data,

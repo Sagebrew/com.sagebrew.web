@@ -13,11 +13,10 @@ from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
 
 from api.utils import spawn_task
+from sb_base.serializers import IntercomMessageSerializer
 from plebs.neo_models import Pleb
 from sb_quests.neo_models import Quest
 from sb_notifications.tasks import spawn_system_notification
-
-from .serializers import IntercomMessageSerializer
 
 
 class CsrfExemptSessionAuthentication(SessionAuthentication):

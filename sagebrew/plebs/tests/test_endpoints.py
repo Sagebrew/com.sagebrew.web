@@ -2,6 +2,7 @@ import pytz
 import time
 import stripe
 import shortuuid
+import requests_mock
 from datetime import datetime
 from uuid import uuid1
 from collections import OrderedDict
@@ -46,15 +47,33 @@ class TestPasswordReset(APITestCase):
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.pleb.email)
         self.url = "http://testserver"
+        self.intercom_url = "https://api.intercom.io/admins"
+        self.admin_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": "69989",
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
 
-    def test_create(self):
+    @requests_mock.mock()
+    def test_create(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
         url = reverse('profile-reset-password')
         data = {'email': self.pleb.email}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['email'], self.pleb.email)
 
-    def test_create_bad_email(self):
+    @requests_mock.mock()
+    def test_create_bad_email(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
         url = reverse('profile-reset-password')
         data = {'email': "bademail@sagebrew.com"}
         response = self.client.post(url, data, format='json')
@@ -62,14 +81,20 @@ class TestPasswordReset(APITestCase):
         self.assertEqual(response.data['non_field_errors'],
                          ["Sorry we couldn't find that address"])
 
-    def test_unauthorized_no_email(self):
+    @requests_mock.mock()
+    def test_unauthorized_no_email(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
         url = reverse('profile-reset-password')
         data = {}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['email'], [u'This field is required.'])
 
-    def test_throttling(self):
+    @requests_mock.mock()
+    def test_throttling(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
         url = reverse('profile-reset-password')
         data = {'email': self.pleb.email}
         response = None
@@ -89,20 +114,41 @@ class TestResendEmailVerification(APITestCase):
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.pleb.email)
         self.url = "http://testserver"
+        self.intercom_url = "https://api.intercom.io/admins"
+        self.admin_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": 69989,
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
 
-    def test_unauthorized(self):
+    @requests_mock.mock()
+    def test_unauthorized(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
         url = reverse('me-resend-verification')
         response = self.client.post(url, {}, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_create(self):
+    @requests_mock.mock()
+    def test_create(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-resend-verification')
         response = self.client.post(url, {}, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data, {})
 
-    def test_throttling(self):
+    @requests_mock.mock()
+    def test_throttling(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
         url = reverse('me-resend-verification')
         response = None
         for value in range(0, 11):
@@ -111,7 +157,10 @@ class TestResendEmailVerification(APITestCase):
         self.assertEqual(response.status_code,
                          status.HTTP_429_TOO_MANY_REQUESTS)
 
-    def test_no_user_supplied(self):
+    @requests_mock.mock()
+    def test_no_user_supplied(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
         self.client.force_authenticate(user=self.user)
         url = reverse('me-resend-verification')
         response = self.client.post(url, {}, format='json')

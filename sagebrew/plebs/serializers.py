@@ -29,10 +29,10 @@ from neomodel import db, DoesNotExist
 
 from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data, SBUniqueValidator
-from sb_base.tasks import create_event
+from sb_base.serializers import (IntercomMessageSerializer,
+                                 IntercomEventSerializer)
 from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
-from sb_accounting.serializers import IntercomMessageSerializer
 
 from .neo_models import Address, Pleb
 from .tasks import (determine_pleb_reps,
@@ -351,10 +351,12 @@ class PlebSerializerNeo(SBSerializer):
         pleb.save()
         if mission_signup is None:
             mission_signup = "no"
-        spawn_task(
-            task_func=create_event,
-            task_param={"event_name": "signup-%s-mission" % mission_signup,
-                        "username": username})
+        serializer = IntercomEventSerializer(data={
+            "event_name": "signup-%s-mission" % mission_signup,
+            "username": username
+        })
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         if not request.user.is_authenticated():
             user = authenticate(username=user.username,
                                 password=validated_data['password'])

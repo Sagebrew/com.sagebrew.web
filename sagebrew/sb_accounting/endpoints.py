@@ -66,10 +66,10 @@ class AccountingViewSet(viewsets.ViewSet):
                 },
                 'to_user': {
                     'type': 'user',
-                    'id': pleb.username
+                    'user_id': pleb.username
                 }
             }
-            serializer = IntercomMessageSerializer(message_data)
+            serializer = IntercomMessageSerializer(data=message_data)
             if serializer.is_valid():
                 serialized = serializer.data
                 serialized['from'] = serialized.pop('from_user', None)

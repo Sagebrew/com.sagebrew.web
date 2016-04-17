@@ -51,6 +51,7 @@ class TestPasswordReset(APITestCase):
         url = reverse('profile-reset-password')
         data = {'email': self.pleb.email}
         response = self.client.post(url, data, format='json')
+        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['email'], self.pleb.email)
 

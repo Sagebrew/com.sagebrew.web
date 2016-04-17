@@ -30,9 +30,9 @@ from neomodel import db, DoesNotExist
 from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data, SBUniqueValidator
 from sb_base.tasks import create_event
+from sb_base.serializers import IntercomMessageSerializer
 from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
-from sb_accounting.serializers import IntercomMessageSerializer
 
 from .neo_models import Address, Pleb
 from .tasks import (determine_pleb_reps,

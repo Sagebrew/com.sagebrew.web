@@ -10,10 +10,10 @@ from neomodel import db
 
 from sb_registration.utils import create_user_util_test
 
-from sb_accounting.serializers import IntercomMessageSerializer
+from sb_base.serializers import IntercomMessageSerializer
 
 
-class AccountingSerializerTests(APITestCase):
+class IntercomMessageSerializerTests(APITestCase):
 
     def setUp(self):
         query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"

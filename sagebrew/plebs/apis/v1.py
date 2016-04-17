@@ -30,7 +30,7 @@ urlpatterns = patterns(
     'plebs.endpoints',
     url(r'^me/', include('sb_notifications.apis.relations.v1')),
     url(r'^me/resend_verification/$', ResendEmailVerification.as_view(),
-        name='profile-resend-verification'),
+        name='me-resend-verification'),
     url(r'^me/', include(me_router.urls)),
     url(r'^me/friends/(?P<friend_username>[A-Za-z0-9.@_%+-]{2,30})/$',
         FriendManager.as_view(), name="friend-detail"),

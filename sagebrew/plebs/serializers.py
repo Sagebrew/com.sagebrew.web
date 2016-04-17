@@ -18,7 +18,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.http import int_to_base36, base36_to_int
 from django.utils.crypto import constant_time_compare, salted_hmac
 
-from rest_framework import serializers, status
+from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import ValidationError
@@ -180,8 +180,7 @@ class ResendEmailVerificationSerializer(serializers.Serializer):
         profile.initial_verification_email_sent = True
         profile.save()
         cache.delete(user.username)
-        return {"detail": "Verification email successfully sent",
-                "status": status.HTTP_200_OK}
+        return {}
 
 
 class ResetPasswordEmailSerializer(serializers.Serializer):
@@ -225,9 +224,7 @@ class ResetPasswordEmailSerializer(serializers.Serializer):
         }
         spawn_task(task_func=create_email,
                    task_param={"message_data": message_data})
-        return {"detail": "Reset email successfully sent",
-                "status": status.HTTP_200_OK,
-                "email": validated_data['email']}
+        return {"email": validated_data['email']}
 
 
 class UserSerializer(SBSerializer):

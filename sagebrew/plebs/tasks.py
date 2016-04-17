@@ -6,9 +6,6 @@ from uuid import uuid1
 from django.core import signing
 from django.conf import settings
 from django.core.cache import cache
-from django.contrib.auth.models import User
-
-from rest_framework.exceptions import ValidationError, APIException
 
 from celery import shared_task
 

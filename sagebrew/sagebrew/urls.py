@@ -10,7 +10,6 @@ from django.contrib.sitemaps.views import sitemap
 from sb_registration.views import (login_view, logout_view, signup_view,
                                    quest_signup, advocacy, political_campaign)
 from plebs.sitemap import ProfileSitemap
-from sb_registration.forms import CustomPasswordResetForm
 from sb_questions.sitemap import QuestionSitemap, ConversationSitemap
 from sagebrew.sitemap import (StaticViewSitemap, SignupSitemap)
 from sb_quests.sitemap import QuestSitemap
@@ -32,12 +31,8 @@ urlpatterns = patterns(
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
     url(r'^password_reset/$', 'django.contrib.auth.views.password_reset',
-        {
-            "html_email_template_name":
-                "email_templates/password_reset.html",
-            "template_name": "password_reset/password_reset.html",
-            "password_reset_form": CustomPasswordResetForm
-        }, name="reset_password_page"),
+        {"template_name": "password_reset/password_reset.html"},
+        name="reset_password_page"),
     url(r'^password_reset/done/$',
         'django.contrib.auth.views.password_reset_done', {
             "template_name": "password_reset/password_reset_sent.html"},

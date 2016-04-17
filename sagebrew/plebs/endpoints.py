@@ -50,7 +50,7 @@ from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
                           FriendRequestSerializer, PoliticalPartySerializer,
                           InterestsSerializer, TopicInterestsSerializer,
                           ResetPasswordEmailSerializer,
-                          ResendEmailVerificationSerializer)
+                          EmailVerificationSerializer)
 from .neo_models import Pleb, Address, FriendRequest
 from .utils import get_filter_by
 
@@ -67,7 +67,7 @@ class PasswordReset(generics.CreateAPIView):
 
 class ResendEmailVerification(generics.CreateAPIView):
     queryset = User.objects.all()
-    serializer_class = ResendEmailVerificationSerializer
+    serializer_class = EmailVerificationSerializer
     throttle_classes = (LimitPerDayUserThrottle, )
     authentication_classes = (IsAuthenticated, )
 

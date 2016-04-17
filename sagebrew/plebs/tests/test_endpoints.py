@@ -930,7 +930,18 @@ class ProfileEndpointTests(APITestCase):
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
-        self.maxDiff = None
+        self.intercom_url = "https://api.intercom.io/admins"
+        self.admin_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": 69989,
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
 
     def test_unauthorized(self):
         url = reverse('profile-detail', kwargs={
@@ -1127,7 +1138,7 @@ class ProfileEndpointTests(APITestCase):
         data = {
             "date_of_birth": datetime.now().isoformat(),
             "password": "testpassword1",
-            "email": "ahhaha1232132a@fffffff.com",
+            "email": "ahhaha1232132a@sagebrew.com",
             "first_name": "testuser",
             "last_name": "testuser2",
         }
@@ -1135,6 +1146,55 @@ class ProfileEndpointTests(APITestCase):
         self.assertEqual(Pleb.get(username="testuser_testuser2").username,
                          "testuser_testuser2")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @requests_mock.mock()
+    def test_create_pleb_not_authed(self, m):
+        db.cypher_query('MATCH (a:Pleb) OPTIONAL MATCH (a)-[r]-() DELETE a, r')
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
+        url = reverse('profile-list')
+        data = {
+            "date_of_birth": datetime.now().isoformat(),
+            "password": "testpassword1",
+            "email": "ahhaha1232132a@sagebrew.com",
+            "first_name": "testuser",
+            "last_name": "testuser2",
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(Pleb.get(username="testuser_testuser2").username,
+                         "testuser_testuser2")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @requests_mock.mock()
+    def test_create_pleb_bad_admins(self, m):
+        db.cypher_query('MATCH (a:Pleb) OPTIONAL MATCH (a)-[r]-() DELETE a, r')
+        self.client.force_authenticate(user=self.user)
+        bad_admin_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": 55555,
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
+        m.get(self.intercom_url, json=bad_admin_data,
+              status_code=status.HTTP_200_OK)
+        url = reverse('profile-list')
+        data = {
+            "date_of_birth": datetime.now().isoformat(),
+            "password": "testpassword1",
+            "email": "ahhaha1232132a@sagebrew.com",
+            "first_name": "testuser",
+            "last_name": "testuser2",
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(Pleb.get(username="testuser_testuser2").username,
+                         "testuser_testuser2")
+        self.assertEqual(response.data['from_user'],
+                         [u'69989 is not a valid admin ID'])
 
     def test_update_name(self):
         first_name = str(uuid1())[0:20]

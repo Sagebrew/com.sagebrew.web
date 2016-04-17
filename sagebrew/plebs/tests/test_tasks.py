@@ -1,7 +1,6 @@
 import us
 import time
 import pytz
-import requests_mock
 from uuid import uuid1
 from datetime import datetime
 
@@ -9,9 +8,6 @@ from django.conf import settings
 from django.test import TestCase
 from django.core.cache import cache
 from django.contrib.auth.models import User
-
-from rest_framework import status
-from rest_framework.exceptions import APIException
 
 from neomodel import db
 from boto.dynamodb2.table import Table
@@ -310,56 +306,12 @@ class TestFinalizeCitizen(TestCase):
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
-        self.intercom_url = "https://api.intercom.io/admins"
-        self.admin_data = {
-            "type": "admin.list",
-            "admins": [
-                {
-                    "type": "admin",
-                    "id": 69989,
-                    "name": "Devon Bleibtrey",
-                    "email": "devon@sagebrew.com"
-                }
-            ]
-        }
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
 
-    @requests_mock.mock()
-    def test_valid_username(self, m):
-        m.get(self.intercom_url, json=self.admin_data,
-              status_code=status.HTTP_200_OK)
-        self.pleb.initial_verification_email_sent = False
-        self.pleb.save()
+    def test_valid_username(self):
         res = finalize_citizen_creation.apply_async(
             kwargs={'username': self.pleb.username})
         self.assertTrue('add_object_to_search_index' in res.result)
         self.assertTrue('check_privileges_task' in res.result)
-        self.assertTrue(Pleb.get(
-            username=self.pleb.username, cache_buster=True
-        ).initial_verification_email_sent)
-
-    @requests_mock.mock()
-    def test_bad_admin(self, m):
-        bad_admin_data = {
-            "type": "admin.list",
-            "admins": [
-                {
-                    "type": "admin",
-                    "id": 55555,
-                    "name": "Devon Bleibtrey",
-                    "email": "devon@sagebrew.com"
-                }
-            ]
-        }
-        m.get(self.intercom_url, json=bad_admin_data,
-              status_code=status.HTTP_200_OK)
-        self.pleb.initial_verification_email_sent = False
-        self.pleb.save()
-        res = finalize_citizen_creation.apply_async(
-            kwargs={'username': self.pleb.username})
-        self.assertFalse(Pleb.get(
-            username=self.pleb.username, cache_buster=True
-        ).initial_verification_email_sent)
-        self.assertIsInstance(res.result, APIException)

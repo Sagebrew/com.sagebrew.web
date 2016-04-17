@@ -6,9 +6,6 @@ from uuid import uuid1
 from django.core import signing
 from django.conf import settings
 from django.core.cache import cache
-from django.contrib.auth.models import User
-
-from rest_framework.exceptions import ValidationError, APIException
 
 from celery import shared_task
 
@@ -120,17 +117,11 @@ def connect_to_state_districts(object_uuid):
 
 @shared_task()
 def finalize_citizen_creation(username):
-    from .serializers import ResendEmailVerificationSerializer
     try:
         pleb = Pleb.get(username=username, cache_buster=True)
     except (DoesNotExist, Exception) as e:
         raise finalize_citizen_creation.retry(
             exc=e, countdown=10, max_retries=None)
-    try:
-        user_instance = User.objects.get(username=username)
-    except User.DoesNotExist as e:
-        raise finalize_citizen_creation.retry(exc=e, countdown=10,
-                                              max_retries=None)
     task_list = {}
     task_data = {
         "object_uuid": pleb.object_uuid,
@@ -144,16 +135,6 @@ def finalize_citizen_creation(username):
         task_func=check_privileges, task_param={"username": username},
         countdown=20)
 
-    if not pleb.initial_verification_email_sent:
-        serializer = ResendEmailVerificationSerializer(
-            data={}, context={"user": user_instance})
-        try:
-            serializer.is_valid(raise_exception=True)
-        except(ValidationError, APIException) as e:
-            logger.critical(serializer.errors)
-            raise finalize_citizen_creation.retry(exc=e, countdown=10,
-                                                  max_retries=10)
-        serializer.save()
     cache.delete(pleb.username)
     return task_list
 

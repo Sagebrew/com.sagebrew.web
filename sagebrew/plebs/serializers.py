@@ -183,8 +183,8 @@ class EmailVerificationSerializer(serializers.Serializer):
         serializer = IntercomMessageSerializer(
             data=message_data, context={'profile': profile,
                                         'user': user})
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return {}
 
 
@@ -228,8 +228,8 @@ class ResetPasswordEmailSerializer(serializers.Serializer):
             }
         }
         serializer = IntercomMessageSerializer(data=message_data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return {"detail": "Reset email successfully sent",
                 "status": status.HTTP_200_OK,
                 "email": validated_data['email']}

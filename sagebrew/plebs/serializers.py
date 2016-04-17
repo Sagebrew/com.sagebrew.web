@@ -94,7 +94,7 @@ class EmailAuthTokenGenerator(object):
 
 def generate_username(first_name, last_name):
     # NOTE the other implementation of this is still in use and should be
-    # updated if this version is. /sb_registration/utils.py generate_username
+    # updated if this version is.
     users_count = User.objects.filter(first_name__iexact=first_name).filter(
         last_name__iexact=last_name).count()
     username = "%s_%s" % (first_name.lower(), last_name.lower())

@@ -125,70 +125,9 @@ def verify_verified_email(user):
         return e
 
 
-@apply_defense
-def sb_send_email(source, to_email, subject, html_content):
-    """
-    This function is used to send mail through the amazon ses service,
-    we can use this for any emails we send just specify html content
-
-    :param source:
-    :param to_email:
-    :param subject:
-    :param html_content:
-    :return:
-    """
-    try:
-        conn = boto.ses.connect_to_region(
-            'us-east-1',
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
-        )
-        if type(to_email) == str:
-            to_email = [to_email]
-        conn.send_email(source=source, subject=subject,
-                        body=html_content, to_addresses=to_email,
-                        format='html')
-        return True
-    except SESMaxSendingRateExceededError as e:
-        return e
-
-
-def generate_username(first_name, last_name):
-    """
-    DEPRECATED
-    Please use User serializer from now on. This function is no longer necessary
-    Functionality found in plebs/serializers.py
-    :param first_name:
-    :param last_name:
-    :return:
-    """
-    users_count = User.objects.filter(first_name__iexact=first_name).filter(
-        last_name__iexact=last_name).count()
-    username = "%s_%s" % (first_name.lower(), last_name.lower())
-    if len(username) > 30:
-        username = username[:30]
-        users_count = User.objects.filter(username__iexact=username).count()
-        if users_count > 0:
-            username = username[:(30 - users_count)] + str(users_count)
-    elif len(username) < 30 and users_count == 0:
-        username = "%s_%s" % (
-            (''.join(e for e in first_name if e.isalnum())).lower(),
-            (''.join(e for e in last_name if e.isalnum())).lower())
-    else:
-        username = "%s_%s%d" % (
-            (''.join(e for e in first_name if e.isalnum())).lower(),
-            (''.join(e for e in last_name if e.isalnum())).lower(),
-            users_count)
-    try:
-        username = unidecode(unicode(username, "utf-8"))
-    except TypeError:
-        # Handles cases where the username is already in unicode format
-        username = unidecode(username)
-    return username
-
-
 def create_user_util_test(email, first_name="test", last_name="test",
                           password="test_test", birthday=None, task=False):
+    from plebs.serializers import generate_username
     """
     For test purposes only
     :param task:

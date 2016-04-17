@@ -167,11 +167,11 @@ class ResendEmailVerificationSerializer(serializers.Serializer):
                         token_gen.make_token(user, profile), '/')
                 })),
             'template': "personal",
-            'from': {
+            'from_user': {
                 'type': "admin",
                 'id': settings.INTERCOM_ADMIN_ID_DEVON
             },
-            'to': {
+            'to_user': {
                 'type': "user",
                 'user_id': user.username
             }
@@ -216,11 +216,11 @@ class ResetPasswordEmailSerializer(serializers.Serializer):
             'body': get_template('email_templates/password_reset.html').render(
                 Context(context)),
             'template': "personal",
-            'from': {
+            'from_user': {
                 'type': "admin",
                 'id': settings.INTERCOM_ADMIN_ID_DEVON
             },
-            'to': {
+            'to_user': {
                 'type': "user",
                 'user_id': user.username
             }

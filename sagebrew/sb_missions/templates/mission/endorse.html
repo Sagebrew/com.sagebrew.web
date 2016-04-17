@@ -20,14 +20,16 @@
                             <div class="row sb-profile-not-friend-image-wrapper">
                                 <img class="sb-profile-not-friend-element-image" src="{% static "images/quest_logo_flat_color.png" %}">
                             </div>
-                            <div class="sb-overlay">
-                                <div class="sb-overlay-text">
-                                    <div>
-                                        When you Endorse a Mission as your Quest: <br/><br/>
-                                        It will show up on your Quest Page and your Quest will be displayed in this Mission's Endorsements
+                            {% if request_profile.quest %}
+                                <div class="sb-overlay">
+                                    <div class="sb-overlay-text">
+                                        <div>
+                                            When you Endorse a Mission as your Quest: <br/><br/>
+                                            It will show up on your Quest Page and your Quest will be displayed in this Mission's Endorsements
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            {% endif %}
                             {% if not request_profile.quest %}
                                 <div class="sb_coming_soon">
                                     <h3>You cannot Endorse as a Quest if you don't have one!</h3>

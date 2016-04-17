@@ -279,6 +279,6 @@ class AccountingSerializerTests(APITestCase):
         self.assertEqual(
             res.errors,
             {'to_user':
-                ["Pleb %s Does Not Exist" % message_data['to_user']['user_id']]
+                ["Profile %s Does Not Exist" % message_data['to_user']['user_id']]
             }
         )

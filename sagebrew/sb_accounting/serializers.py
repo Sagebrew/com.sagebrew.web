@@ -28,8 +28,7 @@ def validate_to_or_from(value):
                                               "attempting to send a message "
                                               "to or from an admin")
 
-        admins = Admin.all()
-        if str(passed_id) not in [admin.id for admin in admins]:
+        if str(passed_id) not in [admin.id for admin in Admin.all()]:
             raise serializers.ValidationError(
                 "%s is not a valid admin ID" % passed_id)
     try:
@@ -37,7 +36,7 @@ def validate_to_or_from(value):
     except (Pleb.DoesNotExist, DoesNotExist):
         if value_type != 'admin':
             raise serializers.ValidationError(
-                "Pleb %s Does Not Exist" % user_id)
+                "Profile %s Does Not Exist" % user_id)
 
     return value
 

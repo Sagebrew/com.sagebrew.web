@@ -32,31 +32,24 @@ class QuestionViewSet(viewsets.ModelViewSet):
             descending = True
         else:
             descending = False
-        queryset = NeoQuerySet(
-            Question, query=query, distinct=True, descending=descending) \
-            .filter('WHERE res.to_be_deleted=false') \
-            .order_by(sort_by)
         if sort_by == "" or sort_by == "vote_count":
-            # Cache check aligning with implementation below
-            # questions = cache.get("question_list_vote_sort")
-            # if questions is not None:
-            #    return questions
-
-            # Removed :Pleb label as based on the profiling it caused additional
-            # db hits and caused the query to take about 20% longer.
-            # Also removed CASE for setting the vote count to itself if active
-            # was false and reduced the graph to only those that are True.
             query = "(res:Question)%s " \
                     "WHERE res.to_be_deleted=false " \
                     "OPTIONAL MATCH (res)<-[vs:PLEB_VOTES]-() " \
                     "WHERE vs.active=True " % tagged_as
             queryset = NeoQuerySet(
-                Question, query=query, distinct=True, descending=True) \
+                Question, query=query, distinct=True,
+                descending=not descending)\
                 .order_by(", reduce(vote_count = 0, v in collect(vs)| "
                           "CASE WHEN v.vote_type=True THEN vote_count+1 "
                           "WHEN v.vote_type=False THEN vote_count-1 "
                           "ELSE vote_count END) as reduce_res "
                           "ORDER BY reduce_res")
+        else:
+            queryset = NeoQuerySet(
+                Question, query=query, distinct=True, descending=descending) \
+                .filter('WHERE res.to_be_deleted=false') \
+                .order_by(sort_by)
         # Quick cache implementation to reduce load of refresh clickers
         # Under load neo takes about 15-30 seconds to store off the
         # updates of a vote anyways so this can be added when necessary

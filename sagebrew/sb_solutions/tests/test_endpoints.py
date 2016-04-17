@@ -335,7 +335,6 @@ class SolutionEndpointTests(APITestCase):
         create_vote_relationship(solution5.object_uuid,
                                  self.pleb2.username,
                                  "true", "true")
-
         create_vote_relationship(solution5.object_uuid, pleb3.username,
                                  "true", "true")
 

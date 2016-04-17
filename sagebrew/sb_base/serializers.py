@@ -5,6 +5,7 @@ from django.conf import settings
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
+from rest_framework.exceptions import ValidationError
 
 from neomodel import DoesNotExist
 
@@ -13,7 +14,7 @@ from api.utils import gather_request_data, render_content, spawn_task
 
 from plebs.neo_models import Pleb
 
-from .tasks import create_email
+from .tasks import create_email, create_event
 
 
 class VotableContentSerializer(SBSerializer):
@@ -428,4 +429,24 @@ class IntercomMessageSerializer(serializers.Serializer):
         spawn_task(task_func=create_email, task_param=validated_data)
         validated_data['from_user'] = from_user
         validated_data['to_user'] = to_user
+        return validated_data
+
+
+class IntercomEventSerializer(serializers.Serializer):
+    # TODO once we have 120 event_names defined we'll want to make sure the
+    # event name exists within the list and does not go over the limit.
+    event_name = serializers.CharField()
+    username = serializers.CharField()
+    metadata = serializers.DictField()
+
+    def validate_username(self, value):
+        try:
+            Pleb.get(username=value)
+        except(DoesNotExist, Exception):
+            raise ValidationError('Does not exist in the database.')
+
+        return value
+
+    def create(self, validated_data):
+        spawn_task(task_func=create_event, task_param=validated_data)
         return validated_data

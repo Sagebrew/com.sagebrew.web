@@ -10,7 +10,8 @@ from neomodel import db
 
 from sb_registration.utils import create_user_util_test
 
-from sb_base.serializers import IntercomMessageSerializer
+from sb_base.serializers import (IntercomMessageSerializer,
+                                 IntercomEventSerializer)
 
 
 class IntercomMessageSerializerTests(APITestCase):
@@ -278,3 +279,53 @@ class IntercomMessageSerializerTests(APITestCase):
             {'to_user':
                 ["Profile %s Does Not Exist"
                  % message_data['to_user']['user_id']]})
+
+
+class IntercomEventSerializerTests(APITestCase):
+
+    def setUp(self):
+        query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
+        db.cypher_query(query)
+        self.unit_under_test_name = 'accounting'
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
+
+    def test_valid_message_no_meta(self):
+        event_data = {
+            'event_name': 'signup-no-mission',
+            'username': self.pleb.username,
+        }
+        serializer = IntercomEventSerializer(data=event_data)
+        serializer.is_valid()
+        serializer.save()
+        self.assertEqual(serializer.data['event_name'], 'signup-no-mission')
+        self.assertEqual(serializer.data['username'], self.pleb.username)
+
+    def test_valid_message_with_meta(self):
+        event_data = {
+            'event_name': 'signup-no-mission',
+            'username': self.pleb.username,
+            'metadata': {
+                "hello": "world"
+            }
+        }
+        serializer = IntercomEventSerializer(data=event_data)
+        serializer.is_valid()
+        serializer.save()
+        self.assertEqual(serializer.data['event_name'], 'signup-no-mission')
+        self.assertEqual(serializer.data['username'], self.pleb.username)
+        self.assertEqual(serializer.data['metadata']['hello'], "world")
+
+    def test_user_does_not_exist(self):
+        event_data = {
+            'event_name': 'signup-no-mission',
+            'username': "haha got you",
+            'metadata': {
+                "hello": "world"
+            }
+        }
+        serializer = IntercomEventSerializer(data=event_data)
+        serializer.is_valid()
+        self.assertEqual(serializer.errors['username'],
+                         ['Does not exist in the database.'])

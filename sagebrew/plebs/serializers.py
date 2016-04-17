@@ -32,6 +32,7 @@ from api.utils import spawn_task, gather_request_data, SBUniqueValidator
 from sb_base.tasks import create_email, create_event
 from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
+from sb_accounting.serializers import IntercomMessageSerializer
 
 from .neo_models import Address, Pleb
 from .tasks import (determine_pleb_reps,
@@ -175,8 +176,9 @@ class ResendEmailVerificationSerializer(serializers.Serializer):
                 'user_id': user.username
             }
         }
-        spawn_task(task_func=create_email,
-                   task_param={"message_data": message_data})
+        serializer = IntercomMessageSerializer(data=message_data)
+        if serializer.is_valid():
+            serializer.save()
         profile.initial_verification_email_sent = True
         profile.save()
         cache.delete(user.username)
@@ -223,8 +225,9 @@ class ResetPasswordEmailSerializer(serializers.Serializer):
                 'user_id': user.username
             }
         }
-        spawn_task(task_func=create_email,
-                   task_param={"message_data": message_data})
+        serializer = IntercomMessageSerializer(data=message_data)
+        if serializer.is_valid():
+            serializer.save()
         return {"detail": "Reset email successfully sent",
                 "status": status.HTTP_200_OK,
                 "email": validated_data['email']}

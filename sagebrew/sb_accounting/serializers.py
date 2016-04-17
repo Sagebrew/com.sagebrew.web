@@ -1,10 +1,12 @@
 from django.conf import settings
 
-from intercom import Admin, Intercom, IntercomError
+from intercom import Admin, Intercom
 from neomodel import DoesNotExist
 from rest_framework import serializers
 
+from api.utils import spawn_task
 from plebs.neo_models import Pleb
+from sb_base.tasks import create_email
 
 
 def validate_to_or_from(value):
@@ -39,6 +41,7 @@ def validate_to_or_from(value):
 
     return value
 
+
 class IntercomMessageSerializer(serializers.Serializer):
     message_type = serializers.CharField()
     subject = serializers.CharField()
@@ -51,3 +54,13 @@ class IntercomMessageSerializer(serializers.Serializer):
                                       validators=[validate_to_or_from])
     to_user = serializers.DictField(child=serializers.CharField(),
                                     validators=[validate_to_or_from])
+
+    def create(self, validated_data):
+        from_user = validated_data.pop('from_user', None)
+        to_user = validated_data.pop('to_user', None)
+        validated_data['from'] = from_user
+        validated_data['to'] = to_user
+        spawn_task(task_func=create_email, task_param=validated_data)
+        validated_data['from_user'] = from_user
+        validated_data['to_user'] = to_user
+        return validated_data

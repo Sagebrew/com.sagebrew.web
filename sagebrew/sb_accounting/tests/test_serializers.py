@@ -92,8 +92,10 @@ class AccountingSerializerTests(APITestCase):
         self.assertFalse(valid)
         self.assertEqual(
             res.errors,
-            {'from_user':
-                 ["The only valid values for 'type' are 'user' and 'admin'"]})
+            {
+                'from_user': ["The only valid values for "
+                              "'type' are 'user' and 'admin'"]}
+        )
 
     @requests_mock.mock()
     def test_user_id_is_none(self, m):
@@ -185,7 +187,8 @@ class AccountingSerializerTests(APITestCase):
             res.errors,
             {'from_user':
                  ["Must provide the 'id' key when attempting to send a "
-                  "message to or from an admin"]})
+                  "message to or from an admin"]}
+        )
 
     @requests_mock.mock()
     def test_invalid_admin_id(self, m):
@@ -230,7 +233,8 @@ class AccountingSerializerTests(APITestCase):
         self.assertEqual(
             res.errors,
             {'from_user':
-                 ["123456 is not a valid admin ID"]})
+                 ["123456 is not a valid admin ID"]}
+        )
 
     @requests_mock.mock()
     def test_pleb_doesnt_exist(self, m):
@@ -275,4 +279,6 @@ class AccountingSerializerTests(APITestCase):
         self.assertEqual(
             res.errors,
             {'to_user':
-                 ["Pleb %s Does Not Exist" % message_data['to_user']['user_id']]})
+                ["Pleb %s Does Not Exist" % message_data['to_user']['user_id']]
+            }
+        )

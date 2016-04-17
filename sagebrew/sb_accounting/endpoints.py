@@ -71,10 +71,7 @@ class AccountingViewSet(viewsets.ViewSet):
             }
             serializer = IntercomMessageSerializer(data=message_data)
             if serializer.is_valid():
-                serialized = serializer.data
-                serialized['from'] = serialized.pop('from_user', None)
-                serialized['to'] = serialized.pop('to_user', None)
-                Message.create(**serialized)
+                serializer.save()
             return Response({"detail": "Invoice Payment Failed"},
                             status=status.HTTP_200_OK)
         if event.type == "account.updated":

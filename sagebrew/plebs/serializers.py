@@ -1,5 +1,6 @@
 import us
 import stripe
+from logging import getLogger
 from datetime import date
 from unidecode import unidecode
 
@@ -146,25 +147,26 @@ class BetaUserSerializer(serializers.Serializer):
     signup_date = serializers.DateTimeField()
 
 
-class ResendEmailVerificationSerializer(serializers.Serializer):
+class EmailVerificationSerializer(serializers.Serializer):
     def create(self, validated_data):
         request = self.context.get('request')
-        user = self.context.get('user')
-        if request is None and user is None:
-            raise ValidationError("User must be supplied")
-        if user is None:
-            user = request.user
+        profile = self.context.get('profile')
+        if request is None:
+            raise ValidationError("Verification email must be "
+                                  "requested from application")
+        if profile is None:
+            profile = Pleb.get(
+                username=request.user.username, cache_buster=True)
         token_gen = EmailAuthTokenGenerator()
-        profile = Pleb.get(username=user.username, cache_buster=True)
         message_data = {
             'message_type': 'email',
             'subject': 'Sagebrew Email Verification',
             'body': get_template('email_templates/verification.html').render(
                 Context({
-                    'first_name': user.first_name,
+                    'first_name': request.user.first_name,
                     'verification_url': "%s%s%s" % (
                         settings.EMAIL_VERIFICATION_URL,
-                        token_gen.make_token(user, profile), '/')
+                        token_gen.make_token(request.user, profile), '/')
                 })),
             'template': "personal",
             'from_user': {
@@ -173,15 +175,12 @@ class ResendEmailVerificationSerializer(serializers.Serializer):
             },
             'to_user': {
                 'type': "user",
-                'user_id': user.username
+                'user_id': request.user.username
             }
         }
         serializer = IntercomMessageSerializer(data=message_data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-        profile.initial_verification_email_sent = True
-        profile.save()
-        cache.delete(user.username)
         return {}
 
 
@@ -348,7 +347,6 @@ class PlebSerializerNeo(SBSerializer):
         pleb.occupation_name = validated_data.get('occupation_name', None)
         pleb.employer_name = validated_data.get('employer_name', None)
         pleb.mission_signup = mission_signup
-        pleb.save()
         if mission_signup is None:
             mission_signup = "no"
         serializer = IntercomEventSerializer(data={
@@ -357,6 +355,12 @@ class PlebSerializerNeo(SBSerializer):
         })
         serializer.is_valid(raise_exception=True)
         serializer.save()
+        serializer = EmailVerificationSerializer(
+            data={}, context={"profile": pleb, 'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        pleb.initial_verification_email_sent = True
+        pleb.save()
         if not request.user.is_authenticated():
             user = authenticate(username=user.username,
                                 password=validated_data['password'])
@@ -532,6 +536,7 @@ class AddressSerializer(SBSerializer):
         address.owned_by.connect(pleb)
         pleb.completed_profile_info = True
         pleb.save()
+        cache.delete(pleb.username)
         pleb.determine_reps()
         spawn_task(task_func=update_address_location,
                    task_param={"object_uuid": address.object_uuid})

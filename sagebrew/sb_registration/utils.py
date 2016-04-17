@@ -1,9 +1,5 @@
 import pytz
-import boto.ses
-from unidecode import unidecode
-from datetime import datetime, timedelta
-from boto.ses.exceptions import SESMaxSendingRateExceededError
-from datetime import date
+from datetime import datetime, timedelta, date
 
 from django.conf import settings
 from django.contrib.auth.models import User

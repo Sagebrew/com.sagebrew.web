@@ -3,8 +3,6 @@ import pytz
 from datetime import datetime
 
 from django.conf import settings
-from django.template.loader import get_template
-from django.template import Context
 from django.core.cache import cache
 from django.templatetags.static import static
 

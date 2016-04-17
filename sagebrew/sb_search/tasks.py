@@ -182,6 +182,7 @@ def update_search_object(object_uuid, label=None, object_data=None,
     except (ElasticsearchException, TransportError,
             ConflictError, RequestError) as e:
         logger.exception("Failed to connect to Elasticsearch")
+        logger.critical(object_data)
         raise update_search_object.retry(exc=e, countdown=5, max_retries=None)
     except KeyError:
         error_dict = {

@@ -18,7 +18,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.http import int_to_base36, base36_to_int
 from django.utils.crypto import constant_time_compare, salted_hmac
 
-from rest_framework import serializers
+from rest_framework import serializers, status
 from rest_framework.validators import UniqueValidator
 from rest_framework.reverse import reverse
 from rest_framework.exceptions import ValidationError
@@ -29,9 +29,10 @@ from neomodel import db, DoesNotExist
 
 from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data, SBUniqueValidator
-from sb_base.tasks import create_email, create_event
+from sb_base.tasks import create_event
 from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
+from sb_accounting.serializers import IntercomMessageSerializer
 
 from .neo_models import Address, Pleb
 from .tasks import (determine_pleb_reps,
@@ -166,17 +167,18 @@ class ResendEmailVerificationSerializer(serializers.Serializer):
                         token_gen.make_token(user, profile), '/')
                 })),
             'template': "personal",
-            'from': {
+            'from_user': {
                 'type': "admin",
                 'id': settings.INTERCOM_ADMIN_ID_DEVON
             },
-            'to': {
+            'to_user': {
                 'type': "user",
                 'user_id': user.username
             }
         }
-        spawn_task(task_func=create_email,
-                   task_param={"message_data": message_data})
+        serializer = IntercomMessageSerializer(data=message_data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
         profile.initial_verification_email_sent = True
         profile.save()
         cache.delete(user.username)
@@ -213,18 +215,21 @@ class ResetPasswordEmailSerializer(serializers.Serializer):
             'body': get_template('email_templates/password_reset.html').render(
                 Context(context)),
             'template': "personal",
-            'from': {
+            'from_user': {
                 'type': "admin",
                 'id': settings.INTERCOM_ADMIN_ID_DEVON
             },
-            'to': {
+            'to_user': {
                 'type': "user",
                 'user_id': user.username
             }
         }
-        spawn_task(task_func=create_email,
-                   task_param={"message_data": message_data})
-        return {"email": validated_data['email']}
+        serializer = IntercomMessageSerializer(data=message_data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+        return {"detail": "Reset email successfully sent",
+                "status": status.HTTP_200_OK,
+                "email": validated_data['email']}
 
 
 class UserSerializer(SBSerializer):

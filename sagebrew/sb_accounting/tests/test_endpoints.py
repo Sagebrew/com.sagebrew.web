@@ -36,6 +36,7 @@ class AccountingHooksTests(APITestCase):
         cache.clear()
         self.stripe = stripe
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
+        self.intercom_url = "https://api.intercom.io/admins"
 
     def test_invalid_event_request(self):
         self.client.force_authenticate(user=self.user)
@@ -44,7 +45,7 @@ class AccountingHooksTests(APITestCase):
             "id": "evt_00000000000000"
         }
         response = self.client.post(url, data=data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @requests_mock.mock()
     def test_valid_event_request(self, m):
@@ -59,6 +60,19 @@ class AccountingHooksTests(APITestCase):
         }
         m.get("https://api.stripe.com/v1/events/evt_00000000000000",
               json=event_mock_data, status_code=status.HTTP_200_OK)
+        intercom_mock_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": "69989",
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
+        m.get(self.intercom_url, json=intercom_mock_data,
+              status_code=status.HTTP_200_OK)
         customer_mock_data = {
             "email": "success@simulator.amazonses.com"
         }
@@ -101,7 +115,7 @@ class AccountingHooksTests(APITestCase):
             "id": "evt_00000000000000"
         }
         response = self.client.post(url, data=data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @requests_mock.mock()
     def test_valid_event_request_account_updated(self, m):

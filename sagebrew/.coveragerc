@@ -69,6 +69,7 @@ omit =
     */management/commands/populate_existing_state_districts.py
     */management/commands/convert_social_links.py
     */management/commands/convert_donations.py
+    */management/commands/remove_duplicate_quests.py
     */sagebrew/test_runner.py
 
 [report]

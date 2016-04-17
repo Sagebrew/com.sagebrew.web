@@ -1,8 +1,4 @@
 from django import forms
-from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-from django.contrib.auth.forms import PasswordResetForm
-from django.utils.translation import ugettext_lazy as _
 
 from localflavor.us.forms import USZipCodeField, USStateField
 

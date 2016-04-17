@@ -1,8 +1,6 @@
 from logging import getLogger
 
 from django.core.management.base import BaseCommand
-from django.core.cache import cache
-from django.conf import settings
 
 from neomodel import db
 
@@ -11,8 +9,6 @@ from sb_questions.neo_models import Question
 from sb_quests.neo_models import Quest
 from sb_missions.neo_models import Mission
 from sb_search.tasks import update_search_object
-
-from elasticsearch import Elasticsearch
 
 logger = getLogger('loggly_logs')
 

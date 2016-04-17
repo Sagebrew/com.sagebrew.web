@@ -437,7 +437,7 @@ class IntercomEventSerializer(serializers.Serializer):
     # event name exists within the list and does not go over the limit.
     event_name = serializers.CharField()
     username = serializers.CharField()
-    metadata = serializers.DictField()
+    metadata = serializers.DictField(required=False)
 
     def validate_username(self, value):
         try:

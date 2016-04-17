@@ -150,14 +150,10 @@ def update_search_object(object_uuid, label=None, object_data=None,
     elif label == "quest":
         instance = Quest.inflate(res.one)
         object_data = QuestSerializer(instance).data
-        if 'profile' in object_data:
-            object_data.pop('profile')
         logger.critical(object_data)
     elif label == "mission":
         instance = Mission.inflate(res.one)
         object_data = MissionSerializer(instance).data
-        if 'profile' in object_data:
-            object_data.pop('profile')
         if 'quest' in object_data:
             object_data.pop('quest')
         logger.critical(object_data)

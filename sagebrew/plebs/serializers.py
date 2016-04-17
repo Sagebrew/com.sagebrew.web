@@ -29,7 +29,7 @@ from neomodel import db, DoesNotExist
 
 from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data, SBUniqueValidator
-from sb_base.tasks import create_email, create_event
+from sb_base.tasks import create_event
 from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
 from sb_accounting.serializers import IntercomMessageSerializer
@@ -179,11 +179,12 @@ class ResendEmailVerificationSerializer(serializers.Serializer):
         serializer = IntercomMessageSerializer(data=message_data)
         if serializer.is_valid():
             serializer.save()
+        else:
+            raise ValidationError(serializer.errors)
         profile.initial_verification_email_sent = True
         profile.save()
         cache.delete(user.username)
-        return {"detail": "Verification email successfully sent",
-                "status": status.HTTP_200_OK}
+        return {}
 
 
 class ResetPasswordEmailSerializer(serializers.Serializer):
@@ -228,6 +229,8 @@ class ResetPasswordEmailSerializer(serializers.Serializer):
         serializer = IntercomMessageSerializer(data=message_data)
         if serializer.is_valid():
             serializer.save()
+        else:
+            raise ValidationError(serializer.errors)
         return {"detail": "Reset email successfully sent",
                 "status": status.HTTP_200_OK,
                 "email": validated_data['email']}

@@ -30,7 +30,7 @@ export function load() {
                 {url: "/v1/reset_password/", data: JSON.stringify({'email': emailAddress})}
             )
                 .done(function () {
-                    window.location.href = "/password_reset/done/"
+                    window.location.href = "/password_reset/done/";
                 })
                 .fail(function () {
                     resetBtn.disabled = false;

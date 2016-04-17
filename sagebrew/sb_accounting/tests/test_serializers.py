@@ -139,9 +139,8 @@ class AccountingSerializerTests(APITestCase):
         self.assertFalse(valid)
         self.assertEqual(
             res.errors,
-            {'to_user':
-                 ["Must provide the 'user_id' key when attempting to send "
-                  "a message to or from a user"]})
+            {'to_user': ["Must provide the 'user_id' key when attempting "
+                         "to send a message to or from a user"]})
 
     @requests_mock.mock()
     def test_admin_id_is_none(self, m):
@@ -185,9 +184,8 @@ class AccountingSerializerTests(APITestCase):
         self.assertFalse(valid)
         self.assertEqual(
             res.errors,
-            {'from_user':
-                 ["Must provide the 'id' key when attempting to send a "
-                  "message to or from an admin"]}
+            {'from_user': ["Must provide the 'id' key when attempting to "
+                           "send a message to or from an admin"]}
         )
 
     @requests_mock.mock()
@@ -232,8 +230,7 @@ class AccountingSerializerTests(APITestCase):
         self.assertFalse(valid)
         self.assertEqual(
             res.errors,
-            {'from_user':
-                 ["123456 is not a valid admin ID"]}
+            {'from_user': ["123456 is not a valid admin ID"]}
         )
 
     @requests_mock.mock()
@@ -279,6 +276,5 @@ class AccountingSerializerTests(APITestCase):
         self.assertEqual(
             res.errors,
             {'to_user':
-                ["Profile %s Does Not Exist" % message_data['to_user']['user_id']]
-            }
-        )
+                ["Profile %s Does Not Exist"
+                 % message_data['to_user']['user_id']]})

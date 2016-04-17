@@ -37,6 +37,88 @@ from sb_solutions.neo_models import Solution
 from sb_donations.neo_models import Donation
 
 
+class TestPasswordReset(APITestCase):
+
+    def setUp(self):
+        cache.clear()
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.pleb.email)
+        self.url = "http://testserver"
+
+    def test_create(self):
+        url = reverse('profile-reset-password')
+        data = {'email': self.pleb.email}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['email'], self.pleb.email)
+
+    def test_create_bad_email(self):
+        url = reverse('profile-reset-password')
+        data = {'email': "bademail@sagebrew.com"}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['non_field_errors'],
+                         ["Sorry we couldn't find that address"])
+
+    def test_unauthorized_no_email(self):
+        url = reverse('profile-reset-password')
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['email'], [u'This field is required.'])
+
+    def test_throttling(self):
+        url = reverse('profile-reset-password')
+        data = {'email': self.pleb.email}
+        response = None
+        for value in range(0, 11):
+            response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code,
+                         status.HTTP_429_TOO_MANY_REQUESTS)
+
+
+class TestResendEmailVerification(APITestCase):
+
+    def setUp(self):
+        cache.clear()
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.pleb.email)
+        self.url = "http://testserver"
+
+    def test_unauthorized(self):
+        url = reverse('me-resend-verification')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_create(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-resend-verification')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data, {})
+
+    def test_throttling(self):
+        url = reverse('me-resend-verification')
+        response = None
+        for value in range(0, 11):
+            response = self.client.post(url, {}, format='json')
+
+        self.assertEqual(response.status_code,
+                         status.HTTP_429_TOO_MANY_REQUESTS)
+
+    def test_no_user_supplied(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-resend-verification')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data, {})
+
+
 class MeEndpointTests(APITestCase):
 
     def setUp(self):

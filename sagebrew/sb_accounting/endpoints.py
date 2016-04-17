@@ -3,7 +3,7 @@ import stripe
 import calendar
 from uuid import uuid1
 from datetime import datetime
-from intercom import Intercom, Event, Message
+from intercom import Intercom, Event
 
 from django.conf import settings
 
@@ -72,6 +72,9 @@ class AccountingViewSet(viewsets.ViewSet):
             serializer = IntercomMessageSerializer(data=message_data)
             if serializer.is_valid():
                 serializer.save()
+            else:
+                return Response(
+                    serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             return Response({"detail": "Invoice Payment Failed"},
                             status=status.HTTP_200_OK)
         if event.type == "account.updated":

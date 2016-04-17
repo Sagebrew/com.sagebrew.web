@@ -164,7 +164,10 @@ a{% extends "layout/hero-two-col-right.html" %}
     {% if request.user.username == quest.owner_username %}
         Intercom('trackEvent', 'visited-own-quest');
     {% else %}
-        Intercom('trackEvent', 'visited-{{ quest.owner_username }}-quest');
-        Intercom('trackEvent', 'visited-quest');
+        Intercom('trackEvent', 'visited-quest', {
+            owner: '{{ quest.owner_username }}',
+            title: '{{ quest.title }}',
+            id: '{{ quest.object_uuid }}'
+        });
     {% endif %}
 {% endblock %}

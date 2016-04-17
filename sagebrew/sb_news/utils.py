@@ -36,7 +36,6 @@ def find_news(limit_offset_fxn, count_query, link_objects_callback):
             break
         skip += limit
         sleep(5)
-    logger.critical("Completed finding news")
     return True
 
 
@@ -133,10 +132,9 @@ def query_webhose(results, tag):
 def tag_callback(news_objects):
     requests_left = 0
     for tag in news_objects:
-        query = '"%s political" language:(english) thread.country:US ' \
-                'performance_score:>8 (site_type:news)' % tag.name
+        query = '%s politics language:(english) thread.country:US ' \
+                'performance_score:>8 (site_type:news)' % (
+                    tag.name.replace('-', " ").replace('_', " "))
         results = gather_news_results(query)
-        logger.critical("Tag name: %s" % tag.name)
-        logger.critical("Result length: %d" % len(results))
         requests_left = query_webhose(results, tag)
     return requests_left

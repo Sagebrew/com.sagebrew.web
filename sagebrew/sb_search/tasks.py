@@ -142,6 +142,10 @@ def update_search_object(object_uuid, label=None, object_data=None,
     if label == "question":
         instance = Question.inflate(res.one)
         object_data = QuestionSerializerNeo(instance).data
+        if 'mission' in object_data:
+            object_data.pop('mission')
+        if 'profile' in object_data:
+            object_data.pop('profile')
         logger.critical(object_data)
     elif label == "quest":
         instance = Quest.inflate(res.one)
@@ -150,10 +154,14 @@ def update_search_object(object_uuid, label=None, object_data=None,
     elif label == "mission":
         instance = Mission.inflate(res.one)
         object_data = MissionSerializer(instance).data
+        if 'quest' in object_data:
+            object_data.pop('quest')
         logger.critical(object_data)
     elif label == "pleb":
         instance = Pleb.inflate(res.one)
         object_data = PlebSerializerNeo(instance).data
+        if 'quest' in object_data:
+            object_data.pop('quest')
         logger.critical(object_data)
     else:
         # Currently we only need this functionality for Questions as
@@ -174,6 +182,7 @@ def update_search_object(object_uuid, label=None, object_data=None,
     except (ElasticsearchException, TransportError,
             ConflictError, RequestError) as e:
         logger.exception("Failed to connect to Elasticsearch")
+        logger.critical(object_data)
         raise update_search_object.retry(exc=e, countdown=5, max_retries=None)
     except KeyError:
         error_dict = {

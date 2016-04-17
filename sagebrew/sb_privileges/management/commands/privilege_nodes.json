@@ -167,24 +167,6 @@
                       "condition": 12500
                   }
               ]
-          },
-          {
-              "name": "beta_user",
-              "actions": [
-                  {
-                      "resource": "intercom",
-                      "permission": "write"
-                  }
-              ],
-              "requirements": [
-                  {
-                      "name": "Is Beta User",
-                      "url": "/v1/profiles/<username>/is_beta_user/",
-                      "key": "is_beta_user",
-                      "operator": "coperator\neq\np0\n.",
-                      "condition": true
-                  }
-              ]
           }
     ],
     "actions": [

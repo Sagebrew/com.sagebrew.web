@@ -12,7 +12,7 @@ class Command(BaseCommand):
         es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
         es.indices.delete(index='full-search-base', ignore=[400, 404])
         es.indices.create(index='full-search-base')
-        print "Flushed full-search-base data"
+        print("Flushed full-search-base data")
 
     def handle(self, *args, **options):
         self.empty_elasticsearch()

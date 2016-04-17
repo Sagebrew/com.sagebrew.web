@@ -1,6 +1,8 @@
 from logging import getLogger
 
 from django.core.management.base import BaseCommand
+from django.core.cache import cache
+from django.conf import settings
 
 from neomodel import db
 
@@ -10,6 +12,8 @@ from sb_quests.neo_models import Quest
 from sb_missions.neo_models import Mission
 from sb_search.tasks import update_search_object
 
+from elasticsearch import Elasticsearch
+
 logger = getLogger('loggly_logs')
 
 
@@ -18,6 +22,9 @@ class Command(BaseCommand):
     help = 'Creates placeholder representatives.'
 
     def repopulate_elasticsearch(self):
+        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
+        es.indices.delete(index='full-search-base', ignore=[400, 404])
+        es.indices.create(index='full-search-base')
         skip = 0
         while True:
             query = 'MATCH (profile:Pleb) RETURN DISTINCT profile ' \
@@ -69,5 +76,7 @@ class Command(BaseCommand):
                             "label": "mission"})
 
     def handle(self, *args, **options):
-        self.repopulate_elasticsearch()
+        if not cache.get('es_populated'):
+            self.repopulate_elasticsearch()
+        cache.set('es_populated', True)
         logger.info("Completed elasticsearch repopulation")

@@ -1,6 +1,5 @@
 import us
 import stripe
-from logging import getLogger
 from datetime import date
 from unidecode import unidecode
 

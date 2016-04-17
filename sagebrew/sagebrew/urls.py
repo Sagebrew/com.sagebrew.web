@@ -10,7 +10,6 @@ from django.contrib.sitemaps.views import sitemap
 from sb_registration.views import (login_view, logout_view, signup_view,
                                    quest_signup, advocacy, political_campaign)
 from plebs.sitemap import ProfileSitemap
-from sb_registration.forms import CustomPasswordResetForm
 from sb_questions.sitemap import QuestionSitemap, ConversationSitemap
 from sagebrew.sitemap import (StaticViewSitemap, SignupSitemap)
 from sb_quests.sitemap import QuestSitemap

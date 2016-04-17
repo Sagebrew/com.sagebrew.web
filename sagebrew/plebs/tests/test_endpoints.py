@@ -1127,7 +1127,7 @@ class ProfileEndpointTests(APITestCase):
         data = {
             "date_of_birth": datetime.now().isoformat(),
             "password": "testpassword1",
-            "email": "ahhaha1232132a@fffffff.com",
+            "email": "ahhaha1232132a@sagebrew.com",
             "first_name": "testuser",
             "last_name": "testuser2",
         }

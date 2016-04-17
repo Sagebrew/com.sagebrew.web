@@ -22,9 +22,7 @@ class Command(BaseCommand):
     help = 'Creates placeholder representatives.'
 
     def repopulate_elasticsearch(self):
-        es = Elasticsearch(settings.ELASTIC_SEARCH_HOST)
-        es.indices.delete(index='full-search-base', ignore=[400, 404])
-        es.indices.create(index='full-search-base')
+        # Profiles
         skip = 0
         while True:
             query = 'MATCH (profile:Pleb) RETURN DISTINCT profile ' \
@@ -37,6 +35,8 @@ class Command(BaseCommand):
                 update_search_object.apply_async(
                     kwargs={"object_uuid": profile.object_uuid,
                             "label": "pleb"})
+
+        # Questions
         skip = 0
         while True:
             query = 'MATCH (question:Question) RETURN DISTINCT question ' \
@@ -49,6 +49,8 @@ class Command(BaseCommand):
                 update_search_object.apply_async(
                     kwargs={"object_uuid": question.object_uuid,
                             "label": "question"})
+
+        # Quests
         skip = 0
         while True:
             query = 'MATCH (quest:Quest) RETURN DISTINCT quest ' \
@@ -61,7 +63,7 @@ class Command(BaseCommand):
                 update_search_object.apply_async(
                     kwargs={"object_uuid": quest.object_uuid,
                             "label": "quest"})
-        # Mission
+        # Missions
         skip = 0
         while True:
             query = 'MATCH (mission:Mission) RETURN DISTINCT mission ' \
@@ -76,7 +78,5 @@ class Command(BaseCommand):
                             "label": "mission"})
 
     def handle(self, *args, **options):
-        if not cache.get('es_populated'):
-            self.repopulate_elasticsearch()
-        cache.set('es_populated', True)
+        self.repopulate_elasticsearch()
         logger.info("Completed elasticsearch repopulation")

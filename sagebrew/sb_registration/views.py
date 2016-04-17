@@ -139,6 +139,8 @@ def email_verification(request, confirmation):
             profile.email_verified = True
             profile.save()
             cache.delete(profile.username)
+            if profile.completed_profile_info:
+                return redirect('interests')
             return redirect('profile_info')
         else:
             return redirect('401_Error')

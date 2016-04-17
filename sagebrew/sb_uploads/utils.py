@@ -140,9 +140,10 @@ def get_page_image(url, soup, content_type='html/text'):
                 # passed here, PIL cannot open SVGs so the IOError handles that
                 pass
             file_ext = guess_extension(res.headers['content-type'])
-            image = upload_image(settings.AWS_UPLOAD_IMAGE_FOLDER_NAME,
-                                 '%s%s' % (str(uuid1()), file_ext),
-                                 temp_file, True)
+            if file_ext != ".svg":
+                image = upload_image(settings.AWS_UPLOAD_IMAGE_FOLDER_NAME,
+                                     '%s%s' % (str(uuid1()), file_ext),
+                                     temp_file, True)
         else:
             return "", height, width
     return image, height, width

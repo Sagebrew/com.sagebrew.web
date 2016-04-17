@@ -125,8 +125,12 @@ class UploadSerializer(SBSerializer):
         except (ValueError, urllib2.HTTPError, urllib2.URLError):
             raise ValidationError("Invalid URL")
         image_uuid = str(uuid1())
-        data['width'], data['height'], file_name, image = get_image_data(
-            image_uuid, file_object)
+        try:
+            data['width'], data['height'], file_name, image = get_image_data(
+                image_uuid, file_object)
+        except IOError:
+            raise ValidationError("You've uploaded an invalid file type. "
+                                  "Valid types are jpeg, jpg, and png")
         if self.context.get('file_name', None) is not None:
             file_name = self.context.get('file_name')
         if data['width'] < 100:

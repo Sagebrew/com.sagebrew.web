@@ -34,12 +34,6 @@ export function submitSearch() {
                     }
                     searchResults.innerHTML += questSearchTemplate(value._source);
                 } else if (value._type === 'mission') {
-                    if (!source.profile_pic) {
-                        source.profile_pic = source.quest.profile_pic;
-                    }
-                    if (!source.quest.title) {
-                        source.quest.title = source.quest.first_name + " " + source.quest.last_name;
-                    }
                     searchResults.innerHTML += missionSearchTemplate(value._source);
                 }
             });

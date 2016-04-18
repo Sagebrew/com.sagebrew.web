@@ -1062,7 +1062,7 @@ EPIC_TEMPLATE = """
 *Below are some ideas on what you might want to include in your Epic. It's completely up to you if you'd like to use them or take the page in a completely different direction :). You can see a preview of what it'll look like on the front page of your mission by scrolling down.*
 
 ## Mission Statement ##
-Start off by grabbing your audience and telling them what you're trying to achieve.
+Start off by grabbing your audience's attention and telling them what you're trying to achieve.
 
 - What are the core pieces of your platform?
 - What's driving you and/or your group?

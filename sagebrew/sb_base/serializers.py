@@ -376,7 +376,7 @@ def validate_is_owner(request, instance):
     return True
 
 
-def validate_to_or_from(value):
+def validate_contact_info(value):
     Intercom.app_id = settings.INTERCOM_APP_ID
     Intercom.app_api_key = settings.INTERCOM_API_KEY
     value_type = value.get('type', None)
@@ -398,8 +398,12 @@ def validate_to_or_from(value):
         if str(passed_id) not in [str(admin.id) for admin in Admin.all()]:
             raise serializers.ValidationError(
                 "%s is not a valid admin ID" % passed_id)
+
     try:
-        Pleb.get(username=user_id)
+        # Use nodes here rather than get helper so we don't accidentally
+        # store this in the cache or look at bad cache to determine if
+        # event can be stored or not.
+        Pleb.nodes.get(username=user_id)
     except (Pleb.DoesNotExist, DoesNotExist):
         if value_type != 'admin':
             raise serializers.ValidationError(
@@ -417,9 +421,9 @@ class IntercomMessageSerializer(serializers.Serializer):
         ('company', 'company'), ('announcement', 'announcement')
     ])
     from_user = serializers.DictField(child=serializers.CharField(),
-                                      validators=[validate_to_or_from])
+                                      validators=[validate_contact_info, ])
     to_user = serializers.DictField(child=serializers.CharField(),
-                                    validators=[validate_to_or_from])
+                                    validators=[validate_contact_info, ])
 
     def create(self, validated_data):
         from_user = validated_data.pop('from_user', None)
@@ -442,7 +446,10 @@ class IntercomEventSerializer(serializers.Serializer):
 
     def validate_username(self, value):
         try:
-            Pleb.get(username=value)
+            # Use nodes here rather than get helper so we don't accidentally
+            # store this in the cache or look at bad cache to determine if
+            # event can be stored or not.
+            Pleb.nodes.get(username=value)
         except(DoesNotExist, Exception):
             raise ValidationError('Does not exist in the database.')
 

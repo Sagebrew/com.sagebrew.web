@@ -35,6 +35,7 @@ export function load() {
                 .fail(function () {
                     resetBtn.disabled = false;
                 });
+            return false;
         });
 }
 

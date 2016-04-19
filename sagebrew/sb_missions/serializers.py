@@ -11,7 +11,7 @@ from neomodel import db, DoesNotExist
 from api.utils import (gather_request_data, clean_url, empty_text_to_none,
                        smart_truncate, render_content)
 from api.serializers import SBSerializer
-
+from sb_base.serializers import IntercomEventSerializer
 from sb_locations.serializers import LocationSerializer
 from sb_tags.neo_models import Tag
 from sb_search.utils import remove_search_object
@@ -242,6 +242,14 @@ class MissionSerializer(SBSerializer):
         validate_is_owner(self.context.get('request', None), instance)
         initial_state = instance.active
         instance.active = validated_data.pop('active', instance.active)
+        if initial_state is False and instance.active is True:
+            serializer = IntercomEventSerializer(
+                data={'event_name': "take-mission-live",
+                      'username': self.owner_username})
+            # Don't raise an error because we rather not notify intercom than
+            # hold up the mission activation process
+            if serializer.is_valid():
+                serializer.save()
         if initial_state is True and instance.active is False:
             remove_search_object(instance.object_uuid, 'mission')
         instance.completed = validated_data.pop(

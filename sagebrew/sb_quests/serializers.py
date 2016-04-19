@@ -17,6 +17,7 @@ from neomodel.exception import DoesNotExist
 from api.serializers import SBSerializer
 from api.utils import (gather_request_data, spawn_task, clean_url,
                        empty_text_to_none)
+from sb_base.serializers import IntercomEventSerializer
 from plebs.neo_models import Pleb
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
@@ -180,6 +181,14 @@ class QuestSerializer(SBSerializer):
         if ssn is not None:
             ssn = ssn.replace('-', "")
         active = validated_data.pop('active', instance.active)
+        if initial_state is False and active is True:
+            serializer = IntercomEventSerializer(
+                data={'event_name': "take-quest-live",
+                      'username': self.owner_username})
+            # Don't raise an error because we rather not notify intercom than
+            # hold up the quest activation process
+            if serializer.is_valid():
+                serializer.save()
         instance.active = active
         instance.title = empty_text_to_none(
             validated_data.pop('title', instance.title))

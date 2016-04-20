@@ -32,13 +32,15 @@ class Command(BaseCommand):
                 new_query = 'MATCH (a:Quest {owner_username: "%s"}) ' \
                             'RETURN a' % official.object_uuid
                 new_res, _ = db.cypher_query(new_query)
-                if not res.one:
+                if not new_res.one:
                     quest = Quest(
                         about=official.bio, youtube=official.youtube,
                         twitter=official.twitter, website=official.website,
                         first_name=official.first_name,
                         last_name=official.last_name,
                         owner_username=official.object_uuid,
+                        title="%s %s" % (
+                            official.first_name, official.last_name),
                         profile_pic="%s/representative_images/225x275/"
                                     "%s.jpg" %
                                     (settings.LONG_TERM_STATIC_DOMAIN,
@@ -47,7 +49,7 @@ class Command(BaseCommand):
                 duplicate_query = 'MATCH (a:PublicOfficial ' \
                                   '{object_uuid:"%s"})-' \
                                   '[:IS_HOLDING]->(q:Quest) ' \
-                                  'WHERE q.owner_username <> "%s" RETURN q' % \
+                                  'WHERE NOT q.owner_username="%s" RETURN q' % \
                                   (official.object_uuid, official.object_uuid)
                 new_res, _ = db.cypher_query(duplicate_query)
                 duplicate_quests = [Quest.inflate(duplicate[0])

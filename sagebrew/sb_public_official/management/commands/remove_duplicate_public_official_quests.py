@@ -4,7 +4,8 @@ from django.conf import settings
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 
-from neomodel import db, CypherException
+from neomodel import db
+from py2neo.cypher.error.schema import ConstraintViolation
 
 from sb_quests.neo_models import Quest
 from sb_public_official.neo_models import PublicOfficial
@@ -39,9 +40,9 @@ class Command(BaseCommand):
                         last_name=official.last_name,
                         owner_username=official.object_uuid,
                         profile_pic="%s/representative_images/225x275/"
-                                    "%s.jpg" % (
-                                        settings.LONG_TERM_STATIC_DOMAIN,
-                                        official.bioguideid)).save()
+                                    "%s.jpg" %
+                                    (settings.LONG_TERM_STATIC_DOMAIN,
+                                     official.bioguideid)).save()
                     official.quest.connect(quest)
                 duplicate_query = 'MATCH (a:PublicOfficial ' \
                                   '{object_uuid:"%s"})-' \
@@ -54,7 +55,6 @@ class Command(BaseCommand):
                                     if duplicate[0] is not None]
                 if duplicate_quests:
                     skip = 0
-                    duplicate_quests = duplicate_quests[1:]
                     for dup in duplicate_quests:
                         relationship_query = 'MATCH (a:Quest ' \
                                              '{object_uuid:"%s"})-[r]-' \
@@ -73,7 +73,7 @@ class Command(BaseCommand):
                                                % (official.object_uuid,
                                                   row.username, row.type)
                                     db.cypher_query(re_query)
-                                except CypherException:
+                                except ConstraintViolation:
                                     # handle potential constraint violations
                                     pass
                         query = 'MATCH (a:Quest {object_uuid: "%s"}) ' \

@@ -55,6 +55,7 @@ class Command(BaseCommand):
                                     if duplicate[0] is not None]
                 if duplicate_quests:
                     skip = 0
+                    
                     for dup in duplicate_quests:
                         relationship_query = 'MATCH (a:Quest ' \
                                              '{object_uuid:"%s"})-[r]-' \

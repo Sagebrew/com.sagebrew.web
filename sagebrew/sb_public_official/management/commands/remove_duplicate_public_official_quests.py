@@ -52,7 +52,7 @@ class Command(BaseCommand):
                 duplicate_quests = [Quest.inflate(duplicate[0])
                                     for duplicate in new_res
                                     if duplicate[0] is not None]
-                if len(duplicate_quests) > 1:
+                if duplicate_quests:
                     skip = 0
                     duplicate_quests = duplicate_quests[1:]
                     for dup in duplicate_quests:

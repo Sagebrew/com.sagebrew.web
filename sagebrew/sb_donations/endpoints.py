@@ -5,7 +5,6 @@ from rest_framework.decorators import api_view, permission_classes
 
 from neomodel import db
 
-from api.permissions import IsAuthorizedAndVerified
 from sb_missions.neo_models import Mission
 from sb_quests.neo_models import Quest
 from sb_registration.utils import calc_age

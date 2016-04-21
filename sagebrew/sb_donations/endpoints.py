@@ -76,7 +76,7 @@ class DonationListCreate(generics.ListCreateAPIView):
     """
     serializer_class = DonationSerializer
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthorizedAndVerified,)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         if "/v1/missions/" in self.request.path:

@@ -41,7 +41,6 @@ var config = {
         'bower_components/jquery-mousewheel/jquery.mousewheel.js',
         'bower_components/bootstrap-switch/dist/js/bootstrap-switch.js',
         'bower_components/packery/dist/packery.pkgd.js',
-        'bower_components/medium-editor-insert-plugin/js/medium-editor-insert-plugin.min.js',
         'node_modules/bootstrap-tokenfield/dist/bootstrap-tokenfield.min.js', // TODO Remove this after transitioning registration and tag input to new format and use require
         'js/vendor/flatui/radiocheck.js',
         'js/vendor/flatui/fileinput.js',
@@ -53,11 +52,15 @@ var config = {
         'js/vendor/spin.min.js',
         'js/vendor/jquery.spin.js',
         'js/vendor/foggy.min.js',
-        'js/vendor/jquery.pagedown-bootstrap.combined.min.js',
         'js/vendor/sortable.min.js',
+        'js/vendor/jquery.pagedown-bootstrap.combined.min.js',
+        'bower_components/medium-editor/dist/js/medium-editor.min.js',
+        'node_modules/handlebars/dist/handlebars.runtime.min.js',
+        'bower_components/jquery-sortable/source/js/jquery-sortable-min.js',
         'js/vendor/fileupload/js/vendor/jquery.ui.widget.js',
         'js/vendor/fileupload/js/jquery.iframe-transport.js',
         'js/vendor/fileupload/js/jquery.fileupload.js',
+        'bower_components/medium-editor-insert-plugin/dist/js/medium-editor-insert-plugin.min.js',
 
 
         /**

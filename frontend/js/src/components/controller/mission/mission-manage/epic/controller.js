@@ -22,6 +22,7 @@ export function init() {
  * Load
  */
 export function load() {
+    require('medium-editor-insert-plugin');
     // markdown($("textarea.markdown-input"));
     var $app = $(".app-sb"),
         missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],

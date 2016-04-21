@@ -81,7 +81,7 @@ class AccountingViewSet(viewsets.ViewSet):
                 account = stripe.Account.retrieve(
                     event.data.object.id
                 )
-            except stripe.InvalidRequestError:
+            except (stripe.InvalidRequestError, stripe.APIConnectionError):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=account.email)
             quest = Quest.get(pleb.username)
@@ -121,7 +121,7 @@ class AccountingViewSet(viewsets.ViewSet):
                     account = stripe.Account.retrieve(
                         transfer.destination
                     )
-            except stripe.InvalidRequestError:
+            except (stripe.InvalidRequestError, stripe.APIConnectionError):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=account.email)
             spawn_task(
@@ -146,7 +146,7 @@ class AccountingViewSet(viewsets.ViewSet):
                 customer = stripe.Customer.retrieve(
                     event.data.object.customer
                 )
-            except stripe.InvalidRequestError:
+            except (stripe.InvalidRequestError, stripe.APIConnectionError):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=customer.email)
             spawn_task(

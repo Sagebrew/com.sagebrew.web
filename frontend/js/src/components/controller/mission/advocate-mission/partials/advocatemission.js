@@ -234,6 +234,7 @@ function initAutocomplete() {
         zoom: zoomLevel,
         mapTypeId: google.maps.MapTypeId.ROADMAP,
         disableDefaultUI: true,
+        draggable: false,
         scrollwheel: false
     });
     var input = document.getElementById('pac-input');

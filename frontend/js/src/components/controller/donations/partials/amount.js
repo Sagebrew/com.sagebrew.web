@@ -67,7 +67,7 @@ export function amount() {
             }
             radioSelector(this);
         })
-        .on('change', '#custom-contribution', function () {
+        .on('keyup', '#custom-contribution', function () {
             var decimalFormat  = /^\d+(?:\.\d{2})$/,
                 nonDecimalFormat = /^[0-9]*$/,
                 numStr = this.value;

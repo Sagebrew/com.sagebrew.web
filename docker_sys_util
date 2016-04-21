@@ -21,4 +21,5 @@ CMD /bin/bash -c "source /home/apps/venv/bin/activate && \
     python manage.py migrate --noinput && \
     python manage.py create_privileges && \
     python manage.py clear_cache && \
+    python manage.py remove_unconnected_quests && \
     python manage.py clearsessions"

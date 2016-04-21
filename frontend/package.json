@@ -51,6 +51,7 @@
     "handlebars": "^4.0.5",
     "highcharts": "^4.1.7",
     "medium-editor": "^5.15.1",
+    "medium-editor-insert-plugin": "^2.3.1",
     "moment": "^2.11.0",
     "stripe": "^4.1.0"
   }

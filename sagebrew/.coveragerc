@@ -71,6 +71,8 @@ omit =
     */management/commands/convert_donations.py
     */management/commands/remove_duplicate_quests.py
     */management/commands/remove_full_search_base.py
+    */management/commands/remove_duplicate_public_official_quests.py
+    */management/commands/remove_and_repopulate_official_quests.py
     */sagebrew/test_runner.py
 
 [report]

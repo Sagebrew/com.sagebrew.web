@@ -27,10 +27,8 @@ class Command(BaseCommand):
                 break
             for quest in [Quest.inflate(row[0]) for row in res]:
                 query = 'MATCH (q:Quest {object_uuid:"%s"}) WHERE NOT ' \
-                        '(q)-[:EDITOR_OF|MODERATOR_OF|FOLLOWERS|IS_WAGING]-' \
-                        '(:Pleb) AND NOT (q)<-[:IS_HOLDING]-' \
-                        '(:PublicOfficial) AND NOT (q)-[:EMBARKS_ON]->' \
-                        '(:Mission) WITH q ' \
+                        '(q)-[]-(:Pleb) AND NOT (q)-[]-(:PublicOfficial) ' \
+                        'AND NOT (q)-[]-(:Mission) WITH q ' \
                         'OPTIONAL MATCH (q)-[r]-() ' \
                         'DELETE q, r' % (quest.object_uuid)
                 res, _ = db.cypher_query(query)

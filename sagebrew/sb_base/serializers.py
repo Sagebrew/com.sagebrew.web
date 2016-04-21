@@ -1,13 +1,20 @@
 import bleach
+from intercom import Admin, Intercom
+
+from django.conf import settings
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
+from rest_framework.exceptions import ValidationError
+
+from neomodel import DoesNotExist
 
 from api.serializers import SBSerializer
-from api.utils import gather_request_data, render_content
+from api.utils import gather_request_data, render_content, spawn_task
 
-from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
+
+from .tasks import create_email, create_event
 
 
 class VotableContentSerializer(SBSerializer):
@@ -39,6 +46,7 @@ class VotableContentSerializer(SBSerializer):
     html_content = serializers.SerializerMethodField()
 
     def get_profile(self, obj):
+        from plebs.serializers import PlebSerializerNeo
         request, expand, _, relation, _ = gather_request_data(
             self.context,
             expedite_param=self.context.get('expedite_param', None),
@@ -366,3 +374,87 @@ def validate_is_owner(request, instance):
         if instance.owner_username != request.user.username:
             raise serializers.ValidationError("Only the owner can edit this")
     return True
+
+
+def validate_contact_info(value):
+    Intercom.app_id = settings.INTERCOM_APP_ID
+    Intercom.app_api_key = settings.INTERCOM_API_KEY
+    value_type = value.get('type', None)
+    user_id = value.get('user_id', None)
+    passed_id = value.get('id', None)
+    if value_type != "user" and value_type != "admin":
+        raise serializers.ValidationError("The only valid values for 'type' "
+                                          "are 'user' and 'admin'")
+    if value_type == "user" and user_id is None:
+        raise serializers.ValidationError("Must provide the 'user_id' key "
+                                          "when attempting to send a message "
+                                          "to or from a user")
+    if value_type == "admin":
+        if passed_id is None:
+            raise serializers.ValidationError("Must provide the 'id' key when "
+                                              "attempting to send a message "
+                                              "to or from an admin")
+
+        if str(passed_id) not in [str(admin.id) for admin in Admin.all()]:
+            raise serializers.ValidationError(
+                "%s is not a valid admin ID" % passed_id)
+
+    try:
+        # Use nodes here rather than get helper so we don't accidentally
+        # store this in the cache or look at bad cache to determine if
+        # event can be stored or not.
+        Pleb.nodes.get(username=user_id)
+    except (Pleb.DoesNotExist, DoesNotExist):
+        if value_type != 'admin':
+            raise serializers.ValidationError(
+                "Profile %s Does Not Exist" % user_id)
+
+    return value
+
+
+class IntercomMessageSerializer(serializers.Serializer):
+    message_type = serializers.CharField()
+    subject = serializers.CharField()
+    body = serializers.CharField()
+    template = serializers.ChoiceField(choices=[
+        ('plain', 'plain'), ('personal', 'personal'),
+        ('company', 'company'), ('announcement', 'announcement')
+    ])
+    from_user = serializers.DictField(child=serializers.CharField(),
+                                      validators=[validate_contact_info, ])
+    to_user = serializers.DictField(child=serializers.CharField(),
+                                    validators=[validate_contact_info, ])
+
+    def create(self, validated_data):
+        from_user = validated_data.pop('from_user', None)
+        to_user = validated_data.pop('to_user', None)
+        validated_data['from'] = from_user
+        validated_data['to'] = to_user
+        spawn_task(task_func=create_email,
+                   task_param={"message_data": validated_data})
+        validated_data['from_user'] = from_user
+        validated_data['to_user'] = to_user
+        return validated_data
+
+
+class IntercomEventSerializer(serializers.Serializer):
+    # TODO once we have 120 event_names defined we'll want to make sure the
+    # event name exists within the list and does not go over the limit.
+    event_name = serializers.CharField()
+    username = serializers.CharField()
+    metadata = serializers.DictField(required=False)
+
+    def validate_username(self, value):
+        try:
+            # Use nodes here rather than get helper so we don't accidentally
+            # store this in the cache or look at bad cache to determine if
+            # event can be stored or not.
+            Pleb.nodes.get(username=value)
+        except(DoesNotExist, Exception):
+            raise ValidationError('Does not exist in the database.')
+
+        return value
+
+    def create(self, validated_data):
+        spawn_task(task_func=create_event, task_param=validated_data)
+        return validated_data

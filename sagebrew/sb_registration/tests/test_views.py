@@ -23,11 +23,10 @@ from sb_public_official.neo_models import PublicOfficial
 from sb_registration.views import (profile_information,
                                    logout_view,
                                    login_view, login_view_api,
-                                   resend_email_verification,
                                    email_verification, interests,
                                    advocacy, political_campaign,
                                    quest_signup, signup_view)
-from sb_registration.models import EmailAuthTokenGenerator
+from plebs.serializers import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util_test
 from plebs.neo_models import Pleb, Address
 
@@ -59,7 +58,7 @@ class InterestsTest(TestCase):
         request.user = self.user
         response = interests(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(len(self.pleb.interests.all()), 0)
 
     def test_one_topic_selected(self):
@@ -73,7 +72,7 @@ class InterestsTest(TestCase):
         request.user = self.user
         response = interests(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(len(self.pleb.interests.all()), 1)
         query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
                 '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
@@ -95,7 +94,7 @@ class InterestsTest(TestCase):
         request.user = self.user
         response = interests(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(len(self.pleb.interests.all()), 12)
         query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
                 '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
@@ -125,7 +124,7 @@ class InterestsTest(TestCase):
         request.user = self.user
         response = interests(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(len(self.pleb.interests.all()), 12)
         query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
                 '(tag:Tag {name: "social"}) RETURN a' % self.pleb.username
@@ -144,7 +143,7 @@ class InterestsTest(TestCase):
         request.user = self.user
         response = interests(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.assertEqual(len(self.pleb.interests.all()), 7)
         query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
                 '(tag:Tag {name: "drugs"}) RETURN a' % self.pleb.username
@@ -164,7 +163,7 @@ class InterestsTest(TestCase):
         request.user = self.user
         response = interests(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_get_request(self):
         request = self.factory.get('/registration/interests')
@@ -205,7 +204,22 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
+
+    def test_profile_does_not_exist(self):
+        my_dict = {'date_of_birth': [u'']}
+        request = self.factory.post('/registration/profile_information',
+                                    data=my_dict)
+        request.session = {}
+        temp_username = self.user.username
+        self.user.username = "hello_world"
+        self.user.save()
+        request.user = self.user
+        response = profile_information(request)
+        self.user.username = temp_username
+        self.user.save()
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_user_info_population_incorrect_birthday(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -255,7 +269,8 @@ class TestProfileInfoView(TestCase):
         request.session = {}
         request.user = self.user
         response = profile_information(request)
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
 
     def test_address_validation_util_invalid_no_country(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -271,7 +286,8 @@ class TestProfileInfoView(TestCase):
         request.session = {}
         request.user = self.user
         response = profile_information(request)
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
 
     def test_address_validation_util_invalid_no_city(self):
         my_dict = {"home_town": [],
@@ -288,7 +304,8 @@ class TestProfileInfoView(TestCase):
         request.session = {}
         request.user = self.user
         response = profile_information(request)
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
 
     def test_address_validation_util_valid(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -305,7 +322,8 @@ class TestProfileInfoView(TestCase):
         request.session = {}
         request.user = self.user
         response = profile_information(request)
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
 
     def test_profile_information_success(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -323,7 +341,7 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_profile_information_address_not_in_smartystreets(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -338,7 +356,8 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
 
     def test_profile_information_address_has_no_suggestions(self):
         my_dict = {"city": ["We"], "home_town": [],
@@ -353,7 +372,8 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
 
     def test_profile_information_address_has_multiple_suggestions(self):
         my_dict = {"city": ["Baltimore"], "home_town": [],
@@ -368,7 +388,8 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
 
     def test_profile_information_pleb_does_not_exist(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -410,7 +431,7 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
         self.pleb.completed_profile_info = False
         self.pleb.save()
 
@@ -433,7 +454,7 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_profile_information_view_already_has_address_valid(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -453,7 +474,7 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_profile_information_view_already_has_address_invalid(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -473,7 +494,7 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_profile_information_view_invalid_address(self):
         my_dict = {"city": ["Walled Lake"], "home_town": [],
@@ -491,7 +512,7 @@ class TestProfileInfoView(TestCase):
         request.user = self.user
         response = profile_information(request)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
 
 class TestSignupView(TestCase):
@@ -508,13 +529,15 @@ class TestSignupView(TestCase):
         self.client.logout()
         response = self.client.get(reverse('signup'))
 
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
 
     def test_logged_in_user(self):
         self.client.login(username=self.user.username, password='test_test')
         response = self.client.get(reverse('signup'))
 
-        self.assertIn(response.status_code, [200, 302])
+        self.assertIn(response.status_code, [status.HTTP_200_OK,
+                                             status.HTTP_302_FOUND])
         self.client.logout()
 
     def test_signup_email_verified(self):
@@ -526,6 +549,27 @@ class TestSignupView(TestCase):
         request.session = s
         login(request, user)
         request.user = user
+        self.pleb.completed_profile_info = False
+        self.pleb.email_verified = True
+        self.pleb.save()
+        res = signup_view(request)
+        self.assertIn(res.status_code, [status.HTTP_200_OK,
+                                        status.HTTP_302_FOUND])
+        self.pleb.email_verified = False
+        self.pleb.save()
+
+    def test_signup_profile_does_not_exist(self):
+        query = 'MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        user = authenticate(username=self.user.username,
+                            password='test_test')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        self.pleb.completed_profile_info = False
         self.pleb.email_verified = True
         self.pleb.save()
         res = signup_view(request)
@@ -598,7 +642,7 @@ class TestFeatureViews(TestCase):
         request.user = AnonymousUser()
         res = advocacy(request)
 
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_advocacy_logged_in(self):
         user = authenticate(username=self.user.username,
@@ -610,7 +654,7 @@ class TestFeatureViews(TestCase):
         login(request, user)
         request.user = user
         res = advocacy(request)
-        self.assertEqual(res.status_code, 302)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
     def test_political_campaign_view_success(self):
         request = self.factory.request()
@@ -620,7 +664,7 @@ class TestFeatureViews(TestCase):
         request.user = AnonymousUser()
         res = political_campaign(request)
 
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_political_campaign_view_no_positions(self):
         request = self.factory.request()
@@ -632,7 +676,7 @@ class TestFeatureViews(TestCase):
         db.cypher_query(query)
         res = political_campaign(request)
 
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_political_campaign_logged_in(self):
         user = authenticate(username=self.user.username,
@@ -644,7 +688,7 @@ class TestFeatureViews(TestCase):
         login(request, user)
         request.user = user
         res = political_campaign(request)
-        self.assertEqual(res.status_code, 302)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
 
 class TestLoginAPIView(TestCase):
@@ -675,7 +719,7 @@ class TestLoginAPIView(TestCase):
         res.render()
 
         self.assertEqual(loads(res.content)['detail'], 'success')
-        self.assertEqual(res.status_code, 200)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
 
     def test_login_api_view_inactive_user(self):
         login_data = {
@@ -696,7 +740,7 @@ class TestLoginAPIView(TestCase):
 
         self.assertEqual(loads(res.content)['detail'],
                          'This account has been disabled.')
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_login_api_view_invalid_password(self):
         login_data = {
@@ -715,7 +759,7 @@ class TestLoginAPIView(TestCase):
 
         self.assertEqual(loads(res.content)['detail'],
                          'Incorrect password and username combination.')
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_login_api_view_user_does_not_exist(self):
         login_data = {
@@ -734,7 +778,7 @@ class TestLoginAPIView(TestCase):
 
         self.assertEqual(loads(res.content)['detail'],
                          'Incorrect password and username combination.')
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_login_api_view_incorrect_data_int(self):
         request = self.factory.post('/registration/login/api/', data=1231,
@@ -745,7 +789,7 @@ class TestLoginAPIView(TestCase):
 
         res = login_view_api(request)
 
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_login_api_view_incorrect_data_string(self):
         request = self.factory.post('/registration/login/api/',
@@ -757,7 +801,7 @@ class TestLoginAPIView(TestCase):
 
         res = login_view_api(request)
 
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_login_api_view_incorrect_data_float(self):
         request = self.factory.post('/registration/login/api/', data=1.1234,
@@ -768,7 +812,7 @@ class TestLoginAPIView(TestCase):
 
         res = login_view_api(request)
 
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_login_api_view_incorrect_data_image(self):
         request = self.factory.post('/registration/login/api/', data=1231,
@@ -779,7 +823,7 @@ class TestLoginAPIView(TestCase):
 
         res = login_view_api(request)
 
-        self.assertEqual(res.status_code, 400)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class TestLogoutView(TestCase):
@@ -803,7 +847,7 @@ class TestLogoutView(TestCase):
         request.user = user
         res = logout_view(request)
 
-        self.assertEqual(res.status_code, 302)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
 
 class TestEmailVerificationView(TestCase):
@@ -832,7 +876,7 @@ class TestEmailVerificationView(TestCase):
 
         res = email_verification(request, token)
 
-        self.assertEqual(res.status_code, 302)
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
     def test_email_verification_view_incorrect_token(self):
         user = authenticate(username=self.user.username,
@@ -867,46 +911,6 @@ class TestEmailVerificationView(TestCase):
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
 
-class TestResendEmailVerificationView(TestCase):
-
-    def setUp(self):
-        self.token_gen = EmailAuthTokenGenerator()
-        self.factory = RequestFactory()
-        self.email = "success@simulator.amazonses.com"
-        self.pleb = create_user_util_test(self.email)
-        self.user = User.objects.get(email=self.email)
-        self.pleb.email_verified = False
-        self.pleb.save()
-
-    def test_resend_email_verification_view_success(self):
-        user = authenticate(username=self.user.username,
-                            password='test_test')
-        request = self.factory.request()
-        s = SessionStore()
-        s.save()
-        request.session = s
-        login(request, user)
-        request.user = user
-
-        res = resend_email_verification(request)
-
-        self.assertEqual(res.status_code, 302)
-
-    def test_resend_email_verification_view_failure_pleb_does_not_exist(self):
-        user = authenticate(username=self.user.username,
-                            password='test_test')
-        request = self.factory.request()
-        s = SessionStore()
-        s.save()
-        request.session = s
-        login(request, user)
-        request.user = user
-        request.user.username = 'totallynotafakeuser'
-        res = resend_email_verification(request)
-        # This should succeed as it redirects to the login page
-        self.assertEqual(res.status_code, status.HTTP_200_OK)
-
-
 class TestConfirmView(TestCase):
 
     def setUp(self):
@@ -918,14 +922,14 @@ class TestConfirmView(TestCase):
     def test_anon_user(self):
         self.client.logout()
         response = self.client.get(reverse('confirm_view'))
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_logged_in_user(self):
         self.client.login(username=self.user.username,
                           password='test_test')
         response = self.client.get(reverse('confirm_view'), follow=True)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.client.logout()
 
 
@@ -941,13 +945,13 @@ class TestAgeRestrictionView(TestCase):
         self.client.logout()
         response = self.client.get(reverse('age_restriction_13'), follow=True)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_logged_in_user(self):
         self.client.login(username=self.user.username, password='test_test')
         response = self.client.get(reverse('age_restriction_13'), follow=True)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.client.logout()
 
 

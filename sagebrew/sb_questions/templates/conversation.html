@@ -161,6 +161,8 @@
 {% endblock live%}
 
 {% block intercom %}
-    Intercom('trackEvent', 'visited-{{ question.title|slugify }}-conversation');
-    Intercom('trackEvent', 'visited-conversation-page');
+    Intercom('trackEvent', 'visited-conversation-page', {
+            title: '{{ question.title|slugify }}',
+            id: '{{ question.object_uuid }}'
+        });
 {% endblock %}

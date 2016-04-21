@@ -201,6 +201,8 @@ test:
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/quest/
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/help/
     - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/conversations/
+    - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/missions/
+    - curl --retry 10 --retry-delay 5 --insecure -v https://localhost/sitemap.xml
     - curl -X POST -d "grant_type=password&username=test_username&password=development&client_id=test_env_client_id&client_secret=test_env_this_is_it" https://localhost/o/token/ --insecure
     - docker logs sb_web >> $CIRCLE_ARTIFACTS/sb_web.log
     - docker logs sb_worker >> $CIRCLE_ARTIFACTS/sb_worker.log

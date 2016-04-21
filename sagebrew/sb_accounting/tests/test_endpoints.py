@@ -36,6 +36,7 @@ class AccountingHooksTests(APITestCase):
         cache.clear()
         self.stripe = stripe
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
+        self.intercom_url = "https://api.intercom.io/admins"
 
     def test_invalid_event_request(self):
         self.client.force_authenticate(user=self.user)
@@ -44,7 +45,7 @@ class AccountingHooksTests(APITestCase):
             "id": "evt_00000000000000"
         }
         response = self.client.post(url, data=data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @requests_mock.mock()
     def test_valid_event_request(self, m):
@@ -59,6 +60,19 @@ class AccountingHooksTests(APITestCase):
         }
         m.get("https://api.stripe.com/v1/events/evt_00000000000000",
               json=event_mock_data, status_code=status.HTTP_200_OK)
+        intercom_mock_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": "69989",
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
+        m.get(self.intercom_url, json=intercom_mock_data,
+              status_code=status.HTTP_200_OK)
         customer_mock_data = {
             "email": "success@simulator.amazonses.com"
         }
@@ -74,6 +88,49 @@ class AccountingHooksTests(APITestCase):
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], "Invoice Payment Failed")
+
+    @requests_mock.mock()
+    def test_valid_event_request_invalid_serializer(self, m):
+        event_mock_data = {
+            "id": "evt_00000000000000",
+            "type": "invoice.payment_failed",
+            "data": {
+                "object": {
+                    "customer": "cus_00000000000000"
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/events/evt_00000000000000",
+              json=event_mock_data, status_code=status.HTTP_200_OK)
+        intercom_mock_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": "123456",
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
+        m.get(self.intercom_url, json=intercom_mock_data,
+              status_code=status.HTTP_200_OK)
+        customer_mock_data = {
+            "email": "success@simulator.amazonses.com"
+        }
+        m.get("https://api.stripe.com/v1/customers/cus_00000000000000",
+              json=customer_mock_data, status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000"
+        }
+        m.post("https://api.intercom.io/messages/",
+               status_code=status.HTTP_202_ACCEPTED)
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['from_user'],
+                         ["69989 is not a valid admin ID"])
 
     @requests_mock.mock()
     def test_valid_event_invalid_customer_request(self, m):
@@ -101,7 +158,7 @@ class AccountingHooksTests(APITestCase):
             "id": "evt_00000000000000"
         }
         response = self.client.post(url, data=data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @requests_mock.mock()
     def test_valid_event_request_account_updated(self, m):
@@ -114,6 +171,45 @@ class AccountingHooksTests(APITestCase):
             "data": {
                 "object": {
                     "id": "acct_00000000000000"
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/events/evt_00000000000000",
+              json=event_mock_data, status_code=status.HTTP_200_OK)
+        account_mock_data = {
+            "email": "success@simulator.amazonses.com",
+            "verification": {
+                "fields_needed": ["legal_entity.type"]
+            },
+            "legal_entity": {
+                "verification": {
+                    "status": "verified",
+                    "details": "Identity document is too unclear to read."
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/accounts/acct_00000000000000",
+              json=account_mock_data, status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000"
+        }
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['detail'], "Account Updated")
+
+    @requests_mock.mock()
+    def test_valid_event_request_account_updated_invalid_account(self, m):
+        self.quest.account_verified = "unverified"
+        self.quest.save()
+        cache.clear()
+        event_mock_data = {
+            "id": "evt_00000000000000",
+            "type": "account.updated",
+            "data": {
+                "object": {
+                    "id": "acct_00000000000001"
                 }
             }
         }
@@ -139,8 +235,7 @@ class AccountingHooksTests(APITestCase):
             "id": "evt_00000000000000"
         }
         response = self.client.post(url, data=data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['detail'], "Account Updated")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     @requests_mock.mock()
     def test_valid_event_request_transfer_failed_stripe_account(self, m):
@@ -186,6 +281,48 @@ class AccountingHooksTests(APITestCase):
         self.assertEqual(response.data['detail'], "Transfer Failed")
 
     @requests_mock.mock()
+    def test_transfer_failed_stripe_account_invalid_transfer(self, m):
+        self.quest.account_verified = "unverified"
+        self.quest.save()
+        cache.clear()
+        event_mock_data = {
+            "id": "evt_00000000000000",
+            "type": "transfer.failed",
+            "data": {
+                "object": {
+                    "id": "tr_00000000000001"
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/events/evt_00000000000000",
+              json=event_mock_data, status_code=status.HTTP_200_OK)
+        transfer_mock_data = {
+            "type": "stripe_account",
+            "destination": "acct_00000000000000"
+        }
+        m.get("https://api.stripe.com/v1/transfers/tr_00000000000000",
+              json=transfer_mock_data, status_code=status.HTTP_200_OK)
+        account_mock_data = {
+            "email": "success@simulator.amazonses.com"
+        }
+        m.get("https://api.stripe.com/v1/accounts/acct_00000000000000",
+              json=account_mock_data, status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000"
+        }
+        intercom_mock_data = {
+            "event_name": "stripe-transfer-failed",
+            "user_id": self.pleb.username,
+            "created": calendar.timegm(datetime.now(pytz.utc).utctimetuple())
+        }
+        m.post("https://api.intercom.io/events/", json=intercom_mock_data,
+               status_code=status.HTTP_202_ACCEPTED)
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @requests_mock.mock()
     def test_valid_event_request_trial_will_end(self, m):
         self.quest.account_verified = "unverified"
         self.quest.save()
@@ -214,3 +351,56 @@ class AccountingHooksTests(APITestCase):
         response = self.client.post(url, data=data, format="json")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['detail'], "Trail Will End")
+
+    @requests_mock.mock()
+    def test_valid_event_request_trial_will_end_invalid_customer(self, m):
+        self.quest.account_verified = "unverified"
+        self.quest.save()
+        cache.clear()
+        event_mock_data = {
+            "id": "evt_00000000000000",
+            "type": "customer.subscription.trial_will_end",
+            "data": {
+                "object": {
+                    "customer": "cus_00000000000001"
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/events/evt_00000000000000",
+              json=event_mock_data, status_code=status.HTTP_200_OK)
+        customer_mock_data = {
+            "email": "success@simulator.amazonses.com"
+        }
+        m.get("https://api.stripe.com/v1/customers/cus_00000000000000",
+              json=customer_mock_data, status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000"
+        }
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    @requests_mock.mock()
+    def test_invalid_event_type(self, m):
+        self.quest.account_verified = "unverified"
+        self.quest.save()
+        cache.clear()
+        event_mock_data = {
+            "id": "evt_00000000000000",
+            "type": "some.invalid.thing",
+            "data": {
+                "object": {
+                    "customer": "cus_00000000000001"
+                }
+            }
+        }
+        m.get("https://api.stripe.com/v1/events/evt_00000000000000",
+              json=event_mock_data, status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('accounting-list')
+        data = {
+            "id": "evt_00000000000000"
+        }
+        response = self.client.post(url, data=data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)

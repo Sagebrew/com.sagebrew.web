@@ -147,7 +147,7 @@ a{% extends "layout/hero-two-col-right.html" %}
         <div class="loader"></div>
     </div>
     {% if quest.endorsed %}
-        <div class="block block-type-title">
+        <div class="block block-type-title margin-top-20">
             <div class="block-content">
                 <h1>Endorsed Missions</h1>
             </div>
@@ -164,7 +164,10 @@ a{% extends "layout/hero-two-col-right.html" %}
     {% if request.user.username == quest.owner_username %}
         Intercom('trackEvent', 'visited-own-quest');
     {% else %}
-        Intercom('trackEvent', 'visited-{{ quest.owner_username }}-quest');
-        Intercom('trackEvent', 'visited-quest');
+        Intercom('trackEvent', 'visited-quest', {
+            owner: '{{ quest.owner_username }}',
+            title: '{{ quest.title }}',
+            id: '{{ quest.object_uuid }}'
+        });
     {% endif %}
 {% endblock %}

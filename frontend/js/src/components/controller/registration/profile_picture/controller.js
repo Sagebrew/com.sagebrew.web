@@ -34,7 +34,7 @@ export function load() {
                     greyPage.classList.add('sb_hidden');
                     window.location.href = "/missions/" + settings.profile.mission_signup +"/";
                 } else {
-                    request.post({url: "/v1/quests/", data: {tos_acceptance: true}})
+                    request.post({url: "/v1/quests/", data: JSON.stringify({tos_acceptance: true})})
                         .done(function () {
                             greyPage.classList.add('sb_hidden');
                             window.location.href = "/missions/" + settings.profile.mission_signup +"/";
@@ -71,7 +71,7 @@ export function load() {
                         greyPage.classList.add('sb_hidden');
                         window.location.href = "/missions/" + data.mission_signup +"/";
                     } else {
-                        request.post({url: "/v1/quests/", data: {}})
+                        request.post({url: "/v1/quests/", data: JSON.stringify({})})
                             .done(function () {
                                 greyPage.classList.add('sb_hidden');
                                 window.location.href = "/missions/" + data.mission_signup +"/";

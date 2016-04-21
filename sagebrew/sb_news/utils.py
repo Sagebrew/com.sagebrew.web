@@ -25,10 +25,11 @@ logger = getLogger("loggly_logs")
 def find_news(limit_offset_fxn, count_query, link_objects_callback):
     requests_left = settings.WEBHOSE_REQUEST_LIMIT + 1
     skip = 0
-    limit = settings.WEBHOSE_REQUEST_LIMIT
+    limit = 25
     res, _ = db.cypher_query(count_query)
     total = res.one
-    while requests_left > limit:
+    while requests_left > limit and \
+            requests_left > settings.WEBHOSE_REQUEST_LIMIT:
         news_objects = limit_offset_fxn(skip, limit)
         requests_left = link_objects_callback(news_objects)
         if skip >= total:
@@ -65,7 +66,7 @@ def gather_news_results(query, demo_file=None):
         # triggering this in dev and testing. - Devon Bleibtrey
         response = requests.get(url, params=payload,
                                 headers={"Accept": "text/plain"},
-                                timeout=60)
+                                timeout=60, verify=False)
         try:
             results = response.json()
         except ValueError as exc:
@@ -122,6 +123,7 @@ def query_webhose(results, tag):
             if serializer.is_valid():
                 article = serializer.save()
             else:
+                logger.critical(serializer.errors)
                 continue
             article.tags.connect(tag)
     return results['requestsLeft']
@@ -130,8 +132,9 @@ def query_webhose(results, tag):
 def tag_callback(news_objects):
     requests_left = 0
     for tag in news_objects:
-        query = '"%s political" language:(english) thread.country:US ' \
-                'performance_score:>8 (site_type:news)' % tag.name
+        query = '%s politics language:(english) thread.country:US ' \
+                'performance_score:>8 (site_type:news)' % (
+                    tag.name.replace('-', " ").replace('_', " "))
         results = gather_news_results(query)
         requests_left = query_webhose(results, tag)
     return requests_left

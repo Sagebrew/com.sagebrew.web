@@ -27,6 +27,7 @@ export function init () {
         $app = $(".app-sb");
     $appNewsfeed.sb_contentLoader({
         emptyDataMessage: 'Get out there and make some news :)',
+        loadMoreMessage: "",
         url: '/v1/me/newsfeed/',
         params: {
             expand: 'true'
@@ -83,7 +84,6 @@ export function init () {
                 } else if (data.results[i].type === "update") {
                     data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = updateNewsTemplate(data.results[i]);
-
                 }
                 $container.append(data.results[i].html);
                 $('[data-toggle="tooltip"]').tooltip();

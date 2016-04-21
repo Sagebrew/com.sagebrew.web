@@ -3,7 +3,7 @@ import stripe
 import calendar
 from uuid import uuid1
 from datetime import datetime
-from intercom import Intercom, Event, Message
+from intercom import Intercom, Event
 
 from django.conf import settings
 
@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
 
 from api.utils import spawn_task
+from sb_base.serializers import IntercomMessageSerializer
 from plebs.neo_models import Pleb
 from sb_quests.neo_models import Quest
 from sb_notifications.tasks import spawn_system_notification
@@ -35,15 +36,16 @@ class AccountingViewSet(viewsets.ViewSet):
         try:
             event = stripe.Event.retrieve(request.data['id'])
         except stripe.InvalidRequestError:
-            return Response(status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         if event.type == "invoice.payment_failed":
             try:
                 customer = stripe.Customer.retrieve(
                     event.data.object.customer)
             except stripe.InvalidRequestError:
-                return Response(status=status.HTTP_200_OK)
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=customer['email'])
+
             message_data = {
                 'message_type': 'email',
                 'subject': 'Subscription Failure Notice',
@@ -57,16 +59,21 @@ class AccountingViewSet(viewsets.ViewSet):
                         "email and we'd be happy to help!\n\nBest Regards,"
                         "\n\nDevon",
                 'template': 'personal',
-                'from': {
+                'from_user': {
                     'type': 'admin',
                     'id': settings.INTERCOM_ADMIN_ID_DEVON
                 },
-                'to': {
+                'to_user': {
                     'type': 'user',
-                    'id': pleb.username
+                    'user_id': pleb.username
                 }
             }
-            Message.create(**message_data)
+            serializer = IntercomMessageSerializer(data=message_data)
+            if serializer.is_valid():
+                serializer.save()
+            else:
+                return Response(
+                    serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             return Response({"detail": "Invoice Payment Failed"},
                             status=status.HTTP_200_OK)
         if event.type == "account.updated":
@@ -74,8 +81,8 @@ class AccountingViewSet(viewsets.ViewSet):
                 account = stripe.Account.retrieve(
                     event.data.object.id
                 )
-            except stripe.InvalidRequestError:
-                return Response(status=status.HTTP_200_OK)
+            except (stripe.InvalidRequestError, stripe.APIConnectionError):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=account.email)
             quest = Quest.get(pleb.username)
             if account.verification.fields_needed:
@@ -114,8 +121,8 @@ class AccountingViewSet(viewsets.ViewSet):
                     account = stripe.Account.retrieve(
                         transfer.destination
                     )
-            except stripe.InvalidRequestError:
-                return Response(status=status.HTTP_200_OK)
+            except (stripe.InvalidRequestError, stripe.APIConnectionError):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=account.email)
             spawn_task(
                 task_func=spawn_system_notification,
@@ -139,8 +146,8 @@ class AccountingViewSet(viewsets.ViewSet):
                 customer = stripe.Customer.retrieve(
                     event.data.object.customer
                 )
-            except stripe.InvalidRequestError:
-                return Response(status=status.HTTP_200_OK)
+            except (stripe.InvalidRequestError, stripe.APIConnectionError):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=customer.email)
             spawn_task(
                 task_func=spawn_system_notification,

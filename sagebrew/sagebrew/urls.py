@@ -9,7 +9,7 @@ from django.contrib.sitemaps.views import sitemap
 
 from sb_registration.views import (login_view, logout_view, signup_view,
                                    quest_signup, advocacy, political_campaign)
-from sb_registration.forms import CustomPasswordResetForm
+from plebs.sitemap import ProfileSitemap
 from sb_questions.sitemap import QuestionSitemap, ConversationSitemap
 from sagebrew.sitemap import (StaticViewSitemap, SignupSitemap)
 from sb_quests.sitemap import QuestSitemap
@@ -30,15 +30,12 @@ urlpatterns = patterns(
         settings.STATIC_URL), permanent=True)),
     url(r'^login/$', login_view, name="login"),
     url(r'^logout/$', logout_view, name="logout"),
-    url(r'^password_reset/', 'django.contrib.auth.views.password_reset',
-        {
-            "html_email_template_name":
-                "email_templates/email_password_reset.html",
-            "template_name": "password_reset/password_reset.html",
-            "password_reset_form": CustomPasswordResetForm
-        }, name="reset_password_page"),
+    url(r'^password_reset/$', 'django.contrib.auth.views.password_reset',
+        {"template_name": "password_reset/password_reset.html"},
+        name="reset_password_page"),
     url(r'^password_reset/done/$',
-        'django.contrib.auth.views.password_reset_done',
+        'django.contrib.auth.views.password_reset_done', {
+            "template_name": "password_reset/password_reset_sent.html"},
         name="password_reset_done"),
     url(r'^reset/(?P<uidb64>[0-9A-Za-z_\-]+)/'
         r'(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
@@ -83,6 +80,7 @@ urlpatterns = patterns(
     url(r'^sitemap\.xml$', sitemap,
         {'sitemaps': {
             'questions': QuestionSitemap,
+            'profiles': ProfileSitemap,
             'conversation_cloud': ConversationSitemap,
             'quests': QuestSitemap,
             'missions': MissionSitemap,

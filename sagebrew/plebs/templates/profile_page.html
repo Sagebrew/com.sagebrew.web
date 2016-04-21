@@ -132,5 +132,7 @@
 {% endblock live %}
 
 {% block intercom %}
-    Intercom('trackEvent', 'visited-profile-page');
+    Intercom('trackEvent', 'visited-profile-page', {
+            owner: '{{ page_user.username }}',
+        });
 {% endblock %}

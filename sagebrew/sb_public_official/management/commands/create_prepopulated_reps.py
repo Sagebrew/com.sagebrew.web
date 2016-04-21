@@ -71,6 +71,7 @@ class Command(BaseCommand):
                             twitter=rep.twitter, website=rep.website,
                             first_name=rep.first_name, last_name=rep.last_name,
                             owner_username=rep.object_uuid,
+                            title="%s %s" % (rep.first_name, rep.last_name),
                             profile_pic="%s/representative_images/225x275/"
                                         "%s.jpg" % (
                                             settings.LONG_TERM_STATIC_DOMAIN,

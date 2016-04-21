@@ -6,7 +6,7 @@ from django.core.cache import cache
 
 from rest_framework.reverse import reverse
 
-from neomodel import CypherException, DoesNotExist, db
+from neomodel import CypherException, DoesNotExist
 from py2neo.cypher.error.statement import ClientError
 
 from api.utils import spawn_task, smart_truncate
@@ -18,6 +18,7 @@ from sb_notifications.tasks import spawn_notifications
 from sb_comments.neo_models import Comment
 
 from .neo_models import Vote
+from .utils import create_vote_relationship
 
 
 @shared_task()
@@ -45,14 +46,9 @@ def vote_object_task(vote_type, current_pleb, object_uuid):
             vote_active_string = "false"
     else:
         vote_type_string = "false"
+    res = create_vote_relationship(object_uuid, current_pleb.username,
+                                   vote_active_string, vote_type_string)
 
-    query = 'MATCH (v:VotableContent {object_uuid:"%s"}), ' \
-            '(p:Pleb {username:"%s"}) WITH v, p CREATE UNIQUE ' \
-            '(v)<-[vote:PLEB_VOTES]-(p) WITH v, vote, p SET vote.active=%s, ' \
-            'vote.vote_type=%s RETURN v' % \
-            (object_uuid, current_pleb.username, vote_active_string,
-             vote_type_string)
-    res, _ = db.cypher_query(query)
     sb_object = VotableContent.inflate(res.one)
     if isinstance(res, Exception) is True:
         raise vote_object_task.retry(exc=res, countdown=10, max_retries=None)

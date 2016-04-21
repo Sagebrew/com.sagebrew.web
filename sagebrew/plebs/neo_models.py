@@ -3,8 +3,6 @@ import pytz
 from datetime import datetime
 
 from django.conf import settings
-from django.template.loader import get_template
-from django.template import Context
 from django.core.cache import cache
 from django.templatetags.static import static
 
@@ -118,20 +116,7 @@ class BetaUser(StructuredNode):
     signup_date = DateTimeProperty(default=get_current_time)
 
     def invite(self):
-        from sb_registration.utils import sb_send_email
-        if self.invited is True:
-            return True
-        self.invited = True
-        self.save()
-        template_dict = {
-            "signup_url": "%s%s%s" % (settings.WEB_ADDRESS, "/signup/?user=",
-                                      self.email)
-        }
-        html_content = get_template(
-            'email_templates/email_beta_invite.html').render(
-            Context(template_dict))
-        sb_send_email("support@sagebrew.com", self.email, "Sagebrew Beta",
-                      html_content)
+        # DEPRECATED; No longer in Beta Mode.
         return True
 
 
@@ -587,7 +572,8 @@ class Pleb(Searchable):
 
     def get_sagebrew_donations(self):
         query = 'MATCH (p:`Pleb` {username: "%s"})-[:DONATIONS_GIVEN]->' \
-                '(d:`Donation`) WHERE NOT (d)-[:DONATED_TO]->(:Campaign) ' \
+                '(d:`Donation`) WHERE NOT (d)-[:CONTRIBUTED_TO]->(:Mission) ' \
+                'AND NOT (d)-[:CONTRIBUTED_TO]->(:Quest) ' \
                 'RETURN d.object_uuid' % self.username
         res, col = db.cypher_query(query)
         return [row[0] for row in res]

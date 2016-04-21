@@ -274,7 +274,7 @@ ADDRESS_AUTH_ID = environ.get("ADDRESS_AUTH_ID", '')
 # Intercom
 INTERCOM_API_KEY = environ.get("INTERCOM_API_KEY", '')
 INTERCOM_APP_ID = environ.get("INTERCOM_APP_ID", '')
-INTERCOM_ADMIN_ID_DEVON = environ.get("INTERCOM_APP_ID", '')
+INTERCOM_ADMIN_ID_DEVON = environ.get("INTERCOM_ADMIN_ID_DEVON", '')
 LONG_TERM_STATIC_DOMAIN = "https://d2m0mj9tyf6rjw.cloudfront.net"
 WEBHOSE_KEY = environ.get("WEBHOSE_KEY", '')
 WEBHOSE_FREE = True
@@ -313,17 +313,17 @@ if not DEBUG:
     CELERYBEAT_SCHEDULE = {
         'check-closed-reputation-changes': {
             'task': 'sb_council.tasks.check_closed_reputation_changes_task',
-            'schedule': crontab(minute=0, hour=3),
+            'schedule': crontab(minute=0, hour=6),
             'args': ()
         },
         'find-tag-news': {
             'task': 'sb_news.tasks.find_tag_news',
-            'schedule': crontab(minute=0, hour=3),
+            'schedule': crontab(minute=0, hour=6),
             'args': ()
         },
         'check-unverified-quests': {
             'task': 'sb_accounting.tasks.check_unverified_quest',
-            'schedule': crontab(minute=0, hour=0),
+            'schedule': crontab(minute=0, hour=3),
             'args': ()
         }
     }
@@ -501,6 +501,22 @@ VOLUNTEER_ACTIVITIES = [
     ("attend_a_house_party", "Attend A House Party")
 ]
 
+
+TOPICS_OF_INTEREST = [
+    ("foreign_policy", "Foreign Policy"),
+    ("education", "Education"),
+    ("environment", "Environment"),
+    ("agriculture", "Agriculture"),
+    ("energy", "Energy"),
+    ("space", "Space"),
+    ("fiscal", "Fiscal"),
+    ("social", "Social"),
+    ("science", "Science"),
+    ("drugs", "Drugs"),
+    ("defense", "Defense"),
+    ("health", "Health")
+]
+
 DEFAULT_SENTENCE_COUNT = 7
 DEFAULT_SUMMARY_LENGTH = 250
 TIME_EXCLUSION_REGEX = re.compile(
@@ -557,7 +573,7 @@ DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
                             "orgasm", "Fuck", "Shit", "Ass", "Cunt",
                             "Jizz"]
 
-UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', ]
+UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', 'circleci.com']
 COMPANY_ACRONYMS = ['ABC', 'CNN', 'CBS', 'MSNBC', 'BBC',
                     'CBC', 'CBS', 'NBC', 'NYT', 'abc7.com', 'NPR']
 
@@ -1046,7 +1062,7 @@ EPIC_TEMPLATE = """
 *Below are some ideas on what you might want to include in your Epic. It's completely up to you if you'd like to use them or take the page in a completely different direction :). You can see a preview of what it'll look like on the front page of your mission by scrolling down.*
 
 ## Mission Statement ##
-Start off by grabbing your audience and telling them what you're trying to achieve.
+Start off by grabbing your audience's attention and telling them what you're trying to achieve.
 
 - What are the core pieces of your platform?
 - What's driving you and/or your group?

@@ -411,7 +411,7 @@ def generate_summary(content):
                 and len(summary) < settings.DEFAULT_SUMMARY_LENGTH \
                 and len(excluded) == 0:
             summary += " " + sentence
-    return summary.strip()
+    return summary.replace('&gt;', '').strip()
 
 
 def cleanup_title(value):

@@ -12,12 +12,13 @@ from django.core.cache import cache
 from django.template import RequestContext
 from django.conf import settings
 
+from rest_framework.throttling import UserRateThrottle
 from rest_framework.permissions import (IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.generics import (RetrieveUpdateDestroyAPIView, mixins)
 
 from neomodel import db
@@ -26,7 +27,7 @@ from sagebrew import errors
 
 from api.permissions import (IsSelfOrReadOnly,
                              IsAnonCreateReadOnlyOrIsAuthenticated)
-from sb_base.utils import get_filter_params
+from sb_base.utils import get_filter_params, NeoQuerySet
 from sb_base.neo_models import SBContent
 from sb_base.serializers import MarkdownContentSerializer
 from sb_posts.neo_models import Post
@@ -47,9 +48,28 @@ from sb_news.neo_models import NewsArticle
 from sb_news.serializers import NewsArticleSerializer
 from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
                           FriendRequestSerializer, PoliticalPartySerializer,
-                          InterestsSerializer)
+                          InterestsSerializer, TopicInterestsSerializer,
+                          ResetPasswordEmailSerializer,
+                          EmailVerificationSerializer)
 from .neo_models import Pleb, Address, FriendRequest
 from .utils import get_filter_by
+
+
+class LimitPerDayUserThrottle(UserRateThrottle):
+    rate = '10/day'
+
+
+class PasswordReset(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = ResetPasswordEmailSerializer
+    throttle_classes = (LimitPerDayUserThrottle, )
+
+
+class ResendEmailVerification(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = EmailVerificationSerializer
+    throttle_classes = (LimitPerDayUserThrottle, )
+    authentication_classes = (IsAuthenticated, )
 
 
 def get_public_content(api, username, request):
@@ -70,6 +90,7 @@ def get_public_content(api, username, request):
             'AND solutions.created > %s' \
             ' AND solutions.is_closed = False ' \
             'AND s_question.is_closed = False ' \
+            'AND solutions.to_be_deleted = False ' \
             'RETURN solutions, NULL AS questions, ' \
             'solutions.created AS created, s_question AS s_question' \
             % (username, then, username, then)
@@ -192,7 +213,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
     """
     serializer_class = PlebSerializerNeo
     lookup_field = "username"
-    queryset = Pleb.nodes.all()
+    queryset = NeoQuerySet(Pleb)
     permission_classes = (IsAnonCreateReadOnlyOrIsAuthenticated, )
 
     def get_object(self):
@@ -211,7 +232,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response({"detail": "TBD"},
                         status=status.HTTP_501_NOT_IMPLEMENTED)
 
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], serializer_class=QuestionSerializerNeo)
     def questions(self, request, username=None):
         filter_by = request.query_params.get('filter', "")
         try:
@@ -219,19 +240,16 @@ class ProfileViewSet(viewsets.ModelViewSet):
         except(IndexError, KeyError, ValueError):
             return Response(errors.QUERY_DETERMINATION_EXCEPTION,
                             status=status.HTTP_400_BAD_REQUEST)
-        query = 'MATCH (a:Pleb {username: "%s"})<-[:OWNED_BY]-' \
-                '(b:Question) WHERE b.to_be_deleted=false' \
-                ' %s RETURN b' % (username, additional_params)
-        res, col = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        queryset = [Question.inflate(row[0]) for row in res]
+        query = '(a:Pleb {username: "%s"})<-[:OWNED_BY]-' \
+                '(res:Question)' % username
+        queryset = NeoQuerySet(
+            Question, query=query).filter(
+            'WHERE res.to_be_deleted=false %s' % additional_params)
+        return self.get_paginated_response(
+            self.serializer_class(self.paginate_queryset(queryset), many=True,
+                                  context={'request': request}).data)
 
-        page = self.paginate_queryset(queryset)
-        serializer = QuestionSerializerNeo(page, many=True,
-                                           context={'request': request})
-        return self.get_paginated_response(serializer.data)
-
-    @detail_route(methods=['get'])
+    @detail_route(methods=['get'], serializer_class=MarkdownContentSerializer)
     def public_content(self, request, username=None):
         filter_by = request.query_params.get('filter', "")
         try:
@@ -239,19 +257,14 @@ class ProfileViewSet(viewsets.ModelViewSet):
         except(IndexError, KeyError, ValueError):
             return Response(errors.QUERY_DETERMINATION_EXCEPTION,
                             status=status.HTTP_400_BAD_REQUEST)
-        query = 'MATCH (b:`SBPublicContent`)-[:OWNED_BY]->(a:Pleb ' \
-                '{username: "%s"}) ' \
-                'WHERE b.to_be_deleted=false ' \
-                ' %s RETURN b' % (username, additional_params)
-
-        res, col = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        queryset = [SBContent.inflate(row[0]) for row in res]
-
-        page = self.paginate_queryset(queryset)
-        serializer = MarkdownContentSerializer(page, many=True,
-                                               context={'request': request})
-        return self.get_paginated_response(serializer.data)
+        query = '(res:SBPublicContent)-[:OWNED_BY]->(a:Pleb ' \
+                '{username: "%s"})' % username
+        queryset = NeoQuerySet(
+            SBContent, query=query).filter(
+            'WHERE res.to_be_deleted=false %s' % additional_params)
+        return self.get_paginated_response(
+            self.serializer_class(self.paginate_queryset(queryset), many=True,
+                                  context={'request': request}).data)
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticatedOrReadOnly,))
@@ -280,28 +293,22 @@ class ProfileViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated,))
     def followers(self, request, username=None):
-        query = 'MATCH (p:Pleb {username:"%s"})<-[r:FOLLOWING]-' \
-                '(followers:Pleb) WHERE r.active ' \
-                'RETURN followers' % username
-        res, _ = db.cypher_query(query)
-        if res.one:
-            follower_list = [Pleb.inflate(row[0]) for row in res]
-            return self.get_paginated_response(self.paginate_queryset(
-                PlebSerializerNeo(follower_list, many=True).data))
-        return self.get_paginated_response(self.paginate_queryset([]))
+        queryset = NeoQuerySet(
+            Pleb, query='(p:Pleb {username:"%s"})<-[r:FOLLOWING]-'
+                        '(res:Pleb)' % username).filter('WHERE r.active')
+        return self.get_paginated_response(
+            PlebSerializerNeo(self.paginate_queryset(queryset), many=True,
+                              context={'request': request}).data)
 
     @detail_route(methods=['get'],
                   permission_classes=(IsAuthenticated,))
     def following(self, request, username=None):
-        query = 'MATCH (p:Pleb {username:"%s"})-[r:FOLLOWING]->' \
-                '(followers:Pleb) WHERE r.active ' \
-                'RETURN followers' % username
-        res, _ = db.cypher_query(query)
-        if res.one:
-            follower_list = [Pleb.inflate(row[0]) for row in res]
-            return self.get_paginated_response(self.paginate_queryset(
-                PlebSerializerNeo(follower_list, many=True).data))
-        return self.get_paginated_response(self.paginate_queryset([]))
+        queryset = NeoQuerySet(
+            Pleb, query='(p:Pleb {username:"%s"})-[r:FOLLOWING]->'
+                        '(res:Pleb)' % username).filter('WHERE r.active')
+        return self.get_paginated_response(
+            PlebSerializerNeo(self.paginate_queryset(queryset), many=True,
+                              context={'request': request}).data)
 
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated, IsSelfOrReadOnly))
@@ -405,30 +412,25 @@ class ProfileViewSet(viewsets.ModelViewSet):
         return Response(PublicOfficialSerializer(president).data,
                         status=status.HTTP_200_OK)
 
-    @detail_route(methods=['get'],
+    @detail_route(methods=['get'], serializer_class=MissionSerializer,
                   permission_classes=(IsAuthenticatedOrReadOnly,))
     def missions(self, request, username):
-        query = 'MATCH (quest:Quest {owner_username: "%s"})-' \
-                '[:EMBARKS_ON]->(m:Mission) RETURN m' % username
-        res, _ = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        queryset = [Mission.inflate(row[0]) for row in res]
-        page = self.paginate_queryset(queryset)
-        serializer = MissionSerializer(page, many=True,
-                                       context={'request': request})
-        return self.get_paginated_response(serializer.data)
+        query = '(quest:Quest {owner_username: "%s"})-' \
+                '[:EMBARKS_ON]->(res:Mission)' % username
+        queryset = NeoQuerySet(Mission, query=query).filter('WHERE res.active')
+        return self.get_paginated_response(
+            self.serializer_class(self.paginate_queryset(queryset), many=True,
+                                  context={'request': request}).data)
 
     @detail_route(methods=["GET"], serializer_class=MissionSerializer,
                   permission_classes=(IsAuthenticatedOrReadOnly,))
     def endorsed(self, request, username):
-        query = 'MATCH (p:Pleb {username:"%s"})-' \
-                '[:ENDORSES]->(m:Mission) RETURN m' % username
-        res, _ = db.cypher_query(query)
-        page = self.paginate_queryset(
-            [Mission.inflate(mission[0]) for mission in res])
-        serializer = self.serializer_class(page, many=True,
-                                           context={'request': request})
-        return self.get_paginated_response(serializer.data)
+        query = '(p:Pleb {username:"%s"})-' \
+                '[:ENDORSES]->(res:Mission)' % username
+        queryset = NeoQuerySet(Mission, query=query).filter('WHERE res.active')
+        return self.get_paginated_response(
+            self.serializer_class(self.paginate_queryset(queryset), many=True,
+                                  context={'request': request}).data)
 
 
 class MeViewSet(mixins.UpdateModelMixin,
@@ -592,46 +594,6 @@ class MeViewSet(mixins.UpdateModelMixin,
             'NULL AS s_question, NULL as mission, q_mission, ' \
             'NULL AS news UNION ' \
             '' \
-            "// Retrieve all the current user's friends posts on their \n" \
-            '// walls\n' \
-            'MATCH (a:Pleb {username: "%s"})-' \
-            '[r:FRIENDS_WITH {active: True}]->(p:Pleb)<-' \
-            '[:OWNED_BY]-(posts:Post) ' \
-            'WHERE (posts)-[:POSTED_ON]->(:Wall)<-[:OWNS_WALL]-(p) AND ' \
-            'HAS(r.active) AND posts.to_be_deleted = False ' \
-            'AND posts.created > %s AND posts.is_closed = False ' \
-            'RETURN posts, NULL AS questions, NULL AS solutions, ' \
-            'posts.created AS created, NULL AS s_question, ' \
-            'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
-            'NULL AS news UNION ' \
-            '' \
-            '// Retrieve all the current users friends and friends of friends' \
-            '// questions \n' \
-            'MATCH (a:Pleb {username: "%s"})-' \
-            '[manyFriends:FRIENDS_WITH*..2 {active: True}]' \
-            '->(:Pleb)<-[:OWNED_BY]-(questions:Question) ' \
-            'WHERE questions.to_be_deleted = False AND ' \
-            'questions.created > %s AND questions.is_closed = False ' \
-            'RETURN questions, NULL AS posts, NULL AS solutions, ' \
-            'questions.created AS created, NULL AS s_question, ' \
-            'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
-            'NULL AS news UNION ' \
-            '' \
-            '// Retrieve all the current users friends and friends of friends' \
-            '// solutions \n' \
-            'MATCH (a:Pleb {username: "%s"})-' \
-            '[manyFriends:FRIENDS_WITH*..2 {active: True}]->' \
-            '(:Pleb)<-[:OWNED_BY]-' \
-            '(solutions:Solution)<-[:POSSIBLE_ANSWER]-' \
-            '(s_question:Question) ' \
-            'WHERE solutions.to_be_deleted = False AND solutions.created > %s' \
-            ' AND solutions.is_closed = False ' \
-            'AND s_question.is_closed = False ' \
-            'RETURN solutions, NULL AS posts, NULL AS questions, ' \
-            'solutions.created AS created, s_question AS s_question,' \
-            'NULL AS mission, NULL AS updates, NULL AS q_mission, ' \
-            'NULL AS news UNION ' \
-            '' \
             '// Retrieve all the posts owned by users that the current user ' \
             '// is following \n' \
             'MATCH (a:Pleb {username: "%s"})-[r:FOLLOWING {active: True}]->' \
@@ -670,8 +632,7 @@ class MeViewSet(mixins.UpdateModelMixin,
             'NULL AS news' \
             % (
                 request.user.username, then, request.user.username, then,
-                request.user.username, then, request.user.username, then,
-                request.user.username, then, request.user.username, then,
+                request.user.username, then,
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then,
                 request.user.username, then, request.user.username, then,
@@ -825,6 +786,22 @@ class MeViewSet(mixins.UpdateModelMixin,
             response = serializer.data
             response['interests'] = added
             return Response(response, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @list_route(methods=['post'], serializer_class=TopicInterestsSerializer,
+                permission_classes=(IsAuthenticated,))
+    def add_topics_of_interest(self, request):
+        """
+        Connects the authenticated pleb up to all the existing parties that
+        are passed within a list. Returns all of names of the successfully
+        connected parties.
+        :param request:
+        """
+        serializer = self.get_serializer(data=request.data,
+                                         context={"request": request})
+        if serializer.is_valid():
+            saved_interests = serializer.save()
+            return Response(saved_interests, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

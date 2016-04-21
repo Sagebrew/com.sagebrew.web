@@ -68,6 +68,11 @@ omit =
     */management/commands/populate_all_state_legislative_positions.py
     */management/commands/populate_existing_state_districts.py
     */management/commands/convert_social_links.py
+    */management/commands/convert_donations.py
+    */management/commands/remove_duplicate_quests.py
+    */management/commands/remove_full_search_base.py
+    */management/commands/remove_duplicate_public_official_quests.py
+    */management/commands/remove_and_repopulate_official_quests.py
     */sagebrew/test_runner.py
 
 [report]

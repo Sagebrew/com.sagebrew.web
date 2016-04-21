@@ -147,7 +147,6 @@ class MissionSettingsView(LoginRequiredMixin):
         if res.one.missions is None:
             return redirect("select_mission")
         if object_uuid is None:
-            # TODO handle if there aren't any missions yet
             mission_obj = Mission.inflate(res[0].missions)
             return redirect('mission_settings',
                             object_uuid=mission_obj.object_uuid,

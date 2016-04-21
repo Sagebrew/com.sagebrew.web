@@ -23,7 +23,12 @@ export function init() {
  */
 export function load() {
     require('medium-editor-insert-plugin');
-    // markdown($("textarea.markdown-input"));
+    /*
+    markdown($("textarea.markdown-input"));
+    require('drmonty-garlicjs');
+    var epicForm = $("#epicForm");
+    epicForm.garlic();
+    */
     var $app = $(".app-sb"),
         missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         editor = new mediumEditor(".editable", {

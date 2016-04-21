@@ -2,6 +2,7 @@ import pytz
 import time
 import stripe
 import shortuuid
+import requests_mock
 from datetime import datetime
 from uuid import uuid1
 from collections import OrderedDict
@@ -12,6 +13,7 @@ from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.conf import settings
+from django.core.management import call_command
 
 from neomodel import db, DoesNotExist
 
@@ -34,6 +36,136 @@ from sb_tags.neo_models import Tag
 from sb_posts.neo_models import Post
 from sb_solutions.neo_models import Solution
 from sb_donations.neo_models import Donation
+
+
+class TestPasswordReset(APITestCase):
+
+    def setUp(self):
+        cache.clear()
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.pleb.email)
+        self.url = "http://testserver"
+        self.intercom_url = "https://api.intercom.io/admins"
+        self.admin_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": "69989",
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
+
+    @requests_mock.mock()
+    def test_create(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
+        url = reverse('profile-reset-password')
+        data = {'email': self.pleb.email}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['email'], self.pleb.email)
+
+    @requests_mock.mock()
+    def test_create_bad_email(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
+        url = reverse('profile-reset-password')
+        data = {'email': "bademail@sagebrew.com"}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['non_field_errors'],
+                         ["Sorry we couldn't find that address"])
+
+    @requests_mock.mock()
+    def test_unauthorized_no_email(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
+        url = reverse('profile-reset-password')
+        data = {}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data['email'], [u'This field is required.'])
+
+    @requests_mock.mock()
+    def test_throttling(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
+        url = reverse('profile-reset-password')
+        data = {'email': self.pleb.email}
+        response = None
+        for value in range(0, 11):
+            response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code,
+                         status.HTTP_429_TOO_MANY_REQUESTS)
+
+
+class TestResendEmailVerification(APITestCase):
+
+    def setUp(self):
+        cache.clear()
+        self.unit_under_test_name = 'pleb'
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.pleb.email)
+        self.url = "http://testserver"
+        self.intercom_url = "https://api.intercom.io/admins"
+        self.admin_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": 69989,
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
+
+    @requests_mock.mock()
+    def test_unauthorized(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
+        url = reverse('me-resend-verification')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    @requests_mock.mock()
+    def test_create(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-resend-verification')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data, {})
+
+    @requests_mock.mock()
+    def test_throttling(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
+        url = reverse('me-resend-verification')
+        response = None
+        for value in range(0, 11):
+            response = self.client.post(url, {}, format='json')
+
+        self.assertEqual(response.status_code,
+                         status.HTTP_429_TOO_MANY_REQUESTS)
+
+    @requests_mock.mock()
+    def test_no_user_supplied(self, m):
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-resend-verification')
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data, {})
 
 
 class MeEndpointTests(APITestCase):
@@ -798,7 +930,18 @@ class ProfileEndpointTests(APITestCase):
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
-        self.maxDiff = None
+        self.intercom_url = "https://api.intercom.io/admins"
+        self.admin_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": 69989,
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
 
     def test_unauthorized(self):
         url = reverse('profile-detail', kwargs={
@@ -995,7 +1138,7 @@ class ProfileEndpointTests(APITestCase):
         data = {
             "date_of_birth": datetime.now().isoformat(),
             "password": "testpassword1",
-            "email": "ahhaha1232132a@fffffff.com",
+            "email": "ahhaha1232132a@sagebrew.com",
             "first_name": "testuser",
             "last_name": "testuser2",
         }
@@ -1003,6 +1146,55 @@ class ProfileEndpointTests(APITestCase):
         self.assertEqual(Pleb.get(username="testuser_testuser2").username,
                          "testuser_testuser2")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @requests_mock.mock()
+    def test_create_pleb_not_authed(self, m):
+        db.cypher_query('MATCH (a:Pleb) OPTIONAL MATCH (a)-[r]-() DELETE a, r')
+        m.get(self.intercom_url, json=self.admin_data,
+              status_code=status.HTTP_200_OK)
+        url = reverse('profile-list')
+        data = {
+            "date_of_birth": datetime.now().isoformat(),
+            "password": "testpassword1",
+            "email": "ahhaha1232132a@sagebrew.com",
+            "first_name": "testuser",
+            "last_name": "testuser2",
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(Pleb.get(username="testuser_testuser2").username,
+                         "testuser_testuser2")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    @requests_mock.mock()
+    def test_create_pleb_bad_admins(self, m):
+        db.cypher_query('MATCH (a:Pleb) OPTIONAL MATCH (a)-[r]-() DELETE a, r')
+        self.client.force_authenticate(user=self.user)
+        bad_admin_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": 55555,
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
+        m.get(self.intercom_url, json=bad_admin_data,
+              status_code=status.HTTP_200_OK)
+        url = reverse('profile-list')
+        data = {
+            "date_of_birth": datetime.now().isoformat(),
+            "password": "testpassword1",
+            "email": "ahhaha1232132a@sagebrew.com",
+            "first_name": "testuser",
+            "last_name": "testuser2",
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(Pleb.get(username="testuser_testuser2").username,
+                         "testuser_testuser2")
+        self.assertEqual(response.data['from_user'],
+                         [u'69989 is not a valid admin ID'])
 
     def test_update_name(self):
         first_name = str(uuid1())[0:20]
@@ -1057,7 +1249,8 @@ class ProfileEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_endorsements(self):
-        mission = Mission(owner_username=self.pleb.username).save()
+        mission = Mission(owner_username=self.pleb.username,
+                          active=True).save()
         quest = Quest(owner_username=self.pleb.username).save()
         quest.missions.connect(mission)
         mission.profile_endorsements.connect(self.pleb)
@@ -1219,6 +1412,71 @@ class ProfileContentMethodTests(APITestCase):
         response = self.client.get(url, format='json')
 
         self.assertGreater(response.data['count'], 0)
+
+    def test_get_pleb_question_public_content_to_be_deleted(self):
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username,
+            to_be_deleted=True).save()
+        question.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-public-content', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.data['count'], 0)
+
+    def test_get_solution_public(self):
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        query = 'MATCH (a:Solution) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        content = 'this is fake content'
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-public-content', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 2)
+
+    def test_get_solution_public_to_be_deleted(self):
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        query = 'MATCH (a:Solution) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        content = 'this is fake content'
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid,
+                            to_be_deleted=True).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('profile-public-content', kwargs={
+            'username': self.pleb.username})
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 1)
 
     def test_get_pleb_question_public_unauthed(self):
         question = Question(
@@ -3761,6 +4019,68 @@ class PublicDataTests(APITestCase):
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 0)
 
+    def test_get_pleb_question_public_content_to_be_deleted(self):
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username,
+            to_be_deleted=True).save()
+        question.owned_by.connect(self.pleb)
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.data['count'], 0)
+
+    def test_get_solution_public(self):
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        query = 'MATCH (a:Solution) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        content = 'this is fake content'
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 2)
+
+    def test_get_solution_public_to_be_deleted(self):
+        query = 'MATCH (a:Question) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        query = 'MATCH (a:Solution) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        content = 'this is fake content'
+        question = Question(
+            title=str(uuid1()),
+            content="This is the content for my question.",
+            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+
+        solution = Solution(content=content,
+                            owner_username=self.pleb.username,
+                            parent_id=question.object_uuid,
+                            to_be_deleted=True).save()
+        solution.owned_by.connect(self.pleb)
+        question.solutions.connect(solution)
+
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-public')
+        response = self.client.get(url, format='json')
+        self.assertEqual(response.data['count'], 1)
+
     def test_get_solutions_by_you(self):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"
@@ -3856,3 +4176,103 @@ class PublicDataTests(APITestCase):
         url = reverse('me-public')
         response = self.client.get(url, format='json')
         self.assertEqual(response.data['count'], 1)
+
+
+class InterestsEndpointTest(APITestCase):
+
+    def setUp(self):
+        query = "MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r"
+        db.cypher_query(query)
+        cache.clear()
+        call_command("create_prepopulated_tags")
+        time.sleep(3)
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
+
+    def test_no_topics_selected(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.post(url, {'interests': []}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(self.pleb.interests.all()), 0)
+
+    def test_one_topic_selected(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.post(
+            url, {'interests': ['fiscal']}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        self.assertEqual(len(self.pleb.interests.all()), 1)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "education"}) RETURN a' % self.pleb.username
+        res, _ = db.cypher_query(query)
+        self.assertIsNone(res.one)
+
+    def test_all_topics_selected(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.post(
+            url, {'interests': [
+                'fiscal', 'education', 'space', 'drugs',
+                'science', 'energy', 'environment', 'defense',
+                'health', 'social', 'foreign_policy', 'agriculture'
+            ]}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(self.pleb.interests.all()), 12)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "social"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+
+    def test_some_topics_selected(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.post(
+            url, {'interests': [
+                'fiscal', 'education', 'space', 'drugs',
+            ]}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(len(self.pleb.interests.all()), 4)
+        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
+                '(tag:Tag {name: "drugs"}) RETURN a' % self.pleb.username
+
+        res, _ = db.cypher_query(query)
+        self.assertIsNotNone(res.one)
+
+    def test_topics_dont_exist(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.post(
+            url, {'interests': [
+                'hello', 'world', 'have',
+            ]}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(len(self.pleb.interests.all()), 0)
+        self.assertEqual(response.data,
+                         {'interests': [u'"hello" is not a valid choice.']})
+
+    def test_interests_pleb_does_not_exist(self):
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.post(
+            url, {'interests': [
+                'fiscal', 'education', 'space', 'drugs',
+                'science', 'energy', 'environment', 'defense',
+                'health', 'social', 'foreign_policy', 'agriculture'
+            ]}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_request(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('me-add-topics-of-interest')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)

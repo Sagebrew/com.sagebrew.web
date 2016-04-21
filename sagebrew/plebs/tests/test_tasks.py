@@ -1,20 +1,26 @@
 import us
 import time
+import pytz
 from uuid import uuid1
+from datetime import datetime
+
 from django.conf import settings
 from django.test import TestCase
+from django.core.cache import cache
 from django.contrib.auth.models import User
 
 from neomodel import db
+from boto.dynamodb2.table import Table
 
 from api.utils import wait_util
 from plebs.neo_models import Pleb, Address
 from sb_locations.neo_models import Location
+from sb_docstore.utils import connect_to_dynamo, get_table_name
 from sb_registration.utils import create_user_util_test
+from sb_questions.neo_models import Question
 from plebs.tasks import (create_wall_task,
-                         finalize_citizen_creation, send_email_task,
                          create_friend_request_task,
-                         determine_pleb_reps,
+                         determine_pleb_reps, finalize_citizen_creation,
                          update_reputation, connect_to_state_districts)
 from sb_wall.neo_models import Wall
 
@@ -76,109 +82,6 @@ class TestCreateWallTask(TestCase):
         while not res.ready():
             time.sleep(1)
 
-        self.assertFalse(isinstance(res.result, Exception))
-
-
-class TestFinalizeCitizenCreationTask(TestCase):
-
-    def setUp(self):
-        settings.CELERY_ALWAYS_EAGER = True
-        self.email2 = 'suppressionlist@simulator.amazonses.com'
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        try:
-            pleb = Pleb.nodes.get(email=self.email2)
-            pleb.delete()
-            user = User.objects.get(email=self.email2)
-            user.delete()
-        except (Pleb.DoesNotExist, User.DoesNotExist):
-            pass
-        self.fake_user = User.objects.create_user(
-            first_name='fake', last_name='user',
-            email='suppressionlist@simulator.amazonses.com',
-            password='fakepass',
-            username='thisisafakeusername1')
-        self.fake_user.save()
-        self.fake_pleb = Pleb(email=self.fake_user.email,
-                              first_name=self.fake_user.first_name,
-                              last_name=self.fake_user.last_name,
-                              username=self.fake_user.username).save()
-
-    def tearDown(self):
-        self.fake_pleb.delete()
-        self.fake_user.delete()
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_finalize_citizen_creation_email_not_sent(self):
-        task_data = {
-            'username': self.fake_user.username
-        }
-        res = finalize_citizen_creation.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-
-        self.assertNotIsInstance(res.result, Exception)
-
-    def test_finalize_citizen_creation_email_sent(self):
-        self.fake_pleb.initial_verification_email_sent = True
-        self.fake_pleb.save()
-        task_data = {
-            'username': self.fake_user.username
-        }
-        res = finalize_citizen_creation.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
-
-        self.assertNotIsInstance(res.result, Exception)
-
-
-class TestSendEmailTask(TestCase):
-
-    def setUp(self):
-        settings.CELERY_ALWAYS_EAGER = True
-        self.email = "success@simulator.amazonses.com"
-        res = create_user_util_test(self.email, task=True)
-        self.assertNotEqual(res, False)
-        wait_util(res)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        try:
-            pleb = Pleb.nodes.get(
-                email='suppressionlist@simulator.amazonses.com')
-            pleb.delete()
-            user = User.objects.get(
-                email='suppressionlist@simulator.amazonses.com')
-            user.delete()
-        except (Pleb.DoesNotExist, User.DoesNotExist):
-            pass
-        self.fake_user = User.objects.create_user(
-            first_name='test', last_name='test',
-            email='suppressionlist@simulator.amazonses.com',
-            password='fakepass',
-            username='thisisafakeusername')
-        self.fake_user.save()
-        self.fake_pleb = Pleb(email=self.fake_user.email,
-                              first_name=self.fake_user.first_name,
-                              last_name=self.fake_user.last_name,
-                              username='thisisafakeusername').save()
-
-    def tearDown(self):
-        self.fake_pleb.delete()
-        self.fake_user.delete()
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_send_email_task(self):
-        task_data = {'to': self.fake_pleb.email,
-                     'subject': 'This is a fake subject',
-                     'html_content': "<div>Fake HTML Content</div>",
-                     "source": "support@sagebrew.com"}
-        res = send_email_task.apply_async(kwargs=task_data)
-        while not res.ready():
-            time.sleep(1)
         self.assertFalse(isinstance(res.result, Exception))
 
 
@@ -253,6 +156,9 @@ class TestUpdateReputation(TestCase):
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
+        self.email2 = "bounce@simulator.amazonses.com"
+        self.pleb2 = create_user_util_test(self.email2)
+        self.user2 = User.objects.get(email=self.email2)
 
     def tearDown(self):
         settings.CELERY_ALWAYS_EAGER = False
@@ -262,9 +168,36 @@ class TestUpdateReputation(TestCase):
             "username": self.pleb.username
         }
         res = update_reputation.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
         self.assertTrue(res.result)
+
+    def test_updated_rep(self):
+        self.pleb.reputation_update_seen = True
+        self.pleb.save()
+        question = Question(title=str(uuid1()), content="some test content",
+                            owner_username=self.pleb.username).save()
+        question.owned_by.connect(self.pleb)
+        conn = connect_to_dynamo()
+        votes_table = Table(table_name=get_table_name('votes'),
+                            connection=conn)
+        votes_table.put_item(data={"parent_object": question.object_uuid,
+                                   "status": 1,
+                                   "now": str(datetime.now(pytz.utc)),
+                                   "user": self.user2.username})
+        cache.clear()
+        data = {
+            "username": self.pleb.username
+        }
+        update_reputation.apply_async(kwargs=data)
+        pleb = Pleb.nodes.get(username=self.pleb.username)
+        self.assertFalse(pleb.reputation_update_seen)
+        self.assertEqual(pleb.reputation, 5)
+
+    def test_pleb_doesnt_exist(self):
+        data = {
+            "username": str(uuid1())
+        }
+        res = update_reputation.apply_async(kwargs=data)
+        self.assertIsInstance(res.result, Exception)
 
 
 class TestCreateStateDistricts(TestCase):
@@ -291,8 +224,6 @@ class TestCreateStateDistricts(TestCase):
         upper.encompassed_by.connect(mi)
         res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
-        while not res.ready():
-            time.sleep(1)
         self.assertTrue(res.result)
         self.assertTrue(lower in address.encompassed_by)
         self.assertTrue(upper in address.encompassed_by)
@@ -316,8 +247,6 @@ class TestCreateStateDistricts(TestCase):
         lower.encompassed_by.connect(mi)
         res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
-        while not res.ready():
-            time.sleep(1)
         self.assertTrue(res.result)
         query = 'MATCH (l:Location {name:"38", sector:"state_lower"}), ' \
                 '(l2:Location {name:"15", sector:"state_upper"}) RETURN l, l2'
@@ -328,8 +257,6 @@ class TestCreateStateDistricts(TestCase):
         self.assertTrue(upper in address.encompassed_by)
         res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
-        while not res.ready():
-            time.sleep(1)
         self.assertTrue(res.result)
         query = 'MATCH (l:Location {name:"38", sector:"state_lower"}), ' \
                 '(l2:Location {name:"15", sector:"state_upper"}) RETURN l, l2'
@@ -347,8 +274,6 @@ class TestCreateStateDistricts(TestCase):
     def test_address_doesnt_exist(self):
         res = connect_to_state_districts.apply_async(
             kwargs={"object_uuid": str(uuid1())})
-        while not res.ready():
-            time.sleep(1)
         self.assertIsInstance(res.result, Exception)
 
     def test_address_has_no_lat_long(self):
@@ -357,8 +282,6 @@ class TestCreateStateDistricts(TestCase):
         address = Address(state="MI").save()
         res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
-        while not res.ready():
-            time.sleep(1)
         self.assertFalse(res.result)
         mi.delete()
         address.delete()
@@ -371,8 +294,24 @@ class TestCreateStateDistricts(TestCase):
                           longitude=0.0000).save()
         res = connect_to_state_districts.apply_async(
             kwargs={'object_uuid': address.object_uuid})
-        while not res.ready():
-            time.sleep(1)
         self.assertTrue(res.result)
         mi.delete()
         address.delete()
+
+
+class TestFinalizeCitizen(TestCase):
+
+    def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True
+        self.email = "success@simulator.amazonses.com"
+        self.pleb = create_user_util_test(self.email)
+        self.user = User.objects.get(email=self.email)
+
+    def tearDown(self):
+        settings.CELERY_ALWAYS_EAGER = False
+
+    def test_valid_username(self):
+        res = finalize_citizen_creation.apply_async(
+            kwargs={'username': self.pleb.username})
+        self.assertTrue('add_object_to_search_index' in res.result)
+        self.assertTrue('check_privileges_task' in res.result)

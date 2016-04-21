@@ -233,7 +233,8 @@ class MissionSerializer(SBSerializer):
                                         owner_username, mission.object_uuid,
                                         loc_query)
             res, _ = db.cypher_query(query)
-            return Mission.inflate(res.one)
+            if res.one is not None:
+                return Mission.inflate(res.one)
         return mission
 
     def update(self, instance, validated_data):

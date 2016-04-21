@@ -1,5 +1,7 @@
 from django.core.management.base import BaseCommand
 
+from py2neo.cypher.error.schema import ConstraintViolation
+
 from neomodel import db
 
 from plebs.neo_models import Pleb
@@ -18,15 +20,16 @@ class Command(BaseCommand):
                 break
             for profile in [Pleb.inflate(row[0]) for row in res]:
                 friend_query = 'MATCH (a:Pleb {username: "%s"})' \
-                               '-[:FRIENDS_WITH]->(b:Pleb) RETURN b'
-                res, _ = db.cypher_query(friend_query)
-                for friend in [Pleb.inflate(row[0]) for row in res]:
-                    profile.follow(friend)
-                friends_query = 'MATCH (a:Pleb {username: "%s"})' \
-                                '<-[:FRIENDS_WITH]-(b:Pleb) RETURN b'
-                res, _ = db.cypher_query(friends_query)
-                for friend in [Pleb.inflate(row[0]) for row in res]:
-                    friend.follow(profile)
+                               '-[:FRIENDS_WITH]->(b:Pleb) ' \
+                               'RETURN b' % profile.username
+                friend_res, _ = db.cypher_query(friend_query)
+                for friend in [Pleb.inflate(friend_row[0])
+                               for friend_row in friend_res]:
+                    try:
+                        profile.follow(friend.username)
+                        friend.follow(profile.username)
+                    except(ConstraintViolation, Exception):
+                        pass
         self.stdout.write("completed friend migration\n", ending='')
 
         return True

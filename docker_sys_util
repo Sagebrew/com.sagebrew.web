@@ -1,29 +1,24 @@
-FROM {{PROJECT_NAME}}/django.web.primary.frontend:v8
+FROM {{PROJECT_NAME}}/django.web.primary.frontend:v10
 
 MAINTAINER Devon Bleibtrey <devon@sagebrew.com>
 
 RUN git clone -b {{CIRCLE_BRANCH}} --depth=1 git@github.com:{{PROJECT_USERNAME}}/{{PROJECT_REPONAME}}.git /home/apps/{{PROJECT_REPONAME}}/
 RUN chown -R {{APP_USER}}:{{APP_USER}} /home/apps/
 RUN mkdir /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/static/
-RUN pip install pip==6.0.8
-RUN pip install setuptools==12.3
-RUN pip install -r /home/apps/{{PROJECT_REPONAME}}/requirements/{{REQUIREMENTS_FILE}}.txt
+RUN /bin/bash -c "source /home/apps/venv/bin/activate && \
+    pip install -r /home/apps/{{PROJECT_REPONAME}}/requirements/{{REQUIREMENTS_FILE}}.txt"
 RUN rm -r /root/.ssh
 RUN apt-get remove --auto-remove -y openssh-client
 RUN apt-get remove --auto-remove -y git
 
 WORKDIR /home/apps/{{PROJECT_REPONAME}}/{{PROJECT_NAME}}/
-CMD chown {{APP_USER}} /etc/rsyslog.d/ && \
+CMD /bin/bash -c "source /home/apps/venv/bin/activate && \
+    chown {{APP_USER}} /etc/rsyslog.d/ && \
     python manage.py logglypopulation && \
     chown root /etc/rsyslog.d/ && service rsyslog restart && \
+    python manage.py makemigrations && \
     python manage.py migrate oauth2_provider --fake && \
     python manage.py migrate --noinput && \
     python manage.py create_privileges && \
-    python manage.py set_quest_titles && \
-    python manage.py migrate_comments && \
-    python manage.py migrate_solutions && \
-    python manage.py migrate_friends_to_followers && \
-    python manage.py migrate_questions && \
-    python manage.py convert_social_links && \
     python manage.py clear_cache && \
-    python manage.py clearsessions
+    python manage.py clearsessions"

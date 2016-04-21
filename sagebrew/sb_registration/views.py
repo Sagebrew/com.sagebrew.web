@@ -1,3 +1,4 @@
+from logging import getLogger
 from localflavor.us.us_states import US_STATES
 
 from django.core.cache import cache
@@ -8,8 +9,6 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.template.loader import get_template
-from django.template import Context
 from django.utils.text import slugify
 
 from rest_framework.decorators import api_view
@@ -19,14 +18,15 @@ from rest_framework import status
 from neomodel import (CypherException, db, DoesNotExist)
 
 from api.utils import spawn_task
-from plebs.tasks import send_email_task, update_address_location
+from plebs.tasks import update_address_location
 from plebs.neo_models import Pleb, Address
-
+from plebs.serializers import EmailAuthTokenGenerator
 from .forms import (AddressInfoForm, InterestForm,
                     ProfilePictureForm,
                     LoginForm)
 from .utils import (verify_completed_registration, verify_verified_email)
-from .models import token_gen
+
+logger = getLogger('loggly_logs')
 
 
 def advocacy(request):
@@ -42,9 +42,9 @@ def political_campaign(request):
         query = 'MATCH (position:Position) RETURN COUNT(position)'
         res, _ = db.cypher_query(query)
         position_count = res.one
-        if position_count is None:
+        if position_count is None:  # pragma: no cover
             position_count = 7274
-    except (CypherException, IOError):
+    except (CypherException, IOError):  # pragma: no cover
         position_count = 7274
     return render(request, 'political_campaign.html',
                   {"position_count": position_count})
@@ -79,35 +79,6 @@ def login_view(request):
     return render(request, 'login.html')
 
 
-@login_required()
-def resend_email_verification(request):
-    try:
-        profile = Pleb.get(username=request.user.username, cache_buster=True)
-    except DoesNotExist:
-        return render(request, 'login.html')
-    except (CypherException, IOError):
-        return redirect('500_Error')
-
-    template_dict = {
-        'full_name': request.user.get_full_name(),
-        'verification_url': "%s%s%s" % (settings.EMAIL_VERIFICATION_URL,
-                                        token_gen.make_token(
-                                            request.user, profile), '/')
-    }
-    subject, to = "Sagebrew Email Verification", request.user.email
-    # text_content = get_template(
-    # 'email_templates/email_verification.txt').render(Context(template_dict))
-    html_content = get_template(
-        'email_templates/email_verification.html').render(
-        Context(template_dict))
-    task_data = {'to': to, 'subject': subject, 'html_content': html_content,
-                 "source": "support@sagebrew.com"}
-    spawned = spawn_task(task_func=send_email_task, task_param=task_data)
-    if isinstance(spawned, Exception):
-        return redirect('500_Error')
-    return redirect("confirm_view")
-
-
 @api_view(['POST'])
 def login_view_api(request):
     try:
@@ -122,7 +93,8 @@ def login_view_api(request):
             return Response({'detail': 'Incorrect password and '
                                        'username combination.'},
                             status=400)
-        except MultipleObjectsReturned:
+        except MultipleObjectsReturned:  # pragma: no cover
+            logger.exception("Multiple Objects Returned: ")
             return Response({'detail': 'Appears we have two users with '
                                        'that email. Please contact '
                                        'support@sagebrew.com.'},
@@ -162,14 +134,17 @@ def email_verification(request, confirmation):
                                cache_buster=True)
         except DoesNotExist:
             return redirect('logout')
+        token_gen = EmailAuthTokenGenerator()
         if token_gen.check_token(request.user, confirmation, profile):
             profile.email_verified = True
             profile.save()
             cache.delete(profile.username)
+            if profile.completed_profile_info:
+                return redirect('interests')
             return redirect('profile_info')
         else:
             return redirect('401_Error')
-    except(CypherException, IOError):
+    except(CypherException, IOError):    # pragma: no cover
         return redirect('500_Error')
 
 
@@ -198,8 +173,8 @@ def profile_information(request):
     try:
         citizen = Pleb.get(username=request.user.username, cache_buster=True)
     except DoesNotExist:
-        return render(request, 'login.html')
-    except (CypherException, IOError):
+        return redirect('login')
+    except (CypherException, IOError):  # pragma: no cover
         return redirect('500_Error')
     if citizen.completed_profile_info:
         return redirect("interests")
@@ -210,7 +185,7 @@ def profile_information(request):
                 address_clean.get('original_selected', False) is True):
             try:
                 state = dict(US_STATES)[address_clean['state']]
-            except KeyError:
+            except KeyError:  # pragma: no cover
                 return address_clean['state']
             address = Address(street=address_clean['primary_address'],
                               street_aditional=address_clean[
@@ -231,7 +206,7 @@ def profile_information(request):
                 citizen.completed_profile_info = True
                 citizen.save()
                 cache.delete(citizen.username)
-            except (CypherException, IOError):
+            except (CypherException, IOError):  # pragma: no cover
                 return redirect('500_Error')
             account_type = request.session.get('account_type')
             if account_type is not None:
@@ -257,6 +232,7 @@ def profile_information(request):
                   login_url='/registration/profile_information')
 def interests(request):
     """
+    DEPRECATED use /v1/me/add_topics_of_interest/
     The interests view creates an InterestForm populates the topics that
     a user can choose from and if a POST request is passed then the function
     checks the validity of the arguments POSTed. If the form is valid then
@@ -285,7 +261,6 @@ def interests(request):
             for tag in interests_list]
         cache.delete(request.user.username)
         return redirect('profile_picture')
-
     return render(request, 'interests.html', {'interest_form': interest_form})
 
 

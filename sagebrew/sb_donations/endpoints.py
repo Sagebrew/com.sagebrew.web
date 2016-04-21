@@ -8,7 +8,6 @@ from neomodel import db
 from api.permissions import IsAuthorizedAndVerified
 from sb_missions.neo_models import Mission
 from sb_quests.neo_models import Quest
-from sb_registration.utils import calc_age
 from plebs.neo_models import Pleb
 
 from .neo_models import Donation
@@ -76,7 +75,7 @@ class DonationListCreate(generics.ListCreateAPIView):
     """
     serializer_class = DonationSerializer
     lookup_field = "object_uuid"
-    permission_classes = (IsAuthorizedAndVerified,)
+    permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
         if "/v1/missions/" in self.request.path:
@@ -103,15 +102,6 @@ class DonationListCreate(generics.ListCreateAPIView):
             quest = Quest.get(owner_username=self.kwargs[self.lookup_field])
         serializer.save(mission=mission, donor=donor, quest=quest,
                         owner_username=donor.username)
-
-    def create(self, request, *args, **kwargs):
-        pleb = Pleb.get(request.user.username)
-        if calc_age(pleb.date_of_birth) < 18:
-            return Response({"detail": "You may not donate to a Quest unless "
-                                       "you are 18 years of age or older.",
-                             "status_code": status.HTTP_401_UNAUTHORIZED},
-                            status=status.HTTP_401_UNAUTHORIZED)
-        return super(DonationListCreate, self).create(request, *args, **kwargs)
 
     def list(self, request, *args, **kwargs):
         """

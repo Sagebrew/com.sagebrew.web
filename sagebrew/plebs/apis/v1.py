@@ -4,8 +4,10 @@ from rest_framework import routers
 
 from plebs.endpoints import (UserViewSet, ProfileViewSet, AddressViewSet,
                              SentFriendRequestViewSet, MeViewSet,
-                             FriendManager, FriendRequestList)
-from sb_posts.endpoints import (WallPostsRetrieveUpdateDestroy)
+                             FriendManager, FriendRequestList,
+                             PasswordReset, ResendEmailVerification)
+from sb_posts.endpoints import (WallPostsRetrieveUpdateDestroy,
+                                WallPostsListCreate)
 
 router = routers.SimpleRouter()
 me_router = routers.SimpleRouter()
@@ -27,10 +29,16 @@ me_router.register(r'friend_requests', FriendRequestList,
 urlpatterns = patterns(
     'plebs.endpoints',
     url(r'^me/', include('sb_notifications.apis.relations.v1')),
+    url(r'^me/resend_verification/$', ResendEmailVerification.as_view(),
+        name='me-resend-verification'),
     url(r'^me/', include(me_router.urls)),
     url(r'^me/friends/(?P<friend_username>[A-Za-z0-9.@_%+-]{2,30})/$',
         FriendManager.as_view(), name="friend-detail"),
+    url(r'^reset_password/', PasswordReset.as_view(),
+        name='profile-reset-password'),
     url(r'^', include(router.urls)),
+    url(r'^profiles/(?P<username>[A-Za-z0-9.@_%+-]{2,30})/wall/$',
+        WallPostsListCreate.as_view(), name="profile-wall"),
     url(r'^profiles/(?P<username>[A-Za-z0-9.@_%+-]{2,30})/wall/'
         r'(?P<post_uuid>[A-Za-z0-9.@_%+-]{36,36})/$',
         WallPostsRetrieveUpdateDestroy.as_view(),

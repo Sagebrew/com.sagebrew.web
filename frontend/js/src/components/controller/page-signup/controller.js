@@ -71,11 +71,10 @@ export function load() {
         event.preventDefault();
         submitSignup();
     });
-
-    $('#signupForm input').keypress(function (e) {
-        if (e.which === 10 || e.which === 13) {
-            e.preventDefault();
+    $('#account-info input').keypress(function (e) {
+        if (e.which === 13 || e.which === 10) {
             submitSignup();
+            return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier
         }
     });
     $('#sign-up-redirect').on('click', function () {

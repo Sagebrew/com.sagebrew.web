@@ -1,13 +1,13 @@
 <div class="block search-block">
     <div class="row">
         <div class="col-xs-4 col-sm-3">
-            <div class="thumbnail sb_thumbnail_md sb_thumbnail_search">
-                <a href="{{ url }}"><img src="{{ profile_pic }}"></a>
+            <div class="search-block-img-wrapper">
+                <a href="{{ url }}"><img src="{{ wallpaper_pic }}" class="max-height-100"></a>
             </div>
         </div>
         <div class="col-xs-8 search-content-block">
             <h6><a href="{{ url }}">{{title}}</a></h6>
-            <p>Started by: {{quest.title}}</p>
+            <p>{{ about }}</p>
         </div>
       </div>
 </div>

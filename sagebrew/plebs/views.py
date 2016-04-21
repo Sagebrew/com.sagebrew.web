@@ -1,4 +1,5 @@
 from uuid import uuid1
+from intercom import Message, Intercom
 
 from django.template.loader import render_to_string
 from django.shortcuts import render, redirect
@@ -21,7 +22,7 @@ from plebs.neo_models import (Pleb, Address)
 
 
 from .serializers import PlebSerializerNeo
-from .tasks import create_friend_request_task, send_email_task
+from .tasks import create_friend_request_task
 from .forms import (SubmitFriendRequestForm)
 from .serializers import AddressSerializer
 
@@ -138,16 +139,26 @@ def contribute_settings(request):
 @api_view(['POST'])
 @permission_classes((IsAuthenticated,))
 def authenticate_representative(request):
+    Intercom.app_id = settings.INTERCOM_APP_ID
+    Intercom.app_api_key = settings.INTERCOM_API_KEY
     pleb = Pleb.get(request.user.username)
-    email_data = {
-        "source": "support@sagebrew.com",
-        "to": [row[1] for row in settings.ADMINS],
-        "subject": "Representative Authentication",
-        "html_content": render_to_string(
-            "email_templates/email_internal_representative_confirmation.html",
-            {"username": pleb.username, "phone": pleb.get_official_phone()})
+    message_data = {
+        'message_type': 'email',
+        'subject': "Representative Authentication",
+        'body': render_to_string(
+            "email_templates/internal_representative_confirmation.html",
+            {"username": pleb.username, "phone": pleb.get_official_phone()}),
+        'template': "personal",
+        'from': {
+            'type': "admin",
+            'id': settings.INTERCOM_ADMIN_ID_DEVON
+        },
+        'to': {
+            'type': "user",
+            'user_id': "devon_bleibtrey"
+        }
     }
-    spawn_task(task_func=send_email_task, task_param=email_data)
+    Message.create(**message_data)
     return Response({"detail": "We will be call your office phone to "
                                "verify soon."},
                     status=status.HTTP_200_OK)

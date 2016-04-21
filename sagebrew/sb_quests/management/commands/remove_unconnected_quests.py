@@ -13,7 +13,7 @@ logger = getLogger('loggly_logs')
 class Command(BaseCommand):
     args = 'None.'
     help = 'Creates placeholder representatives.'
-    cache_key = "removed_duplicate_quests"
+    cache_key = "removed_unconnected_quests"
 
     def remove_duplicate_quests(self):
         skip = 0
@@ -34,8 +34,9 @@ class Command(BaseCommand):
                         'OPTIONAL MATCH (q)-[r]-() ' \
                         'DELETE q, r' % (quest.object_uuid)
                 res, _ = db.cypher_query(query)
-        cache.set("removed_duplicate_quests", True)
+        cache.set(self.cache_key, True)
 
     def handle(self, *args, **options):
-        self.remove_duplicate_quests()
+        if not cache.get(self.cache_key):
+            self.remove_duplicate_quests()
         logger.info("Completed elasticsearch repopulation")

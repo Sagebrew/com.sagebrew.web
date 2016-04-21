@@ -27,6 +27,7 @@ function displayMap() {
                 zoom: zoomLevel,
                 center: latLong,
                 disableDefaultUI: true,
+                draggable: false,
                 scrollwheel: false
             });
             if(data.longitude !== undefined && data.longitude !== null) {

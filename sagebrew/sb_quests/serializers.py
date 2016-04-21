@@ -184,7 +184,7 @@ class QuestSerializer(SBSerializer):
         if initial_state is False and active is True:
             serializer = IntercomEventSerializer(
                 data={'event_name': "take-quest-live",
-                      'username': self.owner_username})
+                      'username': instance.owner_username})
             # Don't raise an error because we rather not notify intercom than
             # hold up the quest activation process
             if serializer.is_valid():

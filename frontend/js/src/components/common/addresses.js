@@ -63,7 +63,7 @@ function validateAddress(addressValidationForm, callbackFunction) {
             document.getElementById('street-additional').value = " ";
         }
         callbackFunction();
-        
+
     });
     liveaddress.on("AddressWasAmbiguous", function(event, data, previousHandler){
         localStorage.setItem(validKey, "ambiguous");

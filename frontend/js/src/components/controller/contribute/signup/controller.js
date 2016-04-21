@@ -35,6 +35,7 @@ export function load() {
     addresses.setupAddress(validateAddressCallback);
     $app
         .on('keyup', 'input', function () {
+            console.log('here');
             continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm]);
         })
         .on('click', '#js-continue-btn', function (event) {

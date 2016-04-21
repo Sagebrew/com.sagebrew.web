@@ -8,7 +8,6 @@ from neomodel import db
 from api.permissions import IsAuthorizedAndVerified
 from sb_missions.neo_models import Mission
 from sb_quests.neo_models import Quest
-from sb_registration.utils import calc_age
 from plebs.neo_models import Pleb
 
 from .neo_models import Donation

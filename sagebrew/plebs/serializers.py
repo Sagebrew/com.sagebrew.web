@@ -397,6 +397,7 @@ class PlebSerializerNeo(SBSerializer):
         :param validated_data:
         :return:
         """
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         request, _, _, _, _ = gather_request_data(self.context)
         update_time = request.data.get('update_time', False)
         first_name = validated_data.get('first_name', instance.first_name)

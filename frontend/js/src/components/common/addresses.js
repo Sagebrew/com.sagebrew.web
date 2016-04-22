@@ -14,7 +14,10 @@ export function setupAddress(validateCallback) {
             var parentPostalCode = helpers.findAncestor(postalCode, 'form-group');
             parentPostalCode.classList.remove('has-success');
         }).on('keyup', '#postal-code', function () {
+            addressValidationForm.formValidation('revalidateField', 'street');
             addressValidationForm.formValidation('revalidateField', 'streetAdditional');
+            addressValidationForm.formValidation('revalidateField', 'city');
+            addressValidationForm.formValidation('revalidateField', 'state');
         });
 }
 

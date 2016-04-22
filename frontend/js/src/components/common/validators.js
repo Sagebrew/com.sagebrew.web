@@ -205,14 +205,6 @@ export function passwordValidator(passwordVal) {
 export function addressValidator(addressVal) {
     addressVal.formValidation({
         framework: 'bootstrap',
-        /*
-        Don't use icons anywhere else but if we want to add this.
-        icon: {
-            valid: 'fa fa-check',
-            invalid: 'fa fa-times',
-            validating: 'fa fa-refresh'
-        },
-        */
         fields: {
             street: {
                 selector: '#street',
@@ -222,7 +214,7 @@ export function addressValidator(addressVal) {
                     },
                     stringLength: {
                         max: 128,
-                        message: "Address info must be shorter than 128 chars"
+                        message: "Address info must be shorter than 128 characters"
                     }
                 }
             },
@@ -231,7 +223,7 @@ export function addressValidator(addressVal) {
                 validators: {
                     stringLength: {
                         max: 128,
-                        message: "Additional street info must be shorter than 128 chars"
+                        message: "Additional street info must be shorter than 128 characters"
                     }
                 }
             },
@@ -251,7 +243,7 @@ export function addressValidator(addressVal) {
                     },
                     stringLength: {
                         max: 2,
-                        message: "Additional street info must be shorter than 128 chars"
+                        message: "State field must be shorter than 2 characters"
                     }
                 }
             },
@@ -263,7 +255,7 @@ export function addressValidator(addressVal) {
                     },
                     stringLength: {
                         max: 15,
-                        message: "Zip Code must be shorter than 128 chars"
+                        message: "Zip Code must be shorter than 15 characters"
                     }
                 }
             }
@@ -450,7 +442,7 @@ export function updateValidator(updateForm) {
                     stringLength: {
                         max: 128,
                         min: 5,
-                        message: 'Title must be between %s and %s'
+                        message: 'Title must be between 5 and 128 characters long'
                     }
                 }
             }

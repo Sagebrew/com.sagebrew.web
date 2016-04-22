@@ -77,6 +77,9 @@ export function amount() {
             } else if (parseInt(numStr) < 1) {
                 errorMinDonationWrapper.classList.remove("sb_hidden");
                 continueBtn.disabled = true;
+            } else if (numStr.replace(/\s/g, "").length === 0 || numStr === null) {
+                errorMinDonationWrapper.classList.remove("sb_hidden");
+                continueBtn.disabled = true;
             } else if (decimalFormat.test(numStr)) {
                 errorMinDonationWrapper.classList.add("sb_hidden");
                 errorFormatWrapper.classList.add("sb_hidden");

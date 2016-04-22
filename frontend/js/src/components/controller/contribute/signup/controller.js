@@ -1,7 +1,7 @@
 var requests = require('api').request,
     helpers = require('common/helpers'),
-    settings = require('settings').settings,
     validators = require('common/validators'),
+    addresses = require('common/addresses'),
     moment = require('moment');
 
 export const meta = {
@@ -26,23 +26,13 @@ export function init() {
  * Load
  */
 export function load() {
-    var latitudeKey = "addressLatitude",
-        longitudeKey = "addressLongitude",
-        countryKey = "addressCountry",
-        congressionalKey = "addressCongressionalDistrict",
-        validKey = "addressValid",
-        originalKey = "addressOriginal",
-        contributionType = helpers.args(3),
-        $app = $(".app-sb"),
-        donateToID = helpers.args(1),
-        missionSlug = helpers.args(2),
+    var $app = $(".app-sb"),
         accountForm = document.getElementById('account-info'),
-        addressForm = document.getElementById('address'),
-        addressValidationForm = $("#address"),
-        continueBtn = document.getElementById('js-continue-btn');
+        continueBtn = document.getElementById('js-continue-btn'),
+        addressForm = document.getElementById('address');
     $(':checkbox').radiocheck();
     validators.accountValidator($("#account-info"));
-    validators.addressValidator(addressValidationForm);
+    addresses.setupAddress(validateAddressCallback);
     $app
         .on('keyup', 'input', function () {
             continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm]);
@@ -51,18 +41,7 @@ export function load() {
             event.preventDefault();
             document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
             var accountData = helpers.getSuccessFormData(accountForm);
-            var addressData = helpers.getSuccessFormData(addressForm);
 
-            // Add the additional address fields we get dynamically from smarty
-            // streets
-            var verify = localStorage.getItem(validKey),
-                validated;
-            validated = verify === "valid";
-            addressData.validated = validated;
-            addressData.latitude = localStorage.getItem(latitudeKey);
-            addressData.longitude = localStorage.getItem(longitudeKey);
-            addressData.country = localStorage.getItem(countryKey);
-            addressData.congressional_district = localStorage.getItem(congressionalKey);
 
             // If employment and occupation info is available add it to the account info
             var campaignFinanceForm = document.getElementById('campaign-finance');
@@ -86,77 +65,10 @@ export function load() {
             accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
             requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
                 .done(function () {
-                    requests.post({url: "/v1/addresses/", data: JSON.stringify(addressData)})
-                        .done(function () {
-                            if(contributionType === "volunteer") {
-                                window.location.href = "/missions/" + donateToID + "/" +
-                                    missionSlug + "/" + contributionType + "/option/";
-                            } else if (contributionType === "endorse") {
-                                window.location.href = "/missions/" + donateToID + "/" +
-                                    missionSlug + "/" + contributionType + "/";
-                            } else {
-                                window.location.href = "/missions/" + donateToID + "/" +
-                                    missionSlug + "/donate/payment/";
-                            }
-                        });
+                    addresses.submitAddress(addressForm, submitAddressCallback);
                 });
         });
-    var liveaddress = $.LiveAddress({
-        key: settings.api.liveaddress,
-        addresses: [
-            {
-                street: "#street",
-                street2: "#street-additional",
-                city: "#city",
-                state: "#state",
-                zipcode: "#postal-code"
-            }
-        ]
-    });
-    liveaddress.activate();
-    liveaddress.on("AddressWasValid", function(event, data, previousHandler){
-        if (data.response.raw[0].metadata.congressional_district === "AL") {
-            localStorage.setItem(congressionalKey, 1);
-        } else {
-            localStorage.setItem(congressionalKey, data.response.raw[0].metadata.congressional_district);
-        }
-        localStorage.setItem(validKey, "valid");
-        localStorage.setItem(latitudeKey, data.response.raw[0].metadata.latitude);
-        localStorage.setItem(longitudeKey, data.response.raw[0].metadata.longitude);
-        localStorage.setItem(countryKey, data.response.raw[0].metadata.county_name);
-        previousHandler(event, data);
-        // Revalidate the form so that we get has-success classess added to all
-        // the valid fields. This way we can use verifyContinue properly
-        addressValidationForm.formValidation('revalidateField', 'street');
-        addressValidationForm.formValidation('revalidateField', 'streetAdditional');
-        addressValidationForm.formValidation('revalidateField', 'city');
-        addressValidationForm.formValidation('revalidateField', 'state');
-        addressValidationForm.formValidation('revalidateField', 'postalCode');
-        // If the street-additional field is blank then replace it with an empty
-        // space so that we don't have green placeholder text in the field.
-        // TODO we may want to spend some more time on rectifying this with css
-        // rather than this hack (change the placeholder text back to grey within
-        // has-success class.
-        if(document.getElementById('street-additional').value === ""){
-            document.getElementById('street-additional').value = " ";
-        }
-        continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm]);
-    });
-    liveaddress.on("AddressWasAmbiguous", function(event, data, previousHandler){
-        localStorage.setItem(validKey, "ambiguous");
-        previousHandler(event, data);
-    });
-    liveaddress.on("AddressWasInvalid", function(event, data, previousHandler){
-        localStorage.setItem(validKey, "invalid");
-        previousHandler(event, data);
-    });
-    liveaddress.on("OriginalInputSelected", function(event, data, previousHandler){
-        var valid = localStorage.getItem(validKey);
-        if (valid === "invalid") {
-            localStorage.setItem(originalKey, true);
-        }
-        previousHandler(event, data);
-    });
+
     $('#birthday').keyup(function (e) {
         helpers.birthdayInputManager(this, e);
     });
@@ -168,4 +80,29 @@ export function load() {
 export function postload() {
     //
     // Intercom Tracking
+}
+
+
+function validateAddressCallback() {
+    var accountForm = document.getElementById('account-info'),
+        continueBtn = document.getElementById('js-continue-btn'),
+        addressForm = document.getElementById('address');
+
+    continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm]);
+}
+
+function submitAddressCallback() {
+    var contributionType = helpers.args(3),
+        missionSlug = helpers.args(2),
+        donateToID = helpers.args(1);
+    if(contributionType === "volunteer") {
+        window.location.href = "/missions/" + donateToID + "/" +
+            missionSlug + "/" + contributionType + "/option/";
+    } else if (contributionType === "endorse") {
+        window.location.href = "/missions/" + donateToID + "/" +
+            missionSlug + "/" + contributionType + "/";
+    } else {
+        window.location.href = "/missions/" + donateToID + "/" +
+            missionSlug + "/donate/payment/";
+    }
 }

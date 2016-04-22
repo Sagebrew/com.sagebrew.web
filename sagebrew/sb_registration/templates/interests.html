@@ -1,281 +1,159 @@
-{% extends "base.html" %}
+{% extends "layout/hero-one-col.html" %}
 {% load staticfiles %}
 {% block title %}Interests{% endblock title %}
 {% block description %}
     <meta name="description" content="A place to highlight what your favorite topics are and what you are most passionate about">
 {% endblock description %}
-
-{% block content %}
-<div class="block registration">
-    <div class="row">
-        <div class="hidden-xs hidden-sm col-md-6">
-            <div>
-                <h1 class="sb_registration_header">About You</h1>
-            </div>
-        </div>
-        <div class="hidden-xs hidden-sm col-md-3 col-md-offset-3">
-            <h4 class="sb_registration_step">Step 2 of 3</h4>
-        </div>
+{% block hero %}
+    <div class="block">
+        <h1 class="block-title no-underline center-title">About You</h1>
     </div>
-    <div class="row">
-        <div class="hidden-xs hidden-sm col-md-12">
-            <div class="deco-line-interests"></div>
-        </div>
-    </div>
-    <div class="row registration-row">
-        <div class="col-xs-12 col-md-offset-1">
-            <div class="hidden-xs hidden-sm">
-                <h2>Conversation Topics</h2>
-                <small>What are your favorite topics? We'll use these to
+{% endblock hero %}
+{% block live %}
+    <div class="block">
+        <h2 class="block-title">
+            Conversation Topics
+        </h2>
+        <div class="block-content no-top-bottom-padding">
+            <small>What are your favorite topics? We'll use these to
                     help find info from the Conversation Cloud to put on your newsfeed.</small>
-            </div>
-            <div class="hidden-lg hidden-md" align="center">
-                <h2>Conversation Topics</h2>
-                <small>What are your favorite topics? We'll use these to
-                    help find info from the Conversation Cloud to put on your newsfeed.</small>
+        </div>
+        <div class="block-content">
+            <div id="js-option-list">
+                <div class="loader" id="select-loader"></div>
             </div>
         </div>
-        <div class="col-xs-12 col-md-10 col-md-offset-1">
-            <div class="deco-line-interests"></div>
+        <h2 class="block-title">
+            Interested In
+        </h2>
+        <div class="block-content no-top-bottom-padding">
+            <small>Are you interested in working with others to achieve a goal? We can help you
+                        connect with the people who share your passions.</small>
         </div>
-    </div>
+        <div class="block-content">
+            {% comment %}One off width to fix location of tooltip{% endcomment %}
+            <div class="tooltips no-padding-right" style="width: 130px;"
+                 data-toggle="tooltip"
+                 data-original-title="We'll notify Quests sharing your passions
+                 that you're interested in helping out">
+                <label class="checkbox" for="volunteering">
+                    Volunteering
+                    <input type="checkbox"
+                           value="false"
+                           name="volunteering"
+                           id="volunteering"
+                           data-toggle="checkbox">
+                </label>
+            </div>
+            {% comment %}One off width to fix location of tooltip{% endcomment %}
+            <div class="tooltips no-padding-right" style="width: 150px;"
+                     data-toggle="tooltip"
+                     data-original-title="We'll notify Quests sharing your passions
+                     that you're interested in knowing about their Events">
+                <label class="checkbox" for="attend-events">
+                    Attending Events
+                    <input type="checkbox"
+                           value="false"
+                           name="attend-events"
+                           id="attend-events"
+                           data-toggle="checkbox">
+                </label>
+            </div>
 
-    <div>
-        <form name="interstForm" action="/registration/interests/" method="post">{% csrf_token %}
-            <div class="row">
-                {% for field in interest_form %}
-                    {% if field.id_for_label == "id_select_all" %}
-                        <div class="row-fluid">
-                            <div class="col-xs-10 col-sm-3 col-sm-offset-1 no-padding-right">
-                                <div class="has-popover"
-                                     data-toggle="tooltip"
-                                     data-original-title="{{ field.help_text }}">
-                                    {{ field.label_tag }}
-                                </div>
-                            </div>
-                            <div class="col-xs-1 col-sm-2">
-                                <label class=" checkbox toggle-all"
-                                    for="{{ field.id_for_label }}">
-                                        <input type="checkbox"
-                                               value=""
-                                               name="{{ field.html_name }}"
-                                               id="{{ field.id_for_label }}"
-                                               data-toggle="checkbox">
-                                </label>
-                            </div>
-                        </div>
-                    {% endif %}
-                {% endfor %}
-                <div id="select_all_checkboxes">
-                    {% for field in interest_form %}
-                        {% if field.id_for_label != "id_select_all" and not forloop.last %}
-                            <div class="col-xs-10 col-sm-3 col-sm-offset-1">
-                                <div class="tooltips"
-                                     data-toggle="tooltip"
-                                     data-original-title="{{ field.help_text }}">
-                                    {{ field.label_tag }}
-                                </div>
-                            </div>
-                            <div class="col-xs-1 col-sm-2">
-                                <label class="checkbox" for="{{ field.html_name }}">
-                                    <input type="checkbox"
-                                           value="{{ field.value|default_if_none:"false" }}"
-                                           name="interests"
-                                           id="{{ field.html_name }}"
-                                           data-toggle="checkbox">
-                                </label>
-                            </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
+        </div>
+        <div id="affiliation-js" hidden>
+            <h2 class="block-title">
+                Affiliations
+            </h2>
+            <div class="block-content no-top-bottom-padding">
+                <small>Are there any parties you're apart of or like to affiliate with?</small>
             </div>
-            <div class="row registration-row">
-                <div class="col-xs-12 col-md-offset-1">
-                    <div class="hidden-xs hidden-sm">
-                        <h2>Interested In</h2>
-                        <small>Are you interested in working with others to achieve a goal? We can help you
-                        connect with the people who share your passions.</small>
-                    </div>
-                    <div class="hidden-lg hidden-md" align="center">
-                        <h2>Interested In</h2>
-                        <small>Are you interested in working with others to achieve a goal? We can help you
-                        connect with the people who share your passions.</small>
-                    </div>
-                </div>
-                <div class="col-xs-12 col-md-10 col-md-offset-1">
-                    <div class="deco-line-interests"></div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-xs-10 col-sm-3 col-sm-offset-1">
-                    <div class="tooltips"
-                         data-toggle="tooltip"
-                         data-original-title="We'll notify Quests sharing your passions
-                         that you're interested in helping out">
-                        <label for="volunteering">Volunteering</label>
-                    </div>
-                </div>
-                <div class="col-xs-1 col-sm-2">
-                    <label class="checkbox" for="volunteering">
+            <div class="block-content">
+                <div class="no-padding-right">
+                    <label class="checkbox" for="independent">
+                        Independent
                         <input type="checkbox"
                                value="false"
-                               name="volunteering"
-                               id="volunteering"
+                               name="independent"
+                               id="independent"
                                data-toggle="checkbox">
                     </label>
                 </div>
-                <div class="col-xs-10 col-sm-4 col-md-3 col-md-offset-1">
-                    <div class="tooltips"
-                         data-toggle="tooltip"
-                         data-original-title="We'll notify Quests sharing your passions
-                         that you're interested in knowing about their Events">
-                        <label for="attend-events">Attending Events</label>
-                    </div>
-                </div>
-                <div class="col-xs-1 col-sm-2">
-                    <label class="checkbox" for="attend-events">
+                <div class="no-padding-right">
+                    <label class="checkbox" for="democratic-party">
+                        Democratic Party
                         <input type="checkbox"
                                value="false"
-                               name="attend-events"
-                               id="attend-events"
+                               name="democratic-party"
+                               id="democratic-party"
+                               data-toggle="checkbox">
+                    </label>
+                </div>
+                <div class="no-padding-right">
+                    <label class="checkbox" for="republican-party">
+                        Republican Party
+                        <input type="checkbox"
+                               value="false"
+                               name="republican-party"
+                               id="republican-party"
+                               data-toggle="checkbox">
+                    </label>
+                </div>
+                <div class="no-padding-right">
+                    <label class="checkbox" for="libertarian-party">
+                        Libertarian Party
+                        <input type="checkbox"
+                               value="false"
+                               name="libertarian-party"
+                               id="libertarian-party"
+                               data-toggle="checkbox">
+                    </label>
+                </div>
+                <div class="no-padding-right">
+                    <label class="checkbox" for="green-party">
+                        Green Party
+                        <input type="checkbox"
+                               value="false"
+                               name="green-party"
+                               id="green-party"
+                               data-toggle="checkbox">
+                    </label>
+                </div>
+                <div class="no-padding-right">
+                    <label class="checkbox" for="constitution-party">
+                        Constitution Party
+                        <input type="checkbox"
+                               value="false"
+                               name="constitution-party"
+                               id="constitution-party"
+                               data-toggle="checkbox">
+                    </label>
+                </div>
+                <div class="no-padding-right">
+                    <label class="checkbox" for="not-listed">
+                        Other
+                        <input type="checkbox"
+                               value="false"
+                               name="not-listed"
+                               id="not-listed"
                                data-toggle="checkbox">
                     </label>
                 </div>
             </div>
-            <div id="affiliation-js" hidden>
-                <div class="row registration-row">
-                    <div class="col-xs-12 col-md-offset-1">
-                        <div class="hidden-xs hidden-sm">
-                            <h2>Affiliations</h2>
-                            <small>Are there any parties you're apart of or like to affiliate with?</small>
-                        </div>
-                        <div class="hidden-lg hidden-md" align="center">
-                            <h2>Affiliations</h2>
-                            <small>Are there any parties you're apart of or like to affiliate with?</small>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-md-10 col-md-offset-1">
-                        <div class="deco-line-interests"></div>
-                    </div>
+        </div>
+        <div class="row">
+            <div class="row sb_row_continue">
+
+                <div class="col-xs-6 col-md-4 col-md-offset-4">
+                    <a href="{% url "profile_picture" %}" class="btn btn-block btn-lg btn-primary sb_btn sb_btn_remove" id="skip-step">Skip Step</a>
                 </div>
-                <div class="row">
-                    <div class="col-xs-10 col-sm-3 col-sm-offset-1">
-                        <div>
-                            <label for="independent">Independent</label>
-                        </div>
-                    </div>
-                    <div class="col-xs-1 col-sm-2">
-                        <label class="checkbox" for="independent">
-                            <input type="checkbox"
-                                   value="false"
-                                   name="independent"
-                                   id="independent"
-                                   data-toggle="checkbox">
-                        </label>
-                    </div>
-                    <div class="col-xs-10 col-sm-4 col-md-3 col-md-offset-1">
-                        <div>
-                            <label for="not-listed">Other</label>
-                        </div>
-                    </div>
-                    <div class="col-xs-1 col-sm-2">
-                        <label class="checkbox" for="not-listed">
-                            <input type="checkbox"
-                                   value="false"
-                                   name="not-listed"
-                                   id="not-listed"
-                                   data-toggle="checkbox">
-                        </label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-10 col-sm-3 col-sm-offset-1">
-                        <div>
-                            <label for="democratic-party">Democratic Party</label>
-                        </div>
-                    </div>
-                    <div class="col-xs-1 col-sm-2">
-                        <label class="checkbox" for="democratic-party">
-                            <input type="checkbox"
-                                   value="false"
-                                   name="democratic-party"
-                                   id="democratic-party"
-                                   data-toggle="checkbox">
-                        </label>
-                    </div>
-                    <div class="col-xs-10 col-sm-4 col-md-3 col-md-offset-1">
-                        <div>
-                            <label for="republican-party">Republican Party</label>
-                        </div>
-                    </div>
-                    <div class="col-xs-1 col-sm-2">
-                        <label class="checkbox" for="republican-party">
-                            <input type="checkbox"
-                                   value="false"
-                                   name="republican-party"
-                                   id="republican-party"
-                                   data-toggle="checkbox">
-                        </label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-10 col-sm-3 col-sm-offset-1">
-                        <div>
-                            <label for="libertarian-party">Libertarian Party</label>
-                        </div>
-                    </div>
-                    <div class="col-xs-1 col-sm-2">
-                        <label class="checkbox" for="libertarian-party">
-                            <input type="checkbox"
-                                   value="false"
-                                   name="libertarian-party"
-                                   id="libertarian-party"
-                                   data-toggle="checkbox">
-                        </label>
-                    </div>
-                    <div class="col-xs-10 col-sm-4 col-md-3 col-md-offset-1">
-                        <div>
-                            <label for="green-party">Green Party</label>
-                        </div>
-                    </div>
-                    <div class="col-xs-1 col-sm-2">
-                        <label class="checkbox" for="green-party">
-                            <input type="checkbox"
-                                   value="false"
-                                   name="green-party"
-                                   id="green-party"
-                                   data-toggle="checkbox">
-                        </label>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-xs-10 col-sm-3 col-sm-offset-1">
-                        <div>
-                            <label for="constitution-party">Constitution Party</label>
-                        </div>
-                    </div>
-                    <div class="col-xs-1 col-sm-2">
-                        <label class="checkbox" for="constitution-party">
-                            <input type="checkbox"
-                                   value="false"
-                                   name="constitution-party"
-                                   id="constitution-party"
-                                   data-toggle="checkbox">
-                        </label>
-                    </div>
+                <div class="col-xs-6 col-md-4">
+                    <button class="btn btn-block btn-lg btn-primary sb_btn"
+                           type="submit" id="submit-js">Continue</button>
                 </div>
             </div>
-            <div class="row">
-                <div class="row sb_row_continue">
-                    <div class="col-xs-12 col-sm-4 col-md-3 col-sm-offset-7 col-md-offset-8">
-                        <button class="btn btn-block btn-lg btn-primary sb_btn"
-                               type="submit" id="submit-js">Continue</button>
-                    </div>
-                </div>
-            </div>
-        </form>
+        </div>
     </div>
-</div>
 {% endblock %}
 {% block intercom %}
    Intercom('trackEvent', 'interests-registration');

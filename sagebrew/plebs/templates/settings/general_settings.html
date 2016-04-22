@@ -32,7 +32,7 @@
                 </div>
                 <div class="form-group  has-success">
                     <label for="email">Email</label>
-                    <input type="text"
+                    <input type="email"
                            id="email"
                            name="email"
                            placeholder="Email"
@@ -55,53 +55,7 @@
         </h3>
         <div class="block-content">
             <div id="address-id" data-id="{{ address.id }}"></div>
-            <form id="address">
-                <div class="form-group has-success">
-                    <label for="street">Address Line 1</label>
-                    <input type="text"
-                           id="street"
-                           name="street"
-                           value="{{ address.street }}"
-                           placeholder="Address Line 1*"
-                           class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="street-additional">Address Line 2</label>
-                    <input type="text"
-                           id="street-additional"
-                           name="street_additional"
-                           value="{{ address.street_additional|default_if_none:'' }}"
-                           placeholder="Apt, Building, etc"
-                           class="form-control">
-                </div>
-                <div class="form-group has-success">
-                    <label for="city">City</label>
-                    <input type="text"
-                           id="city"
-                           name="city"
-                           value="{{ address.city }}"
-                           placeholder="City*"
-                           class="form-control">
-                </div>
-                <div class="form-group has-success">
-                    <label for="state">State</label>
-                    <input type="text"
-                           id="state"
-                           name="state"
-                           value="{{ address.state }}"
-                           placeholder="State*"
-                           class="form-control">
-                </div>
-                <div class="form-group has-success">
-                    <label for="postal-code">Zip Code</label>
-                    <input type="text"
-                           id="postal-code"
-                           name="postal_code"
-                           value="{{ address.postal_code }}"
-                           placeholder="Zip Code*"
-                           class="form-control">
-                </div>
-            </form>
+            {% include "address_form.html" %}
             <div class="row">
                 <div class="col-md-6 col-lg-4">
                     <button id="js-continue-btn" type="submit" class="btn btn-primary sb_btn sb_btn_fill">Update Address</button>

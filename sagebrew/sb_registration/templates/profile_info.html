@@ -1,145 +1,32 @@
-{% extends "base.html" %}
+{% extends "layout/hero-one-col.html" %}
 {% load staticfiles %}
 {% block title %} Profile Information {% endblock %}
-{% block content %}
-    <div class="block registration">
-        <form action="/registration/profile_information/" method="POST">{% csrf_token %}
-            <div class="row">
-                <div class="col-xs-12 col-sm-7 col-md-6">
-                    <div>
-                        <h1 class="hidden-xs sb_registration_header">Profile Information</h1>
-                    </div>
-                </div>
-                <div class="col-xs-4 col-sm-5 col-md-3 col-md-offset-3">
-                    <h4 class="hidden-xs sb_registration_step">Step 1 of 3</h4>
-                </div>
-            </div>
-            <div class="sb_deco_line hidden-xs"></div>
-            <div class="row">
-                {% for field in address_information_form %}
-                    {% for error in field.errors %}
-                        <div class="col-sm-10 col-sm-offset-1">
-                            <div class="alert alert-danger" role="alert">{{ field.label }} : {{ error }}</div>
-                        </div>
-                    {% endfor %}
-                {% endfor %}
-            </div>
-
-            <div class="row">
-                <div class="col-xs-12">
-                    <h4 class="hidden-xs col-md-9 col-sm-10 col-sm-offset-1 sb_registration_header">Address</h4>
-                    <h2 class="hidden-lg hidden-md hidden-sm sb_registration_step" align="center">Address</h2>
-                </div>
-            </div>
-            <div class="hidden-lg hidden-md hidden-sm sb_deco_line"></div>
-            <div class="sb_line hidden-lg hidden-md hidden-sm"></div>
-                {% for field in address_information_form %}
-                    {% if field.id_for_label == "id_primary_address" or field.id_for_label == "id_street_additional" %}
-                        <div class="row">
-                            <div class="col-xs-10 col-xs-offset-1">
-                                <div class="form-group">
-                                    {% if field.errors %}
-                                        <div class="has-error">
-                                    {% else %}
-                                        <div>
-                                    {% endif %}
-                                    {% if field.id_for_label == "id_primary_address" %}
-                                        <input type="text"
-                                               id="sb_primary"
-                                               name="{{ field.html_name }}"
-                                               value="{{ field.value|default_if_none:'' }}"
-                                               placeholder="Address Line 1*"
-                                               class="form-control input-lg"
-                                               autocomplete="off">
-                                    {% elif field.id_for_label == "id_street_additional" %}
-                                        <input type="text"
-                                               id="sb_secondary"
-                                               name="{{ field.html_name }}"
-                                               value="{{ field.value|default_if_none:'' }}"
-                                               placeholder="Apt, Building, etc"
-                                               class="form-control input-lg"
-                                               autocomplete="off">
-                                    {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                    {% endif %}
-                {% endfor %}
-                <div class="row">
-                    <div class="col-xs-12">
-                        {% for field in address_information_form %}
-                            {% if field.id_for_label != "id_primary_address" and field.id_for_label != "id_street_additional" %}
-                                {% if field.id_for_label == "id_state" %}
-                                    <div class="col-xs-10 col-md-2 col-xs-offset-1 col-md-offset-0 sb_address_fix">
-                                {% elif field.id_for_label == "id_city" %}
-                                    <div class="col-xs-10 col-md-4 col-xs-offset-1 col-md-offset-1 sb_address_fix">
-                                {% elif field.id_for_label == "id_postal_code" %}
-                                    <div class="col-xs-10 col-md-4 col-xs-offset-1 col-md-offset-0 sb_address_fix">
-                                {% else %}
-                                    <div>
-                                {% endif %}
-                                <div>
-                                    {% if field.errors %}
-                                        <div class="has-error">
-                                    {% else %}
-                                        <div class="form-group">
-                                    {% endif %}
-                                    {% if field.id_for_label == "id_city" %}
-                                        <input type="text"
-                                               id="sb_city"
-                                               name="{{ field.html_name }}"
-                                               value="{{ field.value|default_if_none:'' }}"
-                                               placeholder="City*"
-                                               class="form-control input-lg"
-                                               autocomplete="off">
-                                    {% elif field.id_for_label == "id_state" %}
-                                        <input type="text"
-                                               id="sb_state"
-                                               name="{{ field.html_name }}"
-                                               value="{{ field.value|default_if_none:'' }}"
-                                               placeholder="State*"
-                                               class="form-control input-lg"
-                                               autocomplete="off">
-                                    {% elif field.id_for_label == "id_postal_code" %}
-                                        <input type="text"
-                                               id="sb_zip"
-                                               name="{{ field.html_name }}"
-                                               value="{{ field.value|default_if_none:'' }}"
-                                               placeholder="Zip Code*"
-                                               class="form-control input-lg sb_zip"
-                                               autocomplete="off">
-                                    {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endif %}
-                        {% endfor %}
-                        {% for hidden in address_information_form.hidden_fields %}
-                            {{ hidden }}
-                        {% endfor %}
-                    </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-10 col-md-4 col-xs-offset-1 col-md-offset-7">
-                            <button class="btn btn-block btn-lg btn-primary sb_btn"
-                                   type="submit">Continue</button>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div align="center"><small>Fields marked with an * are required</small></div>
-                        </div>
-                    </div>
-            </form>
+{% block hero %}
+    <div class="block">
+        <h1 class="block-title no-underline center-title">Profile Information</h1>
+    </div>
+{% endblock hero %}
+{% block live %}
+    <div class="block">
+        <h2 class="block-title">
+            Address
+        </h2>
+        <div class="block-content no-top-bottom-padding">
+            <small>We do <b>not</b> make this information public.
+                But we need it to determine what political
+                and advocacy missions affect you and to verify which political missions you
+                can donate to and volunteer for.</small>
         </div>
-    <div hidden id="address_data_block" data-address_validation={{ address_key }}></div>
+        <div class="block-content">
+            {% include "address_form.html" %}
+            <div class="row">
+                <div class="col-md-6 col-lg-4">
+                    <button id="js-continue-btn" disabled type="submit" class="btn btn-primary sb_btn sb_btn_fill">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/address_validation.js' %}"></script>
-{% endblock scripts %}
-
 {% block intercom %}
    Intercom('trackEvent', 'address-registration');
 {% endblock %}

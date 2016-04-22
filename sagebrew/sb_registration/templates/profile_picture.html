@@ -1,38 +1,30 @@
-{% extends "base.html" %}
+{% extends "layout/hero-one-col.html" %}
 {% load staticfiles %}
 {% block title %}Profile Picture Selection{% endblock title %}
-{% block content %}
-    <div class="block registration">
-        <div class="row">
-            <div class="col-lg-6 col-md-6 col-sm-7 col-xs-12 ">
-                <div>
-                    <h1 class="hidden-xs sb_registration_header">Profile Picture</h1>
-                </div>
-                <div>
-                    <h1 class="hidden-lg hidden-md hidden-sm"
-                        align="center">Profile Picture</h1>
+{% block hero %}
+    <div class="block">
+        <h1 class="block-title no-underline center-title">Profile Picture</h1>
+    </div>
+{% endblock hero %}
+{% block live %}
+    <div class="block">
+        <div class="block-content">
+            <div class="row" align="center">
+                <div class="col-lg-4 col-lg-offset-4" align="center">
+                    <div id="cropProfilePictureEyecandy"></div>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-3 col-sm-5 col-xs-4 col-lg-offset-3 col-md-offset-3">
-                    <h4 class="hidden-xs sb_registration_step">Step 3 of 3</h4>
+            <div class="row" align="center">
+                <div class="col-lg-4 col-lg-offset-4" align="center">
+                    <div><small>Please ensure the file is less than 20 mb</small></div>
+                </div>
+            </div>
+            <div class="row" align="center" style="margin-bottom: 30px;">
+                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-7">
+                    <button class="btn btn-block btn-lg btn-primary sb_btn sb_btn_remove" id="skip-step">Skip Step</button>
+                </div>
             </div>
         </div>
-        <div class="sb_deco_line"></div>
-        <div class="row" align="center">
-          <div class="col-lg-4 col-lg-offset-4" align="center">
-            <div id="cropProfilePictureEyecandy"></div>
-          </div>
-        </div>
-        <div class="row" align="center">
-          <div class="col-lg-4 col-lg-offset-4" align="center">
-            <div><small>Please ensure the file is less than 20 mb</small></div>
-          </div>
-        </div>
-      <div class="row" align="center" style="margin-bottom: 30px;">
-          <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 col-lg-offset-8 col-md-offset-8 col-sm-offset-7">
-            <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove" id="skip-step">Skip Step</button>
-          </div>
-      </div>
     </div>
 {% endblock %}
 

@@ -35,10 +35,12 @@ export function load() {
     addresses.setupAddress(validateAddressCallback);
     $app
         .on('keyup', 'input', function () {
-            console.log('here');
             continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm]);
         })
         .on('click', '#js-continue-btn', function (event) {
+            if(continueBtn.disabled === true) {
+                continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm])
+            }
             event.preventDefault();
             document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
             var accountData = helpers.getSuccessFormData(accountForm);

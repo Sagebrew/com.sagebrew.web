@@ -7,13 +7,15 @@ export function setupAddress(validateCallback) {
     var addressValidationForm = $("#address");
     validators.addressValidator(addressValidationForm);
     validateAddress(addressValidationForm, validateCallback);
-    $(".app-sb").on('keypress', '#street', function() {
-        var postalCode = document.getElementById('postal-code');
-        postalCode.value = "";
-        var parentPostalCode = helpers.findAncestor(postalCode, 'form-group');
-        parentPostalCode.classList.remove('has-success');
-
-    });
+    $(".app-sb")
+        .on('keypress', '#street', function() {
+            var postalCode = document.getElementById('postal-code');
+            postalCode.value = "";
+            var parentPostalCode = helpers.findAncestor(postalCode, 'form-group');
+            parentPostalCode.classList.remove('has-success');
+        }).on('keyup', '#postal-code', function () {
+            addressValidationForm.formValidation('revalidateField', 'streetAdditional');
+        });
 }
 
 function validateAddress(addressValidationForm, callbackFunction) {
@@ -63,7 +65,7 @@ function validateAddress(addressValidationForm, callbackFunction) {
             document.getElementById('street-additional').value = " ";
         }
         callbackFunction();
-
+        
     });
     liveaddress.on("AddressWasAmbiguous", function(event, data, previousHandler){
         localStorage.setItem(validKey, "ambiguous");

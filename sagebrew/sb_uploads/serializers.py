@@ -91,6 +91,7 @@ class UploadSerializer(SBSerializer):
         # http://stackoverflow.com/questions/27591574/
         # order-of-serializer-validation-in-django-rest-framework
         request = self.context.get('request')
+        editor = request.query_params.get('editor', 'false').lower()
         if request is not None:
             object_uuid = request.query_params.get('random', None)
         else:
@@ -133,10 +134,11 @@ class UploadSerializer(SBSerializer):
                                   "Valid types are jpeg, jpg, and png")
         if self.context.get('file_name', None) is not None:
             file_name = self.context.get('file_name')
-        if data['width'] < 100:
-            raise ValidationError("Must be at least 100 pixels wide")
-        if data['height'] < 100:
-            raise ValidationError("Must be at least 100 pixels tall")
+        if editor != 'true':
+            if data['width'] < 100:
+                raise ValidationError("Must be at least 100 pixels wide")
+            if data['height'] < 100:
+                raise ValidationError("Must be at least 100 pixels tall")
         if file_size > settings.ALLOWED_IMAGE_SIZE:
             raise ValidationError(
                 "Your file cannot be larger than 20mb. Please select "

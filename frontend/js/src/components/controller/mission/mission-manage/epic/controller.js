@@ -32,17 +32,35 @@ export function load() {
     var $app = $(".app-sb"),
         missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         editor = new mediumEditor(".editable", {
-            buttonLabels: true
+            buttonLabels: true,
+            autoLink: true
         });
+    // Uploading images here via fileUploadOptions because submitting the
+    // binary data directly causes browsers to crash if the images are
+    // too large/there are too many images
     $(".editable").mediumInsert({
-        editor: editor
+        editor: editor,
+        addons: {
+            images: {
+                fileUploadOptions: {
+                    url: "/v1/upload/?editor=true",
+                    acceptFileTypes: /(.|\/)(gif|jpe?g|png)$/i,
+                    paramName: "file_object"
+                }
+            },
+            embeds: {
+                oembedProxy: null
+            }
+        }
     });
 
     $app
         .on('click', '#submit', function(event) {
             event.preventDefault();
+            var serialized = editor.serialize(),
+                key = Object.keys(editor.serialize())[0];
             request.patch({url: "/v1/missions/" + missionId + "/",
-                data: JSON.stringify({'epic': $('textarea#wmd-input-0').val()})
+                data: JSON.stringify({'epic': serialized[key].value})
             })
                 .done(function (){
                     $.notify({message: "Saved Epic Successfully"}, {type: "success"});

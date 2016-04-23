@@ -63,13 +63,17 @@ export function load() {
 
     //
     // Form Validation
-    validators.accountValidator($("#account-info"));
+    var accountValidationForm = $("#account-info");
+    validators.accountValidator(accountValidationForm);
 
     //
     // Actual signup form.
     $("#submit_signup").on('click', function (event) {
         event.preventDefault();
-        submitSignup();
+        accountValidationForm.data('formValidation').validate();
+        if(accountValidationForm.data('formValidation').isValid() === true) {
+            submitSignup();
+        }
     });
     $('#account-info input').keypress(function (e) {
         if (e.which === 13 || e.which === 10) {

@@ -17,60 +17,7 @@
             Personal Information
         </h3>
         <div class="block-content">
-            <form id="account-info">
-                <div class="form-group">
-                    <label for="first-name">First Name*</label>
-                    <input type="text"
-                           id="first-name"
-                           name="first_name"
-                           placeholder="First Name*"
-                           value="" class="form-control">
-                </div>
-
-                <div class="form-group">
-                    <label for="last_name">Last Name*</label>
-                    <input type="text"
-                           id="last-name"
-                           name="last_name"
-                           placeholder="Last Name*"
-                           value="" class="form-control">
-                </div>
-
-                <div class="form-group">
-                    <label for="email">Email*</label>
-                    <input type="email"
-                           id="email"
-                           name="email"
-                           placeholder="Email*"
-                           value="" class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="password">Password*</label>
-                    <input type="password"
-                           value=""
-                           name="password"
-                           id="password"
-                           placeholder="Password*"
-                           class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="password2">Re-enter Password*</label>
-                    <input type="password"
-                           value=""
-                           name="password2"
-                           id="password2"
-                           placeholder="Re-enter Password*"
-                           class="form-control">
-                </div>
-                <div class="form-group">
-                    <label for="birthday">Birthday*</label>
-                    <input type="text"
-                           id="birthday"
-                           name="date_of_birth"
-                           placeholder="MM/DD/YYYY*"
-                           value="" class="form-control">
-                </div>
-            </form>
+            {% include "account_info_form.html" %}
         </div>
     </div>
     <div class="block">
@@ -81,7 +28,7 @@
             {% include "address_form.html" %}
             <div class="row">
                 <div class="col-md-6 col-lg-4">
-                    <button id="js-continue-btn" disabled type="submit" class="btn btn-primary sb_btn sb_btn_fill">Continue</button>
+                    <button id="js-continue-btn" type="submit" class="btn btn-primary sb_btn sb_btn_fill">Continue</button>
                 </div>
                 <div class="col-md-6 col-lg-4">
                     <a href="{% if selected != None %}{% url "mission" selected.id selected.slug %}{% else %}{% url "quest" quest.owner_username %}{% endif %}" class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove"

@@ -19,6 +19,7 @@ export function setupAddress(validateCallback) {
             addressValidationForm.formValidation('revalidateField', 'city');
             addressValidationForm.formValidation('revalidateField', 'state');
         });
+    return addressValidationForm;
 }
 
 function validateAddress(addressValidationForm, callbackFunction) {

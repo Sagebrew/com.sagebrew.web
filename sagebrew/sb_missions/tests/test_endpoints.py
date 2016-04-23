@@ -1144,7 +1144,7 @@ class MissionEndpointTests(APITestCase):
                                            'Office,Table At Events,Call Voters,'
                                            'Data Entry,Host A Meeting,Host A '
                                            'Fundraiser,Host A House Party,'
-                                           'Attend A House Party\r\n')
+                                           'Attend A House Party,Other\r\n')
 
     def test_endorse(self):
         self.client.force_authenticate(user=self.user)

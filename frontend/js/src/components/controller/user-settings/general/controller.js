@@ -94,11 +94,6 @@ export function postload() {
 
 
 function validateAddressCallback() {
-    var accountForm = document.getElementById('account-info'),
-        continueBtn = document.getElementById('js-continue-btn'),
-        addressForm = document.getElementById('address');
-
-    continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm]);
 }
 
 function submitAddressCallback() {

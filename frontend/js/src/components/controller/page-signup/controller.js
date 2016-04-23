@@ -68,24 +68,25 @@ export function load() {
 
     //
     // Actual signup form.
-    $("#submit_signup").on('click', function (event) {
-        event.preventDefault();
-        accountValidationForm.data('formValidation').validate();
-        if(accountValidationForm.data('formValidation').isValid() === true) {
-            submitSignup();
-        }
-    });
-    $('#account-info input').keypress(function (e) {
-        if (e.which === 13 || e.which === 10) {
-            submitSignup();
-            return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier
-        }
-    });
-    $('#sign-up-redirect').on('click', function () {
-        var WH = $(window).height();
-        var SH = $('body')[0].scrollHeight;
-        $('html, body').stop().animate({scrollTop: SH-WH}, 1000);
-    });
+    $(".app-sb")
+        .on('click', '#submit_signup', function (event) {
+            event.preventDefault();
+            accountValidationForm.data('formValidation').validate();
+            if(accountValidationForm.data('formValidation').isValid() === true) {
+                submitSignup();
+            }
+        })
+        .on('keypress', '#account-info input', function(event) {
+            if (event.which === 13 || event.which === 10) {
+                submitSignup();
+                return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier
+            }
+        })
+        .on('click', '#sign-up-redirect', function () {
+            var WH = $(window).height();
+            var SH = $('body')[0].scrollHeight;
+            $('html, body').stop().animate({scrollTop: SH-WH}, 1000);
+        });
 
     //
     // Background Video

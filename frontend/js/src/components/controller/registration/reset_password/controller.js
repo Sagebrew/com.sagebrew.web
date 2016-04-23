@@ -25,17 +25,16 @@ export function load() {
             event.preventDefault();
             var emailAddress = document.getElementById('id_email').value,
                 resetBtn = document.getElementById('js-reset-password');
-            resetBtn.disabled = true;
-            request.post(
-                {url: "/v1/reset_password/", data: JSON.stringify({'email': emailAddress})}
-            )
-                .done(function () {
-                    window.location.href = "/password_reset/done/";
-                })
-                .fail(function () {
-                    resetBtn.disabled = false;
-                });
+            resetPassword(emailAddress, resetBtn);
             return false;
+        })
+        .on('keypress', '#id_email', function (event) {
+            var emailAddress = document.getElementById('id_email').value,
+                resetBtn = document.getElementById('js-reset-password');
+            if (event.which === 13 || event.which === 10) {
+                resetPassword(emailAddress, resetBtn);
+                return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier
+            }
         });
 }
 
@@ -45,4 +44,16 @@ export function load() {
 export function postload() {
     //
     // Intercom Tracking
+}
+
+
+function resetPassword (emailAddress, btn) {
+    btn.disabled = true;
+    request.post(
+        {url: "/v1/reset_password/", data: JSON.stringify({'email': emailAddress})}
+    ).done(function () {
+            window.location.href = "/password_reset/done/";
+    }).fail(function () {
+            btn.disabled = false;
+    });
 }

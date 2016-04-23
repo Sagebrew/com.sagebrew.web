@@ -32,7 +32,6 @@ export function init() {
  */
 export function load() {
     // Single content loader
-    console.log('here')
     loader.init();
 }
 

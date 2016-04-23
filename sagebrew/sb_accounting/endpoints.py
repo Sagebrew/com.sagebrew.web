@@ -6,6 +6,7 @@ from datetime import datetime
 from intercom import Intercom, Event
 
 from django.conf import settings
+from django.core.cache import cache
 
 from rest_framework import status, viewsets
 from rest_framework.reverse import reverse
@@ -84,7 +85,7 @@ class AccountingViewSet(viewsets.ViewSet):
             except (stripe.InvalidRequestError, stripe.APIConnectionError):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=account.email)
-            quest = Quest.get(pleb.username)
+            quest = Quest.nodes.get(owner_username=pleb.username)
             if account.verification.fields_needed:
                 quest.account_verification_fields_needed = \
                     account.verification.fields_needed
@@ -110,6 +111,7 @@ class AccountingViewSet(viewsets.ViewSet):
                     and quest.account_verified != "verified":
                 quest.account_first_updated = datetime.now(pytz.utc)
             quest.save()
+            cache.delete("%s_quest" % quest.owner_username)
             return Response({"detail": "Account Updated"},
                             status=status.HTTP_200_OK)
         if event.type == "transfer.failed":

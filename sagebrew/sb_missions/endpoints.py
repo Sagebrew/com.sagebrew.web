@@ -100,9 +100,8 @@ class MissionViewSet(viewsets.ModelViewSet):
     def volunteer_data(self, request, object_uuid=None):
         mission = Mission.get(object_uuid)
         self.check_object_permissions(request, mission.owner_username)
-        defined_keys = ["First Name", "Last Name", "Email", "City", "State"]
-        defined_keys = defined_keys + [act[1]
-                                       for act in settings.VOLUNTEER_ACTIVITIES]
+        defined_keys = ["First Name", "Last Name", "Email", "City", "State"] + \
+                       [act[1] for act in settings.VOLUNTEER_ACTIVITIES]
         query = 'MATCH (plebs:Pleb)-[:WANTS_TO]->(volunteer:Volunteer)' \
                 '-[:ON_BEHALF_OF]->(mission:Mission {object_uuid:"%s"}) ' \
                 'WITH plebs, volunteer ' \

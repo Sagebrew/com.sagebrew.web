@@ -1,4 +1,3 @@
-# What should a solution contain? #
 Here at Sagebrew we believe a solution to a problem should be 
 backed up by [evidence][2]. A solution should provide 
 reasonable, achievable goals, and should operate in a realistic fashion 

@@ -1,4 +1,3 @@
-# What are Tags, and how should I use them? #
 Tags are a system of topic organization and classification within Sagebrew's 
 Conversation Cloud. You'll have the opportunity to Tag a Question before posting 
 it with one or more of Sagebrew's following topics:

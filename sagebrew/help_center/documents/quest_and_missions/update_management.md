@@ -1,4 +1,3 @@
-# Managing Updates #
 Updates are like your Mission's Blog. You can post information about what's going 
 on with the campaign or movement, upcoming events, or information you think
 your followers, contributors, volunteers, and constituents will find interesting.

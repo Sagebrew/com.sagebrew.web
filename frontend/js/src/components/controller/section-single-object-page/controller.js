@@ -14,7 +14,8 @@ export const meta = {
         "^questions|solutions|posts\/[A-Za-z0-9.@_%+-]{2,36}$"
     ],
     does_not_include: [
-        'edit'
+        'edit',
+        'help\/'
     ]
 };
 
@@ -31,6 +32,7 @@ export function init() {
  */
 export function load() {
     // Single content loader
+    console.log('here')
     loader.init();
 }
 

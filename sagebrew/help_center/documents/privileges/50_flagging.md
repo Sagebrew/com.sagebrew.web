@@ -1,4 +1,3 @@
-# Ability to Flag Content #
 *Reputation needed: 50*
 
 ## Description ##

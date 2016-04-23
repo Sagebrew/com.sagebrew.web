@@ -1,4 +1,3 @@
-# What happens when I donate to a Mission? #
 After you've donated to a Mission you will receive an email containing
 a receipt for the donation you just submitted. 
 

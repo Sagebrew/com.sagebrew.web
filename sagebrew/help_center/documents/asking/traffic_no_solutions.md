@@ -1,4 +1,3 @@
-# What should I do if nobody provides a Solution to my Question? #
 If your Question has received a decent amount of traffic as well as 
 Upvotes and/or Downvotes, but nobody has left a Solution, there may be a few 
 items you may want to consider.

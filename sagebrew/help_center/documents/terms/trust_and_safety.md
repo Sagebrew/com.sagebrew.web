@@ -1,4 +1,3 @@
-# Community Values #
 Here at Sagebrew our goal is to provide a system that fosters collaboration, trust, and
 honesty. We work hard to solve issues with the site, we
 actively listen to you, the community, for your needs and

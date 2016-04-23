@@ -1,4 +1,3 @@
-# What is Reputation? How do I earn (and lose) it? #
 Reputation is Sagebrew's system of credibility. You gain Reputation by posting 
 quality content that provides value to the community. You lose Reputation by 
 posting poor quality content that does not offer value to the community. The 

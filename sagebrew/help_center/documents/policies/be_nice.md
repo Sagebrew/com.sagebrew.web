@@ -1,4 +1,3 @@
-# Be Nice #
 This is just a friendly reminder to be nice when conversing. Nobody 
 likes feeling alienated or put down. Sagebrew is a site for people 
 to work together and do truly remarkable things, so lets keep it 

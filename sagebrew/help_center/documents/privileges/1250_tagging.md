@@ -1,4 +1,3 @@
-# Ability to Create Tags #
 *Reputation needed: 1,250*
 
 ## Description ##

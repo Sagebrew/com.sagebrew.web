@@ -1,4 +1,3 @@
-# I've received a Donation but there are no funds in my bank account #
 It may take up to two full business days for the transfer
 to process and show up in your account depending on bank policies. If it has 
 been more than two days and the funding still hasn't transferred, 

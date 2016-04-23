@@ -1,4 +1,3 @@
-# Why and how are some Solutions removed? #
 Some of the reasons a Solution might be removed are detailed below:
 
 - A Solution was [Flagged][1] for containing inappropriate language,

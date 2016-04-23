@@ -1,4 +1,3 @@
-# How do I reset my password? #
 If you forget your password please go to the [Reset Your Password][1] page to 
 reset it.
 

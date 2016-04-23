@@ -1,4 +1,3 @@
-# Ability to Downvote #
 *Reputation needed: 100*
 ## Description ##
 You now have the ability to Downvote Questions, Solutions, and Comments. This is a way 

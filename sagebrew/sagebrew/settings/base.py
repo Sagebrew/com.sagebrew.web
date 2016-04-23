@@ -497,7 +497,8 @@ VOLUNTEER_ACTIVITIES = [
     ("host_a_meeting", "Host A Meeting"),
     ("host_a_fundraiser", "Host A Fundraiser"),
     ("host_a_house_party", "Host A House Party"),
-    ("attend_a_house_party", "Attend A House Party")
+    ("attend_a_house_party", "Attend A House Party"),
+    ("other", "Other")
 ]
 
 

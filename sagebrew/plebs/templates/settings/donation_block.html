@@ -3,9 +3,9 @@
 <div class="block sb_friend_block js-donation-block-{{ id }}">
     <div class="row">
         <div class="col-xs-4 col-sm-3">
-            <div class="thumbnail sb_thumbnail_lg">
+            <div class="search-block-img-wrapper" style="width: auto;">
                 {% static 'images/sage_coffee_grey-01.png' as default_profile %}
-                <a href="{% url "quest" quest.owner_username %}"><img class="max-height-100" src="{{ quest.profile_pic|default_if_none:default_profile }}"></a>
+                <a href="{% url "quest" quest.owner_username %}"><img src="{{ quest.wallpaper_pic|default_if_none:default_profile }}"></a>
             </div>
         </div>
         <div class="col-xs-8 col-sm-9">
@@ -13,7 +13,7 @@
             {% if not completed %}
                 <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove js-cancel-donation" data-object_uuid="{{ id }}">Cancel Pledge</button>
             {% else %}
-                <p>This donation has been processed already and cannot be cancelled.</p>
+                <p>This donation has been processed and cannot be cancelled.</p>
             {% endif %}
         </div>
     </div>

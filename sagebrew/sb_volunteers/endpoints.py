@@ -94,7 +94,7 @@ class VolunteerViewSet(viewsets.ModelViewSet):
         query = 'MATCH (plebs:Pleb)-[:WANTS_TO]->(volunteer:Volunteer)' \
                 '-[:ON_BEHALF_OF]->(mission:Mission {object_uuid:"%s"}) ' \
                 'RETURN plebs, volunteer.activities AS activities' \
-                % (object_uuid)
+                % object_uuid
         res, _ = db.cypher_query(query)
         filtered_dict = {}
         for item in settings.VOLUNTEER_ACTIVITIES:

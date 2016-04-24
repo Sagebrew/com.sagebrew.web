@@ -1,4 +1,3 @@
-# Sagebrew Quest Terms and Conditions #
 *The following terms apply specifically to Sagebrew Quest Subscribers*
 
 ## General ##

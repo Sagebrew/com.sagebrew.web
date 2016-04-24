@@ -5,7 +5,7 @@
                id="street"
                name="street"
                value="{{ address.street|default_if_none:"" }}"
-               placeholder="Address Line 1*"
+               placeholder="Address Line 1"
                class="form-control"
                autocomplete="off">
     </div>
@@ -25,7 +25,7 @@
                id="city"
                name="city"
                value="{{ address.city|default_if_none:"" }}"
-               placeholder="City*"
+               placeholder="City"
                class="form-control"
                autocomplete="off">
     </div>
@@ -35,7 +35,7 @@
                id="state"
                name="state"
                value="{{ address.state|default_if_none:"" }}"
-               placeholder="State*"
+               placeholder="State"
                class="form-control"
                autocomplete="off">
     </div>
@@ -45,7 +45,7 @@
                id="postal-code"
                name="postal_code"
                value="{{ address.postal_code|default_if_none:"" }}"
-               placeholder="Zip Code*"
+               placeholder="Zip Code"
                class="form-control"
                autocomplete="off">
     </div>

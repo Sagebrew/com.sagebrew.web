@@ -1,4 +1,5 @@
-# How do I change my password? #
+Changing your password can be done from your profile settings in a few short steps
+as described below.
 ## Overview ##
 ![Change Your Password][1]
 

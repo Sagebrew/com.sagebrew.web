@@ -104,14 +104,6 @@ export function accountValidator(formVal) {
 export function updateAccountValidator(formVal) {
     formVal.formValidation({
         framework: 'bootstrap',
-        /*
-        Don't use icons anywhere else but if we want to add this.
-        icon: {
-            valid: 'fa fa-check',
-            invalid: 'fa fa-times',
-            validating: 'fa fa-refresh'
-        },
-        */
         fields: {
             firstName: {
                 selector: '#first-name',
@@ -119,6 +111,9 @@ export function updateAccountValidator(formVal) {
                     stringLength: {
                         max: 30,
                         message: "First Name must not exceed 30 characters"
+                    },
+                    notEmpty: {
+                        message: "First Name is required"
                     }
                 }
             },
@@ -128,6 +123,9 @@ export function updateAccountValidator(formVal) {
                     stringLength: {
                         max: 30,
                         message: "Last Name must not exceed 30 characters"
+                    },
+                    notEmpty: {
+                        message: "Last Name is required"
                     }
                 }
             },
@@ -140,6 +138,9 @@ export function updateAccountValidator(formVal) {
                     },
                     emailAddress: {
                         message: 'The value is not a valid email address'
+                    },
+                    notEmpty: {
+                        message: "Email is required"
                     }
                 }
             },
@@ -443,6 +444,73 @@ export function updateValidator(updateForm) {
                         max: 128,
                         min: 5,
                         message: 'Title must be between 5 and 128 characters long'
+                    }
+                }
+            }
+        }
+    });
+}
+
+export function campaignFinanceValidator(formVal) {
+    formVal.formValidation({
+        framework: 'bootstrap',
+        fields: {
+            employerName: {
+                selector: '#employer-name',
+                validators: {
+                    stringLength: {
+                        max: 240,
+                        message: "Employer name may not exceed 240 characters"
+                    }
+                }
+            },
+            occupationName: {
+                selector: '#occupation-name',
+                validators: {
+                    stringLength: {
+                        max: 240,
+                        message: "Occupation name must not exceed 240 characters"
+                    }
+                }
+            },
+            campaignFinanceForm: {
+                selector: '.campaign-finance-form',
+                validators: {
+                    callback: {
+                        message: '',
+                        callback: function(value, validator, $field) {
+                            var retired = document.getElementById('retired-or-not-employed'),
+                                isEmpty = true,
+                                // Get the list of fields
+                                $fields = validator.getFieldElements('campaignFinanceForm');
+                            // Check if both Employer name and Job title are filled out
+                            if($fields.eq(0).val() !== '' && $fields.eq(1).val() !== '' &&
+                                    $fields.eq(0).val() !== null && $fields.eq(1).val() !== null) {
+                                isEmpty = false;
+                            }
+                            if(retired.checked !== false) {
+                                isEmpty = false;
+                            }
+
+                            // Check if Employer Name, Job Title, and Unemployed are all checked
+                            if(($fields.eq(0).val().length > 0 || $fields.eq(1).val().length > 0) && retired.checked === true) {
+                                return {
+                                    valid: false,
+                                    message: "Please only indicate your Employment " +
+                                    "Information or that you are Retired or not employed"
+                                };
+                            }
+                            if (!isEmpty) {
+                                // Update the status of callback validator for all fields
+                                validator.updateStatus('campaignFinanceForm', validator.STATUS_VALID, 'callback');
+                                return true;
+                            }
+                            return {
+                                valid: false,
+                                message: "Please indicate your Employer Name and Job " +
+                                "Title or that you are Retired or not employed"
+                            };
+                        }
                     }
                 }
             }

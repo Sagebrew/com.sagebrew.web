@@ -1,4 +1,3 @@
-# What does it mean if a Conversation is "Protected"? #
 A Protected Conversation is a conversation that has been around for at least a 
 day and a member from the [Admin Council][1] has deemed "Protected." What 
 this means is that in order to further contribute to the conversation, a user 

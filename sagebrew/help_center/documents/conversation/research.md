@@ -1,4 +1,3 @@
-# Research Study Methods and Value #
 Let's begin by distinguishing between Evidence-Based and Eminence-Based 
 research. 
 **Evidence-Based Research** is research that uses quantitative information based 

@@ -1,4 +1,3 @@
-# Brewmaster #
 *Reputation needed: 10,000*
 
 *Badges Required: TBD*

@@ -1,4 +1,3 @@
-# How do I get my name on the ballot? #
 To get your name on the ballot for a federal election, you must
 register with the Federal Election Commission (FEC). The text
 below is taken straight from the FEC [website][1]

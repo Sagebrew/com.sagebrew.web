@@ -1,4 +1,3 @@
-# Tribune #
 *Reputation needed: 25,000*
 
 *Amount of Badges Required: TBD*

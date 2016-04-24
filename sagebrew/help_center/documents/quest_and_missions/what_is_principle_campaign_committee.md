@@ -1,4 +1,3 @@
-# What is a principal campaign committee? #
 A principle campaign committee is the core group of politically savvy people 
 that support a candidate during a campaign. A candidate must designate a 
 Principal Campaign Committee within 15 days of a candidate announcing candidacy. 

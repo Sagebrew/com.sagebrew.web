@@ -1,5 +1,3 @@
-# What if I need more help #
-
 If you need more help, click on the ![Chat Bubble][1] at the bottom 
 right of your screen. You can contact a Sagebrew employee 
 via this interface and we'll get back to you as soon as possible (we do our best

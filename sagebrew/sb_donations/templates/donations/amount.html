@@ -101,7 +101,7 @@
             {% endcomment %}
             <div class="row">
                 <div class="col-md-6 col-lg-4">
-                    <button id="js-continue-btn" disabled type="submit" class="btn btn-primary sb_btn sb_btn_fill">Continue</button>
+                    <button id="js-continue-btn" disabled type="button" class="btn btn-primary sb_btn sb_btn_fill">Continue</button>
                 </div>
                 <div class="col-md-6 col-lg-4">
                     <a href="{% if selected.type == "mission" %}{% url "mission" selected.id selected.slug %}{% else %}{% url "quest" quest.owner_username %}{% endif %}" class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove"

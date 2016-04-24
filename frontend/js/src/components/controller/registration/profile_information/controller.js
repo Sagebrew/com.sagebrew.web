@@ -1,5 +1,4 @@
-var helpers = require('common/helpers'),
-    addresses = require('common/addresses');
+var addresses = require('common/addresses');
 
 export const meta = {
     controller: "registration/profile_information",
@@ -22,17 +21,18 @@ export function init() {
  */
 export function load() {
     var $app = $(".app-sb"),
-        continueBtn = document.getElementById('js-continue-btn'),
         addressForm = document.getElementById('address');
-    addresses.setupAddress(validateAddressCallback);
+    var addressValidationForm = addresses.setupAddress(validateAddressCallback);
     $app
-        .on('keyup', 'input', function () {
-            continueBtn.disabled = !helpers.verifyContinue([addressForm]);
-        })
         .on('click', '#js-continue-btn', function (event) {
             event.preventDefault();
-            document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
-            addresses.submitAddress(addressForm, submitAddressCallback);
+            completeAddress(addressValidationForm, addressForm);
+            return false;
+        }).on('keypress', '#address input', function(event) {
+            if (event.which === 13 || event.which === 10) {
+                completeAddress(addressValidationForm, addressForm);
+                return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier
+            }
         });
 }
 
@@ -45,11 +45,17 @@ export function postload() {
 }
 
 
-function validateAddressCallback() {
-    var continueBtn = document.getElementById('js-continue-btn'),
-        addressForm = document.getElementById('address');
+function completeAddress(addressValidationForm, addressForm) {
+    "use strict";
+    addressValidationForm.data('formValidation').validate();
+    if(addressValidationForm.data('formValidation').isValid() === true) {
+        document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+        addresses.submitAddress(addressForm, submitAddressCallback);
+    }
+}
 
-    continueBtn.disabled = !helpers.verifyContinue([addressForm]);
+
+function validateAddressCallback() {
 }
 
 function submitAddressCallback() {

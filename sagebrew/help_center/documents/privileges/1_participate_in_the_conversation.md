@@ -1,4 +1,3 @@
-# Participate in the Conversation #
 *Reputation Needed: 0*
 
 ## Overview ##

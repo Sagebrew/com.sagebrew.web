@@ -1,4 +1,3 @@
-# Ability to Upvote #
 *Reputation needed: 0*
 
 ## Description ##

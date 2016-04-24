@@ -1,4 +1,3 @@
-# User Terms and Conditions #
 By using the Sagebrew.com web site ("Service"), or any services of Sagebrew 
 LLC ("Sagebrew" or "We"), You (“Subscriber”, “You”, or "you") are agreeing 
 to be bound by the following terms and conditions ("Terms of Service" or "Terms"). 

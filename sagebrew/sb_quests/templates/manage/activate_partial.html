@@ -3,13 +3,19 @@
         <button type="button" class="close" data-dismiss="alert"><i class="fa fa-close"></i></button>
             <h4>Your quest is not currently active!</h4>
             <p>You must complete your quest setup before taking it live.</p>
-            <button class="btn btn-primary sb_btn"
-                    data-toggle="modal"
-                    data-target="#liveModal">Take Quest Live
-            </button>
-            {% if "manage" not in request.path %}
-                <a class="btn btn-primary sb_btn" href="/quests/{{ quest.id }}/manage/general/">Settings</a>
-            {% endif %}
+            <div class="row">
+                <div class="col-xs-12 col-sm-3">
+                    <button class="btn btn-primary sb_btn sb_btn_fill"
+                            data-toggle="modal"
+                            data-target="#liveModal">Take Quest Live
+                    </button>
+                </div>
+                <div class="col-xs-12 col-sm-3">
+                    {% if "manage" not in request.path %}
+                        <a class="btn btn-primary sb_btn sb_btn_fill" href="/quests/{{ quest.id }}/manage/general/">Settings</a>
+                    {% endif %}
+                </div>
+            </div>
     </div>
 
     <!-- Modal -->
@@ -47,10 +53,15 @@
         <button type="button" class="close" data-dismiss="alert"><i class="fa fa-close"></i></button>
             <h4>Your mission is not currently active!</h4>
             <p>It's up to you when you want to take it live.</p>
-            <button class="btn btn-primary sb_btn"
-                    data-toggle="modal"
-                    data-target="#liveModal">Take Mission Live
-            </button>
+            <div class="row">
+                <div class="col-xs-12 col-sm-4">
+                    <button class="btn btn-primary sb_btn sb_btn_fill"
+                            data-toggle="modal"
+                            data-target="#liveModal">Take Mission Live
+                    </button>
+                </div>
+            </div>
+
     </div>
 
     <!-- Modal -->

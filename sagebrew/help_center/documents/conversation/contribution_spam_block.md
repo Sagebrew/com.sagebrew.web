@@ -1,4 +1,3 @@
-# Why has my contribution been removed due to 'spam'? #
 In order for a contribution to be [removed][1] due to "[spam][2]" a couple things must 
 happen. Another user must [Flag][3] your contribution as spam. The [Admin 
 Council][4] must then vote on the Flag and decide that, yes, it is spam. A 2/3 

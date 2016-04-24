@@ -1,4 +1,3 @@
-# Campaign Contributions #
 There are rules and regulations in place when it comes to donating money to a 
 political campaign. These rules and regulations are set in an effort to keep 
 campaigning fair and to place a barrier between money and political sway.

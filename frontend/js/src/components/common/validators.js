@@ -496,7 +496,8 @@ export function campaignFinanceValidator(formVal) {
                             if(($fields.eq(0).val().length > 0 || $fields.eq(1).val().length > 0) && retired.checked === true) {
                                 return {
                                     valid: false,
-                                    message: "Please only indicate your Employment Information or that you are Retired or not employed"
+                                    message: "Please only indicate your Employment " +
+                                    "Information or that you are Retired or not employed"
                                 };
                             }
                             if (!isEmpty) {
@@ -506,7 +507,8 @@ export function campaignFinanceValidator(formVal) {
                             }
                             return {
                                 valid: false,
-                                message: "Please indicate your Employer Name and Job Title or that you are Retired or not employed"
+                                message: "Please indicate your Employer Name and Job " +
+                                "Title or that you are Retired or not employed"
                             };
                         }
                     }

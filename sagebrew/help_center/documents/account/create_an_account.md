@@ -1,4 +1,3 @@
-# Why should I create an account? #
 There are many exciting benefits and opportunities that come with your very 
 own Sagebrew account! As the nation's new hub for real world
 problem solving, a Sagebrew account is a great way to assure that your voice be 

@@ -1,4 +1,3 @@
-# What is Markdown? #
 Markdown is a formatting language in which plain text can be easily converted 
 to HTML and other web formats. Markdown makes it simple to organize and format 
 information. It also allows for code injection, so those tech savvy among 

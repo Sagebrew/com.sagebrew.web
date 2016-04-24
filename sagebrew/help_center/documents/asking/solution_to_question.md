@@ -1,4 +1,3 @@
-# What should I do when someone provides a Solution to my Question? #
 When someone provides a Solution to your Question you should read it 
 thoroughly and consider it. 
 

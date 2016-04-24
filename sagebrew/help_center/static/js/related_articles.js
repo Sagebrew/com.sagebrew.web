@@ -7,7 +7,7 @@ $( document ).ready(function() {
 			url: "/help/related_articles/",
 			data: {
                'current_article': current_article,
-               'category': $('#category').data('category'),
+               'category': $('#category').data('category')
 			},
 			contentType: "application/json; charset=utf-8",
 			dataType: "json",

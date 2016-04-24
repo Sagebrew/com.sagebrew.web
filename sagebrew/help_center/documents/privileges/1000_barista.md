@@ -1,4 +1,3 @@
-# Barista #
 *Reputation needed: 1,000*
 
 ## Description ##

@@ -1,4 +1,3 @@
-# What does it mean if something is Closed? #
 When something is closed it means that no further interaction (no more 
 Comments, Solutions, Upvotes, or Downvotes) can be had with the content.
 This occurs when the Community [flags][1] something as lacking in depth or believes 

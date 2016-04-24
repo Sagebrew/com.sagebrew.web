@@ -1,4 +1,3 @@
-# Can I advertise on Sagebrew? #
 Sagebrew does not host third party advertising. Third party 
 advertising clutters websites and can compromise the quality of a website, 
 pulling focus from the content of the website itself. We would like to 

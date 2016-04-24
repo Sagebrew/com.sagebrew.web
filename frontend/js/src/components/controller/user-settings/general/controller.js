@@ -30,10 +30,9 @@ export function load() {
         accountForm = document.getElementById('account-info'),
         addressForm = document.getElementById('address'),
         passwordForm = document.getElementById('password-form'),
-        addressValidationForm = $("#address"),
         passwordValidationForm = $('#password-form'),
-        continueBtn = document.getElementById('js-continue-btn'),
-        passwordBtn = document.getElementById('js-new-password');
+        passwordBtn = document.getElementById('js-new-password'),
+        accountValidationForm = $("#account-info");
     addresses.setupAddress(validateAddressCallback);
     /*
         $imageProfileForm = $("#js-image-upload-form"),
@@ -45,30 +44,32 @@ export function load() {
     helpers.setupImageUpload($app, $imageProfileForm, $previewProfileContainer, $saveProfilePicButton, 500, 500);
     helpers.setupImageUpload($app, $imageWallpaperForm, $previewWallpaperContainer, $saveWallpaperPicButton, 500, 500, false);
     */
-    validators.updateAccountValidator($("#account-info"));
+    validators.updateAccountValidator(accountValidationForm);
     validators.passwordValidator(passwordValidationForm);
+    var addressValidationForm = addresses.setupAddress(validateAddressCallback);
     passwordValidationForm
         .on('keyup', 'input', function () {
             passwordBtn.disabled = !helpers.verifyContinue([passwordForm]);
         });
-    addressValidationForm
-        .on('keyup', 'input', function () {
-            continueBtn.disabled = !helpers.verifyContinue([addressForm]);
-        });
     $app
         .on('click', '#js-continue-btn', function () {
-            addresses.submitAddress(addressForm, submitAddressCallback);
+            completeAddress(addressValidationForm, addressForm);
+        })
+        .on('keypress', '#address input', function(event) {
+            if (event.which === 13 || event.which === 10) {
+                completeAddress(addressValidationForm, addressForm);
+                return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier
+            }
+        })
+        .on('keypress', '#account-info input', function(event) {
+            if (event.which === 13 || event.which === 10) {
+                completeGeneral(accountValidationForm, accountForm);
+                return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier
+            }
         })
         .on('click', '#submit_settings', function (event) {
             event.preventDefault();
-            document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
-            var accountData = helpers.getSuccessFormData(accountForm);
-
-            // accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
-            requests.patch({url: "/v1/profiles/" + settings.user.username + "/", data: JSON.stringify(accountData)})
-                .done(function () {
-                    window.location.reload();
-                });
+            completeGeneral(accountValidationForm, accountForm);
         })
         .on('click', '#js-new-password', function (event) {
             event.preventDefault();
@@ -92,13 +93,32 @@ export function postload() {
     // Intercom Tracking
 }
 
+function completeGeneral(accountValidationForm, accountForm) {
+    accountValidationForm.data('formValidation').validate();
+    if(accountValidationForm.data('formValidation').isValid() === true) {
+        document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+        var accountData = helpers.getSuccessFormData(accountForm);
+
+        // accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
+        requests.patch({
+            url: "/v1/profiles/" + settings.user.username + "/",
+            data: JSON.stringify(accountData)
+        })
+            .done(function () {
+                window.location.reload();
+            });
+    }
+}
+
+function completeAddress(addressValidationForm, addressForm) {
+    addressValidationForm.data('formValidation').validate();
+    if(addressValidationForm.data('formValidation').isValid() === true){
+        addresses.submitAddress(addressForm, submitAddressCallback);
+    }
+}
+
 
 function validateAddressCallback() {
-    var accountForm = document.getElementById('account-info'),
-        continueBtn = document.getElementById('js-continue-btn'),
-        addressForm = document.getElementById('address');
-
-    continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm]);
 }
 
 function submitAddressCallback() {

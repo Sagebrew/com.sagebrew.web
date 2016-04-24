@@ -1,4 +1,3 @@
-# When should I edit my Solution? #
 You should edit your Solution if you find new evidence to support
 your Solution, or if you believe other users don't fully understand
 your Solution and you can word it better. Solutions are ever-evolving ideas 

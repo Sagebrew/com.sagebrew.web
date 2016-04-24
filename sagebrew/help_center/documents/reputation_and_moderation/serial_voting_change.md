@@ -1,4 +1,3 @@
-# Why do I have a Reputation change on my Reputation page that says "serial Upvoting/Downvoting reversed"? #
 We've caught someone serial [Upvoting][3] or [Downvoting][4] one or more of 
 your contributions. We've penalized the individuals responsible for these 
 actions, and we've removed the gained or lost [Reputation][2] from your account. 

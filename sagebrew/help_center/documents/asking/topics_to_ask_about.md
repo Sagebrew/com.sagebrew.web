@@ -1,4 +1,3 @@
-# What topics can I ask about here? #
 Sagebrew is a place for people from all walks of life to get together to 
 discuss issues. All topics are open for discussion, provided that they follow 
 the community's guidelines for Conversation Etiquette. Interested in Genetics? How about 

@@ -1,4 +1,3 @@
-# How do I delete my account? #
 We are very sad that you're considering the possibility of deleting 
 your account and leaving the Sagebrew community. If
 there is something you're having difficulty with or a reason you're looking 

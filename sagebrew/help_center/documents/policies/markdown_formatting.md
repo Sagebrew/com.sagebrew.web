@@ -1,4 +1,3 @@
-# What is Markdown formatting and how do I use it? #
 Technically speaking Markdown is a formatting language that produces plain 
 text that can be easily converted to HTML. What that means is, Markdown is a 
 writing system that allows easy customization of plain text, specifically 

@@ -1,4 +1,3 @@
-# Why and how are some contributes deleted? #
 For a contribution to be deleted, it must have been [flagged][1] by the Community
 as spam or for containing offensive, inappropriate, or harmful language or 
 images. It could have also been caught and flagged by Sagebrew's system for 

@@ -1,45 +1,30 @@
 {% extends "help_base.html" %}
 {% load staticfiles %}
 {% block title %}Help Center{% endblock title %}
-{% block help_heading %}
-    <h1>{{ title }}</h1>
-{% endblock help_heading %}
-{% block content %}
-
-<div id="category" style="display: none"
-    data-category="{{ category }}"></div>
-<div class="row">
-        <div class="sb_help_article">
-            <div class="row">
-                <div class="col-xs-12 sb_nav sb-help-nav sb_secondary_nav_transparent">
-                    <ul>
-                        <li>
-                            <a href="{% url 'help_center' %}">The Sagebrew Help Area</a>
-                        </li>
-                    </ul>
-                </div>
-                <div class="sb_markdown">
-                    {% for category, location in categories.items %}
-                        <div class="col-xs-10 col-md-11 sb_help_center">
-                            <div class="sb_help_article_content">
-                                <h2>{{ category|capfirst }}</h2>
-                                <ul>
-                                    {% for related_article in location %}
-                                        <li><a href="{% url related_article.name %}">{{ related_article.title }}</a></li>
-                                    {% empty %}
-                                        <p>Currently No Related Articles Available</p>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        </div>
+{% block hero %}
+    <div class="block">
+        <ul class="block-title center-title no-underline sb_nav sb_secondary_nav">
+            <li>
+                <a href="{% url 'help_center' %}">The Sagebrew Help Area</a>
+            </li>
+        </ul>
+    </div>
+{% endblock hero %}
+{% block live %}
+    <div id="category" style="display: none"
+        data-category="{{ category }}"></div>
+    {% for category, location in categories.items %}
+        <div class="block">
+            <div class="block-content">
+                <h2 class="block-title">{{ category|capfirst }}</h2>
+                <ul class="ten-padding-top">
+                    {% for article in location %}
+                        <li><a href="{% url article.name %}">{{ article.title }}</a></li>
+                    {% empty %}
+                        <p>Currently No Related Articles Available</p>
                     {% endfor %}
-                </div>
+                </ul>
             </div>
         </div>
-</div>
-{% endblock content %}
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/related_articles.js' %}"></script>
-{% endblock scripts %}
+    {% endfor %}
+{% endblock live %}

@@ -1,4 +1,3 @@
-# Ability to Comment #
 *Reputation needed: 20*
 
 ## Description ##

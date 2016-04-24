@@ -1,4 +1,3 @@
-# Who are the site moderators, and what is their role here? #
 Sagebrew is moderated by a panel of dedicated users called the 
 [Admin Council][1]. To join the Admin Council you must be a Sagebrew member,
 have achieved at least 10,000 [Reputation][2] and the [Brewmaster][3] rank. 

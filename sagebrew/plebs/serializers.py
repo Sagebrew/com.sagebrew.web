@@ -288,12 +288,14 @@ class PlebSerializerNeo(SBSerializer):
                                          style={'input_type': 'password'})
     email = serializers.EmailField(required=True, write_only=True,
                                    validators=[SBUniqueValidator(
-                                       queryset=Pleb.nodes.all(),
+                                       queryset=User.objects.all(),
                                        message="Sorry looks like that email is "
                                                "already taken.")],)
     date_of_birth = serializers.DateTimeField(required=True, write_only=True)
-    occupation_name = serializers.CharField(required=False, allow_null=True)
-    employer_name = serializers.CharField(required=False, allow_null=True)
+    occupation_name = serializers.CharField(required=False, allow_null=True,
+                                            max_length=240)
+    employer_name = serializers.CharField(required=False, allow_null=True,
+                                          max_length=240)
     is_verified = serializers.BooleanField(read_only=True)
     email_verified = serializers.BooleanField(read_only=True)
     completed_profile_info = serializers.BooleanField(read_only=True)
@@ -338,10 +340,10 @@ class PlebSerializerNeo(SBSerializer):
         user = User.objects.create_user(
             first_name=validated_data['first_name'],
             last_name=validated_data['last_name'],
-            email=validated_data['email'].lower(),
+            email=validated_data['email'].lower().strip(),
             password=validated_data['password'], username=username)
         user.save()
-        pleb = Pleb(email=user.email,
+        pleb = Pleb(email=user.email.lower().strip(),
                     first_name=user.first_name.title(),
                     last_name=user.last_name.title(),
                     username=user.username,
@@ -413,14 +415,14 @@ class PlebSerializerNeo(SBSerializer):
             instance.last_name = last_name
             user_obj.last_name = last_name
         if email != user_obj.email:
-            instance.email = email
-            user_obj.email = email
+            instance.email = email.lower().strip()
+            user_obj.email = email.lower().strip()
             if instance.get_quest():
                 quest = Quest.get(instance.username, cache_buster=True)
                 if quest.stripe_customer_id:
                     customer = \
                         stripe.Customer.retrieve(quest.stripe_customer_id)
-                    customer.email = email
+                    customer.email = email.lower().strip()
                     customer.save()
         if user_obj.check_password(validated_data.get('password', "")) is True:
             user_obj.set_password(validated_data.get(
@@ -449,7 +451,7 @@ class PlebSerializerNeo(SBSerializer):
                 customer = stripe.Customer.create(
                     description="Customer %s" % instance.username,
                     card=customer_token,
-                    email=instance.email
+                    email=instance.email.lower().strip()
                 )
                 instance.stripe_customer_id = customer['id']
                 instance.stripe_default_card_id = customer[

@@ -1,4 +1,3 @@
-# What does it mean if a Conversation is "Seasoned"? #
 A Seasoned Conversation is a conversation in which a single Solution has 
 achieved 1000+ [Reputation][3], dictating that a very solid Solution has been 
 proposed and further Conversation will likely be unnecessary. To Comment 

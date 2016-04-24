@@ -1,4 +1,3 @@
-# What happens if I concede to another solution? #
 When you concede to another Solution your Solution will become grayed out. 
 
 ## What this means for you ##

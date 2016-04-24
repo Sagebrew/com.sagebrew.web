@@ -1,4 +1,3 @@
-# Why do I have a Reputation change on my Reputation page that says "User was removed"? #
 The only circumstance that would lead to this happening is if another user's 
 account was terminated due to an abuse of [Upvoting][1] or [Downvoting][2].
 

@@ -292,8 +292,10 @@ class PlebSerializerNeo(SBSerializer):
                                        message="Sorry looks like that email is "
                                                "already taken.")],)
     date_of_birth = serializers.DateTimeField(required=True, write_only=True)
-    occupation_name = serializers.CharField(required=False, allow_null=True)
-    employer_name = serializers.CharField(required=False, allow_null=True)
+    occupation_name = serializers.CharField(required=False, allow_null=True,
+                                            max_length=240)
+    employer_name = serializers.CharField(required=False, allow_null=True,
+                                          max_length=240)
     is_verified = serializers.BooleanField(read_only=True)
     email_verified = serializers.BooleanField(read_only=True)
     completed_profile_info = serializers.BooleanField(read_only=True)

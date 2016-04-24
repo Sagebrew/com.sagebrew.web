@@ -451,5 +451,63 @@ export function updateValidator(updateForm) {
     });
 }
 
+export function campaignFinanceValidator(formVal) {
+    formVal.formValidation({
+        framework: 'bootstrap',
+        fields: {
+            employerName: {
+                selector: '#employer-name',
+                validators: {
+                    stringLength: {
+                        max: 240,
+                        message: "Employer name may not exceed 240 characters"
+                    }
+                }
+            },
+            occupationName: {
+                selector: '#occupation-name',
+                validators: {
+                    stringLength: {
+                        max: 240,
+                        message: "Occupation name must not exceed 240 characters"
+                    }
+                }
+            },
+            campaignFinanceForm: {
+                selector: '.campaign-finance-form',
+                validators: {
+                    callback: {
+                        message: 'Please indicate your employer and job title or that you are retired or not employed',
+                        callback: function(value, validator, $field) {
+                            var retired = document.getElementById('retired-or-not-employed');
+                            var isEmpty = true,
+                                // Get the list of fields
+                                $fields = validator.getFieldElements('campaignFinanceForm');
+                            console.log($fields.eq(0).val());
+                            // Check if both Employer name and Job title are filled out
+                            if($fields.eq(0).val() !== '' && $fields.eq(1).val() !== '' &&
+                                    $fields.eq(0).val() !== null && $fields.eq(1).val() !== null) {
+                                isEmpty = false;
+                            }
+                            console.log(retired.checked);
+                            if(retired.checked !== false) {
+                                isEmpty = false;
+                            }
+                            console.log(isEmpty);
+                            if (!isEmpty) {
+                                // Update the status of callback validator for all fields
+                                validator.updateStatus('campaignFinanceForm', validator.STATUS_VALID, 'callback');
+                                return true;
+                            }
+
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
 
 /* Custom Validators */

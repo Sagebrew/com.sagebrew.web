@@ -29,26 +29,37 @@ export function load() {
     var $app = $(".app-sb"),
         accountForm = document.getElementById('account-info'),
         addressForm = document.getElementById('address'),
-        accountValidationForm = $(accountForm);
+        accountValidationForm = $(accountForm),
+        campaignFinanceForm = document.getElementById('campaign-finance'),
+        campaignFinanceValidationForm = $(campaignFinanceForm);
     $(':checkbox').radiocheck();
+    if(campaignFinanceForm !== undefined && campaignFinanceForm !== null) {
+        validators.campaignFinanceValidator(campaignFinanceValidationForm);
+    }
     validators.accountValidator(accountValidationForm);
     var addressValidationForm = addresses.setupAddress(validateAddressCallback);
     $app
         .on('click', '#js-continue-btn', function (event) {
             event.preventDefault();
             completeRegistration(addressValidationForm, addressForm, 
-                accountValidationForm, accountForm);
+                accountValidationForm, accountForm, campaignFinanceValidationForm);
         }).on('keypress', '#account-info input', function(event) {
             if (event.which === 13 || event.which === 10) {
                 completeRegistration(addressValidationForm, addressForm, 
-                    accountValidationForm, accountForm);
+                    accountValidationForm, accountForm, campaignFinanceValidationForm);
                 return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier
             }
         }).on('keypress', '#address input', function(event) {
             if (event.which === 13 || event.which === 10) {
                 completeRegistration(addressValidationForm, addressForm,
-                    accountValidationForm, accountForm);
-                return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier
+                    accountValidationForm, accountForm, campaignFinanceValidationForm);
+                return false;
+            }
+        }).on('keypress', '#campaign-finance input', function(event) {
+            if (event.which === 13 || event.which === 10) {
+                completeRegistration(addressValidationForm, addressForm,
+                    accountValidationForm, accountForm, campaignFinanceValidationForm);
+                return false;
             }
         });
 
@@ -66,27 +77,37 @@ export function postload() {
 }
 
 
-function completeRegistration(addressValidationForm, addressForm, accountValidationForm, accountForm) {
+function completeRegistration(addressValidationForm, addressForm,
+                              accountValidationForm, accountForm,
+                              campaignFinanceValidationForm) {
     addressValidationForm.data('formValidation').validate();
     accountValidationForm.data('formValidation').validate();
+    // Do this here so all the fields necessary pop up immediately and you don't have
+    // to successfully fill out address and profile before seeing these warnings.
+    if(campaignFinanceValidationForm !== null && campaignFinanceValidationForm !== undefined) {
+        campaignFinanceValidationForm.data('formValidation').validate();
+    }
     if(addressValidationForm.data('formValidation').isValid() === true &&
             accountValidationForm.data('formValidation').isValid()){
         document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
         var accountData = helpers.getSuccessFormData(accountForm);
 
-
+        console.log('outside reform');
         // If employment and occupation info is available add it to the account info
         var campaignFinanceForm = document.getElementById('campaign-finance');
         if(campaignFinanceForm !== undefined && campaignFinanceForm !== null) {
-            var employerName = document.getElementById('employer-name').value,
-                occupationName = document.getElementById('occupation-name').value,
-                retired = document.getElementById('retired-or-not-employed').checked;
-            if (retired === true) {
-                accountData.employer_name = "N/A";
-                accountData.occupation_name = "Retired or Not Employed";
-            } else {
-                accountData.employer_name = employerName;
-                accountData.occupation_name = occupationName;
+            console.log('in finance reform')
+            if(campaignFinanceValidationForm.data('formValidation').isValid() === true){
+                var employerName = document.getElementById('employer-name').value,
+                    occupationName = document.getElementById('occupation-name').value,
+                    retired = document.getElementById('retired-or-not-employed').checked;
+                if (retired === true) {
+                    accountData.employer_name = "N/A";
+                    accountData.occupation_name = "Retired or Not Employed";
+                } else {
+                    accountData.employer_name = employerName;
+                    accountData.occupation_name = occupationName;
+                }
             }
         }
 

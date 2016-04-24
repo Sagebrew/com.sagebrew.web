@@ -27,6 +27,7 @@ export function load() {
         .on('click', '#js-continue-btn', function (event) {
             event.preventDefault();
             completeAddress(addressValidationForm, addressForm);
+            return false;
         }).on('keypress', '#address input', function(event) {
             if (event.which === 13 || event.which === 10) {
                 completeAddress(addressValidationForm, addressForm);

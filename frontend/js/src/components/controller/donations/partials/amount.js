@@ -107,12 +107,18 @@ export function amount() {
             completeAmount(donateToID, campaignFinanceValidationForm);
         })
         .on('keypress', '#campaign-finance input', function(event) {
+            // TODO this is almost the same logic as signup/controller.js for
+            // campaign finance. Might want to try and merge them up into a
+            // controller or common lib that manages campaign finance registration
             if (event.which === 13 || event.which === 10) {
                 completeAmount(donateToID, campaignFinanceValidationForm);
                 return false;
             }
         })
         .on('click', '#retired-or-not-employed', function () {
+            // TODO this is almost the same logic as signup/controller.js for
+            // campaign finance. Might want to try and merge them up into a
+            // controller or common lib that manages campaign finance registration
             if(campaignFinanceValidationForm !== null && campaignFinanceValidationForm !== undefined) {
                 campaignFinanceValidationForm.formValidation('revalidateField', 'campaignFinanceForm');
                 campaignFinanceValidationForm.formValidation('revalidateField', 'onlyOneSelector');
@@ -127,6 +133,9 @@ function completeAmount(donateToID, campaignFinanceValidationForm) {
         window.location.href = "/missions/" + donateToID + "/" +
             helpers.args(2) + "/donate/name/";
     } else {
+        // TODO this is almost the same logic as signup/controller.js for
+        // campaign finance. Might want to try and merge them up into a
+        // controller or common lib that manages campaign finance registration
         if(campaignFinanceValidationForm !== null && campaignFinanceValidationForm !== undefined) {
             campaignFinanceValidationForm.data('formValidation').validate();
             if(campaignFinanceValidationForm.data('formValidation').isValid() === true){

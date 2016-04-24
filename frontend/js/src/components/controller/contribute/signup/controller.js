@@ -1,3 +1,4 @@
+/* global $ */
 var requests = require('api').request,
     helpers = require('common/helpers'),
     validators = require('common/validators'),
@@ -30,10 +31,11 @@ export function load() {
         accountForm = document.getElementById('account-info'),
         addressForm = document.getElementById('address'),
         accountValidationForm = $(accountForm),
-        campaignFinanceForm = document.getElementById('campaign-finance'),
-        campaignFinanceValidationForm = $(campaignFinanceForm);
+        campaignFinanceValidationForm,
+        campaignFinanceForm = document.getElementById('campaign-finance');
     $(':checkbox').radiocheck();
     if(campaignFinanceForm !== undefined && campaignFinanceForm !== null) {
+        campaignFinanceValidationForm = $(campaignFinanceForm);
         validators.campaignFinanceValidator(campaignFinanceValidationForm);
     }
     validators.accountValidator(accountValidationForm);

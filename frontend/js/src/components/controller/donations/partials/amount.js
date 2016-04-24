@@ -1,6 +1,7 @@
 var request = require('api').request,
     radioSelector = require('common/radioimage').radioSelector,
     helpers = require('common/helpers'),
+    validators = require('common/validators'),
     settings = require('settings').settings;
 
 export function amount() {
@@ -10,10 +11,16 @@ export function amount() {
         errorFormatWrapper = document.getElementById('error-wrong-format'),
         errorMinDonationWrapper = document.getElementById('error-min-donation'),
         donateToID = helpers.args(1),
+        campaignFinanceValidationForm,
+        campaignFinanceForm = document.getElementById('campaign-finance'),
         contributionKey = donateToID + 'contributionAmount',
         subscriptionKey = donateToID + 'subscriptionType';
     $(':radio').radiocheck();
     $(':checkbox').radiocheck();
+    if(campaignFinanceForm !== undefined && campaignFinanceForm !== null) {
+        campaignFinanceValidationForm = $(campaignFinanceForm);
+        validators.campaignFinanceValidator(campaignFinanceValidationForm);
+    }
     if(typeof(Storage) !== "undefined") {
         // Set form back up if user has already been here and not
         // submitted their donation
@@ -97,37 +104,55 @@ export function amount() {
         })
         .on('click', '#js-continue-btn', function(event){
             event.preventDefault();
-            document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
-            if(settings.user.type === "anon"){
-                document.getElementById('sb-greyout-page').classList.add('sb_hidden');
-                window.location.href = "/missions/" + donateToID + "/" +
-                    helpers.args(2) + "/donate/name/";
-            } else {
-                var campaignFinanceForm = document.getElementById('campaign-finance');
-                if(campaignFinanceForm !== undefined && campaignFinanceForm !== null){
-                    var employerName = document.getElementById('employer-name').value,
-                        occupationName = document.getElementById('occupation-name').value,
-                        retired = document.getElementById('retired-or-not-employed').checked;
-                    if(retired === true){
-                        employerName = "N/A";
-                        occupationName = "Retired or Not Employed";
-                    }
-                    var data = {
-                        employer_name: employerName,
-                        occupation_name: occupationName
-                    };
-                    request.patch({url: "/v1/me/", data: JSON.stringify(data)})
-                        .done(function () {
-                            document.getElementById('sb-greyout-page').classList.add('sb_hidden');
-                            window.location.href = "/missions/" + donateToID + "/" +
-                                helpers.args(2) + "/donate/payment/";
-                        });
-                } else {
-                    document.getElementById('sb-greyout-page').classList.add('sb_hidden');
-                    window.location.href = "/missions/" + donateToID + "/" +
-                        helpers.args(2) + "/donate/payment/";
-                }
+            completeAmount(donateToID, campaignFinanceValidationForm);
+        })
+        .on('keypress', '#campaign-finance input', function(event) {
+            if (event.which === 13 || event.which === 10) {
+                completeAmount(donateToID, campaignFinanceValidationForm);
+                return false;
+            }
+        })
+        .on('click', '#retired-or-not-employed', function () {
+            if(campaignFinanceValidationForm !== null && campaignFinanceValidationForm !== undefined) {
+                campaignFinanceValidationForm.formValidation('revalidateField', 'campaignFinanceForm');
+                campaignFinanceValidationForm.formValidation('revalidateField', 'onlyOneSelector');
 
             }
         });
+}
+
+
+function completeAmount(donateToID, campaignFinanceValidationForm) {
+    if(settings.user.type === "anon"){
+        window.location.href = "/missions/" + donateToID + "/" +
+            helpers.args(2) + "/donate/name/";
+    } else {
+        if(campaignFinanceValidationForm !== null && campaignFinanceValidationForm !== undefined) {
+            campaignFinanceValidationForm.data('formValidation').validate();
+            if(campaignFinanceValidationForm.data('formValidation').isValid() === true){
+                document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+                var employerName = document.getElementById('employer-name').value,
+                    occupationName = document.getElementById('occupation-name').value,
+                    retired = document.getElementById('retired-or-not-employed').checked;
+                if(retired === true){
+                    employerName = "N/A";
+                    occupationName = "Retired or Not Employed";
+                }
+                var data = {
+                    employer_name: employerName,
+                    occupation_name: occupationName
+                };
+                request.patch({url: "/v1/me/", data: JSON.stringify(data)})
+                    .done(function () {
+                        document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                        window.location.href = "/missions/" + donateToID + "/" +
+                            helpers.args(2) + "/donate/payment/";
+                    });
+            }
+        } else {
+            document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+            window.location.href = "/missions/" + donateToID + "/" +
+                helpers.args(2) + "/donate/payment/";
+        }
+    }
 }

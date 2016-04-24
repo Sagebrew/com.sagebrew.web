@@ -111,6 +111,9 @@ export function updateAccountValidator(formVal) {
                     stringLength: {
                         max: 30,
                         message: "First Name must not exceed 30 characters"
+                    },
+                    notEmpty: {
+                        message: "First Name is required"
                     }
                 }
             },
@@ -120,6 +123,9 @@ export function updateAccountValidator(formVal) {
                     stringLength: {
                         max: 30,
                         message: "Last Name must not exceed 30 characters"
+                    },
+                    notEmpty: {
+                        message: "Last Name is required"
                     }
                 }
             },
@@ -132,6 +138,9 @@ export function updateAccountValidator(formVal) {
                     },
                     emailAddress: {
                         message: 'The value is not a valid email address'
+                    },
+                    notEmpty: {
+                        message: "Email is required"
                     }
                 }
             },

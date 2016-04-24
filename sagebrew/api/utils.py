@@ -337,33 +337,14 @@ class SBUniqueValidator(UniqueValidator):
     Should be applied to an individual field on the serializer.
     """
 
-    def filter_queryset(self, value, queryset):
-        """
-        Filter the queryset to all instances matching the given attribute.
-        :param value:
-        :param queryset:
-        """
-        return [x for x in queryset
-                if getattr(x, self.field_name).strip().lower() ==
-                value.strip().lower()]
-
     def exclude_current_instance(self, queryset):
         """
         If an instance is being updated, then do not include
         that instance itself as a uniqueness conflict.
-        :param queryset:
         """
         if self.instance is not None:
-            return [x for x in queryset
-                    if x.object_uuid != self.instance.object_uuid]
+            return queryset.exclude(username=self.instance.username)
         return queryset
-
-    def __call__(self, value):
-        queryset = self.queryset
-        queryset = self.filter_queryset(value, queryset)
-        queryset = self.exclude_current_instance(queryset)
-        if queryset:
-            raise ValidationError(self.message)
 
 
 def clean_url(url_data):

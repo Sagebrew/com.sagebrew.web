@@ -287,7 +287,7 @@ class PlebSerializerNeo(SBSerializer):
                                          write_only=True,
                                          style={'input_type': 'password'})
     email = serializers.EmailField(required=True, write_only=True,
-                                   validators=[UniqueValidator(
+                                   validators=[SBUniqueValidator(
                                        queryset=User.objects.all(),
                                        message="Sorry looks like that email is "
                                                "already taken.")],)

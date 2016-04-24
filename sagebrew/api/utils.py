@@ -343,7 +343,9 @@ class SBUniqueValidator(UniqueValidator):
         :param value:
         :param queryset:
         """
-        return [x for x in queryset if getattr(x, self.field_name) == value]
+        return [x for x in queryset
+                if getattr(x, self.field_name).strip().lower() ==
+                value.strip().lower()]
 
     def exclude_current_instance(self, queryset):
         """

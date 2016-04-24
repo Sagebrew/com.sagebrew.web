@@ -1,5 +1,4 @@
-var helpers = require('common/helpers'),
-    addresses = require('common/addresses');
+var addresses = require('common/addresses');
 
 export const meta = {
     controller: "registration/profile_information",
@@ -28,7 +27,7 @@ export function load() {
         .on('click', '#js-continue-btn', function (event) {
             event.preventDefault();
             completeAddress(addressValidationForm, addressForm);
-        }).on('keypress', '#account-info input', function(event) {
+        }).on('keypress', '#address input', function(event) {
             if (event.which === 13 || event.which === 10) {
                 completeAddress(addressValidationForm, addressForm);
                 return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier

@@ -104,14 +104,6 @@ export function accountValidator(formVal) {
 export function updateAccountValidator(formVal) {
     formVal.formValidation({
         framework: 'bootstrap',
-        /*
-        Don't use icons anywhere else but if we want to add this.
-        icon: {
-            valid: 'fa fa-check',
-            invalid: 'fa fa-times',
-            validating: 'fa fa-refresh'
-        },
-        */
         fields: {
             firstName: {
                 selector: '#first-name',

@@ -49,11 +49,13 @@ function loginform() {
     $("#password_input").keyup(function (e) {
         if (e.which === 10 || e.which === 13) {
             loginFxn();
+            return false;
         }
     });
     $("#email_input").keyup(function (e) {
         if (e.which === 10 || e.which === 13) {
             loginFxn();
+            return false;
         }
     });
 }

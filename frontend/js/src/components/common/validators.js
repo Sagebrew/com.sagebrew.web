@@ -477,30 +477,37 @@ export function campaignFinanceValidator(formVal) {
                 selector: '.campaign-finance-form',
                 validators: {
                     callback: {
-                        message: 'Please indicate your employer and job title or that you are retired or not employed',
+                        message: '',
                         callback: function(value, validator, $field) {
-                            var retired = document.getElementById('retired-or-not-employed');
-                            var isEmpty = true,
+                            var retired = document.getElementById('retired-or-not-employed'),
+                                isEmpty = true,
                                 // Get the list of fields
                                 $fields = validator.getFieldElements('campaignFinanceForm');
-                            console.log($fields.eq(0).val());
                             // Check if both Employer name and Job title are filled out
                             if($fields.eq(0).val() !== '' && $fields.eq(1).val() !== '' &&
                                     $fields.eq(0).val() !== null && $fields.eq(1).val() !== null) {
                                 isEmpty = false;
                             }
-                            console.log(retired.checked);
                             if(retired.checked !== false) {
                                 isEmpty = false;
                             }
-                            console.log(isEmpty);
+
+                            // Check if Employer Name, Job Title, and Unemployed are all checked
+                            if(($fields.eq(0).val().length > 0 || $fields.eq(1).val().length > 0) && retired.checked === true) {
+                                return {
+                                    valid: false,
+                                    message: "Please only indicate your Employment Information or that you are Retired or not employed"
+                                };
+                            }
                             if (!isEmpty) {
                                 // Update the status of callback validator for all fields
                                 validator.updateStatus('campaignFinanceForm', validator.STATUS_VALID, 'callback');
                                 return true;
                             }
-
-                            return false;
+                            return {
+                                valid: false,
+                                message: "Please indicate your Employer Name and Job Title or that you are Retired or not employed"
+                            };
                         }
                     }
                 }

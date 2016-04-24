@@ -53,7 +53,7 @@ export function load() {
         });
     $app
         .on('click', '#js-continue-btn', function () {
-            completeAddress(addressValidationForm, addressForm)
+            completeAddress(addressValidationForm, addressForm);
         })
         .on('keypress', '#address input', function(event) {
             if (event.which === 13 || event.which === 10) {

@@ -61,6 +61,12 @@ export function load() {
                     accountValidationForm, accountForm, campaignFinanceValidationForm);
                 return false;
             }
+        }).on('click', '#retired-or-not-employed', function () {
+            if(campaignFinanceValidationForm !== null && campaignFinanceValidationForm !== undefined) {
+                campaignFinanceValidationForm.formValidation('revalidateField', 'campaignFinanceForm');
+                campaignFinanceValidationForm.formValidation('revalidateField', 'onlyOneSelector');
+
+            }
         });
 
     $('#birthday').keyup(function (e) {
@@ -92,11 +98,9 @@ function completeRegistration(addressValidationForm, addressForm,
         document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
         var accountData = helpers.getSuccessFormData(accountForm);
 
-        console.log('outside reform');
         // If employment and occupation info is available add it to the account info
         var campaignFinanceForm = document.getElementById('campaign-finance');
         if(campaignFinanceForm !== undefined && campaignFinanceForm !== null) {
-            console.log('in finance reform')
             if(campaignFinanceValidationForm.data('formValidation').isValid() === true){
                 var employerName = document.getElementById('employer-name').value,
                     occupationName = document.getElementById('occupation-name').value,
@@ -108,6 +112,9 @@ function completeRegistration(addressValidationForm, addressForm,
                     accountData.employer_name = employerName;
                     accountData.occupation_name = occupationName;
                 }
+            } else {
+                document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                return false;
             }
         }
 

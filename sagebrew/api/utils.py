@@ -30,7 +30,6 @@ from django.core.files.temp import NamedTemporaryFile
 
 from rest_framework.authtoken.models import Token
 from rest_framework.validators import UniqueValidator
-from rest_framework.serializers import ValidationError
 
 from boto.sqs.message import Message
 

@@ -32,9 +32,6 @@ class UpdateSerializer(TitledContentSerializer):
         # Office Mission vs Advocate Mission vs Quest vs etc)
         request, _, _, _, _ = gather_request_data(self.context)
         quest = validated_data.pop('quest', None)
-
-        validated_data['content'] = bleach.clean(validated_data.get(
-            'content', ""))
         owner = Pleb.get(request.user.username)
         validated_data['owner_username'] = owner.username
         about = validated_data.pop('about', None)

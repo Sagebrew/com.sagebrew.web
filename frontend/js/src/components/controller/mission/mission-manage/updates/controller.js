@@ -58,12 +58,8 @@ export function load() {
     $app
         .on('click', '#submit', function(event) {
             event.preventDefault();
-            var form = document.getElementById('updateForm'),
-                data = {},
-                serialized = editor.serialize(),
+            var serialized = editor.serialize(),
                 key = Object.keys(serialized);
-            console.log('here');
-            console.log({'content':serialized[key].value});
             request.post({url: "/v1/missions/" + missionId + "/updates/",
                 data: JSON.stringify(
                     {
@@ -99,7 +95,6 @@ export function load() {
             },
             renderCallback: function($container, data) {
                 for (var i = 0; i < data.count; i++) {
-                    console.log(data.results[i]);
                     data.results[i].created = moment(data.results[i].created).format("dddd, MMMM Do YYYY, h:mm a");
                     $container.append(updateNewsTemplate(data.results[i]));
                 }

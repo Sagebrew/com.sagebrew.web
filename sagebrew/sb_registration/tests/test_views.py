@@ -19,7 +19,7 @@ from neomodel import db
 
 from sb_registration.views import (logout_view,
                                    login_view, login_view_api,
-                                   email_verification, interests,
+                                   email_verification,
                                    advocacy, political_campaign,
                                    quest_signup, signup_view)
 from plebs.serializers import EmailAuthTokenGenerator

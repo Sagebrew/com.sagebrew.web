@@ -1,15 +1,12 @@
 from logging import getLogger
-from localflavor.us.us_states import US_STATES
 
 from django.core.cache import cache
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.exceptions import MultipleObjectsReturned
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.utils.text import slugify
+from django.contrib.auth.decorators import login_required
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -17,14 +14,9 @@ from rest_framework import status
 
 from neomodel import (CypherException, db, DoesNotExist)
 
-from api.utils import spawn_task
-from plebs.tasks import update_address_location
-from plebs.neo_models import Pleb, Address
+from plebs.neo_models import Pleb
 from plebs.serializers import EmailAuthTokenGenerator
-from .forms import (AddressInfoForm, InterestForm,
-                    ProfilePictureForm,
-                    LoginForm)
-from .utils import (verify_completed_registration, verify_verified_email)
+from .forms import LoginForm
 
 logger = getLogger('loggly_logs')
 
@@ -57,12 +49,9 @@ def signup_view(request):
                                     cache_buster=True)
         except DoesNotExist:
             return redirect('404_Error')
-        if user_profile.completed_profile_info is True:
-            return redirect('newsfeed')
-        elif not user_profile.email_verified:
+        if not user_profile.email_verified:
             return redirect('confirm_view')
-        elif not user_profile.completed_profile_info:
-            return redirect('profile_info')
+        return redirect('newsfeed')
     return render(request, 'index.html')
 
 
@@ -139,144 +128,8 @@ def email_verification(request, confirmation):
             profile.email_verified = True
             profile.save()
             cache.delete(profile.username)
-            if profile.completed_profile_info:
-                return redirect('interests')
-            return redirect('profile_info')
+            return redirect('newsfeed')
         else:
             return redirect('401_Error')
     except(CypherException, IOError):    # pragma: no cover
         return redirect('500_Error')
-
-
-@login_required
-@user_passes_test(verify_verified_email,
-                  login_url='/registration/signup/confirm/')
-def profile_information(request):
-    """
-    Creates both a AddressInfoForm which populates the
-    fields with what the user enters. If this function gets a valid POST
-    request it will update the pleb. It then validates the address, through
-    smarty streets api, if the address is valid a Address neo_model is
-    created and populated.
-
-
-    COMPLETED THIS TASK BUT STILL NEED TO PUT SOME COMMENTS AROUND IT
-    Need to use a hash to verify the same address string is being
-    used instead of an int. That way if smarty streets passes back
-    the addresses in a different order we can use the same address
-    we provided the user previously based on the previous
-    smarty streets ordering.
-    :param request:
-    """
-    address_key = settings.ADDRESS_AUTH_ID
-    address_information_form = AddressInfoForm(request.POST or None)
-    try:
-        citizen = Pleb.get(username=request.user.username, cache_buster=True)
-    except DoesNotExist:
-        return redirect('login')
-    except (CypherException, IOError):  # pragma: no cover
-        return redirect('500_Error')
-    if citizen.completed_profile_info:
-        return redirect("interests")
-    if address_information_form.is_valid():
-        address_clean = address_information_form.cleaned_data
-        address_clean['country'] = 'USA'
-        if(address_clean['valid'] == "valid" or
-                address_clean.get('original_selected', False) is True):
-            try:
-                state = dict(US_STATES)[address_clean['state']]
-            except KeyError:  # pragma: no cover
-                return address_clean['state']
-            address = Address(street=address_clean['primary_address'],
-                              street_aditional=address_clean[
-                                  'street_additional'],
-                              city=address_clean['city'],
-                              state=state,
-                              postal_code=address_clean['postal_code'],
-                              latitude=address_clean['latitude'],
-                              longitude=address_clean['longitude'],
-                              congressional_district=address_clean[
-                                  'congressional_district'],
-                              county=address_clean['county']).save()
-            address.owned_by.connect(citizen)
-            citizen.determine_reps()
-            spawn_task(task_func=update_address_location,
-                       task_param={"object_uuid": address.object_uuid})
-            try:
-                citizen.completed_profile_info = True
-                citizen.save()
-                cache.delete(citizen.username)
-            except (CypherException, IOError):  # pragma: no cover
-                return redirect('500_Error')
-            account_type = request.session.get('account_type')
-            if account_type is not None:
-                return redirect('rep_registration_page')
-            return redirect('interests')
-        else:
-            # TODO this is just a place holder, what should we really be doing
-            # here?
-            return render(
-                request, 'profile_info.html',
-                {
-                    'address_information_form': address_information_form,
-                    "address_key": address_key
-                })
-
-    return render(request, 'profile_info.html',
-                  {'address_information_form': address_information_form,
-                   "address_key": address_key})
-
-
-@login_required()
-@user_passes_test(verify_completed_registration,
-                  login_url='/registration/profile_information')
-def interests(request):
-    """
-    DEPRECATED use /v1/me/add_topics_of_interest/
-    The interests view creates an InterestForm populates the topics that
-    a user can choose from and if a POST request is passed then the function
-    checks the validity of the arguments POSTed. If the form is valid then
-    the given topics and categories are associated with the logged in user.
-
-    :param request:
-    :return: HttpResponse
-    """
-    interest_form = InterestForm(request.POST or None)
-    if interest_form.is_valid():
-        if "select_all" in interest_form.cleaned_data:
-            interest_form.cleaned_data.pop('select_all', None)
-        if "specific_interests" in interest_form.cleaned_data:
-            interest_form.cleaned_data.pop('specific_interests', None)
-        # not using batch query because it requires at least 2 items. Since
-        # users may select no, one, or more interests just using regular
-        # query rather than adding additional logic.
-        interests_list = [
-            key for key, value in interest_form.cleaned_data.iteritems()
-            if value is True]
-        [db.cypher_query(
-            'MATCH (pleb:Pleb {username: "%s"}), '
-            '(tag:Tag {name: "%s"}) '
-            'CREATE UNIQUE (pleb)-[:INTERESTED_IN]->(tag) '
-            'RETURN pleb' % (request.user.username, slugify(tag)))
-            for tag in interests_list]
-        cache.delete(request.user.username)
-        return redirect('profile_picture')
-    return render(request, 'interests.html', {'interest_form': interest_form})
-
-
-@login_required()
-def profile_picture(request):
-    """
-    The profile picture view accepts an image from the user, which is stored in
-    the TEMP_FILES directory until it is uploaded to s3 after which the locally
-    stored tempfile is deleted. After the url of the image is returned from
-    the upload_image util the url is stored as the profile_picture field in
-    the Pleb
-    model.
-`
-    :param request:
-    :return:
-    """
-    profile_picture_form = ProfilePictureForm()
-    return render(request, 'profile_picture.html',
-                  {'profile_picture_form': profile_picture_form})

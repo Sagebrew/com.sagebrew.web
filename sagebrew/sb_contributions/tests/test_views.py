@@ -26,7 +26,6 @@ class ContributionViewTests(TestCase):
         self.email2 = "bounce@simulator.amazonses.com"
         self.pleb2 = create_user_util_test(self.email2)
         self.user2 = User.objects.get(email=self.email2)
-        self.pleb.completed_profile_info = True
         self.pleb.email_verified = True
         self.pleb.save()
         cache.clear()

@@ -788,7 +788,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             return Response(response, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @list_route(methods=['post'], serializer_class=TopicInterestsSerializer,
+    @list_route(methods=['post'],
+                serializer_class=TopicInterestsSerializer,
                 permission_classes=(IsAuthenticated,))
     def add_topics_of_interest(self, request):
         """

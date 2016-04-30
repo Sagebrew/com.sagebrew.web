@@ -1,5 +1,6 @@
 var representatives = require('../partials/representatives'),
     postcreate = require('../partials/postcreate'),
+    helpers = require('common/helpers'),
     newsfeed = require('../partials/newsfeed'),
     solutions = require('controller/conversation/conversation-view/partials/solution'),
     request = require('api').request,

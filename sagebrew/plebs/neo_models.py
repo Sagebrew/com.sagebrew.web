@@ -149,7 +149,6 @@ class Pleb(Searchable):
     secondary_phone = StringProperty()
     profile_pic = StringProperty(default=get_default_profile_pic)
     wallpaper_pic = StringProperty(default=get_default_wallpaper_pic)
-    completed_profile_info = BooleanProperty(default=False)
     reputation = IntegerProperty(default=0)
     is_rep = BooleanProperty(default=False)
     is_admin = BooleanProperty(default=False)

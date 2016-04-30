@@ -2,6 +2,7 @@ import us
 import stripe
 from datetime import date
 from unidecode import unidecode
+import requests
 
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
@@ -298,7 +299,6 @@ class PlebSerializerNeo(SBSerializer):
                                           max_length=240)
     is_verified = serializers.BooleanField(read_only=True)
     email_verified = serializers.BooleanField(read_only=True)
-    completed_profile_info = serializers.BooleanField(read_only=True)
     customer_token = serializers.CharField(write_only=True, required=False)
     stripe_default_card_id = serializers.CharField(write_only=True,
                                                    required=False,
@@ -328,6 +328,7 @@ class PlebSerializerNeo(SBSerializer):
     url = serializers.SerializerMethodField()
     is_following = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
+    has_address = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
@@ -347,10 +348,10 @@ class PlebSerializerNeo(SBSerializer):
                     first_name=user.first_name.title(),
                     last_name=user.last_name.title(),
                     username=user.username,
-                    date_of_birth=birthday)
-        pleb.occupation_name = validated_data.get('occupation_name', None)
-        pleb.employer_name = validated_data.get('employer_name', None)
-        pleb.mission_signup = mission_signup
+                    date_of_birth=birthday,
+                    occupation_name=validated_data.get('occupation_name', None),
+                    employer_name=validated_data.get('employer_name', None),
+                    mission_signup=mission_signup).save()
         if mission_signup is None:
             mission_signup = "no"
         # Save so Intercom Event can pass validators, don't just pass the
@@ -364,7 +365,6 @@ class PlebSerializerNeo(SBSerializer):
         })
         serializer.is_valid(raise_exception=True)
         serializer.save()
-
         if not request.user.is_authenticated():
             user = authenticate(username=user.username,
                                 password=validated_data['password'])
@@ -379,6 +379,13 @@ class PlebSerializerNeo(SBSerializer):
         serializer.save()
         pleb.initial_verification_email_sent = True
         pleb.save()
+        interests_serializer = TopicInterestsSerializer(
+            data={
+                'interests': [
+                    interest[0] for interest in settings.TOPICS_OF_INTEREST]},
+            context={"request": request})
+        interests_serializer.is_valid(raise_exception=True)
+        interests_serializer.save()
         spawn_task(task_func=create_wall_task,
                    task_param={"username": user.username})
         spawn_task(task_func=generate_oauth_info,
@@ -465,6 +472,7 @@ class PlebSerializerNeo(SBSerializer):
             'stripe_default_card_id', instance.stripe_default_card_id)
         if update_time:
             instance.last_counted_vote_node = instance.vote_from_last_refresh
+
         instance.save()
         instance.update_quest()
         cache.delete(instance.username)
@@ -520,6 +528,18 @@ class PlebSerializerNeo(SBSerializer):
             return obj.is_following(request.user.username)
         return False
 
+    def get_has_address(self, obj):
+        query = 'MATCH (a:Pleb {username: "%s"})-[r:LIVES_AT]->(a:Address) ' \
+                'RETURN CASE WHEN r is NULL THEN False ELSE True END'
+        res, _ = db.cypher_query(query)
+
+        return res.one
+
+    def get_has_postal_code(self, obj):
+        if obj.postal_code is not None and obj.postal_code.strip() != "":
+            return True
+        return False
+
 
 class AddressSerializer(SBSerializer):
     object_uuid = serializers.CharField(read_only=True)
@@ -546,7 +566,6 @@ class AddressSerializer(SBSerializer):
         address.set_encompassing()
         pleb = Pleb.get(username=request.user.username, cache_buster=True)
         address.owned_by.connect(pleb)
-        pleb.completed_profile_info = True
         pleb.save()
         cache.delete(pleb.username)
         pleb.determine_reps()

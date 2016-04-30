@@ -55,8 +55,7 @@ function completeAddress(addressValidationForm, addressForm) {
 }
 
 
-function validateAddressCallback() {
-}
+function validateAddressCallback() {}
 
 function submitAddressCallback() {
     window.location.href = "/registration/interests/";

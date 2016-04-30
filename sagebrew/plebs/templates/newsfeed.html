@@ -37,19 +37,14 @@
             <a class="btn btn-primary sb_btn sb_btn_fill" href="/conversations/submit_question/"><i class="fa fa-cloud  quest-rocket"></i> Discuss</a>
         </div>
     </div>
-    {% if page_user.has_postal_code or page_user.has_address %}
+    {% if page_profile.has_address %}
         {% include "representative_block.html" %}
     {% else %}
         <div class="block">
             <div class="block-title">See Representatives & Advocates For Your Area</div>
             <div class="block-content">
-                <input type="text"
-                   id="postal-code"
-                   name="postal_code"
-                   value="{{ address.postal_code|default_if_none:"" }}"
-                   placeholder="Zip Code"
-                   class="form-control"
-                   autocomplete="off">
+                {% include "address_form.html" %}
+                <button id="js-continue-btn" type="button" class="btn btn-primary sb_btn sb_btn_fill">Submit</button>
             </div>
         </div>
     {% endif %}

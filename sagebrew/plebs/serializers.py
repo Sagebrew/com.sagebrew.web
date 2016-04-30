@@ -2,7 +2,6 @@ import us
 import stripe
 from datetime import date
 from unidecode import unidecode
-import requests
 
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import User
@@ -529,16 +528,12 @@ class PlebSerializerNeo(SBSerializer):
         return False
 
     def get_has_address(self, obj):
-        query = 'MATCH (a:Pleb {username: "%s"})-[r:LIVES_AT]->(a:Address) ' \
-                'RETURN CASE WHEN r is NULL THEN False ELSE True END'
+        query = 'MATCH (p:Pleb {username: "%s"}) ' \
+                'OPTIONAL MATCH (p)-[r:LIVES_AT]->(b:Address) ' \
+                'RETURN r IS NOT NULL as has_address' % obj.username
         res, _ = db.cypher_query(query)
 
         return res.one
-
-    def get_has_postal_code(self, obj):
-        if obj.postal_code is not None and obj.postal_code.strip() != "":
-            return True
-        return False
 
 
 class AddressSerializer(SBSerializer):

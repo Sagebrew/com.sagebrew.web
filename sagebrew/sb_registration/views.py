@@ -117,6 +117,7 @@ def logout_view(request):
 
 @login_required()
 def email_verification(request, confirmation):
+    from sb_quests.serializers import QuestSerializer
     try:
         try:
             profile = Pleb.get(username=request.user.username,
@@ -128,6 +129,15 @@ def email_verification(request, confirmation):
             profile.email_verified = True
             profile.save()
             cache.delete(profile.username)
+            if profile.mission_signup is not None:
+                if profile.get_quest() is not None:
+                    return redirect(profile.mission_signup)
+                else:
+                    serializer = QuestSerializer(
+                        data={}, context={"request": request})
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+                return redirect(profile.mission_signup)
             return redirect('newsfeed')
         else:
             return redirect('401_Error')

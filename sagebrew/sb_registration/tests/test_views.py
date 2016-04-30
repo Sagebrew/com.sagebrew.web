@@ -1,14 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
 from json import loads
 
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth import login, authenticate
 from django.test import TestCase, RequestFactory, Client
 from django.contrib.sessions.backends.db import SessionStore
-from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 
@@ -25,148 +23,6 @@ from sb_registration.views import (logout_view,
 from plebs.serializers import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util_test
 from plebs.neo_models import Pleb
-
-
-class InterestsTest(TestCase):
-
-    def setUp(self):
-        query = "MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r"
-        db.cypher_query(query)
-        call_command("create_prepopulated_tags")
-        time.sleep(3)
-        self.factory = RequestFactory()
-        self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.pleb.email_verified = True
-        self.pleb.save()
-
-    def test_no_topics_selected(self):
-        my_dict = {"fiscal": False, "education": False, "space": False,
-                   "drugs": False, "science": False, "energy": False,
-                   "environment": False, "defense": False, "health": False,
-                   "social": False, "foreign_policy": False,
-                   "agriculture": False}
-        request = self.factory.post('/registration/interests',
-                                    data=my_dict)
-        request.user = self.user
-        response = interests(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(len(self.pleb.interests.all()), 0)
-
-    def test_one_topic_selected(self):
-        my_dict = {"fiscal": True, "education": False, "space": False,
-                   "drugs": False, "science": False, "energy": False,
-                   "environment": False, "defense": False, "health": False,
-                   "social": False, "foreign_policy": False,
-                   "agriculture": False}
-        request = self.factory.post('/registration/interests',
-                                    data=my_dict)
-        request.user = self.user
-        response = interests(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(len(self.pleb.interests.all()), 1)
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
-
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "education"}) RETURN a' % self.pleb.username
-        res, _ = db.cypher_query(query)
-        self.assertIsNone(res.one)
-
-    def test_select_all_selected(self):
-        my_dict = {"fiscal": True, "education": True, "space": True,
-                   "drugs": True, "science": True, "energy": True,
-                   "environment": True, "defense": True, "health": True,
-                   "social": True, "foreign_policy": True,
-                   "agriculture": True, 'select_all': True}
-        request = self.factory.post('/registration/interests', data=my_dict)
-        request.user = self.user
-        response = interests(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(len(self.pleb.interests.all()), 12)
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
-
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "education"}) RETURN a' % self.pleb.username
-
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
-
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "energy"}) RETURN a' % self.pleb.username
-
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
-
-    def test_all_topics_selected(self):
-        my_dict = {"fiscal": True, "education": True, "space": True,
-                   "drugs": True, "science": True, "energy": True,
-                   "environment": True, "defense": True, "health": True,
-                   "social": True, "foreign_policy": True,
-                   "agriculture": True}
-        request = self.factory.post('/registration/interests',
-                                    data=my_dict)
-        request.user = self.user
-        response = interests(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(len(self.pleb.interests.all()), 12)
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "social"}) RETURN a' % self.pleb.username
-
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
-
-    def test_some_topics_selected(self):
-        my_dict = {"fiscal": False, "education": True, "space": False,
-                   "drugs": True, "science": True, "energy": True,
-                   "environment": False, "defense": True, "health": False,
-                   "social": True, "foreign_policy": True,
-                   "agriculture": False}
-        request = self.factory.post('/registration/interests',
-                                    data=my_dict)
-        request.user = self.user
-        response = interests(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(len(self.pleb.interests.all()), 7)
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "drugs"}) RETURN a' % self.pleb.username
-
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
-
-    def test_interests_pleb_does_not_exist(self):
-        my_dict = {"fiscal": False, "education": True, "space": False,
-                   "drugs": True, "science": True, "energy": True,
-                   "environment": False, "defense": True, "health": False,
-                   "social": True, "foreign_policy": True,
-                   "agriculture": False}
-        request = self.factory.post('/registration/interests',
-                                    data=my_dict)
-        self.user.username = 'fakeusername'
-        request.user = self.user
-        response = interests(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-
-    def test_get_request(self):
-        request = self.factory.get('/registration/interests')
-        request.user = self.user
-        response = interests(request)
-
-        self.assertIn(response.status_code, [status.HTTP_200_OK,
-                                             status.HTTP_302_FOUND])
 
 
 class TestSignupView(TestCase):

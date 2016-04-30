@@ -478,7 +478,7 @@ export function campaignFinanceValidator(formVal) {
                 validators: {
                     callback: {
                         message: '',
-                        callback: function(value, validator, $field) {
+                        callback: function(value, validator) {
                             var retired = document.getElementById('retired-or-not-employed'),
                                 isEmpty = true,
                                 // Get the list of fields

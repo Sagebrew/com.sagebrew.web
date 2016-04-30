@@ -1,10 +1,10 @@
-var missionSelect = require('./partials/missionselect');
+var advocate = require('./partials/advocatemission');
 
 export const meta = {
-    controller: "mission/select-mission",
+    controller: "mission/mission-registration/account-setup",
     match_method: "path",
     check: [
-       "^missions/select$"
+       "^missions/account"
     ]
 };
 
@@ -21,7 +21,7 @@ export function init() {
  */
 export function load() {
     "use strict";
-    missionSelect.load();
+    advocate.load();
 
 }
 

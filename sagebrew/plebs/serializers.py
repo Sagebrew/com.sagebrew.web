@@ -407,6 +407,24 @@ class PlebSerializerNeo(SBSerializer):
         """
         stripe.api_key = settings.STRIPE_SECRET_KEY
         request, _, _, _, _ = gather_request_data(self.context)
+        address = request.data.get('address')
+        if address is not None:
+            address_serializer = AddressSerializer(
+                data=address, context={"request": request})
+            address_serializer.is_valid(raise_exception=True)
+            address = address_serializer.save()
+            query = 'MATCH (a:Pleb) ' \
+                    'OPTIONAL MATCH (a)-[r:LIVES_IN]-(:Address) ' \
+                    'DELETE r'
+            res, _ = db.cypher_query(query)
+            instance.address.connect(address)
+            instance.determine_reps()
+            cache.delete('%s_possible_house_representatives' %
+                         request.user.username)
+            cache.delete('%s_possible_senators' % request.user.username)
+            spawn_task(task_func=determine_pleb_reps, task_param={
+                "username": self.context['request'].user.username,
+            })
         update_time = request.data.get('update_time', False)
         first_name = validated_data.get('first_name', instance.first_name)
         last_name = validated_data.get('last_name', instance.last_name)
@@ -552,24 +570,15 @@ class AddressSerializer(SBSerializer):
     validated = serializers.BooleanField(required=False)
 
     def create(self, validated_data):
-        request = self.context.get('request', None)
         validated_data['state'] = us.states.lookup(
             validated_data['state']).name
         if not validated_data.get('country', False):
             validated_data['country'] = "USA"
         address = Address(**validated_data).save()
         address.set_encompassing()
-        pleb = Pleb.get(username=request.user.username, cache_buster=True)
-        address.owned_by.connect(pleb)
-        pleb.save()
-        cache.delete(pleb.username)
-        pleb.determine_reps()
-        spawn_task(task_func=update_address_location,
-                   task_param={"object_uuid": address.object_uuid})
         return address
 
     def update(self, instance, validated_data):
-        request = self.context.get('request', None)
         instance.street = validated_data.get('street', instance.street)
         instance.street_additional = validated_data.get(
             'street_additional', instance.street_additional)
@@ -585,12 +594,6 @@ class AddressSerializer(SBSerializer):
         instance.longitude = validated_data.get("longitude",
                                                 instance.longitude)
         instance.save()
-        cache.delete('%s_possible_house_representatives' %
-                     request.user.username)
-        cache.delete('%s_possible_senators' % request.user.username)
-        spawn_task(task_func=determine_pleb_reps, task_param={
-            "username": self.context['request'].user.username,
-        })
         spawn_task(task_func=update_address_location,
                    task_param={"object_uuid": instance.object_uuid})
         return instance

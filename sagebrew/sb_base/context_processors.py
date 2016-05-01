@@ -12,7 +12,7 @@ from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
 
 from sb_quests.neo_models import Quest
-
+from sb_quests.serializers import QuestSerializer
 
 def js_settings(request):
     data = {
@@ -42,6 +42,7 @@ def js_settings(request):
                 data['profile']['stripe_customer_id'] = pleb.stripe_account
                 if data['profile']['quest'] is not None:
                     quest = Quest.get(pleb.username)
+                    data['profile']['quest'] = QuestSerializer(quest).data
                     if "/quests/%s/" % quest.owner_username in request.path or \
                             "/quests/%s/" % quest.object_uuid in request.path:
                         data['profile']['quest']['is_owner'] = True
@@ -62,45 +63,6 @@ def js_settings(request):
                             data['profile']['quest']['card_on_file'] = False
                         data['profile']['quest'][
                             'account_type'] = quest.account_type
-                    if "manage/banking" in request.path:
-                        # TODO This is a interim solution while we create
-                        # a webhook to accept updates from stripe on the
-                        # verification process
-                        account = stripe.Account.retrieve(quest.stripe_id)
-                        data['profile']['quest'][
-                            'stripe_identification_sent'] = \
-                            quest.stripe_identification_sent
-                        data['profile']['quest']['verification'] = {}
-                        quest.account_verified = account[
-                            'legal_entity']['verification']['status']
-                        fields_needed = account[
-                            'verification']['fields_needed']
-                        if "legal_entity.verification.document" in \
-                                fields_needed:
-                            data['profile']['quest'][
-                                'verification']['upload_id'] = True
-                        if fields_needed is not None:
-                            fields_needed = ", ".join(
-                                [field.replace('legal_entity.', "").replace(
-                                    '_', " ").title() for field in fields_needed
-                                 if field in [
-                                     'legal_entity.business_tax_id',
-                                     'legal_entity.business_name']])
-
-                        data['profile']['quest'][
-                            'verification']['fields_needed'] = fields_needed
-                        data['profile']['quest'][
-                            'verification']['due_by'] = account[
-                            'verification']['due_by']
-                        disabled_reason = account[
-                            'verification']['disabled_reason']
-                        if disabled_reason is not None:
-                            disabled_reason = disabled_reason.replace(
-                                'rejected.', "").replace('_', " ").title()
-                        data['profile']['quest'][
-                            'verification']['disabled_reason'] = disabled_reason
-                        quest.save()
-                        cache.set('%s_quest' % quest.owner_username, quest)
                     if "quest" in request.path and "billing" in request.path:
                         # Private not available in the serializer
                         data['profile']['quest']['card'] = None

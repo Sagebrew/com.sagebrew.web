@@ -89,7 +89,7 @@ function validateAddress(addressValidationForm, callbackFunction) {
 }
 
 
-export function submitAddress(addressForm, callbackFunction) {
+export function submitAddress(addressForm, callbackFunction, mission) {
     var latitudeKey = "addressLatitude",
         longitudeKey = "addressLongitude",
         countryKey = "addressCountry",
@@ -98,15 +98,23 @@ export function submitAddress(addressForm, callbackFunction) {
         greyPage = document.getElementById('sb-greyout-page'),
         addressData = helpers.getSuccessFormData(addressForm),
         verify = localStorage.getItem(validKey),
-        validated;
+        validated, url;
     greyPage.classList.remove('sb_hidden');
+    if(mission === undefined || mission === null || typeof mission === "undefined") {
+        mission = false;
+    }
     validated = verify === "valid";
     addressData.validated = validated;
     addressData.latitude = localStorage.getItem(latitudeKey);
     addressData.longitude = localStorage.getItem(longitudeKey);
     addressData.country = localStorage.getItem(countryKey);
     addressData.congressional_district = localStorage.getItem(congressionalKey);
-    requests.post({url: "/v1/addresses/", data: JSON.stringify(addressData)})
+    if (mission === true) {
+        url = "/v1/quests/" + settings.profile.username + "/";
+    } else {
+        url = "/v1/profiles/" + settings.profile.username + "/";
+    }
+    requests.patch({url: url, data: JSON.stringify({address: addressData})})
         .done(function (data) {
             greyPage.classList.add('sb_hidden');
             callbackFunction(data);

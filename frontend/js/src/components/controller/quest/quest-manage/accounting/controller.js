@@ -5,6 +5,8 @@
 var request = require('api').request,
     helpers = require('common/helpers'),
     moment = require('moment'),
+    addresses = require('common/addresses'),
+    validators = require('common/validators'),
     settings = require('settings').settings,
     questID = helpers.args(1);
 /**
@@ -25,66 +27,58 @@ export const meta = {
 export function load() {
     var $app = $(".app-sb"),
         greyPage = document.getElementById('sb-greyout-page'),
-        account_type;
-    $("#account-type").change(function() {
-        var $this = $(this),
-            accountOwner = $("#js-account-owner-wrapper"),
-            ein = $("#js-ein-wrapper");
-        if ($this.val() === "business") {
-            accountOwner.show();
-            ein.show();
-        } else {
-            accountOwner.hide();
-            ein.hide();
-        }
-    });
+        addressForm = document.getElementById('address'),
+        bankAccountForm = document.getElementById('banking-form'),
+        bankAccountValidationForm = $(bankAccountForm),
+        addressValidationForm = addresses.setupAddress(function callback() {});
+    validators.bankAccountValidator(bankAccountValidationForm);
     Stripe.setPublishableKey(settings.api.stripe);
-    if(settings.profile.quest.verification.fields_needed !== null && settings.profile.quest.verification.fields_needed !== "" && settings.profile.quest.verification.fields_needed !== undefined && settings.profile.quest.verification.fields_needed !== "undefined") {
-        document.getElementById('js-fields-needed').innerHTML = String("Fields Needed: " + settings.profile.quest.verification.fields_needed).replace('Business Name', 'Name of Entity Managing Bank').replace('Business Tax Id', "EIN of Managing Bank");
+    if(settings.profile.quest.fields_needed_human_readable !== null && settings.profile.quest.fields_needed_human_readable !== "") {
+        document.getElementById('js-fields-needed').innerHTML = String("Fields Needed: " + settings.profile.quest.fields_needed_human_readable);
     }
-    if(settings.profile.quest.verification.due_date !== null && settings.profile.quest.verification.due_date !== "" && settings.profile.quest.verification.due_date !== undefined && settings.profile.quest.verification.due_date !== "undefined") {
-        document.getElementById('js-due-date').innerHTML = "Fields Needed By: " + moment.unix(1458604799).format("dddd, MMMM Do YYYY, h:mm a");
+    if(settings.profile.quest.verification_due_date !== null) {
+        document.getElementById('js-due-date').innerHTML = "Fields Needed By: " + moment.unix(settings.profile.quest.verification_due_date).format("dddd, MMMM Do YYYY, h:mm a");
     }
-    if(settings.profile.quest.verification.disabled_reason !== null && settings.profile.quest.verification.disabled_reason !== undefined && settings.profile.quest.verification.disabled_reason !== 'undefined') {
-        document.getElementById('js-disabled-reason').innerHTML = "Disabled: " + settings.profile.quest.verification.disabled_reason;
+    if(settings.profile.quest.account_verification_details !== null && settings.profile.quest.account_verification_details !== undefined && settings.profile.quest.account_verification_details !== 'undefined') {
+        document.getElementById('js-disabled-reason').innerHTML = "Disabled: " + settings.profile.quest.account_verification_details;
     }
-    if(settings.profile.quest.verification.upload_id === true && (settings.profile.quest.stripe_identification_sent === false || settings.profile.quest.stripe_identification_sent === null)){
+    if(settings.profile.quest.verification_document_needed === true && (settings.profile.quest.identification_sent === false || settings.profile.quest.identification_sent === null)){
         document.getElementById("identification-upload").classList.remove("sb_hidden");
         document.getElementById('js-identification-warning').innerHTML = "Personal Identification Image Upload Required";
     }
     $('.fileinput').fileinput();
     $app
+        .on('click', '#js-continue-btn', function (event) {
+            event.preventDefault();
+            submitAddress(addressValidationForm, addressForm);
+        }).on('keypress', '#banking-form input', function(event) {
+            if (event.which === 13 || event.which === 10) {
+                submitAccountInfo(bankAccountValidationForm, bankAccountForm);
+                return false;
+            }
+        }).on('keypress', '#address input', function(event) {
+            if (event.which === 13 || event.which === 10) {
+                submitAddress(addressValidationForm, addressForm);
+                return false;
+            }
+        })
+        .on('change', '#account-type', function() {
+            var $this = $(this),
+                accountOwner = $("#js-account-owner-wrapper"),
+                ein = $("#js-ein-wrapper");
+            if ($this.val() === "business") {
+                accountOwner.show();
+                ein.show();
+            } else {
+                accountOwner.hide();
+                ein.hide();
+            }
+        })
         .on('click', '#submit', function(event) {
             event.preventDefault();
-            var data = helpers.getFormData(document.getElementById('bankingForm'));
-            if (data.stripe_account_type === "business"){
-                account_type = "company";
-            } else {
-                account_type = "individual";
-            }
-            if (data.ssn && data.routing_number && data.account_number) {
-                greyPage.classList.remove('sb_hidden');
-                Stripe.bankAccount.createToken({
-                    country: "US",
-                    currency: "USD",
-                    routing_number: data.routing_number,
-                    account_number: data.account_number,
-                    name: data.account_owner,
-                    account_holder_type: account_type
-                }, stripeBankHandler);
-            } else {
-                if(!data.ssn){
-                    $.notify("Social Security Number is Required", {type: "danger"});
-                }
-                if(!data.routing_number){
-                    $.notify("Routing Number is Required", {type: "danger"});
-                }
-                if(!data.account_number){
-                    $.notify("Account Number is Required", {type: "danger"});
-                }
-            }
-        });
-        $("#image").change(function(){
+            submitAccountInfo(bankAccountValidationForm, bankAccountForm);
+        })
+        .on('change', "#image", function() {
             event.preventDefault();
             greyPage.classList.remove('sb_hidden');
             var formData = new FormData($('#identificationForm'));
@@ -106,6 +100,39 @@ export function load() {
 }
 
 
+function submitAccountInfo(bankAccountValidationForm, bankAccountForm) {
+    bankAccountValidationForm.data('formValidation').validate();
+    var greyPage = document.getElementById('sb-greyout-page'),
+        accountType;
+    if(bankAccountValidationForm.data('formValidation').isValid()) {
+        document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+        var accountData = helpers.getSuccessFormData(bankAccountForm);
+        if (accountData.stripe_account_type === "business") {
+            accountType = "company";
+        } else {
+            accountType = "individual";
+        }
+        greyPage.classList.remove('sb_hidden');
+        Stripe.bankAccount.createToken({
+            country: "US",
+            currency: "USD",
+            routing_number: accountData.routing_number,
+            account_number: accountData.account_number,
+            name: accountData.account_owner,
+            account_holder_type: accountType
+        }, stripeBankHandler);
+    }
+}
+
+function submitAddress(addressValidationForm, addressForm) {
+    addressValidationForm.data('formValidation').validate();
+    if(addressValidationForm.data('formValidation').isValid() === true){
+        addresses.submitAddress(addressForm, function callback() {
+            window.location.reload();
+        }, true);
+    }
+}
+
 function stripeBankHandler(status, response){
     var greyPage = document.getElementById('sb-greyout-page');
     if (response.error) {
@@ -119,7 +146,7 @@ function stripeBankHandler(status, response){
         greyPage.classList.add('sb_hidden');
     } else {
         var questID = helpers.args(1),
-            data = helpers.getFormData(document.getElementById('bankingForm'));
+            data = helpers.getFormData(document.getElementById('banking-form'));
         data.stripe_token = response.id;
         data.tos_acceptance = true;
         request.patch({url: "/v1/quests/" + questID + "/",

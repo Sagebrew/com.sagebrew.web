@@ -45,6 +45,7 @@ class QuestSettingsView(LoginRequiredMixin):
 
     def get(self, request, username=None):
         from sb_missions.neo_models import Mission
+        from plebs.neo_models import Address
         query = 'MATCH (person:Pleb {username: "%s"})' \
             '-[r:IS_WAGING]->(quest:Quest) WITH quest ' \
             'OPTIONAL MATCH (quest)-[:EMBARKS_ON]->(missions:Mission) ' \
@@ -71,6 +72,10 @@ class QuestSettingsView(LoginRequiredMixin):
                 kwargs={"object_uuid": mission_obj.object_uuid,
                         "slug": slugify(mission_obj.get_mission_title())})
             mission_active = mission_obj.active
+        res, _ = db.cypher_query('MATCH (a:Quest {owner_username: "%s"})'
+                                 '-[:LOCATED_AT]->(b:Address) '
+                                 'RETURN b' % quest_obj.owner_username)
         return render(request, self.template_name,
                       {"quest": quest_ser, "mission_link": mission_link,
-                       "mission_active": mission_active})
+                       "mission_active": mission_active,
+                       "address": Address.inflate(res.one)})

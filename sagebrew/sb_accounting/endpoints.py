@@ -110,6 +110,28 @@ class AccountingViewSet(viewsets.ViewSet):
             if quest.account_first_updated is None \
                     and quest.account_verified != "verified":
                 quest.account_first_updated = datetime.now(pytz.utc)
+            verify = account.verification
+
+            # Determine if we need Quest to upload identification documentation
+            if 'legal_entity.verification.document' in verify.fields_needed:
+                quest.verification_document_needed = True
+
+            # Save off when the additional information is due by
+            if verify.due_by is not None:
+                quest.verification_due_date = datetime.datetime.fromtimestamp(
+                    account.verification.due_by)
+            else:
+                quest.verification_due_date = None
+
+            # Indicate why the account was disabled by the payment processing
+            # platform
+            if verify.disabled_reason is not None:
+                quest.verification_disabled_reason = \
+                    account.verification.disabled_reason\
+                    .replace('_', " ").title()
+            else:
+                quest.verification_disabled_reason = None
+
             quest.save()
             cache.delete("%s_quest" % quest.owner_username)
             return Response({"detail": "Account Updated"},
@@ -123,6 +145,9 @@ class AccountingViewSet(viewsets.ViewSet):
                     account = stripe.Account.retrieve(
                         transfer.destination
                     )
+                else:
+                    return Response({"detail": "Could not find stripe account"},
+                                    status=status.HTTP_404_NOT_FOUND)
             except (stripe.InvalidRequestError, stripe.APIConnectionError):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             pleb = Pleb.nodes.get(email=account.email)

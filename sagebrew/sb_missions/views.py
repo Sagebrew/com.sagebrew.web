@@ -15,26 +15,6 @@ from sb_quests.neo_models import Quest
 from sb_quests.serializers import QuestSerializer
 
 
-def mission_list(request):
-    serializer_data = []
-    return render(request, 'mission/list.html', serializer_data)
-
-
-@login_required()
-def select_mission(request):
-    return render(request, 'mission/selector.html')
-
-
-@login_required()
-def public_office_mission(request):
-    return render(request, 'mission/public_office.html')
-
-
-@login_required()
-def advocate_mission(request):
-    return render(request, 'mission/advocate.html')
-
-
 def mission_redirect_page(request, object_uuid=None):
     try:
         mission_obj = Mission.get(object_uuid)

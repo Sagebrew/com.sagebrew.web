@@ -234,6 +234,7 @@ class Pleb(Searchable):
     beta_user = RelationshipTo('plebs.neo_models.BetaUser', "BETA_USER")
     url_content = RelationshipTo('sb_uploads.neo_models.URLContent',
                                  'URL_CONTENT')
+    address = RelationshipTo("plebs.neo_models.Address", 'LIVES_AT')
 
     # Users can only have one campaign as the campaign is essentially their
     # action page and account information. They won't be able to create
@@ -714,7 +715,6 @@ class Address(SBObject):
     validated = BooleanProperty(default=False)
 
     # Relationships
-    owned_by = RelationshipFrom("Pleb", 'LIVES_AT')
     encompassed_by = RelationshipTo('sb_locations.neo_models.Location',
                                     'ENCOMPASSED_BY')
 

@@ -105,6 +105,7 @@ urlpatterns = patterns(
     (r'^v1/', include('sb_solutions.apis.v1')),
     (r'^v1/', include('sb_oauth.apis.v1')),
     (r'^v1/', include('plebs.apis.v1')),
+    (r'^v1/', include('sb_address.apis.v1')),
     (r'^v1/', include('sb_posts.apis.v1')),
     (r'^v1/', include('sb_comments.apis.v1')),
     (r'^v1/', include('sb_news.apis.v1')),

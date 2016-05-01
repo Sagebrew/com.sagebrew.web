@@ -119,7 +119,7 @@ class Quest(Searchable):
     editors = RelationshipFrom('plebs.neo_models.Pleb', 'EDITOR_OF')
     moderators = RelationshipFrom('plebs.neo_models.Pleb', 'MODERATOR_OF')
 
-    address = RelationshipTo("plebs.neo_models.Address", 'LOCATED_AT')
+    address = RelationshipTo("sb_address.neo_models.Address", 'LOCATED_AT')
 
     # Embarks on is a mission this Quest manages and is trying to accomplish.
     # Donations to these missions come back to the Quest's account

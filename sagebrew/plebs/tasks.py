@@ -1,24 +1,19 @@
 from logging import getLogger
-import us
-import requests
 from uuid import uuid1
 
 from django.core import signing
-from django.conf import settings
 from django.core.cache import cache
 
 from celery import shared_task
 
-from py2neo.cypher.error.transaction import ClientError, CouldNotCommit
+from py2neo.cypher.error.transaction import ClientError
 from neomodel import DoesNotExist, CypherException, db
 
 from api.utils import spawn_task, generate_oauth_user
 from sb_search.tasks import update_search_object
-from sb_public_official.tasks import create_and_attach_state_level_reps
 from sb_privileges.tasks import check_privileges
-from sb_locations.neo_models import Location
 
-from .neo_models import Pleb, OauthUser, Address
+from .neo_models import Pleb, OauthUser
 from .utils import create_friend_request_util
 
 logger = getLogger('loggly_logs')
@@ -35,84 +30,6 @@ def determine_pleb_reps(username):
         return result
     except Exception as e:
         raise determine_pleb_reps.retry(exc=e, countdown=3, max_retries=None)
-
-
-@shared_task()
-def update_address_location(object_uuid):
-    try:
-        address = Address.nodes.get(object_uuid=object_uuid)
-    except (DoesNotExist, Address.DoesNotExist, CypherException, IOError,
-            ClientError) as e:
-        raise update_address_location.retry(exc=e, countdown=3,
-                                            max_retries=None)
-    try:
-        state = us.states.lookup(address.state)
-        district = address.congressional_district
-        query = 'MATCH (a:Address {object_uuid:"%s"})-[r:ENCOMPASSED_BY]->' \
-                '(l:Location) DELETE r' % object_uuid
-        db.cypher_query(query)
-        query = 'MATCH (s:Location {name:"%s"})-[:ENCOMPASSES]->' \
-                '(d:Location {name:"%s", sector:"federal"}) RETURN d' % \
-                (state, district)
-        res, _ = db.cypher_query(query)
-        if res.one is not None:
-            district = Location.inflate(res.one)
-            address.encompassed_by.connect(district)
-        address.set_encompassing()
-    except (CypherException, IOError, ClientError) as e:
-        raise update_address_location.retry(exc=e, countdown=3,
-                                            max_retries=None)
-    return True
-
-
-@shared_task()
-def connect_to_state_districts(object_uuid):
-    try:
-        address = Address.nodes.get(object_uuid=object_uuid)
-    except (DoesNotExist, Address.DoesNotExist, CypherException, IOError,
-            ClientError) as e:
-        raise connect_to_state_districts.retry(exc=e, countdown=3,
-                                               max_retries=None)
-    try:
-        lookup_url = settings.OPENSTATES_DISTRICT_SEARCH_URL % \
-            (address.latitude, address.longitude) \
-            + "&apikey=53f7bd2a41df42c082bb2f07bd38e6aa"
-    except TypeError:
-        # in case an address doesn't have a latitude or longitude
-        return False
-    response = requests.get(
-        lookup_url, headers={"content-type": 'application/json; charset=utf8'})
-    response_json = response.json()
-    try:
-        for rep in response_json:
-            try:
-                sector = 'state_%s' % rep['chamber']
-                query = 'MATCH (l:Location {name: "%s", sector:"federal"})-' \
-                        '[:ENCOMPASSES]->(district:Location {name:"%s", ' \
-                        'sector:"%s"}) RETURN district ' % \
-                        (us.states.lookup(address.state).name,
-                         rep['district'], sector)
-                res, _ = db.cypher_query(query)
-            except KeyError:
-                return False
-            try:
-                res = res[0]
-            except IndexError as e:
-                raise connect_to_state_districts.retry(exc=e, countdown=3,
-                                                       max_retries=None)
-            try:
-                state_district = Location.inflate(res.district)
-            except (CypherException, ClientError, IOError, CouldNotCommit) as e:
-                raise connect_to_state_districts.retry(exc=e, countdown=3,
-                                                       max_retries=None)
-            if state_district not in address.encompassed_by:
-                address.encompassed_by.connect(state_district)
-        spawn_task(task_func=create_and_attach_state_level_reps,
-                   task_param={"rep_data": response_json})
-        return True
-    except (CypherException, IOError, ClientError, CouldNotCommit) as e:
-        raise connect_to_state_districts.retry(exc=e, countdown=3,
-                                               max_retries=None)
 
 
 @shared_task()

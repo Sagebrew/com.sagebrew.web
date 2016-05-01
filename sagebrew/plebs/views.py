@@ -16,11 +16,11 @@ from py2neo.cypher import ClientError
 
 from neomodel import DoesNotExist, CypherException, db
 
-from plebs.neo_models import (Pleb, Address)
+from sb_address.neo_models import Address
+from sb_address.serializers import AddressSerializer
 
-
+from .neo_models import Pleb
 from .serializers import PlebSerializerNeo
-from .serializers import AddressSerializer
 
 
 def root_profile_page(request):

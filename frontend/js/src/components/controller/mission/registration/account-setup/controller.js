@@ -125,7 +125,14 @@ function stripeBankHandler(status, response){
         requests.patch({url: "/v1/quests/" + settings.profile.username + "/",
                 data: JSON.stringify(data)
             }).done(function (){
-                window.location.href = "/missions/epic/";
+                var missionId = localStorage.getItem("recent_mission_id"),
+                    missionSlug = localStorage.getItem("recent_mission_slug");
+                if(missionId !== undefined && missionId !== null && missionSlug !== undefined && missionSlug !== null) {
+                    window.location.href = "/missions/" + missionId + "/" + missionSlug + "/manage/epic/";
+                } else {
+                    window.location.href = "/quests/" + settings.profile.username + "/manage/general/";
+                }
+                greyPage.classList.add('sb_hidden');
             }).fail(function () {
                 greyPage.classList.add('sb_hidden');
             });

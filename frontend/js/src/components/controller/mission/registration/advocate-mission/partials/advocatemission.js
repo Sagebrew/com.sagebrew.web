@@ -5,6 +5,7 @@ var request = require('api').request,
     districtHolderTemplate = require('controller/mission/registration/political-mission/templates/district_holder.hbs'),
     districtOptionsTemplate = require('controller/mission/registration/political-mission/templates/district_options.hbs'),
     settings = require('settings').settings,
+    onboarding = require('common/onboarding'),
     locationKey = 'advocateMissionLocationID',
     locationName = "advocateMissionLocationName",
     levelKey = 'advocateMissionLevel',
@@ -12,6 +13,7 @@ var request = require('api').request,
 
 
 export function load() {
+    console.log(settings.profile.quest.account_verified);
     var $app = $(".app-sb"),
         placeInput = document.getElementById('pac-input'),
         stateInput = document.getElementById('state-input'),
@@ -154,11 +156,7 @@ export function load() {
                 })
             }).done(function (data) {
                 greyPage.classList.add('sb_hidden');
-                if(settings.profile.quest.completed_stripe === true) {
-                    window.location.href = "/missions/" + data.id + "/" + data.slug + "/manage/epic/edit/";
-                } else {
-                    window.location.href = "/missions/account/";
-                }
+                onboarding.routeMissionSetupToEpic(data);
             });
         })
         .on('click', '#js-cancel-btn', function(event){

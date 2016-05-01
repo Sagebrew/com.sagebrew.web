@@ -1,3 +1,4 @@
+from logging import getLogger
 import pytz
 import stripe
 import calendar
@@ -19,6 +20,8 @@ from api.utils import spawn_task
 from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
 
+logger = getLogger("loggly_logs")
+
 
 class AccountSerializer(SBSerializer):
     id = serializers.CharField(max_length=256)
@@ -26,6 +29,8 @@ class AccountSerializer(SBSerializer):
                                    allow_blank=True)
 
     def create(self, validated_data):
+        logger.critical(validated_data)
+        logger.critical("we're receiving info!")
         Intercom.app_id = settings.INTERCOM_APP_ID
         Intercom.app_api_key = settings.INTERCOM_API_KEY
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -94,6 +99,7 @@ class AccountSerializer(SBSerializer):
                         "action_name": "Your Quest has been verified!"
                     }
                 )
+                quest.active = True
             quest.account_verified = \
                 account.legal_entity.verification.status
             quest.account_verification_details = \

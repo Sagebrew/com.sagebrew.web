@@ -566,8 +566,9 @@ export function bankAccountValidator(bankAccountVal) {
                     notEmpty: {
                         message: "This value is required"
                     },
-                    ein: {
-                        message: 'The value is not valid EIN'
+                    stringLength: {
+                        max: 100,
+                        message: "This value cannot be longer than 100 characters"
                     }
                 }
             },

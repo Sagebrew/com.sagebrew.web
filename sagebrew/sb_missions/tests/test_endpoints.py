@@ -777,7 +777,7 @@ class MissionEndpointTests(APITestCase):
             postal_code="48382",
             country="USA", county="Oakland",
             congressional_district=12, validated=True).save()
-        self.quest.address.connect(self.address)
+        self.quest.address.connect(address)
         d12 = Location(name="12", sector="state_lower").save()
         d13 = Location(name="13", sector="state_lower").save()
         d12.encompassed_by.connect(self.michigan)
@@ -1110,7 +1110,7 @@ class MissionEndpointTests(APITestCase):
         volunteer.mission.connect(self.mission)
         volunteer.volunteer.connect(self.pleb2)
         address = Address(city="Walled Lake", state="Michigan").save()
-        self.pleb2.address.connect(self.address)
+        self.pleb2.address.connect(address)
         url = "/v1/missions/%s/volunteer_data/" % self.mission.object_uuid
         response = self.client.get(url, format='json')
 

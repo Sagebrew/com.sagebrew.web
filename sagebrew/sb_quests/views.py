@@ -75,7 +75,11 @@ class QuestSettingsView(LoginRequiredMixin):
         res, _ = db.cypher_query('MATCH (a:Quest {owner_username: "%s"})'
                                  '-[:LOCATED_AT]->(b:Address) '
                                  'RETURN b' % quest_obj.owner_username)
+        if res.one is not None:
+            address = Address.inflate(res.one)
+        else:
+            address = None
         return render(request, self.template_name,
                       {"quest": quest_ser, "mission_link": mission_link,
                        "mission_active": mission_active,
-                       "address": Address.inflate(res.one)})
+                       "address": address})

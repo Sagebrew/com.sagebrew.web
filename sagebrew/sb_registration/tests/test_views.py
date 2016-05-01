@@ -59,7 +59,6 @@ class TestSignupView(TestCase):
         request.session = s
         login(request, user)
         request.user = user
-        self.pleb.completed_profile_info = False
         self.pleb.email_verified = True
         self.pleb.save()
         res = signup_view(request)
@@ -485,23 +484,3 @@ class TestQuestSignup(TestCase):
         request.user = self.user
         response = quest_signup(request)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-
-
-class TestProfilePicture(TestCase):
-
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        self.client = Client()
-        self.pleb = create_user_util_test(self.email)
-        self.user = User.objects.get(email=self.email)
-        self.pleb.email_verified = True
-        self.pleb.save()
-        cache.set(self.pleb.username, self.pleb)
-
-    def test_profile_picture(self):
-        self.client.login(username=self.user.username, password='test_test')
-        url = reverse("profile_picture")
-        res = self.client.get(url)
-
-        self.assertIn(res.status_code, [status.HTTP_200_OK,
-                                        status.HTTP_302_FOUND])

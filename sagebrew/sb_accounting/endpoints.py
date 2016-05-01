@@ -117,7 +117,7 @@ class AccountingViewSet(viewsets.ViewSet):
                 quest.verification_document_needed = True
 
             # Save off when the additional information is due by
-            if verify.due_by is not None:
+            if hasattr(verify, 'due_by') and verify.due_by is not None:
                 quest.verification_due_date = datetime.datetime.fromtimestamp(
                     account.verification.due_by)
             else:

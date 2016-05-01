@@ -301,6 +301,26 @@ class QuestSerializer(SBSerializer):
                 instance.application_fee = settings.STRIPE_FREE_ACCOUNT_FEE
 
             instance.account_type = account_type
+        # ** Stripe update Address **
+        if address is not None:
+            account = stripe.Account.retrieve(instance.stripe_id)
+            street_additional = empty_text_to_none(
+                address.street_additional)
+
+            account.legal_entity.address.line1 = address.street
+            account.legal_entity.address.line2 = street_additional
+            account.legal_entity.address.city = address.city
+            account.legal_entity.address.state = address.state
+            account.legal_entity.address.postal_code = address.postal_code
+            account.legal_entity.address.country = "US"
+            account.legal_entity.personal_address.line1 = address.street
+            account.legal_entity.personal_address.line2 = street_additional
+            account.legal_entity.personal_address.city = address.city
+            account.legal_entity.personal_address.state = address.state
+            account.legal_entity.personal_address.postal_code = \
+                address.postal_code
+            account.legal_entity.personal_address.country = address.country
+            account.save()
 
         # ** Managed Account Setup **
         if stripe_token is not None:

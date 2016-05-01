@@ -13,7 +13,7 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
-from plebs.neo_models import Address
+from sb_address.neo_models import Address
 from api.utils import calc_stripe_application_fee
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location

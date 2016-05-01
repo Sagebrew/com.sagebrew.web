@@ -6,7 +6,7 @@ from django.utils.text import slugify
 
 from py2neo.cypher import ClientError
 from neomodel import DoesNotExist, CypherException, db
-
+from sb_address.neo_models import Address
 from sb_quests.neo_models import Quest
 from sb_quests.serializers import QuestSerializer
 
@@ -45,7 +45,6 @@ class QuestSettingsView(LoginRequiredMixin):
 
     def get(self, request, username=None):
         from sb_missions.neo_models import Mission
-        from plebs.neo_models import Address
         query = 'MATCH (person:Pleb {username: "%s"})' \
             '-[r:IS_WAGING]->(quest:Quest) WITH quest ' \
             'OPTIONAL MATCH (quest)-[:EMBARKS_ON]->(missions:Mission) ' \

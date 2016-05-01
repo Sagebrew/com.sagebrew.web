@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
 
-from plebs.neo_models import Address
 from sb_locations.neo_models import Location
-from plebs.tasks import update_address_location
+from sb_address.neo_models import Address
+from sb_address.tasks import update_address_location
 
 
 class Command(BaseCommand):

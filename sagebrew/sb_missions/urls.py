@@ -17,17 +17,16 @@ urlpatterns = patterns(
 
     # Setup
     url(r'^select/$', login_required(
-            TemplateView.as_view(template_name="mission/selector.html")),
+        TemplateView.as_view(template_name="mission/selector.html")),
         name="select_mission"),
     url(r'^public_office/$', login_required(
-            TemplateView.as_view(template_name="mission/public_office.html")),
+        TemplateView.as_view(template_name="mission/public_office.html")),
         name="public_office"),
     url(r'^advocate/$', login_required(
-            TemplateView.as_view(template_name="mission/advocate.html")),
+        TemplateView.as_view(template_name="mission/advocate.html")),
         name="advocate"),
-    url(r'^account/$',
-        login_required(
-            TemplateView.as_view(template_name="mission/account_setup.html")),
+    url(r'^account/$', login_required(
+        TemplateView.as_view(template_name="mission/account_setup.html")),
         name="account_setup"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/$',
         mission_redirect_page, name="mission_redirect"),

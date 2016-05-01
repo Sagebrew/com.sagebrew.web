@@ -7,7 +7,7 @@ from django.core.cache import cache
 from django.templatetags.static import static
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, RelationshipFrom,
+                      DateTimeProperty, RelationshipTo,
                       StructuredRel, BooleanProperty, FloatProperty,
                       DoesNotExist, MultipleNodesReturned)
 from neomodel import db

@@ -1963,7 +1963,7 @@ class PlebPresidentTest(APITestCase):
                                postal_code="48382", country="US",
                                congressional_district="11")
         self.address.save()
-        self.address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(self.address)
 
     def test_unauthorized(self):
         url = reverse('profile-president',
@@ -2110,7 +2110,7 @@ class PlebSenatorsTest(APITestCase):
                                postal_code="48382", country="US",
                                congressional_district="11")
         self.address.save()
-        self.address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(self.address)
 
     def test_unauthorized(self):
         url = reverse('profile-senators',
@@ -2263,7 +2263,7 @@ class PlebHouseRepresentativeTest(APITestCase):
                                postal_code="48382", country="US",
                                congressional_district="11")
         self.address.save()
-        self.address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(self.address)
 
     def test_unauthorized(self):
         url = reverse('profile-house-representative',
@@ -2415,7 +2415,7 @@ class AddressEndpointTests(APITestCase):
                                postal_code="48382", country="US",
                                congressional_district="11")
         self.address.save()
-        self.address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(self.address)
         self.url = "http://testserver"
 
     def test_unauthorized(self):
@@ -2755,7 +2755,7 @@ class NewsfeedTests(APITestCase):
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",
                                congressional_district="11").save()
-        self.address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(self.address)
         self.url = "http://testserver"
 
     def test_unauthorized(self):
@@ -3779,7 +3779,7 @@ class ProfileMissionsTests(APITestCase):
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",
                                congressional_district="11").save()
-        self.address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(self.address)
         self.url = "http://testserver"
 
     def test_missions(self):
@@ -3850,7 +3850,7 @@ class PublicDataTests(APITestCase):
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",
                                congressional_district="11").save()
-        self.address.owned_by.connect(self.pleb)
+        self.pleb.address.connect(self.address)
         self.url = "http://testserver"
 
     def test_unauthorized(self):

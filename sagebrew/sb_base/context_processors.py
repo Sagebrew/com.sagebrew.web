@@ -3,7 +3,6 @@ import json
 import stripe
 
 from django.conf import settings
-from django.core.cache import cache
 from django.templatetags.static import static
 
 from neomodel import CypherException, DoesNotExist
@@ -13,6 +12,7 @@ from plebs.neo_models import Pleb
 
 from sb_quests.neo_models import Quest
 from sb_quests.serializers import QuestSerializer
+
 
 def js_settings(request):
     data = {

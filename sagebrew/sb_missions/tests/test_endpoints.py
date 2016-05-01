@@ -53,7 +53,7 @@ class MissionEndpointTests(APITestCase):
             country="USA", county="Oakland",
             congressional_district=11, validated=True).save()
         self.address.encompassed_by.connect(self.d11)
-        self.address.owned_by.connect(self.pleb)
+        self.quest.address.connect(self.address)
         cache.clear()
         self.stripe = stripe
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -777,7 +777,7 @@ class MissionEndpointTests(APITestCase):
             postal_code="48382",
             country="USA", county="Oakland",
             congressional_district=12, validated=True).save()
-        address.owned_by.connect(self.pleb2)
+        self.quest.address.connect(self.address)
         d12 = Location(name="12", sector="state_lower").save()
         d13 = Location(name="13", sector="state_lower").save()
         d12.encompassed_by.connect(self.michigan)
@@ -1110,7 +1110,7 @@ class MissionEndpointTests(APITestCase):
         volunteer.mission.connect(self.mission)
         volunteer.volunteer.connect(self.pleb2)
         address = Address(city="Walled Lake", state="Michigan").save()
-        address.owned_by.connect(self.pleb2)
+        self.pleb2.address.connect(self.address)
         url = "/v1/missions/%s/volunteer_data/" % self.mission.object_uuid
         response = self.client.get(url, format='json')
 

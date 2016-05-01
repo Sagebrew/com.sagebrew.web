@@ -167,7 +167,7 @@ class QuestSerializer(SBSerializer):
         request = self.context.get('request', None)
         validate_is_owner(request, instance)
         stripe.api_key = settings.STRIPE_SECRET_KEY
-        address = request.data.pop('address')
+        address = request.data.get('address')
         if address is not None:
             address_serializer = AddressSerializer(data=address,
                                                    context={'request', request})
@@ -177,7 +177,7 @@ class QuestSerializer(SBSerializer):
                     'OPTIONAL MATCH (a)-[r:LOCATED_AT]-(:Address) ' \
                     'DELETE r'
             res, _ = db.cypher_query(query)
-            instance.located_at.connect(address)
+            instance.address.connect(address)
 
         stripe_token = validated_data.pop('stripe_token', None)
         promotion_key = validated_data.pop('promotion_key', None)
@@ -316,7 +316,7 @@ class QuestSerializer(SBSerializer):
             except InvalidRequestError:
                 raise serializers.ValidationError(
                     detail={"detail": "Looks like we're having server "
-                                      "issus, please contact us using the "
+                                      "issues, please contact us using the "
                                       "bubble in the bottom right",
                             "status_code": status.HTTP_400_BAD_REQUEST})
             query = 'MATCH (a:Quest {owner_username: "%s"})' \

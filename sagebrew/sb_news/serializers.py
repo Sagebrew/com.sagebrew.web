@@ -1,4 +1,3 @@
-from logging import getLogger
 import pytz
 from difflib import SequenceMatcher
 from datetime import datetime, timedelta
@@ -15,8 +14,6 @@ from sb_uploads.serializers import UploadSerializer
 from sb_base.serializers import VotableContentSerializer
 
 from .neo_models import NewsArticle
-
-logger = getLogger('loggly_logs')
 
 
 class NewsArticleSerializer(VotableContentSerializer):
@@ -108,14 +105,11 @@ class NewsArticleSerializer(VotableContentSerializer):
                 if content_closeness > 0.65:
                     raise ValidationError("Too close to another article")
                 summary_closeness = SequenceMatcher(
-                    a=row[0]['summary'], b=summary)
+                    a=row[0]['summary'], b=summary).ratio()
                 if summary_closeness > 0.8:  # pragma: no cover
                     # Not requiring coverage here since summary is auto
                     # generated and in most instances content will be flagged
                     # before hand. - Devon Bleibtrey
-                    logger.critical(summary_closeness)
-                    logger.critical(row[0]['summary'])
-                    logger.critical(summary)
                     raise ValidationError(
                         "Generated summary is too close to another article")
         return value

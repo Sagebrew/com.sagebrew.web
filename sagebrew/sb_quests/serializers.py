@@ -438,8 +438,10 @@ class QuestSerializer(SBSerializer):
         return updates
 
     def get_completed_stripe(self, obj):
-        # Whether or not stripe has verified the account information and
-        # the Quest can start accepting donations.
+        # Whether or not the user has completed the initial registration with
+        # Stripe or not. This doesn't have anything to do with verification
+        # it just indicates that the user submitted data to Stripe and
+        # has started the process
         if obj.stripe_id == "Not Set":
             return False
         return True

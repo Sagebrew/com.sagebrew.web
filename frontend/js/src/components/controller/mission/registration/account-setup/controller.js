@@ -9,7 +9,7 @@ export const meta = {
     controller: "mission/registration/account-setup",
     match_method: "path",
     check: [
-       "^missions/account"
+       "^missions/account$"
     ]
 };
 
@@ -125,7 +125,7 @@ function stripeBankHandler(status, response){
         requests.patch({url: "/v1/quests/" + settings.profile.username + "/",
                 data: JSON.stringify(data)
             }).done(function (){
-                window.location.href = "/missions/";
+                window.location.href = "/missions/epic/";
             }).fail(function () {
                 greyPage.classList.add('sb_hidden');
             });

@@ -926,6 +926,8 @@ class FriendManagerEndpointTests(APITestCase):
 class ProfileEndpointTests(APITestCase):
 
     def setUp(self):
+        query = "MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r"
+        db.cypher_query(query)
         self.unit_under_test_name = 'pleb'
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)

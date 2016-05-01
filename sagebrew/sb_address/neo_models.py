@@ -1,22 +1,12 @@
 import us
-import pytz
-from datetime import datetime
 
-from django.conf import settings
-from django.core.cache import cache
-from django.templatetags.static import static
-
-from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo,
-                      StructuredRel, BooleanProperty, FloatProperty,
-                      DoesNotExist, MultipleNodesReturned)
-from neomodel import db
+from neomodel import (StringProperty, IntegerProperty,
+                      RelationshipTo, BooleanProperty, FloatProperty,
+                      DoesNotExist, MultipleNodesReturned, db)
 
 from api.utils import flatten_lists, spawn_task
 from api.neo_models import SBObject
 from sb_locations.neo_models import Location
-from sb_search.neo_models import Searchable, Impression
-from sb_base.neo_models import RelationshipWeight
 
 
 class Address(SBObject):

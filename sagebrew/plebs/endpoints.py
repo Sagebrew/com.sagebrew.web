@@ -46,12 +46,12 @@ from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
 from sb_news.neo_models import NewsArticle
 from sb_news.serializers import NewsArticleSerializer
-from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
+from .serializers import (UserSerializer, PlebSerializerNeo,
                           FriendRequestSerializer, PoliticalPartySerializer,
                           InterestsSerializer, TopicInterestsSerializer,
                           ResetPasswordEmailSerializer,
                           EmailVerificationSerializer)
-from .neo_models import Pleb, Address, FriendRequest
+from .neo_models import Pleb, FriendRequest
 from .utils import get_filter_by
 
 

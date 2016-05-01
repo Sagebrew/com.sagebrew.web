@@ -1,40 +1,18 @@
-import pytz
-import time
-import stripe
-import shortuuid
-import requests_mock
-from datetime import datetime
 from uuid import uuid1
-from collections import OrderedDict
-
-from django.utils.text import slugify
-from django.templatetags.static import static
 from django.core.urlresolvers import reverse
 from django.contrib.auth.models import User
-from django.core.cache import cache
 from django.conf import settings
-from django.core.management import call_command
 
 from neomodel import db
 
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from sagebrew import errors
 from sb_public_official.neo_models import PublicOfficial
-from sb_address.neo_models import Address
-from sb_privileges.neo_models import Privilege, SBAction
-from sb_quests.neo_models import Position, Quest
-from sb_updates.neo_models import Update
 from sb_locations.neo_models import Location
-from sb_missions.neo_models import Mission
-from sb_news.neo_models import NewsArticle
-from sb_questions.neo_models import Question
 from sb_registration.utils import create_user_util_test
-from sb_tags.neo_models import Tag
-from sb_posts.neo_models import Post
-from sb_solutions.neo_models import Solution
-from sb_donations.neo_models import Donation
+
+from sb_address.neo_models import Address
 
 
 class AddressEndpointTests(APITestCase):
@@ -274,4 +252,3 @@ class AddressEndpointTests(APITestCase):
         settings.CELERY_ALWAYS_EAGER = False
         address = Address.nodes.get(object_uuid=response.data['id'])
         self.assertIn(district, address.encompassed_by)
-

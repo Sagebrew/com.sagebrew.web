@@ -17,8 +17,10 @@ from neomodel.exception import DoesNotExist
 from api.serializers import SBSerializer
 from api.utils import (gather_request_data, spawn_task, clean_url,
                        empty_text_to_none)
+from sb_address.serializers import AddressSerializer
+from sb_address.neo_models import Address
 from sb_base.serializers import IntercomEventSerializer
-from plebs.neo_models import Pleb, Address
+from plebs.neo_models import Pleb
 
 from sb_privileges.tasks import check_privileges
 from sb_locations.neo_models import Location
@@ -163,7 +165,6 @@ class QuestSerializer(SBSerializer):
 
     def update(self, instance, validated_data):
         from sb_base.serializers import validate_is_owner
-        from plebs.serializers import AddressSerializer
         request = self.context.get('request', None)
         validate_is_owner(request, instance)
         stripe.api_key = settings.STRIPE_SECRET_KEY

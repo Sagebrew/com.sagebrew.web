@@ -1,4 +1,3 @@
-import us
 import stripe
 from datetime import date
 from unidecode import unidecode
@@ -29,15 +28,14 @@ from neomodel import db, DoesNotExist
 
 from api.serializers import SBSerializer
 from api.utils import spawn_task, gather_request_data, SBUniqueValidator
+from sb_address.serializers import AddressSerializer, AddressExportSerializer
 from sb_base.serializers import (IntercomMessageSerializer,
                                  IntercomEventSerializer)
 from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
 
-from .neo_models import Address, Pleb
-from .tasks import (determine_pleb_reps,
-                    update_address_location, create_wall_task,
-                    generate_oauth_info)
+from .neo_models import Pleb
+from .tasks import determine_pleb_reps, create_wall_task, generate_oauth_info
 
 
 class EmailAuthTokenGenerator(object):

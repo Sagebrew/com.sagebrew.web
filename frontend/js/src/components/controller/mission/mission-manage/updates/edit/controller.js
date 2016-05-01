@@ -1,8 +1,9 @@
+/* global AutoList */
 var request = require('api').request,
     markdown = require('common/markdown').addMarkdown,
     validators = require('common/validators'),
     helpers = require('common/helpers'),
-    mediumEditor = require('medium-editor');;
+    mediumEditor = require('medium-editor');
 
 
 export const meta = {
@@ -31,9 +32,13 @@ export function load() {
         missionId = helpers.args(1),
         updateId = helpers.args(5),
         missionSlug = helpers.args(2),
+        autolist = new AutoList(),
         editor = new mediumEditor(".editable", {
             buttonLabels: true,
-            autoLink: true
+            autoLink: true,
+            extensions: {
+                "autolist": autolist
+            }
         });
     $(".editable").mediumInsert({
         editor: editor,

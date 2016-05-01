@@ -1,6 +1,7 @@
-var addMarkdown = require('common/markdown').addMarkdown,
-    request = require('api').request,
-    helpers = require('common/helpers');
+/* global AutoList */
+var request = require('api').request,
+    helpers = require('common/helpers'),
+    mediumEditor = require('medium-editor');
 
 /**
  * Meta.
@@ -24,26 +25,48 @@ export function init() {
  * Load
  */
 export function load() {
+    require('medium-editor-insert-plugin');
     var solutionID = helpers.args(2),
-        $app = $(".app-sb");
-    addMarkdown($('#js-solution-markdown'));
+        $app = $(".app-sb"),
+        autolist = new AutoList(),
+        editor = new mediumEditor(".editable", {
+            buttonLabels: true,
+            autoLink: true,
+            extensions: {
+                "autolist": autolist
+            },
+            placeholder: false
+        });
+    $(".editable").mediumInsert({
+        editor: editor,
+        addons: {
+            images: {
+                fileUploadOptions: {
+                    url: "/v1/upload/?editor=true",
+                    acceptFileTypes: /(.|\/)(gif|jpe?g|png)$/i,
+                    paramName: "file_object"
+                }
+            },
+            embeds: {
+                oembedProxy: null
+            }
+        }
+    });
     request.get({url: "/v1/solutions/" + solutionID + "/"})
         .done(function (data) {
-            var solutionContent = $('#wmd-input-0');
-            solutionContent.html("");
-            solutionContent.append(data.content);
-            var solutionPreview = $("#wmd-preview-0");
-            solutionPreview.html("");
-            solutionPreview.append(data.html_content);
+            var solutionContent = $('.editable');
+            solutionContent.html(data.content);
         });
 
     $app
         .on('click', '#submit', function(event) {
             event.preventDefault();
+            var serialized = editor.serialize(),
+                key = Object.keys(serialized)[0];
             $("#submit").attr("disabled", "disabled");
             request.put({url: "/v1/solutions/" + solutionID + "/",
                 data: JSON.stringify({
-                    'content': $('textarea#wmd-input-0').val()
+                    'content': serialized[key].value
                 })
             }).done(function (data) {
                 $("#submit").removeAttr("disabled");

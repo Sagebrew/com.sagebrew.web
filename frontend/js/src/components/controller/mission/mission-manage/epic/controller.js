@@ -1,6 +1,8 @@
+/* global AutoList */
 var request = require('api').request,
     markdown = require('common/markdown').addMarkdown,
-    mediumEditor = require('medium-editor');
+    mediumEditor = require('medium-editor'),
+    intro = require('intro.js').introJs;
 
 export const meta = {
     controller: "mission/mission-manage/epic",
@@ -31,10 +33,16 @@ export function load() {
     */
     var $app = $(".app-sb"),
         missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
+        autolist = new AutoList(),
         editor = new mediumEditor(".editable", {
-            buttonLabels: true,
-            autoLink: true
+            buttonLabels: 'fontawesome',
+            autoLink: true,
+            buttons: ['bold', 'italic', 'underline', 'anchor', 'h2', 'h3', 'h4', 'h5', 'h6', 'quote'],
+            extensions: {
+                'autolist': autolist
+            }
         });
+    intro().addHints();
     // Uploading images here via fileUploadOptions because submitting the
     // binary data directly causes browsers to crash if the images are
     // too large/there are too many images
@@ -53,7 +61,6 @@ export function load() {
             }
         }
     });
-
     $app
         .on('click', '#submit', function(event) {
             event.preventDefault();

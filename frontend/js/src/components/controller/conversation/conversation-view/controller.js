@@ -22,6 +22,5 @@ export function load() {
     mapLocation.init();
     solution.load();
     question.load();
-    addMarkdown($('#js-solution-markdown'));
 }
 

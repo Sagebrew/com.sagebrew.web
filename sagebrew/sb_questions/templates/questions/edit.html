@@ -7,21 +7,17 @@
     <h3 class="block-title">Edit Question</h3>
     <div class="block-content">
         <form id="questionInputForm">
-            <div class="title_input">
-                <input class="form-control title_input" style="margin-bottom: 10px;"
-                          id="title_id"
-                          name="title"
-                          placeholder="Question Title"
-                          value="{{ question.title }}" {% if question.solution_count > 0 %}disabled="disabled"{% endif %}/>
-            </div>
-            <div class="question_content_input">
-                <textarea class="form-control markdown-input"
-                          id="js-question-markdown"
-                          name="content"
-                          cols="20"
-                          rows="8"
-                          placeholder="Question Context">{{ question.content }}</textarea>
-            </div>
+            <input class="form-control no-border no-padding-left" style="margin-bottom: 10px;"
+                  id="title_id"
+                  name="title"
+                  placeholder="Question Title" value="{{ question.title }}"
+                  {% if question.solution_count > 0 %}disabled="disabled"{% endif %}/>
+            <textarea class="sb_markdown editable"
+                      id="js-question-markdown"
+                      name="content"
+                      cols="20"
+                      rows="8"
+                      placeholder="Question Context">{{ question.content }}</textarea>
         </form>
     </div>
 </div>

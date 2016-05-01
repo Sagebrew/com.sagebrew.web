@@ -7,7 +7,13 @@
         <h3 class="block-title">Epic Management</h3>
         <div class="block-content">
             <form id="epicForm">
-                <textarea id="epic_editor" class="editable sb_markdown">
+                <textarea id="epic_editor"
+                          class="font-style-normal editable sb_markdown"
+                          data-hint="Type your Epic here! An Epic should be an
+                          in-depth description of your mission and goals you
+                          hope to achieve."
+                          data-hintPosition="top-left"
+                          data-posiion="bottom-right-aligned">
                     {{ mission.epic }}
                 </textarea>
                 <div id="validation-errors"></div>

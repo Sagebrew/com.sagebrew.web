@@ -55,13 +55,13 @@ var config = {
         'js/vendor/sortable.min.js',
         'js/vendor/jquery.pagedown-bootstrap.combined.min.js',
         'bower_components/medium-editor/dist/js/medium-editor.min.js',
+        'bower_components/medium-editor-autolist/dist/autolist.js',
         'node_modules/handlebars/dist/handlebars.runtime.min.js',
         'bower_components/jquery-sortable/source/js/jquery-sortable-min.js',
         'js/vendor/fileupload/js/vendor/jquery.ui.widget.js',
         'js/vendor/fileupload/js/jquery.iframe-transport.js',
         'js/vendor/fileupload/js/jquery.fileupload.js',
         'bower_components/medium-editor-insert-plugin/dist/js/medium-editor-insert-plugin.min.js',
-
 
         /**
          *  Various "legacy" Js Files still in use somewhere.

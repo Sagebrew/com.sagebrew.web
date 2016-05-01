@@ -1,7 +1,7 @@
+/* global AutoList */
 var request = require('api').request,
     markdown = require('common/markdown').addMarkdown,
     validators = require('common/validators'),
-    Autolinker = require('autolinker'),
     moment = require('moment'),
     updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs'),
     mediumEditor = require('medium-editor');
@@ -31,9 +31,13 @@ export function load() {
     var $app = $(".app-sb"),
         missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         $updateWrapper = $("#js-update-wrapper"),
+        autolist = new AutoList(),
         editor = new mediumEditor(".editable", {
             buttonLabels: true,
-            autoLink: true
+            autoLink: true,
+            extensions: {
+                'autolist': autolist
+            }
         }),
         $title = $("#js-title");
     // Uploading images here via fileUploadOptions because submitting the

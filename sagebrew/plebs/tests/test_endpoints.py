@@ -15,7 +15,7 @@ from django.core.cache import cache
 from django.conf import settings
 from django.core.management import call_command
 
-from neomodel import db, DoesNotExist
+from neomodel import db
 
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -2401,15 +2401,14 @@ class PlebHouseRepresentativeTest(APITestCase):
 class AddressEndpointTests(APITestCase):
 
     def setUp(self):
+        query = 'MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         self.unit_under_test_name = 'address'
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
-        try:
-            PublicOfficial.nodes.get(title="President")
-        except(DoesNotExist, PublicOfficial.DoesNotExist):
-            PublicOfficial(bioguideid=str(uuid1()), title="President",
-                           gt_id=str(uuid1())).save()
+        PublicOfficial(bioguideid=str(uuid1()), title="President",
+                       gt_id=str(uuid1())).save()
         self.address = Address(street="3295 Rio Vista St",
                                city="Commerce Township", state="MI",
                                postal_code="48382", country="US",
@@ -2558,6 +2557,29 @@ class AddressEndpointTests(APITestCase):
 
     def test_create_address(self):
         self.client.force_authenticate(user=self.user)
+        url = reverse('address-list')
+        data = {
+            'city': "Walled Lake",
+            'longitude': -83.48016,
+            'state': "MI",
+            'street': "300 Eagle Pond Dr.",
+            'postal_code': "48390-3071",
+            'congressional_district': "11",
+            'latitude': 42.54083
+        }
+        temp_loc = Location(name=data['city']).save()
+        state = Location(name="Michigan").save()
+        district = Location(name="11", sector="federal").save()
+        state.encompasses.connect(district)
+        district.encompassed_by.connect(state)
+        temp_loc.encompassed_by.connect(state)
+        state.encompasses.connect(temp_loc)
+        response = self.client.patch(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['congressional_district'], 11)
+
+    def test_create_address_profile(self):
+        self.client.force_authenticate(user=self.user)
         url = reverse('profile-detail', kwargs={'username': self.pleb.username})
         data = {
             "address": {
@@ -2578,7 +2600,7 @@ class AddressEndpointTests(APITestCase):
         temp_loc.encompassed_by.connect(state)
         state.encompasses.connect(temp_loc)
         response = self.client.patch(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['congressional_district'], 11)
         query = 'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->' \
                 '(b:Address {object_uuid: "%s"}) ' \

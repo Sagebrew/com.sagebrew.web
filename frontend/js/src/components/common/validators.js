@@ -596,28 +596,27 @@ export function bankAccountValidator(bankAccountVal) {
                 }
             }
         }
-    })
-        .find('[name="stripe_account_type"]')
-            .on('change', function() {
-                var type = $(this).val();
-                switch (type) {
-                    case 'individual':
-                        bankAccountVal
-                            .formValidation('enableFieldValidators', 'bankAccountOwnerName', false, 'notEmpty')
-                            .formValidation('enableFieldValidators', 'bankAccountOwnerName', false, 'stringLength')
-                            .formValidation('enableFieldValidators', 'einOfAccountOwner', false, 'notEmpty')
-                            .formValidation('enableFieldValidators', 'einOfAccountOwner', false, 'stringLength');
-                        break;
+    }).find('[name="stripe_account_type"]')
+        .on('change', function() {
+            var type = $(this).val();
+            switch (type) {
+                case 'individual':
+                    bankAccountVal
+                        .formValidation('enableFieldValidators', 'bankAccountOwnerName', false, 'notEmpty')
+                        .formValidation('enableFieldValidators', 'bankAccountOwnerName', false, 'stringLength')
+                        .formValidation('enableFieldValidators', 'einOfAccountOwner', false, 'notEmpty')
+                        .formValidation('enableFieldValidators', 'einOfAccountOwner', false, 'stringLength');
+                    break;
 
-                    case 'business':
-                        bankAccountVal
-                            .formValidation('enableFieldValidators', 'bankAccountOwnerName', true, 'notEmpty')
-                            .formValidation('enableFieldValidators', 'bankAccountOwnerName', true, 'stringLength')
-                            .formValidation('enableFieldValidators', 'einOfAccountOwner', true, 'notEmpty')
-                            .formValidation('enableFieldValidators', 'einOfAccountOwner', true, 'stringLength');
-                        bankAccountVal.data('formValidation').validate();
-                        break;
-                }
-            })
-            .end();
+                case 'business':
+                    bankAccountVal
+                        .formValidation('enableFieldValidators', 'bankAccountOwnerName', true, 'notEmpty')
+                        .formValidation('enableFieldValidators', 'bankAccountOwnerName', true, 'stringLength')
+                        .formValidation('enableFieldValidators', 'einOfAccountOwner', true, 'notEmpty')
+                        .formValidation('enableFieldValidators', 'einOfAccountOwner', true, 'stringLength');
+                    bankAccountVal.data('formValidation').validate();
+                    break;
+            }
+        })
+        .end();
 }

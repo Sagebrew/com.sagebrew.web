@@ -101,6 +101,7 @@ class QuestSerializer(SBSerializer):
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         request = self.context.get('request', None)
         account_type = validated_data.get('account_type', "free")
         tos_acceptance = validated_data.get('tos_acceptance', False)
@@ -168,6 +169,7 @@ class QuestSerializer(SBSerializer):
         request = self.context.get('request', None)
         validate_is_owner(request, instance)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         address = request.data.get('address')
         if address is not None:
             address_serializer = AddressSerializer(data=address,
@@ -314,13 +316,6 @@ class QuestSerializer(SBSerializer):
             account.legal_entity.address.state = address.state
             account.legal_entity.address.postal_code = address.postal_code
             account.legal_entity.address.country = "US"
-            account.legal_entity.personal_address.line1 = address.street
-            account.legal_entity.personal_address.line2 = street_additional
-            account.legal_entity.personal_address.city = address.city
-            account.legal_entity.personal_address.state = address.state
-            account.legal_entity.personal_address.postal_code = \
-                address.postal_code
-            account.legal_entity.personal_address.country = address.country
             account.save()
 
         # ** Managed Account Setup **
@@ -386,14 +381,6 @@ class QuestSerializer(SBSerializer):
             account.legal_entity.address.postal_code = \
                 account_address.postal_code
             account.legal_entity.address.country = "US"
-            account.legal_entity.personal_address.line1 = account_address.street
-            account.legal_entity.personal_address.line2 = street_additional
-            account.legal_entity.personal_address.city = account_address.city
-            account.legal_entity.personal_address.state = account_address.state
-            account.legal_entity.personal_address.postal_code = \
-                account_address.postal_code
-            account.legal_entity.personal_address.country = \
-                account_address.country
             account = account.save()
             # Default to pending to make sure customer doesn't think nothing
             # is happening on a slow update from Stripe. We can revert back

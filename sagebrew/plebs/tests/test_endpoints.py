@@ -390,6 +390,7 @@ class MeEndpointTests(APITestCase):
         url = reverse('me-list')
         quest = Quest(owner_username=self.pleb.username).save()
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         stripe_res = stripe.Token.create(
             card={
                 "exp_year": 2020,

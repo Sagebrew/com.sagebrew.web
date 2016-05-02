@@ -7,6 +7,7 @@ from django.templatetags.static import static
 
 from neomodel import CypherException, DoesNotExist
 
+from sb_accounting.utils import get_events
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
 
@@ -41,6 +42,7 @@ def js_settings(request):
                 data['profile']['stripe_account'] = pleb.stripe_account
                 data['profile']['stripe_customer_id'] = pleb.stripe_account
                 if data['profile']['quest'] is not None:
+                    get_events(request)
                     quest = Quest.get(pleb.username)
                     data['profile']['quest'] = QuestSerializer(quest).data
                     if "/quests/%s/" % quest.owner_username in request.path or \
@@ -53,6 +55,7 @@ def js_settings(request):
                             data['profile']['quest'][
                                 'available_missions'] = True
                     stripe.api_key = settings.STRIPE_SECRET_KEY
+                    stripe.api_version = settings.STRIPE_API_VERSION
                     if "quest" in request.path:
                         # If we're in a place where we're telling the user
                         # that their quest is inactive lets indicate that the

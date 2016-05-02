@@ -45,6 +45,7 @@ class QuestEndpointTests(APITestCase):
         cache.clear()
         self.stripe = stripe
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
+        self.stripe.api_version = settings.STRIPE_API_VERSION
 
     def test_unauthorized(self):
         url = reverse('quest-list')

@@ -36,6 +36,7 @@ class AccountingHooksTests(APITestCase):
         cache.clear()
         self.stripe = stripe
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         self.intercom_url = "https://api.intercom.io/admins"
 
     def test_invalid_event_request(self):

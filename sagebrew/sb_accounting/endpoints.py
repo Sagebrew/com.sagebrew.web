@@ -1,6 +1,7 @@
 from logging import getLogger
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
+from rest_framework.authentication import SessionAuthentication
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -10,7 +11,14 @@ from .serializers import AccountSerializer
 logger = getLogger("loggly_logs")
 
 
+class CsrfExemptSessionAuthentication(SessionAuthentication):
+
+    def enforce_csrf(self, request):
+        return
+
+
 class AccountingViewSet(viewsets.ModelViewSet):
+    authentication_classes = (CsrfExemptSessionAuthentication,)
     permission_classes = (AllowAny, )
     serializer_class = AccountSerializer
 
@@ -23,7 +31,8 @@ class AccountingViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         # TODO after this is verified on staging we can remove this completely
         logger.critical("here")
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=request.data,
+                                         context={'request': request})
         if serializer.is_valid():
             self.perform_create(serializer)
         else:

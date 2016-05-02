@@ -677,6 +677,7 @@ class MeViewSet(mixins.UpdateModelMixin,
     @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def payment_methods(self, request):
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         pleb = Pleb.get(username=request.user.username)
         cards = []
         if pleb.stripe_customer_id is not None:

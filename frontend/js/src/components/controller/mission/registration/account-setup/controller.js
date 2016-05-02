@@ -81,15 +81,13 @@ function completeRegistration(addressValidationForm, addressForm,
         greyPage = document.getElementById('sb-greyout-page');
     if(addressValidationForm.data('formValidation').isValid() === true &&
             bankAccountValidationForm.data('formValidation').isValid()) {
-        document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+        greyPage.classList.remove('sb_hidden');
         var accountData = helpers.getSuccessFormData(bankAccountForm);
-
         if (accountData.stripe_account_type === "business") {
             accountType = "company";
         } else {
             accountType = "individual";
         }
-        greyPage.classList.remove('sb_hidden');
         addresses.submitAddress(addressForm, function callback() {
             // Call stripe after address is submitted because it requires it to
             // properly setup the Account
@@ -115,16 +113,18 @@ function stripeBankHandler(status, response){
         // submit when this is verified. Alerting them that it may cause
         // delays in their donations being processed.
         if ($("#completed-stripe").data("completed_stripe") !== "True") {
-                $.notify(response.error.message, {type: 'danger'});
-            }
+            $.notify(response.error.message, {type: 'danger'});
+        }
         greyPage.classList.add('sb_hidden');
     } else {
         var data = helpers.getFormData(document.getElementById('banking-form'));
         data.stripe_token = response.id;
         data.tos_acceptance = true;
-        requests.patch({url: "/v1/quests/" + settings.profile.username + "/",
-                data: JSON.stringify(data)
-            }).done(function (){
+        requests.patch({
+            url: "/v1/quests/" + settings.profile.username + "/",
+            data: JSON.stringify(data)
+        })
+            .done(function () {
                 var missionId = localStorage.getItem("recent_mission_id"),
                     missionSlug = localStorage.getItem("recent_mission_slug");
                 if(missionId !== undefined && missionId !== null && missionSlug !== undefined && missionSlug !== null) {
@@ -133,7 +133,8 @@ function stripeBankHandler(status, response){
                     window.location.href = "/quests/" + settings.profile.username + "/manage/general/";
                 }
                 greyPage.classList.add('sb_hidden');
-            }).fail(function () {
+            })
+            .fail(function () {
                 greyPage.classList.add('sb_hidden');
             });
     }

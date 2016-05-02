@@ -51,6 +51,7 @@ class QuestViewSet(viewsets.ModelViewSet):
         # TODO not sure if in_transit and pending actually work. Need to
         # test these.
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         try:
             in_transit = stripe.Transfer.all(recipient=instance.stripe_id,
                                              status="in_transit")
@@ -372,6 +373,7 @@ class QuestViewSet(viewsets.ModelViewSet):
                   parser_classes=(FileUploadParser, ))
     def upload_identification(self, request, owner_username=None):
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         file_object = request.data.get('img', None)
         quest = Quest.get(owner_username=owner_username)
         stripe_response = stripe.FileUpload.create(

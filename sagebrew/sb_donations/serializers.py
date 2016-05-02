@@ -76,6 +76,7 @@ class DonationSerializer(SBSerializer):
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         mission = validated_data.pop('mission', None)
         quest = validated_data.pop('quest', None)
         donor = validated_data.pop('donor', None)
@@ -203,6 +204,7 @@ class SBDonationSerializer(DonationSerializer):
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         donor = Pleb.get(request.user.username)
         token = validated_data.pop('token', None)
         # TODO add payment_method selection support to direct donations

@@ -57,6 +57,7 @@ class MissionEndpointTests(APITestCase):
         cache.clear()
         self.stripe = stripe
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         self.mission = Mission(owner_username=self.pleb.username,
                                title=str(uuid1()),
                                focus_name="advocacy",
@@ -817,6 +818,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -855,6 +857,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -902,6 +905,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -932,6 +936,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -971,6 +976,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
 
         quest_token = stripe.Account.create(
             managed=True,
@@ -1003,6 +1009,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -1045,6 +1052,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",

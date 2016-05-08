@@ -1,3 +1,5 @@
+import copy
+
 from django.conf import settings
 from django.utils.text import slugify
 
@@ -11,7 +13,7 @@ def setup_onboarding(quest, mission):
     # Need to copy because in some circumstances the pop action taking place
     # in the for loop removes the element from settings.ONBOARDING_TASKS for
     # good.
-    onboarding_tasks = list(settings.ONBOARDING_TASKS)
+    onboarding_tasks = copy.deepcopy(settings.ONBOARDING_TASKS)
     for onboarding_task in onboarding_tasks:
         if onboarding_task['title'] == settings.QUEST_WALLPAPER_TITLE:
             if settings.DEFAULT_WALLPAPER not in quest.wallpaper_pic:

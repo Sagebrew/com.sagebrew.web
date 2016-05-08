@@ -1021,6 +1021,7 @@ class MissionEndpointTests(APITestCase):
         )
         self.pleb.stripe_default_card_id = token['id']
         self.pleb.save()
+        cache.clear()
         quest_token = stripe.Account.create(
             managed=True,
             country="US",

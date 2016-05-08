@@ -228,8 +228,22 @@ class QuestSerializer(SBSerializer):
             'website', instance.website))
         instance.about = empty_text_to_none(
             validated_data.get('about', instance.about))
+        if instance.about is not None:
+            db.cypher_query(
+                'MATCH (quest:Quest {object_uuid: "%s"})-[:EMBARKS_ON]'
+                '-(mission:Mission)-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.QUEST_ABOUT_TITLE))
         instance.wallpaper_pic = validated_data.get('wallpaper_pic',
                                                     instance.wallpaper_pic)
+        if settings.DEFAULT_WALLPAPER not in instance.wallpaper_pic:
+            db.cypher_query(
+                'MATCH (quest:Quest {object_uuid: "%s"})-[:EMBARKS_ON]'
+                '-(mission:Mission)-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.QUEST_WALLPAPER_TITLE))
         instance.profile_pic = validated_data.get('profile_pic',
                                                   instance.profile_pic)
         owner = Pleb.get(username=instance.owner_username)

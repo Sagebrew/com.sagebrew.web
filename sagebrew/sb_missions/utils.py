@@ -6,19 +6,16 @@ from neomodel import db
 from sb_registration.neo_models import OnboardingTask
 from sb_registration.serializers import OnboardingTaskSerializer
 
-from logging import getLogger
-logger = getLogger("loggly_logs")
-
 
 def setup_onboarding(quest, mission):
     for onboarding_task in settings.ONBOARDING_TASKS:
-        if onboarding_task['title'] == "Quest Wallpaper":
+        if onboarding_task['title'] == settings.QUEST_WALLPAPER_TITLE:
             if settings.DEFAULT_WALLPAPER not in quest.wallpaper_pic:
                 onboarding_task['completed'] = True
-        if onboarding_task['title'] == "Banking Setup":
+        if onboarding_task['title'] == settings.BANK_SETUP_TITLE:
             if quest.account_verified != "unverified":
                 onboarding_task['completed'] = True
-        if onboarding_task['title'] == "Quest About":
+        if onboarding_task['title'] == settings.QUEST_ABOUT_TITLE:
             if quest.about != "" and quest.about is not None:
                 onboarding_task['completed'] = True
         if onboarding_task['type'] == "mission":
@@ -29,18 +26,14 @@ def setup_onboarding(quest, mission):
             onboarding_task['url'] = onboarding_task['url'] % (
                 settings.WEB_ADDRESS, quest.owner_username)
         onboarding_task.pop('type', None)
-        logger.critical(onboarding_task)
         onboarding_ser = OnboardingTaskSerializer(data=onboarding_task)
         onboarding_ser.is_valid(raise_exception=True)
         onboarding = onboarding_ser.save()
-        logger.critical("Onboarding: %s" % onboarding.object_uuid)
-        logger.critical("Mission: %s" % mission.object_uuid)
         on_query = 'MATCH (mission:Mission {object_uuid: "%s"}), ' \
                    '(task:OnboardingTask {object_uuid: "%s"}) ' \
                    'CREATE UNIQUE (mission)-[:MUST_COMPLETE]->(task) ' \
                    'RETURN task' % (mission.object_uuid,
                                     onboarding.object_uuid)
-        logger.critical(on_query)
         db.cypher_query(on_query)
     return True
 
@@ -49,7 +42,6 @@ def order_tasks(mission_id):
     completed_count = 0
     query = 'MATCH (mission:Mission {object_uuid: "%s"})-[:MUST_COMPLETE]' \
             '->(onboarding:OnboardingTask) RETURN onboarding' % mission_id
-
     res, _ = db.cypher_query(query)
     onboarding_all = OnboardingTaskSerializer(
         [OnboardingTask.inflate(row[0]) for row in res],
@@ -57,10 +49,15 @@ def order_tasks(mission_id):
     # Sort the list based on priority
     onboarding_sort = sorted(onboarding_all, key=lambda k: k['priority'])
     # Put the completed tasks at the end of the list
-    for idx, onboarding in enumerate(onboarding_sort):
+    completed_sort = []
+    uncompleted_sort = []
+    for onboarding in onboarding_sort:
         if onboarding['completed']:
-            onboarding_sort.insert(len(onboarding_sort),
-                                   onboarding_sort.pop(idx))
+            completed_sort.append(onboarding)
             completed_count += 1
+        else:
+            uncompleted_sort.append(onboarding)
+    uncompleted_sort = uncompleted_sort + completed_sort
 
-    return onboarding_sort, completed_count
+    return uncompleted_sort, completed_count
+

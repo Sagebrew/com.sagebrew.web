@@ -237,9 +237,6 @@ class MissionSerializer(SBSerializer):
             res, _ = db.cypher_query(query)
             if res.one is not None:
                 mission = Mission.inflate(res.one)
-        from logging import getLogger
-        logger = getLogger("loggly_logs")
-        logger.critical("call onboarding")
         setup_onboarding(quest, mission)
         return mission
 
@@ -265,7 +262,19 @@ class MissionSerializer(SBSerializer):
             instance.title = title
         instance.about = empty_text_to_none(
             validated_data.get('about', instance.about))
+        if instance.about is not None:
+            db.cypher_query(
+                'MATCH (mission:Mission {object_uuid: "%s"})-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.MISSION_ABOUT_TITLE))
         instance.epic = validated_data.pop('epic', instance.epic)
+        if instance.epic is not None:
+            db.cypher_query(
+                'MATCH (mission:Mission {object_uuid: "%s"})-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.EPIC_TITLE))
         instance.facebook = clean_url(
             validated_data.get('facebook', instance.facebook))
         instance.linkedin = clean_url(
@@ -278,6 +287,12 @@ class MissionSerializer(SBSerializer):
             validated_data.get('website', instance.website))
         instance.wallpaper_pic = validated_data.pop('wallpaper_pic',
                                                     instance.wallpaper_pic)
+        if settings.DEFAULT_WALLPAPER not in instance.wallpaper_pic:
+            db.cypher_query(
+                'MATCH (mission:Mission {object_uuid: "%s"})-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.MISSION_WALLPAPER_TITLE))
         instance.save()
         cache.set("%s_mission" % instance.object_uuid, instance)
         if instance.active:

@@ -66,7 +66,7 @@ class QuestSettingsView(LoginRequiredMixin):
             mission_link = reverse('select_mission')
             mission_active = False
             onboarding_sort = []
-            onboarding_done = 0.0
+            onboarding_done = 0
         else:
             mission_obj = Mission.inflate(res[0].missions)
             mission_link = reverse(

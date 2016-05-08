@@ -144,7 +144,7 @@ class MissionSettingsView(LoginRequiredMixin):
             onboarding_done = int((float(completed_count) /
                                    float(len(onboarding_sort))) * 100)
         else:
-            onboarding_done = 0.0
+            onboarding_done = 0
         return render(request, self.template_name, {
             "missions": missions,
             "mission": MissionSerializer(mission_obj,
@@ -154,7 +154,7 @@ class MissionSettingsView(LoginRequiredMixin):
             "epic_template": settings.EPIC_TEMPLATE,
             "onboarding_top_3": onboarding_sort[:3],
             "onboarding_rest": onboarding_sort[3:],
-            "onboarding_done": str(onboarding_done)
+            "onboarding_done": onboarding_done
         })
 
 

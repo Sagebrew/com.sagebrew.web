@@ -55,6 +55,7 @@ function loadMissions(affectsFilter) {
     require('plugin/contentloader');
     var $missionList = $('#js-mission-list'),
         $missionContainer = $('#js-mission-container');
+    $('[data-toggle="tooltip"]').tooltip();
     $missionList.sb_contentLoader({
         emptyDataMessage: 'Start your Mission Today :)',
         url: '/v1/missions/',

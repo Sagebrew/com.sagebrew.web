@@ -489,9 +489,20 @@ PROMOTION_KEYS = ["8UN96FNPP8ntv8JeaOyP", ]
 
 CORS_ORIGIN_ALLOW_ALL = True
 DEFAULT_WALLPAPER = 'images/wallpaper_capitol_2.jpg'
+# Titles for onboarding since they must be indexes and they are used in
+# multiple locations to determine what to set to completed.
+# If we change these we'll need to run a query to update all the existing
+# onboarding tasks with that title.
+MISSION_ABOUT_TITLE = "Mission About"
+QUEST_WALLPAPER_TITLE = "Quest Wallpaper"
+BANK_SETUP_TITLE = "Banking Setup"
+QUEST_ABOUT_TITLE = "Quest About"
+MISSION_SETUP_TITLE = "Mission Setup"
+EPIC_TITLE = "Create Epic"
+MISSION_WALLPAPER_TITLE = "Mission Wallpaper"
 ONBOARDING_TASKS = [
     {
-        "title": "Mission Setup",
+        "title": MISSION_SETUP_TITLE,
         "completed_title": "Mission Created",
         "content": "Define your mission's level, name, and location.",
         "icon": "fa fa-check-circle",
@@ -501,7 +512,7 @@ ONBOARDING_TASKS = [
         'completed': True
     },
     {
-        "title": "Banking Setup",
+        "title": BANK_SETUP_TITLE,
         "completed_title": "Bank Confirmed",
         "content": "Allow contributors to donate to you.",
         "icon": "fa fa-university",
@@ -510,7 +521,7 @@ ONBOARDING_TASKS = [
         'type': 'quest'
     },
     {
-        "title": "Create Epic",
+        "title": EPIC_TITLE,
         "completed_title": "Epic Published",
         "content": "Share your platform, goals, and mission with the world.",
         "icon": "fa fa-font",
@@ -519,7 +530,7 @@ ONBOARDING_TASKS = [
         'type': 'mission'
     },
     {
-        "title": "Mission Wallpaper",
+        "title": MISSION_WALLPAPER_TITLE,
         "completed_title": "Mission Wallpaper Set",
         "content": "Replace the default image "
                    "with one that reflects your Mission.",
@@ -529,7 +540,7 @@ ONBOARDING_TASKS = [
         'type': 'mission'
     },
     {
-        "title": "Mission About",
+        "title": MISSION_ABOUT_TITLE,
         "completed_title": "Summary Created",
         "content": "Attract users at a glance by summarizing your Mission",
         "icon": "fa fa-font",
@@ -538,7 +549,7 @@ ONBOARDING_TASKS = [
         'type': 'mission'
     },
     {
-        "title": "Quest Wallpaper",
+        "title": QUEST_WALLPAPER_TITLE,
         "completed_title": "Quest Wallpaper Set",
         "content": "Replace the default image with one "
                    "that reflects yourself or your organization.",
@@ -548,7 +559,7 @@ ONBOARDING_TASKS = [
         'type': 'quest'
     },
     {
-        "title": "Quest About",
+        "title": QUEST_ABOUT_TITLE,
         "completed_title": "Quest Summarized",
         "content": "Build contributor confidence by describing yourself "
                    "or your organization.",

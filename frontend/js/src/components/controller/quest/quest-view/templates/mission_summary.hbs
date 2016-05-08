@@ -1,5 +1,5 @@
 {{#grouped_each 3 missions}}
-    <div class="row">
+    <div class="row margin-bottom-20">
         {{#each this }}
             <div class="col-sm-4">
                 <div class="block {{#if this.active }}block-state-active{{else}}block-state-inactive{{/if}} {{#if this.complete }}block-state-complete{{else}}block-state-incomplete{{/if}}" id="{{ this.id }}" data-slug="{{ this.slug }}">

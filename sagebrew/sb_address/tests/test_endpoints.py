@@ -184,16 +184,9 @@ class AddressEndpointTests(APITestCase):
             'congressional_district': "11",
             'latitude': 42.54083
         }
-        temp_loc = Location(name=data['city']).save()
-        state = Location(name="Michigan").save()
-        district = Location(name="11", sector="federal").save()
-        state.encompasses.connect(district)
-        district.encompassed_by.connect(state)
-        temp_loc.encompassed_by.connect(state)
-        state.encompasses.connect(temp_loc)
         response = self.client.patch(url, data=data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['congressional_district'], 11)
+        self.assertEqual(response.status_code,
+                         status.HTTP_405_METHOD_NOT_ALLOWED)
 
     def test_update(self):
         self.client.force_authenticate(user=self.user)

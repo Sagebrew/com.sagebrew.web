@@ -283,7 +283,7 @@ class QuestEndpointTests(APITestCase):
             bank_account={
                 "country": "US",
                 "currency": "usd",
-                "name": "Test Test",
+                "account_holder_name": "Test Test",
                 "routing_number": "110000000",
                 "account_number": "000123456789",
                 "account_holder_type": "company"
@@ -548,7 +548,7 @@ class QuestEndpointTests(APITestCase):
             bank_account={
                 "country": "US",
                 "currency": "usd",
-                "name": "Test Test",
+                "account_holder_name": "Test Test",
                 "routing_number": "110000000",
                 "account_number": "000123456789",
                 "account_holder_type": "company"
@@ -582,7 +582,7 @@ class QuestEndpointTests(APITestCase):
             bank_account={
                 "country": "US",
                 "currency": "usd",
-                "name": "Test Test",
+                "account_holder_name": "Test Test",
                 "routing_number": "110000000",
                 "account_number": "000123456789",
                 "account_holder_type": "company"
@@ -614,7 +614,7 @@ class QuestEndpointTests(APITestCase):
             bank_account={
                 "country": "US",
                 "currency": "usd",
-                "name": "Test Test",
+                "account_holder_name": "Test Test",
                 "routing_number": "110000000",
                 "account_number": "000123456789",
                 "account_holder_type": "company"
@@ -719,7 +719,7 @@ class QuestEndpointTests(APITestCase):
             bank_account={
                 "country": "US",
                 "currency": "usd",
-                "name": "Test Test",
+                "account_holder_name": "Test Test",
                 "routing_number": "110000000",
                 "account_number": "000123456789",
                 "account_holder_type": "company"
@@ -858,7 +858,7 @@ class QuestEndpointTests(APITestCase):
             bank_account={
                 "country": "US",
                 "currency": "usd",
-                "name": "Test Test",
+                "account_holder_name": "Test Test",
                 "routing_number": "110000000",
                 "account_number": "000123456789",
                 "account_holder_type": "company"
@@ -907,7 +907,7 @@ class QuestEndpointTests(APITestCase):
             bank_account={
                 "country": "US",
                 "currency": "usd",
-                "name": "Test Test",
+                "account_holder_name": "Test Test",
                 "routing_number": "110000000",
                 "account_number": "000123456789",
                 "account_holder_type": "company"
@@ -940,7 +940,7 @@ class QuestEndpointTests(APITestCase):
             bank_account={
                 "country": "US",
                 "currency": "usd",
-                "name": "Test Test",
+                "account_holder_name": "Test Test",
                 "routing_number": "110000000",
                 "account_number": "000123456789",
                 "account_holder_type": "company"

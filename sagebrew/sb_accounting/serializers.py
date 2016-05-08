@@ -32,25 +32,22 @@ class AccountSerializer(SBSerializer):
                                    allow_blank=True)
 
     def create(self, validated_data):
+        request = self.context.get('request')
         response_dict = {
             "id": validated_data['id'],
             "type": validated_data['type'], 'data': validated_data['data']
         }
-        logger.critical(validated_data)
-        logger.critical(self.context.get('request').data)
-        logger.critical("we're receiving info!")
         Intercom.app_id = settings.INTERCOM_APP_ID
         Intercom.app_api_key = settings.INTERCOM_API_KEY
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe.api_version = settings.STRIPE_API_VERSION
-        logger.critical(validated_data['type'])
         event_type = validated_data['type']
         if event_type == "invoice.payment_failed":
             try:
                 customer = stripe.Customer.retrieve(
                     validated_data['data']['object']['customer'])
-            except stripe.InvalidRequestError as e:
-                return serializers.ValidationError(e)
+            except stripe.InvalidRequestError:
+                raise serializers.ValidationError("Ran into some issues")
             pleb = Pleb.nodes.get(email=customer['email'])
 
             message_data = {
@@ -108,7 +105,9 @@ class AccountSerializer(SBSerializer):
                     }
                 )
                 quest_ser = QuestSerializer(
-                    instance=quest, data={'active': True})
+                    instance=quest, data={'active': True},
+                    context={"secret": settings.SECRET_KEY,
+                             "request": request})
                 quest_ser.is_valid(raise_exception=True)
                 quest_ser.save()
             quest.account_verified = \

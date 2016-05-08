@@ -118,7 +118,7 @@ function submitAccountInfo(bankAccountValidationForm, bankAccountForm) {
             currency: "USD",
             routing_number: accountData.routing_number,
             account_number: accountData.account_number,
-            name: accountData.account_owner,
+            account_holder_name: accountData.account_owner,
             account_holder_type: accountType
         }, stripeBankHandler);
     }

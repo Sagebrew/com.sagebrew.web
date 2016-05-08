@@ -1288,18 +1288,11 @@ class ProfileEndpointTests(APITestCase):
         state.encompasses.connect(temp_loc)
         response = self.client.patch(url, data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['congressional_district'], 11)
+        self.assertEqual(response.data['has_address'], True)
         query = 'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                '(b:Address {object_uuid: "%s"}) ' \
-                'RETURN b' % (self.user.username, response.data['id'])
+                '(b:Address) RETURN b' % self.user.username
         res, col = db.cypher_query(query)
-        self.assertEqual(Address.inflate(res[0][0]).object_uuid,
-                         response.data['id'])
-        query = 'MATCH (a:Pleb)-[:LIVES_AT]->' \
-                '(b:Address {object_uuid: "%s"}) RETURN a' % (
-                    response.data['object_uuid'])
-        res, col = db.cypher_query(query)
-        self.assertEqual(Pleb.inflate(res[0][0]).username, self.user.username)
+        self.assertEqual(len(Address.inflate(res[0][0]).object_uuid), 36)
 
 
 class ProfileContentMethodTests(APITestCase):

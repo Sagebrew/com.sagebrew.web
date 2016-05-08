@@ -167,7 +167,7 @@ class QuestSerializer(SBSerializer):
     def update(self, instance, validated_data):
         from sb_base.serializers import validate_is_owner
         request = self.context.get('request', None)
-        validate_is_owner(request, instance)
+        validate_is_owner(request, instance, self.context.get('secret'))
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe.api_version = settings.STRIPE_API_VERSION
         address = request.data.get('address')

@@ -8,7 +8,11 @@ from sb_registration.serializers import OnboardingTaskSerializer
 
 
 def setup_onboarding(quest, mission):
-    for onboarding_task in settings.ONBOARDING_TASKS:
+    # Need to copy because in some circumstances the pop action taking place
+    # in the for loop removes the element from settings.ONBOARDING_TASKS for
+    # good.
+    onboarding_tasks = list(settings.ONBOARDING_TASKS)
+    for onboarding_task in onboarding_tasks:
         if onboarding_task['title'] == settings.QUEST_WALLPAPER_TITLE:
             if settings.DEFAULT_WALLPAPER not in quest.wallpaper_pic:
                 onboarding_task['completed'] = True

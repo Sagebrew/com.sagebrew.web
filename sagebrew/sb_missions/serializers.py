@@ -20,6 +20,7 @@ from sb_search.utils import remove_search_object
 from .neo_models import Mission
 from .utils import setup_onboarding
 
+
 class MissionSerializer(SBSerializer):
     active = serializers.BooleanField(required=False)
     completed = serializers.BooleanField(required=False)
@@ -382,4 +383,7 @@ class MissionSerializer(SBSerializer):
         return obj.title
 
     def get_level_readable(self, obj):
-        return obj.level.replace('_', ' ')
+        if obj.level is not None:
+            return obj.level.replace('_', ' ')
+        else:
+            return "unknown"

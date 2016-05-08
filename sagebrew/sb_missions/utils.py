@@ -60,4 +60,3 @@ def order_tasks(mission_id):
     uncompleted_sort = uncompleted_sort + completed_sort
 
     return uncompleted_sort, completed_count
-

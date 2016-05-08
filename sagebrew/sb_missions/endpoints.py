@@ -168,4 +168,3 @@ class MissionViewSet(viewsets.ModelViewSet):
             if "Quest" in node.labels:
                 serialized.append(QuestSerializer(Quest.inflate(node.e)).data)
         return self.get_paginated_response(serialized)
-

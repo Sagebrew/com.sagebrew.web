@@ -13,7 +13,7 @@ from sb_search.neo_models import Searchable, SBObject
 
 
 def get_default_wallpaper_pic():
-    return static('images/wallpaper_capitol_2.jpg')
+    return static(settings.DEFAULT_WALLPAPER)
 
 
 class Quest(Searchable):

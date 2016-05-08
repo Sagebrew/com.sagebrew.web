@@ -11,13 +11,14 @@ from neomodel import db, DoesNotExist
 from api.utils import (gather_request_data, clean_url, empty_text_to_none,
                        smart_truncate, render_content)
 from api.serializers import SBSerializer
+
 from sb_base.serializers import IntercomEventSerializer
 from sb_locations.serializers import LocationSerializer
 from sb_tags.neo_models import Tag
 from sb_search.utils import remove_search_object
 
 from .neo_models import Mission
-
+from .utils import setup_onboarding
 
 class MissionSerializer(SBSerializer):
     active = serializers.BooleanField(required=False)
@@ -58,6 +59,7 @@ class MissionSerializer(SBSerializer):
         ('local', "Local"), ('state_upper', "State Upper"),
         ('state_lower', "State Lower"),
         ('federal', "Federal"), ('state', "State")])
+    level_readable = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
     title_summary = serializers.SerializerMethodField()
 
@@ -176,7 +178,7 @@ class MissionSerializer(SBSerializer):
                         loc_query, focused_on, level, mission.object_uuid,
                         owner_username)
             res, _ = db.cypher_query(query)
-            return Mission.inflate(res.one)
+            mission = Mission.inflate(res.one)
         elif focus_type == "advocacy":
             focused_on = slugify(focused_on)
             try:
@@ -234,7 +236,11 @@ class MissionSerializer(SBSerializer):
                                         loc_query)
             res, _ = db.cypher_query(query)
             if res.one is not None:
-                return Mission.inflate(res.one)
+                mission = Mission.inflate(res.one)
+        from logging import getLogger
+        logger = getLogger("loggly_logs")
+        logger.critical("call onboarding")
+        setup_onboarding(quest, mission)
         return mission
 
     def update(self, instance, validated_data):
@@ -359,3 +365,6 @@ class MissionSerializer(SBSerializer):
             if len(obj.title) > 20:
                 return smart_truncate(obj.title, 20)
         return obj.title
+
+    def get_level_readable(self, obj):
+        return obj.level.replace('_', ' ')

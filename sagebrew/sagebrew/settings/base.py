@@ -488,6 +488,76 @@ PRO_QUEST_END_DATE = datetime(2016, 6, 16)
 PROMOTION_KEYS = ["8UN96FNPP8ntv8JeaOyP", ]
 
 CORS_ORIGIN_ALLOW_ALL = True
+DEFAULT_WALLPAPER = 'images/wallpaper_capitol_2.jpg'
+ONBOARDING_TASKS = [
+    {
+        "title": "Mission Setup",
+        "completed_title": "Mission Created",
+        "content": "Define your mission's level, name, and location.",
+        "icon": "fa fa-check-circle",
+        "priority": 1,
+        "url": "%s/missions/%s/%s/manage/general/",
+        'type': 'mission',
+        'completed': True
+    },
+    {
+        "title": "Banking Setup",
+        "completed_title": "Bank Confirmed",
+        "content": "Allow contributors to donate to you.",
+        "icon": "fa fa-university",
+        "priority": 2,
+        "url": "%s/quests/%s/manage/banking/#bank",
+        'type': 'quest'
+    },
+    {
+        "title": "Create Epic",
+        "completed_title": "Epic Published",
+        "content": "Share your platform, goals, and mission with the world.",
+        "icon": "fa fa-font",
+        "priority": 3,
+        "url": "%s/missions/%s/%s/manage/epic/",
+        'type': 'mission'
+    },
+    {
+        "title": "Mission Wallpaper",
+        "completed_title": "Mission Wallpaper Set",
+        "content": "Replace the default image "
+                   "with one that reflects your Mission.",
+        "icon": "fa fa-picture-o",
+        "priority": 4,
+        "url": "%s/missions/%s/%s/manage/general/#wallpaper",
+        'type': 'mission'
+    },
+    {
+        "title": "Mission About",
+        "completed_title": "Summary Created",
+        "content": "Attract users at a glance by summarizing your Mission",
+        "icon": "fa fa-font",
+        "priority": 5,
+        "url": "%s/missions/%s/%s/manage/general/#about",
+        'type': 'mission'
+    },
+    {
+        "title": "Quest Wallpaper",
+        "completed_title": "Quest Wallpaper Set",
+        "content": "Replace the default image with one "
+                   "that reflects yourself or your organization.",
+        "icon": "fa fa-picture-o",
+        "priority": 6,
+        "url": "%s/quests/%s/manage/general/#wallpaper",
+        'type': 'quest'
+    },
+    {
+        "title": "Quest About",
+        "completed_title": "Quest Summarized",
+        "content": "Build contributor confidence by describing yourself "
+                   "or your organization.",
+        "icon": "fa fa-font",
+        "priority": 7,
+        "url": "%s/quests/%s/manage/general/#about",
+        'type': 'quest'
+    }
+]
 
 VOLUNTEER_ACTIVITIES = [
     ("get_out_the_vote", "Get Out The Vote"),

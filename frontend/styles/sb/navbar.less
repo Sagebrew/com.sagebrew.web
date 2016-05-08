@@ -176,3 +176,20 @@
     }
   }
 }
+
+.navbar-secondary {
+  &:extend(.navbar);
+  margin-top: 53px;
+  height: 20px;
+  z-index: 1000;
+  background-color: @sb_grey_dark;
+}
+
+.navbar-brand-secondary {
+  &:extend(.navbar-brand);
+  line-height: 1.5 !important;
+}
+
+.navbar-collapse-secondary {
+  background-color: @sb_grey_dark !important;
+}

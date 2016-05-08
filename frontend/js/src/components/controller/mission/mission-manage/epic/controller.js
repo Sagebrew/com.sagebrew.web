@@ -1,8 +1,9 @@
 /* global AutoList */
 var request = require('api').request,
-    markdown = require('common/markdown').addMarkdown,
     mediumEditor = require('medium-editor'),
-    intro = require('intro.js').introJs;
+    intro = require('intro.js').introJs,
+    moment = require('moment'),
+    livestamp = require('kuende-livestamp');
 
 export const meta = {
     controller: "mission/mission-manage/epic",
@@ -18,6 +19,17 @@ export const meta = {
  */
 export function init() {
 
+}
+
+function finishedTyping(editor, missionId) {
+    var serialized = editor.serialize(),
+        key = Object.keys(editor.serialize())[0];
+    request.patch({url: "/v1/missions/" + missionId + "/",
+        data: JSON.stringify(
+                {'temp_epic': serialized[key].value})
+    }).done(function (){
+        $("#livestamp").livestamp(moment().format());
+    });
 }
 
 /**
@@ -41,12 +53,16 @@ export function load() {
             extensions: {
                 'autolist': autolist
             }
-        });
+        }),
+        typingTimer,
+        // how long after typing has finished should we auto save? 1000=1 second, 10000=10 seconds, etc.
+        finishedTypingInterval = 2000,
+        $editable = $(".editable");
     intro().addHints();
     // Uploading images here via fileUploadOptions because submitting the
     // binary data directly causes browsers to crash if the images are
     // too large/there are too many images
-    $(".editable").mediumInsert({
+    $editable.mediumInsert({
         editor: editor,
         addons: {
             images: {
@@ -61,17 +77,27 @@ export function load() {
             }
         }
     });
+
+    $editable.on('keyup', function() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(
+            function(){finishedTyping(editor, missionId);},
+            finishedTypingInterval);
+    });
+    $editable.on('keydown', function() {
+        clearTimeout(typingTimer);
+    });
     $app
         .on('click', '#submit', function(event) {
             event.preventDefault();
             var serialized = editor.serialize(),
                 key = Object.keys(editor.serialize())[0];
             request.patch({url: "/v1/missions/" + missionId + "/",
-                data: JSON.stringify({'epic': serialized[key].value})
-            })
-                .done(function (){
-                    $.notify({message: "Saved Epic Successfully"}, {type: "success"});
-                });
+                data: JSON.stringify(
+                        {'temp_epic': serialized[key].value, 'epic': serialized[key].value})
+            }).done(function (){
+                $.notify({message: "Saved Epic Successfully"}, {type: "success"});
+            });
         });
 }
 

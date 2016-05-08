@@ -1,3 +1,6 @@
+import pytz
+from datetime import datetime
+
 from django.core.cache import cache
 from django.utils.text import slugify
 from django.conf import settings
@@ -25,6 +28,8 @@ class MissionSerializer(SBSerializer):
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=255)
     epic = serializers.CharField(required=False, allow_blank=True)
+    temp_epic = serializers.CharField(required=False, allow_blank=True)
+    epic_last_autosaved = serializers.DateTimeField(required=False)
     focus_on_type = serializers.ChoiceField(required=True, choices=[
         ('position', "Public Office"), ('advocacy', "Advocacy"),
         ('question', "Question")])
@@ -252,6 +257,10 @@ class MissionSerializer(SBSerializer):
         instance.about = empty_text_to_none(
             validated_data.get('about', instance.about))
         instance.epic = validated_data.pop('epic', instance.epic)
+        prev_temp_epic = instance.temp_epic
+        instance.temp_epic = validated_data.pop('temp_epic', instance.temp_epic)
+        if prev_temp_epic != instance.temp_epic:
+            instance.epic_last_autosaved = datetime.now(pytz.utc)
         instance.facebook = clean_url(
             validated_data.get('facebook', instance.facebook))
         instance.linkedin = clean_url(

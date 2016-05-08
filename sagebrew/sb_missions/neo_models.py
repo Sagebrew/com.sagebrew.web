@@ -3,10 +3,10 @@ from django.conf import settings
 from django.templatetags.static import static
 
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist,
-                      BooleanProperty, RelationshipFrom)
+                      BooleanProperty, RelationshipFrom, DateTimeProperty)
 
 from sb_search.neo_models import Searchable
-from sb_base.neo_models import VoteRelationship
+from sb_base.neo_models import VoteRelationship, get_current_time
 
 
 def get_default_wallpaper_pic():
@@ -34,6 +34,8 @@ class Mission(Searchable):
     successful = BooleanProperty()
     about = StringProperty()
     epic = StringProperty()
+    temp_epic = StringProperty()
+    epic_last_autosaved = DateTimeProperty(default=get_current_time)
     # Indicates what level the Mission is set at. Valid options are:
     #     state_upper
     #     state_lower

@@ -1,6 +1,7 @@
 var request = require('api').request,
     missions = require('common/missions'),
     settings = require('settings').settings,
+    addresses = require('common/addresses'),
     missionListBlockTemplate = require('controller/mission/mission-list/templates/mission_list_block.hbs');
 
 export const meta = {
@@ -23,7 +24,10 @@ export function init() {
  * Load
  */
 export function load() {
-    var $affectFilter = $("#js-affect-filter");
+    var $affectFilter = $("#js-affect-filter"),
+        $app = $(".app-sb"),
+        addressForm = document.getElementById('address'),
+        addressValidationForm = addresses.setupAddress(function callback() {});
     $affectFilter
         .on('click', '.js-affect-filter', function (event) {
             event.preventDefault();
@@ -40,6 +44,18 @@ export function load() {
                 loadMissions(this.id);
             }
         });
+    $app
+        .on('click', '#js-continue-btn', function (event) {
+            event.preventDefault();
+            completeAddress(addressValidationForm, addressForm);
+            return false;
+        })
+        .on('keypress', '#address input', function(event) {
+            if (event.which === 13 || event.which === 10) {
+                completeAddress(addressValidationForm, addressForm);
+                return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier
+            }
+        });
     loadMissions("everyone");
 }
 
@@ -49,6 +65,18 @@ export function load() {
 export function postload() {
     //
     // Intercom Tracking
+}
+
+function completeAddress(addressValidationForm, addressForm) {
+    addressValidationForm.data('formValidation').validate();
+    if(addressValidationForm.data('formValidation').isValid() === true) {
+        document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+        addresses.submitAddress(addressForm, submitAddressCallback);
+    }
+}
+
+function submitAddressCallback() {
+    window.location.reload();
 }
 
 function loadMissions(affectsFilter) {

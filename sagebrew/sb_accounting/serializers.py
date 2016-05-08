@@ -19,6 +19,7 @@ from rest_framework.reverse import reverse
 from api.utils import spawn_task
 from api.serializers import SBSerializer
 from plebs.neo_models import Pleb
+from sb_quests.serializers import QuestSerializer
 
 logger = getLogger("loggly_logs")
 
@@ -106,7 +107,10 @@ class AccountSerializer(SBSerializer):
                         "action_name": "Your Quest has been verified!"
                     }
                 )
-                quest.active = True
+                quest_ser = QuestSerializer(
+                    instance=quest, data={'active': True})
+                quest_ser.is_valid(raise_exception=True)
+                quest_ser.save()
             quest.account_verified = \
                 account.legal_entity.verification.status
             quest.account_verification_details = \

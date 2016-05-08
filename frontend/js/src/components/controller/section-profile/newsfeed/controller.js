@@ -44,7 +44,8 @@ export function load() {
             event.preventDefault();
             completeAddress(addressValidationForm, addressForm);
             return false;
-        }).on('keypress', '#address input', function(event) {
+        })
+        .on('keypress', '#address input', function(event) {
             if (event.which === 13 || event.which === 10) {
                 completeAddress(addressValidationForm, addressForm);
                 return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier

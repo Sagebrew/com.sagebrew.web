@@ -1,4 +1,3 @@
-from logging import getLogger
 from uuid import uuid1
 
 from django.core import signing
@@ -14,8 +13,6 @@ from sb_search.tasks import update_search_object
 from sb_privileges.tasks import check_privileges
 
 from .neo_models import Pleb, OauthUser
-
-logger = getLogger('loggly_logs')
 
 
 @shared_task()

@@ -23,7 +23,6 @@ export const meta = {
 export function load() {
     var $app = $(".app-sb"),
         questID = helpers.args(1),
-        socialForm = $("#socialForm"),
         $about = $("#about"),
         $title = $("#title"),
         $remaining = $("#js-about-char-count"),

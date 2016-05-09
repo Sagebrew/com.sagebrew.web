@@ -176,9 +176,9 @@ class QuestSerializer(SBSerializer):
                                                    context={'request', request})
             address_serializer.is_valid(raise_exception=True)
             address = address_serializer.save()
-            query = 'MATCH (a:Quest) ' \
+            query = 'MATCH (a:Quest {object_uuid: "%s"}) ' \
                     'OPTIONAL MATCH (a)-[r:LOCATED_AT]-(:Address) ' \
-                    'DELETE r'
+                    'DELETE r' % instance.object_uuid
             res, _ = db.cypher_query(query)
             instance.address.connect(address)
 
@@ -210,6 +210,12 @@ class QuestSerializer(SBSerializer):
             # hold up the quest activation process
             if serializer.is_valid():
                 serializer.save()
+            db.cypher_query(
+                'MATCH (quest:Quest {object_uuid: "%s"})-[:EMBARKS_ON]'
+                '-(mission:Mission)-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.BANK_SETUP_TITLE))
         instance.active = active
         instance.title = empty_text_to_none(
             validated_data.pop('title', instance.title))

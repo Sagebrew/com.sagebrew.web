@@ -545,6 +545,9 @@ class PlebSerializerNeo(SBSerializer):
         return False
 
     def get_has_address(self, obj):
+        # We provide has_address rather than a full address to allow apps
+        # to know if the user has an address or not without compromising
+        # our customer's privacy and address.
         query = 'MATCH (p:Pleb {username: "%s"}) ' \
                 'OPTIONAL MATCH (p)-[r:LIVES_AT]->(b:Address) ' \
                 'RETURN r IS NOT NULL as has_address' % obj.username

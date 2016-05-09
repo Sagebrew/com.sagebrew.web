@@ -7,7 +7,6 @@ from django.templatetags.static import static
 
 from neomodel import CypherException, DoesNotExist
 
-from sb_accounting.utils import get_events
 from plebs.serializers import PlebSerializerNeo
 from plebs.neo_models import Pleb
 
@@ -42,7 +41,6 @@ def js_settings(request):
                 data['profile']['stripe_account'] = pleb.stripe_account
                 data['profile']['stripe_customer_id'] = pleb.stripe_account
                 if data['profile']['quest'] is not None:
-                    get_events(request)
                     quest = Quest.get(pleb.username)
                     data['profile']['quest'] = QuestSerializer(quest).data
                     if "/quests/%s/" % quest.owner_username in request.path or \

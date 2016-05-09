@@ -20,9 +20,6 @@ class OnboardingTaskSerializer(TitledContentSerializer):
     can_downvote = serializers.HiddenField(default=None)
 
     def create(self, validated_data):
-        from logging import getLogger
-        logger = getLogger("loggly_logs")
-        logger.critical(validated_data)
         instance = OnboardingTask(**validated_data).save()
         return instance
 

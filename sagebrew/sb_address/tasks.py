@@ -1,4 +1,3 @@
-from logging import getLogger
 import us
 import requests
 from django.conf import settings
@@ -13,8 +12,6 @@ from sb_public_official.tasks import create_and_attach_state_level_reps
 from sb_locations.neo_models import Location
 
 from .neo_models import Address
-
-logger = getLogger('loggly_logs')
 
 
 @shared_task()

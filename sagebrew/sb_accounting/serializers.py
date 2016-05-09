@@ -78,7 +78,6 @@ class AccountSerializer(SBSerializer):
             response_dict["detail"] = "Invoice Payment Failed"
             return response_dict
         if event_type == "account.updated":
-            logger.critical('Account updated')
             try:
                 account = stripe.Account.retrieve(
                     validated_data['data']['object']['id']

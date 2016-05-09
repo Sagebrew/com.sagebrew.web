@@ -22,6 +22,8 @@ from sb_registration.views import (logout_view,
                                    quest_signup, signup_view)
 from plebs.serializers import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util_test
+from sb_missions.neo_models import Mission
+from sb_quests.neo_models import Quest
 from plebs.neo_models import Pleb
 
 
@@ -378,6 +380,70 @@ class TestEmailVerificationView(TestCase):
         login(request, user)
         request.user = user
         pleb = Pleb.nodes.get(email=user.email)
+        token = self.token_gen.make_token(user, pleb)
+
+        res = email_verification(request, token)
+
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
+    def test_email_verification_mission_no_quest(self):
+        cache.clear()
+        user = authenticate(username=self.user.username,
+                            password='test_test')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        pleb = Pleb.nodes.get(email=user.email)
+        self.pleb.mission_signup = "political"
+        self.pleb.save()
+        token = self.token_gen.make_token(user, pleb)
+
+        res = email_verification(request, token)
+
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
+    def test_email_verification_mission_is_none(self):
+        cache.clear()
+        user = authenticate(username=self.user.username,
+                            password='test_test')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        pleb = Pleb.nodes.get(email=user.email)
+        self.pleb.mission_signup = None
+        self.pleb.save()
+        token = self.token_gen.make_token(user, pleb)
+
+        res = email_verification(request, token)
+
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
+    def test_email_verification_mission_with_quest(self):
+        cache.clear()
+        user = authenticate(username=self.user.username,
+                            password='test_test')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        pleb = Pleb.nodes.get(email=user.email)
+        self.pleb.mission_signup = "political"
+        self.pleb.save()
+        self.quest = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
+        self.mission = Mission(owner_username=self.quest.owner_username,
+                               focus_on_type="position").save()
+        self.quest.owner.connect(self.pleb)
+        self.quest.moderators.connect(self.pleb)
+        self.quest.editors.connect(self.pleb)
         token = self.token_gen.make_token(user, pleb)
 
         res = email_verification(request, token)

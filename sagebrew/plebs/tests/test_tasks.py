@@ -16,7 +16,6 @@ from sb_docstore.utils import connect_to_dynamo, get_table_name
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 from plebs.tasks import (create_wall_task,
-                         create_friend_request_task,
                          determine_pleb_reps, finalize_citizen_creation,
                          update_reputation)
 from sb_wall.neo_models import Wall
@@ -80,49 +79,6 @@ class TestCreateWallTask(TestCase):
             time.sleep(1)
 
         self.assertFalse(isinstance(res.result, Exception))
-
-
-class TestCreateFriendRequestTask(TestCase):
-
-    def setUp(self):
-        settings.CELERY_ALWAYS_EAGER = True
-        self.email = "success@simulator.amazonses.com"
-        self.pleb1 = create_user_util_test(self.email)
-        self.user1 = User.objects.get(email=self.email)
-        self.email2 = "bounce@simulator.amazonses.com"
-        self.pleb2 = create_user_util_test(self.email2)
-        self.user2 = User.objects.get(email=self.email2)
-
-    def tearDown(self):
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_create_friend_request_task_success(self):
-        data = {
-            'from_username': self.pleb1.email,
-            'to_username': self.pleb2.email,
-            'object_uuid': str(uuid1())
-        }
-        res = create_friend_request_task.apply_async(kwargs=data)
-
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertTrue(res)
-
-    def test_create_friend_request_task_failure_pleb_does_not_exist(self):
-        data = {
-            'from_username': 'totallyfakepleb@gmail.com',
-            'to_username': self.pleb2.email,
-            'object_uuid': str(uuid1())
-        }
-        res = create_friend_request_task.apply_async(kwargs=data)
-
-        while not res.ready():
-            time.sleep(1)
-        res = res.result
-
-        self.assertIsInstance(res, Exception)
 
 
 class TestDeterminePlebReps(TestCase):

@@ -47,8 +47,13 @@ class Address(SBObject):
                 raise DoesNotExist("This Location does not exist")
         except (Location.DoesNotExist, DoesNotExist):
             encompassed_by = Location(name=self.city, sector="local").save()
-            city_encompassed = Location.nodes.get(
-                name=us.states.lookup(self.state).name)
+            try:
+                city_encompassed = Location.nodes.get(
+                    name=us.states.lookup(self.state).name)
+            except (Location.DoesNotExist, DoesNotExist):
+                city_encompassed = Location(
+                    name=us.states.lookup(self.state).name,
+                    sector="federal").save()
             if city_encompassed not in encompassed_by.encompassed_by:
                 encompassed_by.encompassed_by.connect(city_encompassed)
             if encompassed_by not in city_encompassed.encompasses:

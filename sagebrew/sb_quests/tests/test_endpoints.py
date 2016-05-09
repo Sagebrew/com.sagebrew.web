@@ -509,6 +509,42 @@ class QuestEndpointTests(APITestCase):
 
         self.assertEqual(response.data['profile_pic'], data['profile_pic'])
 
+    def test_update_address(self):
+        self.client.force_authenticate(user=self.user)
+        query = 'MATCH (a:Quest) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
+        position = Position(name="Senator").save()
+        url = reverse('quest-list')
+        data = {
+            "about": "this is a test bio",
+            "facebook": "https://www.facebook.com/devonbleibtrey",
+            "linkedin": "https://www.linkedin.com/in/devonbleibtrey",
+            "youtube": "https://www.youtube.com/"
+                       "channel/UCCvhBF5Vfw05GOLdUYFATiQ",
+            "twitter": "https://twitter.com/devonbleibtrey",
+            "website": "https://www.sagebrew.com",
+            "position": position.object_uuid
+        }
+        response = self.client.post(url, data=data, format='json')
+        url = reverse('quest-detail',
+                      kwargs={'owner_username': self.quest.owner_username})
+        data = {
+            "address": {
+                'city': "Walled Lake",
+                'longitude': -83.48016,
+                'state': "MI",
+                'street': "300 Eagle Pond Dr.",
+                'postal_code': "48390-3071",
+                'congressional_district': "11",
+                'latitude': 42.54083
+            }
+        }
+        self.client.put(url, data=data, format='json')
+        query = 'MATCH (a:Quest {object_uuid: "%s"})-[:LOCATED_AT]' \
+                '->(b:Address) RETURN b' % response.data['id']
+        res, _ = db.cypher_query(query)
+        self.assertEqual(res.one['city'], "Walled Lake")
+
     def test_update_ssn_not_none(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('quest-detail',

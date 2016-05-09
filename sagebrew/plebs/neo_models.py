@@ -29,16 +29,6 @@ def get_default_wallpaper_pic():
     return static('images/wallpaper_western.jpg')
 
 
-def get_friend_requests_sent(current_username, friend_username):
-    query = "MATCH (a:Pleb {username: '%s'})-[:SENT_A_REQUEST]->" \
-            "(f:FriendRequest)-[:REQUEST_TO]->(b:Pleb {username: '%s'}) " \
-            "RETURN f.object_uuid" % (current_username, friend_username)
-    res, col = db.cypher_query(query)
-    if len(res) == 0:
-        return False
-    return res[0][0]
-
-
 class SearchCount(StructuredRel):
     times_searched = IntegerProperty(default=1)
     last_searched = DateTimeProperty(default=lambda: datetime.now(pytz.utc))
@@ -383,22 +373,6 @@ class Pleb(Searchable):
         except AttributeError:
             return None
 
-    def is_beta_user(self):
-        is_beta_user = cache.get("%s_is_beta" % self.username)
-        if is_beta_user is None:
-            query = "MATCH (a:Pleb {username: '%s'})-[:BETA_USER]->(" \
-                "b:BetaUser {email: '%s'}) " \
-                "RETURN b" % (self.username, self.email)
-            res, col = db.cypher_query(query)
-            if len(res) == 0:
-                is_beta_user = False
-            else:
-                is_beta_user = True
-            cache.set("%s_is_beta" % self.username, is_beta_user)
-        # Have to cast to bool because memcache stores true and false as
-        # integers
-        return bool(is_beta_user)
-
     def get_actions(self, cache_buster=False):
         actions = cache.get("%s_actions" % self.username)
         if actions is None or cache_buster is True:
@@ -553,9 +527,6 @@ class Pleb(Searchable):
                 # should be sending out.
                 return None
         return wall
-
-    def get_friend_requests_sent(self, username):
-        return get_friend_requests_sent(self.username, username)
 
     def determine_reps(self):
         from sb_public_official.utils import determine_reps

@@ -252,6 +252,7 @@ class MissionSerializer(SBSerializer):
         instance.completed = validated_data.pop(
             'completed', instance.completed)
         title = validated_data.pop('title', instance.title)
+        reset_epic = validated_data.pop('reset_epic', False)
         if empty_text_to_none(title) is not None:
             instance.title = title
         instance.about = empty_text_to_none(
@@ -259,6 +260,8 @@ class MissionSerializer(SBSerializer):
         instance.epic = validated_data.pop('epic', instance.epic)
         prev_temp_epic = instance.temp_epic
         instance.temp_epic = validated_data.pop('temp_epic', instance.temp_epic)
+        if reset_epic:
+            instance.temp_epic = instance.epic
         if prev_temp_epic != instance.temp_epic:
             instance.epic_last_autosaved = datetime.now(pytz.utc)
         instance.facebook = clean_url(

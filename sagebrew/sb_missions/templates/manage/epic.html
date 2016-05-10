@@ -1,90 +1,22 @@
-{% extends "layout/hero-one-col.html" %}
+{% extends "manage/mission_manage_base.html" %}
 {% load staticfiles %}
 {% block title %}Mission Epic Settings{% endblock title %}
-{% block body_class %}
-    background-color-white
-{% endblock %}
 
-{% block navigation %}
-    {{ block.super }}
-    <div class="app-navbar-secondary">
-        <header class="navbar-secondary navbar-static-top navbar-fixed-top hidden-xs">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                        <span class="sr-only">Toggle navigation</span>
-                        <i class="fa fa-bars"></i>
-                    </button>
-                    <div class="navbar-brand navbar-brand-secondary color-black">Edit Epic</div>
-                </div>
-                <div class="collapse navbar-collapse navbar-collapse-secondary">
-                    <ul class="nav navbar-nav navbar-right padding-right-40">
-                        <li>
-                            <span class="ten-margin-right line-height-three">
-                                <small>Last autosaved
-                                    <span id="livestamp"
-                                          data-livestamp="{{ mission.epic_last_autosaved }}"></span>
-                                </small>
-                            </span>
-                        </li>
-                        <li>
-                            <a href=""
-                               id="cancel"
-                               class="red-href"
-                               data-toggle="tooltip"
-                               data-title="Cancelling here will delete any changes you
-                               have made to your Epic and revert it to the currently
-                               live version displayed at the bottom of this page under
-                               'Live Epic'"
-                               data-placement="bottom"><i class="fa fa-ban" aria-hidden="true"></i></a>
-                        </li>
-                        <li>
-                            <a href=""
-                               id="submit"
-                               class=""
-                               data-toggle="tooltip"
-                               data-title="Saving will publish your current Epic to
-                               your Mission Page and it will be visible to the
-                               public, make sure you are satisfied with it!"
-                               data-placement="bottom"><i class="fa fa-floppy-o" aria-hidden="true"></i></a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </header>
-    </div>
-
-{% endblock %}
-
-{% block hero %}
-
-    <div class="block min-height-600 margin-top-20">
-        <div class="block-content">
-            <form id="epicForm">
-                <textarea id="epic_editor"
-                          class="font-style-normal editable sb_markdown"
-                          data-hint="Type your Epic here! To format text
-                          highlight the section you wish to format and use the
-                          formatting options on the bar that pops up."
-                          data-hintPosition="top-left"
-                          data-posiion="bottom-right-aligned">
-                    {{ mission.temp_epic }}
-                </textarea>
-                <div id="validation-errors"></div>
-            </form>
-        </div>
-    </div>
+{% block live %}
 
     <div class="hero">
         <div class="block block-type-title">
             <div class="block-content type-nav clearfix">
-                <h1>Live Epic</h1>
+                <h1>Epic</h1>
+                <div class="title-important-actions">
+                    <a href="{% url "mission_edit_epic" mission.id slug %}" class="btn btn-primary btn-lg sb_btn">Edit</a>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="block min-height-600">
-        <div class="block-content">
+        <div class="block-content sb_markdown">
             <div>
                 {% autoescape off %}
                     {{ mission.epic }}

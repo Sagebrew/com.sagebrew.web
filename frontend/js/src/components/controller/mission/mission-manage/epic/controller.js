@@ -1,9 +1,9 @@
 /* global AutoList */
 var request = require('api').request,
     mediumEditor = require('medium-editor'),
-    intro = require('intro.js').introJs,
     moment = require('moment'),
-    livestamp = require('kuende-livestamp');
+    livestamp = require('kuende-livestamp'),
+    args = require('common/helpers').args;
 
 export const meta = {
     controller: "mission/mission-manage/epic",
@@ -49,7 +49,10 @@ export function load() {
         editor = new mediumEditor(".editable", {
             buttonLabels: 'fontawesome',
             autoLink: true,
-            buttons: ['bold', 'italic', 'underline', 'anchor', 'h2', 'h3', 'h4', 'h5', 'h6', 'quote'],
+            toolbar: {
+                buttons: ['bold', 'italic', 'underline', 'anchor', 'h2',
+                    'h3', 'justifyLeft', 'justifyCenter', 'justifyRight', 'quote']
+            },
             extensions: {
                 'autolist': autolist
             }
@@ -58,7 +61,6 @@ export function load() {
         // how long after typing has finished should we auto save? 1000=1 second, 10000=10 seconds, etc.
         finishedTypingInterval = 2000,
         $editable = $(".editable");
-    intro().addHints();
     // Uploading images here via fileUploadOptions because submitting the
     // binary data directly causes browsers to crash if the images are
     // too large/there are too many images
@@ -84,21 +86,35 @@ export function load() {
             function(){finishedTyping(editor, missionId);},
             finishedTypingInterval);
     });
+
     $editable.on('keydown', function() {
         clearTimeout(typingTimer);
     });
-    $app
-        .on('click', '#submit', function(event) {
-            event.preventDefault();
-            var serialized = editor.serialize(),
-                key = Object.keys(editor.serialize())[0];
-            request.patch({url: "/v1/missions/" + missionId + "/",
-                data: JSON.stringify(
-                        {'temp_epic': serialized[key].value, 'epic': serialized[key].value})
-            }).done(function (){
-                $.notify({message: "Saved Epic Successfully"}, {type: "success"});
-            });
+
+    $("#cancel").on('click', function(event){
+        event.preventDefault();
+        request.patch({url: "/v1/missions/" + missionId + "/",
+            data: JSON.stringify({'reset_epic': true})
+        }).done(function (){
+            var slug = args(2);
+            $.notify({message: "Successfully Discarded Changes"}, {type: "success"});
+
+            window.location.href = "/missions/" + missionId + "/" + slug + "/manage/epic";
+
         });
+    });
+
+    $("#submit").on('click', function(event){
+        event.preventDefault();
+        var serialized = editor.serialize(),
+            key = Object.keys(editor.serialize())[0];
+        request.patch({url: "/v1/missions/" + missionId + "/",
+            data: JSON.stringify(
+                    {'temp_epic': serialized[key].value, 'epic': serialized[key].value})
+        }).done(function (){
+            $.notify({message: "Saved Epic Successfully"}, {type: "success"});
+        });
+    });
 }
 
 /**

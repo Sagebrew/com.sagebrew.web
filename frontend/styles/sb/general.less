@@ -2186,8 +2186,8 @@ textarea.sb_comment_input{
   max-height: 100px !important;
 }
 
-.color-black {
-  color: black !important;
+.color-sb-green {
+  color: @sb_green !important;
 }
 
 .background-color-white {
@@ -2280,3 +2280,34 @@ textarea.sb_comment_input{
 .introjs-hint {
   margin-top: 10px;
 }
+
+.medium-editor-toolbar {
+  &:extend(.medium-editor-toolbar);
+  background-color: @sb_green !important;
+  li {
+    button {
+      border-right: 1px solid white;
+    }
+  }
+}
+
+.medium-editor-toolbar li button:hover {
+  background-color: #2a594d !important;
+  color: #fff;
+}
+
+.medium-editor-toolbar-input {
+  background: @sb_green !important;
+}
+
+.medium-editor-toolbar-anchor-preview {
+  background-color: @sb_green !important;
+}
+
+.medium-toolbar-arrow-under:after {
+  top: 60px;
+  border-color: @sb_green transparent transparent transparent; }
+
+.medium-toolbar-arrow-over:before {
+  top: -8px;
+  border-color: transparent transparent @sb_green transparent; }

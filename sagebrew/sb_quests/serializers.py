@@ -400,6 +400,15 @@ class QuestSerializer(SBSerializer):
                 account_address.postal_code
             account.legal_entity.address.country = "US"
             account.save()
+            account = account.save()
+            # Default to pending to make sure customer doesn't think nothing
+            # is happening on a slow update from Stripe. We can revert back
+            # to unverified if Stripe alerts us to it.
+            verification = "pending"
+            if account['legal_entity']['verification']['status'] == "verified":
+                verification = account['legal_entity'][
+                    'verification']['status']
+            instance.account_verified = verification
             instance.last_four_soc = ssn[-4:]
         instance.save()
         cache.delete("%s_quest" % instance.owner_username)

@@ -4,8 +4,24 @@
 
 {% block live %}
     <div class="block">
+        <div class="block-title">Account Address</div>
+        <div class="block-content">
+            {% include "address_form.html" %}
+            <div class="row">
+                <div id="js-validation-errors"></div>
+                <div class="col-lg-4 col-md-6 col-xs-12">
+                    <button type="button" class="btn btn-primary sb_btn sb_btn_fill"
+                            id="js-continue-btn">
+                        Update Address
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="block">
+        <a name="bank"></a>
         <h3 class="block-title">
-            Accounting
+            Bank Account Information
         </h3>
         <div class="block-content">
             <div id="account-verification-status">
@@ -24,60 +40,14 @@
                 <span class="label label-alert" id="js-disabled-reason"></span>
             </div>
 
-            <form id="bankingForm">
-                <div class="form-group">
-                    <label for="account-type">
-                        Account Type
-                    </label>
-                    <select id="account-type" class="form-control" name="stripe_account_type">
-                      <option {% if quest.stripe_account_type != "individual" %}selected{% endif %} value="business">Business</option>
-                      <option {% if quest.stripe_account_type == "individual" %}selected{% endif %} value="individual">Individual</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="ssn">
-                        Social Security Number
-                    </label>
-                    <input id="ssn" type="text" class="form-control" name="ssn">
-                    <p class="help-block">We don't store this.</p>
-                </div>
-                <div class="form-group" id="js-account-owner-wrapper" {% if quest.stripe_account_type == "individual" %}hidden{% endif %}>
-                    <label for="account-owner">
-                        Name of Entity Managing Bank (Required for Non-Individual Accounts)
-                    </label>
-                    <input {% if quest.account_owner %}value="{{ quest.account_owner }}" {% endif %} id="account-owner" type="text" class="form-control" name="account_owner">
-                </div>
-                <div class="form-group" id="js-ein-wrapper" {% if quest.stripe_account_type == "individual" %}hidden{% endif %}>
-                    <label for="ein">
-                        EIN of Entity Managing Bank (Required for Non-Individual Accounts)
-                    </label>
-                    <input id="ein" type="text" class="form-control" name="ein">
-                    <p class="help-block">We don't store this.</p>
-                </div>
-
-                <div class="form-group">
-                    <label for="routing-number">
-                        Routing Number
-                    </label>
-                    <input id="routing-number" type="text" class="form-control" name="routing_number">
-                    <p class="help-block">We don't store this.</p>
-                </div>
-
-                <div class="form-group">
-                    <label for="account-number">
-                        Account Number
-                    </label>
-                    <input id="account-number" type="text" class="form-control" name="account_number">
-                    <p class="help-block">We don't store this.</p>
-                </div>
-            </form>
+            {% include "accounting_form.html" %}
 
             <div class="row">
                 <div id="js-validation-errors"></div>
                 <div class="col-lg-4 col-md-6 col-xs-12">
                     <button class="btn btn-primary sb_btn sb_btn_fill"
                             id="submit">
-                        Save Changes
+                        Update Account Information
                     </button>
                 </div>
             </div>

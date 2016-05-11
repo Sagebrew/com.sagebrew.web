@@ -1390,6 +1390,11 @@ textarea.sb_comment_input{
   }
 }
 
+.font-image {
+  font-size: 60px;
+  margin-bottom: -20px !important;
+}
+
 .sb-post-image-wrapper {
   position: relative;
   float: left;
@@ -1695,6 +1700,28 @@ textarea.sb_comment_input{
   }
 }
 
+.sb-overlay-sm{
+  background-color: rgba(255,255,255,.85);
+  display: none;
+  width: 100%;
+  height: 100%;
+  margin-top: 15px;
+  position: absolute;
+  top: 0;
+  z-index: 110;
+  text-align: center;
+  vertical-align: middle;
+  .sb-overlay-text{
+    overflow: hidden;
+    height: 100%;
+    display: table;
+    div{
+      display: table-cell;
+      vertical-align: middle;
+    }
+  }
+}
+
 .sb-quest-nav-rocket{
   font-size: 12pt;
 }
@@ -1907,6 +1934,7 @@ textarea.sb_comment_input{
 .padding-right-20 {
   padding-right: 20px;
 }
+
 .row-no-left-right-margin {
   margin-left: 0;
   margin-right: 0;
@@ -2102,6 +2130,28 @@ textarea.sb_comment_input{
   }
 }
 
+.onboarding-status {
+  @media only screen and (min-width: 768px) {
+    margin-left: 20px;
+    margin-right: -20px;
+    padding-right: 0 !important;
+  }
+}
+
+.small-block{
+  padding: @sb_common_padding_positive @sb_common_padding_positive @sb_common_padding_positive;
+  overflow: hidden;
+  position: relative;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.micro-title {
+  font-size: 14px !important;
+  font-weight: 800 !important;
+}
+
+
 .has-success .form-control {
   color: inherit;
   border-color: @border-color;
@@ -2170,6 +2220,10 @@ textarea.sb_comment_input{
   padding-right: 0;
 }
 
+.padding-top-25 {
+  padding-top: 25px;
+}
+
 .five-padding-right {
   padding-right: 5px !important;
 }
@@ -2188,6 +2242,10 @@ textarea.sb_comment_input{
 
 .margin-bottom-15 {
   margin-bottom: 15px;
+}
+
+.margin-bottom-20 {
+  margin-bottom: 20px
 }
 
 .margin-top-20 {

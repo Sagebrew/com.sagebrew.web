@@ -7,6 +7,7 @@ var request = require('api').request,
     districtOptionsTemplate = require('../templates/district_options.hbs'),
     positionImageTemplate = require('../templates/position_image_radio.hbs'),
     settings = require('settings').settings,
+    onboarding = require('common/onboarding'),
     filterKey = 'politicianMissionLocationFilter',
     locationKey = 'politicianMissionLocationID',
     locationName = "politicianMissionLocationName",
@@ -226,7 +227,7 @@ export function load() {
                 })
             }).done(function (data) {
                 greyPage.classList.add('sb_hidden');
-                window.location.href = "/missions/" + data.id + "/";
+                onboarding.routeMissionSetupToEpic(data);
             });
         })
         .on('click', '#js-cancel-btn', function(event){

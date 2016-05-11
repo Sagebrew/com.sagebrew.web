@@ -31,7 +31,6 @@ class ProfilePageTest(TestCase):
         self.pleb = res['pleb']
         self.user = res['user']
         self.username = self.pleb.username
-        self.pleb.completed_profile_info = True
         self.pleb.email_verified = True
         self.pleb.save()
 
@@ -269,7 +268,6 @@ class TestSettingPages(TestCase):
         self.username = res["username"]
         self.pleb = Pleb.nodes.get(email=self.email)
         self.user = User.objects.get(email=self.email)
-        self.pleb.completed_profile_info = True
         self.pleb.email_verified = True
         self.pleb.save()
         cache.clear()

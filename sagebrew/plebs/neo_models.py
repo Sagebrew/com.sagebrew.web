@@ -1,4 +1,3 @@
-import us
 import pytz
 from datetime import datetime
 
@@ -7,14 +6,13 @@ from django.core.cache import cache
 from django.templatetags.static import static
 
 from neomodel import (StructuredNode, StringProperty, IntegerProperty,
-                      DateTimeProperty, RelationshipTo, RelationshipFrom,
-                      StructuredRel, BooleanProperty, FloatProperty,
-                      DoesNotExist, MultipleNodesReturned)
+                      DateTimeProperty, RelationshipTo,
+                      StructuredRel, BooleanProperty,
+                      DoesNotExist)
 from neomodel import db
 
-from api.utils import flatten_lists, spawn_task
 from api.neo_models import SBObject
-from sb_locations.neo_models import Location
+from sb_address.neo_models import Address
 from sb_search.neo_models import Searchable, Impression
 from sb_base.neo_models import RelationshipWeight
 
@@ -29,16 +27,6 @@ def get_default_profile_pic():
 
 def get_default_wallpaper_pic():
     return static('images/wallpaper_western.jpg')
-
-
-def get_friend_requests_sent(current_username, friend_username):
-    query = "MATCH (a:Pleb {username: '%s'})-[:SENT_A_REQUEST]->" \
-            "(f:FriendRequest)-[:REQUEST_TO]->(b:Pleb {username: '%s'}) " \
-            "RETURN f.object_uuid" % (current_username, friend_username)
-    res, col = db.cypher_query(query)
-    if len(res) == 0:
-        return False
-    return res[0][0]
 
 
 class SearchCount(StructuredRel):
@@ -149,7 +137,6 @@ class Pleb(Searchable):
     secondary_phone = StringProperty()
     profile_pic = StringProperty(default=get_default_profile_pic)
     wallpaper_pic = StringProperty(default=get_default_wallpaper_pic)
-    completed_profile_info = BooleanProperty(default=False)
     reputation = IntegerProperty(default=0)
     is_rep = BooleanProperty(default=False)
     is_admin = BooleanProperty(default=False)
@@ -235,6 +222,7 @@ class Pleb(Searchable):
     beta_user = RelationshipTo('plebs.neo_models.BetaUser', "BETA_USER")
     url_content = RelationshipTo('sb_uploads.neo_models.URLContent',
                                  'URL_CONTENT')
+    address = RelationshipTo("sb_address.neo_models.Address", 'LIVES_AT')
 
     # Users can only have one campaign as the campaign is essentially their
     # action page and account information. They won't be able to create
@@ -384,22 +372,6 @@ class Pleb(Searchable):
             return Address.inflate(res.one)
         except AttributeError:
             return None
-
-    def is_beta_user(self):
-        is_beta_user = cache.get("%s_is_beta" % self.username)
-        if is_beta_user is None:
-            query = "MATCH (a:Pleb {username: '%s'})-[:BETA_USER]->(" \
-                "b:BetaUser {email: '%s'}) " \
-                "RETURN b" % (self.username, self.email)
-            res, col = db.cypher_query(query)
-            if len(res) == 0:
-                is_beta_user = False
-            else:
-                is_beta_user = True
-            cache.set("%s_is_beta" % self.username, is_beta_user)
-        # Have to cast to bool because memcache stores true and false as
-        # integers
-        return bool(is_beta_user)
 
     def get_actions(self, cache_buster=False):
         actions = cache.get("%s_actions" % self.username)
@@ -556,9 +528,6 @@ class Pleb(Searchable):
                 return None
         return wall
 
-    def get_friend_requests_sent(self, username):
-        return get_friend_requests_sent(self.username, username)
-
     def determine_reps(self):
         from sb_public_official.utils import determine_reps
         return determine_reps(self)
@@ -699,70 +668,6 @@ class Pleb(Searchable):
                 rel.save()
         return True
     """
-
-
-class Address(SBObject):
-    street = StringProperty()
-    street_additional = StringProperty()
-    city = StringProperty()
-    state = StringProperty(index=True)
-    postal_code = StringProperty(index=True)
-    country = StringProperty()
-    latitude = FloatProperty()
-    longitude = FloatProperty()
-    county = StringProperty()
-    congressional_district = IntegerProperty()
-    validated = BooleanProperty(default=False)
-
-    # Relationships
-    owned_by = RelationshipFrom("Pleb", 'LIVES_AT')
-    encompassed_by = RelationshipTo('sb_locations.neo_models.Location',
-                                    'ENCOMPASSED_BY')
-
-    def get_all_encompassed_by(self):
-        query = 'MATCH (a:Address {object_uuid:"%s"})-[:ENCOMPASSED_BY]->' \
-                '(l:Location) WITH l OPTIONAL MATCH (l)-' \
-                '[:ENCOMPASSED_BY*1..3]->(l2:Location) RETURN ' \
-                'distinct l.object_uuid, collect(distinct(l2.object_uuid))'\
-                % self.object_uuid
-        res, _ = db.cypher_query(query)
-        return flatten_lists(res)  # flatten
-
-    def set_encompassing(self):
-        from .tasks import connect_to_state_districts
-        try:
-            encompassed_by = Location.nodes.get(name=self.city)
-            if Location.get_single_encompassed_by(
-                    encompassed_by.object_uuid) != \
-                    us.states.lookup(self.state).name:
-                # if a location node exists with an incorrect encompassing
-                # state
-                raise DoesNotExist("This Location does not exist")
-        except (Location.DoesNotExist, DoesNotExist):
-            encompassed_by = Location(name=self.city, sector="local").save()
-            city_encompassed = Location.nodes.get(
-                name=us.states.lookup(self.state).name)
-            if city_encompassed not in encompassed_by.encompassed_by:
-                encompassed_by.encompassed_by.connect(city_encompassed)
-            if encompassed_by not in city_encompassed.encompasses:
-                city_encompassed.encompasses.connect(encompassed_by)
-        except (MultipleNodesReturned, Exception):
-            query = 'MATCH (l1:Location {name:"%s"})-[:ENCOMPASSED_BY]->' \
-                    '(l2:Location {name:"%s"}) RETURN l1' % \
-                    (self.city, self.state)
-            res, _ = db.cypher_query(query)
-            if res.one is not None:
-                encompassed_by = Location.inflate(res.one)
-            else:
-                encompassed_by = None
-        if encompassed_by is not None:
-            if encompassed_by not in self.encompassed_by:
-                self.encompassed_by.connect(encompassed_by)
-        # get or create the state level districts and attach them to the
-        # address
-        spawn_task(task_func=connect_to_state_districts,
-                   task_param={'object_uuid': self.object_uuid})
-        return self
 
 
 class FriendRequest(SBObject):

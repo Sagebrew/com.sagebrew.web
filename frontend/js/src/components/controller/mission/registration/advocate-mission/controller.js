@@ -1,7 +1,7 @@
 var advocate = require('./partials/advocatemission');
 
 export const meta = {
-    controller: "mission/advocate-mission",
+    controller: "mission/registration/advocate-mission",
     match_method: "path",
     check: [
        "^missions/advocate$"

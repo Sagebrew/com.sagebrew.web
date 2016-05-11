@@ -71,7 +71,6 @@ def gather_news_results(query, demo_file=None):
             results = response.json()
         except ValueError as exc:
             logger.exception(exc)
-            logger.critical(response.text)
             return None
     return results
 
@@ -133,7 +132,7 @@ def tag_callback(news_objects):
     requests_left = 0
     for tag in news_objects:
         query = '%s politics language:(english) thread.country:US ' \
-                'performance_score:>8 (site_type:news)' % (
+                'performance_score:>9 (site_type:news)' % (
                     tag.name.replace('-', " ").replace('_', " "))
         results = gather_news_results(query)
         requests_left = query_webhose(results, tag)

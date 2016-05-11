@@ -37,7 +37,7 @@ class Command(BaseCommand):
                          body={"name": tag['name']})
                 for sub_tag in tag['sub_tags']:
                     try:
-                        sub_tag_node = Tag.nodes.get(name=sub_tag)
+                        sub_tag_node = Tag.nodes.get(name=slugify(sub_tag))
                     except (Tag.DoesNotExist, DoesNotExist):
                         sub_tag_node = Tag(name=slugify(sub_tag),
                                            base=False).save()

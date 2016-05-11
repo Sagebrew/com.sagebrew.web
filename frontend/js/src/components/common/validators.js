@@ -478,7 +478,7 @@ export function campaignFinanceValidator(formVal) {
                 validators: {
                     callback: {
                         message: '',
-                        callback: function(value, validator, $field) {
+                        callback: function(value, validator) {
                             var retired = document.getElementById('retired-or-not-employed'),
                                 isEmpty = true,
                                 // Get the list of fields
@@ -519,4 +519,105 @@ export function campaignFinanceValidator(formVal) {
 }
 
 
-/* Custom Validators */
+export function bankAccountValidator(bankAccountVal) {
+    bankAccountVal.formValidation({
+        framework: 'bootstrap',
+        fields: {
+            accountType: {
+                selector: '#account-type',
+                validators: {
+                    business: {
+                        enabled: true,
+                        message: "Setup account for organization or business"
+                    },
+                    individual: {
+                        enabled: false,
+                        message: "Setup account as yourself"
+                    }
+                }
+            },
+            socialSecurityNumber: {
+                selector: '#ssn',
+                validators: {
+                    notEmpty: {
+                        message: "This value is require"
+                    },
+                    stringLength: {
+                        max: 24,
+                        message: "This value cannot be longer than 24 characters"
+                    }
+                }
+            },
+            bankAccountOwnerName: {
+                selector: '#account-owner',
+                validators: {
+                    notEmpty: {
+                        message: "This value is require"
+                    },
+                    stringLength: {
+                        max: 240,
+                        message: "This value cannot be longer than 240 characters"
+                    }
+                }
+            },
+            einOfAccountOwner: {
+                selector: '#ein',
+                validators: {
+                    notEmpty: {
+                        message: "This value is required"
+                    },
+                    stringLength: {
+                        max: 100,
+                        message: "This value cannot be longer than 100 characters"
+                    }
+                }
+            },
+            routingNumber: {
+                selector: '#routing-number',
+                validators: {
+                    notEmpty: {
+                        message: "This value is required"
+                    },
+                    stringLength: {
+                        max: 56,
+                        message: "This value cannot be longer than 56 characters"
+                    }
+                }
+            },
+            bankAccountNumber: {
+                selector: '#account-number',
+                validators: {
+                    notEmpty: {
+                        message: "This value is required"
+                    },
+                    stringLength: {
+                        max: 240,
+                        message: "This value cannot be longer than 240 characters"
+                    }
+                }
+            }
+        }
+    }).find('[name="stripe_account_type"]')
+        .on('change', function() {
+            var type = $(this).val();
+            switch (type) {
+                case 'individual':
+                    bankAccountVal
+                        .formValidation('enableFieldValidators', 'bankAccountOwnerName', false, 'notEmpty')
+                        .formValidation('enableFieldValidators', 'bankAccountOwnerName', false, 'stringLength')
+                        .formValidation('enableFieldValidators', 'einOfAccountOwner', false, 'notEmpty')
+                        .formValidation('enableFieldValidators', 'einOfAccountOwner', false, 'stringLength');
+                    break;
+
+                case 'business':
+                    bankAccountVal
+                        .formValidation('enableFieldValidators', 'bankAccountOwnerName', true, 'notEmpty')
+                        .formValidation('enableFieldValidators', 'bankAccountOwnerName', true, 'stringLength')
+                        .formValidation('enableFieldValidators', 'einOfAccountOwner', true, 'notEmpty')
+                        .formValidation('enableFieldValidators', 'einOfAccountOwner', true, 'stringLength');
+                    bankAccountVal.data('formValidation').validate();
+                    break;
+            }
+        })
+        .end();
+}

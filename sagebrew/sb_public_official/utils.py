@@ -1,6 +1,6 @@
 from django.core.cache import cache
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
 from .neo_models import PublicOfficial
 
@@ -42,8 +42,13 @@ def determine_reps(pleb):
     senators = [PublicOfficial.inflate(row[0]) for row in res]
     if senators:
         cache.set("%s_senators" % pleb.username, senators)
-
-    president = PublicOfficial.nodes.get(title='President')
-    pleb.president.connect(president)
+    try:
+        president = PublicOfficial.nodes.get(title='President')
+        pleb.president.connect(president)
+    except(DoesNotExist, PublicOfficial.DoesNotExist):
+        pass
     cache.delete(pleb.username)
+    cache.delete('%s_possible_house_representatives' %
+                 pleb.username)
+    cache.delete('%s_possible_senators' % pleb.username)
     return True

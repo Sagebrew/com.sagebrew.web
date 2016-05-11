@@ -3,6 +3,7 @@ var requests = require('api').request,
     helpers = require('common/helpers'),
     validators = require('common/validators'),
     addresses = require('common/addresses'),
+    settings = require('settings').settings,
     moment = require('moment');
 
 export const meta = {
@@ -127,7 +128,8 @@ function completeRegistration(addressValidationForm, addressForm,
         accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
         requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
             .done(function () {
-                addresses.submitAddress(addressForm, submitAddressCallback);
+                addresses.submitAddress(addressForm, submitAddressCallback,
+                    "/v1/profiles/" + settings.profile.username + "/");
             });
         }
 }

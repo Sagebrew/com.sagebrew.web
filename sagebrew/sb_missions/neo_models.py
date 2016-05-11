@@ -120,6 +120,8 @@ class Mission(Searchable):
     profile_endorsements = RelationshipFrom('plebs.neo_models.Pleb', "ENDORSES")
     quest_endorsements = RelationshipFrom('sb_quests.neo_models.Quest',
                                           "ENDORSES")
+    onboarding_tasks = RelationshipTo(
+        'sb_registration.neo_models.OnboardingTask', 'MUST_COMPLETE')
 
     # DEPRECATED
     # Pledge votes are from old campaigns. We're working on a new process

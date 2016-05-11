@@ -11,28 +11,9 @@ from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
 from sb_missions.neo_models import Mission
 from sb_missions.serializers import MissionSerializer
+from sb_missions.utils import order_tasks
 from sb_quests.neo_models import Quest
 from sb_quests.serializers import QuestSerializer
-
-
-def mission_list(request):
-    serializer_data = []
-    return render(request, 'mission/list.html', serializer_data)
-
-
-@login_required()
-def select_mission(request):
-    return render(request, 'mission/selector.html')
-
-
-@login_required()
-def public_office_mission(request):
-    return render(request, 'mission/public_office.html')
-
-
-@login_required()
-def advocate_mission(request):
-    return render(request, 'mission/advocate.html')
 
 
 def mission_redirect_page(request, object_uuid=None):
@@ -158,13 +139,22 @@ class MissionSettingsView(LoginRequiredMixin):
         quest = Quest.inflate(res.one.quest)
         if mission_obj.owner_username != quest.owner_username:
             return redirect("404_Error")
+        onboarding_sort, completed_count = order_tasks(object_uuid)
+        if len(onboarding_sort) != 0:
+            onboarding_done = int((float(completed_count) /
+                                   float(len(onboarding_sort))) * 100)
+        else:
+            onboarding_done = 0
         return render(request, self.template_name, {
             "missions": missions,
             "mission": MissionSerializer(mission_obj,
                                          context={"request": request}).data,
             "quest": QuestSerializer(quest, context={"request": request}).data,
             "slug": slugify(mission_obj.get_mission_title()),
-            "epic_template": settings.EPIC_TEMPLATE
+            "epic_template": settings.EPIC_TEMPLATE,
+            "onboarding_top_3": onboarding_sort[:3],
+            "onboarding_rest": onboarding_sort[3:],
+            "onboarding_done": onboarding_done
         })
 
 
@@ -181,7 +171,9 @@ class MissionBaseView(View):
         mission_dict = MissionSerializer(
             mission_obj, context={'request': request}).data
         mission_dict['slug'] = slugify(mission_obj.get_mission_title())
+
         return render(request, self.template_name, {
             "mission": mission_dict,
-            "quest": QuestSerializer(Quest.get(mission_obj.owner_username)).data
+            "quest": QuestSerializer(
+                Quest.get(mission_obj.owner_username)).data
         })

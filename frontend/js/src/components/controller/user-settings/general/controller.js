@@ -113,7 +113,8 @@ function completeGeneral(accountValidationForm, accountForm) {
 function completeAddress(addressValidationForm, addressForm) {
     addressValidationForm.data('formValidation').validate();
     if(addressValidationForm.data('formValidation').isValid() === true){
-        addresses.submitAddress(addressForm, submitAddressCallback);
+        addresses.submitAddress(addressForm, submitAddressCallback,
+                                "/v1/profiles/" + settings.profile.username + "/");
     }
 }
 

@@ -6,7 +6,7 @@ from django.utils.text import slugify
 
 from py2neo.cypher import ClientError
 from neomodel import DoesNotExist, CypherException, db
-
+from sb_address.neo_models import Address
 from sb_quests.neo_models import Quest
 from sb_quests.serializers import QuestSerializer
 
@@ -45,6 +45,7 @@ class QuestSettingsView(LoginRequiredMixin):
 
     def get(self, request, username=None):
         from sb_missions.neo_models import Mission
+        from sb_missions.utils import order_tasks
         query = 'MATCH (person:Pleb {username: "%s"})' \
             '-[r:IS_WAGING]->(quest:Quest) WITH quest ' \
             'OPTIONAL MATCH (quest)-[:EMBARKS_ON]->(missions:Mission) ' \
@@ -64,6 +65,8 @@ class QuestSettingsView(LoginRequiredMixin):
         if res.one.missions is None:
             mission_link = reverse('select_mission')
             mission_active = False
+            onboarding_sort = []
+            onboarding_done = 0
         else:
             mission_obj = Mission.inflate(res[0].missions)
             mission_link = reverse(
@@ -71,6 +74,21 @@ class QuestSettingsView(LoginRequiredMixin):
                 kwargs={"object_uuid": mission_obj.object_uuid,
                         "slug": slugify(mission_obj.get_mission_title())})
             mission_active = mission_obj.active
-        return render(request, self.template_name,
-                      {"quest": quest_ser, "mission_link": mission_link,
-                       "mission_active": mission_active})
+            onboarding_sort, completed_count = order_tasks(
+                mission_obj.object_uuid)
+            onboarding_done = int((float(completed_count) /
+                                   float(len(onboarding_sort))) * 100)
+        res, _ = db.cypher_query('MATCH (a:Quest {owner_username: "%s"})'
+                                 '-[:LOCATED_AT]->(b:Address) '
+                                 'RETURN b' % quest_obj.owner_username)
+        if res.one is not None:
+            address = Address.inflate(res.one)
+        else:
+            address = None
+        return render(request, self.template_name, {
+            "quest": quest_ser, "mission_link": mission_link,
+            "mission_active": mission_active,
+            "address": address,
+            "onboarding_top_3": onboarding_sort[:3],
+            "onboarding_rest": onboarding_sort[3:],
+            "onboarding_done": onboarding_done})

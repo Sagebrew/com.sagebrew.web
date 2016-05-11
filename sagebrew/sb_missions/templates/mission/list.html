@@ -24,8 +24,11 @@
         </div>
         <div class="block-content">
             <ul class="nav nav-list nav-list-vivid" id="js-affect-filter">
-                <li {% if request.user.is_authenticated == False %}class="disabled"{% endif %}>
-                    <a id="me" {% if request.user.is_authenticated %}class="js-affect-filter"{% endif %} href="#">
+                <li {% if request.user.is_authenticated == False or request_profile.has_address == False %}
+                    class="disabled" data-toggle="tooltip"
+                    title="Please enter your address to filter on Missions that affect you"
+                {% endif %}>
+                    <a id="me" {% if request.user.is_authenticated and request_profile.has_address %}class="js-affect-filter"{% endif %} href="#">
                         You
                     </a>
                 </li>
@@ -42,6 +45,15 @@
             </ul>
         </div>
     </div>
+    {% if request_profile.has_address == False %}
+        <div class="block">
+            <div class="block-title">Filter Missions On What Affects You</div>
+            <div class="block-content">
+                {% include "address_form.html" %}
+                <button id="js-continue-btn" type="button" class="btn btn-primary sb_btn sb_btn_fill">Submit</button>
+            </div>
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block live %}

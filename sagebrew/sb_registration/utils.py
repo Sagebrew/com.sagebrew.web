@@ -89,38 +89,6 @@ def generate_profile_pic_url(image_uuid):
     return image_uri
 
 
-def verify_completed_registration(user):
-    """
-    This function checks if the user has complete registration, it is used
-    in the user_passes_test decorator
-
-    :param user:
-    :return:
-    """
-    try:
-        return Pleb.get(
-            username=user.username, cache_buster=True).completed_profile_info
-    except (Pleb.DoesNotExist, DoesNotExist, CypherException, IOError):
-        return False
-
-
-def verify_verified_email(user):
-    """
-    This function checks if the user has verified their email address,
-    It is used in the user_passes_test decorator
-
-    :param user:
-    :return:
-    """
-    try:
-        return Pleb.get(
-            username=user.username, cache_buster=True).email_verified
-    except (Pleb.DoesNotExist, DoesNotExist):
-        return False
-    except (CypherException, IOError) as e:
-        return e
-
-
 def create_user_util_test(email, first_name="test", last_name="test",
                           password="test_test", birthday=None, task=False):
     from plebs.serializers import generate_username

@@ -1,10 +1,10 @@
-var missionSelect = require('./partials/missionselect');
+var politician = require('./partials/politicianmission');
 
 export const meta = {
-    controller: "mission/select-mission",
+    controller: "mission/registration/political-mission",
     match_method: "path",
     check: [
-       "^missions/select$"
+       "^missions/public_office$"
     ]
 };
 
@@ -21,8 +21,7 @@ export function init() {
  */
 export function load() {
     "use strict";
-    missionSelect.load();
-
+    politician.load();
 }
 
 /**

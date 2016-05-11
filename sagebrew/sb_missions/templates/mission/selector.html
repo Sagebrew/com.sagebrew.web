@@ -1,17 +1,13 @@
-{% extends "base.html" %}
+{% extends "layout/one-col.html" %}
 {% load staticfiles %}
 {% block title %} Mission Selection {% endblock %}
-{% block content %}
-    <div class="block registration">
-        <div class="row">
-            <div class="col-xs-12">
-                <h1>Start a Mission</h1>
-                <ul class="sb-not-friend-divider-wrapper"><li role="presentation" class="sb_divider"></li></ul>
-            </div>
-        </div>
+{% block live %}
+    <div class="block">
+        <h1 class="block-title no-underline center-title">Start a Mission</h1>
+    </div>
         <div class="row">
             <div class="col-xs-12 col-sm-6">
-                <div class="sb-profile-not-friend-element">
+                <div class="sb-profile-not-friend-element no-margin-top-bottom">
                     <div class="js-hover-overlay-activate">
                         <h4 class="sb-profile-not-friend-header">Run for Public Office</h4>
                         <div class="row sb-profile-not-friend-image-wrapper">
@@ -35,7 +31,7 @@
                 </div>
             </div>
             <div class="col-xs-12 col-sm-6">
-                <div class="sb-profile-not-friend-element">
+                <div class="sb-profile-not-friend-element no-margin-top-bottom">
                     <div class="js-hover-overlay-activate">
                         <h4 class="sb-profile-not-friend-header">Advocate</h4>
                         <div class="row sb-profile-not-friend-image-wrapper">

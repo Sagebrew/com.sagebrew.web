@@ -17,7 +17,6 @@ class TestSearchResultView(TestCase):
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
         self.user = User.objects.get(email=self.email)
-        self.pleb.completed_profile_info = True
         self.pleb.save()
         cache.clear()
 

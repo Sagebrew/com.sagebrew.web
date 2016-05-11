@@ -8,6 +8,7 @@
 
     <title>{% block title %}Sagebrew{% endblock title %}</title>
     {% block description %}{% endblock description %}
+    {% block properties %}{% endblock properties %}
     {% block keywords %}{% endblock keywords %}
     {% block css %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}"/>
@@ -51,6 +52,7 @@
         {% endblock footer %}
     </div>
 {% include "partials/intercom.html" %}
+{% include "partials/facebook.html" %}
 {% block scripts %}
     <script src="{% static 'js/vendor.js' %}"></script>
     <script src="{% static 'js/sagebrew.js' %}"></script>

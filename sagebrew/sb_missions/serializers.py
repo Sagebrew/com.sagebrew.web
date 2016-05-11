@@ -11,12 +11,14 @@ from neomodel import db, DoesNotExist
 from api.utils import (gather_request_data, clean_url, empty_text_to_none,
                        smart_truncate, render_content)
 from api.serializers import SBSerializer
+
 from sb_base.serializers import IntercomEventSerializer
 from sb_locations.serializers import LocationSerializer
 from sb_tags.neo_models import Tag
 from sb_search.utils import remove_search_object
 
 from .neo_models import Mission
+from .utils import setup_onboarding
 
 
 class MissionSerializer(SBSerializer):
@@ -58,6 +60,7 @@ class MissionSerializer(SBSerializer):
         ('local', "Local"), ('state_upper', "State Upper"),
         ('state_lower', "State Lower"),
         ('federal', "Federal"), ('state', "State")])
+    level_readable = serializers.SerializerMethodField()
     location = serializers.SerializerMethodField()
     title_summary = serializers.SerializerMethodField()
 
@@ -176,7 +179,7 @@ class MissionSerializer(SBSerializer):
                         loc_query, focused_on, level, mission.object_uuid,
                         owner_username)
             res, _ = db.cypher_query(query)
-            return Mission.inflate(res.one)
+            mission = Mission.inflate(res.one)
         elif focus_type == "advocacy":
             focused_on = slugify(focused_on)
             try:
@@ -234,7 +237,8 @@ class MissionSerializer(SBSerializer):
                                         loc_query)
             res, _ = db.cypher_query(query)
             if res.one is not None:
-                return Mission.inflate(res.one)
+                mission = Mission.inflate(res.one)
+        setup_onboarding(quest, mission)
         return mission
 
     def update(self, instance, validated_data):
@@ -259,7 +263,19 @@ class MissionSerializer(SBSerializer):
             instance.title = title
         instance.about = empty_text_to_none(
             validated_data.get('about', instance.about))
+        if instance.about is not None:
+            db.cypher_query(
+                'MATCH (mission:Mission {object_uuid: "%s"})-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.MISSION_ABOUT_TITLE))
         instance.epic = validated_data.pop('epic', instance.epic)
+        if instance.epic is not None:
+            db.cypher_query(
+                'MATCH (mission:Mission {object_uuid: "%s"})-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.EPIC_TITLE))
         instance.facebook = clean_url(
             validated_data.get('facebook', instance.facebook))
         instance.linkedin = clean_url(
@@ -272,6 +288,12 @@ class MissionSerializer(SBSerializer):
             validated_data.get('website', instance.website))
         instance.wallpaper_pic = validated_data.pop('wallpaper_pic',
                                                     instance.wallpaper_pic)
+        if settings.DEFAULT_WALLPAPER not in instance.wallpaper_pic:
+            db.cypher_query(
+                'MATCH (mission:Mission {object_uuid: "%s"})-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.MISSION_WALLPAPER_TITLE))
         instance.save()
         cache.set("%s_mission" % instance.object_uuid, instance)
         if instance.active:
@@ -359,3 +381,9 @@ class MissionSerializer(SBSerializer):
             if len(obj.title) > 20:
                 return smart_truncate(obj.title, 20)
         return obj.title
+
+    def get_level_readable(self, obj):
+        if obj.level is not None:
+            return obj.level.replace('_', ' ')
+        else:
+            return "unknown"

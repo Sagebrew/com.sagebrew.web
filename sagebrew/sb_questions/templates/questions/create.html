@@ -2,12 +2,20 @@
 {% load i18n %}
 {% load staticfiles %}
 
+{% block body_class %}
+    background-color-white
+{% endblock %}
+
+{% block navigation %}
+    {{ block.super }}
+    {% include "navigation/navbar_secondary.html" with nav_title="Submit Question" %}
+{% endblock %}
+
 {% block live %}
-<div class="block sb_markdown">
-    <h3 class="block-title">Submit Question</h3>
+<div class="block sb_markdown margin-top-40">
     <div class="block-content">
         <form id="questionInputForm">
-            <input class="form-control no-border no-padding-left" style="margin-bottom: 10px;"
+            <input class="form-control block-title no-margin-left no-border no-padding-left font-size-16" style="margin-bottom: 10px;"
                   id="title_id"
                   name="title"
                   placeholder="Question Title" value=""/>
@@ -15,31 +23,8 @@
                       id="js-question-markdown"
                       name="content"
                       cols="20"
-                      rows="8"
-                      placeholder="Question Context"></textarea>
+                      rows="8"></textarea>
         </form>
-    </div>
-</div>
-<div class="block">
-    <div class="block-content">
-        <div class="position-wrapper">
-            <input id="pac-input" class="form-control" type="text"
-                   placeholder="What Place is Affected? (Country, State, City, etc)" value=""/>
-            <div id="location-id" hidden></div>
-            <div id="location-lat" hidden></div>
-            <div id="location-long" hidden></div>
-            <div id="location-area" hidden></div>
-        </div>
-        {% include "tag_box.html" %}
-        <ul class="list-inline list-inline-btns">
-            <li>
-                <button class="btn btn-primary sb_btn sb_btn_fill"
-                        id="js-create-btn">Create Question</button>
-            </li>
-            <li>
-                <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove" id="js-cancel-btn">Cancel</button>
-            </li>
-        </ul>
     </div>
 </div>
 <div id="validation_errors"></div>
@@ -47,9 +32,28 @@
 
 {% endblock live %}
 {% block sidebar_right %}
+    <div class="block margin-top-40 no-margin-bottom">
+        <div class="block-content">
+            <div class="position-wrapper">
+                {% include "tag_box.html" %}
+            </div>
+        </div>
+    </div>
     <div class="create-side-content">
         <div class="side-create-map">
             <div id="map"></div>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-content">
+            <div class="position-wrapper">
+                <input id="pac-input" class="form-control" type="text"
+                       placeholder="What Place is Affected?" value="{{ question.affected_area|default_if_none:'' }}"/>
+                <div id="location-id" hidden>{{ question.external_location_id }}</div>
+                <div id="location-lat" hidden>{{ question.latitude }}</div>
+                <div id="location-long" hidden>{{ question.longitude }}</div>
+                <div id="location-area" hidden>{{ question.affected_area }}</div>
+            </div>
         </div>
     </div>
 {% endblock sidebar_right %}

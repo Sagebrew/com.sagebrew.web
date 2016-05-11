@@ -1,24 +1,24 @@
-{% extends 'layout/two-col-right.html' %}
+{% extends "layout/hero-one-col.html" %}
 {% load staticfiles %}
+{% block body_class %}
+    background-color-white
+{% endblock %}
 
-{% block live %}
-    <div class="block">
-        <h5 class="block-title">Edit Solution</h5>
-        <div class="block-content solution-manager sb_markdown edit-solution">
-            <label for="js-solution-markdown"></label>
-            <textarea id="js-solution-markdown" class="editable sb_markdown">
-                {{ content }}
-            </textarea>
-            <ul class="list-inline list-inline-btns">
-                <li>
-                    <a href="#" class="btn btn-primary sb_btn_fill" id="submit">Submit</a>
-                </li>
-                <li>
-                    <a href="#" class="btn btn-primary sb_btn_fill sb_btn_remove" id="cancel">Cancel</a>
-                </li>
-            </ul>
+{% block navigation %}
+    {{ block.super }}
+    {% include "navigation/navbar_secondary.html" with nav_title="Edit Solution" %}
+{% endblock %}
+
+{% block hero %}
+    <div class="block min-height-600 margin-top-20">
+        <div class="block-content">
+            <form id="solutionForm">
+                <textarea id="js-solution-markdown"
+                          class="font-style-normal editable sb_markdown">
+                </textarea>
+                <div id="validation-errors"></div>
+            </form>
         </div>
-
     </div>
 
 {% endblock %}

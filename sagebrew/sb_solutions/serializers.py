@@ -1,4 +1,3 @@
-import bleach
 import pytz
 
 from uuid import uuid1

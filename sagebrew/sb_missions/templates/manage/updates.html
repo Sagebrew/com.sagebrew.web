@@ -2,35 +2,16 @@
 {% load staticfiles %}
 {% block title %}Mission Update Settings{% endblock title %}
 {% block live %}
-    <div class="block">
-        <h3 class="block-title">Update Management</h3>
-        <div class="block-content">
-            <form id="updateForm">
-
-                <textarea class="form-control no-border no-padding-left"
-                          name="title"
-                          placeholder="Enter the title..."
-                          id="js-title"
-                          rows="1"></textarea>
-                <div class="sb_markdown">
-                    <textarea class="editable"
-                          name="content"
-                          rows="10"></textarea>
+    <div class="hero">
+        <div class="block block-type-title">
+            <div class="block-content type-nav clearfix">
+                <h1>Previous Updates</h1>
+                <div class="title-important-actions">
+                    <a href="{% url "mission_update_create" mission.id slug %}"
+                       class="btn btn-primary btn-lg sb_btn">Create</a>
                 </div>
-
-                <div class="row">
-                    <div class="col-lg-4 col-md-4">
-                        <button class="btn btn-primary sb_btn sb_btn_fill"
-                                id="submit">
-                            Save
-                        </button>
-                    </div>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
-    <div class="block">
-        <h3 class="block-title no-underline center-title">Previous Updates</h3>
     </div>
     <div id="js-update-wrapper"></div>
 {% endblock %}

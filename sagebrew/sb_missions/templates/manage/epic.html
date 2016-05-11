@@ -19,7 +19,7 @@
         <div class="block-content sb_markdown">
             <div>
                 {% autoescape off %}
-                    {{ mission.epic }}
+                    {{ mission.epic|default_if_none:epic_template }}
                 {% endautoescape %}
             </div>
         </div>

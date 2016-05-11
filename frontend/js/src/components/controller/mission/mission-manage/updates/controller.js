@@ -1,10 +1,6 @@
-/* global AutoList */
 var request = require('api').request,
-    markdown = require('common/markdown').addMarkdown,
-    validators = require('common/validators'),
-    moment = require('moment'),
     updateNewsTemplate = require('controller/section-profile/templates/update_news.hbs'),
-    mediumEditor = require('medium-editor');
+    moment = require('moment');
 
 export const meta = {
     controller: "mission/mission-manage/updates",
@@ -27,56 +23,9 @@ export function init() {
  */
 export function load() {
     require('plugin/contentloader');
-    require('medium-editor-insert-plugin');
-    var $app = $(".app-sb"),
-        missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
-        $updateWrapper = $("#js-update-wrapper"),
-        autolist = new AutoList(),
-        editor = new mediumEditor(".editable", {
-            buttonLabels: true,
-            autoLink: true,
-            extensions: {
-                'autolist': autolist
-            }
-        }),
-        $title = $("#js-title");
-    // Uploading images here via fileUploadOptions because submitting the
-    // binary data directly causes browsers to crash if the images are
-    // too large/there are too many images
-    $(".editable").mediumInsert({
-        editor: editor,
-        addons: {
-            images: {
-                fileUploadOptions: {
-                    url: "/v1/upload/?editor=true",
-                    acceptFileTypes: /(.|\/)(gif|jpe?g|png)$/i,
-                    paramName: "file_object"
-                }
-            },
-            embeds: {
-                oembedProxy: null
-            }
-        }
-    });
-    //markdown($("textarea.markdown-input"));
-    $app
-        .on('click', '#submit', function(event) {
-            event.preventDefault();
-            var serialized = editor.serialize(),
-                key = Object.keys(serialized);
-            request.post({url: "/v1/missions/" + missionId + "/updates/",
-                data: JSON.stringify(
-                    {
-                        'content': serialized[key].value,
-                        'title': $title.val(),
-                        'about_type': 'mission',
-                        'about_id': missionId})
-            }).done(function (){
-                window.location.reload();
-            });
+    var missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
+        $updateWrapper = $("#js-update-wrapper");
 
-        });
-    validators.updateValidator($("#updateForm"));
     if ($updateWrapper !== undefined && $updateWrapper !== null){
         $updateWrapper.sb_contentLoader({
             emptyDataMessage: '',

@@ -8,7 +8,7 @@
 {% block navigation %}
     {{ block.super }}
     {% url 'mission_update_settings' mission.id slug as back_url %}
-    {% include 'navigation/navbar_secondary.html' with back_url=back_url nav_title="Edit Update" %}
+    {% include 'navigation/navbar_secondary.html' with back_url=back_url nav_title="Create Update" %}
 {% endblock %}
 
 {% block hero %}
@@ -16,16 +16,15 @@
     <div class="block min-height-600 margin-top-20">
         <div class="block-content">
             <form id="updateForm">
-
-                <textarea class="form-control no-border no-padding-left font-size-16"
+                <textarea class="form-control block-title no-border no-padding-left font-size-16 no-margin-left"
                           name="title"
-                          placeholder="Enter the title..."
+                          placeholder="Type your title here"
                           id="js-title"
-                          rows="1">{{ update.title }}</textarea>
+                          rows="1"></textarea>
                 <div class="sb_markdown">
                     <textarea class="editable"
                           name="content"
-                          rows="10">{{ update.content }}</textarea>
+                          rows="10"></textarea>
                 </div>
             </form>
         </div>

@@ -51,7 +51,7 @@
             <form id="epicForm">
                 <textarea id="epic_editor"
                           class="font-style-normal editable sb_markdown">
-                    {{ mission.temp_epic }}
+                    {{ mission.temp_epic|default_if_none:epic_template }}
                 </textarea>
                 <div id="validation-errors"></div>
             </form>

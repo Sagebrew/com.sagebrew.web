@@ -16,7 +16,7 @@ from sb_docstore.utils import connect_to_dynamo, get_table_name
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 from plebs.tasks import (create_wall_task,
-                         determine_pleb_reps, finalize_citizen_creation,
+                         finalize_citizen_creation,
                          update_reputation)
 from sb_wall.neo_models import Wall
 
@@ -79,27 +79,6 @@ class TestCreateWallTask(TestCase):
             time.sleep(1)
 
         self.assertFalse(isinstance(res.result, Exception))
-
-
-class TestDeterminePlebReps(TestCase):
-
-    def setUp(self):
-        settings.CELERY_ALWAYS_EAGER = True
-        self.email = "success@simulator.amazonses.com"
-        self.pleb = create_user_util_test(self.email)
-        self.user = User.objects.get(email=self.email)
-
-    def tearDown(self):
-        settings.CELERY_ALWAYS_EAGER = False
-
-    def test_determine_pleb_reps(self):
-        data = {
-            'username': self.pleb.username
-        }
-        res = determine_pleb_reps.apply_async(kwargs=data)
-        while not res.ready():
-            time.sleep(1)
-        self.assertTrue(res.result)
 
 
 class TestUpdateReputation(TestCase):

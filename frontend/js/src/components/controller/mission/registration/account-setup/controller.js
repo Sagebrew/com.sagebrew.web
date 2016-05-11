@@ -99,7 +99,7 @@ function completeRegistration(addressValidationForm, addressForm,
                 account_holder_name: accountData.account_owner,
                 account_holder_type: accountType
             }, stripeBankHandler);
-        }, true);
+        }, "/v1/quests/" + settings.profile.username + "/");
 
     }
 }

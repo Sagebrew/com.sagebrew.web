@@ -132,7 +132,6 @@ class QuestSerializer(SBSerializer):
         if tos_acceptance:
             account.tos_acceptance.ip = ip
             account.tos_acceptance.date = int(time.time())
-            quest.account_verified_date = datetime.now(pytz.utc)
             quest.tos_acceptance = True
         quest.save()
         account.save()
@@ -370,7 +369,6 @@ class QuestSerializer(SBSerializer):
                         ip = request.META.get('REMOTE_ADDR')
                     account.tos_acceptance.ip = ip
                     account.tos_acceptance.date = int(time.time())
-                    instance.account_verified_date = datetime.now(pytz.utc)
                     instance.tos_acceptance = True
             account.legal_entity.additional_owners = []
             account.legal_entity.personal_id_number = ssn
@@ -401,15 +399,7 @@ class QuestSerializer(SBSerializer):
             account.legal_entity.address.postal_code = \
                 account_address.postal_code
             account.legal_entity.address.country = "US"
-            account = account.save()
-            # Default to pending to make sure customer doesn't think nothing
-            # is happening on a slow update from Stripe. We can revert back
-            # to unverified if Stripe alerts us to it.
-            verification = "pending"
-            if account['legal_entity']['verification']['status'] == "verified":
-                verification = account['legal_entity'][
-                    'verification']['status']
-            instance.account_verified = verification
+            account.save()
             instance.last_four_soc = ssn[-4:]
         instance.save()
         cache.delete("%s_quest" % instance.owner_username)

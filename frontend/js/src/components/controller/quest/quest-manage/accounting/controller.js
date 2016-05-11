@@ -129,7 +129,7 @@ function submitAddress(addressValidationForm, addressForm) {
     if(addressValidationForm.data('formValidation').isValid() === true){
         addresses.submitAddress(addressForm, function callback() {
             window.location.reload();
-        }, true);
+        }, "/v1/quests/" + settings.profile.username + "/");
     }
 }
 

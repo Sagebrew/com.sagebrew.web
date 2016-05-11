@@ -20,16 +20,6 @@ export function loadInterests() {
                 options: data.actions.POST.interests.choices,
                 select_all_statement: "I like a bit of everything"}));
             helpers.selectAllFields('#js-select-all');
-            /**
-            request.get({url:"/v1/me/add_topics_of_interest/"})
-                .done(function (data) {
-                    if(data.interests !== null) {
-                        for(var i = 0; i < data.interests.length; i++) {
-                            document.getElementById(data.interests[i]).checked = true;
-                        }
-                    }
-                });
-             **/
         });
 }
 

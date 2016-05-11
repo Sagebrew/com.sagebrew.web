@@ -109,6 +109,11 @@ class AccountSerializer(SBSerializer):
                              "request": request})
                 quest_ser.is_valid(raise_exception=True)
                 quest_ser.save()
+                cache.delete("%s_quest" % quest.owner_username)
+                # Update quest after saving from serializer so we're not working
+                # with a stale instance.
+                quest = Quest.nodes.get(owner_username=pleb.username)
+                quest.account_verified_date = datetime.now(pytz.utc)
             quest.account_verified = \
                 account.legal_entity.verification.status
             quest.account_verification_details = \

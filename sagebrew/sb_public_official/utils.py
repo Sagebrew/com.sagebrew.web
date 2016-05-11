@@ -48,4 +48,7 @@ def determine_reps(pleb):
     except(DoesNotExist, PublicOfficial.DoesNotExist):
         pass
     cache.delete(pleb.username)
+    cache.delete('%s_possible_house_representatives' %
+                 pleb.username)
+    cache.delete('%s_possible_senators' % pleb.username)
     return True

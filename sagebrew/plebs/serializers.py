@@ -35,7 +35,7 @@ from sb_quests.serializers import QuestSerializer
 from sb_quests.neo_models import Quest
 
 from .neo_models import Pleb
-from .tasks import determine_pleb_reps, create_wall_task, generate_oauth_info
+from .tasks import create_wall_task, generate_oauth_info
 
 
 class EmailAuthTokenGenerator(object):
@@ -418,12 +418,7 @@ class PlebSerializerNeo(SBSerializer):
             res, _ = db.cypher_query(query)
             instance.address.connect(address)
             instance.determine_reps()
-            cache.delete('%s_possible_house_representatives' %
-                         request.user.username)
-            cache.delete('%s_possible_senators' % request.user.username)
-            spawn_task(task_func=determine_pleb_reps, task_param={
-                "username": self.context['request'].user.username,
-            })
+
         update_time = request.data.get('update_time', False)
         first_name = validated_data.get('first_name', instance.first_name)
         last_name = validated_data.get('last_name', instance.last_name)

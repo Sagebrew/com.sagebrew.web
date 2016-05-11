@@ -16,19 +16,6 @@ from .neo_models import Pleb, OauthUser
 
 
 @shared_task()
-def determine_pleb_reps(username):
-    from sb_public_official.utils import determine_reps
-    try:
-        pleb = Pleb.get(username=username, cache_buster=True)
-        result = determine_reps(pleb)
-        if result is False:
-            raise Exception("Failed to determine reps")
-        return result
-    except Exception as e:
-        raise determine_pleb_reps.retry(exc=e, countdown=3, max_retries=None)
-
-
-@shared_task()
 def finalize_citizen_creation(username):
     try:
         pleb = Pleb.get(username=username, cache_buster=True)

@@ -71,7 +71,8 @@ function completeAddress(addressValidationForm, addressForm) {
     addressValidationForm.data('formValidation').validate();
     if(addressValidationForm.data('formValidation').isValid() === true) {
         document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
-        addresses.submitAddress(addressForm, submitAddressCallback);
+        addresses.submitAddress(addressForm, submitAddressCallback, 
+            "/v1/profiles/" + settings.profile.username + "/");
     }
 }
 

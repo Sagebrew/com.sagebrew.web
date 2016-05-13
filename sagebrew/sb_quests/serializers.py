@@ -16,7 +16,7 @@ from neomodel.exception import DoesNotExist
 
 from api.serializers import SBSerializer
 from api.utils import (gather_request_data, spawn_task, clean_url,
-                       empty_text_to_none)
+                       empty_text_to_none, smart_truncate)
 from sb_address.serializers import AddressSerializer
 from sb_address.neo_models import Address
 from sb_base.serializers import IntercomEventSerializer
@@ -99,6 +99,7 @@ class QuestSerializer(SBSerializer):
     fields_needed_human_readable = serializers.SerializerMethodField()
     identification_sent = serializers.SerializerMethodField()
     has_address = serializers.SerializerMethodField()
+    title_summary = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -531,6 +532,12 @@ class QuestSerializer(SBSerializer):
                 'RETURN r IS NOT NULL as has_address' % obj.owner_username
         res, _ = db.cypher_query(query)
         return res.one
+
+    def get_title_summary(self, obj):
+        if obj.title is not None:
+            if len(obj.title) > 20:
+                return smart_truncate(obj.title, 20)
+        return obj.title
 
 
 class EditorSerializer(serializers.Serializer):

@@ -349,7 +349,7 @@ class QuestSerializer(SBSerializer):
                 account = stripe.Account.retrieve(instance.stripe_id)
 
             try:
-                external_account = account.external_accounts.create(
+                account.external_accounts.create(
                     external_account=stripe_token, default_for_currency=True)
             except InvalidRequestError:
                 raise serializers.ValidationError(

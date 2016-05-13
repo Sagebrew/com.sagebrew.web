@@ -6,20 +6,20 @@ from uuid import uuid1
 from datetime import datetime
 from intercom import Intercom, Event
 
-from sb_base.serializers import IntercomMessageSerializer
-
-from sb_quests.neo_models import Quest
-from sb_notifications.tasks import spawn_system_notification
 from django.conf import settings
 from django.core.cache import cache
 
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from api.utils import spawn_task
+from neomodel import db
+
 from api.serializers import SBSerializer
+from sb_base.serializers import IntercomMessageSerializer
+from sb_notifications.utils import create_system_notification
 from plebs.neo_models import Pleb
 from sb_quests.serializers import QuestSerializer
+from sb_quests.neo_models import Quest
 
 logger = getLogger("loggly_logs")
 
@@ -93,27 +93,33 @@ class AccountSerializer(SBSerializer):
 
             if quest.account_verified != "verified" \
                     and account.legal_entity.verification.status == "verified":
-                spawn_task(
-                    task_func=spawn_system_notification,
-                    task_param={
-                        "to_plebs": [pleb.username],
-                        "notification_id": str(uuid1()),
-                        "url": reverse('quest_manage_banking',
-                                       kwargs={'username': pleb.username}),
-                        "action_name": "Your Quest has been verified!"
-                    }
-                )
+                # Need this to ensure the notification is only sent once if
+                # Stripe sends a subsequent message before we've saved the
+                # verification off.
+                query = 'MATCH (a:Notification {action_name: ' \
+                        '"Your Quest has been verified!"})' \
+                        '-[:NOTIFICATION_TO]->(pleb:Pleb {username: "%s"}) ' \
+                        'RETURN a' % pleb.username
+                res, _ = db.cypher_query(query)
+                if res.one is None:
+                    create_system_notification(
+                        to_plebs=[pleb],
+                        notification_id=str(uuid1()),
+                        url=reverse('quest_manage_banking',
+                                    kwargs={'username': pleb.username}),
+                        action_name="Your Quest has been verified!"
+                    )
                 quest_ser = QuestSerializer(
                     instance=quest, data={'active': True},
                     context={"secret": settings.SECRET_KEY,
                              "request": request})
                 quest_ser.is_valid(raise_exception=True)
+                quest.account_verified_date = datetime.now(pytz.utc)
                 quest_ser.save()
                 cache.delete("%s_quest" % quest.owner_username)
                 # Update quest after saving from serializer so we're not working
                 # with a stale instance.
                 quest = Quest.nodes.get(owner_username=pleb.username)
-                quest.account_verified_date = datetime.now(pytz.utc)
             quest.account_verified = \
                 account.legal_entity.verification.status
             quest.account_verification_details = \
@@ -162,17 +168,14 @@ class AccountSerializer(SBSerializer):
                 logger.exception(e)
                 raise serializers.ValidationError(e)
             pleb = Pleb.nodes.get(email=account.email)
-            spawn_task(
-                task_func=spawn_system_notification,
-                task_param={
-                    "to_plebs": [pleb.username],
-                    "notification_id": str(uuid1()),
-                    "url": reverse('quest_manage_banking',
-                                   kwargs={"username": pleb.username}),
-                    "action_name": "A transfer to your bank account has "
-                                   "failed! Please review that your "
-                                   "Quest Banking information is correct."
-                }
+            create_system_notification(
+                to_plebs=[pleb],
+                notification_id=str(uuid1()),
+                url=reverse('quest_manage_banking',
+                            kwargs={'username': pleb.username}),
+                action_name="A transfer to your bank account has "
+                            "failed! Please review that your "
+                            "Quest Banking information is correct."
             )
             Event.create(event_name="stripe-transfer-failed",
                          user_id=pleb.username,
@@ -189,17 +192,14 @@ class AccountSerializer(SBSerializer):
                 logger.exception(e)
                 raise serializers.ValidationError(e)
             pleb = Pleb.nodes.get(email=customer.email)
-            spawn_task(
-                task_func=spawn_system_notification,
-                task_param={
-                    "to_plebs": [pleb.username],
-                    "notification_id": str(uuid1()),
-                    "url": reverse('quest_manage_billing',
-                                   kwargs={"username": pleb.username}),
-                    "action_name": "Your Pro Trial will "
-                                   "be ending soon, add a payment method to "
-                                   "keep your Pro Account features."
-                }
+            create_system_notification(
+                to_plebs=[pleb],
+                notification_id=str(uuid1()),
+                url=reverse('quest_manage_billing',
+                            kwargs={'username': pleb.username}),
+                action_name="Your Pro Trial will "
+                            "be ending soon, add a payment method to "
+                            "keep your Pro Account features."
             )
             response_dict["detail"] = "Trail Will End"
             return response_dict

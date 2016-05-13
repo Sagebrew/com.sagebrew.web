@@ -13,7 +13,6 @@ var request = require('api').request,
 
 
 export function load() {
-    console.log(settings.profile.quest.account_verified);
     var $app = $(".app-sb"),
         placeInput = document.getElementById('pac-input'),
         stateInput = document.getElementById('state-input'),
@@ -55,8 +54,7 @@ export function load() {
     $app
         .on('click', '.radio-image-selector', function(event) {
             event.preventDefault();
-
-            if (this.classList.contains("radio-selected") && this.classList.contains("js-level")) {
+            if(this.classList.contains("js-level")){
                 // TODO: REUSE
                 // If we select a level that was already selected we need to disable the inputs
                 // and clear the currently selected position and re-disable positions and districts
@@ -70,6 +68,9 @@ export function load() {
                 stateInput.selectedIndex = 0;
                 districtRow.classList.add('hidden');
                 startBtn.disabled = true;
+            }
+            if (this.classList.contains("radio-selected") && this.classList.contains("js-level")) {
+
             } else {
                 // TODO: REUSE
                 // If we select a level, enable the inputs
@@ -89,13 +90,13 @@ export function load() {
                     localStorage.removeItem(locationName);
                 } else if (this.id === "state-selection"){
                     // The state level was selected
-                    stateRequired.innerHTML = 'Select a State (Required)';
+                    stateRequired.innerHTML = 'Select a State';
                     localStorage.setItem(levelKey, "state");
                     districtRow.classList.remove('hidden');
                     districtSelection('state', stateInput, placeInput, startBtn, districtRow);
                 } else if (this.id === "federal-selection"){
                     // The federal level was selected
-                    stateRequired.innerHTML = 'Select a State (Optional)';
+                    stateRequired.innerHTML = 'Select a State';
                     districtSelection('federal', stateInput, placeInput, startBtn, districtRow);
                 }
             }
@@ -164,12 +165,19 @@ export function load() {
             window.location.href = "/quests/" + settings.user.username;
         })
         .on('keyup', '#advocate-input', function(){
-            var $this = $(this);
+            var $this = $(this),
+                required = document.getElementById('js-required');
             helpers.characterCountRemaining(advocateInputCharacterLimit, $this, advocateInputCharCount);
-            if ($this.val().length > advocateInputCharacterLimit) {
+            if ($this.val().length === 0) {
+                required.classList.remove('sb_hidden');
+                advocateInputWrapper.removeClass("has-success");
+                advocateInputWrapper.addClass("has-error");
+            } else if ($this.val().length > advocateInputCharacterLimit) {
+                required.classList.add('sb_hidden');
                 advocateInputWrapper.removeClass("has-success");
                 advocateInputWrapper.addClass("has-error");
             } else {
+                required.classList.add('sb_hidden');
                 advocateInputWrapper.removeClass("has-error");
                 advocateInputWrapper.addClass("has-success");
             }

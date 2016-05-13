@@ -85,6 +85,9 @@ class QuestSettingsView(LoginRequiredMixin):
             address = Address.inflate(res.one)
         else:
             address = None
+        if self.template_name == "manage/quest_banking.html" \
+                and address is None:
+            return redirect('account_setup')
         return render(request, self.template_name, {
             "quest": quest_ser, "mission_link": mission_link,
             "mission_active": mission_active,

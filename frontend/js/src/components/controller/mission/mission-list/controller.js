@@ -9,6 +9,9 @@ export const meta = {
     match_method: "path",
     check: [
        "^missions$"
+    ],
+    does_not_include: [
+        "account"
     ]
 };
 

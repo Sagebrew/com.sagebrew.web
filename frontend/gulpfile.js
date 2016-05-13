@@ -53,7 +53,6 @@ var config = {
         'js/vendor/jquery.spin.js',
         'js/vendor/foggy.min.js',
         'js/vendor/sortable.min.js',
-        'js/vendor/jquery.pagedown-bootstrap.combined.min.js',
         'bower_components/medium-editor/dist/js/medium-editor.min.js',
         'bower_components/medium-editor-autolist/dist/autolist.js',
         'node_modules/handlebars/dist/handlebars.runtime.min.js',

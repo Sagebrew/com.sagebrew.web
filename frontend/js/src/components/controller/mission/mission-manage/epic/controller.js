@@ -1,4 +1,3 @@
-/* global AutoList */
 var request = require('api').request,
     mediumEditor = require('common/mediumeditorhelper').createMediumEditor,
     moment = require('moment'),
@@ -39,6 +38,7 @@ export function load() {
     require('kuende-livestamp');
     require('medium-editor-insert-plugin');
     var missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
+        $secondnav = $(".navbar-secondary"),
         typingTimer,
         // how long after typing has finished should we auto save? 1000=1 second, 10000=10 seconds, etc.
         finishedTypingInterval = 1000,
@@ -55,7 +55,7 @@ export function load() {
         clearTimeout(typingTimer);
     });
 
-    $("#cancel").on('click', function(event){
+    $secondnav.on('click', '#cancel', function(event){
         event.preventDefault();
         request.patch({url: "/v1/missions/" + missionId + "/",
             data: JSON.stringify({'reset_epic': true})
@@ -66,19 +66,18 @@ export function load() {
             window.location.href = "/missions/" + missionId + "/" + slug + "/manage/epic";
 
         });
-    });
-
-    $("#submit").on('click', function(event){
-        event.preventDefault();
-        var serialized = editor.serialize(),
-            key = Object.keys(editor.serialize())[0];
-        request.patch({url: "/v1/missions/" + missionId + "/",
-            data: JSON.stringify(
-                    {'temp_epic': serialized[key].value, 'epic': serialized[key].value})
-        }).done(function (){
-            $.notify({message: "Saved Epic Successfully"}, {type: "success"});
+    })
+        .on('click', '#submit', function(event){
+            event.preventDefault();
+            var serialized = editor.serialize(),
+                key = Object.keys(editor.serialize())[0];
+            request.patch({url: "/v1/missions/" + missionId + "/",
+                data: JSON.stringify(
+                        {'temp_epic': serialized[key].value, 'epic': serialized[key].value})
+            }).done(function (){
+                $.notify({message: "Saved Epic Successfully"}, {type: "success"});
+            });
         });
-    });
 }
 
 /**

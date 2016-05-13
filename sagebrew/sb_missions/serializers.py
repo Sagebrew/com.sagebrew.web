@@ -45,6 +45,7 @@ class MissionSerializer(SBSerializer):
     location_name = serializers.CharField(required=False, allow_null=True)
     focus_name = serializers.CharField(max_length=240)
     focus_formal_name = serializers.CharField(read_only=True)
+    reset_epic = serializers.BooleanField(required=False)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()

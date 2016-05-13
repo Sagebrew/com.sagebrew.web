@@ -1,4 +1,3 @@
-/* global AutoList */
 var request = require('api').request,
     helpers = require('common/helpers'),
     mediumEditor = require('common/mediumeditorhelper').createMediumEditor;
@@ -26,7 +25,7 @@ export function init() {
  */
 export function load() {
     var solutionID = helpers.args(2),
-        $app = $(".app-sb"),
+        $secondnav = $(".navbar-secondary"),
         editor;
     request.get({url: "/v1/solutions/" + solutionID + "/"})
         .done(function (data) {
@@ -37,12 +36,12 @@ export function load() {
     // This is a solution to our edit solution content being dynamically
     // populated, meaning we cant pass the back_url parameter to the
     // secondary navbar
-    $(".navbar-brand-secondary").on('click', function(event) {
+    $secondnav.on('click', ".navbar-brand-secondary", function(event) {
         event.preventDefault();
         history.back();
     });
 
-    $("#submit").on('click',  function(event) {
+    $secondnav.on('click', '#submit', function(event) {
         event.preventDefault();
         var serialized = editor.serialize(),
             key = Object.keys(serialized)[0];
@@ -59,12 +58,11 @@ export function load() {
         .fail(function () {
             $("#submit").removeAttr("disabled");
         });
-    });
-    
-    $("#cancel").on('click', function (event) {
-        event.preventDefault();
-        history.back();
-    });
+    })
+        .on('click', '#cancel', function (event) {
+            event.preventDefault();
+            history.back();
+        });
 }
 
 /**

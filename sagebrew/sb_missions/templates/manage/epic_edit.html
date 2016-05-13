@@ -1,47 +1,14 @@
 {% extends "layout/hero-one-col.html" %}
 {% load staticfiles %}
-{% block title %}Mission Epic Settings{% endblock title %}
+{% block title %}Mission Edit Epic{% endblock title %}
 {% block body_class %}
     background-color-white
 {% endblock %}
 
 {% block navigation %}
     {{ block.super }}
-    <div class="app-navbar-secondary">
-        <header class="navbar-secondary navbar-static-top navbar-fixed-top hidden-xs">
-            <div class="container-fluid">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                        <span class="sr-only">Toggle navigation</span>
-                        <i class="fa fa-bars"></i>
-                    </button>
-                    <a href="{% url 'mission_epic' mission.id slug %}" class="navbar-brand navbar-brand-secondary color-sb-green">Edit Epic</a>
-                </div>
-                <div class="collapse navbar-collapse navbar-collapse-secondary">
-                    <ul class="nav navbar-nav navbar-right padding-right-40">
-                        <li>
-                            <span class="ten-margin-right line-height-three">
-                                <small>Last autosaved
-                                    <span id="livestamp"
-                                          data-livestamp="{{ mission.epic_last_autosaved }}"></span>
-                                </small>
-                            </span>
-                        </li>
-                        <li>
-                            <a href=""
-                               id="cancel"
-                               class="red-href"><i class="fa fa-ban" aria-hidden="true"></i></a>
-                        </li>
-                        <li>
-                            <a href=""
-                               id="submit"><i class="fa fa-floppy-o" aria-hidden="true"></i></a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </header>
-    </div>
-
+    {% url 'mission_epic' mission.id slug as back_url%}
+    {% include "navigation/navbar_secondary.html" with back_url=back_url nav_title="Edit Epic" last_autosaved=mission.epic_last_autosaved %}
 {% endblock %}
 
 {% block hero %}
@@ -62,5 +29,5 @@
 
 
 {% block intercom %}
-    Intercom('trackEvent', 'manage-epic-page');
+    Intercom('trackEvent', 'manage-edit-epic');
 {% endblock %}

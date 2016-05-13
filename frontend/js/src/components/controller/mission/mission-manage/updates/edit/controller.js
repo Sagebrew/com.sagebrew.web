@@ -1,4 +1,3 @@
-/* global AutoList */
 var request = require('api').request,
     validators = require('common/validators'),
     helpers = require('common/helpers'),
@@ -26,8 +25,8 @@ export function init() {
  * Load
  */
 export function load() {
-    require('medium-editor-insert-plugin');
     var updateId = helpers.args(5),
+        $secondnav = $(".navbar-secondary"),
         autolist = new AutoList(),
         editor = new mediumEditor(".editable", {
             buttonLabels: 'fontawesome',
@@ -56,7 +55,7 @@ export function load() {
         }
     });
     validators.editUpdateValidator($('updateForm'));
-    $("#submit").on('click', function(event) {
+    $secondnav.on('click', '#submit', function(event) {
         event.preventDefault();
         var serialized = editor.serialize(),
             key = Object.keys(serialized)[0],
@@ -69,11 +68,11 @@ export function load() {
         }).done(function () {
             window.history.back();
         });
-    });
-    $("#cancel").on('click', function(event) {
-        event.preventDefault();
-        window.history.back();
-    });
+    })
+        .on('click', '#cancel', function(event) {
+            event.preventDefault();
+            window.history.back();
+        });
 }
 
 /**

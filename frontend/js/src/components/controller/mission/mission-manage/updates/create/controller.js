@@ -1,4 +1,3 @@
-/* global AutoList */
 var request = require('api').request,
     validators = require('common/validators'),
     mediumEditor = require('common/mediumeditorhelper').createMediumEditor,
@@ -25,9 +24,10 @@ export function init() {
  */
 export function load() {
     var missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
+        $secondnav = $(".navbar-secondary"),
         editor = mediumEditor(".editable", "Type your content here"),
         $title = $("#js-title");
-    $('#submit').on('click', function(event) {
+    $secondnav.on('click', '#submit', function(event) {
         event.preventDefault();
         var serialized = editor.serialize(),
             key = Object.keys(serialized);
@@ -41,11 +41,10 @@ export function load() {
         }).done(function (){
             window.location.href = '/missions/' + missionId + '/' + args(2) + '/manage/updates/';
         });
-    });
-    $('#cancel').on('click', function(event) {
-        event.preventDefault();
-        window.location.href = '/missions/' + missionId + '/' + args(2) + '/manage/updates/';
-    });
+    }).on('click', '#cancel', function(event) {
+            event.preventDefault();
+            window.location.href = '/missions/' + missionId + '/' + args(2) + '/manage/updates/';
+        });
 
     validators.updateValidator($("#updateForm"));
 }

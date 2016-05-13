@@ -1,6 +1,6 @@
 {% extends "layout/hero-one-col.html" %}
 {% load staticfiles %}
-{% block title %}Mission Epic Settings{% endblock title %}
+{% block title %}Mission Edit Update{% endblock title %}
 {% block body_class %}
     background-color-white
 {% endblock %}
@@ -17,7 +17,7 @@
         <div class="block-content">
             <form id="updateForm">
 
-                <textarea class="form-control no-border no-padding-left font-size-16"
+                <textarea class="form-control no-border no-padding-left font-size-26"
                           name="title"
                           placeholder="Enter the title..."
                           id="js-title"
@@ -36,5 +36,5 @@
 
 
 {% block intercom %}
-    Intercom('trackEvent', 'manage-epic-page');
+    Intercom('trackEvent', 'manage-edit-update');
 {% endblock %}

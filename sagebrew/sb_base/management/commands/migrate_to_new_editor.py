@@ -12,7 +12,7 @@ from sb_updates.neo_models import Update
 class Command(BaseCommand):
     args = 'None.'
 
-    def clear_neo_db(self):
+    def migrate_to_new_editor(self):
         skip = 0
         while True:
             query ='MATCH (m:Mission) RETURN m SKIP %s LIMIT 25' % skip
@@ -63,4 +63,4 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
-        self.clear_neo_db()
+        self.migrate_to_new_editor()

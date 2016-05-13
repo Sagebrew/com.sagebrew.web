@@ -1059,6 +1059,19 @@ COUNTRIES = [
 
 
 EPIC_TEMPLATE = """
-<div><h2 style="text-align: center;">Share your platform, goals, and mission with the world.</h2><p style="text-align: center;"><span style="color: inherit; font-family: inherit; font-size: 22px;">Try highlighting this text</span></p><p style="text-align: center;" class=""><br></p><p style="text-align: center;" class=""><br></p><p style="text-align: center;" class="medium-insert-active"><br></p><p style="text-align: center;" class=""><span style="color: inherit; font-family: inherit; font-size: 22px;"><br></span></p><p class="" style="text-align: center; "><span style="color: inherit; font-family: inherit; font-size: 22px;">Click <a href="https://sagebrew.local.dev/missions/0a721838-07ee-11e6-9648-080027ca3ef9/give-tyler-money/manage/epic/edit/">here</a> for more information on Epics.</span></p></div>
+<div>
+<h2 style="text-align: center;">Share your platform, goals,
+and mission with the world.</h2>
+<p style="text-align: center;">
+<span style="color: inherit; font-family: inherit; font-size: 22px;">
+Try highlighting this text</span></p><p style="text-align: center;" class="">
+<br></p><p style="text-align: center;" class=""><br></p>
+<p style="text-align: center;" class="medium-insert-active"><br></p>
+<p style="text-align: center;" class=""><span style="color: inherit;
+font-family: inherit; font-size: 22px;"><br></span></p><p class=""
+style="text-align: center; "><span style="color: inherit; font-family:
+inherit; font-size: 22px;">Click <a href="https://sagebrew.local.dev/missions/
+0a721838-07ee-11e6-9648-080027ca3ef9/give-tyler-money/manage/epic/edit/">
+here</a> for more information on Epics.</span></p></div>
 """
 

@@ -22,13 +22,16 @@ export function errorDisplay(XMLHttpRequest, notifyFrom, notifyAlign) {
     var notificationMsg;
     switch (XMLHttpRequest.status) {
         case 500:
-            $.notify({message: "Sorry looks like we're having some server issues right now. "}, {type: "danger"});
+            $.notify({message: "Sorry looks like we're having some server issues right now. "}
+                , {type: "danger"});
         break;
         case 401:
-            $.notify({message: "Sorry doesn't look like you're allowed to do that. "}, {type: "danger"});
+            $.notify({message: "Sorry doesn't look like you're allowed to do that. "}
+                , {type: "danger"});
         break;
         case 404:
-            $.notify({message: "Sorry, we can't seem to find what you're looking for"}, {type: 'danger'});
+            $.notify({message: "Sorry, we can't seem to find what you're looking for"}
+                , {type: 'danger'});
         break;
         case 429:
             $.notify({message: "Sorry, you've exceeded your limit. Please try again tomorrow"}, {type: 'danger'});

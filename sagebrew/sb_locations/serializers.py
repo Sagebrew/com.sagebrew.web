@@ -8,7 +8,7 @@ from neomodel.exception import DoesNotExist
 
 from neomodel import db
 
-from api.utils import gather_request_data, spawn_task
+from api.utils import gather_request_data
 from api.serializers import SBSerializer
 
 from .neo_models import Location

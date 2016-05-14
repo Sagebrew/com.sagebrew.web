@@ -281,10 +281,13 @@ function initAutocomplete() {
 
 
     autocomplete.addListener('place_changed', function() {
-        var place = autocomplete.getPlace();
+        var place = autocomplete.getPlace(),
+            greyPage = document.getElementById('sb-greyout-page');
+        greyPage.classList.remove('sb_hidden');
         if (!place.geometry) {
             $.notify({message: "Sorry we couldn't find that location. Please try another."},
                 {type: "danger"});
+            greyPage.classList.add('sb_hidden');
             return;
         }
 
@@ -301,13 +304,14 @@ function initAutocomplete() {
          * This selection always changes the positions and districts which is why this is necessary
          */
         request.post({
-            url: '/v1/locations/async_add/',
+            url: '/v1/locations/add_external_id/',
             data: JSON.stringify(place)
         }).done(function() {
             /** This is a local city search, if we find something
              * we should enable the start button
              */
             document.getElementById('js-start-btn').disabled = false;
+            greyPage.classList.add('sb_hidden');
         });
     });
 
@@ -315,22 +319,23 @@ function initAutocomplete() {
         // TODO REUSE
         var greyPage = document.getElementById('sb-greyout-page');
         if (status === google.maps.places.PlacesServiceStatus.OK) {
+            var place = results[0];
+            if (place.geometry.viewport) {
+                map.fitBounds(place.geometry.viewport);
+            } else {
+                map.setCenter(place.geometry.location);
+                map.setZoom(12);
+            }
+            localStorage.setItem(locationKey, place.place_id);
             request.post({
-                url: '/v1/locations/async_add/',
+                url: '/v1/locations/add_external_id/',
                 data: JSON.stringify(place)
             }).done(function () {
-                var place = results[0];
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(12);
-                }
-                localStorage.setItem(locationKey, place.place_id);
-                document.getElementById('js-start-btn').disabled = false;greyPage.classList.add('sb_hidden');
+                document.getElementById('js-start-btn').disabled = false;
+                greyPage.classList.add('sb_hidden');
             });
         } else {
-            greyPage.classList.add('sb_hidden')
+            greyPage.classList.add('sb_hidden');
         }
         fillDistricts('federal');
     }

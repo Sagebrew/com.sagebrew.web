@@ -367,10 +367,13 @@ function initAutocomplete() {
 
 
     autocomplete.addListener('place_changed', function() {
-        var place = autocomplete.getPlace();
+        var place = autocomplete.getPlace(),
+            greyPage = document.getElementById('sb-greyout-page');
+        greyPage.classList.remove('sb_hidden');
         if (!place.geometry) {
             $.notify({message: "Sorry we couldn't find that location. Please try another."},
                 {type: "danger"});
+            greyPage.classList.add('sb_hidden');
             return;
         }
         if (place.geometry.viewport) {
@@ -381,7 +384,7 @@ function initAutocomplete() {
         }
         localStorage.setItem(locationKey, place.place_id);
         request.post({
-            url: '/v1/locations/async_add/',
+            url: '/v1/locations/add_external_id/',
             data: JSON.stringify(place)
         }).done(function () {
             fillPositions(place.place_id);
@@ -395,36 +398,37 @@ function initAutocomplete() {
             localStorage.removeItem(positionKey);
             document.getElementById('js-district-selector').innerHTML =
                 districtHolderTemplate();
+            greyPage.classList.add('sb_hidden');
         });
     });
 
     function callback(results, status) {
         var greyPage = document.getElementById('sb-greyout-page');
         if (status === google.maps.places.PlacesServiceStatus.OK) {
+            var place = results[0];
+            if (place.geometry.viewport) {
+                map.fitBounds(place.geometry.viewport);
+            } else {
+                map.setCenter(place.geometry.location);
+                map.setZoom(12);
+            }
+            fillPositions(place.place_id);
+            localStorage.setItem(locationKey, place.place_id);
+            /**
+             * If a location is selected the district should always be replaced by the holder and the position
+             * removed from local storage
+             * This selection always changes the positions and districts which is why this is necessary
+             */
+            localStorage.removeItem(positionKey);
             request.post({
-                url: '/v1/locations/async_add/',
+                url: '/v1/locations/add_external_id/',
                 data: JSON.stringify(place)
             }).done(function () {
-                var place = results[0];
-                if (place.geometry.viewport) {
-                    map.fitBounds(place.geometry.viewport);
-                } else {
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(12);
-                }
-                fillPositions(place.place_id);
-                localStorage.setItem(locationKey, place.place_id);
-                /**
-                 * If a location is selected the district should always be replaced by the holder and the position
-                 * removed from local storage
-                 * This selection always changes the positions and districts which is why this is necessary
-                 */
-                localStorage.removeItem(positionKey);
                 document.getElementById('js-district-selector').innerHTML = districtHolderTemplate();
                 greyPage.classList.add('sb_hidden');
             });
         } else {
-            greyPage.classList.add('sb_hidden')
+            greyPage.classList.add('sb_hidden');
         }
     }
 }

@@ -134,6 +134,8 @@ function submitAddress(addressValidationForm, addressForm) {
     addressValidationForm.data('formValidation').validate();
     if(addressValidationForm.data('formValidation').isValid() === true){
         addresses.submitAddress(addressForm, function callback() {
+            var greyPage = document.getElementById('sb-greyout-page');
+            greyPage.classList.add('sb_hidden');
             window.location.reload();
         }, "/v1/quests/" + settings.profile.username + "/");
     }

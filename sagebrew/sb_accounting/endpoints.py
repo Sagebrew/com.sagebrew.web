@@ -29,7 +29,6 @@ class AccountingViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         # TODO after this is verified on staging we can remove this completely
-        logger.critical("here")
         serializer = self.get_serializer(data=request.data,
                                          context={'request': request})
         if serializer.is_valid():

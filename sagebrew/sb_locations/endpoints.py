@@ -60,7 +60,7 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
     @list_route(methods=['post'],
                 serializer_class=LocationExternalIDSerializer,
                 permission_classes=(IsAuthenticated,))
-    def async_add(self, request):
+    def add_external_id(self, request):
         serializer = self.get_serializer(data=request.data)
         if serializer.is_valid():
             cache.set(request.data['place_id'], request.data)

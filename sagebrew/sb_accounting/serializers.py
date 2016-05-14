@@ -116,6 +116,11 @@ class AccountSerializer(SBSerializer):
                 # Update quest after saving from serializer so we're not working
                 # with a stale instance.
                 quest = Quest.nodes.get(owner_username=pleb.username)
+                # Need this because the serializer doesn't get into the area
+                # where verification is updated unless a new external account
+                # is added.
+                quest.account_verified = \
+                    account.legal_entity.verification.status
                 quest.account_verified_date = datetime.now(pytz.utc)
             if account.verification.fields_needed:
                 quest.account_verification_fields_needed = \
@@ -124,8 +129,7 @@ class AccountSerializer(SBSerializer):
                 account.legal_entity.verification.status
             quest.account_verification_details = \
                 str(account.legal_entity.verification.details)
-            if quest.account_first_updated is None \
-                    and quest.account_verified != "verified":
+            if quest.account_first_updated is None:
                 quest.account_first_updated = datetime.now(pytz.utc)
             verify = account.verification
 

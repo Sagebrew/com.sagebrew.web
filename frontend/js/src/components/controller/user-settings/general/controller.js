@@ -123,5 +123,7 @@ function validateAddressCallback() {
 }
 
 function submitAddressCallback() {
+    var greyPage = document.getElementById('sb-greyout-page');
+    greyPage.classList.add('sb_hidden');
     window.location.reload();
 }

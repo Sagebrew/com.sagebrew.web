@@ -406,9 +406,8 @@ class QuestSerializer(SBSerializer):
             # is happening on a slow update from Stripe. We can revert back
             # to unverified if Stripe alerts us to it.
             verification = "pending"
-            if account['legal_entity']['verification']['status'] == "verified":
-                verification = account['legal_entity'][
-                    'verification']['status']
+            if account.legal_entity.verification.status == "verified":
+                verification = account.legal_entity.verification.status
             instance.account_verified = verification
             instance.last_four_soc = ssn[-4:]
         instance.save()

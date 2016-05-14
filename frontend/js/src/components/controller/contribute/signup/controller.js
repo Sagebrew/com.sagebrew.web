@@ -141,7 +141,9 @@ function validateAddressCallback() {
 function submitAddressCallback() {
     var contributionType = helpers.args(3),
         missionSlug = helpers.args(2),
-        donateToID = helpers.args(1);
+        donateToID = helpers.args(1),
+        greyPage = document.getElementById('sb-greyout-page');
+    greyPage.classList.add('sb_hidden');
     if(contributionType === "volunteer") {
         window.location.href = "/missions/" + donateToID + "/" +
             missionSlug + "/" + contributionType + "/option/";

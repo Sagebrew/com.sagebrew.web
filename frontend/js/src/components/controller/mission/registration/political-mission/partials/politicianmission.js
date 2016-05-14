@@ -77,11 +77,14 @@ export function load() {
     });
     positionInput.keyup(function() {
         var $this = $(this),
-            positionInputWrapper = $(".position-input-wrapper");
+            positionInputWrapper = $(".position-input-wrapper"),
+            required = document.getElementById('js-required');
         helpers.characterCountRemaining(positionInputCharLimit, positionInput, positionInputCharCount);
         if ($this.val().length <= 0) {
             startBtn.disabled = true;
-
+            required.classList.remove('sb_hidden');
+            positionInputWrapper.removeClass("has-success");
+            positionInputWrapper.addClass("has-error");
         } else if ($this.val().length > positionInputCharLimit) {
             startBtn.disabled = true;
             positionInputWrapper.removeClass("has-success");
@@ -103,7 +106,7 @@ export function load() {
             if(this.id !== "Other") {
                 positionInputRow.classList.add('hidden');
             }
-            if(this.classList.contains("radio-selected") && this.classList.contains("js-level")){
+            if(this.classList.contains("js-level")) {
                 // If we select a level that was already selected we need to disable the inputs
                 // and clear the currently selected position and re-disable positions and districts
                 stateInput.disabled = true;
@@ -117,13 +120,15 @@ export function load() {
                 localStorage.removeItem(levelKey);
                 stateInput.selectedIndex = 0;
                 startBtn.disabled = true;
-            } else if(this.classList.contains("radio-selected") && this.classList.contains("js-position")) {
+            }
+            if(this.classList.contains("radio-selected") && this.classList.contains("js-position")) {
                 // If we select a position that was already selected we need to remove the districts and
                 // the stored off position. We also need to disable the start button until a district is selected
                 localStorage.removeItem(districtKey);
                 localStorage.removeItem(positionKey);
                 positionInputRow.classList.add('hidden');
                 districtSelector.innerHTML = districtHolderTemplate();
+                startBtn.disabled = true;
             } else {
                 // If we select a level, enable the inputs
                 stateInput.disabled = false;
@@ -159,7 +164,7 @@ export function load() {
                     // Since a position has been selected we can get the districts and enable the selector,
                     // if we need to.
                     localStorage.removeItem(districtKey);
-                    checkIfDistricts(this.id, districtRow, positionInputRow);
+                    checkIfDistricts(this.id, districtRow, positionInputRow, startBtn);
                 }
             }
             radioSelector(this);
@@ -285,16 +290,18 @@ function districtSelection(level, stateInput, placeInput, positionSelector) {
     document.getElementById('js-district-selector').innerHTML = districtHolderTemplate();
 }
 
-function checkIfDistricts(identifier, districtRow, positionInputRow) {
+function checkIfDistricts(identifier, districtRow, positionInputRow, startBtn) {
     if(identifier.indexOf('Senator') > -1) {
         localStorage.setItem(positionKey, identifier);
         if (localStorage.getItem(filterKey) === "state"){
             districtRow.classList.remove('hidden');
             localStorage.setItem(levelKey, stateUpper);
             fillDistricts(stateUpper);
+            startBtn.disabled = true;
         } else {
             localStorage.setItem(levelKey, "federal");
             districtRow.classList.add('hidden');
+            startBtn.disabled = false;
         }
     } else if(identifier.indexOf("House Representative") > -1) {
         localStorage.setItem(positionKey, identifier);
@@ -302,17 +309,21 @@ function checkIfDistricts(identifier, districtRow, positionInputRow) {
         if (localStorage.getItem(filterKey) === "state"){
             localStorage.setItem(levelKey, stateLower);
             fillDistricts(stateLower);
+            startBtn.disabled = true;
         } else {
             localStorage.setItem(levelKey, "federal");
             fillDistricts("federal");
+            startBtn.disabled = true;
         }
     } else if(identifier === "Other") {
         localStorage.setItem(levelKey, localStorage.getItem(filterKey));
         positionInputRow.classList.remove('hidden');
         districtRow.classList.add('hidden');
+        startBtn.disabled = true;
     } else {
         localStorage.setItem(positionKey, identifier);
         districtRow.classList.add('hidden');
+        startBtn.disabled = false;
     }
 }
 

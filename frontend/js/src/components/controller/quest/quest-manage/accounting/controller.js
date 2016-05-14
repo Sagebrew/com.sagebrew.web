@@ -16,7 +16,7 @@ export const meta = {
     controller: "quest/quest-manage/accounting",
     match_method: "path",
     check: [
-       "^quests\/[A-Za-z0-9.@_%+-]{1,36}\/manage\/banking"
+       "^quests\/[A-Za-z0-9.@_%+-]{1,36}\/manage\/banking$"
     ]
 };
 
@@ -34,12 +34,18 @@ export function load() {
     validators.bankAccountValidator(bankAccountValidationForm);
     Stripe.setPublishableKey(settings.api.stripe);
     if(settings.profile.quest.fields_needed_human_readable !== null && settings.profile.quest.fields_needed_human_readable !== "") {
-        document.getElementById('js-fields-needed').innerHTML = String("Fields Needed: " + settings.profile.quest.fields_needed_human_readable);
+        var neededFields = settings.profile.quest.fields_needed_human_readable.split(','),
+            fieldHTML = '<h5>Fields Needed</h5><ul>';
+        for(var i = 0; i < neededFields.length; i++) {
+            fieldHTML = fieldHTML.concat("<li>", neededFields[i], "</li>");
+        }
+        fieldHTML = fieldHTML.concat("</ul>");
+        document.getElementById('js-fields-needed').innerHTML = fieldHTML;
     }
     if(settings.profile.quest.verification_due_date !== null) {
         document.getElementById('js-due-date').innerHTML = "Fields Needed By: " + moment.unix(settings.profile.quest.verification_due_date).format("dddd, MMMM Do YYYY, h:mm a");
     }
-    if(settings.profile.quest.account_verification_details !== null && settings.profile.quest.account_verification_details !== undefined && settings.profile.quest.account_verification_details !== 'undefined') {
+    if(settings.profile.quest.account_verification_details !== null && settings.profile.quest.account_verification_details !== undefined && settings.profile.quest.account_verification_details !== 'undefined' && settings.profile.quest.account_verification_details !== "None") {
         document.getElementById('js-disabled-reason').innerHTML = "Disabled: " + settings.profile.quest.account_verification_details;
     }
     if(settings.profile.quest.verification_document_needed === true && (settings.profile.quest.identification_sent === false || settings.profile.quest.identification_sent === null)){

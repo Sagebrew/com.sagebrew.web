@@ -16,7 +16,7 @@ from neomodel.exception import DoesNotExist
 
 from api.serializers import SBSerializer
 from api.utils import (gather_request_data, spawn_task, clean_url,
-                       empty_text_to_none)
+                       empty_text_to_none, smart_truncate)
 from sb_address.serializers import AddressSerializer
 from sb_address.neo_models import Address
 from sb_base.serializers import IntercomEventSerializer
@@ -98,6 +98,8 @@ class QuestSerializer(SBSerializer):
     total_donation_amount = serializers.SerializerMethodField()
     fields_needed_human_readable = serializers.SerializerMethodField()
     identification_sent = serializers.SerializerMethodField()
+    has_address = serializers.SerializerMethodField()
+    title_summary = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -347,7 +349,8 @@ class QuestSerializer(SBSerializer):
                 account = stripe.Account.retrieve(instance.stripe_id)
 
             try:
-                account.external_accounts.create(external_account=stripe_token)
+                account.external_accounts.create(
+                    external_account=stripe_token, default_for_currency=True)
             except InvalidRequestError:
                 raise serializers.ValidationError(
                     detail={"detail": "Looks like we're having server "
@@ -384,11 +387,6 @@ class QuestSerializer(SBSerializer):
             if stripe_account_type == "business":
                 stripe_account_type = 'company'
             account.legal_entity.type = stripe_account_type
-            account.legal_entity.dob = dict(
-                day=owner.date_of_birth.day,
-                month=owner.date_of_birth.month,
-                year=owner.date_of_birth.year
-            )
             street_additional = empty_text_to_none(
                 account_address.street_additional)
 
@@ -399,7 +397,10 @@ class QuestSerializer(SBSerializer):
             account.legal_entity.address.postal_code = \
                 account_address.postal_code
             account.legal_entity.address.country = "US"
-            account.save()
+            owner = Pleb.get(username=request.user.username)
+            account.legal_entity.dob.day = owner.date_of_birth.day
+            account.legal_entity.dob.month = owner.date_of_birth.month
+            account.legal_entity.dob.year = owner.date_of_birth.year
             account = account.save()
             # Default to pending to make sure customer doesn't think nothing
             # is happening on a slow update from Stripe. We can revert back
@@ -524,6 +525,19 @@ class QuestSerializer(SBSerializer):
 
     def get_identification_sent(self, obj):
         return obj.stripe_identification_sent
+
+    def get_has_address(self, obj):
+        query = 'MATCH (p:Quest {owner_username: "%s"}) ' \
+                'OPTIONAL MATCH (p)-[r:LOCATED_AT]->(b:Address) ' \
+                'RETURN r IS NOT NULL as has_address' % obj.owner_username
+        res, _ = db.cypher_query(query)
+        return res.one
+
+    def get_title_summary(self, obj):
+        if obj.title is not None:
+            if len(obj.title) > 20:
+                return smart_truncate(obj.title, 20)
+        return obj.title
 
 
 class EditorSerializer(serializers.Serializer):

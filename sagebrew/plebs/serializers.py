@@ -27,7 +27,8 @@ from py2neo.cypher.error.schema import ConstraintViolation
 from neomodel import db, DoesNotExist
 
 from api.serializers import SBSerializer
-from api.utils import spawn_task, gather_request_data, SBUniqueValidator
+from api.utils import (smart_truncate, spawn_task,
+                       gather_request_data, SBUniqueValidator)
 from sb_address.serializers import AddressSerializer, AddressExportSerializer
 from sb_base.serializers import (IntercomMessageSerializer,
                                  IntercomEventSerializer)
@@ -326,6 +327,7 @@ class PlebSerializerNeo(SBSerializer):
     is_following = serializers.SerializerMethodField()
     quest = serializers.SerializerMethodField()
     has_address = serializers.SerializerMethodField()
+    name_summary = serializers.SerializerMethodField()
 
     def create(self, validated_data):
         request, _, _, _, _ = gather_request_data(self.context)
@@ -549,6 +551,13 @@ class PlebSerializerNeo(SBSerializer):
         res, _ = db.cypher_query(query)
 
         return res.one
+
+    def get_name_summary(self, obj):
+        full_name = "%s %s" % (obj.first_name, obj.last_name)
+        if full_name is not None:
+            if len(full_name) > 20:
+                return smart_truncate(full_name, 20)
+        return full_name
 
 
 class FriendRequestSerializer(SBSerializer):

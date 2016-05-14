@@ -32,14 +32,11 @@
                 {% else %}
                     <span class="label label-success js-verified">Verification: Completed</span>
                 {% endif %}
-                {% if quest.fields_needed_human_readable and quest.account_verified != "verified" %}
-                    <span class="label label-warning" id="js-fields-needed">Fields Needed: {{ quest.fields_needed_human_readable }}</span>
-                {% endif %}
                 <span class="label label-warning" id="js-due-date"></span>
                 <span class="label label-warning" id="js-identification-warning"></span>
                 <span class="label label-alert" id="js-disabled-reason"></span>
+                <div id="js-fields-needed"></div>
             </div>
-
             {% include "accounting_form.html" %}
 
             <div class="row">

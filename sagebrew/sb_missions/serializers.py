@@ -52,7 +52,6 @@ class MissionSerializer(SBSerializer):
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
     focused_on = serializers.SerializerMethodField()
-    rendered_epic = serializers.SerializerMethodField()
     is_editor = serializers.SerializerMethodField()
     is_moderator = serializers.SerializerMethodField()
     has_endorsed_quest = serializers.SerializerMethodField()
@@ -321,9 +320,6 @@ class MissionSerializer(SBSerializer):
                        kwargs={'object_uuid': obj.object_uuid,
                                'slug': slugify(obj.get_mission_title())},
                        request=self.context.get('request', None))
-
-    def get_rendered_epic(self, obj):
-        return render_content(obj.epic, obj.object_uuid)
 
     def get_location(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)

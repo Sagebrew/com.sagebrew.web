@@ -157,6 +157,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
             else:
                 tag_obj = Tag.inflate(res.one)
                 question.tags.connect(tag_obj)
+
         spawn_task(task_func=update_tags, task_param={"tags": tags})
         if validated_data.get('external_location_id', None) is not None:
             spawn_task(task_func=create_location_tree, task_param={

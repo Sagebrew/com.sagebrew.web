@@ -55,7 +55,6 @@ export function init () {
                     data.results[i].html = newsTemplate(data.results[i]);
                 } else if (data.results[i].type === "mission") {
                     data.results[i].title = missions.determineTitle(data.results[i]);
-                    data.results[i].rendered_epic = Autolinker.link(data.results[i].rendered_epic);
                     // TODO this should probably be done in the backend and saved off since it's just repeated all the time
                     if (data.results[i].focus_on_type === "position"){
                         if(data.results[i].quest.title !== "" && data.results[i].quest.title !== null){

@@ -500,6 +500,7 @@ QUEST_ABOUT_TITLE = "Quest About"
 MISSION_SETUP_TITLE = "Mission Setup"
 EPIC_TITLE = "Create Epic"
 MISSION_WALLPAPER_TITLE = "Mission Wallpaper"
+SUBMIT_FOR_REVIEW = "Submit For Review"
 ONBOARDING_TASKS = [
     {
         "title": MISSION_SETUP_TITLE,
@@ -530,12 +531,22 @@ ONBOARDING_TASKS = [
         'type': 'mission'
     },
     {
+        "title": SUBMIT_FOR_REVIEW,
+        "completed_title": "Review Completed",
+        "content": "Take the final step needed to share your mission "
+                   "with the world.",
+        "icon": "fa fa-star",
+        "priority": 4,
+        "url": "%s/missions/%s/%s/",
+        'type': 'mission'
+    },
+    {
         "title": MISSION_WALLPAPER_TITLE,
         "completed_title": "Mission Wallpaper Set",
         "content": "Replace the default image "
                    "with one that reflects your Mission.",
         "icon": "fa fa-picture-o",
-        "priority": 4,
+        "priority": 5,
         "url": "%s/missions/%s/%s/manage/general/#wallpaper",
         'type': 'mission'
     },
@@ -544,7 +555,7 @@ ONBOARDING_TASKS = [
         "completed_title": "Summary Created",
         "content": "Attract users at a glance by summarizing your Mission",
         "icon": "fa fa-font",
-        "priority": 5,
+        "priority": 6,
         "url": "%s/missions/%s/%s/manage/general/#about",
         'type': 'mission'
     },
@@ -554,7 +565,7 @@ ONBOARDING_TASKS = [
         "content": "Replace the default image with one "
                    "that reflects yourself or your organization.",
         "icon": "fa fa-picture-o",
-        "priority": 6,
+        "priority": 7,
         "url": "%s/quests/%s/manage/general/#wallpaper",
         'type': 'quest'
     },
@@ -564,7 +575,7 @@ ONBOARDING_TASKS = [
         "content": "Build contributor confidence by describing yourself "
                    "or your organization.",
         "icon": "fa fa-font",
-        "priority": 7,
+        "priority": 8,
         "url": "%s/quests/%s/manage/general/#about",
         'type': 'quest'
     }

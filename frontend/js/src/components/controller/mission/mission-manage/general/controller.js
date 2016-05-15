@@ -22,7 +22,6 @@ export function init() {
  * Load
  */
 export function load() {
-    require('drmonty-garlicjs');
     var $app = $(".app-sb"),
         missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         socialForm = $("#socialForm"),
@@ -36,7 +35,6 @@ export function load() {
         $previewContainer = $('#js-image-preview'),
         $saveProfilePicButton = $("#js-submit-profile-picture");
     validators.missionManageValidator(socialForm, aboutCharLimit);
-    socialForm.garlic();
     helpers.characterCountRemaining(aboutCharLimit, $about, $remaining);
     // Handle title not being present in the case of a mission not being focused on a position
     if ($title.length) {

@@ -1,7 +1,7 @@
 var request = require('api').request,
     validators = require('common/validators'),
     helpers = require('common/helpers'),
-    mediumEditor = require('medium-editor');
+    mediumEditor = require('common/mediumeditorhelper').createMediumEditor;
 
 
 export const meta = {
@@ -27,33 +27,7 @@ export function init() {
 export function load() {
     var updateId = helpers.args(5),
         $secondnav = $(".navbar-secondary"),
-        autolist = new AutoList(),
-        editor = new mediumEditor(".editable", {
-            buttonLabels: 'fontawesome',
-            autoLink: true,
-            toolbar: {
-                buttons: ['bold', 'italic', 'underline', 'anchor', 'h2',
-                    'h3', 'justifyLeft', 'justifyCenter', 'justifyRight', 'quote']
-            },
-            extensions: {
-                'autolist': autolist
-            }
-        });
-    $(".editable").mediumInsert({
-        editor: editor,
-        addons: {
-            images: {
-                fileUploadOptions: {
-                    url: "/v1/upload/?editor=true",
-                    acceptFileTypes: /(.|\/)(gif|jpe?g|png)$/i,
-                    paramName: "file_object"
-                }
-            },
-            embeds: {
-                oembedProxy: null
-            }
-        }
-    });
+        editor = mediumEditor(".editable", "Type your Update context here");
     validators.editUpdateValidator($('updateForm'));
     $secondnav.on('click', '#submit', function(event) {
         event.preventDefault();

@@ -14,6 +14,7 @@ def spawn_notifications(sb_object, from_pleb, to_plebs, notification_id, url,
     the object, from_pleb and a to_pleb. To pleb can be a list of people or
     just a singular pleb and will create a notification about the object
 
+    :param url:
     :param sb_object:
     :param from_pleb:
     :param to_plebs:

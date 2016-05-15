@@ -1,4 +1,3 @@
-# Why are some things marked as duplicate? #
 If your question has been marked as a duplicate it is because the 
 same Question (or one very similar that is aimed at finding a Solution to 
 the same issue) has already been asked and is in the midst of a discussion. 

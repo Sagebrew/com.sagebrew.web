@@ -1,3 +1,4 @@
+/* global Intercom*/
 var request = require('api').request;
 
 export const meta = {
@@ -25,6 +26,7 @@ export function load() {
             event.preventDefault();
             var greyOut = document.getElementById('sb-greyout-page');
             greyOut.classList.remove('sb_hidden');
+            Intercom('trackEvent', 'resend-verification-email');
             request.post({url: "/v1/me/resend_verification/"})
                 .done(function() {
                     greyOut.classList.add('sb_hidden');

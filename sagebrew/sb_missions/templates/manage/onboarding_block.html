@@ -1,0 +1,119 @@
+{% if onboarding_top_3 %}
+    <div class="block" id="onboarding">
+        <div class="block-title">
+            Generate more contributions by setting up the basics
+            <span class="pull-right padding-right-20">
+                <a href="#" id="js-close-onboarding">
+                    <i class="fa fa-times" aria-hidden="true"></i></a>
+            </span>
+        </div>
+        <div class="row">
+            <div class="col-xs-12 col-md-4 col-lg-3">
+                <div class="small-block padding-top-25 onboarding-status">
+                    <div class="c100 p{{ onboarding_done }} green">
+                        <span>{{ onboarding_done }}%</span>
+                        <div class="slice">
+                            <div class="bar"></div>
+                            <div class="fill"></div>
+                        </div>
+                    </div>
+                    <p class="no-margin-bottom">
+                        {% if onboarding_done == 100 %}
+                            Way to rock out the basics!
+                        {% else %}
+                            Hope you're having a great day {{ quest.first_name }},
+                            let's get your Mission rocking.
+                        {% endif %}
+                    </p>
+                    <small><a id="js-onboarding-show-all"
+                              href="#">show all tasks</a></small>
+
+                </div>
+            </div>
+            {% for task in onboarding_top_3 %}
+                <div class="col-xs-12 col-md-4 col-lg-3">
+                    <div class="small-block">
+                        <div class="js-hover-overlay-activate">
+                            <div class="block no-margin-bottom">
+                                <div class="image-wrapper font-image">
+                                    {% if task.completed %}
+                                        <i class="fa fa-check-circle"
+                                           style="color: #397a69;"
+                                           id="{{ task.id }}"
+                                           aria-hidden="true">
+                                        </i>
+                                    {% else %}
+                                        <i class="{{ task.icon }}"
+                                           id="{{ task.id }}"
+                                           aria-hidden="true">
+                                        </i>
+                                    {% endif %}
+                                </div>
+                                <div class="block-title center-title no-underline
+                                            centered-content micro-title">
+                                    {% if task.completed %}
+                                        {{ task.completed_title }}
+                                    {% else %}
+                                        {{ task.title }}
+                                    {% endif %}
+                                </div>
+                                <div class="sb-overlay">
+                                    <div class="sb-overlay-text">
+                                        <div class="block-content">
+                                            <a href="{{ task.url }}">
+                                                {{ task.content }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div class="sb_hidden" id="js-all-tasks">
+                {% for task in onboarding_rest %}
+                    <div class="col-xs-12 col-md-4 col-lg-3">
+                        <div class="small-block">
+                            <div class="js-hover-overlay-activate">
+                                <div class="block no-margin-bottom">
+                                    <div class="image-wrapper font-image">
+                                        {% if task.completed %}
+                                            <i class="fa fa-check-circle"
+                                               id="{{ task.id }}"
+                                               style="color: #397a69;"
+                                               aria-hidden="true">
+                                            </i>
+                                        {% else %}
+                                            <i class="{{ task.icon }}"
+                                               id="{{ task.id }}"
+                                               aria-hidden="true">
+                                            </i>
+                                        {% endif %}
+                                    </div>
+                                    <div class="block-title center-title no-underline
+                                                centered-content micro-title">
+                                        {% if task.completed %}
+                                            {{ task.completed_title }}
+                                        {% else %}
+                                            {{ task.title }}
+                                        {% endif %}
+                                    </div>
+                                    <div class="sb-overlay">
+                                        <div class="sb-overlay-text">
+                                            <div class="block-content">
+                                                <a href="{{ task.url }}">
+                                                    {{ task.content }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endif %}

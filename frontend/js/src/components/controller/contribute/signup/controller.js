@@ -1,7 +1,9 @@
+/* global $ */
 var requests = require('api').request,
     helpers = require('common/helpers'),
-    settings = require('settings').settings,
     validators = require('common/validators'),
+    addresses = require('common/addresses'),
+    settings = require('settings').settings,
     moment = require('moment');
 
 export const meta = {
@@ -26,137 +28,50 @@ export function init() {
  * Load
  */
 export function load() {
-    var latitudeKey = "addressLatitude",
-        longitudeKey = "addressLongitude",
-        countryKey = "addressCountry",
-        congressionalKey = "addressCongressionalDistrict",
-        validKey = "addressValid",
-        originalKey = "addressOriginal",
-        contributionType = helpers.args(3),
-        $app = $(".app-sb"),
-        donateToID = helpers.args(1),
-        missionSlug = helpers.args(2),
+    var $app = $(".app-sb"),
         accountForm = document.getElementById('account-info'),
         addressForm = document.getElementById('address'),
-        addressValidationForm = $("#address"),
-        continueBtn = document.getElementById('js-continue-btn');
+        accountValidationForm = $(accountForm),
+        campaignFinanceValidationForm,
+        campaignFinanceForm = document.getElementById('campaign-finance');
     $(':checkbox').radiocheck();
-    validators.accountValidator($("#account-info"));
-    validators.addressValidator(addressValidationForm);
+    if(campaignFinanceForm !== undefined && campaignFinanceForm !== null) {
+        campaignFinanceValidationForm = $(campaignFinanceForm);
+        validators.campaignFinanceValidator(campaignFinanceValidationForm);
+    }
+    validators.accountValidator(accountValidationForm);
+    var addressValidationForm = addresses.setupAddress(validateAddressCallback);
     $app
-        .on('keyup', 'input', function () {
-            continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm]);
-        })
         .on('click', '#js-continue-btn', function (event) {
             event.preventDefault();
-            document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
-            var accountData = helpers.getSuccessFormData(accountForm);
-            var addressData = helpers.getSuccessFormData(addressForm);
-
-            // Add the additional address fields we get dynamically from smarty
-            // streets
-            var verify = localStorage.getItem(validKey),
-                validated;
-            validated = verify === "valid";
-            addressData.validated = validated;
-            addressData.latitude = localStorage.getItem(latitudeKey);
-            addressData.longitude = localStorage.getItem(longitudeKey);
-            addressData.country = localStorage.getItem(countryKey);
-            addressData.congressional_district = localStorage.getItem(congressionalKey);
-
-            // If employment and occupation info is available add it to the account info
-            var campaignFinanceForm = document.getElementById('campaign-finance');
-            if(campaignFinanceForm !== undefined && campaignFinanceForm !== null) {
-                var employerName = document.getElementById('employer-name').value,
-                    occupationName = document.getElementById('occupation-name').value,
-                    retired = document.getElementById('retired-or-not-employed').checked;
-                if (retired === true) {
-                    accountData.employer_name = "N/A";
-                    accountData.occupation_name = "Retired or Not Employed";
-                } else {
-                    accountData.employer_name = employerName;
-                    accountData.occupation_name = occupationName;
-                }
+            completeRegistration(addressValidationForm, addressForm, 
+                accountValidationForm, accountForm, campaignFinanceValidationForm);
+        }).on('keypress', '#account-info input', function(event) {
+            if (event.which === 13 || event.which === 10) {
+                completeRegistration(addressValidationForm, addressForm, 
+                    accountValidationForm, accountForm, campaignFinanceValidationForm);
+                return false; // handles event.preventDefault(), event.stopPropagation() and returnValue for IE8 and earlier
             }
+        }).on('keypress', '#address input', function(event) {
+            if (event.which === 13 || event.which === 10) {
+                completeRegistration(addressValidationForm, addressForm,
+                    accountValidationForm, accountForm, campaignFinanceValidationForm);
+                return false;
+            }
+        }).on('keypress', '#campaign-finance input', function(event) {
+            if (event.which === 13 || event.which === 10) {
+                completeRegistration(addressValidationForm, addressForm,
+                    accountValidationForm, accountForm, campaignFinanceValidationForm);
+                return false;
+            }
+        }).on('click', '#retired-or-not-employed', function () {
+            if(campaignFinanceValidationForm !== null && campaignFinanceValidationForm !== undefined) {
+                campaignFinanceValidationForm.formValidation('revalidateField', 'campaignFinanceForm');
+                campaignFinanceValidationForm.formValidation('revalidateField', 'onlyOneSelector');
 
-            // The backend doesn't care about the user's password matching so
-            // delete the second password input we use to help ensure the user
-            // doesn't put int a password they don't mean to.
-            delete accountData.password2;
-            accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
-            requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
-                .done(function () {
-                    requests.post({url: "/v1/addresses/", data: JSON.stringify(addressData)})
-                        .done(function () {
-                            if(contributionType === "volunteer") {
-                                window.location.href = "/missions/" + donateToID + "/" +
-                                    missionSlug + "/" + contributionType + "/option/";
-                            } else if (contributionType === "endorse") {
-                                window.location.href = "/missions/" + donateToID + "/" +
-                                    missionSlug + "/" + contributionType + "/";
-                            } else {
-                                window.location.href = "/missions/" + donateToID + "/" +
-                                    missionSlug + "/donate/payment/";
-                            }
-                        });
-                });
+            }
         });
-    var liveaddress = $.LiveAddress({
-        key: settings.api.liveaddress,
-        addresses: [
-            {
-                street: "#street",
-                street2: "#street-additional",
-                city: "#city",
-                state: "#state",
-                zipcode: "#postal-code"
-            }
-        ]
-    });
-    liveaddress.activate();
-    liveaddress.on("AddressWasValid", function(event, data, previousHandler){
-        if (data.response.raw[0].metadata.congressional_district === "AL") {
-            localStorage.setItem(congressionalKey, 1);
-        } else {
-            localStorage.setItem(congressionalKey, data.response.raw[0].metadata.congressional_district);
-        }
-        localStorage.setItem(validKey, "valid");
-        localStorage.setItem(latitudeKey, data.response.raw[0].metadata.latitude);
-        localStorage.setItem(longitudeKey, data.response.raw[0].metadata.longitude);
-        localStorage.setItem(countryKey, data.response.raw[0].metadata.county_name);
-        previousHandler(event, data);
-        // Revalidate the form so that we get has-success classess added to all
-        // the valid fields. This way we can use verifyContinue properly
-        addressValidationForm.formValidation('revalidateField', 'street');
-        addressValidationForm.formValidation('revalidateField', 'streetAdditional');
-        addressValidationForm.formValidation('revalidateField', 'city');
-        addressValidationForm.formValidation('revalidateField', 'state');
-        addressValidationForm.formValidation('revalidateField', 'postalCode');
-        // If the street-additional field is blank then replace it with an empty
-        // space so that we don't have green placeholder text in the field.
-        // TODO we may want to spend some more time on rectifying this with css
-        // rather than this hack (change the placeholder text back to grey within
-        // has-success class.
-        if(document.getElementById('street-additional').value === ""){
-            document.getElementById('street-additional').value = " ";
-        }
-        continueBtn.disabled = !helpers.verifyContinue([accountForm, addressForm]);
-    });
-    liveaddress.on("AddressWasAmbiguous", function(event, data, previousHandler){
-        localStorage.setItem(validKey, "ambiguous");
-        previousHandler(event, data);
-    });
-    liveaddress.on("AddressWasInvalid", function(event, data, previousHandler){
-        localStorage.setItem(validKey, "invalid");
-        previousHandler(event, data);
-    });
-    liveaddress.on("OriginalInputSelected", function(event, data, previousHandler){
-        var valid = localStorage.getItem(validKey);
-        if (valid === "invalid") {
-            localStorage.setItem(originalKey, true);
-        }
-        previousHandler(event, data);
-    });
+
     $('#birthday').keyup(function (e) {
         helpers.birthdayInputManager(this, e);
     });
@@ -168,4 +83,73 @@ export function load() {
 export function postload() {
     //
     // Intercom Tracking
+}
+
+
+function completeRegistration(addressValidationForm, addressForm,
+                              accountValidationForm, accountForm,
+                              campaignFinanceValidationForm) {
+    addressValidationForm.data('formValidation').validate();
+    accountValidationForm.data('formValidation').validate();
+    // Do this here so all the fields necessary pop up immediately and you don't have
+    // to successfully fill out address and profile before seeing these warnings.
+    if(campaignFinanceValidationForm !== null && campaignFinanceValidationForm !== undefined) {
+        campaignFinanceValidationForm.data('formValidation').validate();
+    }
+    if(addressValidationForm.data('formValidation').isValid() === true &&
+            accountValidationForm.data('formValidation').isValid()){
+        document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+        var accountData = helpers.getSuccessFormData(accountForm);
+
+        // If employment and occupation info is available add it to the account info
+        var campaignFinanceForm = document.getElementById('campaign-finance');
+        if(campaignFinanceForm !== undefined && campaignFinanceForm !== null) {
+            if(campaignFinanceValidationForm.data('formValidation').isValid() === true){
+                var employerName = document.getElementById('employer-name').value,
+                    occupationName = document.getElementById('occupation-name').value,
+                    retired = document.getElementById('retired-or-not-employed').checked;
+                if (retired === true) {
+                    accountData.employer_name = "N/A";
+                    accountData.occupation_name = "Retired or Not Employed";
+                } else {
+                    accountData.employer_name = employerName;
+                    accountData.occupation_name = occupationName;
+                }
+            } else {
+                document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+                return false;
+            }
+        }
+
+        // The backend doesn't care about the user's password matching so
+        // delete the second password input we use to help ensure the user
+        // doesn't put int a password they don't mean to.
+        delete accountData.password2;
+        accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
+        requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
+            .done(function () {
+                addresses.submitAddress(addressForm, submitAddressCallback,
+                    "/v1/profiles/" + settings.profile.username + "/");
+            });
+        }
+}
+
+
+function validateAddressCallback() {
+}
+
+function submitAddressCallback() {
+    var contributionType = helpers.args(3),
+        missionSlug = helpers.args(2),
+        donateToID = helpers.args(1);
+    if(contributionType === "volunteer") {
+        window.location.href = "/missions/" + donateToID + "/" +
+            missionSlug + "/" + contributionType + "/option/";
+    } else if (contributionType === "endorse") {
+        window.location.href = "/missions/" + donateToID + "/" +
+            missionSlug + "/" + contributionType + "/";
+    } else {
+        window.location.href = "/missions/" + donateToID + "/" +
+            missionSlug + "/donate/payment/";
+    }
 }

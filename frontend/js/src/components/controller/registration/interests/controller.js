@@ -1,5 +1,6 @@
 var request = require('api').request,
-    helpers = require('common/helpers');
+    helpers = require('common/helpers'),
+    convoTopicsTemplate = require('common/templates/select_all.hbs');
 
 export const meta = {
     controller: "registration/interests",
@@ -21,16 +22,35 @@ export function init() {
  * Load
  */
 export function load() {
-    var greyPage = document.getElementById('sb-greyout-page');
+    var greyPage = document.getElementById('sb-greyout-page'),
+        $selectAllList = $('#js-option-list');
     helpers.selectAllFields('#select_all_checkboxes');
 
-    $("[data-toggle='tooltip']").tooltip('hide');
+    $("body").tooltip({ selector: '[data-toggle=tooltip]' });
 
     $(".tooltip").addClass(function () {
         if ($(this).prev().attr("data-tooltip-style")) {
             return "tooltip-" + $(this).prev().attr("data-tooltip-style");
         }
     });
+    request.optionsMethod({url:"/v1/me/add_topics_of_interest/"})
+        .done(function (data) {
+            document.getElementById("select-loader").remove();
+            $selectAllList.append(convoTopicsTemplate({
+                options: data.actions.POST.interests.choices,
+                select_all_statement: "I like a bit of everything"}));
+            helpers.selectAllFields('#js-select-all');
+            /**
+            request.get({url:"/v1/me/add_topics_of_interest/"})
+                .done(function (data) {
+                    if(data.interests !== null) {
+                        for(var i = 0; i < data.interests.length; i++) {
+                            document.getElementById(data.interests[i]).checked = true;
+                        }
+                    }
+                });
+             **/
+        });
 
     $(".app-sb")
         .on('click', '#volunteering', function () {
@@ -78,7 +98,7 @@ export function load() {
             $.when(addParties, addInterests).done(function () {
                 request.post({
                     url: "/v1/me/add_topics_of_interest/",
-                    data: JSON.stringify({interests: helpers.getCheckedBoxes('interests')})
+                    data: JSON.stringify({interests: helpers.getCheckedBoxes('options')})
                 }).done(function () {
                     greyPage.classList.add('sb_hidden');
                     window.location.href = "/registration/profile_picture/";

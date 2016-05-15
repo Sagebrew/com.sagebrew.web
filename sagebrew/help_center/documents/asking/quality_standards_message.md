@@ -1,4 +1,3 @@
-# Why do I see a message that says my Question does not meet quality standards? #
 You have received this message because a question that you posted has been 
 flagged as not meeting the Sagebrew quality standards. In order to promote 
 logical, fact based conversation our community holds users up to a high standard of 

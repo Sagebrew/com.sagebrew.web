@@ -76,7 +76,6 @@ STATICFILES_DIRS = (
     '%s/sb_posts/static/' % PROJECT_DIR,
     '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_quests/static/' % PROJECT_DIR,
-    '%s/sb_registration/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
 )
 
@@ -121,7 +120,8 @@ TEMPLATES = [{
         '%s/help_center/templates/' % PROJECT_DIR,
         '%s/plebs/templates/' % PROJECT_DIR,
         '%s/sagebrew/templates/' % PROJECT_DIR,
-        '%s/sb_solutions/templates/' % PROJECT_DIR,
+        '%s/sb_accounting/templates/' % PROJECT_DIR,
+        '%s/sb_address/templates/' % PROJECT_DIR,
         '%s/sb_base/templates/' % PROJECT_DIR,
         '%s/sb_contributions/templates/' % PROJECT_DIR,
         '%s/sb_council/templates' % PROJECT_DIR,
@@ -135,6 +135,7 @@ TEMPLATES = [{
         '%s/sb_registration/templates/' % PROJECT_DIR,
         '%s/sb_requirements/templates/' % PROJECT_DIR,
         '%s/sb_search/templates/' % PROJECT_DIR,
+        '%s/sb_solutions/templates/' % PROJECT_DIR,
         '%s/sb_tags/templates/' % PROJECT_DIR,
         '%s/sb_updates/templates/' % PROJECT_DIR,
         '%s/sb_volunteers/templates/' % PROJECT_DIR,
@@ -190,6 +191,7 @@ INSTALLED_APPS = (
     "opbeat.contrib.django",
     'sb_solutions',
     'sb_accounting',
+    'sb_address',
     'sb_badges',
     'sb_base',
     'sb_comments',
@@ -284,6 +286,7 @@ STRIPE_SECRET_KEY = environ.get("STRIPE_SECRET_KEY", '')
 STRIPE_TRANSACTION_PERCENT = .029
 STRIPE_PAID_ACCOUNT_FEE = .021
 STRIPE_FREE_ACCOUNT_FEE = .041
+STRIPE_API_VERSION = '2016-03-07'
 MASKED_NAME = environ.get("MASKED_NAME", "")
 OAUTH_CLIENT_ID = environ.get("OAUTH_CLIENT_ID", '')
 OAUTH_CLIENT_SECRET = environ.get("OAUTH_CLIENT_SECRET", "")
@@ -448,8 +451,8 @@ STRIPE_FIELDS_NEEDED = {
     "legal_entity.address.line1": "Street Address",
     "legal_entity.address.postal_code": "ZIP Code",
     "legal_entity.address.state": "State",
-    "legal_entity.business_name": "Business Name",
-    "legal_entity.business_tax_id": "Business EIN",
+    "legal_entity.business_name": "Name of Entity Managing Bank Account",
+    "legal_entity.business_tax_id": "EIN of Managing Bank Account",
     "legal_entity.dob.day": "Birth Day",
     "legal_entity.dob.month": "Birth Month",
     "legal_entity.dob.year": "Birth Year",
@@ -485,6 +488,87 @@ PRO_QUEST_END_DATE = datetime(2016, 6, 16)
 PROMOTION_KEYS = ["8UN96FNPP8ntv8JeaOyP", ]
 
 CORS_ORIGIN_ALLOW_ALL = True
+DEFAULT_WALLPAPER = 'images/wallpaper_capitol_2.jpg'
+# Titles for onboarding since they must be indexes and they are used in
+# multiple locations to determine what to set to completed.
+# If we change these we'll need to run a query to update all the existing
+# onboarding tasks with that title.
+MISSION_ABOUT_TITLE = "Mission About"
+QUEST_WALLPAPER_TITLE = "Quest Wallpaper"
+BANK_SETUP_TITLE = "Banking Setup"
+QUEST_ABOUT_TITLE = "Quest About"
+MISSION_SETUP_TITLE = "Mission Setup"
+EPIC_TITLE = "Create Epic"
+MISSION_WALLPAPER_TITLE = "Mission Wallpaper"
+ONBOARDING_TASKS = [
+    {
+        "title": MISSION_SETUP_TITLE,
+        "completed_title": "Mission Created",
+        "content": "Define your mission's level, name, and location.",
+        "icon": "fa fa-check-circle",
+        "priority": 1,
+        "url": "%s/missions/%s/%s/manage/general/",
+        'type': 'mission',
+        'completed': True
+    },
+    {
+        "title": BANK_SETUP_TITLE,
+        "completed_title": "Bank Confirmed",
+        "content": "Allow contributors to donate to you.",
+        "icon": "fa fa-university",
+        "priority": 2,
+        "url": "%s/quests/%s/manage/banking/#bank",
+        'type': 'quest'
+    },
+    {
+        "title": EPIC_TITLE,
+        "completed_title": "Epic Published",
+        "content": "Share your platform, goals, and mission with the world.",
+        "icon": "fa fa-font",
+        "priority": 3,
+        "url": "%s/missions/%s/%s/manage/epic/",
+        'type': 'mission'
+    },
+    {
+        "title": MISSION_WALLPAPER_TITLE,
+        "completed_title": "Mission Wallpaper Set",
+        "content": "Replace the default image "
+                   "with one that reflects your Mission.",
+        "icon": "fa fa-picture-o",
+        "priority": 4,
+        "url": "%s/missions/%s/%s/manage/general/#wallpaper",
+        'type': 'mission'
+    },
+    {
+        "title": MISSION_ABOUT_TITLE,
+        "completed_title": "Summary Created",
+        "content": "Attract users at a glance by summarizing your Mission",
+        "icon": "fa fa-font",
+        "priority": 5,
+        "url": "%s/missions/%s/%s/manage/general/#about",
+        'type': 'mission'
+    },
+    {
+        "title": QUEST_WALLPAPER_TITLE,
+        "completed_title": "Quest Wallpaper Set",
+        "content": "Replace the default image with one "
+                   "that reflects yourself or your organization.",
+        "icon": "fa fa-picture-o",
+        "priority": 6,
+        "url": "%s/quests/%s/manage/general/#wallpaper",
+        'type': 'quest'
+    },
+    {
+        "title": QUEST_ABOUT_TITLE,
+        "completed_title": "Quest Summarized",
+        "content": "Build contributor confidence by describing yourself "
+                   "or your organization.",
+        "icon": "fa fa-font",
+        "priority": 7,
+        "url": "%s/quests/%s/manage/general/#about",
+        'type': 'quest'
+    }
+]
 
 VOLUNTEER_ACTIVITIES = [
     ("get_out_the_vote", "Get Out The Vote"),
@@ -498,7 +582,8 @@ VOLUNTEER_ACTIVITIES = [
     ("host_a_meeting", "Host A Meeting"),
     ("host_a_fundraiser", "Host A Fundraiser"),
     ("host_a_house_party", "Host A House Party"),
-    ("attend_a_house_party", "Attend A House Party")
+    ("attend_a_house_party", "Attend A House Party"),
+    ("other", "Other")
 ]
 
 

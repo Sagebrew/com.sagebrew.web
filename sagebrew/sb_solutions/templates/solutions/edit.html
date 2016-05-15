@@ -6,7 +6,7 @@
 
 {% block navigation %}
     {{ block.super }}
-    {% include "navigation/navbar_secondary.html" with nav_title="Edit Solution" %}
+    {% include "navigation/navbar_secondary.html" with back_url=url nav_title="Edit Solution" %}
 {% endblock %}
 
 {% block hero %}
@@ -15,6 +15,7 @@
             <form id="solutionForm">
                 <textarea id="js-solution-markdown"
                           class="font-style-normal editable sb_markdown">
+
                 </textarea>
                 <div id="validation-errors"></div>
             </form>

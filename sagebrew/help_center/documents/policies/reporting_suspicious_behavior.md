@@ -1,4 +1,3 @@
-# What if I see someone doing something bad? #
 Community moderation is an essential part of Sagebrew. If you see someone 
 communicating in an inappropriate or offensive manner, you can open a [Flag][1]
 by clicking on the <i class="fa fa-flag"></i> in the dialogue box containing the

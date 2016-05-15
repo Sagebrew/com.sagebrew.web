@@ -9,16 +9,9 @@
                     <span class="sr-only">Toggle navigation</span>
                     <i class="fa fa-bars"></i>
                 </button>
-
-                {% if request_profile.completed_profile_info or user.is_anonymous %}
-                    <a href="{% url 'root_profile_page' %}" class="navbar-brand">
-                        <img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/>Sagebrew
-                    </a>
-                {% else %}
-                    <span class="navbar-brand">
-                        <img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/>Sagebrew
-                    </span>
-                {% endif %}
+                <a href="{% url 'root_profile_page' %}" class="navbar-brand">
+                    <img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/>Sagebrew
+                </a>
             </div>
             <div id="navbar" class="collapse navbar-collapse">
                 {% if "registration" not in request.path %}
@@ -51,7 +44,7 @@
                     <span class="sr-only">Toggle navigation</span>
                     <i class="fa fa-bars"></i>
                 </button>
-                {% if request_profile.completed_profile_info or user.is_anonymous %}<a class="navbar-brand" href="{% url 'root_profile_page' %}">{% else %}<a class="navbar-brand" href="#">{% endif %}Sagebrew</a>
+                <a class="navbar-brand" href="{% url 'root_profile_page' %}">Sagebrew</a>
             </div>
 
             {% if user.is_authenticated %}
@@ -64,7 +57,7 @@
                         <li {% if "/help/" in request.path %}class="active"{% endif %}><a href="{% url 'help_center' %}">Help</a></li>
                         <li {% if "/settings/" in request.path %}class="active"{% endif %}><a href="{% url 'general_settings' %}">Settings</a></li>
                         {% if request_profile.quest %}
-                            <li {% if "/manage/general/" in request.path %}class="active"{% endif %}><a href="{% url "quest_manage_settings" request_profile.username %}">Quest Settings</a></li>
+                            <li {% if "/manage/general/" in request.path and "/missions/" not in request.path %}class="active"{% endif %}><a href="{% url "quest_manage_settings" request_profile.username %}">Quest Settings</a></li>
                         {% endif %}
                         <li><a href="http://shop.sagebrew.com">Shop <i class="fa fa-external-link"></i></a></li>
                         <li><a href="http://blog.sagebrew.com">Blog <i class="fa fa-external-link"></i></a></li>

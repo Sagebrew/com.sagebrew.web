@@ -13,7 +13,7 @@ from rest_framework.test import APITestCase
 
 from neomodel import db
 
-from plebs.neo_models import Address
+from sb_address.neo_models import Address
 from api.utils import calc_stripe_application_fee
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
@@ -53,10 +53,11 @@ class MissionEndpointTests(APITestCase):
             country="USA", county="Oakland",
             congressional_district=11, validated=True).save()
         self.address.encompassed_by.connect(self.d11)
-        self.address.owned_by.connect(self.pleb)
+        self.quest.address.connect(self.address)
         cache.clear()
         self.stripe = stripe
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         self.mission = Mission(owner_username=self.pleb.username,
                                title=str(uuid1()),
                                focus_name="advocacy",
@@ -777,7 +778,7 @@ class MissionEndpointTests(APITestCase):
             postal_code="48382",
             country="USA", county="Oakland",
             congressional_district=12, validated=True).save()
-        address.owned_by.connect(self.pleb2)
+        self.quest.address.connect(address)
         d12 = Location(name="12", sector="state_lower").save()
         d13 = Location(name="13", sector="state_lower").save()
         d12.encompassed_by.connect(self.michigan)
@@ -817,6 +818,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -855,6 +857,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -902,6 +905,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -932,6 +936,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -971,6 +976,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
 
         quest_token = stripe.Account.create(
             managed=True,
@@ -1003,6 +1009,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -1014,6 +1021,7 @@ class MissionEndpointTests(APITestCase):
         )
         self.pleb.stripe_default_card_id = token['id']
         self.pleb.save()
+        cache.clear()
         quest_token = stripe.Account.create(
             managed=True,
             country="US",
@@ -1045,6 +1053,7 @@ class MissionEndpointTests(APITestCase):
         url = "/v1/missions/%s/donations/" % self.mission.object_uuid
         self.client.force_authenticate(user=self.user)
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -1110,7 +1119,7 @@ class MissionEndpointTests(APITestCase):
         volunteer.mission.connect(self.mission)
         volunteer.volunteer.connect(self.pleb2)
         address = Address(city="Walled Lake", state="Michigan").save()
-        address.owned_by.connect(self.pleb2)
+        self.pleb2.address.connect(address)
         url = "/v1/missions/%s/volunteer_data/" % self.mission.object_uuid
         response = self.client.get(url, format='json')
 
@@ -1144,7 +1153,7 @@ class MissionEndpointTests(APITestCase):
                                            'Office,Table At Events,Call Voters,'
                                            'Data Entry,Host A Meeting,Host A '
                                            'Fundraiser,Host A House Party,'
-                                           'Attend A House Party\r\n')
+                                           'Attend A House Party,Other\r\n')
 
     def test_endorse(self):
         self.client.force_authenticate(user=self.user)

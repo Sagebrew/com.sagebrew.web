@@ -1,4 +1,3 @@
-# Why have I been limited to one Question per week? #
 We want all of our users at Sagebrew to assist in fostering a community in 
 which Questions are taken seriously and Solutions are thoughtfully provided. 
 We're limiting you to one Question per week to encourage thoughtful Questions 

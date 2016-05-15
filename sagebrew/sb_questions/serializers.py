@@ -1,7 +1,7 @@
-import bleach
 import pytz
 from uuid import uuid1
 from datetime import datetime
+from bs4 import BeautifulSoup
 
 from django.core.cache import cache
 from django.utils.text import slugify
@@ -137,9 +137,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
                       request=request)
         href = reverse('question-detail', kwargs={'object_uuid': uuid},
                        request=request)
-
+        soup = BeautifulSoup(validated_data['content']).get_text()
         question = Question(url=url, href=href, object_uuid=uuid,
-                            summary=smart_truncate(validated_data['content']),
+                            summary=smart_truncate(soup),
                             **validated_data).save()
         question.owned_by.connect(owner)
         for tag in tags:

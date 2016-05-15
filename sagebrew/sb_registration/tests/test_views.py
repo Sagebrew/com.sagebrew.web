@@ -1,518 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
-import datetime
-from uuid import uuid1
 from json import loads
 
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth import login, authenticate
 from django.test import TestCase, RequestFactory, Client
 from django.contrib.sessions.backends.db import SessionStore
-from django.core.management import call_command
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 
 from rest_framework.test import APIRequestFactory
 from rest_framework import status
 
-from neomodel import DoesNotExist, db
+from neomodel import db
 
-from sb_public_official.neo_models import PublicOfficial
-from sb_registration.views import (profile_information,
-                                   logout_view,
+from sb_registration.views import (logout_view,
                                    login_view, login_view_api,
-                                   email_verification, interests,
+                                   email_verification,
                                    advocacy, political_campaign,
                                    quest_signup, signup_view)
 from plebs.serializers import EmailAuthTokenGenerator
 from sb_registration.utils import create_user_util_test
-from plebs.neo_models import Pleb, Address
-
-
-class InterestsTest(TestCase):
-
-    def setUp(self):
-        query = "MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r"
-        db.cypher_query(query)
-        call_command("create_prepopulated_tags")
-        time.sleep(3)
-        self.factory = RequestFactory()
-        self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.pleb.email_verified = True
-        self.pleb.completed_profile_info = True
-        self.pleb.save()
-
-    def test_no_topics_selected(self):
-        my_dict = {"fiscal": False, "education": False, "space": False,
-                   "drugs": False, "science": False, "energy": False,
-                   "environment": False, "defense": False, "health": False,
-                   "social": False, "foreign_policy": False,
-                   "agriculture": False}
-        request = self.factory.post('/registration/interests',
-                                    data=my_dict)
-        request.user = self.user
-        response = interests(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(len(self.pleb.interests.all()), 0)
-
-    def test_one_topic_selected(self):
-        my_dict = {"fiscal": True, "education": False, "space": False,
-                   "drugs": False, "science": False, "energy": False,
-                   "environment": False, "defense": False, "health": False,
-                   "social": False, "foreign_policy": False,
-                   "agriculture": False}
-        request = self.factory.post('/registration/interests',
-                                    data=my_dict)
-        request.user = self.user
-        response = interests(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(len(self.pleb.interests.all()), 1)
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
-
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "education"}) RETURN a' % self.pleb.username
-        res, _ = db.cypher_query(query)
-        self.assertIsNone(res.one)
-
-    def test_select_all_selected(self):
-        my_dict = {"fiscal": True, "education": True, "space": True,
-                   "drugs": True, "science": True, "energy": True,
-                   "environment": True, "defense": True, "health": True,
-                   "social": True, "foreign_policy": True,
-                   "agriculture": True, 'select_all': True}
-        request = self.factory.post('/registration/interests', data=my_dict)
-        request.user = self.user
-        response = interests(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(len(self.pleb.interests.all()), 12)
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "fiscal"}) RETURN a' % self.pleb.username
-
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "education"}) RETURN a' % self.pleb.username
-
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
-
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "energy"}) RETURN a' % self.pleb.username
-
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
-
-    def test_all_topics_selected(self):
-        my_dict = {"fiscal": True, "education": True, "space": True,
-                   "drugs": True, "science": True, "energy": True,
-                   "environment": True, "defense": True, "health": True,
-                   "social": True, "foreign_policy": True,
-                   "agriculture": True}
-        request = self.factory.post('/registration/interests',
-                                    data=my_dict)
-        request.user = self.user
-        response = interests(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(len(self.pleb.interests.all()), 12)
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "social"}) RETURN a' % self.pleb.username
-
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
-
-    def test_some_topics_selected(self):
-        my_dict = {"fiscal": False, "education": True, "space": False,
-                   "drugs": True, "science": True, "energy": True,
-                   "environment": False, "defense": True, "health": False,
-                   "social": True, "foreign_policy": True,
-                   "agriculture": False}
-        request = self.factory.post('/registration/interests',
-                                    data=my_dict)
-        request.user = self.user
-        response = interests(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.assertEqual(len(self.pleb.interests.all()), 7)
-        query = 'MATCH (a:Pleb {username: "%s"})-[:INTERESTED_IN]->' \
-                '(tag:Tag {name: "drugs"}) RETURN a' % self.pleb.username
-
-        res, _ = db.cypher_query(query)
-        self.assertIsNotNone(res.one)
-
-    def test_interests_pleb_does_not_exist(self):
-        my_dict = {"fiscal": False, "education": True, "space": False,
-                   "drugs": True, "science": True, "energy": True,
-                   "environment": False, "defense": True, "health": False,
-                   "social": True, "foreign_policy": True,
-                   "agriculture": False}
-        request = self.factory.post('/registration/interests',
-                                    data=my_dict)
-        self.user.username = 'fakeusername'
-        request.user = self.user
-        response = interests(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-
-    def test_get_request(self):
-        request = self.factory.get('/registration/interests')
-        request.user = self.user
-        response = interests(request)
-
-        self.assertIn(response.status_code, [status.HTTP_200_OK,
-                                             status.HTTP_302_FOUND])
-
-
-class TestProfileInfoView(TestCase):
-
-    def setUp(self):
-        self.factory = RequestFactory()
-        self.email = "success@simulator.amazonses.com"
-        create_user_util_test(self.email)
-        self.pleb = Pleb.nodes.get(email=self.email)
-        self.user = User.objects.get(email=self.email)
-        self.pleb.email_verified = True
-        self.pleb.completed_profile_info = False
-        self.pleb.save()
-        try:
-            self.official = PublicOfficial.nodes.get(title="President")
-        except(DoesNotExist, PublicOfficial.DoesNotExist):
-            self.official = PublicOfficial(bioguideid=str(uuid1()),
-                                           title="President",
-                                           gt_id=str(uuid1())).save()
-        addresses = Address.nodes.all()
-        for address in addresses:
-            if address.owned_by.is_connected(self.pleb):
-                address.owned_by.disconnect(self.pleb)
-
-    def test_user_info_population_no_birthday(self):
-        my_dict = {'date_of_birth': [u'']}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        request.user = self.user
-        response = profile_information(request)
-
-        self.assertIn(response.status_code, [status.HTTP_200_OK,
-                                             status.HTTP_302_FOUND])
-
-    def test_profile_does_not_exist(self):
-        my_dict = {'date_of_birth': [u'']}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        temp_username = self.user.username
-        self.user.username = "hello_world"
-        self.user.save()
-        request.user = self.user
-        response = profile_information(request)
-        self.user.username = temp_username
-        self.user.save()
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-
-    def test_user_info_population_incorrect_birthday(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06"],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"],
-                   "valid": "valid",
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        request.user = self.user
-        response = profile_information(request)
-        self.assertIn(response.status_code, [200, 302])
-
-    def test_address_validation_util_invalid_no_zipcode(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "valid": "valid",
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        request.user = self.user
-        response = profile_information(request)
-        self.assertIn(response.status_code, [200, 302])
-
-    def test_address_validation_util_invalid_no_primary(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [],
-                   "high_school": [], "postal_code": ["48390"],
-                   "valid": "valid",
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        request.user = self.user
-        response = profile_information(request)
-        self.assertIn(response.status_code, [status.HTTP_200_OK,
-                                             status.HTTP_302_FOUND])
-
-    def test_address_validation_util_invalid_no_country(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"],
-                   "valid": "valid",
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        request.user = self.user
-        response = profile_information(request)
-        self.assertIn(response.status_code, [status.HTTP_200_OK,
-                                             status.HTTP_302_FOUND])
-
-    def test_address_validation_util_invalid_no_city(self):
-        my_dict = {"home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"],
-                   "valid": "valid",
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        request.user = self.user
-        response = profile_information(request)
-        self.assertIn(response.status_code, [status.HTTP_200_OK,
-                                             status.HTTP_302_FOUND])
-
-    def test_address_validation_util_valid(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"],
-                   "valid": "valid",
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        request.user = self.user
-        response = profile_information(request)
-        self.assertIn(response.status_code, [status.HTTP_200_OK,
-                                             status.HTTP_302_FOUND])
-
-    def test_profile_information_success(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"],
-                   "valid": "valid",
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        request.user = self.user
-        response = profile_information(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-
-    def test_profile_information_address_not_in_smartystreets(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["127 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"]}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        request.user = self.user
-        response = profile_information(request)
-
-        self.assertIn(response.status_code, [status.HTTP_200_OK,
-                                             status.HTTP_302_FOUND])
-
-    def test_profile_information_address_has_no_suggestions(self):
-        my_dict = {"city": ["We"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["125 Glr"],
-                   "high_school": [], "postal_code": ["45890"]}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        request.user = self.user
-        response = profile_information(request)
-
-        self.assertIn(response.status_code, [status.HTTP_200_OK,
-                                             status.HTTP_302_FOUND])
-
-    def test_profile_information_address_has_multiple_suggestions(self):
-        my_dict = {"city": ["Baltimore"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MD", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["1 rosedale"],
-                   "high_school": [], "postal_code": ["21229"]}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        request.user = self.user
-        response = profile_information(request)
-
-        self.assertIn(response.status_code, [status.HTTP_200_OK,
-                                             status.HTTP_302_FOUND])
-
-    def test_profile_information_pleb_does_not_exist(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"],
-                   "valid": "valid",
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        self.user.username = "fakeeemail"
-        request.user = self.user
-        response = profile_information(request)
-        # Redirects a non-existent user to the defined login url which at the
-        # time of this writing is /registration/signup/confirm/. This is done
-        # by the decorator returning False if the user does not exist.
-        # This is contrary to throwing a 404.
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-
-    def test_profile_information_complete_profile_info(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"],
-                   "valid": "valid",
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        self.pleb.completed_profile_info = True
-        self.pleb.save()
-        request.user = self.user
-        response = profile_information(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-        self.pleb.completed_profile_info = False
-        self.pleb.save()
-
-    def test_profile_information_underage(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": [datetime.datetime.now() -
-                                                    datetime.timedelta(
-                                                        days=12 * 365)],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"],
-                   "valid": "valid",
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-
-        request.user = self.user
-        response = profile_information(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-
-    def test_profile_information_view_already_has_address_valid(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"],
-                   "valid": "valid",
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        address = Address(address_hash=str(uuid1())).save()
-        address.owned_by.connect(self.pleb)
-        request.user = self.user
-        response = profile_information(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-
-    def test_profile_information_view_already_has_address_invalid(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"],
-                   "valid": "invalid", "original_selected": True,
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        address = Address(address_hash=str(uuid1())).save()
-        address.owned_by.connect(self.pleb)
-        request.user = self.user
-        response = profile_information(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-
-    def test_profile_information_view_invalid_address(self):
-        my_dict = {"city": ["Walled Lake"], "home_town": [],
-                   "country": ["United States"],
-                   "address_additional": [], "employer": [],
-                   "state": "MI", "date_of_birth": ["06/04/94"],
-                   "college": [], "primary_address": ["125 Glenwood Dr"],
-                   "high_school": [], "postal_code": ["48390"],
-                   "valid": "invalid", "original_selected": True,
-                   "congressional_district": 11, "longitude": -83.4965,
-                   "latitude": 42.53202}
-        request = self.factory.post('/registration/profile_information',
-                                    data=my_dict)
-        request.session = {}
-        request.user = self.user
-        response = profile_information(request)
-
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+from sb_missions.neo_models import Mission
+from sb_quests.neo_models import Quest
+from plebs.neo_models import Pleb
 
 
 class TestSignupView(TestCase):
@@ -549,7 +61,6 @@ class TestSignupView(TestCase):
         request.session = s
         login(request, user)
         request.user = user
-        self.pleb.completed_profile_info = False
         self.pleb.email_verified = True
         self.pleb.save()
         res = signup_view(request)
@@ -569,7 +80,6 @@ class TestSignupView(TestCase):
         request.session = s
         login(request, user)
         request.user = user
-        self.pleb.completed_profile_info = False
         self.pleb.email_verified = True
         self.pleb.save()
         res = signup_view(request)
@@ -588,13 +98,11 @@ class TestSignupView(TestCase):
         login(request, user)
         request.user = user
         self.pleb.email_verified = True
-        self.pleb.completed_profile_info = True
         self.pleb.save()
         res = signup_view(request)
         self.assertIn(res.status_code, [status.HTTP_200_OK,
                                         status.HTTP_302_FOUND])
         self.pleb.email_verified = False
-        self.pleb.completed_profile_info = False
         self.pleb.save()
 
 
@@ -878,6 +386,70 @@ class TestEmailVerificationView(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
 
+    def test_email_verification_mission_no_quest(self):
+        cache.clear()
+        user = authenticate(username=self.user.username,
+                            password='test_test')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        pleb = Pleb.nodes.get(email=user.email)
+        self.pleb.mission_signup = "political"
+        self.pleb.save()
+        token = self.token_gen.make_token(user, pleb)
+
+        res = email_verification(request, token)
+
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
+    def test_email_verification_mission_is_none(self):
+        cache.clear()
+        user = authenticate(username=self.user.username,
+                            password='test_test')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        pleb = Pleb.nodes.get(email=user.email)
+        self.pleb.mission_signup = None
+        self.pleb.save()
+        token = self.token_gen.make_token(user, pleb)
+
+        res = email_verification(request, token)
+
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
+    def test_email_verification_mission_with_quest(self):
+        cache.clear()
+        user = authenticate(username=self.user.username,
+                            password='test_test')
+        request = self.factory.request()
+        s = SessionStore()
+        s.save()
+        request.session = s
+        login(request, user)
+        request.user = user
+        pleb = Pleb.nodes.get(email=user.email)
+        self.pleb.mission_signup = "political"
+        self.pleb.save()
+        self.quest = Quest(
+            about='Test Bio', owner_username=self.pleb.username).save()
+        self.mission = Mission(owner_username=self.quest.owner_username,
+                               focus_on_type="position").save()
+        self.quest.owner.connect(self.pleb)
+        self.quest.moderators.connect(self.pleb)
+        self.quest.editors.connect(self.pleb)
+        token = self.token_gen.make_token(user, pleb)
+
+        res = email_verification(request, token)
+
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
     def test_email_verification_view_incorrect_token(self):
         user = authenticate(username=self.user.username,
                             password='test_test')
@@ -978,24 +550,3 @@ class TestQuestSignup(TestCase):
         request.user = self.user
         response = quest_signup(request)
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
-
-
-class TestProfilePicture(TestCase):
-
-    def setUp(self):
-        self.email = "success@simulator.amazonses.com"
-        self.client = Client()
-        self.pleb = create_user_util_test(self.email)
-        self.user = User.objects.get(email=self.email)
-        self.pleb.completed_profile_info = True
-        self.pleb.email_verified = True
-        self.pleb.save()
-        cache.set(self.pleb.username, self.pleb)
-
-    def test_profile_picture(self):
-        self.client.login(username=self.user.username, password='test_test')
-        url = reverse("profile_picture")
-        res = self.client.get(url)
-
-        self.assertIn(res.status_code, [status.HTTP_200_OK,
-                                        status.HTTP_302_FOUND])

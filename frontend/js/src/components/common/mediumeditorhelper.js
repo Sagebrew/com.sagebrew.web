@@ -9,6 +9,7 @@ export function createMediumEditor(selectorString, placeholderText) {
             buttonLabels: 'fontawesome',
             placeholder: {text: placeholderText, hideOnClick: true},
             autoLink: true,
+            targetBlank: true,
             toolbar: {
                 buttons: ['bold', 'italic', 'underline', 'anchor', 'h2',
                     'h3', 'justifyLeft', 'justifyCenter', 'justifyRight', 'quote']
@@ -29,7 +30,6 @@ export function createMediumEditor(selectorString, placeholderText) {
                     acceptFileTypes: /(.|\/)(gif|jpe?g|png)$/i,
                     paramName: "file_object"
                 },
-                deleteScript: "/v1/upload/"
             },
             embeds: {
                 oembedProxy: null

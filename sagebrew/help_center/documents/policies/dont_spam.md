@@ -1,4 +1,3 @@
-# How to not be a spammer #
 Nobody likes a spammer. But with the sheer number of 
 spammers out there, the problem may be that some people don't know exactly what 
 spamming is. Spamming is the posting of anything irrelevant to the 

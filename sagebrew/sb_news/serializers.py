@@ -105,7 +105,7 @@ class NewsArticleSerializer(VotableContentSerializer):
                 if content_closeness > 0.65:
                     raise ValidationError("Too close to another article")
                 summary_closeness = SequenceMatcher(
-                    a=row[0]['summary'], b=summary)
+                    a=row[0]['summary'], b=summary).ratio()
                 if summary_closeness > 0.8:  # pragma: no cover
                     # Not requiring coverage here since summary is auto
                     # generated and in most instances content will be flagged

@@ -104,14 +104,6 @@ export function accountValidator(formVal) {
 export function updateAccountValidator(formVal) {
     formVal.formValidation({
         framework: 'bootstrap',
-        /*
-        Don't use icons anywhere else but if we want to add this.
-        icon: {
-            valid: 'fa fa-check',
-            invalid: 'fa fa-times',
-            validating: 'fa fa-refresh'
-        },
-        */
         fields: {
             firstName: {
                 selector: '#first-name',
@@ -119,6 +111,9 @@ export function updateAccountValidator(formVal) {
                     stringLength: {
                         max: 30,
                         message: "First Name must not exceed 30 characters"
+                    },
+                    notEmpty: {
+                        message: "First Name is required"
                     }
                 }
             },
@@ -128,6 +123,9 @@ export function updateAccountValidator(formVal) {
                     stringLength: {
                         max: 30,
                         message: "Last Name must not exceed 30 characters"
+                    },
+                    notEmpty: {
+                        message: "Last Name is required"
                     }
                 }
             },
@@ -140,6 +138,9 @@ export function updateAccountValidator(formVal) {
                     },
                     emailAddress: {
                         message: 'The value is not a valid email address'
+                    },
+                    notEmpty: {
+                        message: "Email is required"
                     }
                 }
             },
@@ -205,14 +206,6 @@ export function passwordValidator(passwordVal) {
 export function addressValidator(addressVal) {
     addressVal.formValidation({
         framework: 'bootstrap',
-        /*
-        Don't use icons anywhere else but if we want to add this.
-        icon: {
-            valid: 'fa fa-check',
-            invalid: 'fa fa-times',
-            validating: 'fa fa-refresh'
-        },
-        */
         fields: {
             street: {
                 selector: '#street',
@@ -222,7 +215,7 @@ export function addressValidator(addressVal) {
                     },
                     stringLength: {
                         max: 128,
-                        message: "Address info must be shorter than 128 chars"
+                        message: "Address info must be shorter than 128 characters"
                     }
                 }
             },
@@ -231,7 +224,7 @@ export function addressValidator(addressVal) {
                 validators: {
                     stringLength: {
                         max: 128,
-                        message: "Additional street info must be shorter than 128 chars"
+                        message: "Additional street info must be shorter than 128 characters"
                     }
                 }
             },
@@ -251,7 +244,7 @@ export function addressValidator(addressVal) {
                     },
                     stringLength: {
                         max: 2,
-                        message: "Additional street info must be shorter than 128 chars"
+                        message: "State field must be shorter than 2 characters"
                     }
                 }
             },
@@ -263,7 +256,7 @@ export function addressValidator(addressVal) {
                     },
                     stringLength: {
                         max: 15,
-                        message: "Zip Code must be shorter than 128 chars"
+                        message: "Zip Code must be shorter than 15 characters"
                     }
                 }
             }
@@ -450,7 +443,74 @@ export function updateValidator(updateForm) {
                     stringLength: {
                         max: 128,
                         min: 5,
-                        message: 'Title must be between %s and %s'
+                        message: 'Title must be between 5 and 128 characters long'
+                    }
+                }
+            }
+        }
+    });
+}
+
+export function campaignFinanceValidator(formVal) {
+    formVal.formValidation({
+        framework: 'bootstrap',
+        fields: {
+            employerName: {
+                selector: '#employer-name',
+                validators: {
+                    stringLength: {
+                        max: 240,
+                        message: "Employer name may not exceed 240 characters"
+                    }
+                }
+            },
+            occupationName: {
+                selector: '#occupation-name',
+                validators: {
+                    stringLength: {
+                        max: 240,
+                        message: "Occupation name must not exceed 240 characters"
+                    }
+                }
+            },
+            campaignFinanceForm: {
+                selector: '.campaign-finance-form',
+                validators: {
+                    callback: {
+                        message: '',
+                        callback: function(value, validator) {
+                            var retired = document.getElementById('retired-or-not-employed'),
+                                isEmpty = true,
+                                // Get the list of fields
+                                $fields = validator.getFieldElements('campaignFinanceForm');
+                            // Check if both Employer name and Job title are filled out
+                            if($fields.eq(0).val() !== '' && $fields.eq(1).val() !== '' &&
+                                    $fields.eq(0).val() !== null && $fields.eq(1).val() !== null) {
+                                isEmpty = false;
+                            }
+                            if(retired.checked !== false) {
+                                isEmpty = false;
+                            }
+
+                            // Check if Employer Name, Job Title, and Unemployed are all checked
+                            if(($fields.eq(0).val().length > 0 || $fields.eq(1).val().length > 0) && retired.checked === true) {
+                                return {
+                                    valid: false,
+                                    message: "Please only indicate your Employment " +
+                                    "Information or that you are Retired or not employed"
+                                };
+                            }
+                            if (!isEmpty) {
+                                // Update the status of callback validator for all fields
+                                validator.updateStatus('campaignFinanceForm', validator.STATUS_VALID, 'callback');
+                                return true;
+                            }
+                            return {
+                                valid: false,
+                                message: "Please indicate your Employer Name and Job " +
+                                "Title or that you are Retired or not employed"
+                            };
+                        }
                     }
                 }
             }
@@ -459,4 +519,105 @@ export function updateValidator(updateForm) {
 }
 
 
-/* Custom Validators */
+export function bankAccountValidator(bankAccountVal) {
+    bankAccountVal.formValidation({
+        framework: 'bootstrap',
+        fields: {
+            accountType: {
+                selector: '#account-type',
+                validators: {
+                    business: {
+                        enabled: true,
+                        message: "Setup account for organization or business"
+                    },
+                    individual: {
+                        enabled: false,
+                        message: "Setup account as yourself"
+                    }
+                }
+            },
+            socialSecurityNumber: {
+                selector: '#ssn',
+                validators: {
+                    notEmpty: {
+                        message: "This value is require"
+                    },
+                    stringLength: {
+                        max: 24,
+                        message: "This value cannot be longer than 24 characters"
+                    }
+                }
+            },
+            bankAccountOwnerName: {
+                selector: '#account-owner',
+                validators: {
+                    notEmpty: {
+                        message: "This value is require"
+                    },
+                    stringLength: {
+                        max: 240,
+                        message: "This value cannot be longer than 240 characters"
+                    }
+                }
+            },
+            einOfAccountOwner: {
+                selector: '#ein',
+                validators: {
+                    notEmpty: {
+                        message: "This value is required"
+                    },
+                    stringLength: {
+                        max: 100,
+                        message: "This value cannot be longer than 100 characters"
+                    }
+                }
+            },
+            routingNumber: {
+                selector: '#routing-number',
+                validators: {
+                    notEmpty: {
+                        message: "This value is required"
+                    },
+                    stringLength: {
+                        max: 56,
+                        message: "This value cannot be longer than 56 characters"
+                    }
+                }
+            },
+            bankAccountNumber: {
+                selector: '#account-number',
+                validators: {
+                    notEmpty: {
+                        message: "This value is required"
+                    },
+                    stringLength: {
+                        max: 240,
+                        message: "This value cannot be longer than 240 characters"
+                    }
+                }
+            }
+        }
+    }).find('[name="stripe_account_type"]')
+        .on('change', function() {
+            var type = $(this).val();
+            switch (type) {
+                case 'individual':
+                    bankAccountVal
+                        .formValidation('enableFieldValidators', 'bankAccountOwnerName', false, 'notEmpty')
+                        .formValidation('enableFieldValidators', 'bankAccountOwnerName', false, 'stringLength')
+                        .formValidation('enableFieldValidators', 'einOfAccountOwner', false, 'notEmpty')
+                        .formValidation('enableFieldValidators', 'einOfAccountOwner', false, 'stringLength');
+                    break;
+
+                case 'business':
+                    bankAccountVal
+                        .formValidation('enableFieldValidators', 'bankAccountOwnerName', true, 'notEmpty')
+                        .formValidation('enableFieldValidators', 'bankAccountOwnerName', true, 'stringLength')
+                        .formValidation('enableFieldValidators', 'einOfAccountOwner', true, 'notEmpty')
+                        .formValidation('enableFieldValidators', 'einOfAccountOwner', true, 'stringLength');
+                    bankAccountVal.data('formValidation').validate();
+                    break;
+            }
+        })
+        .end();
+}

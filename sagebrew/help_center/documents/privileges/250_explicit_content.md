@@ -1,4 +1,3 @@
-# Add Explicit Content #
 *Reputation needed: 250*
 ## Description ##
 You’ve become familiar with the Conversation Cloud and you’ve proven that you 

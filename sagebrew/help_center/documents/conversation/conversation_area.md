@@ -1,4 +1,3 @@
-# What is the Conversation Cloud? #
 The Conversation Cloud is the place to be on Sagebrew! It's where all of the 
 public conversations take place, offering the ability to pose Questions 
 and Solutions, garner traffic for your Missions, and bring people together 

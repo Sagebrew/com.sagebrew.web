@@ -36,7 +36,6 @@ function finishedTyping(editor, missionId) {
  */
 export function load() {
     require('kuende-livestamp');
-    require('medium-editor-insert-plugin');
     var missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         $secondnav = $(".navbar-secondary"),
         typingTimer,
@@ -57,8 +56,7 @@ export function load() {
 
     $secondnav.on('click', '#cancel', function(event){
         event.preventDefault();
-        request.patch({url: "/v1/missions/" + missionId + "/",
-            data: JSON.stringify({'reset_epic': true})
+        request.post({url: "/v1/missions/" + missionId + "/reset_epic/",
         }).done(function (){
             var slug = args(2);
             $.notify({message: "Successfully Discarded Changes"}, {type: "success"});

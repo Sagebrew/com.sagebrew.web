@@ -41,4 +41,5 @@ export function load() {
                 greyPage.classList.add('sb_hidden');
             });
         });
+
 }

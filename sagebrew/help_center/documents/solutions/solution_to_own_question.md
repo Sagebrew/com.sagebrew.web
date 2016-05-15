@@ -1,4 +1,3 @@
-# Can I give a Solution to my own Question? #
 Yes you can give a Solution to your own Question! Sometimes, after a 
 series of Solutions have been tossed around and debated, you might discover a
 Solution you hadn't seen before and would like to add that Solution into the 

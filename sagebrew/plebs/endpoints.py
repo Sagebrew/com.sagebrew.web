@@ -46,12 +46,12 @@ from sb_updates.neo_models import Update
 from sb_updates.serializers import UpdateSerializer
 from sb_news.neo_models import NewsArticle
 from sb_news.serializers import NewsArticleSerializer
-from .serializers import (UserSerializer, PlebSerializerNeo, AddressSerializer,
+from .serializers import (UserSerializer, PlebSerializerNeo,
                           FriendRequestSerializer, PoliticalPartySerializer,
                           InterestsSerializer, TopicInterestsSerializer,
                           ResetPasswordEmailSerializer,
                           EmailVerificationSerializer)
-from .neo_models import Pleb, Address, FriendRequest
+from .neo_models import Pleb, FriendRequest
 from .utils import get_filter_by
 
 
@@ -119,44 +119,6 @@ def get_public_content(api, username, request):
                 news_article['question'] = question_data
             news.append(news_article)
         return api.get_paginated_response(news)
-
-
-class AddressViewSet(viewsets.ModelViewSet):
-    """
-    This ViewSet provides all of the addresses associated with the currently
-    authenticated user. We don't want to enable users to view all addresses
-    utilized on the site from an endpoint but this endpoint allows for users
-    to see and modify their own as well as create new ones.
-
-    Limitations:
-    Currently we don't have a way to determine which address is the current
-    address. We also don't have an interface to generate additional addresses
-    so the address input during registration is the only address ever listed
-    even though this should not be expected as in the future the list will
-    grow as we all things like hometown, previous residences, and additional
-    homes to be listed.
-
-    Improvements:
-    We may want to transition this to /v1/me/addresses/ and
-    /v1/me/addresses/{id}/.
-    """
-    serializer_class = AddressSerializer
-    lookup_field = 'object_uuid'
-    permission_classes = (IsAuthenticated, )
-
-    def get_queryset(self):
-        query = 'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                '(b:Address) RETURN b' % self.request.user.username
-        res, col = db.cypher_query(query)
-        [row[0].pull() for row in res]
-        return [Address.inflate(row[0]) for row in res]
-
-    def get_object(self):
-        query = 'MATCH (a:Pleb {username: "%s"})-[:LIVES_AT]->' \
-                '(b:Address {object_uuid: "%s"}) RETURN b' % (
-                    self.request.user.username, self.kwargs[self.lookup_field])
-        res, col = db.cypher_query(query)
-        return Address.inflate(res[0][0])
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -715,6 +677,7 @@ class MeViewSet(mixins.UpdateModelMixin,
     @list_route(methods=['get'], permission_classes=(IsAuthenticated,))
     def payment_methods(self, request):
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         pleb = Pleb.get(username=request.user.username)
         cards = []
         if pleb.stripe_customer_id is not None:
@@ -788,7 +751,8 @@ class MeViewSet(mixins.UpdateModelMixin,
             return Response(response, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @list_route(methods=['post'], serializer_class=TopicInterestsSerializer,
+    @list_route(methods=['post'],
+                serializer_class=TopicInterestsSerializer,
                 permission_classes=(IsAuthenticated,))
     def add_topics_of_interest(self, request):
         """

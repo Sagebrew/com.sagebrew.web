@@ -1,4 +1,3 @@
-# What should I do if my Question gets no traffic? #
 If your Question has received no Upvotes or Downvotes, no Comments or Solutions, 
 there may be a couple of issues with your Question.
 

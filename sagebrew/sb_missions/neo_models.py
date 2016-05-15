@@ -122,6 +122,8 @@ class Mission(Searchable):
     profile_endorsements = RelationshipFrom('plebs.neo_models.Pleb', "ENDORSES")
     quest_endorsements = RelationshipFrom('sb_quests.neo_models.Quest',
                                           "ENDORSES")
+    onboarding_tasks = RelationshipTo(
+        'sb_registration.neo_models.OnboardingTask', 'MUST_COMPLETE')
 
     # DEPRECATED
     # Pledge votes are from old campaigns. We're working on a new process
@@ -249,6 +251,17 @@ class Mission(Searchable):
         query = 'MATCH (m:Mission {object_uuid:"%s"})<-[r:ENDORSES]-%s ' \
                 'DELETE r' % (object_uuid, endorsed_query)
         res, _ = db.cypher_query(query)
+        return True
+
+    @classmethod
+    def reset_epic(cls, object_uuid):
+        query = 'MATCH (m:Mission {object_uuid:"%s"}) RETURN m' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        mission = Mission.inflate(res.one)
+        mission.temp_epic = mission.epic
+        mission.save()
+        cache.delete("%s_mission" % object_uuid)
         return True
 
     def get_mission_title(self):

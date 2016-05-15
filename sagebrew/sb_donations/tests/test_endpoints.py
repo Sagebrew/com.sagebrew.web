@@ -283,6 +283,7 @@ class TestSagebrewDonation(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('direct_donation')
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         token = stripe.Token.create(
             card={
                 "number": "4242424242424242",
@@ -302,6 +303,7 @@ class TestSagebrewDonation(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('direct_donation')
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         self.pleb.stripe_customer_id = None
         self.pleb.is_verified = False
         self.pleb.save()
@@ -328,6 +330,7 @@ class TestSagebrewDonation(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('direct_donation')
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe.api_version = settings.STRIPE_API_VERSION
         cache.clear()
         token = stripe.Token.create(
             card={

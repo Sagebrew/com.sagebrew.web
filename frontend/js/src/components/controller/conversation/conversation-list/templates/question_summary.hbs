@@ -10,14 +10,14 @@
         </div>
         <div class="block-content no-top-padding">
             <div class="row">
-                <div class="col-xs-1 sb_vote_wrapper no-left-right-padding">
+                <div class="hidden-xs col-sm-1 sb_vote_wrapper no-left-right-padding">
                     <div class="vote_lg vote_count_large">
                         {{> 'controller/vote/templates/vote.hbs' id=id
                         vote_count=vote_count upvote=upvote downvote=downvote type=type
                         can_upvote=can_upvote can_downvote=can_downvote }}
                     </div>
                 </div>
-                <div class="col-xs-11">
+                <div class="col-xs-12 col-sm-11">
                     <div class="block-content no-top-padding">
                         <p>{{{ summary }}}</p>
                     </div>

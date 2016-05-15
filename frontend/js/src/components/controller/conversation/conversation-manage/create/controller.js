@@ -96,10 +96,10 @@ export function load() {
         });
     $app
         .on('click', '#sb_tag_box-tokenfield', function(event) {
-            event.preventDefault();
             if (event.which === 10 || event.which === 13) {
                 event.preventDefault();
                 $(".submit_question-action").removeAttr("disabled");
+                return false;
             }
         });
 }

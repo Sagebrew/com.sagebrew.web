@@ -1,4 +1,3 @@
-# Asking a Question #
 At Sagebrew we like to discuss problems. We have debates and listen to each other's
 point of view to understand where those we disagree with are coming from. We like to
 start these conversations off with a Question. Below you'll find some guidelines we

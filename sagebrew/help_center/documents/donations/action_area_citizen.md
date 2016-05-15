@@ -1,4 +1,3 @@
-# What is a Quest #
 A Quest is your public portfolio, tracking all of the Missions or public service 
 you've taken part in.
 This includes running for public office, serving, being part of an advocacy movement, 

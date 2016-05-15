@@ -1,4 +1,3 @@
-# Why are Solutions no longer being accepted from my account? #
 There are a few reasons that might lead to an inability to post Solutions.
 
 - Multiple of your Solutions have been [flagged][1] for inappropriate or 

@@ -1,5 +1,5 @@
 var request = require('api').request,
-    positionHolderTemplate = require('controller/mission/political-mission/templates/position_holder.hbs'),
+    positionHolderTemplate = require('controller/mission/registration/political-mission/templates/position_holder.hbs'),
     missionSummaryTemplate = require('controller/quest/quest-view/templates/mission_summary.hbs'),
     settings = require('settings').settings;
 

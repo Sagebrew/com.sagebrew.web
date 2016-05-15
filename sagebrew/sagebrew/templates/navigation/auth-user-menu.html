@@ -23,7 +23,7 @@
         <a href="#" class="dropdown-toggle js-show-reputation" data-toggle="dropdown">
             <i class="fa fa-certificate"></i>
             {% if not request_profile.reputation_update_seen and request_profile.reputation_change != 0 %}
-                <span class="navbar-new sb_notifier" id="js-sb_friend_request_notifier">{{ request_profile.reputation_change }}</span>
+                <span class="navbar-new sb_notifier" id="js-reputation-change-notifier">{{ request_profile.reputation_change }}</span>
             {% endif %}
         </a>
         <ul class="dropdown-menu">
@@ -99,7 +99,7 @@
             <li><a href="http://blog.sagebrew.com">Blog <i class="fa fa-external-link"></i></a></li>
             <li><a href="{% url 'help_center' %}">Help</a></li>
             <li role="presentation" class="sb_divider"></li>
-            {% if request.user.username == "devon_bleibtrey" or request.user.username == "tylerwiersing" %}
+            {% if request.user.username == "devon_bleibtrey" or request.user.username == "tyler_wiersing" %}
                 <li><a href="{% url 'council_page' %}">Council Area</a></li>
             {% endif %}
             <li><a href="{% url 'logout' %}">Log Out</a></li>

@@ -1,4 +1,3 @@
-from uuid import uuid1
 from intercom import Message, Intercom
 
 from django.template.loader import render_to_string
@@ -17,14 +16,11 @@ from py2neo.cypher import ClientError
 
 from neomodel import DoesNotExist, CypherException, db
 
-from api.utils import spawn_task
-from plebs.neo_models import (Pleb, Address)
+from sb_address.neo_models import Address
+from sb_address.serializers import AddressSerializer
 
-
+from .neo_models import Pleb
 from .serializers import PlebSerializerNeo
-from .tasks import create_friend_request_task
-from .forms import (SubmitFriendRequestForm)
-from .serializers import AddressSerializer
 
 
 def root_profile_page(request):
@@ -170,43 +166,3 @@ def deactivate_user(request):
     request.user.is_active = False
     request.user.save()
     return Response({"detail": "successfully deactivated user"}, 200)
-
-
-@api_view(['POST'])
-@permission_classes((IsAuthenticated,))
-def create_friend_request(request):
-    """
-    calls the task which creates a friend request, it also creates the id
-    for the
-    request here
-
-    :param request:
-    :return:
-    """
-    # TODO return uuid of friend request and add to javascript hide button
-    # when uuid received
-    # if action is True hide friend request button and show a delete friend
-    # request button
-    friend_request_data = request.data
-    if isinstance(friend_request_data, dict) is False:
-        return Response({'detail': 'attribute error'}, status=400)
-    request_form = SubmitFriendRequestForm(friend_request_data)
-    # TODO Think we're moving this kind of stuff out to the JS system
-    # But until then needs to come after the form since it can cause
-    # Type errors if someone passes something other than a dict
-    object_uuid = str(uuid1())
-
-    if request_form.is_valid() is True:
-        task_data = {
-            "from_username": request.user.username,
-            "to_username": request_form.cleaned_data['to_username'],
-            "object_uuid": object_uuid
-        }
-        spawned = spawn_task(task_func=create_friend_request_task,
-                             task_param=task_data)
-        if isinstance(spawned, Exception) is True:
-            return Response({'detail': 'server error'}, status=500)
-        return Response({"action": True,
-                         "friend_request_id": object_uuid}, status=200)
-    else:
-        return Response({'detail': 'invalid form'}, status=400)

@@ -8,6 +8,7 @@
 
     <title>{% block title %}Sagebrew{% endblock title %}</title>
     {% block description %}{% endblock description %}
+    {% block properties %}{% endblock properties %}
     {% block keywords %}{% endblock keywords %}
     {% block css %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}"/>
@@ -21,6 +22,16 @@
     {% endblock page-javascript %}
     <script type="text/javascript">
         {{ js_settings|safe }}
+    </script>
+    <script>
+        (function(h,o,t,j,a,r){
+            h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+            h._hjSettings={hjid:204951,hjsv:5};
+            a=o.getElementsByTagName('head')[0];
+            r=o.createElement('script');r.async=1;
+            r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+            a.appendChild(r);
+        })(window,document,'//static.hotjar.com/c/hotjar-','.js?sv=');
     </script>
 </head>
 <body class="{% block body_class %}{% endblock body_class %}">
@@ -41,6 +52,7 @@
         {% endblock footer %}
     </div>
 {% include "partials/intercom.html" %}
+{% include "partials/facebook.html" %}
 {% block scripts %}
     <script src="{% static 'js/vendor.js' %}"></script>
     <script src="{% static 'js/sagebrew.js' %}"></script>

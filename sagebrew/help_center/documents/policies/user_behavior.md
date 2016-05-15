@@ -1,4 +1,3 @@
-# What kind of behavior is expected of users? #
 This one is pretty straightforward: we expect Sagebrew users to conduct 
 themselves in a mature and respectful manner. Plain and simple. One of the 
 primary goals of Sagebrew is to promote a safe and open environment that 

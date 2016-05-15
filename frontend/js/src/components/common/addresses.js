@@ -108,7 +108,6 @@ export function submitAddress(addressForm, callbackFunction, submitEndpoint) {
     addressData.congressional_district = localStorage.getItem(congressionalKey);
     requests.patch({url: submitEndpoint, data: JSON.stringify({address: addressData})})
         .done(function (data) {
-            greyPage.classList.add('sb_hidden');
             callbackFunction(data);
         });
 }

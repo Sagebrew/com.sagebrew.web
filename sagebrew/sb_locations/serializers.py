@@ -8,7 +8,7 @@ from neomodel.exception import DoesNotExist
 
 from neomodel import db
 
-from api.utils import gather_request_data, spawn_task
+from api.utils import gather_request_data
 from api.serializers import SBSerializer
 
 from .neo_models import Location
@@ -69,8 +69,7 @@ class LocationExternalIDSerializer(serializers.Serializer):
                 validated_data.get('place_id'))
         res, _ = db.cypher_query(query)
         if res.one is None:
-            spawn_task(task_func=create_location_tree, task_param={
-                "external_id": validated_data.get('place_id')})
+            create_location_tree(external_id=validated_data.get('place_id'))
         return res
 
 

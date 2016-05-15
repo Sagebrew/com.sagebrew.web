@@ -29,5 +29,6 @@
 
 
 {% block intercom %}
-    Intercom('trackEvent', 'manage-edit-epic');
+    var metadata = {mission_uuid: {{ mission.id }}, mission_title: {{ mission.title }}};
+    Intercom('trackEvent', 'manage-edit-epic', metadata);
 {% endblock %}

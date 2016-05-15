@@ -1,8 +1,8 @@
 from django.utils.text import slugify
 from django.views.generic import View
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
 
 from py2neo.cypher.error import ClientError
 from neomodel import db, CypherException, DoesNotExist
@@ -151,7 +151,7 @@ class MissionSettingsView(LoginRequiredMixin):
                                          context={"request": request}).data,
             "quest": QuestSerializer(quest, context={"request": request}).data,
             "slug": slugify(mission_obj.get_mission_title()),
-            "epic_template": settings.EPIC_TEMPLATE,
+            "epic_template": render_to_string("placeholder_epic.html"),
             "onboarding_top_3": onboarding_sort[:3],
             "onboarding_rest": onboarding_sort[3:],
             "onboarding_done": onboarding_done

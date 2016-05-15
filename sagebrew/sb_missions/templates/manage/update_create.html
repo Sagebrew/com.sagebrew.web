@@ -35,6 +35,6 @@
 
 
 {% block intercom %}
-    var metadata = {mission_uuid: {{ mission.id }}, mission_title: {{ mission.title }}};
+    var metadata = {mission_uuid: "{{ mission.id }}", mission_title: "{{ mission.title }}"};
     Intercom('trackEvent', 'manage-create-update', metadata);
 {% endblock %}

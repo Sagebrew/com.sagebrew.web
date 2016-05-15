@@ -255,12 +255,10 @@ class Mission(Searchable):
 
     @classmethod
     def reset_epic(cls, object_uuid):
-        query = 'MATCH (m:Mission {object_uuid:"%s"}) RETURN m' \
+        query = 'MATCH (m:Mission {object_uuid:"%s"}) SET m.temp_epic=m.epic ' \
+                'RETURN m' \
                 % object_uuid
-        res, _ = db.cypher_query(query)
-        mission = Mission.inflate(res.one)
-        mission.temp_epic = mission.epic
-        mission.save()
+        db.cypher_query(query)
         cache.delete("%s_mission" % object_uuid)
         return True
 

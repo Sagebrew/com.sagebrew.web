@@ -66,7 +66,7 @@ test:
   override:
     - flake8 ~/com.sagebrew.web/sagebrew/ --ignore C901
     - coverage run --source='.' manage.py test --failfast
-    - coverage html --fail-under=85
+    - coverage html --fail-under=89
     - COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN coveralls
   post:
     - python ~/com.sagebrew.web/sagebrew/manage.py dockerfilepopulation

@@ -113,6 +113,9 @@ class QuestionEndpointTests(APITestCase):
 
     def test_create_with_new_tags_no_rep(self):
         self.client.force_authenticate(user=self.user)
+        self.pleb.reputation = 0
+        self.pleb.save()
+        cache.clear()
         content = "This is the content to my question, it's a pretty good " \
                   "question."
         title = "This is a question that must be asked. What is blue?"

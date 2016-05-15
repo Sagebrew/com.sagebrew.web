@@ -1,4 +1,5 @@
 import pytz
+from bs4 import BeautifulSoup
 
 from uuid import uuid1
 from datetime import datetime
@@ -32,9 +33,10 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         uuid = str(uuid1())
         href = reverse('solution-detail', kwargs={"object_uuid": uuid},
                        request=request)
+        soup = BeautifulSoup(validated_data['content']).get_text()
         solution = Solution(url=question.url, href=href, object_uuid=uuid,
                             parent_id=question.object_uuid,
-                            summary=smart_truncate(validated_data['content']),
+                            summary=smart_truncate(soup),
                             **validated_data).save()
         solution.owned_by.connect(owner)
         question.solutions.connect(solution)

@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.core.management.base import BaseCommand
 
 from neomodel import db
@@ -15,7 +16,7 @@ class Command(BaseCommand):
     def migrate_to_new_editor(self):
         skip = 0
         while True:
-            query ='MATCH (m:Mission) RETURN m SKIP %s LIMIT 25' % skip
+            query = 'MATCH (m:Mission) RETURN m SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
             if not res.one:
@@ -27,7 +28,7 @@ class Command(BaseCommand):
                 mission.save()
         skip = 0
         while True:
-            query ='MATCH (m:Question) RETURN m SKIP %s LIMIT 25' % skip
+            query = 'MATCH (m:Question) RETURN m SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
             if not res.one:
@@ -39,7 +40,7 @@ class Command(BaseCommand):
                 question.save()
         skip = 0
         while True:
-            query ='MATCH (m:Solution) RETURN m SKIP %s LIMIT 25' % skip
+            query = 'MATCH (m:Solution) RETURN m SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
             if not res.one:
@@ -51,7 +52,7 @@ class Command(BaseCommand):
                 solution.save()
         skip = 0
         while True:
-            query ='MATCH (m:Update) RETURN m SKIP %s LIMIT 25' % skip
+            query = 'MATCH (m:Update) RETURN m SKIP %s LIMIT 25' % skip
             skip += 24
             res, _ = db.cypher_query(query)
             if not res.one:
@@ -60,7 +61,10 @@ class Command(BaseCommand):
                 rendered = render_content(update.content, update.object_uuid)
                 update.content = rendered
                 update.save()
-
+        cache.set("migrated_to_new_editor", True)
 
     def handle(self, *args, **options):
-        self.migrate_to_new_editor()
+        test_migrated = cache.get("migrated_to_new_editor")
+        if not test_migrated:
+            self.migrate_to_new_editor()
+        print("Migration to new editor successful")

@@ -29,7 +29,7 @@ export function createMediumEditor(selectorString, placeholderText) {
                     url: "/v1/upload/?editor=true",
                     acceptFileTypes: /(.|\/)(gif|jpe?g|png)$/i,
                     paramName: "file_object"
-                },
+                }
             },
             embeds: {
                 oembedProxy: null

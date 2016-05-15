@@ -1192,3 +1192,14 @@ class MissionEndpointTests(APITestCase):
         res = self.client.get(url, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['results'][0]['id'], self.quest.object_uuid)
+
+    def test_reset_epic(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.temp_epic = "SOMETHING DIFFERENT THAN EPIC"
+        self.mission.epic = "THIS IS MY EPIC!"
+        self.mission.save()
+        url = "/v1/missions/%s/reset_epic/" % self.mission.object_uuid
+        res = self.client.post(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(mission.epic, mission.temp_epic)

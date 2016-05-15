@@ -91,11 +91,12 @@ class UploadSerializer(SBSerializer):
         # http://stackoverflow.com/questions/27591574/
         # order-of-serializer-validation-in-django-rest-framework
         request = self.context.get('request')
-        editor = request.query_params.get('editor', 'false').lower()
         if request is not None:
             object_uuid = request.query_params.get('random', None)
+            editor = request.query_params.get('editor', 'false').lower()
         else:
             object_uuid = None
+            editor = 'false'
         verify_unique = self.context.get('verify_unique', False)
         check_hamming = self.context.get('check_hamming', False)
         file_object = data.get('file_object')

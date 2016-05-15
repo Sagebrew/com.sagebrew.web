@@ -12,7 +12,7 @@ from rest_framework.reverse import reverse
 from neomodel import db, DoesNotExist
 
 from api.utils import (gather_request_data, clean_url, empty_text_to_none,
-                       smart_truncate, render_content)
+                       smart_truncate)
 from api.serializers import SBSerializer
 
 from sb_base.serializers import IntercomEventSerializer

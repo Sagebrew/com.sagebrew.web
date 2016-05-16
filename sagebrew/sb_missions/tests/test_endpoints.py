@@ -720,6 +720,24 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(mission.website, data['website'])
         self.assertFalse(mission.active)
 
+    def test_update_temp_epic(self):
+        self.client.force_authenticate(user=self.user)
+        mission = Mission(title=str(uuid1()),
+                          owner_username=self.pleb.username,
+                          active=True,
+                          temp_epic="this is a temp epic").save()
+        self.quest.missions.connect(mission)
+        data = {
+            "temp_epic": str(uuid1())
+        }
+        url = reverse('mission-detail',
+                      kwargs={'object_uuid': mission.object_uuid})
+        response = self.client.patch(url, data=data, format='json')
+        self.assertContains(response, data['temp_epic'],
+                            status_code=status.HTTP_200_OK)
+        mission.refresh()
+        self.assertEqual(mission.temp_epic, data['temp_epic'])
+
     def test_detail(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('mission-detail',

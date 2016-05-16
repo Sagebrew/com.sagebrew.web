@@ -62,6 +62,7 @@ export function load() {
                     } else if(data.results[i].type === "quest") {
                         $endorsmentContainer.append(questSummaryTemplate(data.results[i]));
                     } else {
+                        data.results[i].level = data.results[i].level.replace('_', " ").replace("-", " ");
                         $endorsmentContainer.append(missionSummaryTemplate(data.results[i]));
                     }
                 }

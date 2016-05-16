@@ -114,8 +114,10 @@ class MissionViewSet(viewsets.ModelViewSet):
                 {"first_name": row.plebs["first_name"],
                  "last_name": row.plebs["last_name"],
                  "email": row.plebs["email"],
-                 "city": row.address["city"],
-                 "state": row.address["state"],
+                 "city": row.address.get("city", "")
+                    if row.address is not None else "N/A",
+                 "state": row.address.get("state", "")
+                    if row.address is not None else "N/A",
                  "activities": [
                      {item[0]: "x"} if item[0] in res[index].activities
                      else {item[0]: ""}

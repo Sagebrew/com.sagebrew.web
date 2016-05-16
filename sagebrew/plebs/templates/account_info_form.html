@@ -1,6 +1,6 @@
 <form id="account-info">
     <div class="form-group">
-        <label for="first-name">First Name*</label>
+        {% if label %}<label for="first-name">First Name*</label>{% endif %}
         <input type="text"
                id="first-name"
                name="first_name"
@@ -9,7 +9,7 @@
     </div>
 
     <div class="form-group">
-        <label for="last_name">Last Name*</label>
+        {% if label %}<label for="last_name">Last Name*</label>{% endif %}
         <input type="text"
                id="last-name"
                name="last_name"
@@ -18,7 +18,7 @@
     </div>
 
     <div class="form-group">
-        <label for="email">Email*</label>
+        {% if label %}<label for="email">Email*</label>{% endif %}
         <input type="email"
                id="email"
                name="email"
@@ -26,16 +26,16 @@
                value="" class="form-control">
     </div>
     <div class="form-group">
-        <label for="password">Password*</label>
+        {% if label %}<label for="password">Password*</label>{% endif %}
         <input type="password"
                value=""
                name="password"
                id="password"
-               placeholder="Password"
+               placeholder="Password (Must be at least 8 characters long)"
                class="form-control">
     </div>
     <div class="form-group">
-        <label for="password2">Re-enter Password*</label>
+        {% if label %}<label for="password2">Re-enter Password*</label>{% endif %}
         <input type="password"
                value=""
                name="password2"
@@ -43,8 +43,9 @@
                placeholder="Re-enter Password"
                class="form-control">
     </div>
+    {% if birthday_header %}<h3 class="{{ birthday_custom_class }}">Birthday</h3>{% endif %}
     <div class="form-group">
-        <label for="birthday">Birthday*</label>
+        {% if label %}<label for="birthday">Birthday*</label>{% endif %}
         <input type="text"
                id="birthday"
                name="date_of_birth"

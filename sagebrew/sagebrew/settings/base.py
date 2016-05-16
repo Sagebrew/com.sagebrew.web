@@ -527,7 +527,7 @@ ONBOARDING_TASKS = [
         "content": "Share your platform, goals, and mission with the world.",
         "icon": "fa fa-font",
         "priority": 3,
-        "url": "%s/missions/%s/%s/manage/epic/",
+        "url": "%s/missions/%s/%s/manage/epic/edit/",
         'type': 'mission'
     },
     {

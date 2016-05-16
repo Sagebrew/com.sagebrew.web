@@ -40,11 +40,19 @@ urlpatterns = patterns(
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'manage/epic/$',
         MissionSettingsView.as_view(template_name='manage/epic.html'),
+        name="mission_epic"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'manage/epic/edit/$',
+        MissionSettingsView.as_view(template_name='manage/epic_edit.html'),
         name="mission_edit_epic"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'manage/updates/$',
         MissionSettingsView.as_view(template_name='manage/updates.html'),
         name="mission_update_settings"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'manage/updates/create/$',
+        MissionSettingsView.as_view(template_name='manage/update_create.html'),
+        name="mission_update_create"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'manage/updates/(?P<edit_id>[A-Za-z0-9.@_%+-]{36})/edit/$',
         mission_edit_updates,

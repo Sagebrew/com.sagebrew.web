@@ -27,7 +27,7 @@
                     </a>
                 </li>
                 <li {% if "/manage/epic/" in request.path %}class="active" {% endif %}>
-                    <a href="{% url "mission_edit_epic" mission.id slug %}">
+                    <a href="{% url "mission_epic" mission.id slug %}">
                         Epic
                     </a>
                 </li>

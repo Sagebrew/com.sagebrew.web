@@ -113,9 +113,12 @@ class QuestionEndpointTests(APITestCase):
 
     def test_create_with_new_tags_no_rep(self):
         self.client.force_authenticate(user=self.user)
+        self.pleb.reputation = 0
+        self.pleb.save()
+        cache.clear()
         content = "This is the content to my question, it's a pretty good " \
                   "question."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         tag_name = 'non-existent tag'
         tags = ['taxes', tag_name]
         url = reverse('question-list')
@@ -237,29 +240,6 @@ class QuestionEndpointTests(APITestCase):
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
 
-    def test_create_with_fake_image(self):
-        self.client.force_authenticate(user=self.user)
-        content = '<img alt="fake image" src="https://sagebrew.com"/>'\
-                  "asdfasdfasdfasdfadsfasdfasdfa\n" \
-                  "[1]: https://i.imgur.com/nHcAF4t.jpg"
-        title = "This is a question that must be t is blue21?"
-        tags = ['taxes', 'environment']
-        url = reverse('question-list')
-        data = {
-            "content": content,
-            "title": title,
-            "tags": tags
-        }
-        response = self.client.post(url, data, format='json')
-        html_content = '<p>&lt;img alt="fake image" ' \
-                       'src="https://sagebrew.com"/&gt;' \
-                       'asdfasdfasdfasdfadsfasdfasdfa</p>'
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['html_content'], html_content)
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
-
     def test_create_with_multiple_image(self):
         self.client.force_authenticate(user=self.user)
         content = "![enter image description here][1] \n" \
@@ -307,25 +287,6 @@ class QuestionEndpointTests(APITestCase):
                        % (response.data['id'], response.data['id'],
                           response.data['id'], response.data['id'],
                           response.data['id'],)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['html_content'], html_content)
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
-
-    def test_create_with_script(self):
-        self.client.force_authenticate(user=self.user)
-        content = "<script>alert('hello')</script>"
-        title = str(uuid1())
-        tags = ['taxes', 'environment']
-        url = reverse('question-list')
-        data = {
-            "content": content,
-            "title": title,
-            "tags": tags
-        }
-        response = self.client.post(url, data, format='json')
-        html_content = "<p>&lt;script&gt;alert('hello')&lt;/script&gt;</p>"
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \

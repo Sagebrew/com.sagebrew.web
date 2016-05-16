@@ -1,6 +1,6 @@
-var addMarkdown = require('common/markdown').addMarkdown,
-    request = require('api').request,
-    helpers = require('common/helpers');
+var request = require('api').request,
+    helpers = require('common/helpers'),
+    mediumEditor = require('common/mediumeditorhelper').createMediumEditor;
 
 /**
  * Meta.
@@ -25,34 +25,41 @@ export function init() {
  */
 export function load() {
     var solutionID = helpers.args(2),
-        $app = $(".app-sb");
-    addMarkdown($('#js-solution-markdown'));
+        $secondnav = $(".navbar-secondary"),
+        editor;
     request.get({url: "/v1/solutions/" + solutionID + "/"})
         .done(function (data) {
-            var solutionContent = $('#wmd-input-0');
-            solutionContent.html("");
-            solutionContent.append(data.content);
-            var solutionPreview = $("#wmd-preview-0");
-            solutionPreview.html("");
-            solutionPreview.append(data.html_content);
+            var solutionContent = $('.editable');
+            solutionContent.html(data.content);
         });
+    editor = mediumEditor(".editable", "")
+    // This is a solution to our edit solution content being dynamically
+    // populated, meaning we cant pass the back_url parameter to the
+    // secondary navbar
+    $secondnav.on('click', ".navbar-brand-secondary", function(event) {
+        event.preventDefault();
+        history.back();
+    });
 
-    $app
-        .on('click', '#submit', function(event) {
-            event.preventDefault();
-            $("#submit").attr("disabled", "disabled");
-            request.put({url: "/v1/solutions/" + solutionID + "/",
-                data: JSON.stringify({
-                    'content': $('textarea#wmd-input-0').val()
-                })
-            }).done(function (data) {
-                $("#submit").removeAttr("disabled");
-                window.location.href = data.url;
+    $secondnav.on('click', '#submit', function(event) {
+        event.preventDefault();
+        document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+        var serialized = editor.serialize(),
+            key = Object.keys(serialized)[0];
+        $("#submit").attr("disabled", "disabled");
+        request.put({url: "/v1/solutions/" + solutionID + "/",
+            data: JSON.stringify({
+                'content': serialized[key].value
             })
-            .fail(function () {
-                $("#submit").removeAttr("disabled");
-            });
         })
+        .done(function (data) {
+            $("#submit").removeAttr("disabled");
+            window.location.href = data.url;
+        })
+        .fail(function () {
+            $("#submit").removeAttr("disabled");
+        });
+    })
         .on('click', '#cancel', function (event) {
             event.preventDefault();
             history.back();

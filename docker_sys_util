@@ -20,5 +20,5 @@ CMD /bin/bash -c "source /home/apps/venv/bin/activate && \
     python manage.py migrate oauth2_provider --fake && \
     python manage.py migrate --noinput && \
     python manage.py create_privileges && \
-    python manage.py clear_cache && \
+    python manage.py migrate_to_new_editor && \
     python manage.py clearsessions"

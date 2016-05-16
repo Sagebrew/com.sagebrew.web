@@ -1,7 +1,7 @@
-import bleach
 import pytz
 from uuid import uuid1
 from datetime import datetime
+from bs4 import BeautifulSoup
 
 from django.core.cache import cache
 from django.utils.text import slugify
@@ -127,8 +127,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         # tags prior to serializing
         tags = validated_data.pop('get_tags', [])
         owner = Pleb.get(request.user.username)
-        validated_data['content'] = bleach.clean(validated_data.get(
-            'content', ""))
+        validated_data['content'] = validated_data.get('content', "")
         validated_data['owner_username'] = owner.username
         uuid = str(uuid1())
         url = reverse('question_detail_page', kwargs={'question_uuid': uuid,
@@ -138,9 +137,9 @@ class QuestionSerializerNeo(TitledContentSerializer):
                       request=request)
         href = reverse('question-detail', kwargs={'object_uuid': uuid},
                        request=request)
-
+        soup = BeautifulSoup(validated_data['content'], "lxml").get_text()
         question = Question(url=url, href=href, object_uuid=uuid,
-                            summary=smart_truncate(validated_data['content']),
+                            summary=smart_truncate(soup),
                             **validated_data).save()
         question.owned_by.connect(owner)
         for tag in tags:
@@ -158,6 +157,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
             else:
                 tag_obj = Tag.inflate(res.one)
                 question.tags.connect(tag_obj)
+
         spawn_task(task_func=update_tags, task_param={"tags": tags})
         if validated_data.get('external_location_id', None) is not None:
             spawn_task(task_func=create_location_tree, task_param={
@@ -185,8 +185,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         """
         validate_is_owner(self.context.get('request', None), instance)
         instance.title = validated_data.get('title', instance.title)
-        instance.content = bleach.clean(validated_data.get('content',
-                                                           instance.content))
+        instance.content = validated_data.get('content', instance.content)
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.latitude = validated_data.get('latitude', instance.latitude)
         instance.longitude = validated_data.get(

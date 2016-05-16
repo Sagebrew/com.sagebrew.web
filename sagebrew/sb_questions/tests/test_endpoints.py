@@ -118,7 +118,7 @@ class QuestionEndpointTests(APITestCase):
         cache.clear()
         content = "This is the content to my question, it's a pretty good " \
                   "question."
-        title = "This is a question that must be asked. What is blue?"
+        title = str(uuid1())
         tag_name = 'non-existent tag'
         tags = ['taxes', tag_name]
         url = reverse('question-list')

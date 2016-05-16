@@ -137,7 +137,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
                       request=request)
         href = reverse('question-detail', kwargs={'object_uuid': uuid},
                        request=request)
-        soup = BeautifulSoup(validated_data['content']).get_text()
+        soup = BeautifulSoup(validated_data['content'], "lxml").get_text()
         question = Question(url=url, href=href, object_uuid=uuid,
                             summary=smart_truncate(soup),
                             **validated_data).save()

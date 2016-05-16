@@ -33,7 +33,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         uuid = str(uuid1())
         href = reverse('solution-detail', kwargs={"object_uuid": uuid},
                        request=request)
-        soup = BeautifulSoup(validated_data['content']).get_text()
+        soup = BeautifulSoup(validated_data['content'], "lxml").get_text()
         solution = Solution(url=question.url, href=href, object_uuid=uuid,
                             parent_id=question.object_uuid,
                             summary=smart_truncate(soup),

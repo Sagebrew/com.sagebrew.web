@@ -93,6 +93,15 @@ class UploadEndpointTests(APITestCase):
             response = self.client.post(url, data, format='multipart')
             self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_create_editor(self):
+        self.client.force_authenticate(user=self.user)
+        uuid = str(uuid1())
+        with open(self.image_path, 'rb') as image:
+            data = {"file": image}
+            url = reverse('upload-list') + "?random=" + uuid + "&editor=true"
+            response = self.client.post(url, data, format='multipart')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
     def test_delete(self):
         self.client.force_authenticate(user=self.user)
         uuid = str(uuid1())

@@ -31,6 +31,7 @@ export function load() {
         event.preventDefault();
         var serialized = editor.serialize(),
             key = Object.keys(serialized);
+        document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
         request.post({url: "/v1/missions/" + missionId + "/updates/",
             data: JSON.stringify(
                 {

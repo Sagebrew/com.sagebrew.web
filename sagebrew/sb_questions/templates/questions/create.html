@@ -23,7 +23,7 @@
                       id="js-question-markdown"
                       name="content"
                       cols="20"
-                      rows="8"></textarea>
+                      rows="8">{{ question_placeholder }}</textarea>
         </form>
         <div id="validation_errors"></div>
     </div>
@@ -34,7 +34,7 @@
 {% endblock live %}
 {% block sidebar_right %}
     <div class="block margin-top-40 no-margin-bottom">
-        <div class="block-content">
+        <div class="block-content padding-15">
             <div class="position-wrapper">
                 {% include "tag_box.html" %}
             </div>
@@ -46,14 +46,14 @@
         </div>
     </div>
     <div class="block">
-        <div class="block-content">
+        <div class="block-content padding-15">
             <div class="position-wrapper">
                 <input id="pac-input" class="form-control" type="text"
-                       placeholder="What Place is Affected?" value="{{ question.affected_area|default_if_none:'' }}"/>
-                <div id="location-id" hidden>{{ question.external_location_id }}</div>
-                <div id="location-lat" hidden>{{ question.latitude }}</div>
-                <div id="location-long" hidden>{{ question.longitude }}</div>
-                <div id="location-area" hidden>{{ question.affected_area }}</div>
+                       placeholder="What Place is Affected?" value=""/>
+                <div id="location-id" hidden></div>
+                <div id="location-lat" hidden></div>
+                <div id="location-long" hidden></div>
+                <div id="location-area" hidden></div>
             </div>
         </div>
     </div>

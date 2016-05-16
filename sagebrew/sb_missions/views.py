@@ -152,6 +152,7 @@ class MissionSettingsView(LoginRequiredMixin):
             "quest": QuestSerializer(quest, context={"request": request}).data,
             "slug": slugify(mission_obj.get_mission_title()),
             "epic_template": render_to_string("placeholder_epic.html"),
+            "update_placeholder": render_to_string("updates/placeholder.html"),
             "onboarding_top_3": onboarding_sort[:3],
             "onboarding_rest": onboarding_sort[3:],
             "onboarding_done": onboarding_done

@@ -1,7 +1,8 @@
 var request = require('api').request,
     validators = require('common/validators'),
     helpers = require('common/helpers'),
-    mediumEditor = require('common/mediumeditorhelper').createMediumEditor;
+    mediumEditor = require('common/mediumeditorhelper').createMediumEditor,
+    args = require('common/helpers').args;
 
 
 export const meta = {
@@ -31,6 +32,7 @@ export function load() {
     validators.editUpdateValidator($('updateForm'));
     $secondnav.on('click', '#submit', function(event) {
         event.preventDefault();
+        document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
         var serialized = editor.serialize(),
             key = Object.keys(serialized)[0],
             title = $("#js-title");
@@ -40,7 +42,9 @@ export function load() {
                 data: JSON.stringify({"content": serialized[key].value, "title": title.val()
             })
         }).done(function () {
-            window.history.back();
+            var missionId = args(1),
+                slug = args(2);
+            window.location.href = "/missions/" + missionId + "/" + slug + "/manage/updates/";
         });
     })
         .on('click', '#cancel', function(event) {

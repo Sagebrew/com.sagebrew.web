@@ -40,14 +40,14 @@
         </div>
     </div>
     <div class="block">
-        <div class="block-content">
+        <div class="block-content padding-15">
             <div class="position-wrapper">
                 <input id="pac-input" class="form-control" type="text"
                        placeholder="What Place is Affected?" value="{{ question.affected_area|default_if_none:'' }}"/>
                 <div id="location-id" hidden>{{ question.external_location_id }}</div>
-                <div id="location-lat" hidden>{{ question.latitude }}</div>
-                <div id="location-long" hidden>{{ question.longitude }}</div>
-                <div id="location-area" hidden>{{ question.affected_area }}</div>
+                <div id="location-lat" hidden>{{ question.latitude|default_if_none:"" }}</div>
+                <div id="location-long" hidden>{{ question.longitude|default_if_none:"" }}</div>
+                <div id="location-area" hidden>{{ question.affected_area|default_if_none:"" }}</div>
             </div>
         </div>
     </div>

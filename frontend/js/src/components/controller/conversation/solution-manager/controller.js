@@ -43,6 +43,7 @@ export function load() {
 
     $secondnav.on('click', '#submit', function(event) {
         event.preventDefault();
+        document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
         var serialized = editor.serialize(),
             key = Object.keys(serialized)[0];
         $("#submit").attr("disabled", "disabled");

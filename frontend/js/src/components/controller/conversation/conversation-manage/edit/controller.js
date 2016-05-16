@@ -35,6 +35,7 @@ export function load() {
     locations.init();
     $secondnav.on('click', '#submit', function(event) {
         event.preventDefault();
+        document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
         $(this).attr("disabled", "disabled");
         greyPage.classList.remove('sb_hidden');
         var placeID, latitude, longitude, affected_area,

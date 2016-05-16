@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block hero %}
-    {% include 'council/nav.html' %}
+    {% include "council/nav.html" %}
 {% endblock %}
 
 {% block sidebar_left %}
@@ -16,14 +16,14 @@
                 <li class="{% if "verified" not in request.path %}active{% endif %}">
                     <a class=""
                        data-filter=""
-                       href="/council/positions/">
+                       href="/council/missions/">
                         Unverified
                     </a>
                 </li>
                 <li class="{% if "verified" in request.path %}active{% endif %}">
                     <a class=""
                        data-filter="verified"
-                       href="/council/positions/verified">
+                       href="/council/missions/verified">
                         Verified
                     </a>
                 </li>
@@ -34,8 +34,14 @@
 
 {% block live %}
     <div class="block">
-        <h3 class="block-title">Unverified Positions</h3>
-        <div class="block-content" id="js-position-verification-wrapper">
+        <h3 class="block-title">Review Mission</h3>
+        <div class="block-content" id="js-mission-verification-wrapper">
+
+            <div class="row">
+                <div class="col-md-6 col-lg-4">
+                    <button class="btn btn-primary sb_btn sb_btn_fill" id="js-submit-review">Submit</button>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

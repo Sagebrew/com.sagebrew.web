@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block hero %}
-    {% include 'council/nav.html' %}
+    {% include "council/nav.html" %}
 {% endblock %}
 
 {% block sidebar_left %}
@@ -34,8 +34,8 @@
 
 {% block live %}
     <div class="block">
-        <h3 class="block-title">Unverified Positions</h3>
-        <div class="block-content" id="js-position-verification-wrapper">
+        <h3 class="block-title">Submitted Missions</h3>
+        <div class="block-content" id="js-mission-verification-wrapper">
         </div>
     </div>
 {% endblock %}

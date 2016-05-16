@@ -99,7 +99,7 @@
             <li><a href="http://blog.sagebrew.com">Blog <i class="fa fa-external-link"></i></a></li>
             <li><a href="{% url 'help_center' %}">Help</a></li>
             <li role="presentation" class="sb_divider"></li>
-            {% if request.user.username == "devon_bleibtrey" or request.user.username == "tylerwiersing" %}
+            {% if request.user.username == "devon_bleibtrey" or request.user.username == "tyler_wiersing" %}
                 <li><a href="{% url 'council_page' %}">Council Area</a></li>
             {% endif %}
             <li><a href="{% url 'logout' %}">Log Out</a></li>

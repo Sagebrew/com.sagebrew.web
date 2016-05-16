@@ -22,6 +22,8 @@ from sb_comments.serializers import CommentSerializer
 from sb_posts.serializers import PostSerializerNeo
 from sb_quests.neo_models import Position
 from sb_quests.serializers import PositionSerializer
+from sb_missions.neo_models import Mission
+from sb_missions.serializers import MissionSerializer
 
 from .serializers import CouncilVoteSerializer
 
@@ -146,4 +148,13 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
         res, _ = db.cypher_query(query)
         return Response(
             [PositionSerializer(Position.inflate(row[0])).data
+             for row in res], status=status.HTTP_200_OK)
+
+    @list_route(serializer_class=MissionSerializer,
+                    permission_classes=(IsAuthenticated,))
+    def missions(self, request):
+        query = 'MATCH (m:Mission)<-[:EMBARKS_ON]-(:Quest) RETURN m'
+        res, _ = db.cypher_query(query)
+        return Response(
+            [self.get_serializer(Mission.inflate(row[0])).data
              for row in res], status=status.HTTP_200_OK)

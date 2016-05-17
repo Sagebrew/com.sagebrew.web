@@ -170,3 +170,11 @@ class MissionViewSet(viewsets.ModelViewSet):
             if "Quest" in node.labels:
                 serialized.append(QuestSerializer(Quest.inflate(node.e)).data)
         return self.get_paginated_response(serialized)
+
+    @detail_route(methods=['POST'], permission_classes=(IsAuthenticated,
+                                                        IsOwnerOrModerator,))
+    def reset_epic(self, request, object_uuid=None):
+        Mission.reset_epic(object_uuid)
+        return Response({"detail": "Successfully Reset Epic",
+                         "status_code": status.HTTP_200_OK},
+                        status=status.HTTP_200_OK)

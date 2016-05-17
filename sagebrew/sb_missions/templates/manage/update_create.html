@@ -1,6 +1,6 @@
 {% extends "layout/hero-one-col.html" %}
 {% load staticfiles %}
-{% block title %}Mission Edit Update{% endblock title %}
+{% block title %}Mission Create Update{% endblock title %}
 {% block body_class %}
     background-color-white
 {% endblock %}
@@ -8,7 +8,7 @@
 {% block navigation %}
     {{ block.super }}
     {% url 'mission_update_settings' mission.id slug as back_url %}
-    {% include 'navigation/navbar_secondary.html' with back_url=back_url nav_title="Edit Update" %}
+    {% include 'navigation/navbar_secondary.html' with back_url=back_url nav_title="Create Update" %}
 {% endblock %}
 
 {% block hero %}
@@ -16,16 +16,15 @@
     <div class="block min-height-600 margin-top-20">
         <div class="block-content">
             <form id="updateForm">
-
-                <textarea class="form-control no-border no-padding-left font-size-26"
+                <textarea class="form-control block-title no-border no-padding-left font-size-26 no-margin-left"
                           name="title"
-                          placeholder="Enter the title..."
+                          placeholder="Type your title here"
                           id="js-title"
-                          rows="1">{{ update.title }}</textarea>
+                          rows="1"></textarea>
                 <div class="sb_markdown">
                     <textarea class="editable"
                           name="content"
-                          rows="10">{{ update.content }}</textarea>
+                          rows="10">{{ update_placeholder }}</textarea>
                 </div>
             </form>
         </div>
@@ -36,5 +35,6 @@
 
 
 {% block intercom %}
-    Intercom('trackEvent', 'manage-edit-update');
+    var metadata = {mission_uuid: "{{ mission.id }}", mission_title: "{{ mission.title }}"};
+    Intercom('trackEvent', 'manage-create-update', metadata);
 {% endblock %}

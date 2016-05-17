@@ -1,5 +1,5 @@
-import bleach
 import pytz
+from bs4 import BeautifulSoup
 
 from uuid import uuid1
 from datetime import datetime
@@ -28,15 +28,15 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         request = self.context["request"]
         question = validated_data.pop('question', None)
         owner = Pleb.get(request.user.username)
-        validated_data['content'] = bleach.clean(validated_data.get(
-            'content', ""))
+        validated_data['content'] = validated_data.get('content', "")
         validated_data['owner_username'] = owner.username
         uuid = str(uuid1())
         href = reverse('solution-detail', kwargs={"object_uuid": uuid},
                        request=request)
+        soup = BeautifulSoup(validated_data['content'], "lxml").get_text()
         solution = Solution(url=question.url, href=href, object_uuid=uuid,
                             parent_id=question.object_uuid,
-                            summary=smart_truncate(validated_data['content']),
+                            summary=smart_truncate(soup),
                             **validated_data).save()
         solution.owned_by.connect(owner)
         question.solutions.connect(solution)
@@ -47,8 +47,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
 
     def update(self, instance, validated_data):
         validate_is_owner(self.context.get('request', None), instance)
-        instance.content = bleach.clean(validated_data.get('content',
-                                                           instance.content))
+        instance.content = validated_data.get('content', instance.content)
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
         spawn_task(task_func=create_solution_summary_task, task_param={

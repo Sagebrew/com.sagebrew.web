@@ -1,3 +1,6 @@
+import pytz
+from datetime import datetime
+
 from django.core.cache import cache
 from django.utils.text import slugify
 from django.conf import settings
@@ -9,7 +12,7 @@ from rest_framework.reverse import reverse
 from neomodel import db, DoesNotExist
 
 from api.utils import (gather_request_data, clean_url, empty_text_to_none,
-                       smart_truncate, render_content)
+                       smart_truncate)
 from api.serializers import SBSerializer
 
 from sb_base.serializers import IntercomEventSerializer
@@ -27,6 +30,8 @@ class MissionSerializer(SBSerializer):
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=255)
     epic = serializers.CharField(required=False, allow_blank=True)
+    temp_epic = serializers.CharField(required=False, allow_blank=True)
+    epic_last_autosaved = serializers.DateTimeField(required=False)
     focus_on_type = serializers.ChoiceField(required=True, choices=[
         ('position', "Public Office"), ('advocacy', "Advocacy"),
         ('question', "Question")])
@@ -42,11 +47,11 @@ class MissionSerializer(SBSerializer):
     location_name = serializers.CharField(required=False, allow_null=True)
     focus_name = serializers.CharField(max_length=240)
     focus_formal_name = serializers.CharField(read_only=True)
+    reset_epic = serializers.BooleanField(required=False)
 
     url = serializers.SerializerMethodField()
     href = serializers.SerializerMethodField()
     focused_on = serializers.SerializerMethodField()
-    rendered_epic = serializers.SerializerMethodField()
     is_editor = serializers.SerializerMethodField()
     is_moderator = serializers.SerializerMethodField()
     has_endorsed_quest = serializers.SerializerMethodField()
@@ -270,6 +275,10 @@ class MissionSerializer(SBSerializer):
                 'SET task.completed=true RETURN task' % (
                     instance.object_uuid, settings.MISSION_ABOUT_TITLE))
         instance.epic = validated_data.pop('epic', instance.epic)
+        prev_temp_epic = instance.temp_epic
+        instance.temp_epic = validated_data.pop('temp_epic', instance.temp_epic)
+        if prev_temp_epic != instance.temp_epic:
+            instance.epic_last_autosaved = datetime.now(pytz.utc)
         if instance.epic is not None:
             db.cypher_query(
                 'MATCH (mission:Mission {object_uuid: "%s"})-'
@@ -311,9 +320,6 @@ class MissionSerializer(SBSerializer):
                        kwargs={'object_uuid': obj.object_uuid,
                                'slug': slugify(obj.get_mission_title())},
                        request=self.context.get('request', None))
-
-    def get_rendered_epic(self, obj):
-        return render_content(obj.epic, obj.object_uuid)
 
     def get_location(self, obj):
         request, _, _, _, _ = gather_request_data(self.context)

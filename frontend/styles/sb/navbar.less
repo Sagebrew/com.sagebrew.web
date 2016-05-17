@@ -176,3 +176,32 @@
     }
   }
 }
+
+.navbar-secondary {
+  &:extend(.navbar);
+  margin-top: 53px;
+  height: 20px;
+  z-index: 999;
+  background-color: @sb_grey_light;
+  border-color: @sb_grey_light !important;
+}
+
+.navbar-brand-secondary {
+  &:extend(.navbar-brand);
+  line-height: 1.5 !important;
+}
+
+.navbar-collapse-secondary {
+  background-color: @sb_grey_light !important;
+  border-color: @sb_grey_light !important;
+}
+
+.collapse-secondary {
+  background-color: @sb_grey_light !important;
+}
+
+.navbar-secondary-mobile-buttons {
+  padding-top: 20px !important;
+  padding-right: 40px !important;
+  padding-left: 40px !important;
+}

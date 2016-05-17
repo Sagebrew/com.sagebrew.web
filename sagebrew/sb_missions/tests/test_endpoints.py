@@ -618,9 +618,9 @@ class MissionEndpointTests(APITestCase):
                           owner_username=self.pleb.username).save()
 
         self.quest.missions.connect(mission)
-        content = "# hello world this is a h1 #\n" \
-                  "## with a h2 after it ##\n" \
-                  "# another h1 #\n" \
+        content = "<h1> hello world this is a h1 </h1>\n" \
+                  "<h2> with a h2 after it </h2>\n" \
+                  "<h1> another h1 </h1>\n" \
                   "and then some text"
         data = {
             "epic": content,
@@ -635,13 +635,8 @@ class MissionEndpointTests(APITestCase):
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data, format='json')
-        html_content = '<h1 style="padding-top: 0; ' \
-                       'margin-top: 5px;">hello world this is a h1</h1>\n' \
-                       '<h2>with a h2 after it</h2>\n' \
-                       '<h1>another h1</h1>\n' \
-                       '<p>and then some text</p>'
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['rendered_epic'], html_content)
+        self.assertEqual(response.data['epic'], content)
 
     def test_update_epic_with_h2_first(self):
         self.client.force_authenticate(user=self.user)
@@ -649,9 +644,9 @@ class MissionEndpointTests(APITestCase):
                           owner_username=self.pleb.username).save()
 
         self.quest.missions.connect(mission)
-        content = "## hello world this is a h2 ##\n" \
-                  "# with a h1 after it #\n" \
-                  "## another h2 ##\n" \
+        content = "<h2> hello world this is a h2 </h2>\n" \
+                  "<h1> with a h1 after it </h1>\n" \
+                  "<h2> another h2 </h2>\n" \
                   "and then some text"
         data = {
             "epic": content,
@@ -666,13 +661,8 @@ class MissionEndpointTests(APITestCase):
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data, format='json')
-        html_content = '<h2 style="padding-top: 0; ' \
-                       'margin-top: 5px;">hello world this is a h2</h2>' \
-                       '\n<h1>with a h1 after it</h1>' \
-                       '\n<h2>another h2</h2>\n<p>' \
-                       'and then some text</p>'
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['rendered_epic'], html_content)
+        self.assertEqual(response.data['epic'], content)
 
     def test_update_take_active(self):
         self.client.force_authenticate(user=self.user)
@@ -729,6 +719,24 @@ class MissionEndpointTests(APITestCase):
         mission.refresh()
         self.assertEqual(mission.website, data['website'])
         self.assertFalse(mission.active)
+
+    def test_update_temp_epic(self):
+        self.client.force_authenticate(user=self.user)
+        mission = Mission(title=str(uuid1()),
+                          owner_username=self.pleb.username,
+                          active=True,
+                          temp_epic="this is a temp epic").save()
+        self.quest.missions.connect(mission)
+        data = {
+            "temp_epic": str(uuid1())
+        }
+        url = reverse('mission-detail',
+                      kwargs={'object_uuid': mission.object_uuid})
+        response = self.client.patch(url, data=data, format='json')
+        self.assertContains(response, data['temp_epic'],
+                            status_code=status.HTTP_200_OK)
+        mission.refresh()
+        self.assertEqual(mission.temp_epic, data['temp_epic'])
 
     def test_detail(self):
         self.client.force_authenticate(user=self.user)
@@ -1192,3 +1200,14 @@ class MissionEndpointTests(APITestCase):
         res = self.client.get(url, format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['results'][0]['id'], self.quest.object_uuid)
+
+    def test_reset_epic(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.temp_epic = "SOMETHING DIFFERENT THAN EPIC"
+        self.mission.epic = "THIS IS MY EPIC!"
+        self.mission.save()
+        url = "/v1/missions/%s/reset_epic/" % self.mission.object_uuid
+        res = self.client.post(url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(mission.epic, mission.temp_epic)

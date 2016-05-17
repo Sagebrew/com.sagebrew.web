@@ -1,0 +1,186 @@
+<h1>MediumEditor Custom Events (v5.0.0)</h1>
+<p>MediumEditor exposes a variety of custom events for convienience when using the editor with your web application.  You can attach and detach listeners to these custom events, as well as manually trigger any custom events including your own custom events.</p>
+<p><strong>NOTE:</strong></p>
+<p>Custom event listeners are triggered in the order that they were 'subscribed' to.  Most functionality within medium-editor uses these custom events to trigger updates, so in general, it can be assumed that most of the built-in functionality has already been completed before any of your custom event listeners will be called.</p>
+<p>If you need to override the editor's bult-in behavior, try overriding the built-in extensions with your own <a href="src/js/extensions">custom extension</a>.</p>
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+<li><a href="#api-methods">API Methods</a></li>
+<li><a href="#mediumeditorsubscribename-listener"><code>MediumEditor.subscribe(name, listener)</code></a></li>
+<li><a href="#mediumeditorunsubscribename-listener"><code>MediumEditor.unsubscribe(name, listener)</code></a></li>
+<li><a href="#mediumeditortriggername-data-editable"><code>MediumEditor.trigger(name, data, editable)</code></a></li>
+<li><a href="#custom-events">Custom Events</a></li>
+<li><a href="#blur"><code>blur</code></a></li>
+<li><a href="#editableinput"><code>editableInput</code></a></li>
+<li><a href="#externalinteraction"><code>externalInteraction</code></a></li>
+<li><a href="#focus"><code>focus</code></a></li>
+<li><a href="#toolbar-custom-events">Toolbar Custom Events</a></li>
+<li><a href="#hidetoolbar"><code>hideToolbar</code></a></li>
+<li><a href="#positiontoolbar"><code>positionToolbar</code></a></li>
+<li><a href="#positionedtoolbar"><code>positionedToolbar</code></a></li>
+<li><a href="#showtoolbar"><code>showToolbar</code></a></li>
+<li><a href="#proxied-custom-events">Proxied Custom Events</a><ul>
+<li><a href="#editableclick"><code>editableClick</code></a></li>
+<li><a href="#editableblur"><code>editableBlur</code></a></li>
+<li><a href="#editablekeypress"><code>editableKeypress</code></a></li>
+<li><a href="#editablekeyup"><code>editableKeyup</code></a></li>
+<li><a href="#editablekeydown"><code>editableKeydown</code></a></li>
+<li><a href="#editablekeydownenter"><code>editableKeydownEnter</code></a></li>
+<li><a href="#editablekeydowntab"><code>editableKeydownTab</code></a></li>
+<li><a href="#editablekeydowndelete"><code>editableKeydownDelete</code></a></li>
+<li><a href="#editablekeydownspace"><code>editableKeydownSpace</code></a></li>
+<li><a href="#editablemouseover"><code>editableMouseover</code></a></li>
+<li><a href="#editabledrag"><code>editableDrag</code></a></li>
+<li><a href="#editabledrop"><code>editableDrop</code></a></li>
+<li><a href="#editablepaste"><code>editablePaste</code></a></li>
+</ul>
+</li>
+</ul>
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+<h2>API Methods</h2>
+<p>Use the following methods of <a href="API.md">MediumEditor</a> for custom event interaction:</p>
+<h3><code>MediumEditor.subscribe(name, listener)</code></h3>
+<p>Attaches a listener for the specified custom event name.</p>
+<p><strong>Arguments</strong></p>
+<ol>
+<li>
+<p><em><strong>name</strong> (<code>String</code>)</em>:</p>
+</li>
+<li>
+<p>Name of the event to listen to.  See the list of built-in <a href="#custom-events">Custom Events</a> below.</p>
+</li>
+<li>
+<p><em><strong>listener(data, editable)</strong> (<code>function</code>)</em>: </p>
+</li>
+<li>
+<p>Listener method that will be called whenever the custom event is triggered.</p>
+</li>
+</ol>
+<p><strong>Arguments to listener</strong></p>
+<ol>
+<li><em><strong>data</strong> (<code>Event</code> | <code>object</code>)</em><ul>
+<li>For most custom events, this will be the browser's native <code>Event</code> object for the event that triggered the custom event to fire.</li>
+<li>For some custom events, this will be an object containing information describing the event (depending on which custom event it is)</li>
+</ul>
+</li>
+<li><em><strong>editable</strong> (<code>HTMLElement</code>)</em><ul>
+<li>A reference to the contenteditable container element that this custom event corresponds to.  This is especially useful for instances where one instance of MediumEditor contains multiple elements, or there are multiple instances of MediumEditor on the page.</li>
+<li>For example, when <code>blur</code> fires, this argument will be the <code>&lt;div contenteditable=true&gt;&lt;/div&gt;</code> element that is about to receive focus.</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h3><code>MediumEditor.unsubscribe(name, listener)</code></h3>
+<p>Detaches a custom event listener for the specified custom event name.</p>
+<p><strong>Arguments</strong></p>
+<ol>
+<li>
+<p><em><strong>name</strong> (<code>String</code>)</em>:</p>
+</li>
+<li>
+<p>Name of the event to detach the listener for.</p>
+</li>
+<li>
+<p><em><strong>listener</strong> (<code>function</code>)</em>: </p>
+</li>
+<li>
+<p>A reference to the listener to detach.  This must be a match by-reference and not a copy.</p>
+</li>
+</ol>
+<p><strong>NOTE</strong></p>
+<ul>
+<li>Calling <a href="API.md#destroy">destroy()</a> on the MediumEditor object will automatically remove all custom event listeners.</li>
+</ul>
+<hr />
+<h3><code>MediumEditor.trigger(name, data, editable)</code></h3>
+<p>Manually triggers a custom event.</p>
+<ol>
+<li>
+<p><em><strong>name</strong> (<code>String</code>)</em>:</p>
+</li>
+<li>
+<p>Name of the custom event to trigger.</p>
+</li>
+<li>
+<p><em><strong>data</strong> (<code>Event</code> | <code>object</code>)</em>:</p>
+</li>
+<li>
+<p>Native <code>Event</code> object or custom data object to pass to all the listeners to this custom event.</p>
+</li>
+<li>
+<p><em><strong>editable</strong> (<code>HTMLElement</code>)</em>:</p>
+</li>
+<li>
+<p>The <code>&lt;div contenteditable=true&gt;&lt;/div&gt;</code> element to pass to all of the listeners to this custom event.</p>
+</li>
+</ol>
+<h2>Custom Events</h2>
+<p>These events are custom to MediumEditor so there may be one or more native events that can trigger them.</p>
+<h3><code>blur</code></h3>
+<p><code>blur</code> is triggered whenever a <code>contenteditable</code> element within an editor has lost focus to an element other than an editor maintained element (ie Toolbar, Anchor Preview, etc).</p>
+<p>Example:</p>
+<ol>
+<li>User selects text within an editor element, causing the toolbar to appear</li>
+<li>User clicks on a toolbar button</li>
+<li>Technically focus may have been lost on the editor element, but since the user is interacting with the toolbar, <code>blur</code> is NOT fired.</li>
+<li>User hovers over a link, anchor-preview is displayed</li>
+<li>User clicks link to edit it, and the toolbar now displays a textbox to edit the url</li>
+<li>Focus will have lost here since focus is now in the url editing textbox, but again since it's within the toolbar, <code>blur</code> is NOT fired.</li>
+<li>User clicks on another part of the page which hides the toolbar and focus is no longer in the <code>contenteditable</code></li>
+<li><code>blur</code> is triggered</li>
+</ol>
+<hr />
+<h3><code>editableInput</code></h3>
+<p><code>editableInput</code> is triggered whenever the content of a <code>contenteditable</code> changes, including keypresses, toolbar actions, or any other user interaction that changes the html within the element.  For non-IE browsers, this is just a proxied version of the native <code>input</code> event.  However, Internet Explorer and has never supported the <code>input</code> event on <code>contenteditable</code> elements, and Edge has some support for <code>input</code> on <code>contenteditable</code> (which may be fixed in upcoming release of Edge) so for these browsers the <code>editableInput</code> event is triggered through a combination of:
+<em> native <code>keypress</code> event on the element
+</em> native <code>selectionchange</code> event on the document
+* monitoring calls the <code>document.execCommand()</code></p>
+<hr />
+<h3><code>externalInteraction</code></h3>
+<p><code>externalInteraction</code> is triggered whenever the user interact with any element outside of the <code>contenteditable</code> element or the other elements maintained by the editor (ie Toolbar, Anchor Preview, etc.).  This event trigger regardless of whether an existing <code>contenteditable</code> element had focus or not.</p>
+<hr />
+<h3><code>focus</code></h3>
+<p><code>focus</code> is triggered whenver a <code>contenteditable</code> element within an editor receives focus. If the user interacts with any editor maintained elements (ie toolbar), <code>blur</code> is NOT triggered because focus has not been lost.  Thus, <code>focus</code> will only be triggered when an <code>contenteditable</code> element (or the editor that contains it) is first interacted with.</p>
+<h2>Toolbar Custom Events</h2>
+<p>These events are triggered by the toolbar when the toolbar extension has not been disabled.</p>
+<h3><code>hideToolbar</code></h3>
+<p><code>hideToolbar</code> is triggered whenever the toolbar was visible and has just been hidden.</p>
+<h3><code>positionToolbar</code></h3>
+<p><code>positionToolbar</code> is triggered each time the current selection is checked and the toolbar's position is about to be updated. This event is triggered after all of the buttons have had their state updated, but before the toolbar is moved to the correct location.  This event will be triggered even if nothing will be changed about the toolbar's appearance.</p>
+<h3><code>positionedToolbar</code></h3>
+<p><code>positionedToolbar</code> is triggered each time the current selection is checked, the toolbar is displayed, and the toolbar's position was updated. This differs from the <code>positionToolbar</code> event in that the visibility and location of the toolbar has already been changed (as opposed to the event triggering before those changes occur). This event will be triggered even if nothing was changed about the toolbar's appearance.</p>
+<h3><code>showToolbar</code></h3>
+<p><code>showToolbar</code> is triggered whenever the toolbar was hidden and has just been displayed.</p>
+<h2>Proxied Custom Events</h2>
+<p>These events are triggered whenever a native browser event is triggered for any of the <code>contenteditable</code> elements monitored by this instnace of MediumEditor.</p>
+<p>For example, the <code>editableClick</code> custom event will be triggered when a native <code>click</code> event is fired on any of the <code>contenteditable</code> elements. This provides a single event listener that can get fired for all elements, and also allows for the <code>contenteditable</code> element that triggered the event to be passed to the listener.</p>
+<h5><code>editableClick</code></h5>
+<p>native <code>click</code> event for each element</p>
+<h5><code>editableBlur</code></h5>
+<p>native <code>blur</code> event for each element.</p>
+<h5><code>editableKeypress</code></h5>
+<p>native <code>keypress</code> event for each element.</p>
+<h5><code>editableKeyup</code></h5>
+<p>native <code>keyup</code> event for each element.</p>
+<h5><code>editableKeydown</code></h5>
+<p>native <code>keydown</code> event for each element.</p>
+<h5><code>editableKeydownEnter</code></h5>
+<p>native <code>keydown</code> event for each element, but only triggered if the key is <code>ENTER</code> (keycode 13).</p>
+<h5><code>editableKeydownTab</code></h5>
+<p>native <code>keydown</code> event for each element, but only triggered if the key is <code>TAB</code> (keycode 9).</p>
+<h5><code>editableKeydownDelete</code></h5>
+<p>native <code>keydown</code> event for each element, but only triggered if the key is <code>DELETE</code> (keycode 46).</p>
+<h5><code>editableKeydownSpace</code></h5>
+<p>native <code>keydown</code> event for each element, but only triggered if the key is <code>SPACE</code> (keycode 32).</p>
+<h5><code>editableMouseover</code></h5>
+<p>native <code>mouseover</code> event for each element.</p>
+<h5><code>editableDrag</code></h5>
+<p>native <code>drag</code> event for each element.</p>
+<h5><code>editableDrop</code></h5>
+<p>native <code>drop</code> event for each element.</p>
+<h5><code>editablePaste</code></h5>
+<p>native <code>paste</code> event for each element.</p>

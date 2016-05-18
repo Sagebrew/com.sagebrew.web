@@ -21,4 +21,5 @@ CMD /bin/bash -c "source /home/apps/venv/bin/activate && \
     python manage.py migrate --noinput && \
     python manage.py create_privileges && \
     python manage.py migrate_to_new_editor && \
+    python manage.py setup_onboarding_for_missions && \
     python manage.py clearsessions"

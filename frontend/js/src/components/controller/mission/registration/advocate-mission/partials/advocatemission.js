@@ -69,14 +69,12 @@ export function load() {
                 districtRow.classList.add('hidden');
                 startBtn.disabled = true;
             }
-            if (this.classList.contains("radio-selected") && this.classList.contains("js-level")) {
-
-            } else {
+            if (!(this.classList.contains("radio-selected") && this.classList.contains("js-level"))) {
                 // TODO: REUSE
                 // If we select a level, enable the inputs
                 stateInput.disabled = false;
                 placeInput.disabled = false;
-                if(this.id === "local-selection"){
+                if (this.id === "local-selection") {
                     // The local level was selected
                     stateInput.classList.add('hidden');
                     placeInput.classList.remove('hidden');
@@ -88,13 +86,13 @@ export function load() {
                     placeInput.value = "";
                     localStorage.removeItem(locationKey);
                     localStorage.removeItem(locationName);
-                } else if (this.id === "state-selection"){
+                } else if (this.id === "state-selection") {
                     // The state level was selected
                     stateRequired.innerHTML = 'Select a State';
                     localStorage.setItem(levelKey, "state");
                     districtRow.classList.remove('hidden');
                     districtSelection('state', stateInput, placeInput, startBtn, districtRow);
-                } else if (this.id === "federal-selection"){
+                } else if (this.id === "federal-selection") {
                     // The federal level was selected
                     stateRequired.innerHTML = 'Select a State';
                     districtSelection('federal', stateInput, placeInput, startBtn, districtRow);

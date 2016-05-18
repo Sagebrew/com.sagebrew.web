@@ -2,6 +2,7 @@ var request = require('api').request,
     radioSelector = require('common/radioimage').radioSelector,
     helpers = require('common/helpers'),
     validators = require('common/validators'),
+    addresses = require('common/addresses'),
     settings = require('settings').settings;
 
 export function amount() {
@@ -14,7 +15,9 @@ export function amount() {
         campaignFinanceValidationForm,
         campaignFinanceForm = document.getElementById('campaign-finance'),
         contributionKey = donateToID + 'contributionAmount',
-        subscriptionKey = donateToID + 'subscriptionType';
+        subscriptionKey = donateToID + 'subscriptionType',
+        addressForm = document.getElementById('address'),
+        addressValidationForm = addresses.setupAddress(function callback() {});
     $(':radio').radiocheck();
     $(':checkbox').radiocheck();
     if(campaignFinanceForm !== undefined && campaignFinanceForm !== null) {
@@ -104,14 +107,23 @@ export function amount() {
         })
         .on('click', '#js-continue-btn', function(event){
             event.preventDefault();
-            completeAmount(donateToID, campaignFinanceValidationForm);
+            completeAmount(donateToID, campaignFinanceValidationForm,
+                addressForm, addressValidationForm, contributionKey);
         })
         .on('keypress', '#campaign-finance input', function(event) {
             // TODO this is almost the same logic as signup/controller.js for
             // campaign finance. Might want to try and merge them up into a
             // controller or common lib that manages campaign finance registration
             if (event.which === 13 || event.which === 10) {
-                completeAmount(donateToID, campaignFinanceValidationForm);
+                completeAmount(donateToID, campaignFinanceValidationForm,
+                    addressForm, addressValidationForm, contributionKey);
+                return false;
+            }
+        })
+        .on('keypress', '#address input', function(event) {
+            if (event.which === 13 || event.which === 10) {
+                completeAmount(donateToID, campaignFinanceValidationForm,
+                    addressForm, addressValidationForm, contributionKey);
                 return false;
             }
         })
@@ -128,40 +140,73 @@ export function amount() {
 }
 
 
-function completeAmount(donateToID, campaignFinanceValidationForm) {
+function completeAmount(donateToID, campaignFinanceValidationForm,
+                        addressForm, addressValidationForm, contributionKey) {
+    var addressFormExists = false,
+        campaignFinanceFormExists = false;
+    if(addressValidationForm !== null && addressValidationForm !== undefined && addressValidationForm.length !== 0) {
+        addressFormExists = true;
+    }
+    if(campaignFinanceValidationForm !== null && campaignFinanceValidationForm !== undefined && campaignFinanceValidationForm.length !== 0) {
+        campaignFinanceFormExists = true;
+    }
+    if(localStorage.getItem(contributionKey) === null || localStorage.getItem(contributionKey) === undefined) {
+        $.notify({message: "Please specify a donation amount."}, {type: "danger"});
+    }
     if(settings.user.type === "anon"){
         window.location.href = "/missions/" + donateToID + "/" +
             helpers.args(2) + "/donate/name/";
     } else {
-        // TODO this is almost the same logic as signup/controller.js for
-        // campaign finance. Might want to try and merge them up into a
-        // controller or common lib that manages campaign finance registration
-        if(campaignFinanceValidationForm !== null && campaignFinanceValidationForm !== undefined) {
+        if(addressFormExists && campaignFinanceFormExists){
+            addressValidationForm.data('formValidation').validate();
+            campaignFinanceValidationForm.data('formValidation').validate();
+            if(addressValidationForm.data('formValidation').isValid() === true && campaignFinanceValidationForm.data('formValidation').isValid() === true) {
+                document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+                addresses.submitAddress(addressForm,
+                    submitCampaignFinance,
+                    "/v1/profiles/" + settings.profile.username + "/");
+            }
+        } else if (addressFormExists && !campaignFinanceFormExists) {
+            addressValidationForm.data('formValidation').validate();
+            if(addressValidationForm.data('formValidation').isValid() === true) {
+                document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+                addresses.submitAddress(addressForm, redirectToPaymentSelect(donateToID),
+                    "/v1/profiles/" + settings.profile.username + "/");
+            }
+        } else if (!addressFormExists && campaignFinanceFormExists) {
             campaignFinanceValidationForm.data('formValidation').validate();
             if(campaignFinanceValidationForm.data('formValidation').isValid() === true){
-                document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
-                var employerName = document.getElementById('employer-name').value,
-                    occupationName = document.getElementById('occupation-name').value,
-                    retired = document.getElementById('retired-or-not-employed').checked;
-                if(retired === true){
-                    employerName = "N/A";
-                    occupationName = "Retired or Not Employed";
-                }
-                var data = {
-                    employer_name: employerName,
-                    occupation_name: occupationName
-                };
-                request.patch({url: "/v1/me/", data: JSON.stringify(data)})
-                    .done(function () {
-                        document.getElementById('sb-greyout-page').classList.add('sb_hidden');
-                        window.location.href = "/missions/" + donateToID + "/" +
-                            helpers.args(2) + "/donate/payment/";
-                    });
+                submitCampaignFinance();
             }
         } else {
-            document.getElementById('sb-greyout-page').classList.add('sb_hidden');
-            window.location.href = "/missions/" + donateToID + "/" +
-                helpers.args(2) + "/donate/payment/";
+            redirectToPaymentSelect(donateToID);
         }
     }
+}
+
+function redirectToPaymentSelect (donateToID) {
+    document.getElementById('sb-greyout-page').classList.add('sb_hidden');
+    window.location.href = "/missions/" + donateToID + "/" +
+        helpers.args(2) + "/donate/payment/";
+}
+
+
+function submitCampaignFinance() {
+    var donateToID = helpers.args(1);
+    document.getElementById('sb-greyout-page').classList.remove('sb_hidden');
+    var employerName = document.getElementById('employer-name').value,
+        occupationName = document.getElementById('occupation-name').value,
+        retired = document.getElementById('retired-or-not-employed').checked;
+    if(retired === true){
+        employerName = "N/A";
+        occupationName = "Retired or Not Employed";
+    }
+    var data = {
+        employer_name: employerName,
+        occupation_name: occupationName
+    };
+    request.patch({url: "/v1/me/", data: JSON.stringify(data)})
+        .done(function () {
+            redirectToPaymentSelect(donateToID);
+        });
 }

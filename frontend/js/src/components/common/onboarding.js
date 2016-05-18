@@ -8,7 +8,7 @@ export function routeMissionSetupToEpic(data) {
     localStorage.setItem("recent_mission_slug", data.slug);
     if(settings.profile.quest.account_verified !== "unverified") {
         // TODO this needs to be swapped out with actual location of one pager
-        window.location.href = "/missions/" + data.id + "/" + data.slug + "/manage/epic/";
+        window.location.href = "/missions/" + data.id + "/" + data.slug + "/manage/epic/edit/";
     } else {
         window.location.href = "/missions/account/";
     }

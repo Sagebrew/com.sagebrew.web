@@ -45,6 +45,7 @@ class QuestSettingsView(LoginRequiredMixin):
 
     def get(self, request, username=None):
         from sb_missions.neo_models import Mission
+        from sb_missions.serializers import MissionSerializer
         from sb_missions.utils import order_tasks
         query = 'MATCH (person:Pleb {username: "%s"})' \
             '-[r:IS_WAGING]->(quest:Quest) WITH quest ' \
@@ -66,6 +67,7 @@ class QuestSettingsView(LoginRequiredMixin):
             mission_link = reverse('select_mission')
             mission_active = False
             onboarding_sort = []
+            mission_obj = None
             onboarding_done = 0
         else:
             mission_obj = Mission.inflate(res[0].missions)
@@ -91,6 +93,8 @@ class QuestSettingsView(LoginRequiredMixin):
         return render(request, self.template_name, {
             "quest": quest_ser, "mission_link": mission_link,
             "mission_active": mission_active,
+            "mission": MissionSerializer(
+                mission_obj, context={"request": request}).data,
             "address": address,
             "onboarding_top_3": onboarding_sort[:3],
             "onboarding_rest": onboarding_sort[3:],

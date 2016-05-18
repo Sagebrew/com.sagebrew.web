@@ -46,7 +46,7 @@ export function load () {
                     data = helpers.votableContentPrep([data])[0];
                     
                     // remove content of editor
-                    editor.destroy()
+                    editor.destroy();
                     $(".editable").val("");
                     editor = mediumEditor(".editable", "Type your Solution here");
 

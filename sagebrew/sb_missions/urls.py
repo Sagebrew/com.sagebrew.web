@@ -30,6 +30,9 @@ urlpatterns = patterns(
         name="account_setup"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/$',
         mission_redirect_page, name="mission_redirect"),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/review/$',
+        TemplateView.as_view(template_name="manage/submit_for_review.html"),
+        name='submit_mission_for_review'),
 
     # Manage
     url(r'^settings/$', MissionSettingsView.as_view(),

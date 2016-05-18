@@ -489,6 +489,15 @@ PROMOTION_KEYS = ["8UN96FNPP8ntv8JeaOyP", ]
 
 CORS_ORIGIN_ALLOW_ALL = True
 DEFAULT_WALLPAPER = 'images/wallpaper_capitol_2.jpg'
+REVIEW_FEEDBACK_OPTIONS = [
+    ('too_short', "Adding a bit more content to your "
+                  "Epic may help generate more donations."),
+    ('no_action_items', "Providing some actionable tasks you can accomplish "
+                        "will allow you to create Updates which build "
+                        "confidence with contributors."),
+    ('malicious', "You cannot include malicious content within your Epic."),
+    ('porn', "Your Epic has too much pornography.")
+]
 # Titles for onboarding since they must be indexes and they are used in
 # multiple locations to determine what to set to completed.
 # If we change these we'll need to run a query to update all the existing
@@ -532,7 +541,7 @@ ONBOARDING_TASKS = [
     },
     {
         "title": SUBMIT_FOR_REVIEW,
-        "completed_title": "Review Completed",
+        "completed_title": "Submitted For Review",
         "content": "Take the final step needed to share your mission "
                    "with the world.",
         "icon": "fa fa-star",

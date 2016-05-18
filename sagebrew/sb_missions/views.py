@@ -131,9 +131,15 @@ class MissionSettingsView(LoginRequiredMixin):
             mission_obj = Mission.inflate(res[0].missions)
             return redirect('mission_settings',
                             object_uuid=mission_obj.object_uuid,
-                            slug=slugify(mission_obj.get_mission_title()))
+                            slug=slug)
 
         mission_obj = Mission.get(object_uuid)
+        if self.template_name == "manage/epic.html" and \
+                not mission_obj.saved_for_later and \
+                not mission_obj.submitted_for_review:
+            return redirect("submit_mission_for_review",
+                            object_uuid=mission_obj.object_uuid,
+                            slug=slug)
         missions = [MissionSerializer(Mission.inflate(row.missions)).data
                     for row in res]
         quest = Quest.inflate(res.one.quest)

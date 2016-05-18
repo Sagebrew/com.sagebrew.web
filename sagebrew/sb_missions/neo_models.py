@@ -3,7 +3,8 @@ from django.conf import settings
 from django.templatetags.static import static
 
 from neomodel import (db, StringProperty, RelationshipTo, DoesNotExist,
-                      BooleanProperty, RelationshipFrom, DateTimeProperty)
+                      BooleanProperty, RelationshipFrom, DateTimeProperty,
+                      ArrayProperty)
 
 from sb_search.neo_models import Searchable
 from sb_base.neo_models import VoteRelationship, get_current_time
@@ -24,6 +25,26 @@ class Mission(Searchable):
     # live it will not show up as a donation option on the quest and will not
     # be selectable by normal users in any of the interfaces.
     active = BooleanProperty(default=False)
+
+    # Indicates whether or not the user has submitted a given Mission for review
+    # or not.
+    submitted_for_review = BooleanProperty(default=False)
+    saved_for_later = BooleanProperty(default=False)
+    # Indicates the current state of the review process
+    # Valid values are:
+    #       Pending
+    #       Under Review
+    #       Action Needed
+    #       Complete
+    review_status = StringProperty()
+    # Indicates whether customer support provided feedback to the Mission owner
+    has_feedback = BooleanProperty(default=False)
+
+    # An array of strings that correlate to the list of feedback
+    # options customer support can select to relay to the user based on their
+    # review. These strings are used for bullet lists.
+    review_feedback = ArrayProperty()
+
     # The owner is able to mark a mission as completed after it has started
     # this is basically saying the mission is over and they have either
     # succeeded or failed. The system can also mark political quests completed

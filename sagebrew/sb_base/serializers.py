@@ -43,7 +43,6 @@ class VotableContentSerializer(SBSerializer):
     can_upvote = serializers.SerializerMethodField()
     can_downvote = serializers.SerializerMethodField()
     is_private = serializers.SerializerMethodField()
-    html_content = serializers.SerializerMethodField()
 
     def get_profile(self, obj):
         from plebs.serializers import PlebSerializerNeo
@@ -122,12 +121,6 @@ class VotableContentSerializer(SBSerializer):
         if not request.user.is_authenticated():
             return False
         return obj.owner_username == request.user.username
-
-    def get_html_content(self, obj):
-        if obj.content is not None:
-            return bleach.clean(obj.content).replace('\n', "<br />")
-        else:
-            return None
 
     def get_can_comment(self, obj):
         """

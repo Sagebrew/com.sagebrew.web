@@ -25,13 +25,7 @@
         <div class="row">
         <h6>Content</h6>
             <div class="col-xs-10 sb_markdown">
-                {% if html_content %}
-                    {% autoescape off %}
-                        {{ html_content }}
-                    {% endautoescape %}
-                {% else %}
-                    {{ content }}
-                {% endif %}
+                {{ content }}
             </div>
         </div>
         {% if parent_content %}

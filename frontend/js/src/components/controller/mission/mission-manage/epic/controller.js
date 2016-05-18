@@ -20,9 +20,9 @@ export function init() {
 }
 
 function finishedTyping(editor, missionId) {
-    require('kuende-livestamp');
     var serialized = editor.serialize(),
         key = Object.keys(editor.serialize())[0];
+    console.log(serialized[key].value);
     request.patch({url: "/v1/missions/" + missionId + "/",
         data: JSON.stringify(
                 {'temp_epic': serialized[key].value})
@@ -35,7 +35,6 @@ function finishedTyping(editor, missionId) {
  * Load
  */
 export function load() {
-    require('kuende-livestamp');
     var missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         $secondnav = $(".navbar-secondary"),
         typingTimer,

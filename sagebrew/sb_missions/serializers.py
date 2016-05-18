@@ -12,7 +12,7 @@ from rest_framework.reverse import reverse
 from neomodel import db, DoesNotExist
 
 from api.utils import (gather_request_data, clean_url, empty_text_to_none,
-                       smart_truncate)
+                       smart_truncate, render_content)
 from api.serializers import SBSerializer
 
 from sb_base.serializers import IntercomEventSerializer
@@ -275,8 +275,10 @@ class MissionSerializer(SBSerializer):
                 'SET task.completed=true RETURN task' % (
                     instance.object_uuid, settings.MISSION_ABOUT_TITLE))
         instance.epic = validated_data.pop('epic', instance.epic)
+        instance.epic = render_content(instance.epic, instance.object_uuid)
         prev_temp_epic = instance.temp_epic
         instance.temp_epic = validated_data.pop('temp_epic', instance.temp_epic)
+        instance.temp_epic = render_content(instance.temp_epic, instance.object_uuid)
         if prev_temp_epic != instance.temp_epic:
             instance.epic_last_autosaved = datetime.now(pytz.utc)
         if instance.epic is not None:

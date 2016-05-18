@@ -162,11 +162,12 @@ class QuestionEndpointTests(APITestCase):
         res, _ = db.cypher_query(query)
         self.assertIsNotNone(res.one)
 
-    def test_create_with_h1_first(self):
+    def test_create_with_h3_first(self):
         self.client.force_authenticate(user=self.user)
-        content = "# hello world this is a h1 #\n" \
-                  "## with a h2 after it ##\n" \
-                  "# another h1 #\n" \
+        cache.clear()
+        content = "<h3> hello world this is a h3 </h3><br>" \
+                  "<h2> with a h2 after it </h2><br>" \
+                  "<h3> another h3 </h3><br>" \
                   "and then some text"
         title = "This is a question that must be t is blue216666?"
         tags = ['taxes', 'environment']
@@ -177,11 +178,10 @@ class QuestionEndpointTests(APITestCase):
             "tags": tags
         }
         response = self.client.post(url, data, format='json')
-        html_content = '<h1 style="padding-top: 0; ' \
-                       'margin-top: 5px;">hello world this is a h1</h1>\n' \
-                       '<h2>with a h2 after it</h2>\n' \
-                       '<h1>another h1</h1>\n' \
-                       '<p>and then some text</p>'
+        html_content = '<h3 style="padding-top: 0; margin-top: 5px;"> ' \
+                       'hello world this is a h3 </h3><br/><h2> with a ' \
+                       'h2 after it </h2><br/><h3> another h3 </h3><br/>' \
+                       'and then some text'
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
@@ -190,9 +190,10 @@ class QuestionEndpointTests(APITestCase):
 
     def test_create_with_h2_first(self):
         self.client.force_authenticate(user=self.user)
-        content = "## hello world this is a h2 ##\n" \
-                  "# with a h1 after it #\n" \
-                  "## another h2 ##\n" \
+        cache.clear()
+        content = "<h2> hello world this is a h2 </h2><br>" \
+                  "<h3> with a h3 after it <h/3><br>" \
+                  "<h2 another h2 </h2><br>" \
                   "and then some text"
         title = "This is a question that must be t is blue21222?"
         tags = ['taxes', 'environment']
@@ -203,11 +204,10 @@ class QuestionEndpointTests(APITestCase):
             "tags": tags
         }
         response = self.client.post(url, data, format='json')
-        html_content = '<h2 style="padding-top: 0; ' \
-                       'margin-top: 5px;">hello world this is a h2</h2>' \
-                       '\n<h1>with a h1 after it</h1>' \
-                       '\n<h2>another h2</h2>\n<p>' \
-                       'and then some text</p>'
+        html_content = '<h2 style="padding-top: 0; margin-top: 5px;"> ' \
+                       'hello world this is a h2 </h2><br/><h3> with a h3 ' \
+                       'after it <h><br/><h2 another="" h2=""><br/>and then ' \
+                       'some text</h2></h></h3>'
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
@@ -216,9 +216,8 @@ class QuestionEndpointTests(APITestCase):
 
     def test_create_with_image(self):
         self.client.force_authenticate(user=self.user)
-        content = "![enter image description here][1] " \
-                  "asdfasdfasdfasdfadsfasdfasdfa\n" \
-                  "[1]: https://i.imgur.com/nHcAF4t.jpg"
+        cache.clear()
+        content = '<img src="https://i.imgur.com/nHcAF4t.jpg">'
         title = "This is a question that must be t is blue21?"
         tags = ['taxes', 'environment']
         url = reverse('question-list')
@@ -228,11 +227,9 @@ class QuestionEndpointTests(APITestCase):
             "tags": tags
         }
         response = self.client.post(url, data, format='json')
-        html_content = '<p><a href="https://i.imgur.com/nHcAF4t.jpg" ' \
-                       'data-lightbox="%s">' \
-                       '<img alt="enter image description here" ' \
-                       'src="https://i.imgur.com/nHcAF4t.jpg" /></a> ' \
-                       'asdfasdfasdfasdfadsfasdfasdfa</p>' % \
+        html_content = '<a data-lightbox="%s" ' \
+                       'href="https://i.imgur.com/nHcAF4t.jpg">' \
+                       '<img src="https://i.imgur.com/nHcAF4t.jpg"/></a>' % \
                        response.data['id']
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
@@ -240,20 +237,13 @@ class QuestionEndpointTests(APITestCase):
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
 
-    def test_create_with_multiple_image(self):
+    def test_create_with_image_already_wrapped(self):
         self.client.force_authenticate(user=self.user)
-        content = "![enter image description here][1] \n" \
-                  "![enter image description here][2] \n" \
-                  "![enter image description here][3] \n" \
-                  "![enter image description here][4] \n" \
-                  "![enter image description here][2]" \
-                  "asdfasdfasdfasdfadsfasdfasdfa\n" \
-                  "[1]: https://i.imgur.com/nHcAF4t.jpg\n" \
-                  "[2]: https://i.imgur.com/Q2ZST9f.jpg\n" \
-                  "[3]: bit.ly/1LfIewy\n" \
-                  "[4]: http://vignette4.wikia.nocookie.net/" \
-                  "robber-penguin-agency/images/6/6e/Small-mario.png"
-        title = "This is a question that must be t i222?"
+        cache.clear()
+        content = '<a data-lightbox="" ' \
+                  'href="https://i.imgur.com/nHcAF4t.jpg">' \
+                  '<img src="https://i.imgur.com/nHcAF4t.jpg"></a>'
+        title = "This is a question that must be t is blue21?"
         tags = ['taxes', 'environment']
         url = reverse('question-list')
         data = {
@@ -262,31 +252,9 @@ class QuestionEndpointTests(APITestCase):
             "tags": tags
         }
         response = self.client.post(url, data, format='json')
-        html_content = '<p><a href="https://i.imgur.com/nHcAF4t.jpg" ' \
-                       'data-lightbox="%s">' \
-                       '<img alt="enter image description here" ' \
-                       'src="https://i.imgur.com/nHcAF4t.jpg" /></a> \n' \
-                       '<a href="https://i.imgur.com/Q2ZST9f.jpg" ' \
-                       'data-lightbox="%s">' \
-                       '<a href="https://i.imgur.com/Q2ZST9f.jpg" ' \
-                       'data-lightbox="%s">' \
-                       '<img alt="enter image description here" ' \
-                       'src="https://i.imgur.com/Q2ZST9f.jpg" />' \
-                       '</a></a> \n<a href="bit.ly/1LfIewy" ' \
-                       'data-lightbox="%s"><img ' \
-                       'alt="enter image description here" ' \
-                       'src="bit.ly/1LfIewy" /></a> \n' \
-                       '<a href="http://vignette4.wikia.nocookie.net/' \
-                       'robber-penguin-agency/images/6/6e/Small-mario.png" ' \
-                       'data-lightbox="%s"><img alt="enter image description' \
-                       ' here" src="http://vignette4.wikia.nocookie.net/' \
-                       'robber-penguin-agency/images/6/6e/Small-mario.png"' \
-                       ' /></a> \n<img alt="enter image description here" ' \
-                       'src="https://i.imgur.com/Q2ZST9f.jpg" />' \
-                       'asdfasdfasdfasdfadsfasdfasdfa</p>' \
-                       % (response.data['id'], response.data['id'],
-                          response.data['id'], response.data['id'],
-                          response.data['id'],)
+        html_content = '<a data-lightbox="" ' \
+                       'href="https://i.imgur.com/nHcAF4t.jpg">' \
+                       '<img src="https://i.imgur.com/nHcAF4t.jpg"/></a>'
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['html_content'], html_content)
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \

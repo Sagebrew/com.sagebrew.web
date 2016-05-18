@@ -1135,6 +1135,22 @@ class MissionEndpointTests(APITestCase):
         self.assertIn("test,test,bounce@simulator.amazonses.com,"
                       "Walled Lake,Michigan,x,,,,,,,,,,,", response.content)
 
+    def test_volunteer_no_address_export(self):
+        self.client.force_authenticate(user=self.user)
+        volunteer = Volunteer(activities=["get_out_the_vote"],
+                              mission_id=self.mission.object_uuid,
+                              owner_username=self.pleb2.username).save()
+        volunteer.mission.connect(self.mission)
+        volunteer.volunteer.connect(self.pleb2)
+        for address in self.pleb2.address.all():
+            self.pleb2.address.disconnect(address)
+        url = "/v1/missions/%s/volunteer_data/" % self.mission.object_uuid
+        response = self.client.get(url, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("test,test,bounce@simulator.amazonses.com,"
+                      "N/A,N/A,x,,,,,,,,,,,", response.content)
+
     def test_volunteer_export_dne(self):
         self.client.force_authenticate(user=self.user)
         self.volunteer = Volunteer(activities=["get_out_the_vote"],

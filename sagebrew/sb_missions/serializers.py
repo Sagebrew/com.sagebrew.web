@@ -287,12 +287,10 @@ class MissionSerializer(SBSerializer):
                 'template': "personal",
                 'from_user': {
                     'type': "admin",
-                    'id': settings.INTERCOM_ADMIN_ID_DEVON
-                },
+                    'id': settings.INTERCOM_ADMIN_ID_DEVON},
                 'to_user': {
                     'type': "user",
-                    'user_id': "devon_bleibtrey"
-                }
+                    'user_id': "devon_bleibtrey"}
             }
             serializer = IntercomMessageSerializer(data=message_data)
             if serializer.is_valid():

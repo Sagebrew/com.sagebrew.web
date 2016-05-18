@@ -443,19 +443,18 @@ def replace_images(content, identifier):
 
 def render_content(content, object_uuid):
     if content is not None:
-        print content[:4]
         if content[:4] == "<h2>" or content[:4] == "<h2 ":
-            print 'here'
             # Only parse the content if we need to since it can be a long
             # process (lxml should make it pretty fast though)
             soup = BeautifulSoup(content, 'lxml')
-            soup.h2['style'] += "padding-top: 0; margin-top: 5px;"
-            print soup.h2['style']
+            soup.h2['style'] = soup.h2.get(
+                'style', '').join("padding-top: 0; margin-top: 5px;")
             content = str(soup).replace("<html><body>", "") \
                 .replace("</body></html>", "")
         elif content[:4] == "<h3>" or content[:4] == "<h3 ":
             soup = BeautifulSoup(content, 'lxml')
-            soup.h3['style'] = "padding-top: 0; margin-top: 5px;"
+            soup.h3['style'] = soup.h3.get(
+                'style', '').join("padding-top: 0; margin-top: 5px;")
             content = str(soup).replace("<html><body>", "") \
                 .replace("</body></html>", "")
         # Iterate through each image tag within the document and add the

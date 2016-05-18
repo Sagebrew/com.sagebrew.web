@@ -183,7 +183,7 @@ class QuestionEndpointTests(APITestCase):
                        'h2 after it </h2><br/><h3> another h3 </h3><br/>' \
                        'and then some text'
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['html_content'], html_content)
+        self.assertEqual(response.data['content'], html_content)
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
@@ -192,7 +192,7 @@ class QuestionEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         cache.clear()
         content = "<h2> hello world this is a h2 </h2><br>" \
-                  "<h3> with a h3 after it <h/3><br>" \
+                  "<h3> with a h3 after it </h3><br>" \
                   "<h2 another h2 </h2><br>" \
                   "and then some text"
         title = "This is a question that must be t is blue21222?"
@@ -206,10 +206,10 @@ class QuestionEndpointTests(APITestCase):
         response = self.client.post(url, data, format='json')
         html_content = '<h2 style="padding-top: 0; margin-top: 5px;"> ' \
                        'hello world this is a h2 </h2><br/><h3> with a h3 ' \
-                       'after it <h><br/><h2 another="" h2=""><br/>and then ' \
-                       'some text</h2></h></h3>'
+                       'after it </h3><br/><h2 another="" h2=""><br/>and then ' \
+                       'some text</h2>'
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['html_content'], html_content)
+        self.assertEqual(response.data['content'], html_content)
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
@@ -282,7 +282,7 @@ class QuestionEndpointTests(APITestCase):
                                  response.data['object_uuid'])
         question = Question.inflate(res.one)
         self.assertEqual(question.affected_area, "Wixom, MI, USA")
-        self.assertEqual(question.content, content)
+        self.assertEqual(question.content, "<p>%s</p>" % content)
         self.assertEqual(question.object_uuid, response.data['object_uuid'])
 
     def test_create_null_focus_area(self):
@@ -305,7 +305,7 @@ class QuestionEndpointTests(APITestCase):
                                  '"%s"}) RETURN a' %
                                  response.data['object_uuid'])
         question = Question.inflate(res.one)
-        self.assertEqual(question.content, content)
+        self.assertEqual(question.content, "<p>%s</p>" % content)
 
     def test_create_duplicate_title(self):
         self.client.force_authenticate(user=self.user)
@@ -375,7 +375,7 @@ class QuestionEndpointTests(APITestCase):
             "tags": tags
         }
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.data['content'], content)
+        self.assertEqual(response.data['content'], "<p>%s</p>" % content)
 
     def test_create_title(self):
         self.client.force_authenticate(user=self.user)
@@ -759,10 +759,8 @@ class QuestionEndpointTests(APITestCase):
             "content": content
         }
         response = self.client.patch(url, data, format='json')
-        self.assertEqual(response.data['content'], content)
+        self.assertEqual(response.data['content'], "<p>%s</p>" % content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(
-            Question.get(self.question.object_uuid).content, content)
 
     def test_get_profile(self):
         self.client.force_authenticate(user=self.user)

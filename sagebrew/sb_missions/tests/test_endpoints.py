@@ -612,15 +612,15 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, ['Only the owner can edit this'])
 
-    def test_update_epic_with_h1_first(self):
+    def test_update_epic_with_h3_first(self):
         self.client.force_authenticate(user=self.user)
         mission = Mission(title=str(uuid1()),
                           owner_username=self.pleb.username).save()
 
         self.quest.missions.connect(mission)
-        content = "<h1> hello world this is a h1 </h1>\n" \
+        content = "<h3> hello world this is a h3 </h3>\n" \
                   "<h2> with a h2 after it </h2>\n" \
-                  "<h1> another h1 </h1>\n" \
+                  "<h3> another h3 </h3>\n" \
                   "and then some text"
         data = {
             "epic": content,
@@ -632,6 +632,11 @@ class MissionEndpointTests(APITestCase):
             "website": "https://www.sagebrew.com",
             "about": str(uuid1())
         }
+        content = '<h3 style="padding-top: 0; margin-top: 5px;"> ' \
+                  'hello world this is a h3 </h3>\n' \
+                  '<h2> with a h2 after it </h2>\n' \
+                  '<h3> another h3 </h3>\n' \
+                  'and then some text'
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data, format='json')
@@ -658,6 +663,11 @@ class MissionEndpointTests(APITestCase):
             "website": "https://www.sagebrew.com",
             "about": str(uuid1())
         }
+        content = '<h2 style="padding-top: 0; margin-top: 5px;"> ' \
+                  'hello world this is a h2 </h2>\n' \
+                  '<h1> with a h1 after it </h1>\n' \
+                  '<h2> another h2 </h2>\n' \
+                  'and then some text'
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data, format='json')
@@ -736,7 +746,7 @@ class MissionEndpointTests(APITestCase):
         self.assertContains(response, data['temp_epic'],
                             status_code=status.HTTP_200_OK)
         mission.refresh()
-        self.assertEqual(mission.temp_epic, data['temp_epic'])
+        self.assertEqual(mission.temp_epic, "<p>%s</p>" % data['temp_epic'])
 
     def test_detail(self):
         self.client.force_authenticate(user=self.user)

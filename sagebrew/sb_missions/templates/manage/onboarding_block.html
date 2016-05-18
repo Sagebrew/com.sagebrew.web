@@ -60,7 +60,9 @@
                                 <div class="sb-overlay">
                                     <div class="sb-overlay-text">
                                         <div class="block-content">
-                                            <a href="{{ task.url }}">
+                                            <a id="href-{{ task.title|slugify }}" href="{{ task.url }}"
+                                                data-mission-id="{{ mission.id }}"
+                                                data-mission-slug="{{ mission.title|slugify }}">
                                                 {{ task.content }}
                                             </a>
                                         </div>

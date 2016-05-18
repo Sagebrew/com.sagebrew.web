@@ -15,7 +15,8 @@ from api.utils import (gather_request_data, clean_url, empty_text_to_none,
                        smart_truncate, render_content)
 from api.serializers import SBSerializer
 
-from sb_base.serializers import IntercomEventSerializer
+from sb_base.serializers import (IntercomEventSerializer,
+                                 IntercomMessageSerializer)
 from sb_locations.serializers import LocationSerializer
 from sb_tags.neo_models import Tag
 from sb_search.utils import remove_search_object
@@ -26,6 +27,11 @@ from .utils import setup_onboarding
 
 class MissionSerializer(SBSerializer):
     active = serializers.BooleanField(required=False)
+    submitted_for_review = serializers.BooleanField(required=False)
+    saved_for_later = serializers.BooleanField(required=False)
+    has_feedback = serializers.BooleanField(required=False)
+    review_feedback = serializers.MultipleChoiceField(
+        required=False, choices=settings.REVIEW_FEEDBACK_OPTIONS)
     completed = serializers.BooleanField(required=False)
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=255)
@@ -263,7 +269,40 @@ class MissionSerializer(SBSerializer):
             remove_search_object(instance.object_uuid, 'mission')
         instance.completed = validated_data.pop(
             'completed', instance.completed)
+        initial_review_state = instance.submitted_for_review
+        instance.submitted_for_review = validated_data.pop(
+            'submitted_for_review', instance.submitted_for_review)
+        if instance.submitted_for_review and not initial_review_state:
+            serializer = IntercomEventSerializer(
+                data={'event_name': "submit-mission-for-review",
+                      'username': instance.owner_username})
+            if serializer.is_valid():
+                serializer.save()
+            message_data = {
+                'message_type': 'email',
+                'subject': 'Submit Mission For Review',
+                'body': 'Hi Team,\n%s has submitted their %s Mission. '
+                        'Please review it in the council area.' % (
+                            instance.owner_username, instance.title),
+                'template': "personal",
+                'from_user': {
+                    'type': "admin",
+                    'id': settings.INTERCOM_ADMIN_ID_DEVON},
+                'to_user': {
+                    'type': "user",
+                    'user_id': "devon_bleibtrey"}
+            }
+            serializer = IntercomMessageSerializer(data=message_data)
+            if serializer.is_valid():
+                serializer.save()
+            db.cypher_query(
+                'MATCH (mission:Mission {object_uuid: "%s"})-'
+                '[:MUST_COMPLETE]->(task:OnboardingTask {title: "%s"}) '
+                'SET task.completed=true RETURN task' % (
+                    instance.object_uuid, settings.SUBMIT_FOR_REVIEW))
         title = validated_data.pop('title', instance.title)
+        instance.saved_for_later = validated_data.get('saved_for_later',
+                                                      instance.saved_for_later)
         if empty_text_to_none(title) is not None:
             instance.title = title
         instance.about = empty_text_to_none(

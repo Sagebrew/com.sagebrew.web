@@ -32,7 +32,7 @@ export function load() {
             var solutionContent = $('.editable');
             solutionContent.html(data.content);
         });
-    editor = mediumEditor(".editable", "")
+    editor = mediumEditor(".editable", "");
     // This is a solution to our edit solution content being dynamically
     // populated, meaning we cant pass the back_url parameter to the
     // secondary navbar

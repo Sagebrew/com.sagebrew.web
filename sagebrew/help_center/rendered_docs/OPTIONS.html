@@ -1,0 +1,509 @@
+<h1>MediumEditor Options (v5.0.0)</h1>
+<p>Options to customize medium-editor are passed as the second argument to the <a href="API.md#mediumeditorelements-options">MediumEditor constructor</a>.  Example:</p>
+<pre><code class="js">var editor = new MediumEditor('.editor', {
+    // options go here
+});
+</code></pre>
+
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+<ul>
+<li><a href="#core-options">Core Options</a><ul>
+<li><a href="#activebuttonclass"><code>activeButtonClass</code></a></li>
+<li><a href="#buttonlabels"><code>buttonLabels</code></a></li>
+<li><a href="#contentwindow"><code>contentWindow</code></a></li>
+<li><a href="#delay"><code>delay</code></a></li>
+<li><a href="#disablereturn"><code>disableReturn</code></a></li>
+<li><a href="#disabledoublereturn"><code>disableDoubleReturn</code></a></li>
+<li><a href="#disableextraspaces"><code>disableExtraSpaces</code></a></li>
+<li><a href="#disableediting"><code>disableEditing</code></a></li>
+<li><a href="#elementscontainer"><code>elementsContainer</code></a></li>
+<li><a href="#extensions"><code>extensions</code></a></li>
+<li><a href="#ownerdocument"><code>ownerDocument</code></a></li>
+<li><a href="#spellcheck"><code>spellcheck</code></a></li>
+<li><a href="#targetblank"><code>targetBlank</code></a></li>
+</ul>
+</li>
+<li><a href="#toolbar-options">Toolbar options</a><ul>
+<li><a href="#allowmultiparagraphselection"><code>allowMultiParagraphSelection</code></a></li>
+<li><a href="#buttons"><code>buttons</code></a></li>
+<li><a href="#diffleft"><code>diffLeft</code></a></li>
+<li><a href="#difftop"><code>diffTop</code></a></li>
+<li><a href="#firstbuttonclass"><code>firstButtonClass</code></a></li>
+<li><a href="#lastbuttonclass"><code>lastButtonClass</code></a></li>
+<li><a href="#standardizeselectionstart"><code>standardizeSelectionStart</code></a></li>
+<li><a href="#static"><code>static</code></a></li>
+</ul>
+</li>
+<li><a href="#static-toolbar-options">'static' Toolbar Options</a><ul>
+<li><a href="#align"><code>align</code></a></li>
+<li><a href="#sticky"><code>sticky</code></a></li>
+<li><a href="#updateonemptyselection"><code>updateOnEmptySelection</code></a></li>
+</ul>
+</li>
+<li><a href="#disabling-toolbar">Disabling Toolbar</a></li>
+<li><a href="#anchor-preview-options">Anchor Preview options</a><ul>
+<li><a href="#hidedelay"><code>hideDelay</code></a></li>
+<li><a href="#previewvalueselector"><code>previewValueSelector</code></a></li>
+</ul>
+</li>
+<li><a href="#disabling-anchor-preview">Disabling Anchor Preview</a></li>
+<li><a href="#placeholder-options">Placeholder Options</a><ul>
+<li><a href="#text"><code>text</code></a></li>
+<li><a href="#hideonclick"><code>hideOnClick</code></a></li>
+</ul>
+</li>
+<li><a href="#disabling-placeholders">Disabling Placeholders</a></li>
+<li><a href="#anchor-form-options">Anchor Form options</a><ul>
+<li><a href="#customclassoption"><code>customClassOption</code></a></li>
+<li><a href="#customclassoptiontext"><code>customClassOptionText</code></a></li>
+<li><a href="#linkvalidation"><code>linkValidation</code></a></li>
+<li><a href="#placeholdertext"><code>placeholderText</code></a></li>
+<li><a href="#targetcheckbox"><code>targetCheckbox</code></a></li>
+<li><a href="#targetcheckboxtext"><code>targetCheckboxText</code></a></li>
+</ul>
+</li>
+<li><a href="#paste-options">Paste Options</a><ul>
+<li><a href="#forceplaintext"><code>forcePlainText</code></a></li>
+<li><a href="#cleanpastedhtml"><code>cleanPastedHTML</code></a></li>
+<li><a href="#cleanreplacements"><code>cleanReplacements</code></a></li>
+<li><a href="#cleanattrs"><code>cleanAttrs</code></a></li>
+<li><a href="#cleantags"><code>cleanTags</code></a></li>
+</ul>
+</li>
+<li><a href="#disabling-paste-handling">Disabling Paste Handling</a></li>
+<li><a href="#keyboardcommands-options">KeyboardCommands Options</a><ul>
+<li><a href="#commands"><code>commands</code></a></li>
+</ul>
+</li>
+<li><a href="#disabling-keyboard-commands">Disabling Keyboard Commands</a></li>
+<li><a href="#auto-link-options">Auto Link Options</a><ul>
+<li><a href="#autolink"><code>autoLink</code></a></li>
+</ul>
+</li>
+<li><a href="#enabling-auto-link">Enabling Auto Link</a></li>
+<li><a href="#image-dragging-options">Image Dragging Options</a><ul>
+<li><a href="#imagedragging"><code>imageDragging</code></a></li>
+</ul>
+</li>
+<li><a href="#disabling-image-dragging">Disabling Image Dragging</a></li>
+<li><a href="#options-example">Options Example:</a></li>
+</ul>
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
+<h2>Core Options</h2>
+<p>These are global options that apply to the entire editor. Example:</p>
+<pre><code class="js">var editor = new MediumEditor('.editable', {
+    /* These are the default options for the editor,
+        if nothing is passed this is what is used */
+    activeButtonClass: 'medium-editor-button-active',
+    allowMultiParagraphSelection: true,
+    buttonLabels: false,
+    contentWindow: window,
+    delay: 0,
+    disableReturn: false,
+    disableDoubleReturn: false,
+    disableExtraSpaces: false,
+    disableEditing: false,
+    elementsContainer: false,
+    extensions: {},
+    ownerDocument: document,
+    spellcheck: true,
+    targetBlank: false
+});
+</code></pre>
+
+<h4><code>activeButtonClass</code></h4>
+<p><strong>Default:</strong> <code>'medium-editor-button-active'</code></p>
+<p>CSS class added to active buttons in the toolbar.</p>
+<hr />
+<h4><code>buttonLabels</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Custom content for the toolbar buttons.</p>
+<p><strong>Valid Values:</strong>
+<em> <code>false</code>
+  * Use default button labels</em> <code>'fontawesome'</code>
+  * Uses fontawesome icon set for all toolbar icons</p>
+<p><strong>NOTE</strong>:</p>
+<p>Using <code>'fontawesome'</code> as the buttonLabels requires version 4.1.0 of the fontawesome css to be on the page to ensure all icons will be displayed correctly.</p>
+<hr />
+<h4><code>contentWindow</code></h4>
+<p><strong>Default:</strong> <code>window</code></p>
+<p>The contentWindow object that contains the contenteditable element. MediumEditor will use this for attaching events, getting selection, etc.</p>
+<hr />
+<h4><code>delay</code></h4>
+<p><strong>Default:</strong> <code>0</code></p>
+<p>Time in milliseconds to show the toolbar or anchor tag preview.</p>
+<hr />
+<h4><code>disableReturn</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Enables/disables the use of the return-key. You can also set specific element behavior by using setting a data-disable-return attribute.</p>
+<hr />
+<h4><code>disableDoubleReturn</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Allows/disallows two (or more) empty new lines. You can also set specific element behavior by using setting a data-disable-double-return attribute.</p>
+<hr />
+<h4><code>disableExtraSpaces</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>When set to true, it disallows spaces at the beginning and end of the element. Also it disallows entering 2 consecutive spaces between 2 words.</p>
+<hr />
+<h4><code>disableEditing</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Enables/disables adding the contenteditable behavior. Useful for using the toolbar with customized buttons/actions. You can also set specific element behavior by using setting a data-disable-editing attribute.</p>
+<hr />
+<h4><code>elementsContainer</code></h4>
+<p><strong>Default:</strong> <code>ownerDocument.body</code></p>
+<p>Specifies a DOM node to contain MediumEditor's toolbar and anchor preview elements.</p>
+<hr />
+<h4><code>extensions</code></h4>
+<p><strong>Default:</strong> <code>{}</code></p>
+<p>Custom extensions to use. See <a href="src/js/extensions">Custom Buttons and Extensions</a> for more details on extensions.</p>
+<hr />
+<h4><code>ownerDocument</code></h4>
+<p><strong>Default:</strong> <code>window.document</code></p>
+<p>The ownerDocument object for the contenteditable element.  MediumEditor will use this for creating elements, getting selection, attaching events, etc.</p>
+<hr />
+<h4><code>spellcheck</code></h4>
+<p><strong>Default:</strong> <code>true</code></p>
+<p>Enable/disable native contentEditable automatic spellcheck.</p>
+<hr />
+<h4><code>targetBlank</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Enables/disables automatically adding the <code>target="_blank"</code> attribute to anchor tags.</p>
+<h2>Toolbar options</h2>
+<p>The toolbar for MediumEditor is implemented as a built-in extension which automatically displays whenever the user selects some text.  The toolbar can hold any set of defined built-in buttons, but can also hold any custom buttons passed in as extensions.</p>
+<p>Options for the toolbar are passed as an object that is a member of the outer options object. Example:</p>
+<pre><code class="js">var editor = new MediumEditor('.editable', {
+    toolbar: {
+        /* These are the default options for the toolbar,
+           if nothing is passed this is what is used */
+        allowMultiParagraphSelection: true,
+        buttons: ['bold', 'italic', 'underline', 'anchor', 'h2', 'h3', 'quote'],
+        diffLeft: 0,
+        diffTop: -10,
+        firstButtonClass: 'medium-editor-button-first',
+        lastButtonClass: 'medium-editor-button-last',
+        standardizeSelectionStart: false,
+        static: false,
+
+        /* options which only apply when static is true */
+        align: 'center',
+        sticky: false,
+        updateOnEmptySelection: false
+    }
+});
+</code></pre>
+
+<hr />
+<h4><code>allowMultiParagraphSelection</code></h4>
+<p><strong>Default:</strong> <code>true</code></p>
+<p>enables/disables whether the toolbar should be displayed when selecting multiple paragraphs/block elements.</p>
+<hr />
+<h4><code>buttons</code></h4>
+<p><strong>Default:</strong> <code>['bold', 'italic', 'underline', 'anchor', 'h2', 'h3', 'quote']</code></p>
+<p>The set of buttons to display on the toolbar.</p>
+<hr />
+<h4><code>diffLeft</code></h4>
+<p><strong>Default:</strong> <code>0</code></p>
+<p>Value in pixels to be added to the X axis positioning of the toolbar.</p>
+<hr />
+<h4><code>diffTop</code></h4>
+<p><strong>Default:</strong> <code>-10</code></p>
+<p>Value in pixels to be added to the Y axis positioning of the toolbar.</p>
+<hr />
+<h4><code>firstButtonClass</code></h4>
+<p><strong>Default:</strong> <code>'medium-editor-button-first'</code></p>
+<p>CSS class added to the first button in the toolbar.</p>
+<hr />
+<h4><code>lastButtonClass</code></h4>
+<p><strong>Default:</strong> <code>'medium-editor-button-last'</code></p>
+<p>CSS class added to the last button in the toolbar.</p>
+<hr />
+<h4><code>standardizeSelectionStart</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Enables/disables standardizing how the beginning of a range is decided between browsers whenever the selected text is analyzed for updating toolbar buttons status.</p>
+<hr />
+<h4><code>static</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Enable/disable the toolbar always displaying in the same location relative to the medium-editor element.</p>
+<h3>'static' Toolbar Options</h3>
+<p>These options only apply when the <code>static</code> option is being used.</p>
+<hr />
+<h4><code>align</code></h4>
+<p><strong>Default:</strong> <code>center</code></p>
+<p>When the <strong>static</strong> option is <code>true</code>, this aligns the static toolbar relative to the medium-editor element.</p>
+<p><strong>Valid Values</strong></p>
+<p><code>'left'</code> | <code>'center'</code> | <code>'right'</code></p>
+<hr />
+<h4><code>sticky</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>When the <strong>static</strong> option is <code>true</code>, this enables/disables the toolbar "sticking" to the viewport and staying visible on the screen while the page scrolls.</p>
+<hr />
+<h4><code>stickyTopOffset</code></h4>
+<p><strong>Default:</strong> <code>0</code></p>
+<p>When the <strong>sticky</strong> option is <code>true</code>, this set in pixel a top offset above the toolbar.</p>
+<hr />
+<h4><code>updateOnEmptySelection</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>When the <strong>static</strong> option is <code>true</code>, this enables/disables updating the state of the toolbar buttons even when the selection is collapsed (there is no selection, just a cursor).</p>
+<h3>Disabling Toolbar</h3>
+<p>To disable the toolbar (which also disables the anchor-preview extension), set the value of the <code>toolbar</code> option to <code>false</code>:</p>
+<pre><code class="javascript">var editor = new MediumEditor('.editable', {
+    toolbar: false
+});
+</code></pre>
+
+<h2>Anchor Preview options</h2>
+<p>The anchor preview is a built-in extension which automatically displays a 'tooltip' when the user is hovering over a link in the editor.  The tooltip will display the <code>href</code> of the link, and when click, will open the anchor editing form in the toolbar.</p>
+<p>Options for the anchor preview 'tooltip' are passed as an object that is a member of the outer options object. Example:</p>
+<pre><code class="javascript">var editor = new MediumEditor('.editable', {
+    anchorPreview: {
+        /* These are the default options for anchor preview,
+           if nothing is passed this is what it used */
+        hideDelay: 500,
+        previewValueSelector: 'a'
+    }
+}
+});
+</code></pre>
+
+<hr />
+<h4><code>hideDelay</code></h4>
+<p><strong>Default:</strong> <code>500</code></p>
+<p>Time in milliseconds to show the anchor tag preview after the mouse has left the anchor tag.</p>
+<hr />
+<h4><code>previewValueSelector</code></h4>
+<p><strong>Default:</strong> <code>'a'</code></p>
+<p>The default selector to locate where to put the activeAnchor value in the preview. You should only need to override this if you've modified the way in which the anchor-preview extension renders.</p>
+<hr />
+<h4><code>showWhenToolbarIsVisible</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Determines whether the anchor tag preview shows up when the toolbar is visible. You should set this value to true if the static option for the toolbar is true and you want the preview to show at the same time.</p>
+<h3>Disabling Anchor Preview</h3>
+<p>To disable the anchor preview, set the value of the <code>anchorPreview</code> option to <code>false</code>:</p>
+<pre><code class="javascript">var editor = new MediumEditor('.editable', {
+    anchorPreview: false
+});
+</code></pre>
+
+<p><strong>NOTE:</strong></p>
+<ul>
+<li>If the toolbar is disabled (via <code>toolbar: false</code> option or <code>data-disable-toolbar</code> attribute) the anchor-preview is automatically disabled.</li>
+<li>If the anchor editing form is not enabled, clicking on the anchor-preview will not allow the href of the link to be edited</li>
+</ul>
+<h2>Placeholder Options</h2>
+<p>The placeholder handler is a built-in extension which displays placeholder text when the editor is empty.</p>
+<p>Options for placeholder are passed as an object that is a member of the outer options object. Example:</p>
+<pre><code class="javascript">var editor = new MediumEditor('.editable', {
+    placeholder: {
+        /* This example includes the default options for placeholder,
+           if nothing is passed this is what it used */
+        text: 'Type your text',
+        hideOnClick: true
+    }
+});
+</code></pre>
+
+<hr />
+<h4><code>text</code></h4>
+<p><strong>Default:</strong> <code>'Type your text'</code></p>
+<p>Defines the default placeholder for empty contenteditables when <strong>placeholder</strong> is not set to false. You can overwrite it by setting a <code>data-placeholder</code> attribute on the editor elements.</p>
+<hr />
+<h4><code>hideOnClick</code></h4>
+<p><strong>Default:</strong> <code>true</code></p>
+<p>Causes the placeholder to disappear as soon as the field gains focus. To hide the placeholder only after starting to type, and to show it again as soon as field is empty, set this option to <code>false</code>.</p>
+<h3>Disabling Placeholders</h3>
+<p>To disable the placeholder, set the value of the <code>placeholder</code> option to <code>false</code>:</p>
+<pre><code class="javascript">var editor = new MediumEditor('.editable', {
+    placeholder: false
+});
+</code></pre>
+
+<h2>Anchor Form options</h2>
+<p>The anchor form is a built-in button extension which allows the user to add/edit/remove links from within the editor.  When 'anchor' is passed in as a button in the list of buttons, this extension will be enabled and can be triggered by clicking the corresponding button in the toolbar.</p>
+<p>Options for the anchor form are passed as an object that is a member of the outer options object. Example:</p>
+<pre><code class="javascript">var editor = new MediumEditor('.editable', {
+    toolbar: {
+        buttons: ['bold', 'italic', 'underline', 'anchor']
+    },
+    anchor: {
+        /* These are the default options for anchor form,
+           if nothing is passed this is what it used */
+        customClassOption: null,
+        customClassOptionText: 'Button',
+        linkValidation: false,
+        placeholderText: 'Paste or type a link',
+        targetCheckbox: false,
+        targetCheckboxText: 'Open in new window'
+    }
+}
+});
+</code></pre>
+
+<hr />
+<h4><code>customClassOption</code></h4>
+<p><strong>Default:</strong> <code>null</code></p>
+<p>Custom class name the user can optionally have added to their created links (ie 'button').  If passed as a non-empty string, a checkbox will be displayed allowing the user to choose whether to have the class added to the created link or not.</p>
+<hr />
+<h4><code>customClassOptionText</code></h4>
+<p><strong>Default:</strong> <code>'Button'</code></p>
+<p>Text to be shown in the checkbox when the <strong>customClassOption</strong> is being used.</p>
+<hr />
+<h4><code>linkValidation</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Enables/disables check for common URL protocols on anchor links. Converts invalid url characters (ie spaces) to valid characters using <code>encodeURI</code></p>
+<hr />
+<h4><code>placeholderText</code></h4>
+<p><strong>Default:</strong> <code>'Paste or type a link'</code></p>
+<p>Text to be shown as placeholder of the anchor input.</p>
+<hr />
+<h4><code>targetCheckbox</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Enables/disables displaying a "Open in new window" checkbox, which when checked changes the <code>target</code> attribute of the created link.</p>
+<hr />
+<h4><code>targetCheckboxText</code></h4>
+<p><strong>Default:</strong> <code>'Open in new window'</code></p>
+<p>Text to be shown in the checkbox enabled via the <strong>targetCheckbox</strong> option.</p>
+<h2>Paste Options</h2>
+<p>The paste handler is a built-in extension which attempts to filter the content when the user pastes.  How the paste handler filters is configurable via specific options.</p>
+<p>Options for paste handling are passed as an object that is a member of the outer options object. Example:</p>
+<pre><code class="javascript">var editor = new MediumEditor('.editable', {
+    paste: {
+        /* This example includes the default options for paste,
+           if nothing is passed this is what it used */
+        forcePlainText: true,
+        cleanPastedHTML: false,
+        cleanReplacements: [],
+        cleanAttrs: ['class', 'style', 'dir'],
+        cleanTags: ['meta']
+    }
+});
+</code></pre>
+
+<hr />
+<h4><code>forcePlainText</code></h4>
+<p><strong>Default:</strong> <code>true</code></p>
+<p>Forces pasting as plain text.</p>
+<hr />
+<h4><code>cleanPastedHTML</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>Cleans pasted content from different sources, like google docs etc.</p>
+<hr />
+<h4><code>cleanReplacements</code></h4>
+<p><strong>Default:</strong> <code>[]</code></p>
+<p>Custom pairs (2 element arrays) of RegExp and replacement text to use during paste when <strong>forcePlainText</strong> or <strong>cleanPastedHTML</strong> are <code>true</code> OR when calling <code>cleanPaste(text)</code> helper method.</p>
+<hr />
+<h4><code>cleanAttrs</code></h4>
+<p><strong>Default:</strong> <code>['class', 'style', 'dir']</code></p>
+<p>List of element attributes to remove during paste when <strong>cleanPastedHTML</strong> is <code>true</code> or when calling <code>cleanPaste(text)</code> or <code>pasteHTML(html,options)</code> helper methods.</p>
+<hr />
+<h4><code>cleanTags</code></h4>
+<p><strong>Default:</strong> <code>['meta']</code></p>
+<p>List of element tag names to remove during paste when <strong>cleanPastedHTML</strong> is <code>true</code> or when calling <code>cleanPaste(text)</code> or <code>pasteHTML(html,options)</code> helper methods.</p>
+<h3>Disabling Paste Handling</h3>
+<p>To disable MediumEditor manipulating pasted content, set the both the <code>forcePlainText</code> and <code>cleanPastedHTML</code> options to <code>false</code>:</p>
+<pre><code class="javascript">var editor = new MediumEditor('.editable', {
+    paste: {
+        forcePlainText: false,
+        cleanPastedHTML: false
+    }
+});
+</code></pre>
+
+<h2>KeyboardCommands Options</h2>
+<p>The keyboard commands handler is a built-in extension for mapping key-combinations to actions to execute in the editor.</p>
+<p>Options for KeyboardCommands are passed as an object that is a member of the outer options object. Example:</p>
+<pre><code class="javascript">var editor = new MediumEditor('.editable', {
+    keyboardCommands: {
+        /* This example includes the default options for keyboardCommands,
+           if nothing is passed this is what it used */
+        commands: [
+            {
+                command: 'bold',
+                key: 'b',
+                meta: true,
+                shift: false
+            },
+            {
+                command: 'italic',
+                key: 'i',
+                meta: true,
+                shift: false
+            },
+            {
+                command: 'underline',
+                key: 'u',
+                meta: true,
+                shift: false
+            }
+        ],
+    }
+});
+</code></pre>
+
+<hr />
+<h4><code>commands</code></h4>
+<p><strong>Default:</strong> shortcuts for <code>bold</code>, <code>italic</code>, and <code>underline</code> (See above example)</p>
+<p>Array of objects describing each command and the combination of keys that will trigger it.  Required for each object:
+  * <em>command</em>: argument passed to <code>editor.execAction()</code> when key-combination is used
+  * <em>key</em>: keyboard character that triggers this command
+  * <em>meta</em>: whether the ctrl/meta key has to be active or inactive
+  * <em>shift</em>: whether the shift key has to be active or inactive</p>
+<h3>Disabling Keyboard Commands</h3>
+<p>To disable the keyboard commands, set the value of the <code>keyboardCommands</code> option to <code>false</code>:</p>
+<pre><code class="javascript">var editor = new MediumEditor('.editable', {
+    keyboardCommands: false
+});
+</code></pre>
+
+<h2>Auto Link Options</h2>
+<h4><code>autoLink</code></h4>
+<p><strong>Default:</strong> <code>false</code></p>
+<p>The auto-link handler is a built-in extension which automatically turns URLs entered into the text field into HTML anchor tags (similar to the functionality of Markdown).  This feature is OFF by default.</p>
+<h3>Enabling Auto Link</h3>
+<p>To enable built-in auto-link support, set the value of the <code>autoLink</code> option to <code>true</code>:</p>
+<pre><code class="javascript">var editor = new MediumEditor('.editable', {
+    autoLink: true
+});
+</code></pre>
+
+<h2>Image Dragging Options</h2>
+<h4><code>imageDragging</code></h4>
+<p><strong>Default:</strong> <code>true</code></p>
+<p>The image dragging handler is a built-in extension for handling dragging &amp; dropping images into the contenteditable.  This feature is ON by default.</p>
+<h3>Disabling Image Dragging</h3>
+<p>To disable built-in image dragging, set the value of the <code>imageDragging</code> option to <code>false</code>:</p>
+<pre><code class="javascript">var editor = new MediumEditor('.editable', {
+    imageDragging: false
+});
+</code></pre>
+
+<h2>Options Example:</h2>
+<pre><code class="javascript">var editor = new MediumEditor('.editable', {
+    delay: 1000,
+    targetBlank: true,
+    toolbar: {
+        buttons: ['bold', 'italic', 'quote'],
+        diffLeft: 25,
+        diffTop: 10,
+    },
+    anchor: {
+        placeholderText: 'Type a link',
+        customClassOption: 'btn',
+        customClassOptionText: 'Create Button'
+    },
+    paste: {
+        cleanPastedHTML: true,
+        cleanAttrs: ['style', 'dir'],
+        cleanTags: ['label', 'meta']
+    },
+    anchorPreview: {
+        hideDelay: 300
+    },
+    placeholder: {
+        text: 'Click to edit'
+    }
+});
+</code></pre>

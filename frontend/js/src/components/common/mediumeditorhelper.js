@@ -1,6 +1,5 @@
 /* global AutoList */
-var validators = require('common/validators'),
-    mediumEditor = require('medium-editor');
+var mediumEditor = require('medium-editor');
 
 export function createMediumEditor(selectorString, placeholderText) {
     require('medium-editor-insert-plugin');

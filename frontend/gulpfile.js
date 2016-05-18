@@ -61,8 +61,7 @@ var config = {
         'js/vendor/fileupload/js/jquery.iframe-transport.js',
         'js/vendor/fileupload/js/jquery.fileupload.js',
         'bower_components/medium-editor-insert-plugin/dist/js/medium-editor-insert-plugin.min.js',
-        'js/vendor/livestamp.js',
-        
+
         /**
          *  Various "legacy" Js Files still in use somewhere.
          *

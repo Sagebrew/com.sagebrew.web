@@ -35,10 +35,9 @@ class UpdateSerializer(TitledContentSerializer):
         validated_data['owner_username'] = owner.username
         about = validated_data.pop('about', None)
         about_type = validated_data.get('about_type')
-        uuid = str(uuid1())
         validated_data['content'] = \
             render_content(validated_data.get('content', ''),
-                           validated_data.get('object_uuid', str(uuid1())))
+                           validated_data.get('object_uuid'))
         update = Update(**validated_data).save()
         quest.updates.connect(update)
         url = None

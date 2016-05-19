@@ -206,8 +206,8 @@ class QuestionEndpointTests(APITestCase):
         response = self.client.post(url, data, format='json')
         html_content = '<h2 style="padding-top: 0; margin-top: 5px;"> ' \
                        'hello world this is a h2 </h2><br/><h3> with a h3 ' \
-                       'after it </h3><br/><h2 another="" h2=""><br/>and then ' \
-                       'some text</h2>'
+                       'after it </h3><br/><h2 another="" h2=""><br/>' \
+                       'and then some text</h2>'
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['content'], html_content)
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \

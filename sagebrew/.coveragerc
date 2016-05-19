@@ -57,6 +57,7 @@ omit =
     */management/commands/add_cities_from_addresses.py
     */management/commands/migrate_addresses.py
     */management/commands/migrate_comments.py
+    */management/commands/setup_onboarding_for_missions.py
     */management/commands/populate_nltk.py
     */management/commands/migrate_solutions.py
     */management/commands/migrate_questions.py
@@ -74,6 +75,7 @@ omit =
     */management/commands/remove_duplicate_public_official_quests.py
     */management/commands/remove_and_repopulate_official_quests.py
     */management/commands/remove_unconnected_quests.py
+    */management/commands/migrate_to_new_editor.py
     */sagebrew/test_runner.py
 
 [report]

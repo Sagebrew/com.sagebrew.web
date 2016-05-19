@@ -128,7 +128,7 @@ function stripeBankHandler(status, response){
                 var missionId = localStorage.getItem("recent_mission_id"),
                     missionSlug = localStorage.getItem("recent_mission_slug");
                 if(missionId !== undefined && missionId !== null && missionSlug !== undefined && missionSlug !== null) {
-                    window.location.href = "/missions/" + missionId + "/" + missionSlug + "/manage/epic/";
+                    window.location.href = "/missions/" + missionId + "/" + missionSlug + "/manage/epic/edit/";
                 } else {
                     window.location.href = "/quests/" + settings.profile.username + "/manage/general/";
                 }

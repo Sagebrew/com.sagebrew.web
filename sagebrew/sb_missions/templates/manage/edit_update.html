@@ -1,75 +1,40 @@
-{% extends "manage/mission_manage_base.html" %}
+{% extends "layout/hero-one-col.html" %}
 {% load staticfiles %}
-{% block title %}Edit Update{% endblock title %}
-{% block live %}
+{% block title %}Mission Edit Update{% endblock title %}
+{% block body_class %}
+    background-color-white
+{% endblock %}
 
-<div class="block">
-    <h3 class="block-title">Edit Update</h3>
-    <form class="block-content" id="updateForm">
-        <div class="form-group">
-            <input type="text"
-                name="title"
-                placeholder="Update Title"
-                value="{{ update.title }}"
-                class="form-control">
-        </div>
-        <div class="sb_markdown">
-            <textarea class="form-control markdown-input"
-                      id="update_content_id"
-                      name="content"
-                      cols="20"
-                      rows="8"
-                      placeholder="Update Content">{{ update.content }}</textarea>
+{% block navigation %}
+    {{ block.super }}
+    {% url 'mission_update_settings' mission.id slug as back_url %}
+    {% include 'navigation/navbar_secondary.html' with back_url=back_url nav_title="Edit Update" %}
+{% endblock %}
 
-        </div>
+{% block hero %}
 
-        <div id="validation_errors"></div>
-        <div class="row">
-            <div class="col-lg-3 col-md-4">
-                <button class="btn btn-primary sb_btn sb_btn_fill" id="edit-update">Submit</button>
-            </div>
-            <div class="col-lg-3 col-md-4">
-                <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove"
-                    id="js-cancel">Cancel</button>
-            </div>
-        </div>
-    </form>
-    <div id="fileModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="btn btn-sm sb_btn close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3 id="fileModalLabel">Upload Images</h3>
+    <div class="block min-height-600 margin-top-20">
+        <div class="block-content">
+            <form id="updateForm">
+
+                <textarea class="form-control no-border no-padding-left font-size-26"
+                          name="title"
+                          placeholder="Enter the title..."
+                          id="js-title"
+                          rows="1">{{ update.title }}</textarea>
+                <div class="sb_markdown">
+                    <textarea class="editable"
+                          name="content"
+                          rows="10">{{ update.content }}</textarea>
                 </div>
-                <div class="modal-form">
-                    <div class="tabbable tabs-left">
-                        <ul class="nav nav-tabs">
-                            <li class="active"><a href="#tab1" data-toggle="tab">Upload</a></li>
-                            <li><a href="#tab2" data-toggle="tab">Enter URL</a></li>
-                        </ul>
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="tab1">
-                                <div class="preview" id="preview" >
-                                    <input id="upload_image" type="file" name="img">
-                                </div>
-                            </div>
-                            <div class="tab-pane" id="tab2">
-                                <p><input type="text" class="form-control input-lg img-url" placeholder="Ex: http://yoursite.com/image.jpg" id="img-url" /></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                                <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                        <button class="btn btn-primary sb_btn sb_btn_fill" id="insert_image_post">Insert Image</button>
-                    </div>
-                    <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12">
-                        <button class="btn btn-primary sb_btn sb_btn_fill sb_btn_remove" data-dismiss="modal" aria-hidden="true">Close</button>
-                    </div>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
-</div>
 
+{% endblock %}
+
+
+
+{% block intercom %}
+    Intercom('trackEvent', 'manage-edit-update');
 {% endblock %}

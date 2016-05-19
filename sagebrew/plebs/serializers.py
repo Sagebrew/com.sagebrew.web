@@ -280,10 +280,10 @@ class PlebSerializerNeo(SBSerializer):
     last_name = serializers.CharField()
     username = serializers.CharField(read_only=True)
     password = serializers.CharField(max_length=128, required=True,
-                                     write_only=True,
+                                     write_only=True, min_length=8,
                                      style={'input_type': 'password'})
     new_password = serializers.CharField(max_length=128, required=False,
-                                         write_only=True,
+                                         write_only=True, min_length=8,
                                          style={'input_type': 'password'})
     email = serializers.EmailField(required=True, write_only=True,
                                    validators=[SBUniqueValidator(

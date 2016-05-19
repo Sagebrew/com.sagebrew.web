@@ -716,6 +716,17 @@ a {
     background-color: #bdc3c7;
   }
 }
+
+.btn-save-for-later{
+  background-color: #bdc3c7;
+  &:hover{
+    color: white;
+    background-color: @sb_dark_blue;
+  }
+  &:active{
+    background-color: #bdc3c7;
+  }
+}
 .sb_sign_up_background{
   position: fixed;
   float: left;
@@ -1510,7 +1521,7 @@ textarea.sb_comment_input{
 
 #sb-greyout-page{
   position: fixed;
-  z-index: 15;
+  z-index: 1001;
   top: 0;
   left: 0;
   right: 0;
@@ -1931,6 +1942,7 @@ textarea.sb_comment_input{
 .no-border{
   border: none !important;
 }
+
 .padding-right-20 {
   padding-right: 20px;
 }
@@ -2220,6 +2232,10 @@ textarea.sb_comment_input{
   padding-right: 0;
 }
 
+.no-margin-left {
+  margin-left: 0 !important;
+}
+
 .padding-top-25 {
   padding-top: 25px;
 }
@@ -2257,6 +2273,22 @@ textarea.sb_comment_input{
   max-height: 100px !important;
 }
 
+.color-sb-green {
+  color: @sb_green !important;
+}
+
+.background-color-white {
+  background-color: white;
+}
+
+.line-height-three {
+  line-height: 3 !important;
+}
+
+.padding-right-40 {
+  padding-right: 40px !important;
+}
+
 .resize-vertical {
   resize: vertical;
 }
@@ -2268,6 +2300,14 @@ textarea.sb_comment_input{
 
 .width-100 {
   width: 100% !important;
+}
+
+.min-height-600 {
+  min-height: 600px !important;
+}
+
+.medium-editor-placeholder:after {
+  font-style: normal !important;
 }
 
 .upload-image-preview{
@@ -2326,3 +2366,54 @@ textarea.sb_comment_input{
 .yellow-href:hover {
   color: #f1c40f;
 }
+
+.font-size-26 {
+  font-size: 26px !important;
+}
+
+.padding-top-3 {
+  padding-top: 3px !important;
+}
+
+.margin-top-40 {
+  margin-top: 40px;
+}
+
+.padding-15 {
+  padding: 15px !important;
+}
+
+.medium-editor-toolbar {
+  &:extend(.medium-editor-toolbar);
+  background-color: @sb_green !important;
+  li {
+    button {
+      border-right: 1px solid white;
+    }
+  }
+}
+
+.medium-editor-toolbar li button:hover {
+  background-color: #2a594d !important;
+  color: #fff;
+}
+
+.medium-editor-toolbar-input {
+  background: @sb_green !important;
+}
+
+.medium-editor-toolbar-anchor-preview {
+  background-color: @sb_green !important;
+}
+
+.medium-editor-placeholder:after {
+  color: @sb_grey !important;
+}
+
+.medium-toolbar-arrow-under:after {
+  top: 60px;
+  border-color: @sb_green transparent transparent transparent; }
+
+.medium-toolbar-arrow-over:before {
+  top: -8px;
+  border-color: transparent transparent @sb_green transparent; }

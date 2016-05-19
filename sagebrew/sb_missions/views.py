@@ -1,8 +1,8 @@
 from django.utils.text import slugify
 from django.views.generic import View
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
 
 from py2neo.cypher.error import ClientError
 from neomodel import db, CypherException, DoesNotExist
@@ -131,9 +131,15 @@ class MissionSettingsView(LoginRequiredMixin):
             mission_obj = Mission.inflate(res[0].missions)
             return redirect('mission_settings',
                             object_uuid=mission_obj.object_uuid,
-                            slug=slugify(mission_obj.get_mission_title()))
+                            slug=slug)
 
         mission_obj = Mission.get(object_uuid)
+        if self.template_name == "manage/epic.html" and \
+                not mission_obj.saved_for_later and \
+                not mission_obj.submitted_for_review:
+            return redirect("submit_mission_for_review",
+                            object_uuid=mission_obj.object_uuid,
+                            slug=slug)
         missions = [MissionSerializer(Mission.inflate(row.missions)).data
                     for row in res]
         quest = Quest.inflate(res.one.quest)
@@ -151,7 +157,8 @@ class MissionSettingsView(LoginRequiredMixin):
                                          context={"request": request}).data,
             "quest": QuestSerializer(quest, context={"request": request}).data,
             "slug": slugify(mission_obj.get_mission_title()),
-            "epic_template": settings.EPIC_TEMPLATE,
+            "epic_template": render_to_string("placeholder_epic.html"),
+            "update_placeholder": render_to_string("updates/placeholder.html"),
             "onboarding_top_3": onboarding_sort[:3],
             "onboarding_rest": onboarding_sort[3:],
             "onboarding_done": onboarding_done

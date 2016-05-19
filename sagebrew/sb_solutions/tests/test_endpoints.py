@@ -142,7 +142,7 @@ class SolutionEndpointTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(
             Solution.nodes.get(object_uuid=self.solution.object_uuid).content,
-            new_content)
+            "<p>%s</p>" % new_content)
 
     def test_update_not_owner(self):
         self.client.force_authenticate(user=self.user2)

@@ -7,7 +7,8 @@ from datetime import datetime
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 
-from api.utils import gather_request_data, spawn_task, smart_truncate
+from api.utils import (gather_request_data, spawn_task, smart_truncate,
+                       render_content)
 from sb_base.serializers import MarkdownContentSerializer, validate_is_owner
 from plebs.neo_models import Pleb
 
@@ -28,9 +29,10 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         request = self.context["request"]
         question = validated_data.pop('question', None)
         owner = Pleb.get(request.user.username)
-        validated_data['content'] = validated_data.get('content', "")
         validated_data['owner_username'] = owner.username
         uuid = str(uuid1())
+        validated_data['content'] = render_content(
+            validated_data.get('content', ""), uuid)
         href = reverse('solution-detail', kwargs={"object_uuid": uuid},
                        request=request)
         soup = BeautifulSoup(validated_data['content'], "lxml").get_text()
@@ -47,7 +49,9 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
 
     def update(self, instance, validated_data):
         validate_is_owner(self.context.get('request', None), instance)
-        instance.content = validated_data.get('content', instance.content)
+        instance.content = render_content(
+            validated_data.get('content', instance.content),
+            instance.object_uuid)
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
         spawn_task(task_func=create_solution_summary_task, task_param={

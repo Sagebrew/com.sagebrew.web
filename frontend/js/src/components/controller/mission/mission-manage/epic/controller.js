@@ -19,15 +19,22 @@ export function init() {
 
 }
 
+function updateTime() {
+    var $timestamp = $("#livestamp"),
+        date = moment(new Date($timestamp.attr('data-livestamp')));
+    $timestamp.html(date.fromNow());
+}
+
 function finishedTyping(editor, missionId) {
-    require('kuende-livestamp');
     var serialized = editor.serialize(),
         key = Object.keys(editor.serialize())[0];
+
     request.patch({url: "/v1/missions/" + missionId + "/",
         data: JSON.stringify(
                 {'temp_epic': serialized[key].value})
-    }).done(function (){
-        $("#livestamp").livestamp(moment().format());
+    }).done(function (data){
+        $("#livestamp").attr('data-livestamp', data.epic_last_autosaved);
+        updateTime();
     });
 }
 
@@ -35,7 +42,6 @@ function finishedTyping(editor, missionId) {
  * Load
  */
 export function load() {
-    require('kuende-livestamp');
     var missionId = window.location.pathname.match("([A-Za-z0-9.@_%+-]{36})")[0],
         $secondnav = $(".navbar-secondary"),
         typingTimer,
@@ -44,6 +50,8 @@ export function load() {
         editor = mediumEditor(".editable", "Type your Epic here"),
         $editable = $(".editable"),
         slug = args(2);
+    updateTime();
+    setInterval(updateTime, 30000);
     $editable.on('keyup', function() {
         clearTimeout(typingTimer);
         typingTimer = setTimeout(

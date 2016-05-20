@@ -269,6 +269,8 @@ class MissionSerializer(SBSerializer):
             remove_search_object(instance.object_uuid, 'mission')
         instance.completed = validated_data.pop(
             'completed', instance.completed)
+        instance.review_feedback = validated_data.pop('review_feedback',
+                                                      instance.review_feedback)
         initial_review_state = instance.submitted_for_review
         instance.submitted_for_review = validated_data.pop(
             'submitted_for_review', instance.submitted_for_review)

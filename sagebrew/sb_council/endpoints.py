@@ -5,7 +5,7 @@ from django.template.loader import render_to_string
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.decorators import list_route
+from rest_framework.decorators import list_route, detail_route
 from rest_framework.permissions import IsAuthenticated
 
 from neomodel import db
@@ -151,9 +151,9 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
              for row in res], status=status.HTTP_200_OK)
 
     @list_route(serializer_class=MissionSerializer,
-                    permission_classes=(IsAuthenticated,))
+                permission_classes=(IsAuthenticated,))
     def missions(self, request):
-        query = 'MATCH (m:Mission)<-[:EMBARKS_ON]-(:Quest) RETURN m'
+        query = 'MATCH (m:Mission {submitted_for_review:true}) RETURN m'
         res, _ = db.cypher_query(query)
         return Response(
             [self.get_serializer(Mission.inflate(row[0])).data

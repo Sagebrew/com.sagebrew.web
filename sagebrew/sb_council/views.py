@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.views.generic import View
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
@@ -26,4 +27,6 @@ class CouncilView(LoginRequiredMixin):
                         pleb_username=self.request.user.username)
 
     def get(self, request, object_uuid=None):
-        return render(request, self.template_name)
+        return render(request, self.template_name,
+                      {"review_feedback":
+                           dict(settings.REVIEW_FEEDBACK_OPTIONS)})

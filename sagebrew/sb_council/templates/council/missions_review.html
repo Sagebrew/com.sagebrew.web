@@ -35,8 +35,17 @@
 {% block live %}
     <div class="block">
         <h3 class="block-title">Review Mission</h3>
-        <div class="block-content" id="js-mission-verification-wrapper">
-
+        <div class="block-content sb_markdown" id="js-mission-verification-wrapper">
+            <h1 style="padding-top:0; margin-top:0;">Review Options</h1>
+            <form id="submissionRequirements">
+                <ul>
+                    {% for key, value in review_feedback.items %}
+                        <li>
+                            <input type="checkbox" id='{{ key }}' name="feedbackItem" /> {{ value }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </form>
             <div class="row">
                 <div class="col-md-6 col-lg-4">
                     <button class="btn btn-primary sb_btn sb_btn_fill" id="js-submit-review">Submit</button>

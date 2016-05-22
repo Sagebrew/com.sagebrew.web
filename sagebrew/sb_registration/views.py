@@ -14,6 +14,7 @@ from rest_framework import status
 
 from neomodel import (CypherException, db, DoesNotExist)
 
+from sb_base.serializers import IntercomEventSerializer
 from plebs.neo_models import Pleb
 from plebs.serializers import EmailAuthTokenGenerator
 from .forms import LoginForm
@@ -129,6 +130,12 @@ def email_verification(request, confirmation):
             profile.email_verified = True
             profile.save()
             cache.delete(profile.username)
+            serializer = IntercomEventSerializer(data={
+                "event_name": "completed-email-verification",
+                "username": profile.username
+            })
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
             if profile.mission_signup is not None:
                 if profile.get_quest() is not None:
                     return redirect(profile.mission_signup)

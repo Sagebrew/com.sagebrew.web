@@ -8,7 +8,7 @@
                 Created
             </th>
             <th>
-                Verification Status
+                Activation Status
             </th>
             <th>
                 Actions
@@ -23,7 +23,7 @@
                     {{this.created}}
                 </td>
                 <td>
-                    {{this.quest.account_verified}}
+                    {{this.active}}
                 </td>
                 <td>
                     <a href="/council/missions/{{this.id}}/review/"
@@ -39,7 +39,7 @@
         {{ else }}
             <tr>
                 <td>
-                    No Current Missions Submitted for Review
+                    No Current Missions with Completed Reviews
                 </td>
             </tr>
         {{/each}}

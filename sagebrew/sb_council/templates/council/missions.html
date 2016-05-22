@@ -13,17 +13,17 @@
                 The use of request.GET.urlencode here is to capture query params, best way I
                 can think of to determine active for the buttons.
                 {% endcomment %}
-                <li class="{% if "verified" not in request.path %}active{% endif %}">
+                <li class="{% if "reviewed" not in request.path %}active{% endif %}">
                     <a class=""
                        data-filter=""
                        href="/council/missions/">
                         To Be Reviewed
                     </a>
                 </li>
-                <li class="{% if "verified" in request.path %}active{% endif %}">
+                <li class="{% if "reviewed" in request.path %}active{% endif %}">
                     <a class=""
                        data-filter="verified"
-                       href="/council/missions/reviewed">
+                       href="/council/missions/reviewed/">
                         Reviewed
                     </a>
                 </li>

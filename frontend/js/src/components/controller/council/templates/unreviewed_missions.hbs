@@ -1,0 +1,47 @@
+<div class="block-content">
+    <table class="table table-striped payment-methods">
+        <tbody><tr>
+            <th>
+                Title
+            </th>
+            <th>
+                Created
+            </th>
+            <th>
+                Account Verification Status
+            </th>
+            <th>
+                Actions
+            </th>
+        </tr>
+        {{#each missions}}
+            <tr>
+                <td>
+                    {{this.title}}
+                </td>
+                <td class="mission-created">
+                    {{this.created}}
+                </td>
+                <td>
+                    {{this.quest.account_verified}}
+                </td>
+                <td>
+                    <a href="/council/missions/{{this.id}}/review/"
+                       class="sb-action-icon"
+                       data-object_uuid="{{this.id}}"
+                       data-toggle="tooltip"
+                       data-title="Review Mission"
+                       data-placement="top">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                    </a>
+                </td>
+            </tr>
+        {{ else }}
+            <tr>
+                <td>
+                    No Current Missions Submitted for Review
+                </td>
+            </tr>
+        {{/each}}
+    </tbody></table>
+</div>

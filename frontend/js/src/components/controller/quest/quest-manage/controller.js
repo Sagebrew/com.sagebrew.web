@@ -2,10 +2,7 @@
 /**
  * @file
  */
-var request = require('api').request,
-    helpers = require('common/helpers'),
-    settings = require('settings').settings,
-    moment = require('moment');
+var request = require('api').request;
 
 /**
  * Meta.

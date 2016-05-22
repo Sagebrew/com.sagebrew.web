@@ -29,4 +29,4 @@ class CouncilView(LoginRequiredMixin):
     def get(self, request, object_uuid=None):
         return render(request, self.template_name,
                       {"review_feedback":
-                           dict(settings.REVIEW_FEEDBACK_OPTIONS)})
+                       dict(settings.REVIEW_FEEDBACK_OPTIONS)})

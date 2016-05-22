@@ -1,10 +1,10 @@
 var request = require('api').request,
-    unverifiedMissionTemplate = require('controller/council/templates/unverified_missions.hbs'),
+    unverifiedMissionTemplate = require('controller/council/templates/unreviewed_missions.hbs'),
     moment = require('moment');
 
 
 export const meta = {
-    controller: "council/unverified_missions",
+    controller: "council/unreviewed_missions",
     match_method: "path",
     check: [
         "^council\/missions$"

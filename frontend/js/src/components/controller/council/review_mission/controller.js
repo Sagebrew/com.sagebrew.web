@@ -1,6 +1,5 @@
 var request = require('api').request,
     reviewMissionTemplate = require('controller/council/templates/review_mission.hbs'),
-    moment = require('moment'),
     args = require('common/helpers').args,
     getCheckboxes = require('common/helpers').getCheckedBoxes;
 
@@ -32,20 +31,22 @@ export function load() {
             $missionWrapper.prepend(reviewMissionTemplate({mission: data}));
         });
     $app
+        .on('click', '#js-submit-initial', function(e) {
+            e.preventDefault();
+            $("#js-review-modal").modal();
+        })
         .on('click', '#js-submit-review', function(e) {
             e.preventDefault();
             var data = {
                 'review_feedback': getCheckboxes('feedbackItem')
             };
-            console.log(data);
             request.patch(
                 {
-                    url: '/v1/missions/' + missionId + '/',
+                    url: '/v1/council/' + missionId + '/mission_review/',
                     data: JSON.stringify(data)
                 }
-            ).done(function(data) {
-                console.log('here');
-                console.log(data);
+            ).done(function() {
+                window.history.back();
             });
         });
 }

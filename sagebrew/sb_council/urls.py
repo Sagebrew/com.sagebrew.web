@@ -7,7 +7,7 @@ urlpatterns = patterns(
     url(r'^$', CouncilView.as_view(template_name="council_page.html"),
         name='council_page'),
 
-    #positions
+    # positions
     url(r'^positions/$',
         CouncilView.as_view(template_name="council_positions.html"),
         name='council_positions'),
@@ -22,9 +22,9 @@ urlpatterns = patterns(
     url(r'^missions/$',
         CouncilView.as_view(template_name="council/missions.html"),
         name='council_missions'),
-    url(r'^missions/verified/$',
+    url(r'^missions/reviewed/$',
         CouncilView.as_view(template_name="council/missions.html"),
-        name='council_missions_verified'),
+        name='council_missions_reviewed'),
     url(r'^missions/(?P<object_uuid>[A-Za-z0-9.@_%+-]{2,36})/review/$',
         CouncilView.as_view(template_name="council/missions_review.html"),
         name='council_missions_review')

@@ -122,6 +122,26 @@ class AccountSerializer(SBSerializer):
                 quest.account_verified = \
                     account.legal_entity.verification.status
                 quest.account_verified_date = datetime.now(pytz.utc)
+                message_data = {
+                    'message_type': 'email',
+                    'subject': 'Quest Verified',
+                    'body': "Hi Team,\n%s's Quest has been verified by Stripe. "
+                            "Please review it in the <a href='%s'>"
+                            "council area</a>"
+                            % (quest.owner_username,
+                               reverse('council_missions')),
+                    'template': "personal",
+                    'from_user': {
+                        'type': "admin",
+                        'id': settings.INTERCOM_ADMIN_ID_DEVON},
+                    'to_user': {
+                        'type': "user",
+                        'user_id': settings.INTERCOM_ADMIN_ID_DEVON}
+                }
+                serializer = IntercomMessageSerializer(data=message_data)
+                if serializer.is_valid():
+                    serializer.save()
+
             if account.verification.fields_needed:
                 quest.account_verification_fields_needed = \
                     account.verification.fields_needed

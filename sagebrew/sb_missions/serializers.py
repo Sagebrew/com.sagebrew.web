@@ -19,7 +19,6 @@ from sb_base.serializers import (IntercomEventSerializer,
                                  IntercomMessageSerializer)
 from sb_locations.serializers import LocationSerializer
 from sb_tags.neo_models import Tag
-from sb_search.utils import remove_search_object
 
 from .neo_models import Mission
 from .utils import setup_onboarding
@@ -255,22 +254,9 @@ class MissionSerializer(SBSerializer):
     def update(self, instance, validated_data):
         from sb_base.serializers import validate_is_owner
         validate_is_owner(self.context.get('request', None), instance)
-        initial_state = instance.active
-        instance.active = validated_data.pop('active', instance.active)
-        if initial_state is False and instance.active is True:
-            serializer = IntercomEventSerializer(
-                data={'event_name': "take-mission-live",
-                      'username': instance.owner_username})
-            # Don't raise an error because we rather not notify intercom than
-            # hold up the mission activation process
-            if serializer.is_valid():
-                serializer.save()
-        if initial_state is True and instance.active is False:
-            remove_search_object(instance.object_uuid, 'mission')
         instance.completed = validated_data.pop(
             'completed', instance.completed)
-        instance.review_feedback = validated_data.pop('review_feedback',
-                                                      instance.review_feedback)
+
         initial_review_state = instance.submitted_for_review
         instance.submitted_for_review = validated_data.pop(
             'submitted_for_review', instance.submitted_for_review)
@@ -284,15 +270,17 @@ class MissionSerializer(SBSerializer):
                 'message_type': 'email',
                 'subject': 'Submit Mission For Review',
                 'body': 'Hi Team,\n%s has submitted their %s Mission. '
-                        'Please review it in the council area.' % (
-                            instance.owner_username, instance.title),
+                        'Please review it in the <a href="%s">'
+                        'council area</a>. '
+                        % (instance.owner_username, instance.title,
+                           reverse('council_missions')),
                 'template': "personal",
                 'from_user': {
                     'type': "admin",
                     'id': settings.INTERCOM_ADMIN_ID_DEVON},
                 'to_user': {
                     'type': "user",
-                    'user_id': "devon_bleibtrey"}
+                    'user_id': settings.INTERCOM_ADMIN_ID_DEVON}
             }
             serializer = IntercomMessageSerializer(data=message_data)
             if serializer.is_valid():

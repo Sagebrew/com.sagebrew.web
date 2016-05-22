@@ -1,11 +1,16 @@
 import pytz
 from datetime import datetime
 
+from django.conf import settings
+
 from neomodel import db
 from rest_framework import serializers
 
 from api.utils import spawn_task
-from sb_base.serializers import ContentSerializer
+from sb_base.serializers import (ContentSerializer, IntercomMessageSerializer,
+                                 IntercomEventSerializer)
+from sb_missions.serializers import MissionSerializer
+from plebs.neo_models import Pleb
 
 from .tasks import update_closed_task
 
@@ -29,3 +34,56 @@ class CouncilVoteSerializer(ContentSerializer):
         spawn_task(task_func=update_closed_task,
                    task_param={'object_uuid': instance.object_uuid})
         return res
+
+
+class MissionReviewSerializer(MissionSerializer):
+    def update(self, instance, validated_data):
+        owner = Pleb.get(instance.owner_username)
+        prev_feedback = instance.review_feedback
+        instance.review_feedback = validated_data.pop('review_feedback',
+                                                      instance.review_feedback)
+        if prev_feedback != instance.review_feedback and not instance.active:
+            problem_string = ""
+            for item in instance.review_feedback:
+                problem_string += \
+                    "* %s\n" % (dict(settings.REVIEW_FEEDBACK_OPTIONS)[item])
+            message_body = 'Hi %s,\n\nWe have reviewed your Mission, %s, and ' \
+                           'have found no problems.\nCongratulations!\n ' \
+                           'We have taken your Mission live for you ' \
+                           'and you can now receive Donations and Volunteers.' \
+                           % (owner.first_name, instance.title)
+            if problem_string:
+                message_body = 'Hi %s,\nWe have reviewed your Mission, %s, ' \
+                               'and found a few issues you should take care ' \
+                               'of before taking your Mission live:\n\n%s' % \
+                               (owner.first_name, instance.title,
+                                problem_string)
+            else:
+                instance.active = True
+
+            message_data = {
+                'message_type': 'email',
+                'subject': 'Mission Review Update',
+                'body': message_body,
+                'template': "personal",
+                'from_user': {
+                    'type': "admin",
+                    'id': settings.INTERCOM_ADMIN_ID_DEVON},
+                'to_user': {
+                    'type': "user",
+                    'user_id': instance.owner_username}
+            }
+            serializer = IntercomMessageSerializer(data=message_data)
+            if serializer.is_valid():
+                serializer.save()
+        if not instance.review_feedback:
+            instance.active = True
+            serializer = IntercomEventSerializer(
+                data={'event_name': "take-mission-live",
+                      'username': instance.owner_username})
+            # Don't raise an error because we rather not notify intercom than
+            # hold up the mission activation process
+            if serializer.is_valid():
+                serializer.save()
+
+        return instance.save()

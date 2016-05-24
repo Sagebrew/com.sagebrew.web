@@ -9,7 +9,7 @@ from rest_framework.reverse import reverse
 
 from api.utils import (gather_request_data, spawn_task, smart_truncate,
                        render_content)
-from sb_base.serializers import MarkdownContentSerializer, validate_is_owner
+from sb_base.serializers import ContentSerializer, validate_is_owner
 from plebs.neo_models import Pleb
 
 
@@ -17,7 +17,7 @@ from .tasks import create_solution_summary_task
 from .neo_models import Solution
 
 
-class SolutionSerializerNeo(MarkdownContentSerializer):
+class SolutionSerializerNeo(ContentSerializer):
     content = serializers.CharField(min_length=15)
     href = serializers.HyperlinkedIdentityField(view_name='solution-detail',
                                                 lookup_field="object_uuid")

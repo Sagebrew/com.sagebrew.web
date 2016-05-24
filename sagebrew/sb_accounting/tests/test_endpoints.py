@@ -167,6 +167,20 @@ class AccountingHooksTests(APITestCase):
         }
         m.get("https://api.stripe.com/v1/accounts/acct_00000000000000",
               json=account_mock_data, status_code=status.HTTP_200_OK)
+
+        admin_mock_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": settings.INTERCOM_ADMIN_ID_DEVON,
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
+        m.get("https://api.intercom.io/admins", json=admin_mock_data,
+              status_code=status.HTTP_200_OK)
         self.client.force_authenticate(user=self.user)
         url = reverse('accounting-list')
         data = {
@@ -203,6 +217,20 @@ class AccountingHooksTests(APITestCase):
         }
         m.get("https://api.stripe.com/v1/accounts/acct_00000000000001",
               json=account_mock_data, status_code=status.HTTP_200_OK)
+
+        admin_mock_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": settings.INTERCOM_ADMIN_ID_DEVON,
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
+        m.get("https://api.intercom.io/admins", json=admin_mock_data,
+              status_code=status.HTTP_200_OK)
         self.client.force_authenticate(user=self.user)
         url = reverse('accounting-list')
         data = {

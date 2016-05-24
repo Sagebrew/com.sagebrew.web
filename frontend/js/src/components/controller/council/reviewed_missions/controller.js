@@ -26,7 +26,7 @@ export function load() {
     request.get({url: '/v1/missions/?submitted_for_review=true&active=true'})
         .done(function(data) {
             $missionWrapper.append(unverifiedMissionTemplate(
-                {missions: data.results, review_string:"with Completed Reviews"}));
+                {missions: data.results, review_string:"With Completed Reviews"}));
             $('[data-toggle="tooltip"]').tooltip();
             $(".mission-created").each(function(){
                 var $this = $(this),

@@ -70,7 +70,7 @@ export function load () {
                         $(commentContainer).append(wrapperString);
                     }
                     for (var i = 0; i < data.results.length; i++) {
-                        data.results[i].html_content = Autolinker.link(data.results[i].html_content);
+                        data.results[i].content = Autolinker.link(data.results[i].content);
                     }
                     $(commentContainer).prepend(commentsRenderTemplate({comments: helpers.votableContentPrep(data.results)}));
 

@@ -347,14 +347,7 @@ class ContentSerializer(VotableContentSerializer):
         return obj.get_council_vote(request.user.username)
 
 
-class MarkdownContentSerializer(ContentSerializer):
-    html_content = serializers.SerializerMethodField()
-
-    def get_html_content(self, obj):
-        return render_content(obj.content)
-
-
-class TitledContentSerializer(MarkdownContentSerializer):
+class TitledContentSerializer(ContentSerializer):
     title = serializers.CharField(required=False,
                                   min_length=15, max_length=140)
 

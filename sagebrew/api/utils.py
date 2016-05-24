@@ -433,7 +433,7 @@ def render_content(content):
             # Only parse the content if we need to since it can be a long
             # process (lxml should make it pretty fast though)
             soup = BeautifulSoup(content, 'lxml')
-            if not "padding-top: 0; margin-top: 5px;" \
+            if "padding-top: 0; margin-top: 5px;" \
                     not in soup.h2.get('style', ''):
                 soup.h2['style'] = soup.h2.get(
                     'style', '').join("padding-top: 0; margin-top: 5px;")

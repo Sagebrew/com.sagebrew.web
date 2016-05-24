@@ -18,7 +18,7 @@ $( document ).ready(function() {
 
                     var question_preview = $("#wmd-preview-0");
                     question_preview.html("");
-                    question_preview.append(data['html_content']);
+                    question_preview.append(data['content']);
                     checkSolutionCount();
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {

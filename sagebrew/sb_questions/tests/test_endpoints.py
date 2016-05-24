@@ -1192,20 +1192,6 @@ class SBBaseSerializerTests(APITestCase):
         self.assertEqual(response.data['can_comment']['short_detail'],
                          "Signup To Comment")
 
-    def test_content_is_none(self):
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
-        self.client.force_authenticate(user=self.user)
-        question = Question(title='test_title', content=None,
-                            owner_username=self.pleb.username).save()
-        question.owned_by.connect(self.pleb)
-        url = reverse('question-detail',
-                      kwargs={'object_uuid': question.object_uuid})
-        response = self.client.get(url, format='json')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['html_content'], "")
-
     def test_is_not_owner(self):
         query = "MATCH (n:SBContent) OPTIONAL MATCH " \
                 "(n:SBContent)-[r]-() DELETE n,r"

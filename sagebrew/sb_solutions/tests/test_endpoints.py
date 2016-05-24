@@ -132,13 +132,13 @@ class SolutionEndpointTests(APITestCase):
 
     def test_update(self):
         self.client.force_authenticate(user=self.user)
-        new_content = "This is the new solution to the problem and it has " \
-                      "some new information stored within it!"
+        new_content = "<p>This is the new solution to the problem and it has " \
+                      "some new information stored within it!</p>"
         url = reverse(
             "solution-detail",
             kwargs={"object_uuid": self.solution.object_uuid})
         res = self.client.patch(url,
-                                data={'content': "<p>%s</p>" % new_content},
+                                data={'content': new_content},
                                 format='json')
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(

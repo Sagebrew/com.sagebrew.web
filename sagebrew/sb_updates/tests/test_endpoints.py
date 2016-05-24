@@ -263,8 +263,7 @@ class UpdateEndpointsTest(APITestCase):
         }
         response = self.client.patch(url, data=data, format='json')
 
-        self.assertEqual(response.data['content'],
-                         data['content'])
+        self.assertEqual(response.data['content'], data['content'])
 
     def test_patch_content_not_owner(self):
         self.client.force_authenticate(user=self.user2)

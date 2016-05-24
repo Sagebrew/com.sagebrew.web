@@ -214,53 +214,6 @@ class QuestionEndpointTests(APITestCase):
                 "(n:SBContent)-[r]-() DELETE n,r"
         res, _ = db.cypher_query(query)
 
-    def test_create_with_image(self):
-        self.client.force_authenticate(user=self.user)
-        cache.clear()
-        content = '<img src="https://i.imgur.com/nHcAF4t.jpg">'
-        title = "This is a question that must be t is blue21?"
-        tags = ['taxes', 'environment']
-        url = reverse('question-list')
-        data = {
-            "content": content,
-            "title": title,
-            "tags": tags
-        }
-        response = self.client.post(url, data, format='json')
-        html_content = '<a data-lightbox="%s" ' \
-                       'href="https://i.imgur.com/nHcAF4t.jpg">' \
-                       '<img src="https://i.imgur.com/nHcAF4t.jpg"/></a>' % \
-                       response.data['id']
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['html_content'], html_content)
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
-
-    def test_create_with_image_already_wrapped(self):
-        self.client.force_authenticate(user=self.user)
-        cache.clear()
-        content = '<a data-lightbox="" ' \
-                  'href="https://i.imgur.com/nHcAF4t.jpg">' \
-                  '<img src="https://i.imgur.com/nHcAF4t.jpg"></a>'
-        title = "This is a question that must be t is blue21?"
-        tags = ['taxes', 'environment']
-        url = reverse('question-list')
-        data = {
-            "content": content,
-            "title": title,
-            "tags": tags
-        }
-        response = self.client.post(url, data, format='json')
-        html_content = '<a data-lightbox="" ' \
-                       'href="https://i.imgur.com/nHcAF4t.jpg">' \
-                       '<img src="https://i.imgur.com/nHcAF4t.jpg"/></a>'
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data['html_content'], html_content)
-        query = "MATCH (n:SBContent) OPTIONAL MATCH " \
-                "(n:SBContent)-[r]-() DELETE n,r"
-        res, _ = db.cypher_query(query)
-
     def test_create_with_focus_area(self):
         self.client.force_authenticate(user=self.user)
         content = "This is the content to my question, it's a pretty good " \
@@ -282,7 +235,7 @@ class QuestionEndpointTests(APITestCase):
                                  response.data['object_uuid'])
         question = Question.inflate(res.one)
         self.assertEqual(question.affected_area, "Wixom, MI, USA")
-        self.assertEqual(question.content, content)
+        self.assertEqual(question.content, data['content'])
         self.assertEqual(question.object_uuid, response.data['object_uuid'])
 
     def test_create_null_focus_area(self):
@@ -305,7 +258,7 @@ class QuestionEndpointTests(APITestCase):
                                  '"%s"}) RETURN a' %
                                  response.data['object_uuid'])
         question = Question.inflate(res.one)
-        self.assertEqual(question.content, content)
+        self.assertEqual(question.content, data['content'])
 
     def test_create_duplicate_title(self):
         self.client.force_authenticate(user=self.user)
@@ -375,7 +328,7 @@ class QuestionEndpointTests(APITestCase):
             "tags": tags
         }
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.data['content'], content)
+        self.assertEqual(response.data['content'], data['content'])
 
     def test_create_title(self):
         self.client.force_authenticate(user=self.user)
@@ -759,7 +712,7 @@ class QuestionEndpointTests(APITestCase):
             "content": "<p>%s</p>" % content
         }
         response = self.client.patch(url, data, format='json')
-        self.assertEqual(response.data['content'], content)
+        self.assertEqual(response.data['content'], data['content'])
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_profile(self):

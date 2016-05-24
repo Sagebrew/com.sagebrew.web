@@ -674,37 +674,6 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['epic'], content)
 
-    def test_update_take_active(self):
-        self.client.force_authenticate(user=self.user)
-        mission = Mission(title=str(uuid1()),
-                          owner_username=self.pleb.username).save()
-        self.quest.missions.connect(mission)
-        data = {
-            "active": True,
-        }
-        url = reverse('mission-detail',
-                      kwargs={'object_uuid': mission.object_uuid})
-        response = self.client.patch(url, data=data, format='json')
-        self.assertTrue(response.data['active'])
-        mission.refresh()
-        self.assertTrue(mission.active)
-
-    def test_update_take_inactive(self):
-        self.client.force_authenticate(user=self.user)
-        mission = Mission(title=str(uuid1()),
-                          owner_username=self.pleb.username,
-                          active=True).save()
-        self.quest.missions.connect(mission)
-        data = {
-            "active": False
-        }
-        url = reverse('mission-detail',
-                      kwargs={'object_uuid': mission.object_uuid})
-        response = self.client.patch(url, data=data, format='json')
-        self.assertFalse(response.data['active'])
-        mission.refresh()
-        self.assertFalse(mission.active)
-
     def test_update_website(self):
         self.client.force_authenticate(user=self.user)
         mission = Mission(title=str(uuid1()),
@@ -728,7 +697,6 @@ class MissionEndpointTests(APITestCase):
                             status_code=status.HTTP_200_OK)
         mission.refresh()
         self.assertEqual(mission.website, data['website'])
-        self.assertFalse(mission.active)
 
     def test_update_temp_epic(self):
         self.client.force_authenticate(user=self.user)

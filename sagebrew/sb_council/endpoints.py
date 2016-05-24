@@ -5,7 +5,7 @@ from django.template.loader import render_to_string
 
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.decorators import list_route, detail_route
+from rest_framework.decorators import list_route
 from rest_framework.permissions import IsAuthenticated
 
 from neomodel import db
@@ -22,10 +22,8 @@ from sb_comments.serializers import CommentSerializer
 from sb_posts.serializers import PostSerializerNeo
 from sb_quests.neo_models import Position
 from sb_quests.serializers import PositionSerializer
-from sb_missions.neo_models import Mission
-from sb_missions.serializers import MissionSerializer
 
-from .serializers import CouncilVoteSerializer, MissionReviewSerializer
+from .serializers import CouncilVoteSerializer
 
 
 class CouncilObjectEndpoint(viewsets.ModelViewSet):

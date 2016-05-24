@@ -2,10 +2,7 @@
 /**
  * @file
  */
-var request = require('api').request,
-    helpers = require('common/helpers'),
-    settings = require('settings').settings,
-    moment = require('moment');
+var request = require('api').request;
 
 /**
  * Meta.
@@ -16,7 +13,8 @@ export const meta = {
     check: [
         "^quests\/[A-Za-z0-9.@_%+-]{1,36}",
         "^missions\/[A-Za-z0-9.@_%+-]{36}\/"
-    ]
+    ],
+    does_not_include: ['review']
 };
 
 

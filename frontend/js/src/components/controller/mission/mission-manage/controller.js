@@ -40,7 +40,7 @@ export function load() {
                 if(helpers.args(3) === "review"){
                     window.location.href = "/missions/" + missionID + "/" + missionSlug + "/manage/epic/";
                 } else {
-                    window.location.reload()
+                    window.location.reload();
                 }
             }).fail(function () {
                 greyPage.classList.add('sb_hidden');

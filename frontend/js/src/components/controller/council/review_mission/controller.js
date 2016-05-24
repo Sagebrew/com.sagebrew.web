@@ -28,7 +28,8 @@ export function load() {
         $app = $(".app-sb");
     request.get({url: "/v1/missions/" + missionId + "/"})
         .done(function(data) {
-            $missionWrapper.prepend(reviewMissionTemplate({mission: data}));
+            $missionWrapper.prepend(reviewMissionTemplate(
+                {mission: data, review_string:"Submitted for Review"}));
         });
     $app
         .on('click', '#js-submit-initial', function(e) {
@@ -42,7 +43,7 @@ export function load() {
             };
             request.patch(
                 {
-                    url: '/v1/council/' + missionId + '/mission_review/',
+                    url: '/v1/missions/' + missionId + '/review/',
                     data: JSON.stringify(data)
                 }
             ).done(function() {

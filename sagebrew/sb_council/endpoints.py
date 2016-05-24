@@ -149,38 +149,3 @@ class CouncilObjectEndpoint(viewsets.ModelViewSet):
         return Response(
             [PositionSerializer(Position.inflate(row[0])).data
              for row in res], status=status.HTTP_200_OK)
-
-    @list_route(serializer_class=MissionSerializer,
-                permission_classes=(IsAuthenticated,))
-    def missions(self, request):
-        query = 'MATCH (m:Mission {submitted_for_review:true, active:false}) ' \
-                'RETURN m'
-        res, _ = db.cypher_query(query)
-        return Response(
-            [self.get_serializer(Mission.inflate(row[0])).data
-             for row in res], status=status.HTTP_200_OK)
-
-    @list_route(serializer_class=MissionSerializer,
-                permission_classes=(IsAuthenticated,))
-    def missions_reviewed(self, request):
-        query = 'MATCH (m:Mission {submitted_for_review:true, active:true}) ' \
-                'RETURN m'
-        res, _ = db.cypher_query(query)
-        return Response(
-            [self.get_serializer(Mission.inflate(row[0])).data
-             for row in res], status=status.HTTP_200_OK)
-
-    @detail_route(methods=['patch'], serializer_class=MissionReviewSerializer,
-                  permission_classes=(IsAuthenticated,))
-    def mission_review(self, request, object_uuid=""):
-        if request.user.username == 'tyler_wiersing' \
-                or request.user.username == 'devon_bleibtrey':
-            query = 'MATCH (m:Mission {object_uuid:"%s"}) RETURN m' \
-                    % object_uuid
-            res, _ = db.cypher_query(query)
-            serializer = self.get_serializer(Mission.inflate(res.one),
-                                             data=request.data, partial=True)
-            if serializer.is_valid():
-                self.perform_update(serializer)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(request.data, status=status.HTTP_200_OK)

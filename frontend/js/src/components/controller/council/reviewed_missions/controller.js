@@ -23,13 +23,15 @@ export function init() {
  */
 export function load() {
     var $missionWrapper = $("#js-mission-verification-wrapper");
-    request.get({url: '/v1/council/missions_reviewed/'})
+    request.get({url: '/v1/missions/?submitted_for_review=true&active=true'})
         .done(function(data) {
-            $missionWrapper.append(unverifiedMissionTemplate({missions: data}));
+            $missionWrapper.append(unverifiedMissionTemplate(
+                {missions: data.results, review_string:"with Completed Reviews"}));
             $('[data-toggle="tooltip"]').tooltip();
             $(".mission-created").each(function(){
                 var $this = $(this),
                     momentTime = moment($this.html()).format("dddd, MMMM Do YYYY, h:mm a");
+                // format each of the element's created times into human readable time
                 $this.html(momentTime);
             });
         });

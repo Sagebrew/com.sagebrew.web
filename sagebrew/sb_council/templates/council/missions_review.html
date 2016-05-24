@@ -1,5 +1,4 @@
 {% extends "layout/hero-two-col-left.html" %}
-{% load staticfiles %}
 
 {% block hero %}
     {% include "council/nav.html" %}
@@ -35,7 +34,7 @@
 {% block live %}
     <div class="block">
         <div class="block-content sb_markdown" id="js-mission-verification-wrapper">
-            <h1 style="padding-top:0; margin-top:0;">Review Feedback Options</h1>
+            <h1 class="no-margin-padding-top">Review Feedback Options</h1>
             <form id="submissionRequirements">
                 <ul>
                     {% for key, value in review_feedback.items %}
@@ -70,13 +69,13 @@
                     <div class="col-lg-6 col-md-6">
                         <button type="button"
                                 id="js-submit-review"
-                                class="btn btn-primary sb_btn" style="width: 100%;"
+                                class="btn btn-primary sb_btn width-100"
                                 data-dismiss="modal">Submit
                         </button>
                     </div>
                     <div class="col-lg-6 col-md-"6>
-                        <button type="button" style="width: 100%;"
-                                class="btn btn-primary btn-danger"
+                        <button type="button"
+                                class="btn btn-primary btn-danger width-100"
                                 data-dismiss="modal">I am not finished reviewing
                         </button>
                     </div>

@@ -351,7 +351,7 @@ class MarkdownContentSerializer(ContentSerializer):
     html_content = serializers.SerializerMethodField()
 
     def get_html_content(self, obj):
-        return render_content(obj.content, obj.object_uuid)
+        return render_content(obj.content)
 
 
 class TitledContentSerializer(MarkdownContentSerializer):

@@ -22,7 +22,7 @@ class Command(BaseCommand):
             if not res.one:
                 break
             for mission in [Mission.inflate(row[0]) for row in res]:
-                rendered = render_content(mission.epic, mission.object_uuid)
+                rendered = render_content(mission.epic)
                 mission.epic = rendered
                 mission.temp_epic = rendered
                 mission.save()
@@ -34,8 +34,7 @@ class Command(BaseCommand):
             if not res.one:
                 break
             for question in [Question.inflate(row[0]) for row in res]:
-                rendered = render_content(question.content,
-                                          question.object_uuid)
+                rendered = render_content(question.content)
                 question.content = rendered
                 question.save()
         skip = 0
@@ -46,8 +45,7 @@ class Command(BaseCommand):
             if not res.one:
                 break
             for solution in [Solution.inflate(row[0]) for row in res]:
-                rendered = render_content(solution.content,
-                                          solution.object_uuid)
+                rendered = render_content(solution.content)
                 solution.content = rendered
                 solution.save()
         skip = 0
@@ -58,7 +56,7 @@ class Command(BaseCommand):
             if not res.one:
                 break
             for update in [Update.inflate(row[0]) for row in res]:
-                rendered = render_content(update.content, update.object_uuid)
+                rendered = render_content(update.content)
                 update.content = rendered
                 update.save()
         cache.set("migrated_to_new_editor", True)

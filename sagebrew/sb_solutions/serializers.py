@@ -32,7 +32,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
         validated_data['owner_username'] = owner.username
         uuid = str(uuid1())
         validated_data['content'] = render_content(
-            validated_data.get('content', ""), uuid)
+            validated_data.get('content', ""))
         href = reverse('solution-detail', kwargs={"object_uuid": uuid},
                        request=request)
         soup = BeautifulSoup(validated_data['content'], "lxml").get_text()
@@ -50,8 +50,7 @@ class SolutionSerializerNeo(MarkdownContentSerializer):
     def update(self, instance, validated_data):
         validate_is_owner(self.context.get('request', None), instance)
         instance.content = render_content(
-            validated_data.get('content', instance.content),
-            instance.object_uuid)
+            validated_data.get('content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
         spawn_task(task_func=create_solution_summary_task, task_param={

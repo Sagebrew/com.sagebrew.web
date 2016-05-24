@@ -131,7 +131,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         validated_data['owner_username'] = owner.username
         uuid = str(uuid1())
         validated_data['content'] = render_content(
-            validated_data.get('content', ""), uuid)
+            validated_data.get('content', ""))
         url = reverse('question_detail_page', kwargs={'question_uuid': uuid,
                                                       "slug": slugify(
                                                           validated_data[
@@ -188,8 +188,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         validate_is_owner(self.context.get('request', None), instance)
         instance.title = validated_data.get('title', instance.title)
         instance.content = render_content(
-            validated_data.get('content', instance.content),
-            instance.object_uuid)
+            validated_data.get('content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.latitude = validated_data.get('latitude', instance.latitude)
         instance.longitude = validated_data.get(

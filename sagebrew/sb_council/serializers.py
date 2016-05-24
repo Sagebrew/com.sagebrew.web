@@ -37,6 +37,15 @@ class CouncilVoteSerializer(ContentSerializer):
 
 
 class MissionReviewSerializer(MissionSerializer):
+    '''
+    Using this serializer in place of the traditional MissionSerializer due
+    to the operations being performed on the Mission being restricted to our
+    admins (us) currently. In the MissionSerializer we have a check for
+    verifying the person modifying the Mission is actually the owner.
+    I think it is cleaner to have a different serializer for this purpose
+    rather than adding in a check there to determine if it is the owner of
+    the Mission or us modifying it.
+    '''
     def update(self, instance, validated_data):
         owner = Pleb.get(instance.owner_username)
         prev_feedback = instance.review_feedback

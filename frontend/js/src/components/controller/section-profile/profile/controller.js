@@ -1,7 +1,6 @@
 /*global Croppic*/
 var postcreate = require('../partials/postcreate'),
     request = require('api').request,
-    Autolinker = require('autolinker'),
     missions = require('common/missions'),
     helpers = require('common/helpers'),
     questionSummaryTemplate = require('controller/conversation/conversation-list/templates/question_summary.hbs'),
@@ -169,7 +168,6 @@ export function load() {
                 } else if (data.results[i].type === "solution") {
                     data.results[i].html = solutionSummaryTemplate({solutions: [data.results[i]]});
                 }
-                $container.append(Autolinker.link(data.results[i].html));
                 $('[data-toggle="tooltip"]').tooltip();
             }
         }

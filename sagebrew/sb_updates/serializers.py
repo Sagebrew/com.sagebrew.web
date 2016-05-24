@@ -36,8 +36,7 @@ class UpdateSerializer(TitledContentSerializer):
         about = validated_data.pop('about', None)
         about_type = validated_data.get('about_type')
         validated_data['content'] = \
-            render_content(validated_data.get('content', ''),
-                           validated_data.get('object_uuid'))
+            render_content(validated_data.get('content', ''))
         update = Update(**validated_data).save()
         quest.updates.connect(update)
         url = None
@@ -66,8 +65,7 @@ class UpdateSerializer(TitledContentSerializer):
         validate_is_owner(self.context.get('request', None), instance)
         instance.title = validated_data.pop('title', instance.title)
         instance.content = render_content(
-            validated_data.pop('content', instance.content),
-            instance.object_uuid)
+            validated_data.pop('content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
         return instance

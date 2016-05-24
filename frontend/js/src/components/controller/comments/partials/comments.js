@@ -93,6 +93,7 @@ export function load () {
                 .done(function (data) {
                     var commentContainer = document.getElementById("comment-" + thisHolder.dataset.id);
                     data.created = moment(data.created).format("dddd, MMMM Do YYYY, h:mm a");
+                    data.content = Autolinker.link(data.content);
                     $(commentContainer).append(commentsRenderTemplate({comments: [data]}));
                     var additionalCommentWrapper = document.getElementById(
                         'additional-comment-wrapper-' + thisHolder.dataset.id);
@@ -123,7 +124,7 @@ export function load () {
                 data: JSON.stringify(update)
             }).done(function (data) {
                 $form.find('button').prop('disabled', false);
-                document.getElementById("js-comment-" + data.id).innerHTML = data.html_content;
+                document.getElementById("js-comment-" + data.id).innerHTML = data.content;
                 $('#js-edit-container-' + objectID).hide();
                 $("#js-comment-" + objectID).show();
             }).fail(function () {
@@ -145,7 +146,7 @@ export function load () {
                 .done(function (data) {
                     var commentContainer = $('#comment-' + commentParentData.id);
                     for (var i = 0; i < data.results.length; i++) {
-                        data.results[i].html_content = Autolinker.link(data.results[i].html_content);
+                        data.results[i].content = Autolinker.link(data.results[i].content);
                     }
                     commentContainer.append(commentsRenderTemplate({"comments": helpers.votableContentPrep(data.results)}));
                     if (data.count > 3) {

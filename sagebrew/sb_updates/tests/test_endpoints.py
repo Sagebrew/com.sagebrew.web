@@ -259,12 +259,12 @@ class UpdateEndpointsTest(APITestCase):
         url = reverse('update-detail',
                       kwargs={'object_uuid': self.update.object_uuid})
         data = {
-            'content': 'testing update'
+            'content': "<p>%s</p>" % 'testing update'
         }
         response = self.client.patch(url, data=data, format='json')
 
         self.assertEqual(response.data['content'],
-                         "<p>%s</p>" % data['content'])
+                         data['content'])
 
     def test_patch_content_not_owner(self):
         self.client.force_authenticate(user=self.user2)

@@ -69,19 +69,16 @@ export function init () {
                     }
                     data.results[i].html = missionNewsTemplate(data.results[i]);
                 } else if (data.results[i].type === "question") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = questionNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "solution") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = solutionNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "post") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
+                    data.results[i].html_content = Autolinker.link(data.results[i].content);
                     data.results[i].html = postNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "update") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = updateNewsTemplate(data.results[i]);
                 }
                 $container.append(data.results[i].html);

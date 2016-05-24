@@ -738,7 +738,7 @@ class MissionEndpointTests(APITestCase):
                           temp_epic="this is a temp epic").save()
         self.quest.missions.connect(mission)
         data = {
-            "temp_epic": str(uuid1())
+            "temp_epic": "<p>%s</p>" % str(uuid1())
         }
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
@@ -746,7 +746,7 @@ class MissionEndpointTests(APITestCase):
         self.assertContains(response, data['temp_epic'],
                             status_code=status.HTTP_200_OK)
         mission.refresh()
-        self.assertEqual(mission.temp_epic, "<p>%s</p>" % data['temp_epic'])
+        self.assertEqual(mission.temp_epic, data['temp_epic'])
 
     def test_detail(self):
         self.client.force_authenticate(user=self.user)

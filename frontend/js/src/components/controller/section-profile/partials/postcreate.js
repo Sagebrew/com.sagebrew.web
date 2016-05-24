@@ -210,7 +210,7 @@ export function load () {
                 url: "/v1/posts/" + this.dataset.id + "/",
                 data: JSON.stringify(update)
             }).done(function (data) {
-                document.getElementById("js-post-" + data.id).innerHTML = "<p>" + data.html_content + "</p>";
+                document.getElementById("js-post-" + data.id).innerHTML = data.content;
                 $('#js-edit-container-' + objectID).hide();
                 $("#js-post-" + objectID).show();
             }).fail(function () {

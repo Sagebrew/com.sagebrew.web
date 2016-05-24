@@ -267,7 +267,7 @@ class QuestionEndpointTests(APITestCase):
                   "question."
         url = reverse('question-list')
         data = {
-            "content": content,
+            "content": "<p>%s</p>" % content,
             "title": str(uuid1()),
             "tags": ['taxes', 'environment'],
             "latitude": 42.5247555,
@@ -282,7 +282,7 @@ class QuestionEndpointTests(APITestCase):
                                  response.data['object_uuid'])
         question = Question.inflate(res.one)
         self.assertEqual(question.affected_area, "Wixom, MI, USA")
-        self.assertEqual(question.content, "<p>%s</p>" % content)
+        self.assertEqual(question.content, content)
         self.assertEqual(question.object_uuid, response.data['object_uuid'])
 
     def test_create_null_focus_area(self):
@@ -291,7 +291,7 @@ class QuestionEndpointTests(APITestCase):
                   "question."
         url = reverse('question-list')
         data = {
-            "content": content,
+            "content": "<p>%s</p>" % content,
             "title": str(uuid1()),
             "tags": ['taxes', 'environment'],
             "latitude": None,
@@ -305,7 +305,7 @@ class QuestionEndpointTests(APITestCase):
                                  '"%s"}) RETURN a' %
                                  response.data['object_uuid'])
         question = Question.inflate(res.one)
-        self.assertEqual(question.content, "<p>%s</p>" % content)
+        self.assertEqual(question.content, content)
 
     def test_create_duplicate_title(self):
         self.client.force_authenticate(user=self.user)
@@ -370,12 +370,12 @@ class QuestionEndpointTests(APITestCase):
         tags = ['taxes', 'environment']
         url = reverse('question-list')
         data = {
-            "content": content,
+            "content": "<p>%s</p>" % content,
             "title": title,
             "tags": tags
         }
         response = self.client.post(url, data, format='json')
-        self.assertEqual(response.data['content'], "<p>%s</p>" % content)
+        self.assertEqual(response.data['content'], content)
 
     def test_create_title(self):
         self.client.force_authenticate(user=self.user)
@@ -756,10 +756,10 @@ class QuestionEndpointTests(APITestCase):
         url = reverse('question-detail',
                       kwargs={'object_uuid': self.question.object_uuid})
         data = {
-            "content": content
+            "content": "<p>%s</p>" % content
         }
         response = self.client.patch(url, data, format='json')
-        self.assertEqual(response.data['content'], "<p>%s</p>" % content)
+        self.assertEqual(response.data['content'], content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_get_profile(self):

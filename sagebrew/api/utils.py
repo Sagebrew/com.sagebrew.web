@@ -427,21 +427,7 @@ def only_roman_chars(unistr):
     return all(is_latin(uchr) for uchr in unistr if uchr.isalpha())
 
 
-def replace_images(content, identifier):
-    soup = BeautifulSoup(content, 'lxml')
-    images = soup.find_all('img')
-    for image in images:
-        parent = image.parent
-        if parent.name != 'a':
-            image.wrap(
-                soup.new_tag('a', **{'href': image['src'],
-                                     'data-lightbox': identifier}))
-    content = str(soup).replace("<html><body>", "").replace(
-        "</body></html>", "")
-    return content
-
-
-def render_content(content, object_uuid):
+def render_content(content):
     if content is not None:
         if content[:4] == "<h2>" or content[:4] == "<h2 ":
             # Only parse the content if we need to since it can be a long
@@ -463,6 +449,6 @@ def render_content(content, object_uuid):
                 .replace("</body></html>", "")
         # Iterate through each image tag within the document and add the
         # necessary a tag for lightbox to work.
-        return replace_images(content, object_uuid)
+        return content
     else:
         return ""

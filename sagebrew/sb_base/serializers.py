@@ -9,7 +9,7 @@ from rest_framework.exceptions import ValidationError
 from neomodel import DoesNotExist
 
 from api.serializers import SBSerializer
-from api.utils import gather_request_data, render_content, spawn_task
+from api.utils import gather_request_data, spawn_task
 
 from plebs.neo_models import Pleb
 

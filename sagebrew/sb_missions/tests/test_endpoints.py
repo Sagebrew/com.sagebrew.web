@@ -1265,3 +1265,16 @@ class MissionEndpointTests(APITestCase):
         self.mission.submitted_for_review = False
         self.mission.active = False
         self.mission.save()
+
+    def test_submit_for_review(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.submitted_for_review = False
+        self.mission.save()
+        cache.clear()
+        url = "/v1/missions/%s/" % self.mission.object_uuid
+        data = {
+            "submitted_for_review": True
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.data['submitted_for_review'])

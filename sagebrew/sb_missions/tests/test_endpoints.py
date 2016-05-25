@@ -1205,3 +1205,63 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
         self.assertEqual(mission.epic, mission.temp_epic)
+
+    def test_review_mission(self):
+        try:
+            self.user = User.objects.get(username="tyler_wiersing")
+        except User.DoesNotExist:
+            self.user.username = "tyler_wiersing"
+            self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = "/v1/missions/%s/review/" % self.mission.object_uuid
+        data = {
+            "review_feedback": ["porn", "too_short"]
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn("porn", self.mission.review_feedback)
+        self.assertIn("too_short", self.mission.review_feedback)
+
+    def test_review_mission_take_active(self):
+        try:
+            self.user = User.objects.get(username="tyler_wiersing")
+        except User.DoesNotExist:
+            self.user.username = "tyler_wiersing"
+            self.user.save()
+        self.client.force_authenticate(user=self.user)
+        self.mission.active = False
+        self.mission.save()
+        url = "/v1/missions/%s/review/" % self.mission.object_uuid
+        data = {
+            "review_feedback": []
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual([], self.mission.review_feedback)
+        self.assertTrue(self.mission.active)
+
+    def test_get_submitted_for_review(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.submitted_for_review = True
+        self.mission.save()
+        cache.clear()
+        url = "/v1/missions/?submitted_for_review=true&active=false"
+        res = self.client.get(url)
+        self.assertEqual(res.data['results'][0]['id'], self.mission.object_uuid)
+        self.mission.submitted_for_review = False
+        self.mission.save()
+
+    def test_get_submitted_for_review_active(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.submitted_for_review = True
+        self.mission.active = True
+        self.mission.save()
+        cache.clear()
+        url = "/v1/missions/?submitted_for_review=true&active=true"
+        res = self.client.get(url)
+        self.assertEqual(res.data['results'][0]['id'], self.mission.object_uuid)
+        self.mission.submitted_for_review = False
+        self.mission.active = False
+        self.mission.save()

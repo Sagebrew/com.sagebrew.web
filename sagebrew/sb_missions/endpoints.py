@@ -201,4 +201,4 @@ class MissionViewSet(viewsets.ModelViewSet):
                 self.perform_update(serializer)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
-        return Response(request.data, status=status.HTTP_200_OK)
+        return Response(request.data, status=status.HTTP_400_BAD_REQUEST)

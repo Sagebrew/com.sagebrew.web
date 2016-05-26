@@ -190,15 +190,14 @@ class MissionViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['PATCH'], permission_classes=(IsAuthenticated,),
                   serializer_class=MissionReviewSerializer)
     def review(self, request, object_uuid=None):
-        if request.user.username == 'tyler_wiersing' \
-                or request.user.username == 'devon_bleibtrey':
-            query = 'MATCH (m:Mission {object_uuid:"%s"}) RETURN m' \
-                    % object_uuid
-            res, _ = db.cypher_query(query)
-            serializer = self.get_serializer(Mission.inflate(res.one),
-                                             data=request.data, partial=True)
-            if serializer.is_valid():
-                self.perform_update(serializer)
+        query = 'MATCH (m:Mission {object_uuid:"%s"}) RETURN m' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        serializer = self.get_serializer(Mission.inflate(res.one),
+                                         data=request.data, partial=True,
+                                         context={'request': request})
+        if serializer.is_valid():
+            self.perform_update(serializer)
             return Response(serializer.data, status=status.HTTP_200_OK)
-
-        return Response(request.data, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)

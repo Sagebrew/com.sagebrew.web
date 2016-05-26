@@ -5,6 +5,7 @@ from django.conf import settings
 
 from neomodel import db
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from api.utils import spawn_task
 from sb_base.serializers import (ContentSerializer, IntercomMessageSerializer,
@@ -47,6 +48,12 @@ class MissionReviewSerializer(MissionSerializer):
     the Mission or us modifying it.
     '''
     def update(self, instance, validated_data):
+        request = self.context.get('request', '')
+        if not request:
+            raise ValidationError("You are not authorized to access this.")
+        if request.user.username != 'tyler_wiersing' \
+                or request.user.username != 'devon_bleibtrey':
+            raise ValidationError("You are not authorized to access this.")
         owner = Pleb.get(instance.owner_username)
         prev_feedback = instance.review_feedback
         instance.review_feedback = validated_data.pop('review_feedback',

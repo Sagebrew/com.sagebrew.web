@@ -1242,6 +1242,36 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual([], self.mission.review_feedback)
         self.assertTrue(self.mission.active)
 
+    def test_review_mission_not_authorized(self):
+        self.user.username = "test_test"
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        self.mission.active = False
+        self.mission.save()
+        url = "/v1/missions/%s/review/" % self.mission.object_uuid
+        data = {
+            "review_feedback": []
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(self.mission.active)
+
+    def test_review_mission_invalid_data(self):
+        self.user.username = "test_test"
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        self.mission.active = False
+        self.mission.save()
+        url = "/v1/missions/%s/review/" % self.mission.object_uuid
+        data = {
+            str(uuid1()): []
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(self.mission.active)
+
     def test_get_submitted_for_review(self):
         self.client.force_authenticate(user=self.user)
         self.mission.submitted_for_review = True

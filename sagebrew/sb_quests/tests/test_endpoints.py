@@ -1,6 +1,9 @@
 import stripe
+import tempfile
+import requests_mock
 from uuid import uuid1
 from datetime import datetime
+from PIL import Image
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -1190,6 +1193,32 @@ class QuestEndpointTests(APITestCase):
         res = self.client.get(url)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(mission.object_uuid, res.data['results'][0]['id'])
+
+    @requests_mock.mock()
+    def test_upload_identification(self, m):
+        self.client.force_authenticate(user=self.user)
+        url = reverse("quest-upload-identification",
+                      kwargs={'owner_username': self.pleb.username})
+        image = Image.new('RGB', (100,100))
+        temp_file = tempfile.NamedTemporaryFile(suffix='.jpg')
+        image.save(temp_file)
+        with open(temp_file.name, 'rb') as fp:
+            data = {
+                "img": fp
+            }
+            print data
+            stripe_account_data = {
+                "id": "acct_0",
+                "legal_entity": {
+                    "verification":{
+
+                    }
+                }
+            }
+            m.get("https://api.stripe.com/v1/accounts/acct_0",
+                  body=stripe_account_data, status_code=status.HTTP_200_OK)
+            res = self.client.post(url, data=data, format='multipart')
+            print res
 
 
 class PositionEndpointTests(APITestCase):

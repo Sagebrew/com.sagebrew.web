@@ -12,7 +12,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import detail_route, list_route
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.parsers import FileUploadParser
+from rest_framework.parsers import FileUploadParser, FormParser, MultiPartParser
 
 from neomodel import db
 
@@ -370,10 +370,11 @@ class QuestViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated,),
-                  parser_classes=(FileUploadParser, ))
+                  parser_classes=(FormParser, MultiPartParser,))
     def upload_identification(self, request, owner_username=None):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe.api_version = settings.STRIPE_API_VERSION
+        return Response(request.data)
         file_object = request.data.get('img', None)
         quest = Quest.get(owner_username=owner_username)
         stripe_response = stripe.FileUpload.create(

@@ -50,7 +50,6 @@ class TestMissionReviewSerializer(TestCase):
         self.mission.location.connect(self.d11)
         self.quest.missions.connect(self.mission)
 
-
     def test_no_request(self):
         data = {
             "review_feedback": []

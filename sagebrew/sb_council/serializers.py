@@ -52,7 +52,7 @@ class MissionReviewSerializer(MissionSerializer):
         if not request:
             raise ValidationError("You are not authorized to access this.")
         if request.user.username != 'tyler_wiersing' \
-                or request.user.username != 'devon_bleibtrey':
+                and request.user.username != 'devon_bleibtrey':
             raise ValidationError("You are not authorized to access this.")
         owner = Pleb.get(instance.owner_username)
         prev_feedback = instance.review_feedback

@@ -55,8 +55,4 @@ class TestMissionReviewSerializer(TestCase):
             "review_feedback": []
         }
         res = MissionReviewSerializer(self.mission, data=data, partial=True)
-        res.is_valid()
-        try:
-            res.save()
-        except Exception as e:
-            self.assertIsInstance(e, ValidationError)
+        self.assertFalse(res.is_valid())

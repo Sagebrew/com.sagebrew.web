@@ -47,13 +47,16 @@ class MissionReviewSerializer(MissionSerializer):
     rather than adding in a check there to determine if it is the owner of
     the Mission or us modifying it.
     '''
-    def update(self, instance, validated_data):
+    def validate(self, validated_data):
         request = self.context.get('request', '')
         if not request:
             raise ValidationError("You are not authorized to access this.")
         if request.user.username != 'tyler_wiersing' \
                 and request.user.username != 'devon_bleibtrey':
             raise ValidationError("You are not authorized to access this.")
+        return validated_data
+
+    def update(self, instance, validated_data):
         owner = Pleb.get(instance.owner_username)
         prev_feedback = instance.review_feedback
         instance.review_feedback = validated_data.pop('review_feedback',

@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 
 from neomodel import db
-from rest_framework.exceptions import ValidationError
 
 from sb_address.neo_models import Address
 from sb_registration.utils import create_user_util_test

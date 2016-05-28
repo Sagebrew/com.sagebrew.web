@@ -64,7 +64,8 @@ class LocationSerializer(SBSerializer):
 class LocationExternalIDSerializer(serializers.Serializer):
     place_id = serializers.CharField(max_length=120, required=True,
                                      write_only=True)
-    address_components = serializers.ListField(write_only=True)
+    address_components = serializers.ListField(write_only=True,
+                                               required=False)
 
     def validate_place_id(self, value):
         location_list = google_maps_query(value)

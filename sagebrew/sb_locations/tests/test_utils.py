@@ -21,6 +21,37 @@ from sb_locations.utils import (parse_google_places, google_maps_query,
                                 break_out_structure)
 from sb_locations.neo_models import Location
 
+springfield_data = [
+    {
+        'long_name': 'Springfield',
+        'short_name': 'Springfield',
+        'types': [
+            'locality',
+            'political'
+        ],
+    },
+    {
+        'long_name': 'Lee',
+        'types': ['administrative_area_level_3', 'political'],
+        'short_name': 'Lee'
+    },
+    {
+        'long_name': 'Fairfax County',
+        'types': [u'administrative_area_level_2', u'political'],
+        'short_name': u'Fairfax County'
+    },
+    {
+        'long_name': 'Virginia',
+        'types': ['administrative_area_level_1', 'political'],
+        'short_name': 'VA'
+    },
+    {
+        'long_name': 'United States',
+        'types': [u'country', u'political'],
+        'short_name': u'US'
+    }
+]
+
 wixom_data = {
     "address_components": [
         {
@@ -465,6 +496,15 @@ class TestGooglePlaces(TestCase):
         self.assertEqual(country, structure[0])
         self.assertIsNone(structure[1])
         self.assertIsNone(structure[2])
+
+    def test_break_out_structure_locality_and_admin_level_3(self):
+        structure = break_out_structure(springfield_data)
+        country = springfield_data[4]
+        state = springfield_data[3]
+        locality = springfield_data[0]
+        self.assertEqual(country, structure[0])
+        self.assertEqual(structure[1], state)
+        self.assertEqual(structure[2], locality)
 
     def test_connect_related_element(self):
         cache.clear()

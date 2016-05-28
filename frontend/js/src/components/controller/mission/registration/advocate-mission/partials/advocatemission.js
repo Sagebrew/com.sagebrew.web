@@ -304,7 +304,7 @@ function initAutocomplete() {
         request.post({
             url: '/v1/locations/add_external_id/',
             data: JSON.stringify(place)
-        }).done(function(data) {
+        }).done(function() {
             /** This is a local city search, if we find something
              * we should enable the start button
              */

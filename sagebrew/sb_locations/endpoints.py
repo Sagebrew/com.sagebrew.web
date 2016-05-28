@@ -70,9 +70,9 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
                                  "detail": "Successfully created location id"},
                                 status=status.HTTP_201_CREATED)
             else:
-                return Response({"status": status.HTTP_400_BAD_REQUEST,
+                return Response({"status": status.HTTP_404_NOT_FOUND,
                                  "detail": "Unable to access that location"},
-                                status=status.HTTP_400_BAD_REQUEST)
+                                status=status.HTTP_404_NOT_FOUND)
         # Don't fail loud here as we don't inform the customer that
         # we are sending off information to ourselves in the background
         return Response(serializer.errors, status=status.HTTP_200_OK)

@@ -350,7 +350,7 @@ class LocationEndpointTests(APITestCase):
         }, format='json')
         self.user.is_staff = False
         self.user.save()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['name'], 'City of Wixom')
         self.assertEqual(response.data['geo_data'], False)
         self.assertIn(self.location.object_uuid,

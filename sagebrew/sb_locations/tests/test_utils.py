@@ -489,10 +489,6 @@ class TestGooglePlaces(TestCase):
                             owner_username=self.pleb.username).save()
         location = parse_google_places(wixom_data['address_components'],
                                        wixom_data['place_id'])
-        try:
-            connect_related_element(location, wixom_data['place_id'])
-            self.assertTrue(False)
-        except KeyError:
-            # Verify that KeyError is thrown in this instance
-            self.assertTrue(True)
+        connected = connect_related_element(location, wixom_data['place_id'])
+        self.assertIsNone(connected)
         question.delete()

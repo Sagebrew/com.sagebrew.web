@@ -12,7 +12,7 @@ from api.utils import gather_request_data
 from api.serializers import SBSerializer
 
 from .neo_models import Location
-from .tasks import create_location_tree
+from .utils import parse_google_places, connect_related_element
 
 
 class LocationSerializer(SBSerializer):
@@ -65,12 +65,16 @@ class LocationExternalIDSerializer(serializers.Serializer):
                                      write_only=True)
 
     def create(self, validated_data):
+        request = self.context.get('request')
         query = 'MATCH (a:Location {external_id: "%s"}) RETURN a' % (
                 validated_data.get('place_id'))
         res, _ = db.cypher_query(query)
         if res.one is None:
-            create_location_tree(external_id=validated_data.get('place_id'))
-        return res
+            end_node = parse_google_places(request.data['address_components'],
+                                           validated_data.get('place_id'))
+            connect_related_element(end_node, validated_data.get('place_id'))
+            return end_node
+        return res.one
 
 
 class LocationManagerSerializer(SBSerializer):

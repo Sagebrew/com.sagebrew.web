@@ -247,6 +247,10 @@ class MissionSerializer(SBSerializer):
                                         owner_username, mission.object_uuid,
                                         loc_query)
             res, _ = db.cypher_query(query)
+            from logging import getLogger
+            logger = getLogger('loggly_logs')
+            logger.critical(res)
+            logger.critical(query)
             if res.one is not None:
                 mission = Mission.inflate(res.one)
         setup_onboarding(quest, mission)

@@ -72,9 +72,7 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
                 return Response({"status": status.HTTP_404_NOT_FOUND,
                                  "detail": "Unable to access that location"},
                                 status=status.HTTP_404_NOT_FOUND)
-        # Don't fail loud here as we don't inform the customer that
-        # we are sending off information to ourselves in the background
-        return Response(serializer.errors, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @list_route(methods=['post'], permission_classes=(IsAuthenticated, ))
     def cache(self, request):

@@ -221,4 +221,4 @@ class TestConnectLocationElementTask(TestCase):
         res = connect_location_to_element.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
-        self.assertIsInstance(res.result, KeyError)
+        self.assertIsNone(res.result)

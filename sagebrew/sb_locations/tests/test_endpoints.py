@@ -312,7 +312,7 @@ class LocationEndpointTests(APITestCase):
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data['place_id'],
-                         "We could not find that Place ID")
+                         ["We could not find that Place ID"])
 
     def test_cache_location(self):
         cache.clear()

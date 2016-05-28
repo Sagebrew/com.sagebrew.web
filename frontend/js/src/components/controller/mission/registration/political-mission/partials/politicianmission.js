@@ -485,8 +485,7 @@ function fillPositions(identifier) {
                     image_path: image_path
                 };
                 // Verify that Senator does not show up for Washington DC in the local filter list.
-                if (!(name === "Senator" && localStorage.getItem(filterKey) === "local"
-                    && localStorage.getItem(locationKey) === "ChIJW-T2Wt7Gt4kRKl2I1CJFUsI")) {
+                if (!(name === "Senator" && localStorage.getItem(filterKey) === "local" && localStorage.getItem(locationKey) === "ChIJW-T2Wt7Gt4kRKl2I1CJFUsI")) {
                     positionList.push(context);
                 }
             }

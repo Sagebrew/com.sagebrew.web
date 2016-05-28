@@ -5,8 +5,6 @@ from requests import get
 
 from django.conf import settings
 
-from rest_framework import status
-
 from .neo_models import Location
 
 

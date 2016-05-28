@@ -63,6 +63,7 @@ class LocationSerializer(SBSerializer):
 class LocationExternalIDSerializer(serializers.Serializer):
     place_id = serializers.CharField(max_length=120, required=True,
                                      write_only=True)
+    address_components = serializers.ListField(write_only=True)
 
     def create(self, validated_data):
         request = self.context.get('request')

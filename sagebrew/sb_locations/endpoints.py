@@ -66,7 +66,7 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
         if serializer.is_valid():
             response = serializer.save()
             if response is not None:
-                return Response(LocationSerializer(serializer).data,
+                return Response(LocationSerializer(response).data,
                                 status=status.HTTP_201_CREATED)
             else:
                 return Response({"status": status.HTTP_404_NOT_FOUND,

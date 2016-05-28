@@ -307,7 +307,8 @@ class LocationEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse('location-add-external-id')
         response = self.client.post(url, {
-            "place_id": "ChIJkRBFiR1234"
+            "place_id": "ChIJkRBFiR1234",
+            'address_components': []
         }, format='json')
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(response.data['detail'],

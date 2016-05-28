@@ -5,6 +5,8 @@ from requests import get
 
 from django.conf import settings
 
+from rest_framework import status
+
 from .neo_models import Location
 
 
@@ -34,7 +36,11 @@ def google_maps_query(external_id):
               external_id, settings.GOOGLE_MAPS_API_SERVER)
     response = get(url, headers={
         "content-type": "application/json"})
-    return break_out_structure(response.json()['result']['address_components'])
+    if response.status_code == status.HTTP_200_OK:
+        return break_out_structure(
+            response.json()['result']['address_components'])
+    else:
+        return []
 
 
 def break_out_structure(places):

@@ -197,7 +197,7 @@ class LocationEndpointTests(APITestCase):
         }, format='json')
         self.user.is_staff = False
         self.user.save()
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data['name'], 'Wixom')
         self.assertEqual(response.data['geo_data'], False)
         self.assertIn(self.location.object_uuid,
@@ -284,6 +284,34 @@ class LocationEndpointTests(APITestCase):
         self.user.is_staff = False
         self.user.save()
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_add_external_id_with_admin_3_and_locality(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add-external-id')
+        response = self.client.post(url, {
+            "place_id": "ChIJnTrlhehNtokRBKX6FiRv52c"
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['name'], 'Springfield')
+
+    def test_add_external_id_with_locality(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add-external-id')
+        response = self.client.post(url, {
+            "place_id": "ChIJ7xtMYSCmJIgRZBZBy5uZHl8"
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['name'], 'Wixom')
+
+    def test_add_external_id_does_not_exist(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('location-add-external-id')
+        response = self.client.post(url, {
+            "place_id": "ChIJkRBFiR1234"
+        }, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(response.data['detail'],
+                         'Unable to access that location')
 
     def test_cache_location(self):
         cache.clear()

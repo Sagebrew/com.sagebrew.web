@@ -54,7 +54,7 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
         if serializer.is_valid():
             serializer = serializer.save()
             return Response(LocationSerializer(serializer).data,
-                            status=status.HTTP_200_OK)
+                            status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @list_route(methods=['post'],
@@ -66,8 +66,7 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
         if serializer.is_valid():
             response = serializer.save()
             if response is not None:
-                return Response({"status": status.HTTP_201_CREATED,
-                                 "detail": "Successfully created location id"},
+                return Response(LocationSerializer(serializer).data,
                                 status=status.HTTP_201_CREATED)
             else:
                 return Response({"status": status.HTTP_404_NOT_FOUND,

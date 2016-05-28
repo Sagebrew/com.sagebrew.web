@@ -36,7 +36,7 @@ def google_maps_query(external_id):
               external_id, settings.GOOGLE_MAPS_API_SERVER)
     response = get(url, headers={
         "content-type": "application/json"})
-    if response.status_code == status.HTTP_200_OK:
+    if 'result' in response.json():
         return break_out_structure(
             response.json()['result']['address_components'])
     else:

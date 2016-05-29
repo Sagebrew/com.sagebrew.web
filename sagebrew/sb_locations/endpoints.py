@@ -54,23 +54,25 @@ class LocationList(viewsets.ReadOnlyModelViewSet):
         if serializer.is_valid():
             serializer = serializer.save()
             return Response(LocationSerializer(serializer).data,
-                            status=status.HTTP_200_OK)
+                            status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @list_route(methods=['post'],
                 serializer_class=LocationExternalIDSerializer,
                 permission_classes=(IsAuthenticated,))
     def add_external_id(self, request):
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=request.data,
+                                         context={'request': request})
         if serializer.is_valid():
-            cache.set(request.data['place_id'], request.data)
-            serializer.save()
-            return Response({"status": status.HTTP_201_CREATED,
-                             "detail": "Successfully launched async task"},
-                            status=status.HTTP_201_CREATED)
-        # Don't fail loud here as we don't inform the customer that
-        # we are sending off information to ourselves in the background
-        return Response(serializer.errors, status=status.HTTP_200_OK)
+            response = serializer.save()
+            if response is not None:
+                return Response(LocationSerializer(response).data,
+                                status=status.HTTP_201_CREATED)
+            else:
+                return Response({"status": status.HTTP_404_NOT_FOUND,
+                                 "detail": "Unable to access that location"},
+                                status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @list_route(methods=['post'], permission_classes=(IsAuthenticated, ))
     def cache(self, request):

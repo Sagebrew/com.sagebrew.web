@@ -1,4 +1,4 @@
-Django==1.8.12
+Django==1.8.13
 Logentries==0.15
 Markdown==2.6.1
 Pillow==3.1.0

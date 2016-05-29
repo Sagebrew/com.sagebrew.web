@@ -33,11 +33,11 @@ function validateAddress(addressValidationForm, callbackFunction) {
         key: settings.api.liveaddress,
         addresses: [
             {
-                street: "#street",
-                street2: "#street-additional",
-                city: "#city",
-                state: "#state",
-                zipcode: "#postal-code"
+                address1: "#street",
+                address2: "#street-additional",
+                locality: "#city",
+                administrative_area: "#state",
+                postal_code: "#postal-code"
             }
         ]
     });

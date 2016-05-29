@@ -1195,39 +1195,6 @@ class QuestEndpointTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(mission.object_uuid, res.data['results'][0]['id'])
 
-    @requests_mock.mock()
-    def test_upload_identification(self, m):
-        self.client.force_authenticate(user=self.user)
-        url = reverse("quest-upload-identification",
-                      kwargs={'owner_username': self.pleb.username})
-        data = {
-            "img": "https://s3.amazonaws.com/sagebrew-dev/"
-                   "profile_pictures/0167b908-e324-11e5-85fb-0800279e0795.jpeg"
-        }
-        stripe_account_data = {
-            "id": "acct_0",
-            "legal_entity": {
-                "verification":{
-
-                }
-            }
-        }
-        m.get("https://api.stripe.com/v1/accounts/acct_0",
-              body=stripe_account_data, status_code=status.HTTP_200_OK)
-        stripe_upload_data = {
-            "id": "fil_15BZxW2eZvKYlo2CvQbrn9dc",
-            "object": "file_upload",
-            "created": 1419030898,
-            "purpose": "identity_document",
-            "size": 739,
-            "type": "jpg"
-        }
-        m.post("https://uploads.stripe.com/v1/files",
-               body=stripe_upload_data,
-               status_code=status.HTTP_200_OK)
-        res = self.client.post(url, data=data, format='multipart')
-        print res
-
 
 class PositionEndpointTests(APITestCase):
 

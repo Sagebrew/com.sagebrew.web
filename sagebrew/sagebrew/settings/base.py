@@ -665,7 +665,7 @@ DEFAULT_EXCLUDE_SENTENCES = ["Story highlights", "#", "##", "Discover Dubai",
                              "Image", "BREAKING", "FORM", "1.", "by",
                              "FFFD", "Fuck", "Shit", "Ass", "Cunt", "Jizz",
                              '[', ']', '{', '}', '*', 'Related Topics:',
-                             'related topics:', '+', '=']
+                             'related topics:', '+', '=', 'free']
 
 DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
                             'Burn More Calories and Lose Weight',
@@ -676,7 +676,7 @@ DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
                             "Petition:", "petition:", "Petition",
                             "Sex Positions", "sex positions", "Orgasm",
                             "orgasm", "Fuck", "Shit", "Ass", "Cunt",
-                            "Jizz"]
+                            "Jizz", 'free']
 
 UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', 'circleci.com']
 COMPANY_ACRONYMS = ['ABC', 'CNN', 'CBS', 'MSNBC', 'BBC',

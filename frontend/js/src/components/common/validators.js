@@ -243,8 +243,8 @@ export function addressValidator(addressVal) {
                         message: "State is required"
                     },
                     stringLength: {
-                        max: 2,
-                        message: "State field must be shorter than 2 characters"
+                        max: 50,
+                        message: "Please enter a valid State"
                     }
                 }
             },

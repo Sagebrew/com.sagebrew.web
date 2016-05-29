@@ -33,6 +33,10 @@ urlpatterns = patterns(
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/review/$',
         TemplateView.as_view(template_name="manage/submit_for_review.html"),
         name='submit_mission_for_review'),
+    url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
+        r'finish_epic/$',
+        TemplateView.as_view(template_name="manage/must_finish_epic.html"),
+        name='must_finish_epic'),
 
     # Manage
     url(r'^settings/$', MissionSettingsView.as_view(),

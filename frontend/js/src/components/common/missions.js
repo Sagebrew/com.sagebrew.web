@@ -15,7 +15,7 @@ export function populateMissions(loadElement, questID, template, emptyMessage,
     if(template === undefined || template === "undefined" || template === null){
         template = missionSummaryTemplate;
     }
-    if(continuousLoad === undefined || continuousLoad == "undefined" || continuousLoad === null) {
+    if(continuousLoad === undefined || continuousLoad === "undefined" || continuousLoad === null) {
         continuousLoad = true;
     }
     if(loadElement === undefined || loadElement === "undefined" || loadElement === null) {
@@ -75,7 +75,7 @@ export function populateEndorsements(loadElement, questID, template, emptyMessag
     if(loadElement === undefined || loadElement === "undefined" || loadElement === null) {
         loadElement = $(".app-sb");
     }
-    if(continuousLoad === undefined || continuousLoad == "undefined" || continuousLoad === null) {
+    if(continuousLoad === undefined || continuousLoad === "undefined" || continuousLoad === null) {
         continuousLoad = true;
     }
     if(endorserType === undefined || endorserType === "undefined" || endorserType === null) {

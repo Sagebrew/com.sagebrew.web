@@ -1,0 +1,28 @@
+{% extends "layout/one-col.html" %}
+{% load staticfiles %}
+{% block title %} Submit Mission For Review {% endblock %}
+{% block live %}
+    <div class="block">
+        <h1 class="block-title no-underline center-title">You're so close {{ request_profile.first_name }}! Two More Steps Before Kicking Off Your Mission!</h1>
+    </div>
+    <div class="block">
+        <div class="block-content">
+            Before you can start taking donations and finding volunteers you'll need to:
+            <ul>
+                <li>Finish your Epic</li>
+                <li>Submit your Mission for review</li>
+            </ul>
+            Both of these activities can be accomplished through your Mission Management page.
+            <div class="row">
+            <div class="col-xs-12 col-sm-3">
+                <button class="btn btn-primary sb_btn_fill" id="js-save-for-later">Mission Management</button>
+            </div>
+        </div>
+        </div>
+
+    </div>
+
+{% endblock %}
+{% block intercom %}
+   Intercom('trackEvent', 'visited-mission-submit-review-page');
+{% endblock %}

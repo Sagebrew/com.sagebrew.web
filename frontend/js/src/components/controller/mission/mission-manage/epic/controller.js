@@ -57,7 +57,7 @@ export function load() {
 
     $secondnav.on('click', '#cancel', function(event){
         event.preventDefault();
-        request.post({url: "/v1/missions/" + missionId + "/reset_epic/",
+        request.post({url: "/v1/missions/" + missionId + "/reset_epic/"
         }).done(function (){
             window.location.href = "/missions/" + missionId + "/" + slug + "/manage/epic/";
         });

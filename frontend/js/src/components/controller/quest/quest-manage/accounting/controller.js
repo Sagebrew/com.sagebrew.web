@@ -87,22 +87,28 @@ export function load() {
             event.preventDefault();
             submitAccountInfo(bankAccountValidationForm, bankAccountForm);
         })
-        .on('change', "#image", function() {
+        .on('click', '#js-submit-personal-identification', function(event) {
             event.preventDefault();
             greyPage.classList.remove('sb_hidden');
-            var formData = new FormData($('#identificationForm'));
-            formData.append('img', $('#image')[0].files[0]);
+            var imageUrl = $("#js-image-preview").attr('src');
             request.post({
                 url: "/v1/quests/" + questID + "/upload_identification/",
-                data: formData,
-                cache: false,
-                contentType: false,
-                processData: false
+                data: JSON.stringify({"img": imageUrl})
             })
-                .done(function () {
-                    window.location.reload();
+                .done(function() {
+                    var uploadObjectID = imageUrl.split("/").pop().split('.')[0];
+                    request.remove({
+                        url: "/v1/upload/" + uploadObjectID + "/"
+                    })
+                        .done(function(){
+                            greyPage.classList.add('sb_hidden');
+                            $.notify({message: "Successfully Uploaded Personal Identification", type: "success"});
+                        })
+                        .fail(function(){
+                            greyPage.classList.add('sb_hidden');
+                        });
                 })
-                .fail(function () {
+                .fail(function() {
                     greyPage.classList.add('sb_hidden');
                 });
         });

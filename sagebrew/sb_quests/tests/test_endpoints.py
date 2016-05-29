@@ -1200,27 +1200,33 @@ class QuestEndpointTests(APITestCase):
         self.client.force_authenticate(user=self.user)
         url = reverse("quest-upload-identification",
                       kwargs={'owner_username': self.pleb.username})
-        image = Image.new('RGB', (100,100))
-        temp_file = tempfile.NamedTemporaryFile(suffix='.jpg')
-        image.save(temp_file)
-        with open(temp_file.name, 'rb') as fp:
-            fp.seek(0)
-            data = {
-                "img": fp
-            }
-            print data
-            stripe_account_data = {
-                "id": "acct_0",
-                "legal_entity": {
-                    "verification":{
+        data = {
+            "img": "https://s3.amazonaws.com/sagebrew-dev/"
+                   "profile_pictures/0167b908-e324-11e5-85fb-0800279e0795.jpeg"
+        }
+        stripe_account_data = {
+            "id": "acct_0",
+            "legal_entity": {
+                "verification":{
 
-                    }
                 }
             }
-            m.get("https://api.stripe.com/v1/accounts/acct_0",
-                  body=stripe_account_data, status_code=status.HTTP_200_OK)
-            res = self.client.post(url, data=data, format='multipart')
-            print res
+        }
+        m.get("https://api.stripe.com/v1/accounts/acct_0",
+              body=stripe_account_data, status_code=status.HTTP_200_OK)
+        stripe_upload_data = {
+            "id": "fil_15BZxW2eZvKYlo2CvQbrn9dc",
+            "object": "file_upload",
+            "created": 1419030898,
+            "purpose": "identity_document",
+            "size": 739,
+            "type": "jpg"
+        }
+        m.post("https://uploads.stripe.com/v1/files",
+               body=stripe_upload_data,
+               status_code=status.HTTP_200_OK)
+        res = self.client.post(url, data=data, format='multipart')
+        print res
 
 
 class PositionEndpointTests(APITestCase):

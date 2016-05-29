@@ -6,10 +6,12 @@ var postcreate = require('../partials/postcreate'),
     helpers = require('common/helpers'),
     questionSummaryTemplate = require('controller/conversation/conversation-list/templates/question_summary.hbs'),
     solutionSummaryTemplate = require('controller/conversation/conversation-list/templates/solution_summary.hbs'),
+    missionShowTemplate = require('controller/mission/templates/show_more_missions.hbs'),
     profilePicTemplate = require('../templates/profile_pic.hbs'),
     missionMinTemplate = require('../templates/mission_min.hbs'),
     showMoreFollowers = require('../templates/show_more_followers.hbs'),
-    showMoreFollowing = require('../templates/show_more_following.hbs');
+    showMoreFollowing = require('../templates/show_more_following.hbs'),
+    settings = require('settings').settings;
 
 /**
  * Meta.
@@ -37,8 +39,10 @@ export function load() {
     postcreate.init();
     postcreate.load();
     var missionList= document.getElementById('js-mission-list'),
+        $missionList = $(missionList),
         pageUser = helpers.args(1),
         endorsementList = document.getElementById('js-endorsements-list'),
+        $endorseList = $(endorsementList),
         $followerList = $("#js-follower-list"),
         $followingList = $("#js-following-list"),
         $appNewsfeed = $("#js-recent-contributions"),
@@ -142,6 +146,90 @@ export function load() {
                     }
                 }
             });
+        })
+        .on('click', '.additional-mission', function (event) {
+            event.preventDefault();
+            var currentPage = parseInt(this.dataset.page),
+                nextPage = currentPage + 1,
+                additionalMissionWrapper = $(".additional-mission");
+            $missionList.sb_contentLoader({
+                emptyDataMessage: " ",
+                url: '/v1/quests/' + pageUser + '/missions/',
+                loadingMoreItemsMessage: " ",
+                itemsPerPage: 3,
+                startingPage: nextPage,
+                continuousLoad: false,
+                loadMoreMessage: " ",
+                dataCallback: function(base_url, params) {
+                    var urlParams = $.param(params);
+                    var url;
+                    if (urlParams) {
+                        url = base_url + "?" + urlParams;
+                    }
+                    else {
+                        url = base_url;
+                    }
+                    return request.get({url:url});
+                },
+                renderCallback: function($container, data) {
+                    for(var i=0; i < data.results.length; i++){
+                        data.results[i].title = missions.determineTitle(data.results[i]);
+                        data.results[i].level = data.results[i].level.replace('_', " ").replace("-", " ");
+                    }
+                    $container.append(missionMinTemplate({
+                        missions: data.results,
+                        static_url: settings.static_url
+                    }));
+                    if (additionalMissionWrapper !== null && data.next === null) {
+                        $(".additional-mission-wrapper").remove();
+                    } else {
+                        $(".additional-mission-wrapper").remove();
+                        $missionList.append(missionShowTemplate({page: nextPage, show: "mission"}));
+                    }
+                }
+            });
+        })
+        .on('click', '.additional-endorsement', function (event) {
+            event.preventDefault();
+            var currentPage = parseInt(this.dataset.page),
+                nextPage = currentPage + 1,
+                additionalMissionWrapper = $(".additional-endorsement");
+            $endorseList.sb_contentLoader({
+                emptyDataMessage: " ",
+                url: '/v1/' + "profiles" + '/' + pageUser + '/endorsed/',
+                loadingMoreItemsMessage: " ",
+                itemsPerPage: 3,
+                startingPage: nextPage,
+                continuousLoad: false,
+                loadMoreMessage: " ",
+                dataCallback: function(base_url, params) {
+                    var urlParams = $.param(params);
+                    var url;
+                    if (urlParams) {
+                        url = base_url + "?" + urlParams;
+                    }
+                    else {
+                        url = base_url;
+                    }
+                    return request.get({url:url});
+                },
+                renderCallback: function($container, data) {
+                    for(var i=0; i < data.results.length; i++){
+                        data.results[i].title = missions.determineTitle(data.results[i]);
+                        data.results[i].level = data.results[i].level.replace('_', " ").replace("-", " ");
+                    }
+                    $container.append(missionMinTemplate({
+                        missions: data.results,
+                        static_url: settings.static_url
+                    }));
+                    if (additionalMissionWrapper !== null && data.next === null) {
+                        $(".additional-endorsement-wrapper").remove();
+                    } else {
+                        $(".additional-endorsement-wrapper").remove();
+                        $endorseList.append(missionShowTemplate({page: nextPage, show: "endorsement"}));
+                    }
+                }
+            });
         });
     $appNewsfeed.sb_contentLoader({
         emptyDataMessage: '<div class="block"><div class="block-content">' +
@@ -176,12 +264,14 @@ export function load() {
     });
 
 
-    missions.populateMissions($(missionList), pageUser, missionMinTemplate,
+    missions.populateMissions($missionList, pageUser, missionMinTemplate,
         '<div class="block" style="margin-top: -15px; margin-bottom: -30px;"><div class="block-content five-padding-bottom">' +
-        '<p class="row-no-top-bottom-margin">Check Back Later For New Missions</p></div></div>');
+        '<p class="row-no-top-bottom-margin">Check Back Later For New Missions</p></div></div>',
+        false, $(".additional-mission"), $(".additional-mission-wrapper"), 1);
     missions.populateEndorsements($(endorsementList), pageUser, missionMinTemplate,
         '<div class="block" style="margin-top: -15px; margin-bottom: -30px;"><div class="block-content five-padding-bottom">' +
-        '<p class="row-no-top-bottom-margin">Check Back Later For New Endorsements</p></div></div>');
+        '<p class="row-no-top-bottom-margin">Check Back Later For New Endorsements</p></div></div>',
+        "profiles", false, $(".additional-endorsement"), $(".additional-endorsement-wrapper"), 1);
 
     $followerList.sb_contentLoader({
         emptyDataMessage: '<div class="block"><div class="block-content no-top-bottom-padding">' +

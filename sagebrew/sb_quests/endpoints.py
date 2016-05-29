@@ -370,7 +370,7 @@ class QuestViewSet(viewsets.ModelViewSet):
 
     @detail_route(methods=['post'],
                   permission_classes=(IsAuthenticated,),
-                  parser_classes=(FormParser, MultiPartParser,))
+                  parser_classes=(FileUploadParser, ))
     def upload_identification(self, request, owner_username=None):
         stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe.api_version = settings.STRIPE_API_VERSION

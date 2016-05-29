@@ -1,3 +1,4 @@
+import base64
 import stripe
 import tempfile
 import requests_mock
@@ -1203,6 +1204,7 @@ class QuestEndpointTests(APITestCase):
         temp_file = tempfile.NamedTemporaryFile(suffix='.jpg')
         image.save(temp_file)
         with open(temp_file.name, 'rb') as fp:
+            fp.seek(0)
             data = {
                 "img": fp
             }

@@ -1,83 +1,16 @@
-<h1>jQuery insert plugin for MediumEditor</h1>
-<p><a href="https://gitter.im/orthes/medium-editor-insert-plugin?utm_source=badge&amp;utm_medium=badge&amp;utm_campaign=pr-badge"><img alt="Gitter" src="https://badges.gitter.im/Join%20Chat.svg" /></a>
-<a href="https://travis-ci.org/orthes/medium-editor-insert-plugin"><img alt="Build Status" src="https://travis-ci.org/orthes/medium-editor-insert-plugin.png" /></a>
-<a href="http://www.versioneye.com/user/projects/53f742dce09da3467d000389"><img alt="Dependency Status" src="http://www.versioneye.com/user/projects/53f742dce09da3467d000389/badge.svg?style=flat" /></a>
-<a href="http://www.versioneye.com/user/projects/53f742e2e09da3dca800038f"><img alt="Dependency Status" src="http://www.versioneye.com/user/projects/53f742e2e09da3dca800038f/badge.svg?style=flat" /></a>
-<a href="https://www.codacy.com/public/orthes/mediumeditorinsertplugin"><img alt="Codacy Badge" src="https://www.codacy.com/project/badge/1f8565ed2e554e4fa952ec4da6a2080b" /></a></p>
-<p>This plugin expands capabilities of <a href="https://github.com/yabwe/medium-editor">MediumEditor</a> (a clone of medium.com WYSIWYG editor) and it enables users to insert into the editor various types of content (depending on available addons).</p>
-<p>Current available addons:</p>
-<ul>
-<li><strong>images</strong></li>
-<li><strong>embeds</strong> (either through oEmbed proxy, such as <a href="https://iframely.com/">Iframely</a>, or pre-defined parsers such as - Youtube, Vimeo, Twitter, Facebook, Instagram)</li>
-</ul>
-<h2>Demo</h2>
-<p><a href="http://orthes.github.io/medium-editor-insert-plugin">http://orthes.github.io/medium-editor-insert-plugin</a></p>
-<h2>Download</h2>
-<ul>
-<li>Bower (recommended): <code>bower install medium-editor-insert-plugin#^2.1 --save</code></li>
-<li>Manual: <a href="https://github.com/orthes/medium-editor-insert-plugin/releases">Download the latest release</a></li>
-</ul>
-<h2>Quick Start</h2>
-<p>The first step is to include the plugin with all its dependencies to your code:</p>
-<pre><code class="html">&lt;!-- CSS --&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;bower_components/medium-editor/dist/css/medium-editor.min.css&quot;&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;bower_components/medium-editor/dist/css/themes/default.css&quot; id=&quot;medium-editor-theme&quot;&gt;
-&lt;!-- Font Awesome for awesome icons. You can redefine icons used in a plugin configuration --&gt;
-&lt;link href=&quot;http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css&quot; rel=&quot;stylesheet&quot;&gt;
-&lt;!-- The plugin itself --&gt;
-&lt;link rel=&quot;stylesheet&quot; href=&quot;bower_components/medium-editor-insert-plugin/dist/css/medium-editor-insert-plugin.min.css&quot;&gt;
-
-&lt;!-- JS --&gt;
-&lt;script src=&quot;bower_components/jquery/dist/jquery.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;bower_components/medium-editor/dist/js/medium-editor.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;bower_components/handlebars/handlebars.runtime.min.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;bower_components/jquery-sortable/source/js/jquery-sortable-min.js&quot;&gt;&lt;/script&gt;
-&lt;!-- Unfortunately, jQuery File Upload Plugin has a few more dependencies itself --&gt;
-&lt;script src=&quot;bower_components/blueimp-file-upload/js/vendor/jquery.ui.widget.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;bower_components/blueimp-file-upload/js/jquery.iframe-transport.js&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;bower_components/blueimp-file-upload/js/jquery.fileupload.js&quot;&gt;&lt;/script&gt;
-&lt;!-- The plugin itself --&gt;
-&lt;script src=&quot;bower_components/medium-editor-insert-plugin/dist/js/medium-editor-insert-plugin.min.js&quot;&gt;&lt;/script&gt;
-</code></pre>
-
-<p>Initialize MediumEditor as you normally would:</p>
-<pre><code class="javascript">var editor = new MediumEditor('.editable');
-</code></pre>
-
-<p>Finally, you can initialize the insert plugin:</p>
-<pre><code class="javascript">$(function () {
-    $('.editable').mediumInsert({
-        editor: editor
-    });
-});
-</code></pre>
-
-<h2><a href="https://github.com/orthes/medium-editor-insert-plugin/wiki">Documentation</a></h2>
-<ul>
-<li><a href="https://github.com/orthes/medium-editor-insert-plugin/wiki/v2.x-Getting-Started">Getting Started</a></li>
-<li><a href="https://github.com/orthes/medium-editor-insert-plugin/wiki/v2.x-Configuration">Configuration</a></li>
-<li><a href="https://github.com/orthes/medium-editor-insert-plugin/wiki/v2.x-Server-response">Server response</a></li>
-<li><a href="https://github.com/orthes/medium-editor-insert-plugin/wiki/v2.x-Custom-addons">Custom addons</a></li>
-<li><a href="https://github.com/orthes/medium-editor-insert-plugin/wiki/v2.x-Upgrading-from-v0.3">Upgrading from v0.3</a></li>
-<li><a href="https://github.com/orthes/medium-editor-insert-plugin/wiki/Versioning">Versioning</a></li>
-<li><a href="https://github.com/orthes/medium-editor-insert-plugin/wiki/Development-&amp;-Contributing">Development &amp; Contributing</a></li>
-<li><a href="https://github.com/orthes/medium-editor-insert-plugin/wiki/License">License</a></li>
-<li><a href="https://github.com/orthes/medium-editor-insert-plugin/wiki/Author-&amp;-Contributors">Author &amp; Contributors</a></li>
-</ul>
-<h2>Sponsors</h2>
-<table>
-<thead>
-<tr>
-<th><a href="http://www.creator5.com">creator5</a></th>
-<th><a href="https://maker.me/">Maker</a></th>
-<th><a href="http://nusii.com">Nusii</a></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="http://www.creator5.com"><img alt="creator5" src="http://i.imgur.com/K9uiIuT.png" /></a></td>
-<td><a href="http://maker.me"><img alt="Maker" src="http://i.imgur.com/8t8wsM8.png" /></a></td>
-<td><a href="http://nusii.com"><img alt="nusii" src="http://i.imgur.com/tvdJ249.png" /></a></td>
-</tr>
-</tbody>
-</table>
+<h1>Sagebrew Web Backend</h1>
+<p>Must run <code>sudo apt-get install postfix</code> for email to work correctly on local 
+environment. </p>
+<h1>Reasoning Behind Character Counts</h1>
+<p>We use 70 characters for titles and tags because the average sentence
+is between 75 and 100 characters. For a title we don't want users 
+writing sentences so we've dropped just below this threshold.</p>
+<p>We use 120 characters for question titles and update titles 
+to give users a bit of leeway when crafting a question. 
+We are aiming to keep it under one sentence but don't want to 
+hinder them too much.</p>
+<p>We use 70 characters for tags because these shouldn't be sentences
+either. However we use advocacy mission titles as tags right now
+so we need to increase the allowable size. Potentially we will 
+separate the 2 and have users tag related missions and tags 
+separatly. Allowing us to reduce the character count to 25 or 30.</p>

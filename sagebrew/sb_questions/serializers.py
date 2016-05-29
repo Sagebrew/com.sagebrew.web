@@ -84,7 +84,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
         child=serializers.CharField(max_length=70),
     )
     title = serializers.CharField(required=False,
-                                  min_length=15, max_length=140)
+                                  min_length=15, max_length=120)
     solutions = serializers.SerializerMethodField()
     solution_count = serializers.SerializerMethodField()
     longitude = serializers.FloatField(required=False, allow_null=True)

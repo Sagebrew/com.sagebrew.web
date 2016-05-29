@@ -277,8 +277,8 @@ export function editUpdateValidator(updateVal) {
                     },
                     stringLength: {
                         min: 5,
-                        max: 140,
-                        message: "Title must be between 5 and 140 characters long"
+                        max: 120,
+                        message: "Title must be between 5 and 120 characters long"
                     }
                 }
             },
@@ -327,7 +327,8 @@ export function missionManageValidator(manageForm, aboutLengthLimit) {
                 validators: {
                     stringLength: {
                         max: 70,
-                        message: 'This value may not exceed 70 characters'
+                        // This is blank because we have a counter on the field
+                        message: ' '
                     },
                     notEmpty: {
                         message: 'You must have a title'
@@ -339,6 +340,7 @@ export function missionManageValidator(manageForm, aboutLengthLimit) {
                 validators: {
                     stringLength: {
                         max: aboutLengthLimit,
+                        // This is blank because we have a counter on the field
                         message: ' '
                     }
                 }
@@ -636,8 +638,8 @@ export function questionValidator(manageForm) {
                     },
                     stringLength: {
                         min: 15,
-                        max: 140,
-                        message: "Title must be between 15 and 140 characters long"
+                        max: 120,
+                        message: "Title must be between 15 and 120 characters long"
                     }
                 }
             },

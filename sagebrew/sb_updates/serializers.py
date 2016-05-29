@@ -17,7 +17,7 @@ from .neo_models import Update
 
 
 class UpdateSerializer(TitledContentSerializer):
-    title = serializers.CharField(min_length=5, max_length=140)
+    title = serializers.CharField(min_length=5, max_length=120)
     about_type = serializers.ChoiceField(choices=[
         ('mission', "Mission"), ('quest', "Quest"), ('seat', "Seat"),
         ('goal', "Goal")])

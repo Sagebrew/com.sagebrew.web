@@ -1,4 +1,3 @@
-import bleach
 from intercom import Admin, Intercom
 
 from django.conf import settings
@@ -10,7 +9,7 @@ from rest_framework.exceptions import ValidationError
 from neomodel import DoesNotExist
 
 from api.serializers import SBSerializer
-from api.utils import gather_request_data, render_content, spawn_task
+from api.utils import gather_request_data, spawn_task
 
 from plebs.neo_models import Pleb
 
@@ -43,7 +42,6 @@ class VotableContentSerializer(SBSerializer):
     can_upvote = serializers.SerializerMethodField()
     can_downvote = serializers.SerializerMethodField()
     is_private = serializers.SerializerMethodField()
-    html_content = serializers.SerializerMethodField()
 
     def get_profile(self, obj):
         from plebs.serializers import PlebSerializerNeo
@@ -122,12 +120,6 @@ class VotableContentSerializer(SBSerializer):
         if not request.user.is_authenticated():
             return False
         return obj.owner_username == request.user.username
-
-    def get_html_content(self, obj):
-        if obj.content is not None:
-            return bleach.clean(obj.content).replace('\n', "<br />")
-        else:
-            return None
 
     def get_can_comment(self, obj):
         """
@@ -355,14 +347,7 @@ class ContentSerializer(VotableContentSerializer):
         return obj.get_council_vote(request.user.username)
 
 
-class MarkdownContentSerializer(ContentSerializer):
-    html_content = serializers.SerializerMethodField()
-
-    def get_html_content(self, obj):
-        return render_content(obj.content, obj.object_uuid)
-
-
-class TitledContentSerializer(MarkdownContentSerializer):
+class TitledContentSerializer(ContentSerializer):
     title = serializers.CharField(required=False,
                                   min_length=15, max_length=120)
 

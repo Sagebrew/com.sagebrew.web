@@ -15,6 +15,8 @@ from plebs.neo_models import Pleb
 from plebs.serializers import PlebSerializerNeo
 from sb_quests.neo_models import Quest
 from sb_quests.serializers import QuestSerializer
+from sb_council.serializers import MissionReviewSerializer
+
 from .serializers import MissionSerializer
 from .neo_models import Mission
 
@@ -38,6 +40,12 @@ class MissionViewSet(viewsets.ModelViewSet):
                     '(location:Location)<-[:WITHIN]-' \
                     '(res:Mission {active: true})<-[:EMBARKS_ON]-' \
                     '(quest:Quest {active: true})' % self.request.user.username
+        elif self.request.query_params.get(
+                'submitted_for_review', "") == "true":
+            active = self.request.query_params.get('active', '')
+            if active == 'true' or active == 'false':
+                query = '(res:Mission {submitted_for_review:true, ' \
+                        'active:%s})' % (active)
         else:
             query = '(res:Mission {active: true})<-[:EMBARKS_ON]-' \
                     '(quest:Quest {active: true})'
@@ -178,3 +186,18 @@ class MissionViewSet(viewsets.ModelViewSet):
         return Response({"detail": "Successfully Reset Epic",
                          "status_code": status.HTTP_200_OK},
                         status=status.HTTP_200_OK)
+
+    @detail_route(methods=['PATCH'], permission_classes=(IsAuthenticated,),
+                  serializer_class=MissionReviewSerializer)
+    def review(self, request, object_uuid=None):
+        query = 'MATCH (m:Mission {object_uuid:"%s"}) RETURN m' \
+                % object_uuid
+        res, _ = db.cypher_query(query)
+        serializer = self.get_serializer(Mission.inflate(res.one),
+                                         data=request.data, partial=True,
+                                         context={'request': request})
+        if serializer.is_valid():
+            self.perform_update(serializer)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors,
+                        status=status.HTTP_400_BAD_REQUEST)

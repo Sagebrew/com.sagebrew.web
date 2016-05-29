@@ -11,17 +11,16 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
+from plebs.neo_models import Pleb
 from sb_address.neo_models import Address
 from api.utils import calc_stripe_application_fee
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
 from sb_donations.neo_models import Donation
-
 from sb_volunteers.neo_models import Volunteer
-
 from sb_quests.neo_models import Quest
 
 
@@ -612,15 +611,15 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(response.data, ['Only the owner can edit this'])
 
-    def test_update_epic_with_h1_first(self):
+    def test_update_epic_with_h3_first(self):
         self.client.force_authenticate(user=self.user)
         mission = Mission(title=str(uuid1()),
                           owner_username=self.pleb.username).save()
 
         self.quest.missions.connect(mission)
-        content = "<h1> hello world this is a h1 </h1>\n" \
+        content = "<h3> hello world this is a h3 </h3>\n" \
                   "<h2> with a h2 after it </h2>\n" \
-                  "<h1> another h1 </h1>\n" \
+                  "<h3> another h3 </h3>\n" \
                   "and then some text"
         data = {
             "epic": content,
@@ -632,6 +631,11 @@ class MissionEndpointTests(APITestCase):
             "website": "https://www.sagebrew.com",
             "about": str(uuid1())
         }
+        content = '<h3 style="padding-top: 0; margin-top: 5px;"> ' \
+                  'hello world this is a h3 </h3>\n' \
+                  '<h2> with a h2 after it </h2>\n' \
+                  '<h3> another h3 </h3>\n' \
+                  'and then some text'
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data, format='json')
@@ -658,42 +662,16 @@ class MissionEndpointTests(APITestCase):
             "website": "https://www.sagebrew.com",
             "about": str(uuid1())
         }
+        content = '<h2 style="padding-top: 0; margin-top: 5px;"> ' \
+                  'hello world this is a h2 </h2>\n' \
+                  '<h1> with a h1 after it </h1>\n' \
+                  '<h2> another h2 </h2>\n' \
+                  'and then some text'
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
         response = self.client.patch(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['epic'], content)
-
-    def test_update_take_active(self):
-        self.client.force_authenticate(user=self.user)
-        mission = Mission(title=str(uuid1()),
-                          owner_username=self.pleb.username).save()
-        self.quest.missions.connect(mission)
-        data = {
-            "active": True,
-        }
-        url = reverse('mission-detail',
-                      kwargs={'object_uuid': mission.object_uuid})
-        response = self.client.patch(url, data=data, format='json')
-        self.assertTrue(response.data['active'])
-        mission.refresh()
-        self.assertTrue(mission.active)
-
-    def test_update_take_inactive(self):
-        self.client.force_authenticate(user=self.user)
-        mission = Mission(title=str(uuid1()),
-                          owner_username=self.pleb.username,
-                          active=True).save()
-        self.quest.missions.connect(mission)
-        data = {
-            "active": False
-        }
-        url = reverse('mission-detail',
-                      kwargs={'object_uuid': mission.object_uuid})
-        response = self.client.patch(url, data=data, format='json')
-        self.assertFalse(response.data['active'])
-        mission.refresh()
-        self.assertFalse(mission.active)
 
     def test_update_website(self):
         self.client.force_authenticate(user=self.user)
@@ -718,7 +696,6 @@ class MissionEndpointTests(APITestCase):
                             status_code=status.HTTP_200_OK)
         mission.refresh()
         self.assertEqual(mission.website, data['website'])
-        self.assertFalse(mission.active)
 
     def test_update_temp_epic(self):
         self.client.force_authenticate(user=self.user)
@@ -728,7 +705,7 @@ class MissionEndpointTests(APITestCase):
                           temp_epic="this is a temp epic").save()
         self.quest.missions.connect(mission)
         data = {
-            "temp_epic": str(uuid1())
+            "temp_epic": "<p>%s</p>" % str(uuid1())
         }
         url = reverse('mission-detail',
                       kwargs={'object_uuid': mission.object_uuid})
@@ -1227,3 +1204,112 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
         self.assertEqual(mission.epic, mission.temp_epic)
+
+    def test_review_mission(self):
+        try:
+            self.user = User.objects.get(username="tyler_wiersing")
+        except User.DoesNotExist:
+            self.user.username = "tyler_wiersing"
+            self.user.save()
+        self.client.force_authenticate(user=self.user)
+        url = "/v1/missions/%s/review/" % self.mission.object_uuid
+        data = {
+            "review_feedback": ["porn", "too_short"]
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn("porn", self.mission.review_feedback)
+        self.assertIn("too_short", self.mission.review_feedback)
+
+    def test_review_mission_take_active(self):
+        try:
+            self.user = User.objects.get(username="tyler_wiersing")
+        except User.DoesNotExist:
+            self.user.username = "tyler_wiersing"
+            self.user.save()
+        self.client.force_authenticate(user=self.user)
+        self.mission.active = False
+        self.mission.save()
+        url = "/v1/missions/%s/review/" % self.mission.object_uuid
+        data = {
+            "review_feedback": []
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual([], self.mission.review_feedback)
+        self.assertTrue(self.mission.active)
+
+    def test_review_mission_not_authorized(self):
+        self.user.username = "test_test"
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        self.mission.active = False
+        self.mission.save()
+        url = "/v1/missions/%s/review/" % self.mission.object_uuid
+        data = {
+            "review_feedback": []
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(self.mission.active)
+
+    def test_review_mission_invalid_data(self):
+        self.user.username = "test_test"
+        self.user.save()
+        self.client.force_authenticate(user=self.user)
+        self.mission.active = False
+        self.mission.save()
+        url = "/v1/missions/%s/review/" % self.mission.object_uuid
+        data = {
+            str(uuid1()): []
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.mission = Mission.nodes.get(object_uuid=self.mission.object_uuid)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(self.mission.active)
+
+    def test_get_submitted_for_review(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.submitted_for_review = True
+        self.mission.save()
+        cache.clear()
+        url = "/v1/missions/?submitted_for_review=true&active=false"
+        res = self.client.get(url)
+        self.assertEqual(res.data['results'][0]['id'], self.mission.object_uuid)
+        self.mission.submitted_for_review = False
+        self.mission.save()
+
+    def test_get_submitted_for_review_active(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.submitted_for_review = True
+        self.mission.active = True
+        self.mission.save()
+        cache.clear()
+        url = "/v1/missions/?submitted_for_review=true&active=true"
+        res = self.client.get(url)
+        self.assertEqual(res.data['results'][0]['id'], self.mission.object_uuid)
+        self.mission.submitted_for_review = False
+        self.mission.active = False
+        self.mission.save()
+
+    def test_submit_for_review(self):
+        try:
+            pleb2 = Pleb.nodes.get(username=settings.INTERCOM_USER_ID_DEVON)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            pleb2 = Pleb(username=settings.INTERCOM_USER_ID_DEVON).save()
+        self.client.force_authenticate(user=self.user)
+        self.mission.submitted_for_review = False
+        self.mission.save()
+        cache.clear()
+        url = "/v1/missions/%s/" % self.mission.object_uuid
+        data = {
+            "submitted_for_review": True
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertTrue(res.data['submitted_for_review'])
+        pleb2.delete()
+        cache.clear()

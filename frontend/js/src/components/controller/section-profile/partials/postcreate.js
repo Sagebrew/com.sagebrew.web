@@ -6,6 +6,7 @@
 var request = require('api').request,
     helpers = require('common/helpers'),
     settings = require('settings').settings,
+    Autolinker = require('autolinker'),
     content = require('common/content'),
     postNewsTemplate = require('../templates/post_news.hbs');
 
@@ -99,6 +100,7 @@ export function init () {
                     $preview.hide();
                     $input.css('margin-bottom', 0);
                     $input.val("");
+                    data.content = Autolinker.link(data.content);
                     $("#wall_app").prepend(postNewsTemplate(helpers.votableContentPrep([data])[0]));
                     var placeHolder = $(".list-empty");
                     if (placeHolder !== undefined) {
@@ -210,7 +212,7 @@ export function load () {
                 url: "/v1/posts/" + this.dataset.id + "/",
                 data: JSON.stringify(update)
             }).done(function (data) {
-                document.getElementById("js-post-" + data.id).innerHTML = "<p>" + data.html_content + "</p>";
+                document.getElementById("js-post-" + data.id).innerHTML = data.content;
                 $('#js-edit-container-' + objectID).hide();
                 $("#js-post-" + objectID).show();
             }).fail(function () {

@@ -4,7 +4,7 @@ var request = require('api').request,
 
 
 export const meta = {
-    controller: "council/verified",
+    controller: "council/verified_positions",
     match_method: "path",
     check: [
         "^council\/positions\/verified$"

@@ -12,10 +12,10 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
+from plebs.neo_models import Pleb
 from sb_registration.utils import create_user_util_test
-
 from sb_quests.neo_models import Quest
 
 
@@ -24,6 +24,11 @@ class AccountingHooksTests(APITestCase):
     def setUp(self):
         query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
+        try:
+            self.pleb2 = Pleb.nodes.get(
+                username=settings.INTERCOM_USER_ID_DEVON)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            self.pleb2 = Pleb(username=settings.INTERCOM_USER_ID_DEVON).save()
         self.unit_under_test_name = 'accounting'
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
@@ -38,6 +43,10 @@ class AccountingHooksTests(APITestCase):
         self.stripe.api_key = settings.STRIPE_SECRET_KEY
         stripe.api_version = settings.STRIPE_API_VERSION
         self.intercom_url = "https://api.intercom.io/admins"
+
+    def tearDown(self):
+        self.pleb2.delete()
+        cache.clear()
 
     def test_invalid_event_request(self):
         self.client.force_authenticate(user=self.user)
@@ -167,6 +176,20 @@ class AccountingHooksTests(APITestCase):
         }
         m.get("https://api.stripe.com/v1/accounts/acct_00000000000000",
               json=account_mock_data, status_code=status.HTTP_200_OK)
+
+        admin_mock_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": settings.INTERCOM_ADMIN_ID_DEVON,
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
+        m.get("https://api.intercom.io/admins", json=admin_mock_data,
+              status_code=status.HTTP_200_OK)
         self.client.force_authenticate(user=self.user)
         url = reverse('accounting-list')
         data = {
@@ -203,6 +226,20 @@ class AccountingHooksTests(APITestCase):
         }
         m.get("https://api.stripe.com/v1/accounts/acct_00000000000001",
               json=account_mock_data, status_code=status.HTTP_200_OK)
+
+        admin_mock_data = {
+            "type": "admin.list",
+            "admins": [
+                {
+                    "type": "admin",
+                    "id": settings.INTERCOM_ADMIN_ID_DEVON,
+                    "name": "Devon Bleibtrey",
+                    "email": "devon@sagebrew.com"
+                }
+            ]
+        }
+        m.get("https://api.intercom.io/admins", json=admin_mock_data,
+              status_code=status.HTTP_200_OK)
         self.client.force_authenticate(user=self.user)
         url = reverse('accounting-list')
         data = {

@@ -50,7 +50,7 @@ export function init () {
             data.results = helpers.votableContentPrep(data.results);
             for (var i = 0; i < data.results.length; i++) {
                 if (data.results[i].type === "news_article") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
+                    data.results[i].content = Autolinker.link(data.results[i].content);
                     data.results[i].published = moment(data.results[i].published).format("dddd, MMMM Do YYYY, h:mm a");
                     data.results[i].html = newsTemplate(data.results[i]);
                 } else if (data.results[i].type === "mission") {
@@ -69,19 +69,16 @@ export function init () {
                     }
                     data.results[i].html = missionNewsTemplate(data.results[i]);
                 } else if (data.results[i].type === "question") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = questionNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "solution") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = solutionNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "post") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
+                    data.results[i].content = Autolinker.link(data.results[i].content);
                     data.results[i].html = postNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "update") {
-                    data.results[i].html_content = Autolinker.link(data.results[i].html_content);
                     data.results[i].html = updateNewsTemplate(data.results[i]);
                 }
                 $container.append(data.results[i].html);

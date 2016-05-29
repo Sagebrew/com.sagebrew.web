@@ -1,0 +1,86 @@
+{% extends "layout/hero-two-col-left.html" %}
+
+{% block hero %}
+    {% include "council/nav.html" %}
+{% endblock %}
+
+{% block sidebar_left %}
+    <div class="block block-type-nav">
+        <div class="block-content ">
+            <ul class="nav nav-list nav-list-vivid">
+                {% comment %}
+                The use of request.GET.urlencode here is to capture query params, best way I
+                can think of to determine active for the buttons.
+                {% endcomment %}
+                <li class="{% if "reviewed" not in request.path %}active{% endif %}">
+                    <a class=""
+                       data-filter=""
+                       href="/council/missions/">
+                        To Be Reviewed
+                    </a>
+                </li>
+                <li class="{% if "reviewed" in request.path %}active{% endif %}">
+                    <a class=""
+                       data-filter="verified"
+                       href="/council/missions/reviewed/">
+                        Reviewed
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+{% endblock %}
+
+{% block live %}
+    <div class="block">
+        <div class="block-content sb_markdown" id="js-mission-verification-wrapper">
+            <h1 class="no-margin-padding-top">Review Feedback Options</h1>
+            <form id="submissionRequirements">
+                <ul>
+                    {% for key, value in review_feedback.items %}
+                        <li>
+                            <input type="checkbox" id='{{ key }}' name="feedbackItem" /> {{ value }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </form>
+            <div class="row">
+                <div class="col-md-6 col-lg-4">
+                    <button class="btn btn-primary sb_btn sb_btn_fill" id="js-submit-initial">Submit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal -->
+    <div class="modal fade" id="js-review-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">Finished Reviewing?</h4>
+                </div>
+                <div class="modal-body">
+                    Are you sure you're done reviewing? If you submit a review
+                    with no Review Feedback Options selected the Mission
+                    will be taken active.
+                </div>
+                <div class="modal-footer">
+                    <div class="col-lg-6 col-md-6">
+                        <button type="button"
+                                id="js-submit-review"
+                                class="btn btn-primary sb_btn width-100"
+                                data-dismiss="modal">Submit
+                        </button>
+                    </div>
+                    <div class="col-lg-6 col-md-"6>
+                        <button type="button"
+                                class="btn btn-primary btn-danger width-100"
+                                data-dismiss="modal">I am not finished reviewing
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

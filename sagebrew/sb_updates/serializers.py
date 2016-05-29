@@ -9,7 +9,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 from plebs.neo_models import Pleb
-from api.utils import gather_request_data, spawn_task
+from api.utils import gather_request_data, spawn_task, render_content
 from sb_base.serializers import TitledContentSerializer, validate_is_owner
 from sb_notifications.tasks import spawn_notifications
 
@@ -35,6 +35,8 @@ class UpdateSerializer(TitledContentSerializer):
         validated_data['owner_username'] = owner.username
         about = validated_data.pop('about', None)
         about_type = validated_data.get('about_type')
+        validated_data['content'] = \
+            render_content(validated_data.get('content', ''))
         update = Update(**validated_data).save()
         quest.updates.connect(update)
         url = None
@@ -62,7 +64,8 @@ class UpdateSerializer(TitledContentSerializer):
     def update(self, instance, validated_data):
         validate_is_owner(self.context.get('request', None), instance)
         instance.title = validated_data.pop('title', instance.title)
-        instance.content = validated_data.pop('content', instance.content)
+        instance.content = render_content(
+            validated_data.pop('content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.save()
         return instance

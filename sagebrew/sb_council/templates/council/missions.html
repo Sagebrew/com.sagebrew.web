@@ -1,8 +1,7 @@
 {% extends "layout/hero-two-col-left.html" %}
-{% load staticfiles %}
 
 {% block hero %}
-    {% include 'council/nav.html' %}
+    {% include "council/nav.html" %}
 {% endblock %}
 
 {% block sidebar_left %}
@@ -13,18 +12,18 @@
                 The use of request.GET.urlencode here is to capture query params, best way I
                 can think of to determine active for the buttons.
                 {% endcomment %}
-                <li class="{% if "verified" not in request.path %}active{% endif %}">
+                <li class="{% if "reviewed" not in request.path %}active{% endif %}">
                     <a class=""
                        data-filter=""
-                       href="/council/positions/">
-                        Unverified
+                       href="/council/missions/">
+                        To Be Reviewed
                     </a>
                 </li>
-                <li class="{% if "verified" in request.path %}active{% endif %}">
+                <li class="{% if "reviewed" in request.path %}active{% endif %}">
                     <a class=""
                        data-filter="verified"
-                       href="/council/positions/verified">
-                        Verified
+                       href="/council/missions/reviewed/">
+                        Reviewed
                     </a>
                 </li>
             </ul>
@@ -34,8 +33,8 @@
 
 {% block live %}
     <div class="block">
-        <h3 class="block-title">Unverified Positions</h3>
-        <div class="block-content" id="js-position-verification-wrapper">
+        <h3 class="block-title">Submitted Missions</h3>
+        <div class="block-content" id="js-mission-verification-wrapper">
         </div>
     </div>
 {% endblock %}

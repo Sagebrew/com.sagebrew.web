@@ -12,7 +12,8 @@ from rest_framework.reverse import reverse
 
 from neomodel import db
 
-from api.utils import spawn_task, gather_request_data, smart_truncate
+from api.utils import (spawn_task, gather_request_data, smart_truncate,
+                       render_content)
 from sb_base.serializers import TitledContentSerializer, validate_is_owner
 from plebs.neo_models import Pleb
 from sb_locations.tasks import create_location_tree
@@ -127,9 +128,10 @@ class QuestionSerializerNeo(TitledContentSerializer):
         # tags prior to serializing
         tags = validated_data.pop('get_tags', [])
         owner = Pleb.get(request.user.username)
-        validated_data['content'] = validated_data.get('content', "")
         validated_data['owner_username'] = owner.username
         uuid = str(uuid1())
+        validated_data['content'] = render_content(
+            validated_data.get('content', ""))
         url = reverse('question_detail_page', kwargs={'question_uuid': uuid,
                                                       "slug": slugify(
                                                           validated_data[
@@ -185,7 +187,8 @@ class QuestionSerializerNeo(TitledContentSerializer):
         """
         validate_is_owner(self.context.get('request', None), instance)
         instance.title = validated_data.get('title', instance.title)
-        instance.content = validated_data.get('content', instance.content)
+        instance.content = render_content(
+            validated_data.get('content', instance.content))
         instance.last_edited_on = datetime.now(pytz.utc)
         instance.latitude = validated_data.get('latitude', instance.latitude)
         instance.longitude = validated_data.get(

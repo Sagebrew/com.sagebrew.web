@@ -29,7 +29,7 @@ from api.permissions import (IsSelfOrReadOnly,
                              IsAnonCreateReadOnlyOrIsAuthenticated)
 from sb_base.utils import get_filter_params, NeoQuerySet
 from sb_base.neo_models import SBContent
-from sb_base.serializers import MarkdownContentSerializer
+from sb_base.serializers import ContentSerializer
 from sb_posts.neo_models import Post
 from sb_posts.serializers import PostSerializerNeo
 from sb_questions.neo_models import Question
@@ -211,7 +211,7 @@ class ProfileViewSet(viewsets.ModelViewSet):
             self.serializer_class(self.paginate_queryset(queryset), many=True,
                                   context={'request': request}).data)
 
-    @detail_route(methods=['get'], serializer_class=MarkdownContentSerializer)
+    @detail_route(methods=['get'], serializer_class=ContentSerializer)
     def public_content(self, request, username=None):
         filter_by = request.query_params.get('filter', "")
         try:

@@ -326,8 +326,8 @@ export function missionManageValidator(manageForm, aboutLengthLimit) {
                 selector: '#title',
                 validators: {
                     stringLength: {
-                        max: 240,
-                        message: ' '
+                        max: 140,
+                        message: 'This value may not exceed 140 characters'
                     },
                     notEmpty: {
                         message: 'You must have a title'

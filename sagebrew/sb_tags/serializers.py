@@ -7,7 +7,7 @@ from api.serializers import SBSerializer
 
 
 class TagSerializer(SBSerializer):
-    name = serializers.CharField(max_length=240)
+    name = serializers.CharField(max_length=140)
     href = serializers.SerializerMethodField()
 
     def get_href(self, obj):

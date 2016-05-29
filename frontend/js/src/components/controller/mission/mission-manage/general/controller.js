@@ -30,7 +30,7 @@ export function load() {
         $titleRemaining = $("#js-title-char-count"),
         $remaining = $("#js-about-char-count"),
         aboutCharLimit = 255,
-        titleCharLimit = 240,
+        titleCharLimit = 140,
         $imageForm = $("#js-image-upload-form"),
         $previewContainer = $('#js-image-preview'),
         $saveProfilePicButton = $("#js-submit-profile-picture");

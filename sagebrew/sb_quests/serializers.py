@@ -32,7 +32,7 @@ from .neo_models import (Position, Quest)
 class QuestSerializer(SBSerializer):
     active = serializers.BooleanField(required=False)
     title = serializers.CharField(required=False, allow_blank=True,
-                                  max_length=240)
+                                  max_length=140)
     about = serializers.CharField(required=False, allow_blank=True,
                                   max_length=128)
     facebook = serializers.URLField(required=False, allow_blank=True)

@@ -193,7 +193,7 @@ export function load() {
             event.preventDefault();
             var currentPage = parseInt(this.dataset.page),
                 nextPage = currentPage + 1,
-                additionalMissionWrapper = $(".additional-endorsement");
+                additionalEndorsementWrapper = $(".additional-endorsement");
             $endorseList.sb_contentLoader({
                 emptyDataMessage: " ",
                 url: '/v1/' + "profiles" + '/' + pageUser + '/endorsed/',
@@ -222,7 +222,7 @@ export function load() {
                         missions: data.results,
                         static_url: settings.static_url
                     }));
-                    if (additionalMissionWrapper !== null && data.next === null) {
+                    if (additionalEndorsementWrapper !== null && data.next === null) {
                         $(".additional-endorsement-wrapper").remove();
                     } else {
                         $(".additional-endorsement-wrapper").remove();

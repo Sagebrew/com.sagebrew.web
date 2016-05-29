@@ -2,6 +2,7 @@ import pytz
 from datetime import datetime
 
 from django.conf import settings
+from django.template.loader import render_to_string
 
 from neomodel import db
 from rest_framework import serializers
@@ -66,17 +67,16 @@ class MissionReviewSerializer(MissionSerializer):
             for item in instance.review_feedback:
                 problem_string += \
                     "* %s\n" % (dict(settings.REVIEW_FEEDBACK_OPTIONS)[item])
-            message_body = 'Hi %s,\n\nWe have reviewed your Mission, %s, and ' \
-                           'have found no problems.\nCongratulations!\n ' \
-                           'We have taken your Mission live for you ' \
-                           'and you can now receive Donations and Volunteers.' \
-                           % (owner.first_name, instance.title)
+            message_body = render_to_string(
+                'email_templates/mission_review_success.html',
+                context={"first_name": owner.first_name,
+                         "title": instance.title})
             if problem_string:
-                message_body = 'Hi %s,\nWe have reviewed your Mission, %s, ' \
-                               'and found a few issues you should take care ' \
-                               'of before taking your Mission live:\n\n%s' % \
-                               (owner.first_name, instance.title,
-                                problem_string)
+                message_body = render_to_string(
+                    'email_templates/mission_review_errors.html',
+                    context={"first_name": owner.first_name,
+                             "title": instance.title,
+                             "problem_string": problem_string})
             else:
                 instance.active = True
 

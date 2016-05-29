@@ -280,7 +280,7 @@ class MissionSerializer(SBSerializer):
                     'id': settings.INTERCOM_ADMIN_ID_DEVON},
                 'to_user': {
                     'type': "user",
-                    'user_id': settings.INTERCOM_ADMIN_ID_DEVON}
+                    'user_id': settings.INTERCOM_USER_ID_DEVON}
             }
             serializer = IntercomMessageSerializer(data=message_data)
             if serializer.is_valid():

@@ -5,6 +5,8 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.cache import cache
 
+from neomodel import db
+
 from sb_registration.utils import create_user_util_test
 from sb_questions.neo_models import Question
 from sb_locations.tasks import create_location_tree, connect_location_to_element
@@ -114,6 +116,8 @@ class TestCreateLocationTreeTask(TestCase):
 class TestConnectLocationElementTask(TestCase):
 
     def setUp(self):
+        query = 'MATCH (a) OPTIONAL MATCH (a)-[r]-() DELETE a, r'
+        db.cypher_query(query)
         settings.CELERY_ALWAYS_EAGER = True
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
@@ -221,4 +225,4 @@ class TestConnectLocationElementTask(TestCase):
         res = connect_location_to_element.apply_async(kwargs=data)
         while not res.ready():
             time.sleep(1)
-        self.assertIsNone(res.result)
+            self.assertIsInstance(res.result, Exception)

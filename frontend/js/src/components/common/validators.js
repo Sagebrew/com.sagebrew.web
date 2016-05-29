@@ -326,8 +326,8 @@ export function missionManageValidator(manageForm, aboutLengthLimit) {
                 selector: '#title',
                 validators: {
                     stringLength: {
-                        max: 140,
-                        message: 'This value may not exceed 140 characters'
+                        max: 70,
+                        message: 'This value may not exceed 70 characters'
                     },
                     notEmpty: {
                         message: 'You must have a title'
@@ -620,4 +620,39 @@ export function bankAccountValidator(bankAccountVal) {
             }
         })
         .end();
+}
+
+
+export function questionValidator(manageForm) {
+    manageForm.formValidation({
+        framework: 'bootstrap',
+        live: 'enabled',
+        fields: {
+            title: {
+                selector: '#title_id',
+                validators: {
+                    notEmpty: {
+                        message: "Title is required"
+                    },
+                    stringLength: {
+                        min: 15,
+                        max: 140,
+                        message: "Title must be between 15 and 140 characters long"
+                    }
+                }
+            },
+            question_content: {
+                selector: '#js-question-markdown',
+                validators: {
+                    notEmpty: {
+                        message: "Please provide context to the Question"
+                    },
+                    stringLength: {
+                        min: 15,
+                        message: "Context must be at least 15 characters long"
+                    }
+                }
+            }
+        }
+    });
 }

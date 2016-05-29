@@ -81,7 +81,7 @@ class QuestionSerializerNeo(TitledContentSerializer):
     tags = serializers.ListField(
         source='get_tags',
         validators=[limit_5_tags, PopulateTags()],
-        child=serializers.CharField(max_length=140),
+        child=serializers.CharField(max_length=70),
     )
     title = serializers.CharField(required=False,
                                   min_length=15, max_length=140)

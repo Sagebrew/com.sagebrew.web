@@ -30,7 +30,7 @@ export function load() {
         greyPage = document.getElementById('sb-greyout-page'),
         positionInput = $('#position-input'),
         positionInputCharCount = $("#js-position-char-count"),
-        positionInputCharLimit = 140;
+        positionInputCharLimit = 70;
     // We just loaded the app, jam in some place holders to look nice.
     // Didn't include directly in the Django template so we don't have duplicate formatting
     positionSelector.innerHTML = positionHolderTemplate({static_url: settings.static_url});

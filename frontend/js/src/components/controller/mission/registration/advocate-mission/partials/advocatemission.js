@@ -24,7 +24,7 @@ export function load() {
         greyPage = document.getElementById('sb-greyout-page'),
         advocateInputCharCount = $("#js-advocate-char-count"),
         advocateInputWrapper = $(".advocate-input-wrapper"),
-        advocateInputCharacterLimit = 140;
+        advocateInputCharacterLimit = 70;
     if(typeof(Storage) !== "undefined") {
         // Clear out all of the storage for the page, we're starting a new mission!
         localStorage.removeItem(locationKey);

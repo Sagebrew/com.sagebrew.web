@@ -60,7 +60,7 @@
             {% endif %}
         </div>
     </div>
-    <div class="block sb_hidden" id="identification-upload">
+    <div class="block" id="identification-upload">
         <h3 class="block-title">
             Personal Identification Upload
         </h3>
@@ -81,6 +81,7 @@
             </form>
         </div>
     </div>
+    {% include "partials/image_upload_block.html" with title_text="Personal Identification Upload" save_button_text="Upload Identification" required_width=100 required_height=100 submit_button="js-submit-personal-identification" extra_requirements="The image must be less than 8mb and either jpeg or png type." %}
 {% endblock %}
 
 {% block scripts %}

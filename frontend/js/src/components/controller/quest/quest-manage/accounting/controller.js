@@ -30,7 +30,10 @@ export function load() {
         addressForm = document.getElementById('address'),
         bankAccountForm = document.getElementById('banking-form'),
         bankAccountValidationForm = $(bankAccountForm),
-        addressValidationForm = addresses.setupAddress(function callback() {});
+        addressValidationForm = addresses.setupAddress(function callback() {}),
+        $imageForm = $("#js-image-upload-form"),
+        $previewContainer = $('#js-image-preview'),
+        $savePersonalIdentificationButton = $("#js-submit-personal-identification");
     validators.bankAccountValidator(bankAccountValidationForm);
     Stripe.setPublishableKey(settings.api.stripe);
     if(settings.profile.quest.fields_needed_human_readable !== null && settings.profile.quest.fields_needed_human_readable !== "") {
@@ -103,6 +106,7 @@ export function load() {
                     greyPage.classList.add('sb_hidden');
                 });
         });
+    helpers.setupImageUpload($app, $imageForm, $previewContainer, $savePersonalIdentificationButton, 100, 100, false);
 }
 
 

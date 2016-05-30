@@ -665,7 +665,9 @@ DEFAULT_EXCLUDE_SENTENCES = ["Story highlights", "#", "##", "Discover Dubai",
                              "Image", "BREAKING", "FORM", "1.", "by",
                              "FFFD", "Fuck", "Shit", "Ass", "Cunt", "Jizz",
                              '[', ']', '{', '}', '*', 'Related Topics:',
-                             'related topics:', '+', '=', 'free']
+                             'related topics:', '+', '=', 'free',
+                             'Continue reading', 'http', 'GODDAMMIT', 'hr',
+                             'min', 'main story', 'main', '']
 
 DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
                             'Burn More Calories and Lose Weight',
@@ -676,11 +678,17 @@ DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
                             "Petition:", "petition:", "Petition",
                             "Sex Positions", "sex positions", "Orgasm",
                             "orgasm", "Fuck", "Shit", "Ass", "Cunt",
-                            "Jizz", 'free']
+                            "Jizz", 'free', '(', ')', '/', '\\']
 
 UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', 'circleci.com']
 COMPANY_ACRONYMS = ['ABC', 'CNN', 'CBS', 'MSNBC', 'BBC',
-                    'CBC', 'CBS', 'NBC', 'NYT', 'abc7.com', 'NPR']
+                    'CBC', 'CBS', 'NBC', 'NYT', 'abc7.com', 'NPR',
+                    'N.P.R.', 'N.P.R', 'N.Y.T', 'N.Y.T.', 'TYT', 'T.Y.T.',
+                    'FBI', 'F.B.I', 'F.B.I.', 'CIA', 'C.I.A.', 'C.I.A',
+                    'NSA', 'N.S.A', 'N.S.A.', 'NASA', 'N.A.S.A', 'N.A.S.A.',
+                    'FEMA', 'F.E.M.A.', 'F.E.M.A', 'DOJ', 'D.O.J', 'D.O.J.',
+                    'CDC', 'C.D.C', 'C.D.C.', 'HEPA', 'H.E.P.A', 'H.E.P.A.',
+                    'U.S.', 'US', 'USA', 'U.S.A.']
 
 
 EXPLICIT_SITES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',

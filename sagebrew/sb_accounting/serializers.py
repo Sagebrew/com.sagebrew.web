@@ -122,6 +122,12 @@ class AccountSerializer(SBSerializer):
                 quest.account_verified = \
                     account.legal_entity.verification.status
                 quest.account_verified_date = datetime.now(pytz.utc)
+                # When a quest is verified it automatically becomes active
+                # If a user wants to take their quest inactive they have the
+                # option but to reactivate they have to reach out to us and
+                # explain because we don't want people just going active,
+                # inactive and screwing with donors.
+                quest.active = True
                 message_data = {
                     'message_type': 'email',
                     'subject': 'Quest Verified',

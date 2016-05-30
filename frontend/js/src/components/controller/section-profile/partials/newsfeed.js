@@ -75,7 +75,10 @@ export function init () {
                     data.results[i].html = solutionNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "post") {
-                    data.results[i].content = Autolinker.link(data.results[i].content);
+                    // This needs to remain html_content otherwise when you go to edit the
+                    // post the content has an <a> tag in it. The user should never see
+                    // html tags
+                    data.results[i].html_content = Autolinker.link(data.results[i].content);
                     data.results[i].html = postNewsTemplate(data.results[i]);
 
                 } else if (data.results[i].type === "update") {

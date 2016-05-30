@@ -212,7 +212,9 @@ export function load () {
                 url: "/v1/posts/" + this.dataset.id + "/",
                 data: JSON.stringify(update)
             }).done(function (data) {
-                document.getElementById("js-post-" + data.id).innerHTML = data.content;
+                // The surrounding <p> tag is necessary to ensure consistent
+                // formatting for text.
+                document.getElementById("js-post-" + data.id).innerHTML = '<p>' + Autolinker.link(data.content) + '</p>';
                 $('#js-edit-container-' + objectID).hide();
                 $("#js-post-" + objectID).show();
             }).fail(function () {

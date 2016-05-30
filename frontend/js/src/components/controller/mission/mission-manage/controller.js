@@ -35,7 +35,8 @@ export function load() {
             request.patch({
                 url: "/v1/missions/" + missionID + "/",
                 data: JSON.stringify({
-                    submitted_for_review: true
+                    submitted_for_review: true,
+                    saved_for_later: false
                 })
             }).done(function () {
                 if(helpers.args(3) === "review"){

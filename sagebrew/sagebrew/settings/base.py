@@ -74,7 +74,6 @@ STATICFILES_DIRS = (
     '%s/sb_missions/static/' % PROJECT_DIR,
     '%s/sb_notifications/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
-    '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_quests/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
 )
@@ -491,13 +490,13 @@ PROMOTION_KEYS = ["8UN96FNPP8ntv8JeaOyP", ]
 CORS_ORIGIN_ALLOW_ALL = True
 DEFAULT_WALLPAPER = 'images/wallpaper_capitol_2.jpg'
 REVIEW_FEEDBACK_OPTIONS = [
-    ('too_short', "Adding a bit more content to your "
-                  "Epic may help generate more donations."),
-    ('no_action_items', "Providing some actionable tasks you can accomplish "
-                        "will allow you to create Updates which build "
-                        "confidence with contributors."),
-    ('malicious', "You cannot include malicious content within your Epic."),
-    ('porn', "Your Epic has too much pornography.")
+    ('too_short', "Add additional content to your Epic. There isn't enough "
+                  "information for donors to understand what their donations "
+                  "will be going towards."),
+    ('no_action_items', "Add actionable tasks that you can accomplish "
+                        "so you can showcase progress to contributors."),
+    ('malicious', "Remove malicious content"),
+    ('porn', "Remove pornography")
 ]
 # Titles for onboarding since they must be indexes and they are used in
 # multiple locations to determine what to set to completed.
@@ -666,7 +665,10 @@ DEFAULT_EXCLUDE_SENTENCES = ["Story highlights", "#", "##", "Discover Dubai",
                              "Image", "BREAKING", "FORM", "1.", "by",
                              "FFFD", "Fuck", "Shit", "Ass", "Cunt", "Jizz",
                              '[', ']', '{', '}', '*', 'Related Topics:',
-                             'related topics:', '+', '=', 'free']
+                             'related topics:', '+', '=', 'free',
+                             'Continue reading', 'http', 'GODDAMMIT', 'hr',
+                             'min', 'main story', 'main', '(', ')', '/', '\\',
+                             'Advertisement', 'Photo']
 
 DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
                             'Burn More Calories and Lose Weight',
@@ -681,7 +683,14 @@ DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
 
 UNSUPPORTED_UPLOAD_SITES = ['theguardian.com', 'circleci.com']
 COMPANY_ACRONYMS = ['ABC', 'CNN', 'CBS', 'MSNBC', 'BBC',
-                    'CBC', 'CBS', 'NBC', 'NYT', 'abc7.com', 'NPR']
+                    'CBC', 'CBS', 'NBC', 'NYT', 'PBS', 'abc7.com', 'NPR',
+                    'N.P.R.', 'N.P.R', 'N.Y.T', 'N.Y.T.', 'TYT', 'T.Y.T.',
+                    'FBI', 'F.B.I', 'F.B.I.', 'CIA', 'C.I.A.', 'C.I.A',
+                    'NSA', 'N.S.A', 'N.S.A.', 'NASA', 'N.A.S.A', 'N.A.S.A.',
+                    'FEMA', 'F.E.M.A.', 'F.E.M.A', 'DOJ', 'D.O.J', 'D.O.J.',
+                    'CDC', 'C.D.C', 'C.D.C.', 'HEPA', 'H.E.P.A', 'H.E.P.A.',
+                    'U.S.', 'US', 'USA', 'U.S.A.', 'APC', 'PDP', 'ISIS',
+                    'World War II', 'World War I']
 
 
 EXPLICIT_SITES = ['xvideos.com', 'xhamster.com', 'pornhub.com', 'xnxx.com',

@@ -439,6 +439,7 @@ class MissionReviewSerializer(MissionSerializer):
     rather than adding in a check there to determine if it is the owner of
     the Mission or us modifying it.
     """
+    review_feedback = serializers.ListField(required=False)
 
     def validate(self, validated_data):
         request = self.context.get('request', '')

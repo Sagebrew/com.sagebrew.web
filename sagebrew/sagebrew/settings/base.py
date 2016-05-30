@@ -74,7 +74,6 @@ STATICFILES_DIRS = (
     '%s/sb_missions/static/' % PROJECT_DIR,
     '%s/sb_notifications/static/' % PROJECT_DIR,
     '%s/sb_posts/static/' % PROJECT_DIR,
-    '%s/sb_questions/static/' % PROJECT_DIR,
     '%s/sb_quests/static/' % PROJECT_DIR,
     '%s/sb_uploads/static/' % PROJECT_DIR,
 )
@@ -491,13 +490,13 @@ PROMOTION_KEYS = ["8UN96FNPP8ntv8JeaOyP", ]
 CORS_ORIGIN_ALLOW_ALL = True
 DEFAULT_WALLPAPER = 'images/wallpaper_capitol_2.jpg'
 REVIEW_FEEDBACK_OPTIONS = [
-    ('too_short', "Adding a bit more content to your "
-                  "Epic may help generate more donations."),
-    ('no_action_items', "Providing some actionable tasks you can accomplish "
-                        "will allow you to create Updates which build "
-                        "confidence with contributors."),
-    ('malicious', "You cannot include malicious content within your Epic."),
-    ('porn', "Your Epic has too much pornography.")
+    ('too_short', "Add additional content to your Epic. There isn't enough "
+                  "information for donors to understand what their donations "
+                  "will be going towards."),
+    ('no_action_items', "Add actionable tasks that you can accomplish "
+                        "so you can showcase progress to contributors."),
+    ('malicious', "Remove malicious content"),
+    ('porn', "Remove pornography")
 ]
 # Titles for onboarding since they must be indexes and they are used in
 # multiple locations to determine what to set to completed.

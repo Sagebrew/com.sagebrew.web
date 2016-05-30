@@ -36,13 +36,14 @@
         <div class="block-content sb_markdown" id="js-mission-verification-wrapper">
             <h1 class="no-margin-padding-top">Review Feedback Options</h1>
             <form id="submissionRequirements">
-                <ul>
-                    {% for key, value in review_feedback.items %}
-                        <li>
-                            <input type="checkbox" id='{{ key }}' name="feedbackItem" /> {{ value }}
-                        </li>
-                    {% endfor %}
-                </ul>
+                {% for key, value in review_feedback.items %}
+                    <div class="no-padding-right">
+                    <label class="checkbox" for="{{ key }}">
+                        <input type="checkbox" data-toggle="checkbox"
+                               value={{ value }} id='{{ key }}' name="feedbackItem" />{{ value }}
+                        </label>
+                    </div>
+                {% endfor %}
             </form>
             <div class="row">
                 <div class="col-md-6 col-lg-4">

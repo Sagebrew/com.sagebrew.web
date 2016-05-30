@@ -15,9 +15,8 @@ from plebs.neo_models import Pleb
 from plebs.serializers import PlebSerializerNeo
 from sb_quests.neo_models import Quest
 from sb_quests.serializers import QuestSerializer
-from sb_council.serializers import MissionReviewSerializer
 
-from .serializers import MissionSerializer
+from .serializers import MissionSerializer, MissionReviewSerializer
 from .neo_models import Mission
 
 

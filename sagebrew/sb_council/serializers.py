@@ -1,18 +1,12 @@
 import pytz
 from datetime import datetime
 
-from django.conf import settings
-from django.template.loader import render_to_string
 
 from neomodel import db
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from api.utils import spawn_task
-from sb_base.serializers import (ContentSerializer, IntercomMessageSerializer,
-                                 IntercomEventSerializer)
-from sb_missions.serializers import MissionSerializer
-from plebs.neo_models import Pleb
+from sb_base.serializers import ContentSerializer
 
 from .tasks import update_closed_task
 
@@ -36,73 +30,3 @@ class CouncilVoteSerializer(ContentSerializer):
         spawn_task(task_func=update_closed_task,
                    task_param={'object_uuid': instance.object_uuid})
         return res
-
-
-class MissionReviewSerializer(MissionSerializer):
-    '''
-    Using this serializer in place of the traditional MissionSerializer due
-    to the operations being performed on the Mission being restricted to our
-    admins (us) currently. In the MissionSerializer we have a check for
-    verifying the person modifying the Mission is actually the owner.
-    I think it is cleaner to have a different serializer for this purpose
-    rather than adding in a check there to determine if it is the owner of
-    the Mission or us modifying it.
-    '''
-    def validate(self, validated_data):
-        request = self.context.get('request', '')
-        if not request:
-            raise ValidationError("You are not authorized to access this.")
-        if request.user.username != 'tyler_wiersing' \
-                and request.user.username != 'devon_bleibtrey':
-            raise ValidationError("You are not authorized to access this.")
-        return validated_data
-
-    def update(self, instance, validated_data):
-        owner = Pleb.get(instance.owner_username)
-        prev_feedback = instance.review_feedback
-        instance.review_feedback = validated_data.pop('review_feedback',
-                                                      instance.review_feedback)
-        if prev_feedback != instance.review_feedback and not instance.active:
-            problem_string = ""
-            for item in instance.review_feedback:
-                problem_string += \
-                    "* %s\n" % (dict(settings.REVIEW_FEEDBACK_OPTIONS)[item])
-            message_body = render_to_string(
-                'email_templates/mission_review_success.html',
-                context={"first_name": owner.first_name,
-                         "title": instance.title})
-            if problem_string:
-                message_body = render_to_string(
-                    'email_templates/mission_review_errors.html',
-                    context={"first_name": owner.first_name,
-                             "title": instance.title,
-                             "problem_string": problem_string})
-            else:
-                instance.active = True
-
-            message_data = {
-                'message_type': 'email',
-                'subject': 'Mission Review Update',
-                'body': message_body,
-                'template': "personal",
-                'from_user': {
-                    'type': "admin",
-                    'id': settings.INTERCOM_ADMIN_ID_DEVON},
-                'to_user': {
-                    'type': "user",
-                    'user_id': instance.owner_username}
-            }
-            serializer = IntercomMessageSerializer(data=message_data)
-            if serializer.is_valid():
-                serializer.save()
-        if not instance.review_feedback:
-            instance.active = True
-            serializer = IntercomEventSerializer(
-                data={'event_name': "take-mission-live",
-                      'username': instance.owner_username})
-            # Don't raise an error because we rather not notify intercom than
-            # hold up the mission activation process
-            if serializer.is_valid():
-                serializer.save()
-
-        return instance.save()

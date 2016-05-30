@@ -1,0 +1,17 @@
+{% extends "email_templates/email_base.html" %}
+{% block email_content %}
+        <p>Hi {{ first_name }}, <br />
+            Congratulations! {{ volunteer_first_name }}
+            just volunteered to help out your "{{ mission_title }}" Mission.
+            They indicated they'd be willing to do any of the following:
+        </p>
+        <ul>
+            {% for activity in activities %}
+                <li>{{ activity }}</li>
+            {% endfor %}
+        </ul>
+        <p>
+            You can coordinate with {{ volunteer_first_name }} through your
+            <a href="{{ mission_volunteers }}">Mission Management Console</a>.
+        </p>
+{% endblock email_content %}

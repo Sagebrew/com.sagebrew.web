@@ -1,0 +1,13 @@
+{% extends "email_templates/email_base.html" %}
+{% block email_content %}
+        <p>
+            Hi {{ first_name }}, <br />
+            Congratulations! Your Mission, "{{ mission_title }}", just received
+            a ${{ amount }} donation from {{ donor_first_name }}
+            {{ donor_last_name }}.
+        </p>
+        <p>
+            You can access all of your donations in your
+            <a href="{{ quest_donation_page }}">Quest Management Console</a>.
+        </p>
+{% endblock email_content %}

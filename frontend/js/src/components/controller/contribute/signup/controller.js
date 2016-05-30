@@ -127,9 +127,9 @@ function completeRegistration(addressValidationForm, addressForm,
         delete accountData.password2;
         accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
         requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
-            .done(function () {
+            .done(function (data) {
                 addresses.submitAddress(addressForm, submitAddressCallback,
-                    "/v1/profiles/" + settings.profile.username + "/");
+                    "/v1/profiles/" + data.id + "/");
             });
         }
 }

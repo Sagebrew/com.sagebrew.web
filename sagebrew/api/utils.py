@@ -388,10 +388,13 @@ def generate_summary(content):
         excluded = [exclude
                     for exclude in settings.DEFAULT_EXCLUDE_SENTENCES
                     if exclude.lower() in sentence.lower()]
+        print(excluded)
+        print(len(excluded))
         if settings.TIME_EXCLUSION_REGEX.search(sentence) is None \
                 and len(summary) < settings.DEFAULT_SUMMARY_LENGTH \
                 and len(excluded) == 0:
             summary += " " + sentence
+        print sentence
     return summary.replace('&gt;', '').strip()
 
 

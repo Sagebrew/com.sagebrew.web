@@ -28,8 +28,7 @@ export function load() {
     $app
         .on('click', '#href-submit-for-review', function () {
             event.preventDefault();
-            var missionID = this.dataset.missionId,
-                missionSlug = this.dataset.missionSlug;
+            var missionID = this.dataset.missionId;
             greyPage.classList.remove('sb_hidden');
             Intercom('trackEvent', 'submitted-mission-for-review');
             request.patch({

@@ -38,7 +38,7 @@ export function load() {
                     submitted_for_review: true,
                     saved_for_later: false
                 })
-            }).done(function (data) {
+            }).done(function () {
                 if(helpers.args(3) === "review"){
                     window.location.href = "/missions/" + missionID + "/" + missionSlug + "/manage/epic/";
                 } else {

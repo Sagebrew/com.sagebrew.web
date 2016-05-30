@@ -3,7 +3,6 @@ var requests = require('api').request,
     helpers = require('common/helpers'),
     validators = require('common/validators'),
     addresses = require('common/addresses'),
-    settings = require('settings').settings,
     moment = require('moment');
 
 export const meta = {

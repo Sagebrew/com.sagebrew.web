@@ -9,8 +9,8 @@ from sb_address.neo_models import Address
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
+from sb_missions.serializers import MissionReviewSerializer
 from sb_quests.neo_models import Quest
-from sb_council.serializers import MissionReviewSerializer
 
 
 class TestMissionReviewSerializer(TestCase):

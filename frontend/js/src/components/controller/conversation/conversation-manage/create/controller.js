@@ -23,6 +23,19 @@ export function init() {
 
 }
 
+function historyBackFallback(fallbackUrl) {
+    fallbackUrl = fallbackUrl || '/';
+    var prevPage = window.location.href;
+
+    window.history.go(-1);
+    setTimeout(function(){
+        if (window.location.href === prevPage)
+            {
+                window.location.href = fallbackUrl;
+            }
+    }, 500);
+}
+
 /**
  * Load
  */
@@ -91,7 +104,7 @@ export function load() {
             if(Object.prototype.toString.call(questionID) !== '[object Array]'){
                 window.location.href = "/conversations/" + questionID + "/";
             } else {
-                window.history.back();
+                historyBackFallback("/conversations/");
             }
         });
     $app

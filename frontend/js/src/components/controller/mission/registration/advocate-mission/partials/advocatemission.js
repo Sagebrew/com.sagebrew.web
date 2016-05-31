@@ -48,6 +48,9 @@ export function load() {
         },
         {
              source: engine
+        })
+        .on('typeahead:selected', function() {
+            $('#advocate-input').keyup();
         });
     $("#advocate-input-tokenfield").attr("name", "tag_box");
 

@@ -28,12 +28,10 @@ function updateTime() {
 function finishedTyping(editor, missionId) {
     var serialized = editor.serialize(),
         key = Object.keys(editor.serialize())[0];
-    console.log('here');
     request.patch({url: "/v1/missions/" + missionId + "/",
         data: JSON.stringify(
                 {'temp_epic': serialized[key].value})
     }).done(function (data){
-        console.log(data);
         $("#livestamp").attr('data-livestamp', data.epic_last_autosaved);
         updateTime();
     });

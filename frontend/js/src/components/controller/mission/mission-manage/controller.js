@@ -13,7 +13,8 @@ export const meta = {
     match_method: "path",
     check: [
        "^missions\/[A-Za-z0-9.@_%+-]{36}"
-    ]
+    ],
+    does_not_include: ['advocate', 'public_office', 'select', 'account']
 };
 
 
@@ -34,7 +35,8 @@ export function load() {
             request.patch({
                 url: "/v1/missions/" + missionID + "/",
                 data: JSON.stringify({
-                    submitted_for_review: true
+                    submitted_for_review: true,
+                    saved_for_later: false
                 })
             }).done(function () {
                 if(helpers.args(3) === "review"){

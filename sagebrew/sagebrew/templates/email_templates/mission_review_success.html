@@ -1,0 +1,22 @@
+{% extends "email_templates/email_base.html" %}
+{% block email_content %}
+    <p>
+        Hi {{ first_name }},<br />
+        Congratulations! We reviewed your Mission, "{{ title }}", and
+        found no issues.
+    </p>
+    <p>
+        We have taken your Mission live, meaning you can now accept
+        Donations and Volunteers. Some next steps you'll want to take are:
+    </p>
+    <ul>
+        <li>Create an <a href="{{ update_url }}">Update</a> to kick off your Mission</li>
+        <li>Reach out to your friends &amp; family to request their support</li>
+        <li>Start a <a href="{{ conversation_url }}">Conversation</a> to bring attention to the
+            problems you're trying to solve.</li>
+    </ul>
+    <p>
+        If you have any questions feel free to respond to this email,
+        we're always happy to help!
+    </p>
+{% endblock email_content %}

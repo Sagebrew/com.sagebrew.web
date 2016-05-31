@@ -30,7 +30,7 @@ export function load() {
         greyPage = document.getElementById('sb-greyout-page'),
         positionInput = $('#position-input'),
         positionInputCharCount = $("#js-position-char-count"),
-        positionInputCharLimit = 240;
+        positionInputCharLimit = 70;
     // We just loaded the app, jam in some place holders to look nice.
     // Didn't include directly in the Django template so we don't have duplicate formatting
     positionSelector.innerHTML = positionHolderTemplate({static_url: settings.static_url});
@@ -484,7 +484,10 @@ function fillPositions(identifier) {
                     name: name,
                     image_path: image_path
                 };
-                positionList.push(context);
+                // Verify that Senator does not show up for Washington DC in the local filter list.
+                if (!(name === "Senator" && localStorage.getItem(filterKey) === "local" && localStorage.getItem(locationKey) === "ChIJW-T2Wt7Gt4kRKl2I1CJFUsI")) {
+                    positionList.push(context);
+                }
             }
             context = {
                 name: "Other",

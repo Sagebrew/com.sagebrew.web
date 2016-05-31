@@ -23,6 +23,12 @@
         <h3 class="block-title">
             Bank Account Information
         </h3>
+        {% if quest.account_verified != "unverified" %}
+            <div class="block-content no-top-bottom-padding">
+                <small>Re-entering the information below will result in replacing your existing
+                bank account information. This may extend the review process.</small>
+            </div>
+        {% endif %}
         <div class="block-content">
             <div id="account-verification-status">
                 {% if quest.account_verified == "unverified" %}

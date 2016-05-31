@@ -6,7 +6,7 @@ export const meta = {
     controller: "mission/mission-manage/general",
     match_method: "path",
     check: [
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/manage\/general"
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/manage\/general"
     ]
 };
 
@@ -30,7 +30,7 @@ export function load() {
         $titleRemaining = $("#js-title-char-count"),
         $remaining = $("#js-about-char-count"),
         aboutCharLimit = 255,
-        titleCharLimit = 240,
+        titleCharLimit = 70,
         $imageForm = $("#js-image-upload-form"),
         $previewContainer = $('#js-image-preview'),
         $saveProfilePicButton = $("#js-submit-profile-picture");

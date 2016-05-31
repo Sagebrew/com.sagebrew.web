@@ -11,17 +11,16 @@ from rest_framework.reverse import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from neomodel import db
+from neomodel import db, DoesNotExist
 
+from plebs.neo_models import Pleb
 from sb_address.neo_models import Address
 from api.utils import calc_stripe_application_fee
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
 from sb_donations.neo_models import Donation
-
 from sb_volunteers.neo_models import Volunteer
-
 from sb_quests.neo_models import Quest
 
 
@@ -1297,6 +1296,10 @@ class MissionEndpointTests(APITestCase):
         self.mission.save()
 
     def test_submit_for_review(self):
+        try:
+            pleb2 = Pleb.nodes.get(username=settings.INTERCOM_USER_ID_DEVON)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            pleb2 = Pleb(username=settings.INTERCOM_USER_ID_DEVON).save()
         self.client.force_authenticate(user=self.user)
         self.mission.submitted_for_review = False
         self.mission.save()
@@ -1308,3 +1311,5 @@ class MissionEndpointTests(APITestCase):
         res = self.client.patch(url, data=data, format="json")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertTrue(res.data['submitted_for_review'])
+        pleb2.delete()
+        cache.clear()

@@ -11,8 +11,7 @@ export const meta = {
     controller: "quest/quest-manage",
     match_method: "path",
     check: [
-        "^quests\/[A-Za-z0-9.@_%+-]{1,36}",
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/"
+        "^quests\/[A-Za-z0-9.@_%+-]{1,36}"
     ],
     does_not_include: ['review']
 };
@@ -29,17 +28,17 @@ export function load() {
     $app
         .on('click', '#href-submit-for-review', function () {
             event.preventDefault();
-            var missionID = this.dataset.missionId,
-                missionSlug = this.dataset.missionSlug;
+            var missionID = this.dataset.missionId;
             greyPage.classList.remove('sb_hidden');
             Intercom('trackEvent', 'submitted-mission-for-review');
             request.patch({
                 url: "/v1/missions/" + missionID + "/",
                 data: JSON.stringify({
-                    submitted_for_review: true
+                    submitted_for_review: true,
+                    saved_for_later: false
                 })
             }).done(function () {
-                window.location.href = "/missions/" + missionID + "/" + missionSlug + "/manage/epic/";
+                window.location.reload();
             }).fail(function () {
                 greyPage.classList.add('sb_hidden');
             });

@@ -243,8 +243,8 @@ export function addressValidator(addressVal) {
                         message: "State is required"
                     },
                     stringLength: {
-                        max: 2,
-                        message: "State field must be shorter than 2 characters"
+                        max: 50,
+                        message: "Please enter a valid State"
                     }
                 }
             },
@@ -277,8 +277,8 @@ export function editUpdateValidator(updateVal) {
                     },
                     stringLength: {
                         min: 5,
-                        max: 140,
-                        message: "Title must be between 5 and 140 characters long"
+                        max: 120,
+                        message: "Title must be between 5 and 120 characters long"
                     }
                 }
             },
@@ -326,7 +326,8 @@ export function missionManageValidator(manageForm, aboutLengthLimit) {
                 selector: '#title',
                 validators: {
                     stringLength: {
-                        max: 240,
+                        max: 70,
+                        // This is blank because we have a counter on the field
                         message: ' '
                     },
                     notEmpty: {
@@ -339,6 +340,7 @@ export function missionManageValidator(manageForm, aboutLengthLimit) {
                 validators: {
                     stringLength: {
                         max: aboutLengthLimit,
+                        // This is blank because we have a counter on the field
                         message: ' '
                     }
                 }

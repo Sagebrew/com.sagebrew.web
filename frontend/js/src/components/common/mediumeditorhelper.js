@@ -11,7 +11,8 @@ export function createMediumEditor(selectorString, placeholderText) {
             targetBlank: true,
             toolbar: {
                 buttons: ['bold', 'italic', 'underline', 'anchor', 'h2',
-                    'h3', 'justifyLeft', 'justifyCenter', 'justifyRight', 'quote']
+                    'h3', 'orderedlist', 'unorderedlist',
+                    'justifyLeft', 'justifyCenter', 'justifyRight', 'quote']
             },
             extensions: {
                 'autolist': autolist

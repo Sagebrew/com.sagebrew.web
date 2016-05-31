@@ -349,7 +349,7 @@ class ContentSerializer(VotableContentSerializer):
 
 class TitledContentSerializer(ContentSerializer):
     title = serializers.CharField(required=False,
-                                  min_length=15, max_length=140)
+                                  min_length=15, max_length=120)
 
 
 def validate_is_owner(request, instance, secret=None):

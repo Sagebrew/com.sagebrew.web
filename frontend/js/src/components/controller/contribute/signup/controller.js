@@ -3,16 +3,15 @@ var requests = require('api').request,
     helpers = require('common/helpers'),
     validators = require('common/validators'),
     addresses = require('common/addresses'),
-    settings = require('settings').settings,
     moment = require('moment');
 
 export const meta = {
     controller: "contribute/signup",
     match_method: "path",
     check: [
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/donate\/name",
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/volunteer\/name",
-        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/endorse\/name"
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/donate\/name",
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/volunteer\/name",
+        "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/endorse\/name"
     ]
 };
 
@@ -127,9 +126,9 @@ function completeRegistration(addressValidationForm, addressForm,
         delete accountData.password2;
         accountData.date_of_birth = moment(accountData.date_of_birth, "MM/DD/YYYY").format();
         requests.post({url: "/v1/profiles/", data: JSON.stringify(accountData)})
-            .done(function () {
+            .done(function (data) {
                 addresses.submitAddress(addressForm, submitAddressCallback,
-                    "/v1/profiles/" + settings.profile.username + "/");
+                    "/v1/profiles/" + data.id + "/");
             });
         }
 }

@@ -5,6 +5,7 @@ from django.core.cache import cache
 from django.utils.text import slugify
 from django.conf import settings
 from django.templatetags.static import static
+from django.template.loader import render_to_string
 
 from rest_framework import serializers, status
 from rest_framework.reverse import reverse
@@ -46,11 +47,11 @@ class MissionSerializer(SBSerializer):
     twitter = serializers.URLField(required=False, allow_blank=True)
     website = serializers.URLField(required=False, allow_blank=True)
     wallpaper_pic = serializers.CharField(required=False)
-    title = serializers.CharField(max_length=240, required=False,
+    title = serializers.CharField(max_length=70, required=False,
                                   allow_blank=True)
     owner_username = serializers.CharField(read_only=True)
     location_name = serializers.CharField(required=False, allow_null=True)
-    focus_name = serializers.CharField(max_length=240)
+    focus_name = serializers.CharField(max_length=70)
     focus_formal_name = serializers.CharField(read_only=True)
     reset_epic = serializers.BooleanField(required=False)
 
@@ -260,7 +261,10 @@ class MissionSerializer(SBSerializer):
         initial_review_state = instance.submitted_for_review
         instance.submitted_for_review = validated_data.pop(
             'submitted_for_review', instance.submitted_for_review)
-        if instance.submitted_for_review and not initial_review_state:
+        instance.saved_for_later = validated_data.get('saved_for_later',
+                                                      instance.saved_for_later)
+        if instance.submitted_for_review and not initial_review_state and not \
+                instance.saved_for_later:
             serializer = IntercomEventSerializer(
                 data={'event_name': "submit-mission-for-review",
                       'username': instance.owner_username})
@@ -273,14 +277,15 @@ class MissionSerializer(SBSerializer):
                         'Please review it in the <a href="%s">'
                         'council area</a>. '
                         % (instance.owner_username, instance.title,
-                           reverse('council_missions')),
+                           reverse('council_missions',
+                                   request=self.context.get('request'))),
                 'template': "personal",
                 'from_user': {
                     'type': "admin",
                     'id': settings.INTERCOM_ADMIN_ID_DEVON},
                 'to_user': {
                     'type': "user",
-                    'user_id': settings.INTERCOM_ADMIN_ID_DEVON}
+                    'user_id': settings.INTERCOM_USER_ID_DEVON}
             }
             serializer = IntercomMessageSerializer(data=message_data)
             if serializer.is_valid():
@@ -291,8 +296,6 @@ class MissionSerializer(SBSerializer):
                 'SET task.completed=true RETURN task' % (
                     instance.object_uuid, settings.SUBMIT_FOR_REVIEW))
         title = validated_data.pop('title', instance.title)
-        instance.saved_for_later = validated_data.get('saved_for_later',
-                                                      instance.saved_for_later)
         if empty_text_to_none(title) is not None:
             instance.title = title
         instance.about = empty_text_to_none(
@@ -424,3 +427,95 @@ class MissionSerializer(SBSerializer):
             return obj.level.replace('_', ' ')
         else:
             return "unknown"
+
+
+class MissionReviewSerializer(MissionSerializer):
+    """
+    Using this serializer in place of the traditional MissionSerializer due
+    to the operations being performed on the Mission being restricted to our
+    admins (us) currently. In the MissionSerializer we have a check for
+    verifying the person modifying the Mission is actually the owner.
+    I think it is cleaner to have a different serializer for this purpose
+    rather than adding in a check there to determine if it is the owner of
+    the Mission or us modifying it.
+    """
+    review_feedback = serializers.ListField(required=False)
+
+    def validate(self, validated_data):
+        request = self.context.get('request', '')
+        if not request:
+            raise serializers.ValidationError(
+                "You are not authorized to access this.")
+        if request.user.username != 'tyler_wiersing' \
+                and request.user.username != 'devon_bleibtrey':
+            raise serializers.ValidationError(
+                "You are not authorized to access this.")
+        return validated_data
+
+    def update(self, instance, validated_data):
+        from plebs.neo_models import Pleb
+        owner = Pleb.get(instance.owner_username)
+        prev_feedback = instance.review_feedback
+        instance.review_feedback = validated_data.pop('review_feedback',
+                                                      instance.review_feedback)
+        if prev_feedback != instance.review_feedback and not instance.active:
+            problem_list = [dict(settings.REVIEW_FEEDBACK_OPTIONS)[item]
+                            for item in instance.review_feedback]
+            message_subject = "Mission Review: Completed"
+            message_body = render_to_string(
+                'email_templates/mission_review_success.html',
+                context={"first_name": owner.first_name,
+                         "title": instance.get_mission_title(),
+                         "conversation_url":
+                             reverse('question-create',
+                                     request=self.context.get('request')),
+                         "update_url": reverse(
+                             'mission_update_create',
+                             kwargs={
+                                 'object_uuid': instance.object_uuid,
+                                 'slug': slugify(instance.get_mission_title())
+                             }, request=self.context.get('request')
+                         )})
+            if problem_list:
+                message_subject = "Mission Review: Action Needed"
+                message_body = render_to_string(
+                    'email_templates/mission_review_errors.html',
+                    context=dict(
+                        first_name=owner.first_name,
+                        title=instance.get_mission_title(),
+                        problems=problem_list,
+                        epic_link=reverse(
+                            'mission_edit_epic',
+                            kwargs={
+                                'object_uuid': instance.object_uuid,
+                                "slug": slugify(instance.get_mission_title())
+                            }, request=self.context.get('request'))))
+            else:
+                instance.active = True
+
+            message_data = {
+                'message_type': 'email',
+                'subject': message_subject,
+                'body': message_body,
+                'template': "personal",
+                'from_user': {
+                    'type': "admin",
+                    'id': settings.INTERCOM_ADMIN_ID_DEVON},
+                'to_user': {
+                    'type': "user",
+                    'user_id': instance.owner_username}
+            }
+            serializer = IntercomMessageSerializer(data=message_data)
+            if serializer.is_valid():
+                serializer.save()
+        if not instance.review_feedback:
+            instance.active = True
+            serializer = IntercomEventSerializer(
+                data={'event_name': "take-mission-live",
+                      'username': instance.owner_username})
+            # Don't raise an error because we rather not notify intercom than
+            # hold up the mission activation process
+            if serializer.is_valid():
+                serializer.save()
+        cache.delete("%s_mission" % instance.object_uuid)
+        return instance.save()

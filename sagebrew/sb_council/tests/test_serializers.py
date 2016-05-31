@@ -4,14 +4,13 @@ from django.contrib.auth.models import User
 from django.core.cache import cache
 
 from neomodel import db
-from rest_framework.exceptions import ValidationError
 
 from sb_address.neo_models import Address
 from sb_registration.utils import create_user_util_test
 from sb_locations.neo_models import Location
 from sb_missions.neo_models import Mission
+from sb_missions.serializers import MissionReviewSerializer
 from sb_quests.neo_models import Quest
-from sb_council.serializers import MissionReviewSerializer
 
 
 class TestMissionReviewSerializer(TestCase):
@@ -55,8 +54,4 @@ class TestMissionReviewSerializer(TestCase):
             "review_feedback": []
         }
         res = MissionReviewSerializer(self.mission, data=data, partial=True)
-        res.is_valid()
-        try:
-            res.save()
-        except Exception as e:
-            self.assertIsInstance(e, ValidationError)
+        self.assertFalse(res.is_valid())

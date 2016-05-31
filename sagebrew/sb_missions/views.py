@@ -137,6 +137,9 @@ class MissionSettingsView(LoginRequiredMixin):
         if self.template_name == "manage/epic.html" and \
                 not mission_obj.saved_for_later and \
                 not mission_obj.submitted_for_review:
+            if mission_obj.epic is None:
+                return redirect('must_finish_epic',
+                                object_uuid=mission_obj.object_uuid, slug=slug)
             return redirect("submit_mission_for_review",
                             object_uuid=mission_obj.object_uuid,
                             slug=slug)
@@ -157,7 +160,7 @@ class MissionSettingsView(LoginRequiredMixin):
                                          context={"request": request}).data,
             "quest": QuestSerializer(quest, context={"request": request}).data,
             "slug": slugify(mission_obj.get_mission_title()),
-            "epic_template": render_to_string("placeholder_epic.html"),
+            "epic_template": render_to_string("manage/placeholder_epic.html"),
             "update_placeholder": render_to_string("updates/placeholder.html"),
             "onboarding_top_3": onboarding_sort[:3],
             "onboarding_rest": onboarding_sort[3:],

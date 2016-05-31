@@ -35,7 +35,6 @@ export function load() {
         editor = mediumEditor(".editable", "Type your Question context here");
     locations.init();
     tags.createTagSelector();
-
     $secondnav.on('click', '#submit', function (event) {
         event.preventDefault();
         document.getElementById('sb-greyout-page').classList.remove('sb_hidden');

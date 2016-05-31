@@ -7,7 +7,7 @@ export const meta = {
     controller: "mission/mission-manage/epic",
     match_method: "path",
     check: [
-       "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,140}\/manage\/epic"
+       "^missions\/[A-Za-z0-9.@_%+-]{36}\/[A-Za-z0-9.@_%+-]{1,70}\/manage\/epic"
     ]
 };
 
@@ -65,7 +65,7 @@ export function load() {
 
     $secondnav.on('click', '#cancel', function(event){
         event.preventDefault();
-        request.post({url: "/v1/missions/" + missionId + "/reset_epic/",
+        request.post({url: "/v1/missions/" + missionId + "/reset_epic/"
         }).done(function (){
             window.location.href = "/missions/" + missionId + "/" + slug + "/manage/epic/";
         });

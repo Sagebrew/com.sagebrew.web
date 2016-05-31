@@ -53,12 +53,6 @@
     </div>
 {% endblock sidebar_right %}
 
-
-{% block scripts %}
-    {{ block.super }}
-    <script src="{% static 'js/question_validator.js' %}"></script>
-{% endblock scripts %}
-
 {% block intercom %}
     Intercom('trackEvent', 'visited-edit-question-page');
 {% endblock %}

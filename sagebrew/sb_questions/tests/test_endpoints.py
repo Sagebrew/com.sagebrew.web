@@ -489,7 +489,7 @@ class QuestionEndpointTests(APITestCase):
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.data['title'],
-                         ['Ensure this field has no more than 140 characters.'])
+                         ['Ensure this field has no more than 120 characters.'])
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_too_many_tags(self):

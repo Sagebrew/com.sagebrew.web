@@ -15,9 +15,8 @@ from plebs.neo_models import Pleb
 from plebs.serializers import PlebSerializerNeo
 from sb_quests.neo_models import Quest
 from sb_quests.serializers import QuestSerializer
-from sb_council.serializers import MissionReviewSerializer
 
-from .serializers import MissionSerializer
+from .serializers import MissionSerializer, MissionReviewSerializer
 from .neo_models import Mission
 
 
@@ -27,6 +26,8 @@ class MissionViewSet(viewsets.ModelViewSet):
     permission_classes = (IsOwnerOrModeratorOrReadOnly,)
 
     def get_queryset(self):
+        query = '(res:Mission {active: true})<-[:EMBARKS_ON]-' \
+                '(quest:Quest {active: true})'
         if self.request.query_params.get('affects', "") == "me":
             query = '(pleb:Pleb {username: "%s"})-[:LIVES_AT]->' \
                     '(address:Address)-[:ENCOMPASSED_BY*..]->' \
@@ -45,10 +46,7 @@ class MissionViewSet(viewsets.ModelViewSet):
             active = self.request.query_params.get('active', '')
             if active == 'true' or active == 'false':
                 query = '(res:Mission {submitted_for_review:true, ' \
-                        'active:%s})' % (active)
-        else:
-            query = '(res:Mission {active: true})<-[:EMBARKS_ON]-' \
-                    '(quest:Quest {active: true})'
+                        'active:%s})' % active
         return NeoQuerySet(
             Mission, query=query, distinct=True, descending=True) \
             .filter('WHERE NOT ((res)-[:FOCUSED_ON]->'

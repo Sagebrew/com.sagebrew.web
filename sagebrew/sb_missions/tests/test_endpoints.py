@@ -1313,3 +1313,18 @@ class MissionEndpointTests(APITestCase):
         self.assertTrue(res.data['submitted_for_review'])
         pleb2.delete()
         cache.clear()
+
+    def test_update_epic_with_problems(self):
+        self.client.force_authenticate(user=self.user)
+        self.mission.submitted_for_review = True
+        self.mission.review_feedback = ['too_short']
+        self.mission.active = False
+        self.mission.save()
+        cache.clear()
+        url = "/v1/missions/%s/" % self.mission.object_uuid
+        data = {
+            "epic": "<p>This is an epic update!</p>"
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['epic'], data['epic'])

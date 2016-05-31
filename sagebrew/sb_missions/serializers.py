@@ -296,23 +296,22 @@ class MissionSerializer(SBSerializer):
                 'SET task.completed=true RETURN task' % (
                     instance.object_uuid, settings.SUBMIT_FOR_REVIEW))
         title = validated_data.pop('title', instance.title)
-        if instance.review_feedback:
+        if instance.submitted_for_review and instance.review_feedback \
+                and validated_data.get('epic', '') and not instance.active:
             message_data = {
                 'message_type': 'email',
                 'subject': 'Problem Mission Updated',
-                'body': 'Hi Team,\n%s has submitted their %s Mission. '
-                        'Please review it in the <a href="%s">'
-                        'council area</a>. '
-                        % (instance.owner_username, instance.title,
-                           reverse('council_missions',
-                                   request=self.context.get('request'))),
+                'body': render_to_string(
+                    "email_templates/problem_mission_updates.html",
+                    context={"username": instance.owner_username,
+                             "title": instance.title}),
                 'template': "personal",
                 'from_user': {
                     'type': "admin",
                     'id': settings.INTERCOM_ADMIN_ID_DEVON},
                 'to_user': {
                     'type': "user",
-                    'user_id': "tyler_wiersing"}
+                    'user_id': settings.INTERCOM_USER_ID_DEVON}
             }
             serializer = IntercomMessageSerializer(data=message_data)
             if serializer.is_valid():

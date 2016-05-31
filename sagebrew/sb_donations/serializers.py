@@ -207,7 +207,11 @@ class DonationExportSerializer(serializers.Serializer):
     occupation_name = serializers.SerializerMethodField()
 
     def get_owned_by(self, obj):
-        return PlebExportSerializer(Pleb.get(obj.owner_username)).data
+        serialized = PlebExportSerializer(Pleb.get(obj.owner_username)).data
+        if obj.mission_type != "position":
+            serialized['occupation_name'] = None
+            serialized['employer_name'] = None
+        return serialized
 
     def get_amount(self, obj):
         return obj.amount

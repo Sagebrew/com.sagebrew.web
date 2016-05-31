@@ -1315,6 +1315,10 @@ class MissionEndpointTests(APITestCase):
         cache.clear()
 
     def test_update_epic_with_problems(self):
+        try:
+            pleb2 = Pleb.nodes.get(username=settings.INTERCOM_USER_ID_DEVON)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            pleb2 = Pleb(username=settings.INTERCOM_USER_ID_DEVON).save()
         self.client.force_authenticate(user=self.user)
         self.mission.submitted_for_review = True
         self.mission.review_feedback = ['too_short']
@@ -1328,3 +1332,5 @@ class MissionEndpointTests(APITestCase):
         res = self.client.patch(url, data=data, format="json")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data['epic'], data['epic'])
+        pleb2.delete()
+        cache.clear()

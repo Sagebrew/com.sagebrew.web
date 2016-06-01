@@ -457,7 +457,7 @@ export function setupImageUpload($app, $formSelector, $previewContainer, $submit
 }
 
 /*
- * Attempt to go pack one step in the browser history, if unable redirect to passed url
+ * Attempt to go back one step in the browser history, if unable redirect to passed url
  */
 export function historyBackFallback(fallbackUrl) {
     fallbackUrl = fallbackUrl || '/';

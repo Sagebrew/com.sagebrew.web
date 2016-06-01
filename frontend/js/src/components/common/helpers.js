@@ -386,7 +386,7 @@ export function setupImageUpload($app, $formSelector, $previewContainer, $submit
                 allowSubmit = true,
                     uploadFile = data.files[0];
             if (!(/\.(gif|jpg|jpeg|png)$/i).test(uploadFile.name)) {
-                $.notify({message: "You must upload an image file"}, {type: "danger"});
+                $.notify({message: "You must upload an image file. Supported types are jpg, jpeg, png and gif."}, {type: "danger"});
                 $greyOut.addClass('sb_hidden');
                 return;
             }
@@ -454,4 +454,20 @@ export function setupImageUpload($app, $formSelector, $previewContainer, $submit
             $greyOut.addClass('sb_hidden');
         }
     });
+}
+
+/*
+ * Attempt to go pack one step in the browser history, if unable redirect to passed url
+ */
+export function historyBackFallback(fallbackUrl) {
+    fallbackUrl = fallbackUrl || '/';
+    var prevPage = window.location.href;
+
+    window.history.go(-1);
+    setTimeout(function(){
+        if (window.location.href === prevPage)
+            {
+                window.location.href = fallbackUrl;
+            }
+    }, 500);
 }

@@ -1,4 +1,4 @@
-/* global $, Highcharts */
+/* global $ */
 
 function prepareDonationData(donationData) {
     var parsedData = [],

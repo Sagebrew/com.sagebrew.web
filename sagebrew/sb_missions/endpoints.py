@@ -75,14 +75,11 @@ class MissionViewSet(viewsets.ModelViewSet):
         :param object_uuid:
         :return:
         """
-        from logging import getLogger
-        logger = getLogger('loggly_logs')
         mission = self.get_object()
         self.check_object_permissions(request, mission.owner_username)
         keys = []
         donation_info = DonationExportSerializer(
             Mission.get_donations(object_uuid=object_uuid), many=True).data
-        logger.info(donation_info)
         quest = Mission.get_quest(mission.object_uuid)
         # this loop merges the 'owned_by' and 'address' dictionaries into
         # the top level dictionary, allows for simple writing to csv

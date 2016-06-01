@@ -25,7 +25,6 @@ export function load() {
     var missionID = helpers.args(1);
     request.get({url: "/v1/missions/" + missionID + "/donations/"})
         .done(function (data) {
-            console.log(data);
             graphs.donationsGraph(data, "#js-individual-donation-chart");
         });
 }

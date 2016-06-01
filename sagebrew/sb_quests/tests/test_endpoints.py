@@ -1,10 +1,6 @@
-import base64
 import stripe
-import tempfile
-import requests_mock
 from uuid import uuid1
 from datetime import datetime
-from PIL import Image
 
 from django.conf import settings
 from django.contrib.auth.models import User

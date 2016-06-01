@@ -15,7 +15,8 @@ export function createMediumEditor(selectorString, placeholderText) {
                     'justifyLeft', 'justifyCenter', 'justifyRight', 'quote']
             },
             extensions: {
-                'autolist': autolist
+                'autolist': autolist,
+                'fileDragging': {}
             }
         });
     // Uploading images here via fileUploadOptions because submitting the

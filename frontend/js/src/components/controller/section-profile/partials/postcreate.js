@@ -75,8 +75,8 @@ export function init () {
             greyPage.classList.remove('sb_hidden');
             var $form = $(this),
                 $preview = $(".post-image-preview-container", $(this)),
-                $input = $("#post_input_id", $(this));
-            var parsedText = content.expandContent($input.val()),
+                $input = $("#post_input_id", $(this)),
+                parsedText = content.expandContent($input.val()),
                 images,
                 imageIds = [],
                 finalURLs = content.extractUrls($input.val());
@@ -100,7 +100,7 @@ export function init () {
                     $preview.hide();
                     $input.css('margin-bottom', 0);
                     $input.val("");
-                    data.content = Autolinker.link(data.content);
+                    data.html_content = Autolinker.link(data.content);
                     $("#wall_app").prepend(postNewsTemplate(helpers.votableContentPrep([data])[0]));
                     var placeHolder = $(".list-empty");
                     if (placeHolder !== undefined) {

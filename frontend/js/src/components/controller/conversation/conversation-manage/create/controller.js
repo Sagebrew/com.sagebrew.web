@@ -23,6 +23,8 @@ export function init() {
 
 }
 
+
+
 /**
  * Load
  */
@@ -91,7 +93,7 @@ export function load() {
             if(Object.prototype.toString.call(questionID) !== '[object Array]'){
                 window.location.href = "/conversations/" + questionID + "/";
             } else {
-                window.history.back();
+                helpers.historyBackFallback("/conversations/");
             }
         });
     $app

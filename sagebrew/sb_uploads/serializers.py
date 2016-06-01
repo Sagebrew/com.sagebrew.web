@@ -257,10 +257,12 @@ class URLContentSerializer(SBSerializer):
         try:
             response = requests.get(validated_data['url'],
                                     headers={'content-type': 'html/text'},
-                                    timeout=5, verify=False)
+                                    timeout=5, verify=True)
         except requests.Timeout:
             return URLContent(url=validated_data['url']).save()
         except requests.ConnectionError:
+            return URLContent(url=validated_data['url']).save()
+        except requests.exceptions.SSLError:
             return URLContent(url=validated_data['url']).save()
         if response.status_code != status.HTTP_200_OK:
             return URLContent(url=validated_data['url']).save()

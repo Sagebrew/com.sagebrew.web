@@ -80,7 +80,6 @@ class MissionViewSet(viewsets.ModelViewSet):
         keys = []
         donation_info = DonationExportSerializer(
             Mission.get_donations(object_uuid=object_uuid), many=True).data
-
         quest = Mission.get_quest(mission.object_uuid)
         # this loop merges the 'owned_by' and 'address' dictionaries into
         # the top level dictionary, allows for simple writing to csv

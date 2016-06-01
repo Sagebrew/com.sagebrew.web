@@ -17,6 +17,7 @@
                         <label for="">Title</label>
                         <input type="text"
                            name="title"
+                           id="title"
                            placeholder="Mission Title (Defaults to the position you're running for or the focus of your advocacy)"
                            value="{{ mission.title|default_if_none:'' }}"
                            class="form-control">

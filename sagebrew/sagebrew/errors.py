@@ -80,3 +80,11 @@ CELERY_CONNECTION_ERROR = {
     "developer_message": "We experienced an error connecting to one of our "
                          "task workers."
 }
+
+ELASTICSEARCH_NOT_FOUND_ERROR = {
+    "detail": "Sorry, looks like we're having some problems with our search "
+              "index. Please try again in a bit.",
+    "status": status.HTTP_500_INTERNAL_SERVER_ERROR,
+    "developer_message": "We experienced an error getting an object from the "
+                         "search index."
+}

@@ -28,7 +28,6 @@ function updateTime() {
 function finishedTyping(editor, missionId) {
     var serialized = editor.serialize(),
         key = Object.keys(editor.serialize())[0];
-
     request.patch({url: "/v1/missions/" + missionId + "/",
         data: JSON.stringify(
                 {'temp_epic': serialized[key].value})
@@ -49,7 +48,10 @@ export function load() {
         finishedTypingInterval = 1000,
         editor = mediumEditor(".editable", "Type your Epic here"),
         $editable = $(".editable"),
-        slug = args(2);
+        slug = args(2),
+        livestamp = $("#livestamp");
+    livestamp.attr('data-livestamp', new Date());
+    livestamp.html(moment(new Date(livestamp.attr('data-livestamp'))).fromNow());
     updateTime();
     setInterval(updateTime, 30000);
     $editable.on('keyup', function() {

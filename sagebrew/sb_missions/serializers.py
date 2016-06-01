@@ -296,6 +296,26 @@ class MissionSerializer(SBSerializer):
                 'SET task.completed=true RETURN task' % (
                     instance.object_uuid, settings.SUBMIT_FOR_REVIEW))
         title = validated_data.pop('title', instance.title)
+        if instance.submitted_for_review and instance.review_feedback \
+                and validated_data.get('epic', '') and not instance.active:
+            message_data = {
+                'message_type': 'email',
+                'subject': 'Problem Mission Updated',
+                'body': render_to_string(
+                    "email_templates/problem_mission_updates.html",
+                    context={"username": instance.owner_username,
+                             "title": instance.title}),
+                'template': "personal",
+                'from_user': {
+                    'type': "admin",
+                    'id': settings.INTERCOM_ADMIN_ID_DEVON},
+                'to_user': {
+                    'type': "user",
+                    'user_id': settings.INTERCOM_USER_ID_DEVON}
+            }
+            serializer = IntercomMessageSerializer(data=message_data)
+            if serializer.is_valid():
+                serializer.save()
         if empty_text_to_none(title) is not None:
             instance.title = title
         instance.about = empty_text_to_none(

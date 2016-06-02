@@ -123,7 +123,7 @@ for custom events will work on the newly added element(s).</p>
 <p><code>HTMLElement</code>: If passed as a single element, this will be the only element removed from the editor <strong>elements</strong>.</p>
 </li>
 <li>
-<p><code>Array</code> | <code>NodeList</code> | <code>HTMLCollection</code>: If passed as an <code>Array</code>-like collection of <code>HTMLElement</code>s, all of these elements will be removed from the edtior <strong>elements</strong>.</p>
+<p><code>Array</code> | <code>NodeList</code> | <code>HTMLCollection</code>: If passed as an <code>Array</code>-like collection of <code>HTMLElement</code>s, all of these elements will be removed from the editor <strong>elements</strong>.</p>
 </li>
 </ol>
 <hr />
@@ -295,6 +295,12 @@ for custom events will work on the newly added element(s).</p>
 <hr />
 <h3><code>getSelectedParentElement(range)</code></h3>
 <p>Returns a reference to the editor <strong>element</strong> that the user's selection is currently within.</p>
+<p><strong>Arguments</strong></p>
+<ol>
+<li><em><strong>range</strong> (<code>Range</code>)</em>: <em><strong>OPTIONAL</strong></em></li>
+<li>The <code>Range</code> to find the selection parent element within</li>
+<li>If no element is provided, the editor will use the current range within the selection of the editor's <code>contentWindow</code></li>
+</ol>
 <hr />
 <h3><code>restoreSelection()</code></h3>
 <p>Restores the selection to what was selected the last time <code>saveSelection()</code> was called.</p>
@@ -326,18 +332,97 @@ for custom events will work on the newly added element(s).</p>
 <h2>Editor Action Functions</h2>
 <h3><code>cleanPaste(text)</code></h3>
 <p><em>convert text to plaintext and replace current selection with result</em></p>
+<p><strong>Arguments</strong></p>
+<ol>
+<li>
+<p><em><strong>text</strong> (<code>String</code>)</em>:</p>
+</li>
+<li>
+<p>Content to be pasted at the location of the current selection/cursor</p>
+</li>
+</ol>
 <hr />
 <h3><code>createLink(opts)</code></h3>
 <p><em>creates a link via the native <code>document.execCommand('createLink')</code> command</em></p>
+<p><strong>Arguments</strong></p>
+<ol>
+<li>
+<p><em><strong>opts</strong> (<code>Object</code>)</em>:</p>
+</li>
+<li>
+<p>Object containing additional properties needed for creating a link</p>
+</li>
+</ol>
+<p><strong>Properties of 'opts'</strong></p>
+<pre><code>1. _**value** (`String`)_ _**REQUIRED**_
+  * The url to set as the `href` of the created link.  A non-empty value must be provided for the link to be created.
+2. _**target** (`String`)_
+  * Attribute to set as the `target` attribute of the created link.  Passing 'self' or not passing this option at all are equivalent in that they will just ensure that `target="_blank"` will NOT be present on the created link.
+  * **NOTE** If the `targetBlank` option on the editor is set to true, the `target` property of opts will be ignored and `target="_blank"` will be added to all created links.
+3. _**buttonClass** (`String`)_
+  * Class (or classes) to append to the `class` attribute of the created link.
+</code></pre>
+<h5>Example</h5>
+<pre><code class="js">editor.createLink({ value: 'https://github.com/yabwe/medium-editor', target: '_blank', buttonClass: 'medium-link' });
+</code></pre>
+
 <hr />
 <h3><code>execAction(action, opts)</code></h3>
 <p><em>executes an built-in action via document.execCommand</em></p>
+<p><strong>Arguments</strong></p>
+<ol>
+<li>
+<p><em><strong>action</strong> (<code>String</code>)</em>:</p>
+</li>
+<li>
+<p>Action to be passed as the 'command' argument to <code>document.execCommand(command, showDefaultUI, value)</code></p>
+</li>
+<li>
+<p><em><strong>opts</strong> (<code>Object</code>)</em> <em><strong>OPTIONAL</strong></em>:</p>
+</li>
+<li>
+<p>Object containing additional properties for specific commands</p>
+</li>
+</ol>
+<p><strong>Properties of 'opts'</strong></p>
+<pre><code>1. _**value** (`String`)_
+  * The value to pass as the 'value' argument to `document.execCommand(command, showDefaultUI, value)`
+2. For 'createLink', the `opts` are passed directly to [`.createLink(opts)`]((#createlinkopts)) so see that method for additional options for that command
+</code></pre>
 <hr />
 <h3><code>pasteHTML(html, options)</code></h3>
 <p><em>replace the current selection with html</em></p>
+<p><strong>Arguments</strong></p>
+<ol>
+<li>
+<p><em><strong>html</strong> (<code>String</code>)</em>:</p>
+</li>
+<li>
+<p>Content to be pasted at the location of the current selection/cursor</p>
+</li>
+<li>
+<p><em><strong>options</strong> (<code>Object</code>)</em> <em><strong>OPTIONAL</strong></em>:</p>
+</li>
+<li>
+<p>Optional overrides for <code>cleanTags</code> and/or <code>cleanAttrs</code> for removing specific element types (<code>cleanTags</code>) or specific attributes (<code>cleanAttrs</code>) from the inserted HTML.  See <a href="OPTIONS.md#cleantags">cleanTags</a> and <a href="OPTIONS.md#cleanattrs">cleanAttrs</a> in OPTIONS.md for more information.</p>
+</li>
+</ol>
+<h5>Example</h5>
+<pre><code class="js">editor.pasteHTML('&lt;p class=&quot;classy&quot;&gt;&lt;strong&gt;Some Custom HTML&lt;/strong&gt;&lt;/p&gt;', { cleanAttrs: ['class'], cleanTags: ['strong']});
+</code></pre>
+
 <hr />
 <h3><code>queryCommandState(action)</code></h3>
-<p><em>wrapper around the browser's built in <code>document.queryCommandState(action)</code> for checking whether a specific action has already been applied to the selection.</em></p>
+<p><em>wrapper around the browser's built in <code>document.queryCommandState(command)</code> for checking whether a specific action has already been applied to the selection.</em></p>
+<p><strong>Arguments</strong></p>
+<ol>
+<li>
+<p><em><strong>action</strong> (<code>String</code>)</em>:</p>
+</li>
+<li>
+<p>Action to be passed as the 'command' argument to <code>document.queryCommandState(command)</code></p>
+</li>
+</ol>
 <hr />
 <h2>Helper Functions</h2>
 <h3><code>checkContentChanged(editable)</code></h3>

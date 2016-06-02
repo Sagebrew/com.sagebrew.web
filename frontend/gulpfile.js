@@ -53,6 +53,10 @@ var config = {
         'js/vendor/jquery.spin.js',
         'js/vendor/foggy.min.js',
         'js/vendor/sortable.min.js',
+        // This is required even with require, otherwise autolist doesn't work
+        // and it cause JS to crash on most page loads. We have not tried
+        // removing require yet since this should propogate throughout the
+        // site
         'bower_components/medium-editor/dist/js/medium-editor.min.js',
         'bower_components/medium-editor-autolist/dist/autolist.js',
         'node_modules/handlebars/dist/handlebars.runtime.min.js',
@@ -60,6 +64,8 @@ var config = {
         'js/vendor/fileupload/js/vendor/jquery.ui.widget.js',
         'js/vendor/fileupload/js/jquery.iframe-transport.js',
         'js/vendor/fileupload/js/jquery.fileupload.js',
+        // This is required to enable $().mediumInsert plugins to work.
+        // require apparently doesn't support this functionality.
         'bower_components/medium-editor-insert-plugin/dist/js/medium-editor-insert-plugin.min.js',
 
         /**

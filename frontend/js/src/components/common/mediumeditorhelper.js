@@ -17,6 +17,9 @@ export function createMediumEditor(selectorString, placeholderText) {
             extensions: {
                 'autolist': autolist,
                 'fileDragging': {}
+            },
+            anchor: {
+                linkValidation: true
             }
         });
     // Uploading images here via fileUploadOptions because submitting the

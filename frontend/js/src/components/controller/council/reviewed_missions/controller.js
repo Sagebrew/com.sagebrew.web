@@ -23,7 +23,7 @@ export function init() {
  */
 export function load() {
     var $missionWrapper = $("#js-mission-verification-wrapper");
-    request.get({url: '/v1/missions/?submitted_for_review=true&active=false'})
+    request.get({url: '/v1/missions/?submitted_for_review=true&active=true'})
         .done(function(data) {
             $missionWrapper.append(unverifiedMissionTemplate(
                 {missions: data.results, review_string:"With Completed Reviews"}));

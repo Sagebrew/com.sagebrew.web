@@ -29,6 +29,7 @@ class MissionEndpointTests(APITestCase):
     def setUp(self):
         query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
+        cache.clear()
         self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
@@ -1206,11 +1207,8 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(mission.epic, mission.temp_epic)
 
     def test_review_mission(self):
-        try:
-            self.user = User.objects.get(username="tyler_wiersing")
-        except User.DoesNotExist:
-            self.user.username = "tyler_wiersing"
-            self.user.save()
+        self.user.username = "tyler_wiersing"
+        self.user.save()
         self.client.force_authenticate(user=self.user)
         url = "/v1/missions/%s/review/" % self.mission.object_uuid
         data = {
@@ -1223,11 +1221,8 @@ class MissionEndpointTests(APITestCase):
         self.assertIn("too_short", self.mission.review_feedback)
 
     def test_review_mission_take_active(self):
-        try:
-            self.user = User.objects.get(username="tyler_wiersing")
-        except User.DoesNotExist:
-            self.user.username = "tyler_wiersing"
-            self.user.save()
+        self.user.username = "tyler_wiersing"
+        self.user.save()
         self.client.force_authenticate(user=self.user)
         self.mission.active = False
         self.mission.save()

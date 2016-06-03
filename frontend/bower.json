@@ -31,7 +31,8 @@
     "croppic": "*",
     "typeahead.js": "~0.11.1",
     "jquery.payment": "~1.3.2",
-    "medium-editor-insert-plugin": "~2.2.4",
+    "medium-editor": "~5.20.0",
+    "medium-editor-insert-plugin": "~2.3.2",
     "medium-editor-autolist": "*"
   }
 }

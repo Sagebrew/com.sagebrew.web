@@ -304,7 +304,11 @@ class MissionSerializer(SBSerializer):
                 'body': render_to_string(
                     "email_templates/problem_mission_updates.html",
                     context={"username": instance.owner_username,
-                             "title": instance.title}),
+                             "council_url":
+                                 reverse('council_missions',
+                                         request=self.context.get('request')),
+                             "title": instance.title},
+                    request=self.context.get('request')),
                 'template': "personal",
                 'from_user': {
                     'type': "admin",

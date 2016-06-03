@@ -16,9 +16,9 @@ dependencies:
   pre:
     - sudo apt-get update
     - pip install setuptools==12.3
-    - pip install awscli
-    - pip install numpy
-    - pip install scipy
+    - pip install awscli==1.10.34
+    - pip install numpy==1.11.0
+    - pip install scipy==0.17.1
     - sudo apt-get -y install libjpeg-dev libblas-dev liblapack-dev libatlas-base-dev gfortran libicu-dev python-pyicu
     - npm install -g gulp
     - npm prune && npm install:

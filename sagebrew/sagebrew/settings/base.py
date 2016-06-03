@@ -668,7 +668,7 @@ DEFAULT_EXCLUDE_SENTENCES = ["Story highlights", "#", "##", "Discover Dubai",
                              'related topics:', '+', '=', 'free',
                              'Continue reading', 'http', 'GODDAMMIT', 'hr',
                              'min', 'main story', 'main', '(', ')', '/', '\\',
-                             'Advertisement', 'Photo']
+                             'Advertisement', 'Photo', 'Erectile Dysfunction']
 
 DEFAULT_EXCLUDE_ARTICLES = ['Discover Dubai', 'become a millionaire',
                             'Burn More Calories and Lose Weight',

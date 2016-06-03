@@ -331,10 +331,13 @@ class MissionSerializer(SBSerializer):
                 'SET task.completed=true RETURN task' % (
                     instance.object_uuid, settings.MISSION_ABOUT_TITLE))
         instance.epic = validated_data.pop('epic', instance.epic)
-        instance.epic = render_content(instance.epic)
+        # We expect the epic to be set to None and not "" so that None
+        # can be used in this function for checks and the templates.
+        instance.epic = empty_text_to_none(render_content(instance.epic))
         prev_temp_epic = instance.temp_epic
         instance.temp_epic = validated_data.pop('temp_epic', instance.temp_epic)
-        instance.temp_epic = render_content(instance.temp_epic)
+        instance.temp_epic = empty_text_to_none(
+            render_content(instance.temp_epic))
         if prev_temp_epic != instance.temp_epic:
             instance.epic_last_autosaved = datetime.now(pytz.utc)
         if instance.epic is not None:

@@ -47,6 +47,7 @@
 <li><a href="#anchor-preview-options">Anchor Preview options</a><ul>
 <li><a href="#hidedelay"><code>hideDelay</code></a></li>
 <li><a href="#previewvalueselector"><code>previewValueSelector</code></a></li>
+<li><a href="#showonemptylinks"><code>showOnEmptyLinks</code></a></li>
 </ul>
 </li>
 <li><a href="#disabling-anchor-preview">Disabling Anchor Preview</a></li>
@@ -277,6 +278,10 @@
 <h4><code>previewValueSelector</code></h4>
 <p><strong>Default:</strong> <code>'a'</code></p>
 <p>The default selector to locate where to put the activeAnchor value in the preview. You should only need to override this if you've modified the way in which the anchor-preview extension renders.</p>
+<hr />
+<h4><code>showOnEmptyLinks</code></h4>
+<p><strong>Default:</strong> <code>true</code></p>
+<p>Determines whether the anchor tag preview shows up on link with href as "" or "#something". You should set this value to false if you do not want the preview to show up in such use cases.</p>
 <hr />
 <h4><code>showWhenToolbarIsVisible</code></h4>
 <p><strong>Default:</strong> <code>false</code></p>

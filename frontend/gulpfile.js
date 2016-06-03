@@ -61,9 +61,9 @@ var config = {
         'bower_components/medium-editor-autolist/dist/autolist.js',
         'node_modules/handlebars/dist/handlebars.runtime.min.js',
         'bower_components/jquery-sortable/source/js/jquery-sortable-min.js',
-        'js/vendor/fileupload/js/vendor/jquery.ui.widget.js',
-        'js/vendor/fileupload/js/jquery.iframe-transport.js',
-        'js/vendor/fileupload/js/jquery.fileupload.js',
+        'node_modules/blueimp-file-upload/js/vendor/jquery.ui.widget.js',
+        'node_modules/blueimp-file-upload/js/jquery.iframe-transport.js',
+        'node_modules/blueimp-file-upload/js/jquery.fileupload.js',
         // This is required to enable $().mediumInsert plugins to work.
         // require apparently doesn't support this functionality.
         'node_modules/medium-editor-insert-plugin/dist/js/medium-editor-insert-plugin.min.js',

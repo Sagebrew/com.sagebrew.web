@@ -1,5 +1,4 @@
-/* global AutoList */
-var mediumEditor = require('medium-editor');
+/* global AutoList, MediumEditor*/
 
 export function createMediumEditor(selectorString, placeholderText) {
     require('medium-editor-insert-plugin');

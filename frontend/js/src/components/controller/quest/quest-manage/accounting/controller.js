@@ -33,13 +33,17 @@ export function load() {
         addressValidationForm = addresses.setupAddress(function callback() {}),
         $imageForm = $("#js-image-upload-form"),
         $previewContainer = $('#js-image-preview'),
-        $savePersonalIdentificationButton = $("#js-submit-personal-identification");
+        $savePersonalIdentificationButton = $("#js-submit-personal-identification"),
+        uploadIdentificationID = "#identification-upload";
     validators.bankAccountValidator(bankAccountValidationForm);
     Stripe.setPublishableKey(settings.api.stripe);
     if(settings.profile.quest.fields_needed_human_readable !== null && settings.profile.quest.fields_needed_human_readable !== "") {
         var neededFields = settings.profile.quest.fields_needed_human_readable.split(','),
             fieldHTML = '<h5>Fields Needed</h5><ul>';
         for(var i = 0; i < neededFields.length; i++) {
+            if (neededFields[i] === "Verification Document") {
+                neededFields[i] = '<a href="' + uploadIdentificationID + '">' + neededFields[i] + '</a>';
+            }
             fieldHTML = fieldHTML.concat("<li>", neededFields[i], "</li>");
         }
         fieldHTML = fieldHTML.concat("</ul>");

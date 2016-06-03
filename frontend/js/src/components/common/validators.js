@@ -542,7 +542,7 @@ export function bankAccountValidator(bankAccountVal) {
                 selector: '#ssn',
                 validators: {
                     notEmpty: {
-                        message: "This value is require"
+                        message: "This value is required"
                     },
                     stringLength: {
                         max: 24,
@@ -554,7 +554,7 @@ export function bankAccountValidator(bankAccountVal) {
                 selector: '#account-owner',
                 validators: {
                     notEmpty: {
-                        message: "This value is require"
+                        message: "This value is required"
                     },
                     stringLength: {
                         max: 240,

@@ -57,7 +57,14 @@ var config = {
         // and it cause JS to crash on most page loads. We have not tried
         // removing require yet since this should propogate throughout the
         // site
-        'node_modules/medium-editor/dist/js/medium-editor.min.js',
+        // Also note that the current installation of medium in bower
+        // is one of many configurations that works but is required to get
+        // consistent functionality with teh medium editor insert plugin
+        // demo. Where you can drag and drop images into the editor after
+        // the first image is added. Also this is more consistent then having
+        // some require inserts and some globals with overlap. Until we can
+        // either have all the modules required we'll roll with this.
+        'bower_components/medium-editor/dist/js/medium-editor.min.js',
         'bower_components/medium-editor-autolist/dist/autolist.js',
         'node_modules/handlebars/dist/handlebars.runtime.min.js',
         'bower_components/jquery-sortable/source/js/jquery-sortable-min.js',
@@ -66,7 +73,7 @@ var config = {
         'js/vendor/fileupload/js/jquery.fileupload.js',
         // This is required to enable $().mediumInsert plugins to work.
         // require apparently doesn't support this functionality.
-        'node_modules/medium-editor-insert-plugin/dist/js/medium-editor-insert-plugin.min.js',
+        'bower_components/medium-editor-insert-plugin/dist/js/medium-editor-insert-plugin.min.js',
 
         /**
          *  Various "legacy" Js Files still in use somewhere.

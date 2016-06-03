@@ -1,7 +1,6 @@
 /* global AutoList, MediumEditor*/
 
 export function createMediumEditor(selectorString, placeholderText) {
-    require('medium-editor-insert-plugin');
     var autolist = new AutoList(),
         editor = new MediumEditor(".editable", {
             buttonLabels: 'fontawesome',

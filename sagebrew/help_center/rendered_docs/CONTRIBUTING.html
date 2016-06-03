@@ -1,109 +1,12 @@
-<h1>Contributing to typeahead.js</h1>
-<p><em>These contributing guidelines were proudly stolen from the 
-<a href="https://github.com/flightjs/flight">Flight</a> project</em></p>
-<p>Looking to contribute something to typeahead.js? Here's how you can help.</p>
-<h2>Bugs Reports</h2>
-<p>A bug is a <em>demonstrable problem</em> that is caused by the code in the
-repository. Good bug reports are extremely helpful – thank you!</p>
-<p>Guidelines for bug reports:</p>
-<ol>
-<li>
-<p><strong>Use the GitHub issue search</strong> &mdash; check if the issue has already been
-   reported.</p>
-</li>
-<li>
-<p><strong>Check if the issue has been fixed</strong> &mdash; try to reproduce it using the
-   latest <code>master</code> or integration branch in the repository.</p>
-</li>
-<li>
-<p><strong>Isolate the problem</strong> &mdash; ideally create a reduced test
-   case and a live example.</p>
-</li>
-<li>
-<p>Please try to be as detailed as possible in your report. Include specific
-   information about the environment – operating system and version, browser
-   and version, version of typeahead.js – and steps required to reproduce the 
-  issue.</p>
-</li>
-</ol>
-<h2>Feature Requests &amp; Contribution Enquiries</h2>
-<p>Feature requests are welcome. But take a moment to find out whether your idea
-fits with the scope and aims of the project. It's up to <em>you</em> to make a strong
-case for the inclusion of your feature. Please provide as much detail and
-context as possible.</p>
-<p>Contribution enquiries should take place before any significant pull request,
-otherwise you risk spending a lot of time working on something that we might
-have good reasons for rejecting.</p>
-<h2>Pull Requests</h2>
-<p>Good pull requests – patches, improvements, new features – are a fantastic
-help. They should remain focused in scope and avoid containing unrelated
-commits.</p>
-<p>Make sure to adhere to the coding conventions used throughout the codebase
-(indentation, accurate comments, etc.) and any other requirements (such as test
-coverage).</p>
-<p>Please follow this process; it's the best way to get your work included in the
-project:</p>
-<ol>
-<li><a href="http://help.github.com/fork-a-repo/">Fork</a> the project, clone your fork,
-   and configure the remotes:</li>
-</ol>
-<p><code>bash
-   # Clone your fork of the repo into the current directory
-   git clone https://github.com/&lt;your-username&gt;/typeahead.js
-   # Navigate to the newly cloned directory
-   cd &lt;repo-name&gt;
-   # Assign the original repo to a remote called "upstream"
-   git remote add upstream git://github.com/twitter/typeahead.js</code></p>
-<ol>
-<li>If you cloned a while ago, get the latest changes from upstream:</li>
-</ol>
-<p><code>bash
-   git checkout master
-   git pull upstream master</code></p>
-<ol>
-<li>Install the dependencies (you must have Node.js and <a href="http://bower.io">Bower</a>
-   installed), and create a new topic branch (off the main project development
-   branch) to contain your feature, change, or fix:</li>
-</ol>
-<p><code>bash
-   npm install
-   bower install
-   git checkout -b &lt;topic-branch-name&gt;</code></p>
-<ol>
-<li>
-<p>Make sure to update, or add to the tests when appropriate. Patches and
-   features will not be accepted without tests. Run <code>npm test</code> to check that
-   all tests pass after you've made changes.</p>
-</li>
-<li>
-<p>Commit your changes in logical chunks. Provide clear and explanatory commit
-   messages. Use Git's <a href="https://help.github.com/articles/interactive-rebase">interactive rebase</a> feature to tidy up
-   your commits before making them public.</p>
-</li>
-<li>
-<p>Locally merge (or rebase) the upstream development branch into your topic branch:</p>
-</li>
-</ol>
-<p><code>bash
-   git pull [--rebase] upstream master</code></p>
-<ol>
-<li>Push your topic branch up to your fork:</li>
-</ol>
-<p><code>bash
-   git push origin &lt;topic-branch-name&gt;</code></p>
-<ol>
-<li>
-<p><a href="https://help.github.com/articles/using-pull-requests/">Open a Pull Request</a>
-    with a clear title and description.</p>
-</li>
-<li>
-<p>If you are asked to amend your changes before they can be merged in, please
-   use <code>git commit --amend</code> (or rebasing for multi-commit Pull Requests) and
-   force push to your remote feature branch. You may also be asked to squash
-   commits.</p>
-</li>
-</ol>
-<h2>License</h2>
-<p>By contributing your code,</p>
-<p>You agree to license your contribution under the terms of the MIT License
-https://github.com/twitter/typeahead.js/blob/master/LICENSE</p>
+<p>Thanks for your interest in contributing!</p>
+<h2>Filing issues</h2>
+<p><code>jQuery.payment</code> is not currently accepting feature requests. We <em>are</em> interested in fixing bugs and updating credit card BINs where appropriate. Please file issues for these items only.</p>
+<p>When filing bugs, make sure to follow the issue template. When reporting credit card BIN changes, please include links to supporting documentation.</p>
+<h2>Submitting pull requests</h2>
+<p>We will happily review and merge pull requests for bugs and card number changes. When submitting a pull request:</p>
+<ul>
+<li>Ensure that the code and commit message are well-commented and grammatically correct.</li>
+<li>Follow the style of the rest of the code, where possible.</li>
+<li>Make sure that your diff is the minimal set of changes necessary to fix the bug in question.</li>
+<li>Follow the pull request template.</li>
+</ul>

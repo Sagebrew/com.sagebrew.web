@@ -436,7 +436,7 @@ def render_content(content):
             if "padding-top: 0; margin-top: 5px;" \
                     not in soup.h2.get('style', ''):
                 soup.h2['style'] = soup.h2.get(
-                    'style', '').join("padding-top: 0; margin-top: 5px;")
+                    'style', '') + "padding-top: 0; margin-top: 5px;"
             content = str(soup).replace("<html><body>", "") \
                 .replace("</body></html>", "")
         elif content[:4] == "<h3>" or content[:4] == "<h3 ":
@@ -444,7 +444,7 @@ def render_content(content):
             if "padding-top: 0; margin-top: 5px;" \
                     not in soup.h3.get('style', ''):
                 soup.h3['style'] = soup.h3.get(
-                    'style', '').join("padding-top: 0; margin-top: 5px;")
+                    'style', '') + "padding-top: 0; margin-top: 5px;"
             content = str(soup).replace("<html><body>", "") \
                 .replace("</body></html>", "")
         # Iterate through each image tag within the document and add the

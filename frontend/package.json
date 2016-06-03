@@ -50,8 +50,6 @@
     "drmonty-garlicjs": "^1.2.3",
     "handlebars": "^4.0.5",
     "highcharts": "^4.2.5",
-    "medium-editor": "^5.19.1",
-    "medium-editor-insert-plugin": "^2.3.2",
     "moment": "^2.13.0",
     "stripe": "^4.1.0"
   }

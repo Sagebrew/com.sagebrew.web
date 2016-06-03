@@ -1,4 +1,4 @@
-/* global $*/
+/* global $ */
 
 function prepareDonationData(donationData) {
     var parsedData = [],
@@ -10,14 +10,14 @@ function prepareDonationData(donationData) {
         startYear = new Date(
             donationData[0].created.toLocaleString()).getFullYear();
         $.each(donationData, function (index, value) {
-            tempTotal += parseFloat(value.actual_amount);
+            tempTotal += parseFloat(value.actual_amount.replace(/,/g, ''));
             lifetimeTotalData.push(tempTotal);
             var tempDate = new Date(value.created.toLocaleString());
             parsedData.push([Date.UTC(
                 tempDate.getFullYear(), tempDate.getMonth(),
                 tempDate.getDate(), tempDate.getHours(),
                 tempDate.getMinutes(), tempDate.getSeconds()),
-                parseFloat(value.actual_amount)]);
+                parseFloat(value.actual_amount.replace(/,/g, ''))]);
             parsedShortData.push([Date.UTC(
                 tempDate.getFullYear(), tempDate.getMonth(),
                 tempDate.getDate()), value.actual_amount]);
@@ -34,9 +34,15 @@ function prepareDonationData(donationData) {
 }
 
 export function donationsGraph(data, elementID) {
-    require('highcharts');
+    var Highcharts = require('highcharts');
+    require('highcharts/modules/exporting')(Highcharts);
     var preparedData = prepareDonationData(data.results);
     // Create a scatter plot showing each donation received as a point
+    Highcharts.setOptions({
+        lang: {
+            thousandsSep: ','
+        }
+    });
     $(elementID).highcharts({
         chart: {
             type: 'scatter',
@@ -63,7 +69,7 @@ export function donationsGraph(data, elementID) {
         },
         tooltip: {
             headerFormat: '<b>Donation</b><br>',
-            pointFormat: '{point.x:%e. %b}: ${point.y}'
+            pointFormat: '{point.x:%e. %b}: ${point.y:,.2f}'
         },
         plotOptions: {
             spline: {

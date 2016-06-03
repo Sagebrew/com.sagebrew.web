@@ -29,6 +29,7 @@ class MissionEndpointTests(APITestCase):
     def setUp(self):
         query = "MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n,r"
         db.cypher_query(query)
+        cache.clear()
         self.unit_under_test_name = 'quest'
         self.email = "success@simulator.amazonses.com"
         self.pleb = create_user_util_test(self.email)
@@ -1206,11 +1207,8 @@ class MissionEndpointTests(APITestCase):
         self.assertEqual(mission.epic, mission.temp_epic)
 
     def test_review_mission(self):
-        try:
-            self.user = User.objects.get(username="tyler_wiersing")
-        except User.DoesNotExist:
-            self.user.username = "tyler_wiersing"
-            self.user.save()
+        self.user.username = "tyler_wiersing"
+        self.user.save()
         self.client.force_authenticate(user=self.user)
         url = "/v1/missions/%s/review/" % self.mission.object_uuid
         data = {
@@ -1223,11 +1221,8 @@ class MissionEndpointTests(APITestCase):
         self.assertIn("too_short", self.mission.review_feedback)
 
     def test_review_mission_take_active(self):
-        try:
-            self.user = User.objects.get(username="tyler_wiersing")
-        except User.DoesNotExist:
-            self.user.username = "tyler_wiersing"
-            self.user.save()
+        self.user.username = "tyler_wiersing"
+        self.user.save()
         self.client.force_authenticate(user=self.user)
         self.mission.active = False
         self.mission.save()
@@ -1311,5 +1306,26 @@ class MissionEndpointTests(APITestCase):
         res = self.client.patch(url, data=data, format="json")
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertTrue(res.data['submitted_for_review'])
+        pleb2.delete()
+        cache.clear()
+
+    def test_update_epic_with_problems(self):
+        try:
+            pleb2 = Pleb.nodes.get(username=settings.INTERCOM_USER_ID_DEVON)
+        except (Pleb.DoesNotExist, DoesNotExist):
+            pleb2 = Pleb(username=settings.INTERCOM_USER_ID_DEVON).save()
+        self.client.force_authenticate(user=self.user)
+        self.mission.submitted_for_review = True
+        self.mission.review_feedback = ['too_short']
+        self.mission.active = False
+        self.mission.save()
+        cache.clear()
+        url = "/v1/missions/%s/" % self.mission.object_uuid
+        data = {
+            "epic": "<p>This is an epic update!</p>"
+        }
+        res = self.client.patch(url, data=data, format="json")
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data['epic'], data['epic'])
         pleb2.delete()
         cache.clear()

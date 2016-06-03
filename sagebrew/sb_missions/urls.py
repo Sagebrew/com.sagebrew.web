@@ -58,7 +58,7 @@ urlpatterns = patterns(
         name="mission_update_settings"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'manage/updates/create/$',
-        MissionSettingsView.as_view(template_name='manage/update_create.html'),
+        MissionSettingsView.as_view(template_name='updates/create.html'),
         name="mission_update_create"),
     url(r'^(?P<object_uuid>[A-Za-z0-9.@_%+-]{36})/(?P<slug>[-\w]+)/'
         r'manage/updates/(?P<edit_id>[A-Za-z0-9.@_%+-]{36})/edit/$',

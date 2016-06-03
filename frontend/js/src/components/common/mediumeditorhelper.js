@@ -1,10 +1,8 @@
-/* global AutoList */
-var mediumEditor = require('medium-editor');
+/* global AutoList, MediumEditor*/
 
 export function createMediumEditor(selectorString, placeholderText) {
-    require('medium-editor-insert-plugin');
     var autolist = new AutoList(),
-        editor = new mediumEditor(".editable", {
+        editor = new MediumEditor(".editable", {
             buttonLabels: 'fontawesome',
             placeholder: {text: placeholderText, hideOnClick: true},
             autoLink: true,
@@ -15,7 +13,11 @@ export function createMediumEditor(selectorString, placeholderText) {
                     'justifyLeft', 'justifyCenter', 'justifyRight', 'quote']
             },
             extensions: {
-                'autolist': autolist
+                'autolist': autolist,
+                'fileDragging': {}
+            },
+            anchor: {
+                linkValidation: true
             }
         });
     // Uploading images here via fileUploadOptions because submitting the

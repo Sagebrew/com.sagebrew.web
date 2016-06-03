@@ -44,7 +44,7 @@ def mission_edit_updates(request, object_uuid, slug=None, edit_id=None):
                 for row in res]
     mission_obj = Mission.inflate(res.one.mission)
     return render(
-        request, 'manage/edit_update.html', {
+        request, 'updates/edit.html', {
             "update": UpdateSerializer(
                 Update.inflate(res.one.update)).data,
             "mission": MissionSerializer(mission_obj).data,

@@ -17,11 +17,10 @@
         <div class="block-content">
             <form id="updateForm">
 
-                <textarea class="form-control no-border no-padding-left font-size-26"
+                <input class="form-control no-border no-padding-left font-size-26"
                           name="title"
                           placeholder="Enter the title..."
-                          id="js-title"
-                          rows="1">{{ update.title }}</textarea>
+                          id="js-title" value="{{ update.title }}">
                 <div class="sb_markdown">
                     <textarea class="editable"
                           name="content"

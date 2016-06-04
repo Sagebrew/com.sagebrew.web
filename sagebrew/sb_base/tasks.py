@@ -18,18 +18,23 @@ def create_email(message_data):
         Message.create(**message_data)
     except (ResourceNotFound, UnexpectedError) as e:
         raise create_email.retry(exc=e, countdown=10, max_retries=None)
-    except RateLimitExceeded as e:
+    except RateLimitExceeded as e:  # pragma: no cover
         # We don't want to continue bashing their API if we've
         # hit our limit. Intercom may then reduce our overall limit as
         # highlighted here
         # https://developers.intercom.io/reference#rate-limiting
+        # Not covering because Intercom does not have a good way of
+        # simulating these conditions as of 06/04/2016  - Devon Bleibtrey
         raise create_email.retry(exc=e, countdown=3600, max_retries=None)
+    except AuthenticationError as e:  # pragma: no cover
+        # AuthenticationError can be caused by a user selecting
+        # Unsubscribe from email. So we only retry this a limited amount of
+        # times before giving up.
+        # Not covering because Intercom does not have a good way of
+        # simulating these conditions as of 06/04/2016  - Devon Bleibtrey
+        raise create_email.retry(exc=e, countdown=3600, max_retries=10)
     except (ServerError, ServiceUnavailableError,
-            BadGatewayError, HttpError,
-            AuthenticationError) as e:  # pragma: no cover
-        # FYI AuthenticationError can be caused by a user selecting
-        # Unsubscribe from email. So This may not be the best place to catch
-        # it.
+            BadGatewayError, HttpError) as e:  # pragma: no cover
         # Not covering because Intercom does not have a good way of
         # simulating these conditions as of 04/16/2016  - Devon Bleibtrey
         raise create_email.retry(exc=e, countdown=60, max_retries=None)
@@ -58,9 +63,15 @@ def create_event(event_name, username, metadata=None):
         # highlighted here
         # https://developers.intercom.io/reference#rate-limiting
         raise create_email.retry(exc=e, countdown=86400, max_retries=None)
+    except AuthenticationError as e:  # pragma: no cover
+        # AuthenticationError can be caused by a user selecting
+        # Unsubscribe from email. So we only retry this a limited amount of
+        # times before giving up.
+        # Not covering because Intercom does not have a good way of
+        # simulating these conditions as of 06/04/2016  - Devon Bleibtrey
+        raise create_email.retry(exc=e, countdown=3600, max_retries=10)
     except (ServerError, ServiceUnavailableError,
-            BadGatewayError, HttpError,
-            AuthenticationError) as e:  # pragma: no cover
+            BadGatewayError, HttpError) as e:  # pragma: no cover
         # FYI AuthenticationError can be caused by a user selecting
         # Unsubscribe from email. So This may not be the best place to catch
         # it.

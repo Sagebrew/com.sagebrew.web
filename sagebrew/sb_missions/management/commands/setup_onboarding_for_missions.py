@@ -1,6 +1,4 @@
 from django.core.management.base import BaseCommand
-from django.core.cache import cache
-
 
 from sb_missions.neo_models import Mission
 from sb_missions.utils import setup_onboarding

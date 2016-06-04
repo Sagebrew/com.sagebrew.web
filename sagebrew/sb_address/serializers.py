@@ -27,16 +27,16 @@ class AddressSerializer(SBSerializer):
     validated = serializers.BooleanField(required=False)
 
     def create(self, validated_data):
-        validated_data['state'] = us.states.lookup(
-            validated_data['state']).name
+        state = us.states.lookup(
+            validated_data['state'])
         # If we weren't able to get the state with the first lookup make sure
         # no dashes or periods were entered. This is mainly to assist users
         # who fat finger a key
         if validated_data['state'] is None:
-            validated_data['state'] = us.states.lookup(
+            state = us.states.lookup(
                 validated_data['state'].replace(
-                    '.', '').replace('-', ' ').strip()).name
-
+                    '.', '').replace('-', ' ').strip())
+        validated_data['state'] = state.name
         if not validated_data.get('country', False):
             validated_data['country'] = "USA"
         address = Address(**validated_data).save()

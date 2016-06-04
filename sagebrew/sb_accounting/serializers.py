@@ -133,7 +133,7 @@ class AccountSerializer(SBSerializer):
                     'subject': 'Quest Verified',
                     'body': "Hi Team,\n%s's Quest has been verified by Stripe. "
                             "Please review it in the <a href='%s'>"
-                            "council area</a>"
+                            "council area</a>."
                             % (quest.owner_username,
                                reverse('council_missions')),
                     'template': "personal",

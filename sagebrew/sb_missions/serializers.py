@@ -456,7 +456,7 @@ class MissionSerializer(SBSerializer):
             return "unknown"
 
 
-class MissionReviewSerializer(MissionSerializer):
+class MissionReviewSerializer(SBSerializer):
     """
     Using this serializer in place of the traditional MissionSerializer due
     to the operations being performed on the Mission being restricted to our
@@ -544,5 +544,9 @@ class MissionReviewSerializer(MissionSerializer):
             # hold up the mission activation process
             if serializer.is_valid():
                 serializer.save()
+        instance.save()
         cache.delete("%s_mission" % instance.object_uuid)
-        return instance.save()
+        if instance.active:
+            return super(MissionReviewSerializer, self).update(
+                instance, validated_data)
+        return instance

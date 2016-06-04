@@ -6,8 +6,14 @@
             </div>
         </div>
         <div class="col-xs-8 search-content-block">
-            <h6><a href="{{ url }}">{{title}}</a></h6>
-            <p>{{ about }}</p>
+            <h6><a href="{{ url }}">{{title}}{{#if position_mission}} - {{ location.name }}{{/if}}</a></h6>
+            <p>
+                {{#if about }}
+                    {{about}}
+                {{else}}
+                    A {{level}} level {{focus_on_type}} mission.
+                {{/if}}
+            </p>
         </div>
       </div>
 </div>

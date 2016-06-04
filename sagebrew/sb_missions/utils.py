@@ -32,7 +32,7 @@ def setup_onboarding(quest, mission):
             onboarding_task['url'] = onboarding_task['url'] % (
                 settings.WEB_ADDRESS, quest.owner_username)
         onboarding_task.pop('type', None)
-        # Necessary to ensure independence
+        # Necessary to ensure idempotency
         check_query = 'MATCH (mission:Mission {object_uuid: "%s"})' \
                       '-[:MUST_COMPLETE]->' \
                       '(task:OnboardingTask {title: "%s"}) ' \

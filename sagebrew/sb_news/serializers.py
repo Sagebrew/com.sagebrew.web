@@ -132,6 +132,9 @@ class NewsArticleSerializer(VotableContentSerializer):
         for site in settings.UNSUPPORTED_UPLOAD_SITES:
             if site in value:
                 raise ValidationError("Site not currently supported")
+        for site in settings.BLOCKED_SITE:
+            if site in value:
+                raise ValidationError("Blocked Site")
         query = 'MATCH (news:NewsArticle {url: "%s"}) ' \
                 'RETURN news' % value
         res, _ = db.cypher_query(query)

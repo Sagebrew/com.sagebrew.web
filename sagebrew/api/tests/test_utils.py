@@ -321,8 +321,10 @@ class TestRenderContent(TestCase):
                   'class="medium-insert-action"><span class="fa ' \
                   'fa-youtube-play"></span></a></li>' \
                   '</ul></div><div><p>end world</p></div>'
-        rendered_content = '<div><p>hello world</p></div>' \
-                           '<div><p>end world</p></div>'
+        rendered_content = '<div><p>hello world</p><p ' \
+                           'class="medium-insert-active" style="text-align: ' \
+                           'center;"><i><br/></i></p></div><div>' \
+                           '<p>end world</p></div>'
         res = render_content(content)
         self.assertEqual(res, rendered_content)
 

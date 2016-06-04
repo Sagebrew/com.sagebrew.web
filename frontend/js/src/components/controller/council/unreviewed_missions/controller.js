@@ -1,5 +1,5 @@
 var request = require('api').request,
-    reviewedMissionTemplate = require('controller/council/templates/reviewed_missions.hbs'),
+    reviewedMissionTemplate = require('controller/council/templates/review_missions_list.hbs'),
     moment = require('moment');
 
 
@@ -25,7 +25,12 @@ export function load() {
     var $missionWrapper = $("#js-mission-verification-wrapper");
     request.get({url: '/v1/missions/?submitted_for_review=true&active=false'})
         .done(function(data) {
-            $missionWrapper.append(reviewedMissionTemplate({missions: data.results, review_string: "To Be Reviewed"}));
+            $missionWrapper.append(reviewedMissionTemplate(
+                {
+                    missions: data.results, 
+                    review_string: "To Be Reviewed",
+                    pending_review: true
+                }));
             $('[data-toggle="tooltip"]').tooltip();
             $(".mission-created").each(function(){
                 var $this = $(this),

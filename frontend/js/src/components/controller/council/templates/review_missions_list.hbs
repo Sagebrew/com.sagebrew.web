@@ -10,6 +10,11 @@
             <th>
                 Activation Status
             </th>
+            {{# if pending_review }}
+                <th>
+                    Actions
+                </th>
+            {{/if}}
         </tr>
         {{#each missions}}
             <tr>
@@ -22,6 +27,15 @@
                 <td>
                     {{this.active}}
                 </td>
+                {{# if ../pending_review }}
+                    <td>
+                        <a href="/council/missions/{{this.id}}/review/"
+                           class="sb-action-icon"
+                           data-object_uuid="{{this.id}}">
+                            <i class="fa fa-search" aria-hidden="true"></i>
+                        </a>
+                    </td>
+                {{/if}}
             </tr>
         {{ else }}
             <tr>

@@ -14,7 +14,7 @@ from api.utils import (add_failure_to_queue,
                        generate_long_token, smart_truncate,
                        gather_request_data, flatten_lists,
                        calc_stripe_application_fee, clean_url,
-                       empty_text_to_none, generate_summary)
+                       empty_text_to_none, generate_summary, render_content)
 from sb_questions.neo_models import Question
 
 
@@ -272,4 +272,60 @@ class TestGenerateSummary(TestCase):
 
     def test_none(self):
         res = generate_summary(None)
+        self.assertEqual(res, "")
+
+
+class TestRenderContent(TestCase):
+
+    def test_no_text(self):
+        res = render_content("")
+        self.assertEqual("", res)
+
+    def test_create_with_h3_first(self):
+        content = "<h3> hello world this is a h3 </h3><br>" \
+                  "<h2> with a h2 after it </h2><br>" \
+                  "<h3> another h3 </h3><br>" \
+                  "and then some text"
+        rendered_content = '<h3 style="padding-top: 0; margin-top: 5px;"> ' \
+                           'hello world this is a h3 </h3><br/><h2> with a ' \
+                           'h2 after it </h2><br/><h3> another h3 </h3><br/>' \
+                           'and then some text'
+        res = render_content(content)
+        self.assertEqual(res, rendered_content)
+
+    def test_create_with_h2_first(self):
+        content = "<h2> hello world this is a h2 </h2><br>" \
+                  "<h3> with a h3 after it </h3><br>" \
+                  "<h2 another h2 </h2><br>" \
+                  "and then some text"
+        rendered_content = '<h2 style="padding-top: 0; margin-top: 5px;"> ' \
+                           'hello world this is a h2 </h2><br/><h3> with a ' \
+                           'h3 after it </h3><br/><h2 another="" h2=""><br/>' \
+                           'and then some text</h2>'
+        res = render_content(content)
+        self.assertEqual(res, rendered_content)
+
+    def test_with_medium_editor_insert_plus(self):
+        content = '<div><p>hello world</p><p style="text-align: center;" ' \
+                  'class="medium-insert-active"><i><br></i></p></div>' \
+                  '<div class="medium-insert-buttons" ' \
+                  'contenteditable="false" style="left: 35px; top: 1007px; ' \
+                  'display: block;">' \
+                  '<a class="medium-insert-buttons-show">+</a>' \
+                  '<ul class="medium-insert-buttons-addons" ' \
+                  'style="display: none">' \
+                  '<li><a data-addon="images" ' \
+                  'data-action="add" class="medium-insert-action">' \
+                  '<span class="fa fa-camera"></span></a></li>' \
+                  '<li><a data-addon="embeds" data-action="add" ' \
+                  'class="medium-insert-action"><span class="fa ' \
+                  'fa-youtube-play"></span></a></li>' \
+                  '</ul></div><div><p>end world</p></div>'
+        rendered_content = '<div><p>hello world</p></div>' \
+                           '<div><p>end world</p></div>'
+        res = render_content(content)
+        self.assertEqual(res, rendered_content)
+
+    def test_none(self):
+        res = render_content(None)
         self.assertEqual(res, "")

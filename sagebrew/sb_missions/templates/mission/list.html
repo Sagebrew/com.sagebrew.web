@@ -27,7 +27,7 @@
                 <li {% if request.user.is_authenticated == True and request_profile.has_address == False %}
                     class="disabled" data-toggle="tooltip"
                     title="Please enter your address to filter on Missions that affect you"
-                {% else %}
+                {% elif request.user.is_authenticated == False %}
                     class="disabled" data-toggle="tooltip"
                     title="Please signup to filter Missions"
                 {% endif %}>

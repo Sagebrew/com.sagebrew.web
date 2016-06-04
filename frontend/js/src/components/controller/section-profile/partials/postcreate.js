@@ -217,9 +217,6 @@ export function load () {
                 document.getElementById("js-post-" + data.id).innerHTML = '<p>' + Autolinker.link(data.content) + '</p>';
                 $('#js-edit-container-' + objectID).hide();
                 $("#js-post-" + objectID).show();
-            }).fail(function () {
-                $('#js-edit-container-' + objectID).hide();
-                $("#js-post-" + objectID).show();
             });
         })
         .on('click', '.js-delete-post', function() {

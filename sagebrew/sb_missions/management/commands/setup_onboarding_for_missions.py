@@ -13,8 +13,6 @@ class Command(BaseCommand):
         for mission in Mission.nodes.all():
             quest = Mission.get_quest(mission.object_uuid)
             setup_onboarding(quest, mission)
-        cache.set('onboard_setup', True)
 
     def handle(self, *args, **options):
-        if not cache.get('onboard_setup'):
-            self.setup_onboarding_retroactive()
+        self.setup_onboarding_retroactive()

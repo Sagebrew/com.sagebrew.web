@@ -27,9 +27,12 @@ def create_email(message_data):
     except (ServerError, ServiceUnavailableError,
             BadGatewayError, HttpError,
             AuthenticationError) as e:  # pragma: no cover
+        # FYI AuthenticationError can be caused by a user selecting
+        # Unsubscribe from email. So This may not be the best place to catch
+        # it.
         # Not covering because Intercom does not have a good way of
         # simulating these conditions as of 04/16/2016  - Devon Bleibtrey
-        raise create_email.retry(exc=e, countdown=120, max_retries=None)
+        raise create_email.retry(exc=e, countdown=60, max_retries=None)
 
 
 @shared_task()
@@ -58,6 +61,9 @@ def create_event(event_name, username, metadata=None):
     except (ServerError, ServiceUnavailableError,
             BadGatewayError, HttpError,
             AuthenticationError) as e:  # pragma: no cover
+        # FYI AuthenticationError can be caused by a user selecting
+        # Unsubscribe from email. So This may not be the best place to catch
+        # it.
         # Not covering because Intercom does not have a good way of
         # simulating these conditions as of 04/16/2016  - Devon Bleibtrey
-        raise create_event.retry(exc=e, countdown=10, max_retries=None)
+        raise create_event.retry(exc=e, countdown=43200, max_retries=None)

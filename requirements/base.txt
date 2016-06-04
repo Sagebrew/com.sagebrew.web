@@ -32,9 +32,9 @@ python-dateutil==2.4.2
 python-memcached==1.57
 pytz==2016.3
 redis==2.10.5
-requests==2.7.0
+requests==2.10.0
 shortuuid==0.4.2
-six==1.9.0
+six==1.10.0
 stripe==1.32.2
 supervisor==3.2.3
 neomodel==2.0.2

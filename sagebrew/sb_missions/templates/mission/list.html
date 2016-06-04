@@ -24,15 +24,20 @@
         </div>
         <div class="block-content">
             <ul class="nav nav-list nav-list-vivid" id="js-affect-filter">
-                <li {% if request.user.is_authenticated == False or request_profile.has_address == False %}
+                <li {% if request.user.is_authenticated == True and request_profile.has_address == False %}
                     class="disabled" data-toggle="tooltip"
                     title="Please enter your address to filter on Missions that affect you"
+                {% elif request.user.is_authenticated == False %}
+                    class="disabled" data-toggle="tooltip"
+                    title="Please signup to filter Missions"
                 {% endif %}>
                     <a id="me" {% if request.user.is_authenticated and request_profile.has_address %}class="js-affect-filter"{% endif %} href="#">
                         You
                     </a>
                 </li>
-                <li {% if request.user.is_authenticated == False %}class="disabled"{% endif %}>
+                <li {% if request.user.is_authenticated == False %}
+                    class="disabled" data-toggle="tooltip"
+                    title="Please signup to filter Missions"{% endif %}>
                     <a id="friends" {% if request.user.is_authenticated %}class="js-affect-filter"{% endif %} href="#">
                         Following
                     </a>

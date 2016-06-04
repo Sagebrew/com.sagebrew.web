@@ -172,7 +172,7 @@ class AddressEndpointTests(APITestCase):
 
         self.assertGreater(response.data['count'], 0)
 
-    def test_create_address(self):
+    def test_create_address_with_patch(self):
         self.client.force_authenticate(user=self.user)
         url = reverse('address-list')
         data = {
@@ -187,6 +187,38 @@ class AddressEndpointTests(APITestCase):
         response = self.client.patch(url, data=data, format='json')
         self.assertEqual(response.status_code,
                          status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_create_address(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('address-list')
+        data = {
+            'city': "Walled Lake",
+            'longitude': -83.48016,
+            'state': "MI",
+            'street': "300 Eagle Pond Dr.",
+            'postal_code': "48390-3071",
+            'congressional_district': "11",
+            'latitude': 42.54083
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['city'], 'Walled Lake')
+
+    def test_create_address_with_mistakes(self):
+        self.client.force_authenticate(user=self.user)
+        url = reverse('address-list')
+        data = {
+            'city': "Walled Lake",
+            'longitude': -83.48016,
+            'state': "MI.- ",
+            'street': "300 Eagle Pond Dr.",
+            'postal_code': "48390-3071",
+            'congressional_district': "11",
+            'latitude': 42.54083
+        }
+        response = self.client.post(url, data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['state'], 'Michigan')
 
     def test_update(self):
         self.client.force_authenticate(user=self.user)

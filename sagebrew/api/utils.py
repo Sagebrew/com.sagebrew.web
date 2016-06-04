@@ -447,6 +447,13 @@ def render_content(content):
                     'style', '') + "padding-top: 0; margin-top: 5px;"
             content = str(soup).replace("<html><body>", "") \
                 .replace("</body></html>", "")
+        if 'medium-insert-buttons' in content:
+            soup = BeautifulSoup(content, 'lxml')
+            [div.extract() for div in soup.findAll(
+                'div', {"class": "medium-insert-buttons"})]
+            content = str(soup).replace("<html><body>", "") \
+                .replace("</body></html>", "")
+
         # Iterate through each image tag within the document and add the
         # necessary a tag for lightbox to work.
         return content

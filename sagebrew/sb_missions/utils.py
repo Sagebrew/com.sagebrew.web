@@ -32,15 +32,24 @@ def setup_onboarding(quest, mission):
             onboarding_task['url'] = onboarding_task['url'] % (
                 settings.WEB_ADDRESS, quest.owner_username)
         onboarding_task.pop('type', None)
-        onboarding_ser = OnboardingTaskSerializer(data=onboarding_task)
-        onboarding_ser.is_valid(raise_exception=True)
-        onboarding = onboarding_ser.save()
-        on_query = 'MATCH (mission:Mission {object_uuid: "%s"}), ' \
-                   '(task:OnboardingTask {object_uuid: "%s"}) ' \
-                   'CREATE UNIQUE (mission)-[:MUST_COMPLETE]->(task) ' \
-                   'RETURN task' % (mission.object_uuid,
-                                    onboarding.object_uuid)
-        db.cypher_query(on_query)
+        # Necessary to ensure idempotency
+        check_query = 'MATCH (mission:Mission {object_uuid: "%s"})' \
+                      '-[:MUST_COMPLETE]->' \
+                      '(task:OnboardingTask {title: "%s"}) ' \
+                      'RETURN task' % (mission.object_uuid,
+                                       onboarding_task['title'])
+        res, _ = db.cypher_query(check_query)
+        if res.one is None:
+            # If the task doesn't exist create it
+            onboarding_ser = OnboardingTaskSerializer(data=onboarding_task)
+            onboarding_ser.is_valid(raise_exception=True)
+            onboarding = onboarding_ser.save()
+            on_query = 'MATCH (mission:Mission {object_uuid: "%s"}), ' \
+                       '(task:OnboardingTask {object_uuid: "%s"}) ' \
+                       'CREATE UNIQUE (mission)-[:MUST_COMPLETE]->(task) ' \
+                       'RETURN task' % (mission.object_uuid,
+                                        onboarding.object_uuid)
+            db.cypher_query(on_query)
     return True
 
 

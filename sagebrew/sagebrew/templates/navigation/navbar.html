@@ -5,12 +5,14 @@
     <header class="navbar navbar-static-top navbar-fixed-top hidden-xs">
         <div class="container-fluid">
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <button type="button" class="navbar-toggle collapsed"
+                        data-toggle="collapse" data-target="#navbar"
+                        aria-expanded="false" aria-controls="navbar">
                     <span class="sr-only">Toggle navigation</span>
                     <i class="fa fa-bars"></i>
                 </button>
                 <a href="{% url 'root_profile_page' %}" class="navbar-brand">
-                    <img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/>Sagebrew
+                    <img id="nav-logo" alt="Sagebrew Logo" src="{% static 'images/icon_sage.png' %}"/><span class="hidden-sm">Sagebrew</span>
                 </a>
             </div>
             <div id="navbar" class="collapse navbar-collapse">
@@ -24,7 +26,7 @@
                         </li>
                     </ul>
                 {% endif %}
-                <div class="navbar-right">
+                <div class="navbar-right margin-right-0">
                     {% if user.is_authenticated and "/registration/" not in request.path %}
                         {% include "navigation/auth-user-menu.html" %}
                     {% elif user.is_anonymous %}
@@ -40,7 +42,10 @@
         <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <button type="button" class="navbar-toggle collapsed"
+                        data-toggle="collapse"
+                        data-target="#bs-example-navbar-collapse-1"
+                        aria-expanded="false">
                     <span class="sr-only">Toggle navigation</span>
                     <i class="fa fa-bars"></i>
                 </button>

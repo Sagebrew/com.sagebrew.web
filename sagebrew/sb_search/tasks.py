@@ -154,6 +154,18 @@ def update_search_object(object_uuid, label=None, object_data=None,
     elif label == "mission":
         instance = Mission.inflate(res.one)
         object_data = MissionSerializer(instance).data
+        # Need to pop review_feedback because ES's serializer cannot parse
+        # set types.
+        # If we don't pop it we receive
+        # TypeError("Unable to serialize set([]) (type: <type 'set'>)",))
+        # If we can submit a JSON serialized version we can get around this by
+        # using:
+        # from rest_framework.renderers import JSONRenderer
+        # JSONRenderer().render(serializer.data)
+        # Also please note python's json.dumps() function runs into this same
+        # issue.
+        if 'review_feedback' in object_data:
+            object_data.pop('review_feedback', None)
         if 'quest' in object_data:
             object_data.pop('quest')
         logger.critical(object_data)
